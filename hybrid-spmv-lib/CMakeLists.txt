@@ -5,18 +5,23 @@ cmake_minimum_required (VERSION 3.10)
 
 #	d) auto
 
-## 2) CUCUBLAS TODO: Other backends?
-set (CUDA_PREFIX "/usr/local/cuda")
+## 2) CUDA PREFIX
+set (CUDA_TOOLKIT_ROOT_DIR "/usr/local/cuda-9.2")
 
 # 	a) Compiler
-set (CMAKE_CUDA_COMPILER ${CUDA_PREFIX}/bin/nvcc)
+set (CMAKE_CUDA_COMPILER ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvcc)
 
 # 	b) Compile flags
 set (CMAKE_CUDA_FLAGS "-w -O3 -arch=sm_70") #35 for Tesla K40, 70 for V100, 61 for GTX 1060/70
 message("CMAKE_CUDA_FLAGS: " ${CMAKE_CUDA_FLAGS})
 
+#	c) Architecture 
+if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+  set(CMAKE_CUDA_ARCHITECTURES 70)
+endif()
+
 ## 4) ITER run for benchmark results
-add_definitions(-DNR_ITER=1280)
+add_definitions(-DNR_ITER=128)
 
 ## 5) Define full DDEBUG
 #add_definitions(-DDDEBUG)
@@ -50,10 +55,10 @@ execute_process(COMMAND python3-config --ldflags OUTPUT_VARIABLE PYTHON_LINK OUT
 message( "PYTHON_LINK: " ${PYTHON_LINK} )
 
 ## CUDA libs and includes
-set (CUDA_INCLUDE_DIRS ${CUDA_PREFIX}/include ${CUDA_PREFIX}/samples/common/inc)
+set (CUDA_INCLUDE_DIRS ${CUDA_TOOLKIT_ROOT_DIR}/include ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc)
 include_directories(${CUDA_INCLUDE_DIRS} )
 message( "CUDA_INCLUDE_DIRS: " ${CUDA_INCLUDE_DIRS} )
-set (CUDA_LD "${CUDA_PREFIX}/lib64,${CUDA_PREFIX}/lib")
+set (CUDA_LD "${CUDA_TOOLKIT_ROOT_DIR}/lib64,${CUDA_TOOLKIT_ROOT_DIR}/lib")
 set (CUDA_LINK "-lcudart -lcublas -lcusparse") # -L${CUDA_LD} 
 message( "CUDA_LINK: " ${CUDA_LINK} )
 
@@ -95,18 +100,48 @@ message( "INTERNAL_LINK_LIB: " ${INTERNAL_LINK_LIB})
 
 file(GLOB SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.c* ${NVMLAPI_PREFIX}/*.cpp)
 message( "SOURCE_FILES: " ${SOURCE_FILES} )
-add_library(MyLib ${SOURCE_FILES})
+add_library(MyLib ${SOURCE_FILES} ${MPAKOS_PREFIX}/include/artificial_matrix_generation.o)
 target_link_libraries(MyLib ${INTERNAL_LINK_LIB})
 
 set (LINK_LIB "${CUDA_LINK} -lrt -ldl ${PYTHON_LINK}")
 message( "LINK_LIB: " ${LINK_LIB} )
 
 ## datatype used in benchmarks
-add_definitions(-DVALUE_TYPE=double)
-add_executable (MakeDSpMVGreatAgain ${PROJECT_TEST_DIR}/MakeSpMVGreatAgain.cu)
-target_link_libraries(MakeDSpMVGreatAgain ${LINK_LIB} MyLib)
+#add_definitions(-DVALUE_TYPE=double)
+#add_executable (cuSPARSEDcsrmv_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEcsrmv_9-2_mtx.cu)
+#target_link_libraries(cuSPARSEDcsrmv_9-2_mtx ${LINK_LIB} MyLib)
+#add_executable (cuSPARSEDhybmv_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEhybmv_9-2_mtx.cu)
+#target_link_libraries(cuSPARSEDhybmv_9-2_mtx ${LINK_LIB} MyLib)
+#add_executable (cuSPARSEDbsrmv_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEbsrmv_9-2_mtx.cu)
+#target_link_libraries(cuSPARSEDbsrmv_9-2_mtx ${LINK_LIB} MyLib)
+#add_executable (cuSPARSEDhybmv_ELL_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9-2_mtx.cu)
+#target_link_libraries(cuSPARSEDhybmv_ELL_9-2_mtx ${LINK_LIB} MyLib)
+
+#add_executable (cuSPARSEDcsrmv_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEcsrmv_9-2_generate.cu)
+#target_link_libraries(cuSPARSEDcsrmv_9-2_generate ${LINK_LIB} MyLib)
+#add_executable (cuSPARSEDhybmv_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_9-2_generate.cu)
+#target_link_libraries(cuSPARSEDhybmv_9-2_generate ${LINK_LIB} MyLib)
+#add_executable (cuSPARSEDbsrmv_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEbsrmv_9-2_generate.cu)
+#target_link_libraries(cuSPARSEDbsrmv_9-2_generate ${LINK_LIB} MyLib)
+#add_executable (cuSPARSEDhybmv_ELL_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9-2_generate.cu)
+#target_link_libraries(cuSPARSEDhybmv_ELL_9-2_generate ${LINK_LIB} MyLib)
 
 ## datatype used in benchmarks
-#add_definitions(-DVALUE_TYPE=float)
-#add_executable (MakeSSpMVGreatAgain ${PROJECT_TEST_DIR}/MakeSpMVGreatAgain.cu)
-#target_link_libraries(MakeSSpMVGreatAgain ${LINK_LIB} MyLib)
+add_definitions(-DVALUE_TYPE=float)
+add_executable (cuSPARSEScsrmv_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEcsrmv_9-2_mtx.cu)
+target_link_libraries(cuSPARSEScsrmv_9-2_mtx ${LINK_LIB} MyLib)
+add_executable (cuSPARSEShybmv_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEhybmv_9-2_mtx.cu)
+target_link_libraries(cuSPARSEShybmv_9-2_mtx ${LINK_LIB} MyLib)
+add_executable (cuSPARSESbsrmv_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEbsrmv_9-2_mtx.cu)
+target_link_libraries(cuSPARSESbsrmv_9-2_mtx ${LINK_LIB} MyLib)
+add_executable (cuSPARSEShybmv_ELL_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9-2_mtx.cu)
+target_link_libraries(cuSPARSEShybmv_ELL_9-2_mtx ${LINK_LIB} MyLib)
+
+add_executable (cuSPARSEScsrmv_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEcsrmv_9-2_generate.cu)
+target_link_libraries(cuSPARSEScsrmv_9-2_generate ${LINK_LIB} MyLib)
+add_executable (cuSPARSEShybmv_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_9-2_generate.cu)
+target_link_libraries(cuSPARSEShybmv_9-2_generate ${LINK_LIB} MyLib)
+add_executable (cuSPARSESbsrmv_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEbsrmv_9-2_generate.cu)
+target_link_libraries(cuSPARSESbsrmv_9-2_generate ${LINK_LIB} MyLib)
+add_executable (cuSPARSEShybmv_ELL_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9-2_generate.cu)
+target_link_libraries(cuSPARSEShybmv_ELL_9-2_generate ${LINK_LIB} MyLib)

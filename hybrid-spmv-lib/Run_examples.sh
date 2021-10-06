@@ -12,27 +12,29 @@ do
 	for f in `cat /home/users/panastas/PhD_stuff/SpMV-Research/hybrid-spmv-lib/split_matrices.txt`;
 	do
 		fname=${f##*/}
-		$BUILD_DIR_CSR5/CSR5_CUDA_DSPMV $f $STORE_TIMER_DIR/silver1-TeslaV100_double_run_split_matrices.csv &>>$STORE_TIMER_DIR/silver1-TeslaV100_double_run_split_matrices.err
-		mv Power_data.txt $STORE_POWER_DIR/double_imp-CSR5_rep-${rep}_file-${fname}
-		$BUILD_DIR_CSR5/CSR5_CUDA_SSPMV $f $STORE_TIMER_DIR/silver1-TeslaV100_float_run_split_matrices.csv &>>$STORE_TIMER_DIR/silver1-TeslaV100_double_run_split_matrices.err
-		mv Power_data.txt $STORE_POWER_DIR/float_imp-CSR5_rep-${rep}_file-${fname}
-		# also available: cuSPARSE_bsr
-		for implementation in cuSPARSE_csr cuSPARSE_hyb
+		for dtype in D S
 		do
-			if [[ "$implementation" == *"cuSPARSE_bsr"* ]];then
-				for blockdim in 2 4 16 64 #2 4 16 64
+			$BUILD_DIR_CSR5/CSR5_CUDA_${dtype}SPMV $f $STORE_TIMER_DIR/silver1-TeslaV100_dtype-${dtype}_run_split_matrices.csv &>>$STORE_TIMER_DIR/silver1-TeslaV100_dtype-${dtype}_run_split_matrices.err
+			mv Power_data.txt $STORE_POWER_DIR/dtype-${dtype}_imp-CSR5_rep-${rep}_file-${fname}
+			# also available (?): cuSPARSE_bsr
+			for cuda in "9-2"
+			do
+				for implementation in csr hyb
 				do
-					$BUILD_DIR/MakeDSpMVGreatAgain $f $STORE_TIMER_DIR/silver1-TeslaV100_double_run_split_matrices.csv $implementation $blockdim &>>$STORE_TIMER_DIR/silver1-TeslaV100_double_run_split_matrices.err
-					mv Power_data.txt $STORE_POWER_DIR/double_imp-${implementation}_blockdim-${blockdim}_rep-${rep}_file-${fname}
-					$BUILD_DIR/MakeSSpMVGreatAgain $f $STORE_TIMER_DIR/silver1-TeslaV100_float_run_split_matrices.csv $implementation $blockdim &>>$STORE_TIMER_DIR/silver1-TeslaV100_float_run_split_matrices.err
-					mv Power_data.txt $STORE_POWER_DIR/float_imp-${implementation}_blockdim-${blockdim}_rep-${rep}_file-${fname}
+					if [[ "$implementation" == *"bsr"* ]];then
+						for blockdim in 2 4 16 64 #2 4 16 64
+						do
+							exec=$BUILD_DIR/cuSPARSE${dtype}${implementation}mv_${cuda}_mtx
+							$exec $STORE_TIMER_DIR/silver1-TeslaV100_dtype-${dtype}_run_split_matrices.csv $blockdim $f  &>>$STORE_TIMER_DIR/silver1-TeslaV100_dtype-${dtype}_run_split_matrices.err
+							mv Power_data.txt $STORE_POWER_DIR/dtype-${dtype}_imp-${implementation}_blockdim-${blockdim}_rep-${rep}_file-${fname}
+						done
+					else
+							exec=$BUILD_DIR/cuSPARSE${dtype}${implementation}mv_${cuda}_mtx
+							$exec $STORE_TIMER_DIR/silver1-TeslaV100_dtype-${dtype}_run_split_matrices.csv $f  &>>$STORE_TIMER_DIR/silver1-TeslaV100_dtype-${dtype}_run_split_matrices.err
+							mv Power_data.txt $STORE_POWER_DIR/dtype-${dtype}_imp-${implementation}_rep-${rep}_file-${fname}
+					fi
 				done
-			else
-				$BUILD_DIR/MakeDSpMVGreatAgain $f $STORE_TIMER_DIR/silver1-TeslaV100_double_run_split_matrices.csv $implementation &>>$STORE_TIMER_DIR/silver1-TeslaV100_double_run_split_matrices.err
-				mv Power_data.txt $STORE_POWER_DIR/double_imp-${implementation}_rep-${rep}_file-${fname}
-				$BUILD_DIR/MakeSSpMVGreatAgain $f $STORE_TIMER_DIR/silver1-TeslaV100_float_run_split_matrices.csv $implementation &>>$STORE_TIMER_DIR/silver1-TeslaV100_float_run_split_matrices.err
-				mv Power_data.txt $STORE_POWER_DIR/float_imp-${implementation}_rep-${rep}_file-${fname}
-			fi
+			done
 		done
 	done
 done

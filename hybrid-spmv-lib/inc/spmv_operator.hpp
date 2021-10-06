@@ -80,7 +80,15 @@ class SpmvOperator {
   int nz = 0;
   int bsr_blockDim = 0;
 
-  // Operator variables
+  // Matrix Generation values
+  char distribution[256], placement[256];
+  double diagonal_factor;
+  int seed;
+
+  // Statistic values
+  double density, avg_nz_row, std_nz_row, avg_bandwidth, std_bandwidth, avg_scattering, std_scattering;
+  
+  // Operator variables TODO: Might be outdated in latest versions
   int bytes = 0;
   int flops = 0;
   size_t mem_bytes = 0;
@@ -100,9 +108,9 @@ class SpmvOperator {
   void mtx_read_device();
   void mtx_read_cuSP();
   
-  void mtx_generate_host();
-  void mtx_generate_uni();
-  void mtx_generate_device();
+  void mtx_generate_host(int argc, char *argv[], int start_of_matrix_generation_args, int verbose);
+  void mtx_generate_uni(int argc, char *argv[], int start_of_matrix_generation_args, int verbose);
+  void mtx_generate_device(int argc, char *argv[], int start_of_matrix_generation_args, int verbose);
 
   /// A function for allocating vectors x and y(=0)
 
@@ -182,7 +190,7 @@ class SpmvOperator {
   void mtx_read();
   
   /// Generalized mtx generation function calling the correct generator to CSR
-  void mtx_generate();
+  void mtx_generate(int argc, char *argv[], int start_of_matrix_generation_args, int verbose);
 
   /// A function that counts how many vector elements are needed for an SpMV
   /// itteration

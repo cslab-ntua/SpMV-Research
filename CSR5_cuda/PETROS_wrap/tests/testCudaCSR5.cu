@@ -105,7 +105,7 @@ double call_anonymouslib(int m, int n, int nnzA,
     
     if (NUM_RUN)
         cout << "CSR5-based SpMV time = " << timer
-             << " ms. Bandwidth = " << gb/(1.0e+9 * timer)
+             << " s. Bandwidth = " << gb/(1.0e+9 * timer)
              << " GB/s. GFlops = " << gflop/(1.0e+9 * timer)  << " GFlops." << endl;
 
     A.destroy();
@@ -218,7 +218,7 @@ int main(int argc, char ** argv)
         cout << "Check... NO PASS! #Error = " << error_count << " out of " << m << " entries." << endl;
 
     double gflops_s = 2*nnzA/spmv_seconds*1e-9;
-    foutp << filename << "," << "CSR5-cuda" << "," << m << "," << n << "," << nnzA << "," << spmv_seconds << "," << gflops_s << "\n";
+    foutp << filename << ",unused,unused,0,0," << m << "," << n << ",0," << nnzA << ",0,0,0,0,0,0,CSR5-cuda," << spmv_seconds << "," << gflops_s << "\n";
     foutp.close();
 
     free(csrRowPtrA);

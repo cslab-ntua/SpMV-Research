@@ -20,7 +20,6 @@ SpmvOperator::SpmvOperator(int argc, char *argv[], int start_of_matrix_generatio
   /// Default intialization values for an operator
   mem_bytes = 0;
   mem_bytes += sizeof(SpmvOperator);
-  mtx_name = "generated";
   n = m = nz = bytes = flops = bsr_blockDim = 0;
   x = y = NULL;
   mem_alloc = SPMV_MEMTYPE_HOST;
@@ -31,7 +30,8 @@ SpmvOperator::SpmvOperator(int argc, char *argv[], int start_of_matrix_generatio
   format = SPMV_FORMAT_CSR;
   lib_struct = NULL;
   lib = SPMV_NONE;
-  mtx_generate();
+  mtx_name = "Synthetic";
+  mtx_generate(argc, argv, start_of_matrix_generation_args, verbose);
   bytes = 2 * sizeof(int) * n + 1 * sizeof(int) * nz + 2 * sizeof(double) * nz +
           2 * sizeof(double) * n;
   flops = 2 * nz;
@@ -95,6 +95,18 @@ SpmvOperator::SpmvOperator(SpmvOperator &op) {
   m = op.m;
   n = op.n;
   nz = op.nz;
+  density =  op.density;
+	//bytes = matrix->mem_footprint;
+  avg_nz_row = op.avg_nz_row;
+  std_nz_row = op.std_nz_row;
+  avg_bandwidth = op.avg_bandwidth;
+  std_bandwidth = op.std_bandwidth;
+  avg_scattering = op.avg_scattering;
+  std_scattering = op.std_scattering;
+  strcpy(distribution, op.distribution);
+  strcpy(placement, op.placement);
+  diagonal_factor = op.diagonal_factor;
+  seed = op.seed;
   flops = op.flops;
   bytes = op.bytes;
   format_data = op.spmv_data_get_copy();
@@ -168,6 +180,17 @@ SpmvOperator::SpmvOperator(SpmvOperator &op, int start, int end, int mode) {
   // TODO: All the splitting mechanism will be defined here
   m = n = op.m;
   nz = end - start;
+  strcpy(distribution, op.distribution);
+  strcpy(placement, op.placement);
+  diagonal_factor = op.diagonal_factor;
+  seed = op.seed;
+  density = 0; 
+  avg_nz_row = 0;
+  std_nz_row = 0;
+  avg_bandwidth = 0;
+  std_bandwidth = 0;
+  avg_scattering = 0;
+  std_scattering = 0;
   format_data = op.spmv_data_get_subcopy(&start, &nz, mode);
   /// FIXME:EXP
   /*
@@ -1445,7 +1468,7 @@ int SpmvOperator::count_transactions() {
   }
   for (int i = 0; i < n; i++)
     if (exists[i]) ctr++;
-  free(exists);
+  //free(exists);
   ddebug(" <- SpmvOperator::count_transactions()\n");
   return ctr;
 }

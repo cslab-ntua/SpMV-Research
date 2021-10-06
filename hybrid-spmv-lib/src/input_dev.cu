@@ -394,13 +394,13 @@ void SpmvOperator::mtx_read_device() {
   ddebug(" <- SpmvOperator::mtx_read_device()\n");
 }
 
-void SpmvOperator::mtx_generate_device() {
+void SpmvOperator::mtx_generate_device(int argc, char *argv[], int start_of_matrix_generation_args, int verbose) {
   ddebug(" -> SpmvOperator::mtx_generate_device()\n");
   massert(0, "SpmvOperator::mtx_generate_device -> Not implemented");
   ddebug(" <- SpmvOperator::mtx_generate_device()\n");
 }
 
-void SpmvOperator::mtx_generate_uni() {
+void SpmvOperator::mtx_generate_uni(int argc, char *argv[], int start_of_matrix_generation_args, int verbose) {
   ddebug(" -> SpmvOperator::mtx_generate_uni()\n");
   massert(0, "SpmvOperator::mtx_generate_uni -> Not implemented");
   ddebug(" <- SpmvOperator::mtx_generate_uni()\n");

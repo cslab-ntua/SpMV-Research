@@ -575,14 +575,14 @@ void report_results(double timer, int flops, size_t bytes) {
   double time = timer / NR_ITER;
   double Gflops = flops / (time * 1.e9);
   double Gbytes = bytes / (time * 1.e9);
-  fprintf(stderr,"%lf ms ( %.2lf Gflops/s %.2lf Gbytes/s)", 1000.0 * time, Gflops,
+  fprintf(stdout,"%lf ms ( %.2lf Gflops/s %.2lf Gbytes/s)", 1000.0 * time, Gflops,
          Gbytes);
 }
 
 void report_bandwidth(double timer, size_t bytes) {
   double time = timer / NR_ITER;
   double Gbytes = bytes / (time * 1.e9);
-  printf("%lf ms ( %.2lf Gbytes/s)", 1000.0 * time, Gbytes);
+  fprintf(stdout,"%lf ms ( %.2lf Gbytes/s)", 1000.0 * time, Gbytes);
 }
 
 double min_elem(double *arr, int size, int *pos) {
