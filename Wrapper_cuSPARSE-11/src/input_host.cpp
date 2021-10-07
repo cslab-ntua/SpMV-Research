@@ -15,117 +15,6 @@
 #include <cuda_runtime_api.h> // cudaMalloc, cudaMemcpy, etc.
 #include <cuda.h> // cudaMalloc, cudaMemcpy, etc.
 
-/*
-int isArraySorted(int* s, int n) {
-  int a = 1, i = 0;
-
-  while (a == 1  && i < n - 1) {
-	if (s[i] > s[i+1]) a = 0;
-    	i++;
-  }
-
-  if (a == 1)
-    return 1;
-  else
-    return 0;
-}
-
-void mergeSortAux(int *X, int *Y, double *Z, int n, int *tmp_X, int *tmp_Y, double *tmp_Z){
-   int i = 0;
-   int j = n/2;
-   int ti = 0;
-
-   while (i<n/2 && j<n) {
-      if (X[i] < X[j]) {
-         tmp_X[ti] = X[i];
-         tmp_Y[ti] = Y[i];
-         tmp_Z[ti] = Z[i];
-         ti++; i++;
-      } else {
-         tmp_X[ti] = X[j];
-         tmp_Y[ti] = Y[j];
-         tmp_Z[ti] = Z[j];
-         ti++; j++;
-      }
-   }
-   while (i<n/2) { 
-      tmp_X[ti] = X[i];
-      tmp_Y[ti] = Y[i];
-      tmp_Z[ti] = Z[i];
-      ti++; i++;
-   }
-   while (j<n) { 
-      tmp_X[ti] = X[j];
-      tmp_Y[ti] = Y[j];
-      tmp_Z[ti] = Z[j];
-      ti++; j++;
-   }
-   memcpy(X, tmp_X, n*sizeof(int));
-   memcpy(Y, tmp_Y, n*sizeof(int));
-   memcpy(Z, tmp_Z, n*sizeof(int));
-} 
-
-void mergeSort(int *X, int *Y, double *Z, int n, int *tmp_X, int *tmp_Y, double *tmp_Z)
-{
-   if (n < 2) return;
-
-   #pragma omp task shared(X) if (n > TASK_SIZE)
-   mergeSort(X, Y, Z, n/2, tmp_X, tmp_Y, tmp_Z);
-
-   #pragma omp task shared(X) if (n > TASK_SIZE)
-   mergeSort(X+(n/2), Y+(n/2), Z+(n/2), n-(n/2), tmp_X + n/2, tmp_Y + n/2, tmp_Z + n/2);
-
-   #pragma omp taskwait
-   mergeSortAux(X, Y, Z, n, tmp_X, tmp_Y, tmp_Z);
-}
-
-
-int partition(int *a, int *b, double *c, int l, int r) {
-  int pivot, i, j, t;
-  double t1;
-  pivot = a[l];
-  i = l;
-  j = r + 1;
-
-  while (1) {
-    do
-      ++i;
-    while (a[i] <= pivot && i <= r);
-    do
-      --j;
-    while (a[j] > pivot);
-    if (i >= j) break;
-    t = a[i];
-    a[i] = a[j];
-    a[j] = t;
-    t = b[i];
-    b[i] = b[j];
-    b[j] = t;
-    t1 = c[i];
-    c[i] = c[j];
-    c[j] = t1;
-  }
-  t = a[l];
-  a[l] = a[j];
-  a[j] = t;
-  t = b[l];
-  b[l] = b[j];
-  b[j] = t;
-  t1 = c[l];
-  c[l] = c[j];
-  c[j] = t1;
-  return j;
-}
-
-void quickSort(int *a, int *b, double *c, int l, int r) {
-  int j;
-  if (l < r) {  // divide and conquer
-    j = partition(a, b, c, l, r);
-    quickSort(a, b, c, l, j - 1);
-    quickSort(a, b, c, j + 1, r);
-  }
-}
-*/
 void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix_generation_args, int verbose){
     ddebug(" -> SpmvOperator::mtx_generate_host()\n");
 	csr_matrix *matrix=NULL;
@@ -172,11 +61,6 @@ void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix
 	else
 		fprintf(stderr, "Didn't make it with the given matrix features. Try again.\n");
 	*/
-
-  	SpmvCsrData * csr_output = (SpmvCsrData *) malloc(sizeof(SpmvCsrData));
-  	csr_output->rowPtr = (int*) matrix->row_ptr;
-  	csr_output->colInd = (int*) matrix->col_ind;
-  	csr_output->values = matrix->values;
   	m =  (int) matrix->nr_rows;
   	n =  (int) matrix->nr_cols;
   	nz = (int) matrix->nr_nzeros;
@@ -192,6 +76,17 @@ void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix
 	strcpy(placement, matrix->placement);
 	diagonal_factor = matrix->diagonal_factor;
 	seed = matrix->seed;
+  	SpmvCsrData * csr_output = (SpmvCsrData *) malloc(sizeof(SpmvCsrData));
+  	csr_output->rowPtr = (int*) matrix->row_ptr;
+  	csr_output->colInd = (int*) matrix->col_ind;
+  	if (std::is_same<VALUE_TYPE_AX, double>::value) csr_output->values = (VALUE_TYPE_AX*) matrix->values;
+  	else{	
+  		csr_output->values = (VALUE_TYPE_AX*) malloc ( nz * sizeof(VALUE_TYPE_AX));
+  		for (int it=0; it < nz; it++){
+  			if (std::is_same<VALUE_TYPE_AX, int8_t>::value) csr_output->values[it] = (VALUE_TYPE_AX) (((int)matrix->values[it])%256);
+  			else csr_output->values[it] = (VALUE_TYPE_AX) matrix->values[it];
+  		}
+  	}
   	format_data = csr_output;
   	ddebug(" <- SpmvOperator::mtx_generate_host()\n");
 }
@@ -227,9 +122,9 @@ void SpmvOperator::mtx_read_host(){
         exit(3);
     }
 
-    if ( mm_is_pattern( matcode ) )  { isPattern = 1; /*cout << "type = Pattern" << endl;*/ }
-    if ( mm_is_real ( matcode) )     { isReal = 1; /*cout << "type = real" << endl;*/ }
-    if ( mm_is_integer ( matcode ) ) { isInteger = 1; /*cout << "type = integer" << endl;*/ }
+    if ( mm_is_pattern( matcode ) )  { isPattern = 1; cout << "type = Pattern" << endl; }
+    if ( mm_is_real ( matcode) )     { isReal = 1; cout << "type = real" << endl; }
+    if ( mm_is_integer ( matcode ) ) { isInteger = 1; cout << "type = integer" << endl; }
 
     /* find out size of sparse matrix .... */
     ret_code = mm_read_mtx_crd_size(f, &m, &n, &nnzA_mtx_report);
@@ -260,7 +155,7 @@ void SpmvOperator::mtx_read_host(){
     for (int i = 0; i < nnzA_mtx_report; i++)
     {
         int idxi, idxj;
-        VALUE_TYPE_AX fval;
+        double fval;
         int ival;
 
         if (isReal)
@@ -276,6 +171,7 @@ void SpmvOperator::mtx_read_host(){
             fval = 1.0;
         }
 
+  			
         // adjust from 1-based to 0-based
         idxi--;
         idxj--;
@@ -283,7 +179,8 @@ void SpmvOperator::mtx_read_host(){
         csrRowPtrA_counter[idxi]++;
         csrRowIdxA_tmp[i] = idxi;
         csrColIdxA_tmp[i] = idxj;
-        csrValA_tmp[i] = fval;
+  	    if (std::is_same<VALUE_TYPE_AX, int8_t>::value) csrValA_tmp[i] = (VALUE_TYPE_AX) (((int)fval)%256);
+  		else csrValA_tmp[i] = (VALUE_TYPE_AX) fval;
     }
 
     if (f != stdin)
@@ -356,7 +253,7 @@ void SpmvOperator::mtx_read_host(){
 
     // free tmp space
     free(csrColIdxA_tmp);
-    free(csrValA_tmp);
+    //free(csrValA_tmp);
     free(csrRowIdxA_tmp);
     free(csrRowPtrA_counter);
     

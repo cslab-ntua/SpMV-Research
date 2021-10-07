@@ -79,7 +79,7 @@ void SpmvOperator::mtx_read_uni(){
     for (int i = 0; i < nnzA_mtx_report; i++)
     {
         int idxi, idxj;
-        VALUE_TYPE_AX fval;
+        double fval;
         int ival;
 
         if (isReal)
@@ -103,6 +103,8 @@ void SpmvOperator::mtx_read_uni(){
         csrRowIdxA_tmp[i] = idxi;
         csrColIdxA_tmp[i] = idxj;
         csrValA_tmp[i] = fval;
+        if (std::is_same<VALUE_TYPE_AX, int8_t>::value) csrValA_tmp[i] = (VALUE_TYPE_AX) (((int)fval)%256);
+  		else csrValA_tmp[i] = (VALUE_TYPE_AX) fval;
     }
 
     if (f != stdin)
@@ -188,7 +190,17 @@ void SpmvOperator::mtx_read_uni(){
   	csr_output->rowPtr = csrRowPtrA;
   	csr_output->colInd = csrColIdxA;
   	csr_output->values = csrValA;
-  	
+  	avg_nz_row = 0;
+	std_nz_row = 0;
+	avg_bandwidth = 0;
+	std_bandwidth = 0;
+	avg_scattering = 0;
+	std_scattering = 0;
+	density = 0; 
+  	strcpy(distribution, "unused");
+	strcpy(placement, "unused");
+	diagonal_factor = 0;
+	seed = 0;
   	format_data = csr_output;
   	ddebug(" <- SpmvOperator::mtx_read_uni()\n");
 }

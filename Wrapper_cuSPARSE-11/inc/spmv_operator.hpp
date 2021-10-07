@@ -44,13 +44,13 @@ typedef enum {
 typedef struct {
   int *rowInd = NULL;
   int *colInd = NULL;
-  void *values = NULL;
+  VALUE_TYPE_AX* values = NULL;
 } SpmvCooData;
 
 typedef struct {
   int *rowPtr = NULL;
   int *colInd = NULL;
-  void *values = NULL;
+  VALUE_TYPE_AX* values = NULL;
 } SpmvCsrData;
 
 typedef struct {
@@ -58,7 +58,7 @@ typedef struct {
   int nnzb;
   int *rowPtr = NULL;
   int *colInd = NULL;
-  void *values = NULL;
+  VALUE_TYPE_AX* values = NULL;
 } SpmvBsrData;
 
 class SpmvOperator {
@@ -88,8 +88,8 @@ class SpmvOperator {
 
   // Data
   void *format_data = NULL;
-  void *x = NULL;
-  void *y = NULL;
+  VALUE_TYPE_AX *x = NULL;
+  VALUE_TYPE_Y *y = NULL;
 
   // Helper struct for each lib wrapper
   void *lib_struct = NULL;
@@ -105,11 +105,11 @@ class SpmvOperator {
 
   /// A function for allocating vectors x and y(=0)
 
-  void vec_alloc_host(void *x);
-  void vec_alloc_numa(void *x);
-  void vec_alloc_uni(void *x);
-  void vec_alloc_device(void *x);
-  void vec_alloc_cuSP(void *x);
+  void vec_alloc_host(VALUE_TYPE_AX *x);
+  void vec_alloc_numa(VALUE_TYPE_AX *x);
+  void vec_alloc_uni(VALUE_TYPE_AX *x);
+  void vec_alloc_device(VALUE_TYPE_AX *x);
+  void vec_alloc_cuSP(VALUE_TYPE_AX *x);
 
   void *spmv_data_copy_host();
   void *spmv_data_copy_numa();
@@ -147,7 +147,7 @@ class SpmvOperator {
   void spmv_free_device();
   void spmv_free_cuSP();
 
-  void *y_copy_cuSP();
+  VALUE_TYPE_Y *y_copy_cuSP();
 
   // public:
   // Enums
@@ -187,7 +187,7 @@ class SpmvOperator {
   int count_transactions();
 
   /// Generalized Alloc function for vectors x, y(=0)
-  void vec_alloc(void *x);
+  void vec_alloc(VALUE_TYPE_AX *x);
 
   /// Generalized copy function for SpmvFormatStruct data to SAME mem_alloc
   /// return a 'format_data' struct of format 'format' allocated in 'mem_alloc'
@@ -208,7 +208,7 @@ class SpmvOperator {
   void format_convert(SpmvFormat target_format);
 
   /// Generalized copy function for y data to HOST mem_alloc
-  void *y_get_copy();
+  VALUE_TYPE_Y *y_get_copy();
 
   /// Generalized  free of a format struct
   void spmv_free();

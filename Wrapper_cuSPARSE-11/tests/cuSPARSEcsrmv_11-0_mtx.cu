@@ -42,48 +42,43 @@
     }                                                                          \
 }
 
-//Add any wanted combinations
-#if VALUE_TYPE_AX == double
-#define CUDA_VALUE_TYPE_AX CUDA_R_64F
-#elif VALUE_TYPE_AX == float
-#define CUDA_VALUE_TYPE_AX CUDA_R_32F
-#elif VALUE_TYPE_AX == int8_t
-#define CUDA_VALUE_TYPE_AX CUDA_R_8I
-#else 
-#error
-#endif
+/* definition to expand macro then apply to pragma message */
+#define VALUE_TO_STRING(x) #x
+#define VALUE(x) VALUE_TO_STRING(x)
+#define VAR_NAME_VALUE(var) #var "="  VALUE(var)
 
-#if VALUE_TYPE_Y == double
-#define CUDA_VALUE_TYPE_Y CUDA_R_64F
-#elif VALUE_TYPE_Y == float
-#define CUDA_VALUE_TYPE_Y CUDA_R_32F
-#elif VALUE_TYPE_Y == int32_t
-#define CUDA_VALUE_TYPE_Y CUDA_R_32I
-#elif VALUE_TYPE_Y == int
-#define CUDA_VALUE_TYPE_Y CUDA_R_32I
-#else 
-#error
-#endif
+/* Some example here */
+#pragma message(VAR_NAME_VALUE(VALUE_TYPE_AX))
+#pragma message(VAR_NAME_VALUE(VALUE_TYPE_Y))
+#pragma message(VAR_NAME_VALUE(VALUE_TYPE_COMP))
 
-#if VALUE_TYPE_COMP == double
-#define CUDA_VALUE_TYPE_COMP CUDA_R_64F
-#elif VALUE_TYPE_COMP == float
-#define CUDA_VALUE_TYPE_COMP CUDA_R_32F
-#elif VALUE_TYPE_COMP == int32_t
-#define CUDA_VALUE_TYPE_COMP CUDA_R_32I
-#elif VALUE_TYPE_COMP == int
-#define CUDA_VALUE_TYPE_COMP CUDA_R_32I
-#else 
-#error
-#endif
+//Add here any supported combinations. CUDA data types I hate you for this. 
+cudaDataType CUDA_VALUE_TYPE_AX, CUDA_VALUE_TYPE_Y, CUDA_VALUE_TYPE_COMP;
+cudaDataType cpp_compargs_to_cuda_dtype(){
+	if (std::is_same<VALUE_TYPE_AX, int8_t>::value) CUDA_VALUE_TYPE_AX = CUDA_R_8I;
+	if (std::is_same<VALUE_TYPE_AX, float>::value) CUDA_VALUE_TYPE_AX = CUDA_R_32F;
+	if (std::is_same<VALUE_TYPE_AX, double>::value) CUDA_VALUE_TYPE_AX = CUDA_R_64F;
+	else massert(0, "cpp_compargs_to_cuda_dtype: Invalid/not implemented VALUE_TYPE_AX");
+	
+	if (std::is_same<VALUE_TYPE_Y, int>::value) CUDA_VALUE_TYPE_Y = CUDA_R_32I;
+	if (std::is_same<VALUE_TYPE_Y, float>::value) CUDA_VALUE_TYPE_Y = CUDA_R_32F;
+	if (std::is_same<VALUE_TYPE_Y, double>::value) CUDA_VALUE_TYPE_Y = CUDA_R_64F;
+	else massert(0, "cpp_compargs_to_cuda_dtype: Invalid/not implemented VALUE_TYPE_Y");
+	
+	if (std::is_same<VALUE_TYPE_COMP, int>::value) CUDA_VALUE_TYPE_COMP = CUDA_R_32I;
+	if (std::is_same<VALUE_TYPE_COMP, float>::value) CUDA_VALUE_TYPE_COMP = CUDA_R_32F;
+	if (std::is_same<VALUE_TYPE_COMP, double>::value) CUDA_VALUE_TYPE_COMP = CUDA_R_64F;
+	else massert(0, "cpp_compargs_to_cuda_dtype: Invalid/not implemented VALUE_TYPE_COMP");
+}
 
+	
 int main(int argc, char **argv) {
 	/// Check Input
 	massert(argc == 3,
 	  "Incorrect arguments.\nUsage:\t./Executable logfilename Matrix_name.mtx");
 	  
 	// Set/Check for device
-	int device_id = 1;
+	int device_id = 0;
 	cudaSetDevice(device_id);
 	cudaGetDevice(&device_id);
 	cudaDeviceProp deviceProp;
@@ -121,14 +116,14 @@ int main(int argc, char **argv) {
 	VALUE_TYPE_AX *x = (VALUE_TYPE_AX *)malloc(op.n * sizeof(VALUE_TYPE_AX));
 	VALUE_TYPE_Y *out = (VALUE_TYPE_Y *)calloc(op.m, sizeof(VALUE_TYPE_Y));
 	vec_init_rand<VALUE_TYPE_AX>(x, op.n, 0);
-	op.vec_alloc((VALUE_TYPE_AX*)x);
+	op.vec_alloc(x);
 
 	op.cuSPARSE_init();
 	
 	SpmvCsrData *data = (SpmvCsrData *)op.format_data;
-		   
     VALUE_TYPE_COMP alpha = (VALUE_TYPE_COMP) 1.0;
     VALUE_TYPE_COMP beta = (VALUE_TYPE_COMP) 0.0;
+    cout << "alpha: " << alpha << ", beta: " << beta << endl;
     //--------------------------------------------------------------------------
     // Device memory management
     int   *dA_csrOffsets, *dA_columns;
@@ -181,7 +176,7 @@ int main(int argc, char **argv) {
 	VALUE_TYPE_Y *out1 = (VALUE_TYPE_Y *)calloc(op.m, sizeof(VALUE_TYPE_Y));
 	fprintf(stdout,"Serial-CSR: ");
 	op.timer = csecond();
-	spmv_csr<VALUE_TYPE_AX, VALUE_TYPE_Y, VALUE_TYPE_COMP>(data->rowPtr, data->colInd, (VALUE_TYPE_AX *) data->values, x,
+	spmv_csr<VALUE_TYPE_AX, VALUE_TYPE_Y, VALUE_TYPE_COMP>(data->rowPtr, data->colInd, data->values, x,
 		   out1, op.m);
 	op.timer = csecond() - op.timer;
 	report_results(op.timer * NR_ITER, op.flops, op.bytes);

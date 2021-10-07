@@ -153,7 +153,8 @@ void SpmvOperator::format_convert_uni_csr2bsr() {
 
   /// BSR vector padding TODO: This is kind of a cheat, maybe n, m should change
   /// too and vec_alloc_uni used for this
-  void *xp, *yp;
+  VALUE_TYPE_AX *xp;
+  VALUE_TYPE_Y *yp;
 
       cudaMallocManaged(&xp, nb * bsr_data->blockDim * sizeof(VALUE_TYPE_AX));
       cudaMallocManaged(&yp, mb * bsr_data->blockDim * sizeof(VALUE_TYPE_Y));

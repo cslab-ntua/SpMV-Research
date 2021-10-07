@@ -18,7 +18,8 @@ SpmvOperator::SpmvOperator(int argc, char *argv[], int start_of_matrix_generatio
   mem_bytes = 0;
   mem_bytes += sizeof(SpmvOperator);
   n = m = nz = bytes = flops = bsr_blockDim = 0;
-  x = y = NULL;
+  x = NULL;
+  y = NULL;
   mem_alloc = SPMV_MEMTYPE_HOST;
   format_data = NULL;
   format = SPMV_FORMAT_CSR;
@@ -39,7 +40,8 @@ SpmvOperator::SpmvOperator(char *matrix_name) {
   mem_bytes += sizeof(SpmvOperator);
   mtx_name = matrix_name;
   n = m = nz = bytes = flops = bsr_blockDim = 0;
-  x = y = NULL;
+  x = NULL;
+  y = NULL;
   mem_alloc = SPMV_MEMTYPE_HOST;
   format_data = NULL;
   format = SPMV_FORMAT_CSR;
@@ -430,7 +432,7 @@ supported\n");
 }
 */
 
-void SpmvOperator::vec_alloc(void *x) {
+void SpmvOperator::vec_alloc(VALUE_TYPE_AX *x) {
   ddebug(" -> SpmvOperator::vec_alloc(x)\n");
   switch (mem_alloc) {
     case (SPMV_MEMTYPE_HOST):
@@ -454,22 +456,24 @@ void SpmvOperator::vec_alloc(void *x) {
   ddebug(" <- SpmvOperator::vec_alloc(x)\n");
 }
 
-void SpmvOperator::vec_alloc_numa(void *x_in) {
+void SpmvOperator::vec_alloc_numa(VALUE_TYPE_AX *x_in) {
   ddebug(" -> SpmvOperator::vec_alloc_numa(x_in)\n");
         massert(false, "SpmvOperator::vec_alloc_numa -> No numa please");
   ddebug(" <- SpmvOperator::vec_alloc_numa(x_in)\n");
 }
 
-void SpmvOperator::vec_alloc_host(void *x_in) {
+void SpmvOperator::vec_alloc_host(VALUE_TYPE_AX *x_in) {
   ddebug(" -> SpmvOperator::vec_alloc_host(x_in)\n");
-  void *x_tmp, *y_tmp;
+  VALUE_TYPE_AX *x_tmp;
+  VALUE_TYPE_Y *y_tmp;
 
       /// Allocate vectors x,y
       cudaHostAlloc(&x_tmp, n * sizeof(VALUE_TYPE_AX), cudaHostAllocDefault);
       cudaHostAlloc(&y_tmp, m * sizeof(VALUE_TYPE_Y), cudaHostAllocDefault);
       /// Initialize vector x to x_in (y was calloc'ed)
-            for (int i = 0; i < m; i++) ((VALUE_TYPE_Y *)y_tmp)[i] = 0;
-      vec_copy<VALUE_TYPE_AX>((VALUE_TYPE_AX *)x_tmp, (VALUE_TYPE_AX *)x_in, n, 0);
+      vec_copy<VALUE_TYPE_AX>(x_tmp, x_in, n, 0);
+      for (int i = 0; i < m; i++) y_tmp[i] = 0;
+
 
   massert(x_tmp && y_tmp,
           "SpmvOperator::vec_alloc_host -> Vector Alloc failed");
@@ -489,16 +493,17 @@ void SpmvOperator::vec_alloc_host(void *x_in) {
   ddebug(" <- SpmvOperator::vec_alloc_host(x_in)\n");
 }
 
-void SpmvOperator::vec_alloc_uni(void *x_in) {
+void SpmvOperator::vec_alloc_uni(VALUE_TYPE_AX *x_in) {
   ddebug(" -> SpmvOperator::vec_alloc_uni(x)\n");
-  void *x_tmp, *y_tmp;
+  VALUE_TYPE_AX *x_tmp;
+  VALUE_TYPE_Y *y_tmp;
 
   /// Allocate vectors x,y
   cudaMallocManaged(&x_tmp, n * sizeof(VALUE_TYPE_AX));
   cudaMallocManaged(&y_tmp, m * sizeof(VALUE_TYPE_Y));
   /// Initialize vectors (x,y) to (x_in,0)
-  vec_copy<VALUE_TYPE_AX>((VALUE_TYPE_AX *)x_tmp, (VALUE_TYPE_AX *)x_in, n, 0);
-  for (int i = 0; i < m; i++) ((VALUE_TYPE_Y *)y_tmp)[i] = 0;
+  vec_copy<VALUE_TYPE_AX>(x_tmp, x_in, n, 0);
+  for (int i = 0; i < m; i++) y_tmp[i] = 0;
 
 
   massert(x_tmp && y_tmp, "SpmvOperator::vec_alloc_uni -> Vector Alloc failed");
@@ -521,9 +526,10 @@ void SpmvOperator::vec_alloc_uni(void *x_in) {
   ddebug(" <- SpmvOperator::vec_alloc_uni(x)\n");
 }
 
-void SpmvOperator::vec_alloc_device(void *x_in) {
+void SpmvOperator::vec_alloc_device(VALUE_TYPE_AX *x_in) {
   ddebug(" -> SpmvOperator::vec_alloc_device(x)\n");
-  void *x_tmp, *y_tmp;
+  VALUE_TYPE_AX *x_tmp;
+  VALUE_TYPE_Y *y_tmp;
 
 	  /// Allocate vectors x,y
 	  x_tmp = (VALUE_TYPE_AX *)gpu_alloc(n * sizeof(VALUE_TYPE_AX));
@@ -579,7 +585,7 @@ void *SpmvOperator::spmv_data_copy_uni() {
         vec_copy<int>(cp_data->colInd, data->colInd, nz, 0);
 
         cudaMallocManaged(&cp_data->values, nz * sizeof(VALUE_TYPE_AX));
-        vec_copy<VALUE_TYPE_AX>((VALUE_TYPE_AX *)cp_data->values, (VALUE_TYPE_AX *)data->values, nz,0);
+        vec_copy<VALUE_TYPE_AX>(cp_data->values, data->values, nz,0);
       } else
         debug(
             "SpmvOperator::spmv_data_copy_uni -> warning... empty Spmv struct, "
@@ -598,7 +604,7 @@ void *SpmvOperator::spmv_data_copy_uni() {
         vec_copy<int>(cp_data->colInd, data->colInd, nz, 0);
 
         cudaMallocManaged(&cp_data->values, nz * sizeof(VALUE_TYPE_AX));
-        vec_copy<VALUE_TYPE_AX>((VALUE_TYPE_AX *)cp_data->values, (VALUE_TYPE_AX *)data->values, nz,0);
+        vec_copy<VALUE_TYPE_AX>(cp_data->values, data->values, nz,0);
 
       } else
         debug(
@@ -620,7 +626,7 @@ void *SpmvOperator::spmv_data_copy_uni() {
         vec_copy<int>(cp_data->colInd, data->colInd, data->nnzb, 0);
 
         cudaMallocManaged(&cp_data->values,(data->blockDim * data->blockDim) * data->nnzb * sizeof(VALUE_TYPE_AX));
-        vec_copy<VALUE_TYPE_AX>((VALUE_TYPE_AX *)cp_data->values, (VALUE_TYPE_AX *)data->values,(data->blockDim * data->blockDim) * data->nnzb, 0);
+        vec_copy<VALUE_TYPE_AX>(cp_data->values, data->values,(data->blockDim * data->blockDim) * data->nnzb, 0);
 
 
         cp_data->nnzb = data->nnzb;
@@ -709,7 +715,7 @@ void *SpmvOperator::spmv_data_subcopy_uni(int *start, int *nzc, int mode) {
           cp_data->rowInd[0] = 0;
         }
         cudaMallocManaged(&cp_data->values, *nzc * sizeof(VALUE_TYPE_AX));
-        vec_copy<VALUE_TYPE_AX>((VALUE_TYPE_AX *)cp_data->values,&((VALUE_TYPE_AX *)data->values)[*start], *nzc, 0);
+        vec_copy<VALUE_TYPE_AX>(cp_data->values,&(data->values)[*start], *nzc, 0);
 
 
       } else
@@ -1128,15 +1134,15 @@ void SpmvOperator::format_convert_device(SpmvFormat target_format) {
   ddebug(" <- SpmvOperator::format_convert_device(target_format)\n");
 }
 
-void *SpmvOperator::y_get_copy() {
+VALUE_TYPE_Y *SpmvOperator::y_get_copy() {
   ddebug(" -> SpmvOperator::y_get_copy()\n");
-  void *out;
+  VALUE_TYPE_Y *out;
   switch (mem_alloc) {
     case (SPMV_MEMTYPE_HOST):
     case (SPMV_MEMTYPE_NUMA):
     case (SPMV_MEMTYPE_UNIFIED):
-		out = malloc(m * sizeof(VALUE_TYPE_Y));
-		vec_copy<VALUE_TYPE_Y>((VALUE_TYPE_Y *)out, (VALUE_TYPE_Y *)y, m, 0);
+		out = (VALUE_TYPE_Y *) malloc(m * sizeof(VALUE_TYPE_Y));
+		vec_copy<VALUE_TYPE_Y>(out, y, m, 0);
 		break;
     case (SPMV_MEMTYPE_DEVICE):
       out = (VALUE_TYPE_Y *)malloc(m * sizeof(VALUE_TYPE_Y));

@@ -134,7 +134,7 @@ void spmv_csr(int *csrPtr, int *csrCol, VALUETYPE_AX *csrVal, VALUETYPE_AX *x, V
   int i, j;
   for (i = 0; i < m; ++i) {
     VALUETYPE_COMP yi = 0;
-    for (j = csrPtr[i]; j < csrPtr[i + 1]; j++) yi += csrVal[j] * x[csrCol[j]];
+    for (j = csrPtr[i]; j < csrPtr[i + 1]; j++) yi += ((VALUETYPE_COMP) csrVal[j]) * ((VALUETYPE_COMP) x[csrCol[j]]);
     ys[i] = yi;
   }
   ddebug(" <- spmv_csr()\n");
@@ -162,7 +162,7 @@ int vec_equals(VALUETYPE *v1, VALUETYPE *v2, int n, VALUETYPE eps) {
   FILE *f = fopen("equals.out", "w");
   for (i = 0; i < n; ++i) {
     if ((v1[i] == 0 && v2[i] != 0) || ( v1[i] != 0 && fabs((v1[i] - v2[i])/v1[i]) > eps) ) {
-      cout << v1[i] << " - " << v2[i] << " = " << fabs(v1[i] - v2[i]) << endl;
+      //cout << v1[i] << " - " << v2[i] << " = " << fabs(v1[i] - v2[i]) << endl;
       k++;
     }
   }
@@ -238,11 +238,12 @@ void vec_init_rand(VALUETYPE *v, int n, int np) {
   srand48(42);  // should only be called once
   int i;
   for (i = 0; i < n; ++i) {
-    v[i] = (VALUETYPE)drand48();
-    if (std::is_same<VALUETYPE, int8_t>::value) v[i] = rand() % 1;
+    if (std::is_same<VALUETYPE, int8_t>::value) v[i] = rand() % 256;
+    if (std::is_same<VALUETYPE, int32_t>::value) v[i] = rand();
+    else v[i] = (VALUETYPE)drand48();
   }
   for (i = n; i < n + np; ++i) {
-    v[i] = 0.0;
+    v[i] = 0;
   }
   ddebug(" <- vec_init_rand(v, n, np)\n");
 }
@@ -287,8 +288,8 @@ void *SpmvOperator::spmv_data_copy_host() {
         vec_copy<int>(cp_data->colInd, data->colInd, nz, 0);
 
 
-        cp_data->values = malloc(nz * sizeof(VALUE_TYPE_AX));
-        vec_copy<VALUE_TYPE_AX>((VALUE_TYPE_AX *)cp_data->values, (VALUE_TYPE_AX *)data->values, nz, 0);
+        cp_data->values = (VALUE_TYPE_AX*) malloc(nz * sizeof(VALUE_TYPE_AX));
+        vec_copy<VALUE_TYPE_AX>(cp_data->values, data->values, nz, 0);
 
 
       } else
@@ -309,8 +310,8 @@ void *SpmvOperator::spmv_data_copy_host() {
         vec_copy<int>(cp_data->colInd, data->colInd, nz, 0);
 
 
-        cp_data->values = malloc(nz * sizeof(VALUE_TYPE_AX));
-        vec_copy<VALUE_TYPE_AX>((VALUE_TYPE_AX *)cp_data->values, (VALUE_TYPE_AX *)data->values, nz, 0);
+        cp_data->values = (VALUE_TYPE_AX*) malloc(nz * sizeof(VALUE_TYPE_AX));
+        vec_copy<VALUE_TYPE_AX>(cp_data->values, data->values, nz, 0);
 
 
       } else
@@ -333,10 +334,9 @@ void *SpmvOperator::spmv_data_copy_host() {
         vec_copy<int>(cp_data->colInd, data->colInd, data->nnzb, 0);
 
  
-        cp_data->values = malloc((data->blockDim * data->blockDim) *
+        cp_data->values = (VALUE_TYPE_AX *) malloc((data->blockDim * data->blockDim) *
                                  data->nnzb * sizeof(VALUE_TYPE_AX));
-        vec_copy<VALUE_TYPE_AX>((VALUE_TYPE_AX *)cp_data->values, (VALUE_TYPE_AX *)data->values,
-                        (data->blockDim * data->blockDim) * data->nnzb, 0);
+        vec_copy<VALUE_TYPE_AX>(cp_data->values, data->values, (data->blockDim * data->blockDim) * data->nnzb, 0);
 
 
         cp_data->nnzb = data->nnzb;
@@ -465,6 +465,7 @@ void serial_spmv(SpmvOperator &op) {
 
 double *conjugate_gradient_serial(SpmvOperator &op, double *b, double *x,
                                   double tolerance) {
+  massert(0, "I am not updated");
   double *r, *p, *AxP, alpha, beta, rt, rt_old, *timers, r_norm, tmp, break_tol,
       p_ap_dot;
   vec_print<double>(b, 10, "b");
