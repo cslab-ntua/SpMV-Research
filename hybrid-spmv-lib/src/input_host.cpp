@@ -172,7 +172,15 @@ void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix
   	SpmvCsrData * csr_output = (SpmvCsrData *) malloc(sizeof(SpmvCsrData));
   	csr_output->rowPtr = (int*) matrix->row_ptr;
   	csr_output->colInd = (int*) matrix->col_ind;
-  	csr_output->values = matrix->values;
+  	//csr_output->values = matrix->values;
+  	if (std::is_same<VALUE_TYPE, double>::value) csr_output->values = (VALUE_TYPE_AX*) matrix->values;
+  	  	else{	
+  		csr_output->values = (VALUE_TYPE_AX*) malloc ( nz * sizeof(VALUE_TYPE_AX));
+  		for (int it=0; it < nz; it++){
+  			if (std::is_same<VALUE_TYPE_AX, int8_t>::value) csr_output->values[it] = (VALUE_TYPE_AX) (((int)matrix->values[it])%256);
+  			else csr_output->values[it] = (VALUE_TYPE_AX) matrix->values[it];
+  		}
+  	}
   	m =  (int) matrix->nr_rows;
   	n =  (int) matrix->nr_cols;
   	nz = (int) matrix->nr_nzeros;
