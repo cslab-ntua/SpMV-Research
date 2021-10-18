@@ -13,3 +13,4 @@ _deps
 *.o
 */cuSP/
 */CSR5/
+build*/
