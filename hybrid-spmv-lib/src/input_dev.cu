@@ -15,7 +15,7 @@ void SpmvOperator::mtx_read_uni(){
     int nnzA;
     int *csrRowPtrA;
     int *csrColIdxA;
-    VALUE_TYPE *csrValA;
+    VALUE_TYPE_AX *csrValA;
     
 	// read matrix from mtx file
     int ret_code;
@@ -64,7 +64,7 @@ void SpmvOperator::mtx_read_uni(){
 
     int *csrRowIdxA_tmp = (int *)malloc(nnzA_mtx_report * sizeof(int));
     int *csrColIdxA_tmp = (int *)malloc(nnzA_mtx_report * sizeof(int));
-    VALUE_TYPE *csrValA_tmp    = (VALUE_TYPE *)malloc(nnzA_mtx_report * sizeof(VALUE_TYPE));
+    VALUE_TYPE_AX *csrValA_tmp    = (VALUE_TYPE_AX *)malloc(nnzA_mtx_report * sizeof(VALUE_TYPE_AX));
 
     /* NOTE: when reading in doubles, ANSI C requires the use of the "l"  */
     /*   specifier as in "%lg", "%lf", "%le", otherwise errors will occur */
@@ -73,7 +73,7 @@ void SpmvOperator::mtx_read_uni(){
     for (int i = 0; i < nnzA_mtx_report; i++)
     {
         int idxi, idxj;
-        VALUE_TYPE fval;
+        VALUE_TYPE_AX fval;
         int ival;
 
         if (isReal)
@@ -125,7 +125,7 @@ void SpmvOperator::mtx_read_uni(){
 
 	cudaMallocManaged(&csrRowPtrA, (m+1) * sizeof(int));
 	cudaMallocManaged(&csrColIdxA, nnzA * sizeof(int));
-	cudaMallocManaged(&csrValA, nnzA * sizeof(VALUE_TYPE));
+	cudaMallocManaged(&csrValA, nnzA * sizeof(VALUE_TYPE_AX));
 	cudaDeviceSynchronize();
 	cudaCheckErrors();
   
@@ -177,19 +177,32 @@ void SpmvOperator::mtx_read_uni(){
     
     SpmvCsrData* csr_output = (SpmvCsrData *) malloc(sizeof(SpmvCsrData));
 	nz = nnzA;
-	mem_bytes += (nz) * sizeof(VALUE_TYPE) + (2 * nz) * sizeof(int);
-	gpu_mem_bytes += (nz) * sizeof(VALUE_TYPE) + (2 * nz) * sizeof(int);
+	mem_bytes += (nz) * sizeof(VALUE_TYPE_AX) + (2 * nz) * sizeof(int);
+	gpu_mem_bytes += (nz) * sizeof(VALUE_TYPE_AX) + (2 * nz) * sizeof(int);
   	csr_output->rowPtr = csrRowPtrA;
   	csr_output->colInd = csrColIdxA;
   	csr_output->values = csrValA;
-  	
+  	avg_nz_row = 0;
+	std_nz_row = 0;
+	avg_bandwidth = 0;
+	std_bandwidth = 0;
+	avg_scattering = 0;
+	std_scattering = 0;
+	density = 0; 
+  	strcpy(distribution, "unused");
+	strcpy(placement, "unused");
+	A_mem_footprint = ((nz) * sizeof(VALUE_TYPE_AX) +  nz * sizeof(int) + (m+1)* sizeof(int))/ 1024.0 / 1024.0;
+	mem_range = (char*) malloc (128*sizeof(char)); 
+	strcpy(mem_range, "unused");
+	diagonal_factor = 0;
+	seed = 0;
   	format_data = csr_output;
   	ddebug(" <- SpmvOperator::mtx_read_uni()\n");
 }
 
 /*void SpmvOperator::mtx_read_host() {
   ddebug(" -> SpmvOperator::mtx_read_host()\n");
-  massert(value_type == SPMV_VALUE_TYPE_DOUBLE,
+  massert(value_type == SPMV_VALUE_TYPE_AX_DOUBLE,
           "SpmvOperator::mtx_read_host -> only double value_type supported");
   int ret_code, nz1, *I, *J, ctr;
   double *val;
@@ -290,7 +303,7 @@ void SpmvOperator::mtx_read_uni(){
 
 void SpmvOperator::mtx_read_uni() {
   ddebug(" -> SpmvOperator::mtx_read_uni()\n");
-  massert(value_type == SPMV_VALUE_TYPE_DOUBLE,
+  massert(value_type == SPMV_VALUE_TYPE_AX_DOUBLE,
           "SpmvOperator::mtx_read_uni -> only double value_type supported");
   int ret_code, nz1, *I, *J, ctr;
   double *val;

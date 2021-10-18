@@ -19,7 +19,7 @@
 #include <stdio.h>            // printf
 #include <stdlib.h>           // EXIT_FAILURE
 
-#include "nvmlPower.hpp"
+#include "nvem.hpp"
 
 
 #define CHECK_CUDA(func)                                                       \
@@ -42,40 +42,36 @@
     }                                                                          \
 }
 
-//Add any wanted combinations
-#if VALUE_TYPE_AX == double
-#define CUDA_VALUE_TYPE_AX CUDA_R_64F
-#elif VALUE_TYPE_AX == float
-#define CUDA_VALUE_TYPE_AX CUDA_R_32F
-#elif VALUE_TYPE_AX == _int8
-#define CUDA_VALUE_TYPE_AX CUDA_R_8I
-#else 
-#error
-#endif
+/* definition to expand macro then apply to pragma message */
+#define VALUE_TO_STRING(x) #x
+#define VALUE(x) VALUE_TO_STRING(x)
+#define VAR_NAME_VALUE(var) #var "="  VALUE(var)
 
-#if VALUE_TYPE_Y == double
-#define CUDA_VALUE_TYPE_Y CUDA_R_64F
-#elif VALUE_TYPE_Y == float
-#define CUDA_VALUE_TYPE_Y CUDA_R_32F
-#elif VALUE_TYPE_Y == _int32
-#define CUDA_VALUE_TYPE_Y CUDA_R_32I
-#elif VALUE_TYPE_Y == int
-#define CUDA_VALUE_TYPE_Y CUDA_R_32I
-#else 
-#error
-#endif
+/* Some example here */
+#pragma message(VAR_NAME_VALUE(VALUE_TYPE_AX))
+#pragma message(VAR_NAME_VALUE(VALUE_TYPE_Y))
+#pragma message(VAR_NAME_VALUE(VALUE_TYPE_COMP))
 
-#if VALUE_TYPE_COMP == double
-#define CUDA_VALUE_TYPE_COMP CUDA_R_64F
-#elif VALUE_TYPE_COMP == float
-#define CUDA_VALUE_TYPE_COMP CUDA_R_32F
-#elif VALUE_TYPE_COMP == _int32
-#define CUDA_VALUE_TYPE_COMP CUDA_R_32I
-#elif VALUE_TYPE_COMP == int
-#define CUDA_VALUE_TYPE_COMP CUDA_R_32I
-#else 
-#error
-#endif
+//Add here any supported combinations. CUDA data types I hate you for this. 
+cudaDataType CUDA_VALUE_TYPE_AX, CUDA_VALUE_TYPE_Y, CUDA_VALUE_TYPE_COMP;
+void cpp_compargs_to_cuda_dtype(){
+	if (std::is_same<VALUE_TYPE_AX, int8_t>::value) CUDA_VALUE_TYPE_AX = CUDA_R_8I;
+	else if (std::is_same<VALUE_TYPE_AX, int>::value) CUDA_VALUE_TYPE_AX = CUDA_R_32I;
+	else if (std::is_same<VALUE_TYPE_AX, float>::value) CUDA_VALUE_TYPE_AX = CUDA_R_32F;
+	else if (std::is_same<VALUE_TYPE_AX, double>::value) CUDA_VALUE_TYPE_AX = CUDA_R_64F;
+	else massert(0, "cpp_compargs_to_cuda_dtype: Invalid/not implemented VALUE_TYPE_AX");
+	
+	if (std::is_same<VALUE_TYPE_Y, int>::value) CUDA_VALUE_TYPE_Y = CUDA_R_32I;
+	else if (std::is_same<VALUE_TYPE_Y, float>::value) CUDA_VALUE_TYPE_Y = CUDA_R_32F;
+	else if (std::is_same<VALUE_TYPE_Y, double>::value) CUDA_VALUE_TYPE_Y = CUDA_R_64F;
+	else massert(0, "cpp_compargs_to_cuda_dtype: Invalid/not implemented VALUE_TYPE_Y");
+	
+	if (std::is_same<VALUE_TYPE_COMP, int>::value) CUDA_VALUE_TYPE_COMP = CUDA_R_32I;
+	else if (std::is_same<VALUE_TYPE_COMP, float>::value) CUDA_VALUE_TYPE_COMP = CUDA_R_32F;
+	else if (std::is_same<VALUE_TYPE_COMP, double>::value) CUDA_VALUE_TYPE_COMP = CUDA_R_64F;
+	else massert(0, "cpp_compargs_to_cuda_dtype: Invalid/not implemented VALUE_TYPE_COMP");
+	cout << "CUDA_VALUE_TYPE_AX: " << CUDA_VALUE_TYPE_AX << ", CUDA_VALUE_TYPE_Y: " << CUDA_VALUE_TYPE_Y << ", CUDA_VALUE_TYPE_COMP: " << CUDA_VALUE_TYPE_COMP << endl;
+}
 
 int main(int argc, char **argv) {
 	/// Check Input
@@ -83,7 +79,7 @@ int main(int argc, char **argv) {
 		  "Incorrect arguments.\nUsage:  ./Executable logfilename Mpakos_7_parameters_with_spaces");
 		            
 	// Set/Check for device
-	int device_id = 1;
+	int device_id = 0;
 	cudaSetDevice(device_id);
 	cudaGetDevice(&device_id);
 	cudaDeviceProp deviceProp;
@@ -109,12 +105,12 @@ int main(int argc, char **argv) {
 
 	fprintf(stdout,
 	  "File=%s ( distribution = %s, placement = %s, diagonal_factor = %lf, seed = %d ) -> Input time=%lf s\n\t\
-	  nr_rows(m)=%d, nr_cols(n)=%d, bytes = %d, density =%lf\n\t\
+	  nr_rows(m)=%d, nr_cols(n)=%d, bytes = %d, density =%lf, mem_footprint = %lf MB, mem_range=%s\n\t\
 	  nr_nnzs=%d, avg_nnz_per_row=%lf, std_nnz_per_row=%lf\n\t\
 	  avg_bandwidth=%lf, std_bandwidth = %lf\n\t\
 	  avg_scattering=%lf, std_scattering=%lf\n",
 	  op.mtx_name, op.distribution, op.placement, op.diagonal_factor, op.seed, exc_timer, 
-	  op.m, op.n, op.bytes, op.density, 
+	  op.m, op.n, op.bytes, op.density, op.A_mem_footprint, op.mem_range,
 	  op.nz, op.avg_nz_row,  op.std_nz_row, 
 	  op.avg_bandwidth,  op.std_bandwidth, 
 	  op.avg_scattering,  op.std_scattering );
@@ -125,7 +121,7 @@ int main(int argc, char **argv) {
 	op.vec_alloc((VALUE_TYPE_AX*)x);
 
 	op.cuSPARSE_init();
-	
+	cpp_compargs_to_cuda_dtype();
 	SpmvCsrData *data = (SpmvCsrData *)op.format_data;
 		   
     VALUE_TYPE_COMP alpha = 1.0;
@@ -212,7 +208,9 @@ int main(int argc, char **argv) {
 
 	// Run cuSPARSE csr
 	fprintf(stdout,"Timing cuSPARSE_csr...\n");
-	nvmlAPIRun();
+	char powa_filename[256];
+	sprintf(powa_filename, "cuSPARSEcsrmv_11-0_generate_cudatype-%d_format-CSR.log", CUDA_VALUE_TYPE_AX);
+	NvemStartMeasure(device_id, powa_filename, 1); // Set to 1 for NVEM log messages. 
 	op.timer = csecond();
 	for (int i = 0; i < NR_ITER; i++) {
 			CHECK_CUSPARSE( cusparseSpMV(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
@@ -222,8 +220,9 @@ int main(int argc, char **argv) {
 	}
 	cudaCheckErrors();
 	op.timer = (csecond() - op.timer)/NR_ITER;
+	unsigned int extra_itter = 0;
 	if (op.timer*NR_ITER < 1.0){
-		unsigned int extra_itter = ((unsigned int) 1.0/op.timer) - NR_ITER;
+		extra_itter = ((unsigned int) 1.0/op.timer) - NR_ITER;
 		fprintf(stdout,"Performing extra %d itter for more power measurments (min benchmark time : 1s)...\n", extra_itter);
 		for (int i = 0; i <  extra_itter; i++) {
 			CHECK_CUSPARSE( cusparseSpMV(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
@@ -233,15 +232,16 @@ int main(int argc, char **argv) {
 		}
 		cudaCheckErrors();
 	}
-	nvmlAPIEnd();
+	NvemStats_p nvem_data = NvemStopMeasure(device_id, "Energy measure cuSPARSEcsrmv_11-0_generate");
 	gflops_s = op.flops*1e-9/op.timer;
-	fprintf(stdout, "cuSPARSE_csr: t = %lf ms (%lf Gflops/s )\n", op.timer*1000, gflops_s);
+	double W_avg = nvem_data->W_avg, J_estimated = nvem_data->J_estimated/(NR_ITER+extra_itter); 
+	fprintf(stdout, "cuSPARSE_csr11: t = %lf ms (%lf Gflops/s ). Average Watts = %lf, Estimated Joules = %lf\n", op.timer*1000, gflops_s, W_avg, J_estimated);
 	foutp << op.mtx_name << "," << op.distribution << "," << op.placement << "," << op.diagonal_factor << "," << op.seed <<
-	"," << op.m << "," << op.n << "," << op.density << 
+	"," << op.m << "," << op.n << "," << op.density << "," << op.A_mem_footprint << "," << op.mem_range << 
 	"," << op.nz << "," << op.avg_nz_row << "," << op.std_nz_row <<
 	"," << op.avg_bandwidth << "," << op.std_bandwidth <<
 	"," << op.avg_scattering << "," << op.std_scattering <<
-	"," << "cuSPARSE_csr" <<  "," << op.timer << "," << gflops_s << "\n";
+	"," << "cuSPARSE_csr11" <<  "," << op.timer << "," << gflops_s << "," << W_avg <<  "," << J_estimated << endl;
 
     // destroy matrix/vector descriptors
     CHECK_CUSPARSE( cusparseDestroySpMat(matA) )

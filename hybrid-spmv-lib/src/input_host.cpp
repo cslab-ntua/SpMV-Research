@@ -188,6 +188,8 @@ void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix
 	strcpy(placement, matrix->placement);
 	diagonal_factor = matrix->diagonal_factor;
 	seed = matrix->seed;
+	A_mem_footprint = matrix->mem_footprint;
+	mem_range = matrix->mem_range;
   	format_data = csr_output;
   	ddebug(" <- SpmvOperator::mtx_generate_host()\n");
 }
@@ -198,7 +200,7 @@ void SpmvOperator::mtx_read_host(){
     int nnzA;
     int *csrRowPtrA;
     int *csrColIdxA;
-    VALUE_TYPE *csrValA;
+    VALUE_TYPE_AX *csrValA;
     
 	// read matrix from mtx file
     int ret_code;
@@ -247,7 +249,7 @@ void SpmvOperator::mtx_read_host(){
 
     int *csrRowIdxA_tmp = (int *)malloc(nnzA_mtx_report * sizeof(int));
     int *csrColIdxA_tmp = (int *)malloc(nnzA_mtx_report * sizeof(int));
-    VALUE_TYPE *csrValA_tmp    = (VALUE_TYPE *)malloc(nnzA_mtx_report * sizeof(VALUE_TYPE));
+    VALUE_TYPE_AX *csrValA_tmp    = (VALUE_TYPE_AX *)malloc(nnzA_mtx_report * sizeof(VALUE_TYPE_AX));
 
     /* NOTE: when reading in doubles, ANSI C requires the use of the "l"  */
     /*   specifier as in "%lg", "%lf", "%le", otherwise errors will occur */
@@ -256,7 +258,7 @@ void SpmvOperator::mtx_read_host(){
     for (int i = 0; i < nnzA_mtx_report; i++)
     {
         int idxi, idxj;
-        VALUE_TYPE fval;
+        VALUE_TYPE_AX fval;
         int ival;
 
         if (isReal)
@@ -312,7 +314,7 @@ void SpmvOperator::mtx_read_host(){
     memset(csrRowPtrA_counter, 0, (m+1) * sizeof(int));
 
     csrColIdxA = (int *)malloc(nnzA * sizeof(int));
-    csrValA    = (VALUE_TYPE *)malloc(nnzA * sizeof(VALUE_TYPE));
+    csrValA    = (VALUE_TYPE_AX *)malloc(nnzA * sizeof(VALUE_TYPE_AX));
 
     if (isSymmetric)
     {
@@ -358,7 +360,7 @@ void SpmvOperator::mtx_read_host(){
     
     SpmvCsrData* csr_output = (SpmvCsrData *) malloc(sizeof(SpmvCsrData));
 	nz = nnzA;
-	mem_bytes += (nz) * sizeof(VALUE_TYPE) + (2 * nz) * sizeof(int);
+	mem_bytes += (nz) * sizeof(VALUE_TYPE_AX) + (2 * nz) * sizeof(int);
   	csr_output->rowPtr = csrRowPtrA;
   	csr_output->colInd = csrColIdxA;
   	csr_output->values = csrValA;
@@ -371,6 +373,9 @@ void SpmvOperator::mtx_read_host(){
 	density = 0; 
   	strcpy(distribution, "unused");
 	strcpy(placement, "unused");
+	A_mem_footprint = ((nz) * sizeof(VALUE_TYPE_AX) +  nz * sizeof(int) + (m+1)* sizeof(int))/ 1024.0 / 1024.0;
+	mem_range = (char*) malloc (128*sizeof(char)); 
+	strcpy(mem_range, "unused");
 	diagonal_factor = 0;
 	seed = 0;
   	format_data = csr_output;

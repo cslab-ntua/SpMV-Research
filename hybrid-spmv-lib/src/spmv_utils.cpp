@@ -266,6 +266,21 @@ template void check_result<float>(float *test, float *orig, int n);
 
 void *SpmvOperator::spmv_data_copy_host() {
   ddebug(" -> SpmvOperator::spmv_data_copy_host()\n");
+    switch (mem_alloc) {
+    case (SPMV_MEMTYPE_NUMA):
+      massert(0, "SpmvOperator::spmv_data_copy_host -> Copy from numa not implemented");
+      break;
+    case (SPMV_MEMTYPE_HOST):
+      break;
+    case (SPMV_MEMTYPE_UNIFIED):
+      break;
+    case (SPMV_MEMTYPE_DEVICE):
+      massert(0, "SpmvOperator::spmv_data_copy_host -> Copy from device not implemented");
+      break;
+    default:
+      massert(0, "SpmvOperator::spmv_data_copy_host -> Unreachable mem_alloc default reached");
+      break;
+  }
   switch (format) {
     case (SPMV_FORMAT_COO): {
       SpmvCooData *data = (SpmvCooData *)format_data;

@@ -23,9 +23,9 @@ SpmvOperator::SpmvOperator(int argc, char *argv[], int start_of_matrix_generatio
   n = m = nz = bytes = flops = bsr_blockDim = 0;
   x = y = NULL;
   mem_alloc = SPMV_MEMTYPE_HOST;
-  if (sizeof(VALUE_TYPE) == sizeof(double)) value_type = SPMV_VALUETYPE_DOUBLE;
-  else if (sizeof(VALUE_TYPE) == sizeof(float)) value_type = SPMV_VALUETYPE_FLOAT;
-  else massert(false, "SpmvOperator::SpmvOperator() -> Unsupported VALUE_TYPE\n");
+  if (sizeof(VALUE_TYPE_AX) == sizeof(double)) value_type = SPMV_VALUETYPE_DOUBLE;
+  else if (sizeof(VALUE_TYPE_AX) == sizeof(float)) value_type = SPMV_VALUETYPE_FLOAT;
+  else massert(false, "SpmvOperator::SpmvOperator() -> Unsupported VALUE_TYPE_AX\n");
   format_data = NULL;
   format = SPMV_FORMAT_CSR;
   lib_struct = NULL;
@@ -47,9 +47,9 @@ SpmvOperator::SpmvOperator(char *matrix_name) {
   n = m = nz = bytes = flops = bsr_blockDim = 0;
   x = y = NULL;
   mem_alloc = SPMV_MEMTYPE_HOST;
-  if (sizeof(VALUE_TYPE) == sizeof(double)) value_type = SPMV_VALUETYPE_DOUBLE;
-  else if (sizeof(VALUE_TYPE) == sizeof(float)) value_type = SPMV_VALUETYPE_FLOAT;
-  else massert(false, "SpmvOperator::SpmvOperator() -> Unsupported VALUE_TYPE\n");
+  if (sizeof(VALUE_TYPE_AX) == sizeof(double)) value_type = SPMV_VALUETYPE_DOUBLE;
+  else if (sizeof(VALUE_TYPE_AX) == sizeof(float)) value_type = SPMV_VALUETYPE_FLOAT;
+  else massert(false, "SpmvOperator::SpmvOperator() -> Unsupported VALUE_TYPE_AX\n");
   format_data = NULL;
   format = SPMV_FORMAT_CSR;
   lib_struct = NULL;
@@ -107,6 +107,9 @@ SpmvOperator::SpmvOperator(SpmvOperator &op) {
   strcpy(placement, op.placement);
   diagonal_factor = op.diagonal_factor;
   seed = op.seed;
+  A_mem_footprint = op.A_mem_footprint;
+  mem_range = (char*) malloc (128*sizeof(char)); 
+  strcpy(mem_range, op.mem_range);
   flops = op.flops;
   bytes = op.bytes;
   format_data = op.spmv_data_get_copy();
@@ -191,6 +194,9 @@ SpmvOperator::SpmvOperator(SpmvOperator &op, int start, int end, int mode) {
   std_bandwidth = 0;
   avg_scattering = 0;
   std_scattering = 0;
+  A_mem_footprint = op.A_mem_footprint;
+  mem_range = (char*) malloc (128*sizeof(char)); 
+  strcpy(mem_range, op.mem_range);
   format_data = op.spmv_data_get_subcopy(&start, &nz, mode);
   /// FIXME:EXP
   /*
@@ -749,6 +755,21 @@ void *SpmvOperator::spmv_data_get_copy() {
 
 void *SpmvOperator::spmv_data_copy_uni() {
   ddebug(" -> SpmvOperator::spmv_data_get_copy_uni()\n");
+  switch (mem_alloc) {
+    case (SPMV_MEMTYPE_NUMA):
+      massert(0, "SpmvOperator::spmv_data_copy_uni -> Copy from numa not implemented");
+      break;
+    case (SPMV_MEMTYPE_HOST):
+      break;
+    case (SPMV_MEMTYPE_UNIFIED):
+      break;
+    case (SPMV_MEMTYPE_DEVICE):
+      massert(0, "SpmvOperator::spmv_data_copy_uni -> Copy from device not implemented");
+      break;
+    default:
+      massert(0, "SpmvOperator::spmv_data_copy_uni -> Unreachable mem_alloc default reached");
+      break;
+  }
   switch (format) {
     case (SPMV_FORMAT_COO): {
       SpmvCooData *data = (SpmvCooData *)format_data;
@@ -828,10 +849,10 @@ void *SpmvOperator::spmv_data_copy_uni() {
       const int nb = (n + data->blockDim - 1) / data->blockDim;
       const int mb = (m + data->blockDim - 1) / data->blockDim;
       if (data->rowPtr && data->colInd && data->values) {
-        cudaMallocManaged(&cp_data->rowPtr, (nb + 1) * sizeof(int));
+        cudaMallocManaged(&cp_data->rowPtr, (mb + 1) * sizeof(int));
         cudaMallocManaged(&cp_data->colInd, data->nnzb * sizeof(int));
 
-        vec_copy<int>(cp_data->rowPtr, data->rowPtr, nb + 1, 0);
+        vec_copy<int>(cp_data->rowPtr, data->rowPtr, mb + 1, 0);
         vec_copy<int>(cp_data->colInd, data->colInd, data->nnzb, 0);
 
         switch (value_type) {
@@ -890,7 +911,146 @@ void *SpmvOperator::spmv_data_copy_uni() {
 
 void *SpmvOperator::spmv_data_copy_device() {
   ddebug(" -> SpmvOperator::spmv_data_get_copy_device()\n");
-  massert(0, "SpmvOperator::spmv_data_copy_device -> Not implemented");
+  switch (mem_alloc) {
+    case (SPMV_MEMTYPE_NUMA):
+      massert(0, "SpmvOperator::spmv_data_copy_device -> Copy from numa not implemented");
+      break;
+    case (SPMV_MEMTYPE_HOST):
+      break;
+    case (SPMV_MEMTYPE_UNIFIED):
+      break;
+    case (SPMV_MEMTYPE_DEVICE):
+      break;
+    default:
+      massert(0, "SpmvOperator::spmv_data_get_copy_device -> Unreachable mem_alloc default reached");
+      break;
+  }
+    switch (format) {
+    case (SPMV_FORMAT_COO): {
+      SpmvCooData *data = (SpmvCooData *)format_data;
+      SpmvCooData *cp_data = (SpmvCooData *)malloc(sizeof(SpmvCooData));
+      if (data->rowInd && data->colInd && data->values) {
+        cudaMalloc(&cp_data->rowInd, nz * sizeof(int));
+        cudaMalloc(&cp_data->colInd, nz * sizeof(int));
+
+        cudaMemcpy(cp_data->rowInd, data->rowInd, nz* sizeof(int), cudaMemcpyDefault);
+        cudaMemcpy(cp_data->colInd, data->colInd, nz* sizeof(int), cudaMemcpyDefault);
+
+        switch (value_type) {
+          case (SPMV_VALUETYPE_FLOAT):
+            cudaMalloc(&cp_data->values, nz * sizeof(float));
+            cudaMemcpy(cp_data->values, (float *)data->values, nz* sizeof(float), cudaMemcpyDefault);
+            break;
+          case (SPMV_VALUETYPE_DOUBLE):
+            cudaMalloc(&cp_data->values, nz * sizeof(double));
+            cudaMemcpy(cp_data->values, (double *)data->values, nz* sizeof(double), cudaMemcpyDefault);
+            break;
+          case (SPMV_VALUETYPE_INT):
+          case (SPMV_VALUETYPE_BINARY):
+          default:
+            massert(false,
+                    "SpmvOperator::spmv_data_get_copy_device -> Unsupported SpMV "
+                    "value datatype");
+        }
+
+      } else
+        debug(
+            "SpmvOperator::spmv_data_get_copy_device -> warning... empty Spmv struct, "
+            "copied nothing\n");
+      ddebug(" <- SpmvOperator::spmv_data_get_copy_device()\n");
+      return cp_data;
+    }
+    case (SPMV_FORMAT_CSR): {
+      SpmvCsrData *data = (SpmvCsrData *)format_data;
+      SpmvCsrData *cp_data = (SpmvCsrData *)malloc(sizeof(SpmvCsrData));
+      if (data->rowPtr && data->colInd && data->values) {
+        cudaMalloc(&cp_data->rowPtr, (m + 1) * sizeof(int));
+        cudaMalloc(&cp_data->colInd, nz * sizeof(int));
+
+        cudaMemcpy(cp_data->rowPtr, data->rowPtr, (m + 1)* sizeof(int), cudaMemcpyDefault);
+        cudaMemcpy(cp_data->colInd, data->colInd, nz * sizeof(int), cudaMemcpyDefault);
+
+        switch (value_type) {
+          case (SPMV_VALUETYPE_FLOAT):
+            cudaMalloc(&cp_data->values, nz * sizeof(float));
+            cudaMemcpy(cp_data->values, (float *)data->values, nz* sizeof(float), cudaMemcpyDefault);
+            break;
+          case (SPMV_VALUETYPE_DOUBLE):
+            cudaMalloc(&cp_data->values, nz * sizeof(double));
+            cudaMemcpy(cp_data->values, (double *)data->values,
+                             nz* sizeof(double), cudaMemcpyDefault);
+            break;
+          case (SPMV_VALUETYPE_INT):
+          case (SPMV_VALUETYPE_BINARY):
+          default:
+            massert(false,
+                    "SpmvOperator::spmv_data_get_copy_device -> Unsupported SpMV "
+                    "value datatype");
+        }
+
+      } else
+        debug(
+            "SpmvOperator::spmv_data_get_copy_device -> warning... empty Spmv struct, "
+            "copied nothing\n");
+      ddebug(" <- SpmvOperator::spmv_data_get_copy_device()\n");
+      return cp_data;
+    }
+    case (SPMV_FORMAT_BSR): {
+      SpmvBsrData *data = (SpmvBsrData *)format_data;
+      SpmvBsrData *cp_data = (SpmvBsrData *)malloc(sizeof(SpmvBsrData));
+      const int nb = (n + data->blockDim - 1) / data->blockDim;
+      const int mb = (m + data->blockDim - 1) / data->blockDim;
+      if (data->rowPtr && data->colInd && data->values) {
+        cudaMalloc(&cp_data->rowPtr, (mb + 1) * sizeof(int));
+        cudaMalloc(&cp_data->colInd, data->nnzb * sizeof(int));
+
+        cudaMemcpy(cp_data->rowPtr, data->rowPtr, (mb + 1)* sizeof(int), cudaMemcpyDefault);
+        cudaMemcpy(cp_data->colInd, data->colInd, data->nnzb* sizeof(int), cudaMemcpyDefault);
+
+        switch (value_type) {
+          case (SPMV_VALUETYPE_FLOAT):
+            cudaMalloc(&cp_data->values,(data->blockDim * data->blockDim) * data->nnzb * sizeof(float));
+            cudaMemcpy(cp_data->values, (float *)data->values,(data->blockDim * data->blockDim) * data->nnzb* sizeof(float), cudaMemcpyDefault);
+            break;
+          case (SPMV_VALUETYPE_DOUBLE):
+            cudaMalloc(&cp_data->values,(data->blockDim * data->blockDim) * data->nnzb *sizeof(double));
+            cudaMemcpy(cp_data->values, (double *)data->values,(data->blockDim * data->blockDim) * data->nnzb* sizeof(double), cudaMemcpyDefault);
+            break;
+          case (SPMV_VALUETYPE_INT):
+          case (SPMV_VALUETYPE_BINARY):
+          default:
+            massert(false,
+                    "SpmvOperator::spmv_data_get_copy_device -> Unsupported SpMV "
+                    "value datatype");
+        }
+
+        cp_data->nnzb = data->nnzb;
+        cp_data->blockDim = data->blockDim;
+      } else
+        debug(
+            "SpmvOperator::spmv_data_get_copy_device -> warning... empty Spmv struct, "
+            "copied nothing\n");
+      ddebug(" <- SpmvOperator::spmv_data_get_copy_device()\n");
+      return cp_data;
+    }
+    case (SPMV_FORMAT_DIA):
+      massert(0,
+              "SpmvOperator::spmv_data_get_copy_device -> SPMV_FORMAT_DIA not "
+              "implemented");
+    case (SPMV_FORMAT_ELL):
+      massert(0,
+              "SpmvOperator::spmv_data_get_copy_device -> SPMV_FORMAT_ELL not "
+              "implemented");
+    case (SPMV_FORMAT_HYB):
+      massert(0,
+              "SpmvOperator::spmv_data_get_copy_device -> SPMV_FORMAT_HYB not "
+              "implemented");
+    default:
+      massert(0,
+              "SpmvOperator::spmv_data_get_copy_device -> Unreacheable format default "
+              "reached");
+      break;
+  }
   ddebug(" <- SpmvOperator::spmv_data_get_copy_device()\n");
   return NULL;
 }
@@ -1163,9 +1323,10 @@ void SpmvOperator::mem_convert_device() {
       spmv_free_device();
       format_data = newptr;
       vec_alloc_device(x);
+      break;
     case (SPMV_MEMTYPE_HOST):
       /// Convert to unified from host
-      newptr = spmv_data_copy_uni();
+      newptr = spmv_data_copy_device();
       spmv_free_device();
       format_data = newptr;
       vec_alloc_uni(x);
@@ -1174,10 +1335,6 @@ void SpmvOperator::mem_convert_device() {
           "SpmvOperator::mem_convert_device -> warning... "
           "SpmvOperator::spmv_data_copy_device from unified is not properly "
           "tested");
-      newptr = spmv_data_copy_device();
-      spmv_free_device();
-      format_data = newptr;
-      vec_alloc_device(x);
       break;
     default:
       massert(0,

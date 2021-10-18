@@ -93,6 +93,8 @@ class SpmvOperator {
   int flops = 0;
   size_t mem_bytes = 0;
   size_t gpu_mem_bytes = 0;
+  double A_mem_footprint;
+  char* mem_range;
   double timer;
 
   // Data

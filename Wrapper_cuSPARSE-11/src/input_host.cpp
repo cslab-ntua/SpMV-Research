@@ -76,10 +76,12 @@ void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix
 	strcpy(placement, matrix->placement);
 	diagonal_factor = matrix->diagonal_factor;
 	seed = matrix->seed;
+	A_mem_footprint = matrix->mem_footprint;
+	mem_range = matrix->mem_range;
   	SpmvCsrData * csr_output = (SpmvCsrData *) malloc(sizeof(SpmvCsrData));
   	csr_output->rowPtr = (int*) matrix->row_ptr;
   	csr_output->colInd = (int*) matrix->col_ind;
-  	if (std::is_same<VALUE_TYPE_AX, double>::value) csr_output->values = (VALUE_TYPE_AX*) matrix->values;
+  	if (std::is_same<VALUE_TYPE_AX, double>::value || std::is_same<VALUE_TYPE_AX, float>::value) csr_output->values = (VALUE_TYPE_AX*) matrix->values;
   	else{	
   		csr_output->values = (VALUE_TYPE_AX*) malloc ( nz * sizeof(VALUE_TYPE_AX));
   		for (int it=0; it < nz; it++){
@@ -272,6 +274,9 @@ void SpmvOperator::mtx_read_host(){
 	density = 0; 
   	strcpy(distribution, "unused");
 	strcpy(placement, "unused");
+	A_mem_footprint = ((nz) * sizeof(VALUE_TYPE_AX) +  nz * sizeof(int) + (m+1)* sizeof(int))/ 1024.0 / 1024.0;
+	mem_range = (char*) malloc (128*sizeof(char)); 
+	strcpy(mem_range, "unused");
 	diagonal_factor = 0;
 	seed = 0;
   	format_data = csr_output;
