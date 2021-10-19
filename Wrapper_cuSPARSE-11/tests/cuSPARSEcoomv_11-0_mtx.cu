@@ -246,8 +246,8 @@ int main(int argc, char **argv) {
 	double W_avg = nvem_data->W_avg, J_estimated = nvem_data->J_estimated/(NR_ITER+extra_itter); 
 	fprintf(stdout, "cuSPARSE_coo11: t = %lf ms (%lf Gflops/s ). Average Watts = %lf, Estimated Joules = %lf\n", op.timer*1000, gflops_s, W_avg, J_estimated);
 	foutp << op.mtx_name << "," << op.distribution << "," << op.placement << "," << op.diagonal_factor << "," << op.seed <<
-	"," << op.m << "," << op.n << "," << op.density << "," << op.A_mem_footprint << "," << op.mem_range <<
-	"," << op.nz << "," << op.avg_nz_row << "," << op.std_nz_row <<
+	"," << op.m << "," << op.n << "," << op.nz << "," << op.density << 
+	"," << op.A_mem_footprint << "," << op.mem_range << "," << op.avg_nz_row << "," << op.std_nz_row <<
 	"," << op.avg_bandwidth << "," << op.std_bandwidth <<
 	"," << op.avg_scattering << "," << op.std_scattering <<
 	"," << "cuSPARSE_coo11" <<  "," << op.timer << "," << gflops_s << "," << W_avg <<  "," << J_estimated << endl;

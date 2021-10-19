@@ -25,7 +25,7 @@ SpmvOperator::SpmvOperator(int argc, char *argv[], int start_of_matrix_generatio
   format = SPMV_FORMAT_CSR;
   lib_struct = NULL;
   lib = SPMV_NONE;
-  mtx_name = "Synthetic";
+  mtx_name = "synthetic";
   mtx_generate(argc, argv, start_of_matrix_generation_args, verbose);
   bytes = sizeof(int) * (m + 1) + sizeof(int) * nz + sizeof(VALUE_TYPE_AX) * nz +
           sizeof(VALUE_TYPE_Y) * m + sizeof(VALUE_TYPE_AX) * n;
