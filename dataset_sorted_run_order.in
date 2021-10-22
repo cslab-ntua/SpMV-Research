@@ -1,8 +1,8 @@
 normal_4-8.txt
 normal_128-256.txt
+normal_1024-2048.txt
 gamma_4-8.txt
 gamma_128-256.txt
-normal_1024-2048.txt
 gamma_1024-2048.txt
 normal_8-16.txt
 normal_16-32.txt
@@ -14,7 +14,5 @@ gamma_32-64.txt
 gamma_64-128.txt
 normal_256-512.txt
 normal_512-1024.txt
-normal_2048-4096.txt
 gamma_256-512.txt
 gamma_512-1024.txt
-gamma_2048-4096.txt

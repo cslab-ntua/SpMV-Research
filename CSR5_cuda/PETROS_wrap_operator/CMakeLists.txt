@@ -80,7 +80,7 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../)
 message( "csr5 header files: "  ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
 # Mpakos header files 
-set (MPAKOS_PREFIX "/various/pmpakos/artificial_matrix_generation")
+set (MPAKOS_PREFIX "${PROJECT_SOURCE_DIR}/artificial_matrix_generation/pmpakos_impl")
 include_directories( ${MPAKOS_PREFIX}/include)
 message( "Mpakos header files: " ${MPAKOS_PREFIX}/include )
 

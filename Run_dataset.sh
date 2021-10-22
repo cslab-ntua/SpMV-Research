@@ -10,7 +10,7 @@ STORE_TIMER_DIR=$MASTEDIR/Benchmarks
 
 cd build_runtrash
 
-MPAKOSDIR=/various/pmpakos/artificial_matrix_generation/matrix_generation_parameters/double
+MPAKOSDIR=/various/pmpakos/artificial_matrix_generation/matrix_generation_parameters/double/small
 for dtype in D #S
 do
 	for filename in `cat ${MASTEDIR}/dataset_sorted_run_order.in`;
