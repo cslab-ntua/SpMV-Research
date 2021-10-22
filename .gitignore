@@ -15,3 +15,4 @@ _deps
 */CSR5/
 build*/
 .ipynb*
+*Plot_tries/
