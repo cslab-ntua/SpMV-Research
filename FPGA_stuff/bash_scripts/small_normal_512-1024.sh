@@ -95,9 +95,13 @@ time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.h
 time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14 128 0; yes | xbutil reset -d 0; echo
 time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14 128 0; yes | xbutil reset -d 0; echo
 time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_1383000_1383000_avg45.0_std2.5_diagonal_0.005_n14 128 0; yes | xbutil reset -d 0; echo
+time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_161000_161000_avg420.0_std125.0_diagonal_0.005_n14 128 0; yes | xbutil reset -d 0; echo
+time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_952000_952000_avg70.0_std8.0_diagonal_0.005_n14 128 0; yes | xbutil reset -d 0; echo
 
 
 time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat 
  128 0; yes | xbutil reset -d 0; echo
+
+
 
 rm -rf ./sig_dat/*; rm -rf ./vec_dat/*
