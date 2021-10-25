@@ -1,6 +1,6 @@
 [submodule "nvidia-energy-measure"]
 	path = nvidia-energy-measure
 	url = git@github.com:p-anastas/nvidia-energy-measure.git
-[submodule "artificial-matrix-generation-C"]
-	path = artificial_matrix_generation_C
+[submodule "artificial-matrix-generator"]
+	path = artificial-matrix-generator
 	url = git@github.com:DimitrisGalanopoulos/artificial-matrix-generator.git
