@@ -3466,3 +3466,188 @@ user	0m1.518s
 sys	0m3.639s
 All existing processes will be killed.
 Are you sure you wish to proceed? [y/n]: 
+pmpakos@gold1:/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/benchmarks/spmv_double$ time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14 128 0; yes | xbutil reset -d 0; echo
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_0.dat	0 -> l_bytes 96.0823 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_1.dat	1 -> l_bytes 96.1034 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_2.dat	2 -> l_bytes 96.121 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_3.dat	3 -> l_bytes 96.1658 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_4.dat	4 -> l_bytes 96.1661 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_5.dat	5 -> l_bytes 96.1936 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_6.dat	6 -> l_bytes 96.1714 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_7.dat	7 -> l_bytes 96.2553 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_8.dat	8 -> l_bytes 96.1967 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_9.dat	9 -> l_bytes 96.2004 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_10.dat	10 -> l_bytes 96.2179 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_11.dat	11 -> l_bytes 96.2307 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_12.dat	12 -> l_bytes 96.1425 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_13.dat	13 -> l_bytes 96.1485 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_14.dat	14 -> l_bytes 96.1003 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/nnzVal_15.dat	15 -> l_bytes 90.7395 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/parParam.dat	16 -> l_bytes 0.0193176 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/rbParam.dat	17 -> l_bytes 0.00979614 MB
+l_vecFileNames ./vec_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/inVec.dat	0 -> l_bytes 1.22833 MB
+l_vecFileNames ./vec_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14/refVec.dat	1 -> l_bytes 1.22833 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_161000_161000_avg420.0_std125.0_diagonal_0.5_n14,161000,161000,67523210,161000,161000,187758720,178.065,128,1.64101,12.8204,10.5337,29.2906,1533.26
+INFO: Test pass!
+
+real	0m11.958s
+user	0m1.191s
+sys	0m2.397s
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: 
+pmpakos@gold1:/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/benchmarks/spmv_double$ time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14 128 0; yes | xbutil reset -d 0; echo
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_0.dat	0 -> l_bytes 100.537 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_1.dat	1 -> l_bytes 100.555 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_2.dat	2 -> l_bytes 100.561 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_3.dat	3 -> l_bytes 100.587 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_4.dat	4 -> l_bytes 100.593 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_5.dat	5 -> l_bytes 100.598 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_6.dat	6 -> l_bytes 100.613 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_7.dat	7 -> l_bytes 100.616 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_8.dat	8 -> l_bytes 100.642 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_9.dat	9 -> l_bytes 100.635 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_10.dat	10 -> l_bytes 100.643 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_11.dat	11 -> l_bytes 100.64 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_12.dat	12 -> l_bytes 100.667 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_13.dat	13 -> l_bytes 100.683 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_14.dat	14 -> l_bytes 100.672 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/nnzVal_15.dat	15 -> l_bytes 95.2154 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/parParam.dat	16 -> l_bytes 0.113556 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/rbParam.dat	17 -> l_bytes 0.0569153 MB
+l_vecFileNames ./vec_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/inVec.dat	0 -> l_bytes 7.26318 MB
+l_vecFileNames ./vec_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14/refVec.dat	1 -> l_bytes 7.26318 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_952000_952000_avg70.0_std8.0_diagonal_0.5_n14,952000,952000,66162503,952000,952000,196462624,196.94,128,1.70861,13.3485,9.91308,29.4359,1604.63
+INFO: Test pass!
+
+real	0m12.428s
+user	0m1.206s
+sys	0m2.404s
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: 
+pmpakos@gold1:/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/benchmarks/spmv_double$ time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_161000_161000_avg420.0_std125.0_random_n14 128 0; yes | xbutil reset -d 0; echo
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_0.dat	0 -> l_bytes 183.86 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_1.dat	1 -> l_bytes 183.85 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_2.dat	2 -> l_bytes 183.854 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_3.dat	3 -> l_bytes 183.854 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_4.dat	4 -> l_bytes 183.875 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_5.dat	5 -> l_bytes 183.865 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_6.dat	6 -> l_bytes 183.871 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_7.dat	7 -> l_bytes 183.863 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_8.dat	8 -> l_bytes 183.859 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_9.dat	9 -> l_bytes 183.865 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_10.dat	10 -> l_bytes 183.857 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_11.dat	11 -> l_bytes 183.87 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_12.dat	12 -> l_bytes 183.86 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_13.dat	13 -> l_bytes 183.853 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_14.dat	14 -> l_bytes 183.85 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/nnzVal_15.dat	15 -> l_bytes 177.389 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/parParam.dat	16 -> l_bytes 0.390656 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/rbParam.dat	17 -> l_bytes 0.00979614 MB
+l_vecFileNames ./vec_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/inVec.dat	0 -> l_bytes 1.22833 MB
+l_vecFileNames ./vec_dat/synthetic_161000_161000_avg420.0_std125.0_random_n14/refVec.dat	1 -> l_bytes 1.22833 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_161000_161000_avg420.0_std125.0_random_n14,161000,161000,67523210,161000,161000,359375424,432.225,128,3.8676,30.2156,4.46943,23.7874,2935.7
+INFO: Test pass!
+
+real	0m17.078s
+user	0m1.987s
+sys	0m4.662s
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: 
+pmpakos@gold1:/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/benchmarks/spmv_double$ time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14 128 0; yes | xbutil reset -d 0; echo
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_0.dat	0 -> l_bytes 138.718 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_1.dat	1 -> l_bytes 138.693 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_2.dat	2 -> l_bytes 138.689 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_3.dat	3 -> l_bytes 138.716 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_4.dat	4 -> l_bytes 138.692 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_5.dat	5 -> l_bytes 138.71 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_6.dat	6 -> l_bytes 138.728 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_7.dat	7 -> l_bytes 138.714 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_8.dat	8 -> l_bytes 138.714 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_9.dat	9 -> l_bytes 138.704 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_10.dat	10 -> l_bytes 138.701 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_11.dat	11 -> l_bytes 138.708 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_12.dat	12 -> l_bytes 138.65 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_13.dat	13 -> l_bytes 138.583 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_14.dat	14 -> l_bytes 138.483 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/nnzVal_15.dat	15 -> l_bytes 132.405 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/parParam.dat	16 -> l_bytes 0.0845032 MB
+l_sigFileNames ./sig_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/rbParam.dat	17 -> l_bytes 0.00979614 MB
+l_vecFileNames ./vec_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/inVec.dat	0 -> l_bytes 1.22833 MB
+l_vecFileNames ./vec_dat/synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14/refVec.dat	1 -> l_bytes 1.22833 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_161000_161000_avg420.0_std125.0_diagonal_0.05_n14,161000,161000,67523210,161000,161000,270944832,301.262,128,2.48181,19.3892,6.96505,27.9481,2212.7
+INFO: Test pass!
+
+real	0m13.793s
+user	0m1.583s
+sys	0m3.216s
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: 
+pmpakos@gold1:/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/benchmarks/spmv_double$ time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14 128 0; yes | xbutil reset -d 0; echo
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_0.dat	0 -> l_bytes 142 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_1.dat	1 -> l_bytes 142.017 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_2.dat	2 -> l_bytes 142.038 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_3.dat	3 -> l_bytes 142.053 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_4.dat	4 -> l_bytes 142.083 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_5.dat	5 -> l_bytes 142.064 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_6.dat	6 -> l_bytes 142.105 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_7.dat	7 -> l_bytes 142.081 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_8.dat	8 -> l_bytes 142.099 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_9.dat	9 -> l_bytes 142.079 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_10.dat	10 -> l_bytes 142.073 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_11.dat	11 -> l_bytes 142.076 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_12.dat	12 -> l_bytes 142.043 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_13.dat	13 -> l_bytes 141.999 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_14.dat	14 -> l_bytes 141.969 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/nnzVal_15.dat	15 -> l_bytes 135.461 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/parParam.dat	16 -> l_bytes 0.113556 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/rbParam.dat	17 -> l_bytes 0.0569153 MB
+l_vecFileNames ./vec_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/inVec.dat	0 -> l_bytes 7.26318 MB
+l_vecFileNames ./vec_dat/synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14/refVec.dat	1 -> l_bytes 7.26318 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_952000_952000_avg70.0_std8.0_diagonal_0.05_n14,952000,952000,66162503,952000,952000,277507008,319.432,128,2.53826,19.8301,6.67293,27.9884,2266.41
+INFO: Test pass!
+
+real	0m14.926s
+user	0m1.640s
+sys	0m3.622s
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: 
