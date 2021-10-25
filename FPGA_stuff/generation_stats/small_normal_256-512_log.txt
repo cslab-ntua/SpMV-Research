@@ -1,0 +1,1297 @@
+-------
+synthetic_218000_218000_avg105.0_std0.2_random_n14
+>>>> synthetic_218000_218000_22780969_avg105.0_std0.2_random_n14.mtx [256-512] 104.49985779816514 0.49999997977863775 0.9810691569522769 0.013202708183627936 106.53592451106321 1.5450577164640573
+	create_synthetic	 9.817
+	gen_rbs			 19.87
+	gen_vectors		 8.078
+	gen_paddedPars		 821.083
+	gen_chPars		 8.034
+	update_rbParams		 0.176
+	gen_nnzStore		 645.187
+	store_nnz		 70.056
+INFO: matrix synthetic_218000_218000_avg105.0_std0.2_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 218000(218000), 218000(218000), 22780969(321330592)
+      Padding overhead is 1310.522 %
+MATRIX FINISHED. 		TOTAL TIME : 1582.751
+-------
+synthetic_218000_218000_avg105.0_std0.2_diagonal_0.5_n14
+>>>> synthetic_218000_218000_22780969_avg105.0_std0.2_diagonal_0.5_n14.mtx [256-512] 104.49985779816514 0.49999997977863775 0.0018937586903459305 3.368241362976047e-05 55202.95133317869 1312.7405539113518
+	create_synthetic	 12.796
+	gen_rbs			 13.435
+	gen_vectors		 8.071
+	gen_paddedPars		 449.986
+	gen_chPars		 0.723
+	update_rbParams		 0.014
+	gen_nnzStore		 125.281
+	store_nnz		 9.176
+INFO: matrix synthetic_218000_218000_avg105.0_std0.2_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 218000(218000), 218000(218000), 22780969(65894368)
+      Padding overhead is 189.252 %
+MATRIX FINISHED. 		TOTAL TIME : 620.131
+-------
+synthetic_218000_218000_avg105.0_std0.2_diagonal_0.05_n14
+>>>> synthetic_218000_218000_22780969_avg105.0_std0.2_diagonal_0.05_n14.mtx [256-512] 104.49985779816514 0.49999997977863775 0.01873479500883764 0.000792048953074655 5593.192439645997 371.38242285883956
+	create_synthetic	 12.941
+	gen_rbs			 15.432
+	gen_vectors		 8.361
+	gen_paddedPars		 602.069
+	gen_chPars		 1.118
+	update_rbParams		 0.019
+	gen_nnzStore		 176.508
+	store_nnz		 18.175
+INFO: matrix synthetic_218000_218000_avg105.0_std0.2_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 218000(218000), 218000(218000), 22780969(93952448)
+      Padding overhead is 312.416 %
+MATRIX FINISHED. 		TOTAL TIME : 834.727
+-------
+synthetic_218000_218000_avg105.0_std0.2_diagonal_0.005_n14
+>>>> synthetic_218000_218000_22780969_avg105.0_std0.2_diagonal_0.005_n14.mtx [256-512] 104.49985779816514 0.49999997977863775 0.1791020855146873 0.022151029250967173 596.7471228621552 108.7653448561083
+	create_synthetic	 13.549
+	gen_rbs			 17.115
+	gen_vectors		 8.216
+	gen_paddedPars		 657.754
+	gen_chPars		 1.678
+	update_rbParams		 0.047
+	gen_nnzStore		 236.946
+	store_nnz		 13.698
+INFO: matrix synthetic_218000_218000_avg105.0_std0.2_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 218000(218000), 218000(218000), 22780969(124396448)
+      Padding overhead is 446.054 %
+MATRIX FINISHED. 		TOTAL TIME : 949.066
+-------
+synthetic_526000_526000_avg45.0_std0.84_random_n14
+>>>> synthetic_526000_526000_23407446_avg45.0_std0.84_random_n14.mtx [256-512] 44.50084790874525 0.8881321685038596 0.9560929059658226 0.030050860753499675 46.5916971273605 1.7686273752764163
+	create_synthetic	 13.753
+	gen_rbs			 23.741
+	gen_vectors		 8.579
+	gen_paddedPars		 1065.121
+	gen_chPars		 24.928
+	update_rbParams		 0.976
+	gen_nnzStore		 1210.999
+	store_nnz		 81.41
+INFO: matrix synthetic_526000_526000_avg45.0_std0.84_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 526000(526000), 526000(526000), 23407446(635297504)
+      Padding overhead is 2614.083 %
+MATRIX FINISHED. 		TOTAL TIME : 2430.348
+-------
+synthetic_526000_526000_avg45.0_std0.84_diagonal_0.5_n14
+>>>> synthetic_526000_526000_23407446_avg45.0_std0.84_diagonal_0.5_n14.mtx [256-512] 44.50084790874525 0.8881321685038596 0.000329041456432795 1.1313758781301408e-05 135354.60944634132 3983.352642952683
+	create_synthetic	 16.54
+	gen_rbs			 15.756
+	gen_vectors		 10.786
+	gen_paddedPars		 489.553
+	gen_chPars		 0.885
+	update_rbParams		 0.035
+	gen_nnzStore		 133.388
+	store_nnz		 7.972
+INFO: matrix synthetic_526000_526000_avg45.0_std0.84_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 526000(526000), 526000(526000), 23407446(70972736)
+      Padding overhead is 203.206 %
+MATRIX FINISHED. 		TOTAL TIME : 675.59
+-------
+synthetic_526000_526000_avg45.0_std0.84_diagonal_0.05_n14
+>>>> synthetic_526000_526000_23407446_avg45.0_std0.84_diagonal_0.05_n14.mtx [256-512] 44.50084790874525 0.8881321685038596 0.0032382505999797593 0.00013253919310140473 13762.596691743494 585.6489096917393
+	create_synthetic	 14.417
+	gen_rbs			 17.23
+	gen_vectors		 8.786
+	gen_paddedPars		 693.596
+	gen_chPars		 1.244
+	update_rbParams		 0.038
+	gen_nnzStore		 206.756
+	store_nnz		 11.249
+INFO: matrix synthetic_526000_526000_avg45.0_std0.84_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 526000(526000), 526000(526000), 23407446(102296864)
+      Padding overhead is 337.027 %
+MATRIX FINISHED. 		TOTAL TIME : 953.336
+-------
+synthetic_526000_526000_avg45.0_std0.84_diagonal_0.005_n14
+>>>> synthetic_526000_526000_23407446_avg45.0_std0.84_diagonal_0.005_n14.mtx [256-512] 44.50084790874525 0.8881321685038596 0.03208504001069843 0.0020844907568525806 1394.682312958696 128.10036336321426
+	create_synthetic	 13.113
+	gen_rbs			 18.91
+	gen_vectors		 8.345
+	gen_paddedPars		 657.979
+	gen_chPars		 1.829
+	update_rbParams		 0.075
+	gen_nnzStore		 252.965
+	store_nnz		 14.179
+INFO: matrix synthetic_526000_526000_avg45.0_std0.84_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 526000(526000), 526000(526000), 23407446(134217536)
+      Padding overhead is 473.397 %
+MATRIX FINISHED. 		TOTAL TIME : 967.496
+-------
+synthetic_121000_121000_avg220.0_std2.5_random_n14
+>>>> synthetic_121000_121000_26558853_avg220.0_std2.5_random_n14.mtx [256-512] 219.494652892562 2.5150333787139587 0.9909653791407691 0.006363724835177355 221.50469948456006 2.892813519821051
+	create_synthetic	 16.512
+	gen_rbs			 20.938
+	gen_vectors		 9.439
+	gen_paddedPars		 747.376
+	gen_chPars		 2.259
+	update_rbParams		 0.057
+	gen_nnzStore		 293.565
+	store_nnz		 18.332
+INFO: matrix synthetic_121000_121000_avg220.0_std2.5_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 121000(121000), 121000(121000), 26558853(152671392)
+      Padding overhead is 474.842 %
+MATRIX FINISHED. 		TOTAL TIME : 1108.606
+-------
+synthetic_121000_121000_avg220.0_std2.5_diagonal_0.5_n14
+>>>> synthetic_121000_121000_26558853_avg220.0_std2.5_diagonal_0.5_n14.mtx [256-512] 219.494652892562 2.5150333787139587 0.007201841062768938 0.00019939259312449798 30508.36708490278 1238.819135564482
+	create_synthetic	 12.288
+	gen_rbs			 14.806
+	gen_vectors		 9.365
+	gen_paddedPars		 501.076
+	gen_chPars		 0.772
+	update_rbParams		 0.008
+	gen_nnzStore		 139.06
+	store_nnz		 7.507
+INFO: matrix synthetic_121000_121000_avg220.0_std2.5_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 121000(121000), 121000(121000), 26558853(74771104)
+      Padding overhead is 181.53 %
+MATRIX FINISHED. 		TOTAL TIME : 684.911
+-------
+synthetic_121000_121000_avg220.0_std2.5_diagonal_0.05_n14
+>>>> synthetic_121000_121000_26558853_avg220.0_std2.5_diagonal_0.05_n14.mtx [256-512] 219.494652892562 2.5150333787139587 0.07062036233863808 0.005517240466571785 3137.3740488220033 383.0429050715392
+	create_synthetic	 12.445
+	gen_rbs			 17.012
+	gen_vectors		 9.309
+	gen_paddedPars		 704.366
+	gen_chPars		 1.11
+	update_rbParams		 0.013
+	gen_nnzStore		 207.067
+	store_nnz		 11.516
+INFO: matrix synthetic_121000_121000_avg220.0_std2.5_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 121000(121000), 121000(121000), 26558853(107460736)
+      Padding overhead is 304.614 %
+MATRIX FINISHED. 		TOTAL TIME : 962.903
+-------
+synthetic_121000_121000_avg220.0_std2.5_diagonal_0.005_n14
+>>>> synthetic_121000_121000_26558853_avg220.0_std2.5_diagonal_0.005_n14.mtx [256-512] 219.494652892562 2.5150333787139587 0.5885895780342874 0.11955293001986184 390.84103073868283 89.79056187491209
+	create_synthetic	 12.336
+	gen_rbs			 19.982
+	gen_vectors		 9.311
+	gen_paddedPars		 738.058
+	gen_chPars		 1.805
+	update_rbParams		 0.039
+	gen_nnzStore		 267.777
+	store_nnz		 13.897
+INFO: matrix synthetic_121000_121000_avg220.0_std2.5_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 121000(121000), 121000(121000), 26558853(137335712)
+      Padding overhead is 417.1 %
+MATRIX FINISHED. 		TOTAL TIME : 1063.278
+-------
+synthetic_64000_64000_avg420.0_std125.0_random_n14
+>>>> synthetic_64000_64000_26843052_avg420.0_std125.0_random_n14.mtx [256-512] 419.4226875 124.57549602661571 0.9944629418945312 0.012240933903303863 425.42233879489567 517.8144102907171
+	create_synthetic	 12.195
+	gen_rbs			 19.555
+	gen_vectors		 9.396
+	gen_paddedPars		 728.141
+	gen_chPars		 1.316
+	update_rbParams		 0.016
+	gen_nnzStore		 225.714
+	store_nnz		 12.673
+INFO: matrix synthetic_64000_64000_avg420.0_std125.0_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 64000(64000), 64000(64000), 26843052(120572480)
+      Padding overhead is 349.176 %
+MATRIX FINISHED. 		TOTAL TIME : 1009.026
+-------
+synthetic_64000_64000_avg420.0_std125.0_diagonal_0.5_n14
+>>>> synthetic_64000_64000_26843052_avg420.0_std125.0_diagonal_0.5_n14.mtx [256-512] 419.4226875 124.57549602661571 0.02595275634765625 0.00780718542631751 16221.522446241474 1307.6495594275975
+	create_synthetic	 12.171
+	gen_rbs			 14.813
+	gen_vectors		 9.401
+	gen_paddedPars		 510.314
+	gen_chPars		 0.772
+	update_rbParams		 0.004
+	gen_nnzStore		 139.674
+	store_nnz		 8.027
+INFO: matrix synthetic_64000_64000_avg420.0_std125.0_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 64000(64000), 64000(64000), 26843052(74463936)
+      Padding overhead is 177.405 %
+MATRIX FINISHED. 		TOTAL TIME : 695.249
+-------
+synthetic_64000_64000_avg420.0_std125.0_diagonal_0.05_n14
+>>>> synthetic_64000_64000_26843052_avg420.0_std125.0_diagonal_0.05_n14.mtx [256-512] 419.4226875 124.57549602661571 0.24235362939453126 0.07746361021026166 1775.4171156390228 612.1659125681086
+	create_synthetic	 12.309
+	gen_rbs			 17.498
+	gen_vectors		 9.388
+	gen_paddedPars		 787.818
+	gen_chPars		 1.16
+	update_rbParams		 0.014
+	gen_nnzStore		 215.941
+	store_nnz		 10.865
+INFO: matrix synthetic_64000_64000_avg420.0_std125.0_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 64000(64000), 64000(64000), 26843052(107234912)
+      Padding overhead is 299.489 %
+MATRIX FINISHED. 		TOTAL TIME : 1055.019
+-------
+synthetic_64000_64000_avg420.0_std125.0_diagonal_0.005_n14
+>>>> synthetic_64000_64000_26843052_avg420.0_std125.0_diagonal_0.005_n14.mtx [256-512] 419.4226875 124.57549602661571 0.9773059543457031 0.07907348206978138 429.86571162402186 516.0222640060433
+	create_synthetic	 12.202
+	gen_rbs			 19.513
+	gen_vectors		 9.414
+	gen_paddedPars		 786.331
+	gen_chPars		 1.316
+	update_rbParams		 0.017
+	gen_nnzStore		 224.482
+	store_nnz		 12.661
+INFO: matrix synthetic_64000_64000_avg420.0_std125.0_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 64000(64000), 64000(64000), 26843052(120350240)
+      Padding overhead is 348.348 %
+MATRIX FINISHED. 		TOTAL TIME : 1066.002
+-------
+synthetic_64000_64000_avg420.0_std0.64_random_n14
+>>>> synthetic_64000_64000_26848108_avg420.0_std0.64_random_n14.mtx [256-512] 419.5016875 0.6996630634410752 0.9952678479003906 0.0033317244084470773 421.50100678313794 1.5794851340008962
+	create_synthetic	 11.98
+	gen_rbs			 19.298
+	gen_vectors		 9.435
+	gen_paddedPars		 733.649
+	gen_chPars		 1.308
+	update_rbParams		 0.016
+	gen_nnzStore		 225.992
+	store_nnz		 12.551
+INFO: matrix synthetic_64000_64000_avg420.0_std0.64_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 64000(64000), 64000(64000), 26848108(120699776)
+      Padding overhead is 349.565 %
+MATRIX FINISHED. 		TOTAL TIME : 1014.283
+-------
+synthetic_64000_64000_avg420.0_std0.64_diagonal_0.5_n14
+>>>> synthetic_64000_64000_26848108_avg420.0_std0.64_diagonal_0.5_n14.mtx [256-512] 419.5016875 0.6996630634410752 0.025969906005859376 0.0012123415447149416 16210.060425464932 1227.6742988346768
+	create_synthetic	 11.942
+	gen_rbs			 14.471
+	gen_vectors		 9.417
+	gen_paddedPars		 506.493
+	gen_chPars		 0.755
+	update_rbParams		 0.004
+	gen_nnzStore		 137.868
+	store_nnz		 7.897
+INFO: matrix synthetic_64000_64000_avg420.0_std0.64_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 64000(64000), 64000(64000), 26848108(74489088)
+      Padding overhead is 177.446 %
+MATRIX FINISHED. 		TOTAL TIME : 688.873
+-------
+synthetic_64000_64000_avg420.0_std0.64_diagonal_0.05_n14
+>>>> synthetic_64000_64000_26848108_avg420.0_std0.64_diagonal_0.05_n14.mtx [256-512] 419.5016875 0.6996630634410752 0.24387808105468747 0.03458638775687702 1770.1850537917605 357.13207657937664
+	create_synthetic	 12.018
+	gen_rbs			 17.364
+	gen_vectors		 9.426
+	gen_paddedPars		 705.669
+	gen_chPars		 1.059
+	update_rbParams		 0.009
+	gen_nnzStore		 200.013
+	store_nnz		 10.545
+INFO: matrix synthetic_64000_64000_avg420.0_std0.64_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 64000(64000), 64000(64000), 26848108(107302496)
+      Padding overhead is 299.665 %
+MATRIX FINISHED. 		TOTAL TIME : 956.135
+-------
+synthetic_64000_64000_avg420.0_std0.64_diagonal_0.005_n14
+>>>> synthetic_64000_64000_26848108_avg420.0_std0.64_diagonal_0.005_n14.mtx [256-512] 419.5016875 0.6996630634410752 0.9952678479003906 0.0033317244084470773 421.50100678313794 1.5794851340008962
+	create_synthetic	 11.804
+	gen_rbs			 19.319
+	gen_vectors		 9.417
+	gen_paddedPars		 731.211
+	gen_chPars		 1.317
+	update_rbParams		 0.017
+	gen_nnzStore		 230.68
+	store_nnz		 13.453
+INFO: matrix synthetic_64000_64000_avg420.0_std0.64_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 64000(64000), 64000(64000), 26848108(120699776)
+      Padding overhead is 349.565 %
+MATRIX FINISHED. 		TOTAL TIME : 1017.259
+-------
+synthetic_1383000_1383000_avg20.0_std2.5_random_n14
+>>>> synthetic_1383000_1383000_26968582_avg20.0_std2.5_random_n14.mtx [256-512] 19.500059291395516 2.5179663882914536 0.9009715510618818 0.0665457676152042 21.7317268013086 3.019837504356189
+	create_synthetic	 15.352
+	gen_rbs			 36.822
+	gen_vectors		 10.078
+	gen_paddedPars		 1368.065
+	gen_chPars		 128.221
+	update_rbParams		 7.214
+	gen_nnzStore		 1759.591
+	store_nnz		 90.273
+INFO: matrix synthetic_1383000_1383000_avg20.0_std2.5_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 1383000(1383000), 1383000(1383000), 26968582(839347936)
+      Padding overhead is 3012.318 %
+MATRIX FINISHED. 		TOTAL TIME : 3426.859
+-------
+synthetic_1383000_1383000_avg20.0_std2.5_diagonal_0.5_n14
+>>>> synthetic_1383000_1383000_26968582_avg20.0_std2.5_diagonal_0.5_n14.mtx [256-512] 19.500059291395516 2.5179663882914536 5.2929218498145806e-05 7.93467804560258e-06 370402.5039753105 25465.222020236346
+	create_synthetic	 50.909
+	gen_rbs			 28.055
+	gen_vectors		 10.085
+	gen_paddedPars		 580.593
+	gen_chPars		 1.427
+	update_rbParams		 0.088
+	gen_nnzStore		 175.742
+	store_nnz		 9.443
+INFO: matrix synthetic_1383000_1383000_avg20.0_std2.5_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 1383000(1383000), 1383000(1383000), 26968582(92944256)
+      Padding overhead is 244.639 %
+MATRIX FINISHED. 		TOTAL TIME : 856.432
+-------
+synthetic_1383000_1383000_avg20.0_std2.5_diagonal_0.05_n14
+>>>> synthetic_1383000_1383000_26968582_avg20.0_std2.5_diagonal_0.05_n14.mtx [256-512] 19.500059291395516 2.5179663882914536 0.0005109710026041872 8.080743399850306e-05 38458.1670128736 3183.0348484685533
+	create_synthetic	 35.269
+	gen_rbs			 28.582
+	gen_vectors		 9.837
+	gen_paddedPars		 729.322
+	gen_chPars		 1.79
+	update_rbParams		 0.089
+	gen_nnzStore		 242.468
+	store_nnz		 13.688
+INFO: matrix synthetic_1383000_1383000_avg20.0_std2.5_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 1383000(1383000), 1383000(1383000), 26968582(128926432)
+      Padding overhead is 378.062 %
+MATRIX FINISHED. 		TOTAL TIME : 1061.087
+-------
+synthetic_1383000_1383000_avg20.0_std2.5_diagonal_0.005_n14
+>>>> synthetic_1383000_1383000_26968582_avg20.0_std2.5_diagonal_0.005_n14.mtx [256-512] 19.500059291395516 2.5179663882914536 0.005085204359412326 0.0008151225302125676 3867.876646868983 350.12117740740115
+	create_synthetic	 34.55
+	gen_rbs			 30.249
+	gen_vectors		 9.931
+	gen_paddedPars		 784.384
+	gen_chPars		 2.628
+	update_rbParams		 0.149
+	gen_nnzStore		 319.992
+	store_nnz		 18.22
+INFO: matrix synthetic_1383000_1383000_avg20.0_std2.5_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 1383000(1383000), 1383000(1383000), 26968582(168063360)
+      Padding overhead is 523.182 %
+MATRIX FINISHED. 		TOTAL TIME : 1200.195
+-------
+synthetic_4690000_4690000_avg6.0_std3.0_random_n14
+>>>> synthetic_4690000_4690000_26038818_avg6.0_std3.0_random_n14.mtx [256-512] 5.551986780383795 2.9031558700482107 0.6116936139551551 0.2820140797957008 231823.1831268763 1016588.9301611312
+	create_synthetic	 38.284
+	gen_rbs			 68.339
+	gen_vectors		 10.701
+	gen_paddedPars		 1465.221
+	gen_chPars		 986.803
+	update_rbParams		 75.189
+	gen_nnzStore		 2097.8
+	store_nnz		 93.579
+INFO: matrix synthetic_4690000_4690000_avg6.0_std3.0_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 4690000(4690000), 4690000(4690000), 26038818(830936768)
+      Padding overhead is 3091.146 %
+MATRIX FINISHED. 		TOTAL TIME : 4908.761
+-------
+synthetic_4690000_4690000_avg6.0_std3.0_diagonal_0.5_n14
+>>>> synthetic_4690000_4690000_26038818_avg6.0_std3.0_diagonal_0.5_n14.mtx [256-512] 5.551986780383795 2.9031558700482107 3.858190224630725e-06 2.4495616845881087e-06 1729806.5369979227 973042.6279813171
+	create_synthetic	 44.442
+	gen_rbs			 57.122
+	gen_vectors		 10.841
+	gen_paddedPars		 639.83
+	gen_chPars		 3.319
+	update_rbParams		 0.334
+	gen_nnzStore		 304.677
+	store_nnz		 15.943
+INFO: matrix synthetic_4690000_4690000_avg6.0_std3.0_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 4690000(4690000), 4690000(4690000), 26038818(148676224)
+      Padding overhead is 470.979 %
+MATRIX FINISHED. 		TOTAL TIME : 1077.254
+-------
+synthetic_4690000_4690000_avg6.0_std3.0_diagonal_0.05_n14
+>>>> synthetic_4690000_4690000_26038818_avg6.0_std3.0_diagonal_0.05_n14.mtx [256-512] 5.551986780383795 2.9031558700482107 3.439236451007223e-05 2.3826422692656683e-05 442017.9491496615 1013792.1033370693
+	create_synthetic	 41.452
+	gen_rbs			 58.604
+	gen_vectors		 10.632
+	gen_paddedPars		 813.032
+	gen_chPars		 3.79
+	update_rbParams		 0.334
+	gen_nnzStore		 347.853
+	store_nnz		 25.405
+INFO: matrix synthetic_4690000_4690000_avg6.0_std3.0_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 4690000(4690000), 4690000(4690000), 26038818(169758688)
+      Padding overhead is 551.945 %
+MATRIX FINISHED. 		TOTAL TIME : 1301.426
+-------
+synthetic_4690000_4690000_avg6.0_std3.0_diagonal_0.005_n14
+>>>> synthetic_4690000_4690000_26038818_avg6.0_std3.0_diagonal_0.005_n14.mtx [256-512] 5.551986780383795 2.9031558700482107 0.0003396470390660165 0.0002375011304844334 257027.89434674487 1015643.3203141718
+	create_synthetic	 41.156
+	gen_rbs			 61.705
+	gen_vectors		 15.436
+	gen_paddedPars		 807.823
+	gen_chPars		 5.003
+	update_rbParams		 0.399
+	gen_nnzStore		 406.934
+	store_nnz		 33.994
+INFO: matrix synthetic_4690000_4690000_avg6.0_std3.0_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 4690000(4690000), 4690000(4690000), 26038818(211747136)
+      Padding overhead is 713.198 %
+MATRIX FINISHED. 		TOTAL TIME : 1372.658
+
+real	592m53.095s
+user	624m44.000s
+sys	39m4.369s
+pmpakos@gold1:/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/tests/fp64/spmv$ 
+-------
+synthetic_268000_268000_avg105.0_std0.2_diagonal_0.05_n14
+>>>> synthetic_268000_268000_28006098_avg105.0_std0.2_diagonal_0.05_n14.mtx [256-512] 104.50036567164179 0.49999986628423243 0.015253239195811985 0.0005893626417238216 6866.639670126652 414.5196708120862
+	create_synthetic	 11.55
+	gen_rbs			 19.566
+	gen_vectors		 9.77
+	gen_paddedPars		 775.166
+	gen_chPars		 1.547
+	update_rbParams		 0.023
+	gen_nnzStore		 222.069
+	store_nnz		 12.236
+INFO: matrix synthetic_268000_268000_avg105.0_std0.2_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 268000(268000), 268000(268000), 28006098(115502432)
+      Padding overhead is 312.419 %
+MATRIX FINISHED. 		TOTAL TIME : 1052.097
+-------
+synthetic_268000_268000_avg105.0_std0.2_diagonal_0.005_n14
+>>>> synthetic_268000_268000_28006098_avg105.0_std0.2_diagonal_0.005_n14.mtx [256-512] 104.50036567164179 0.49999986628423243 0.1470596845204946 0.016530564447478538 724.1690889597983 122.28745979314459
+	create_synthetic	 10.846
+	gen_rbs			 21.518
+	gen_vectors		 10.653
+	gen_paddedPars		 822.445
+	gen_chPars		 2.702
+	update_rbParams		 0.059
+	gen_nnzStore		 292.919
+	store_nnz		 16.172
+INFO: matrix synthetic_268000_268000_avg105.0_std0.2_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 268000(268000), 268000(268000), 28006098(153251584)
+      Padding overhead is 447.208 %
+MATRIX FINISHED. 		TOTAL TIME : 1177.377
+-------
+synthetic_68000_68000_avg420.0_std1.6_random_n14
+>>>> synthetic_68000_68000_28526083_avg420.0_std1.6_random_n14.mtx [256-512] 419.5012205882353 1.622343524092342 0.9952761029411764 0.0033309531945440686 421.49699882006246 2.1499560861825984
+	create_synthetic	 9.69
+	gen_rbs			 19.631
+	gen_vectors		 9.941
+	gen_paddedPars		 796.623
+	gen_chPars		 1.889
+	update_rbParams		 0.019
+	gen_nnzStore		 244.186
+	store_nnz		 39.358
+INFO: matrix synthetic_68000_68000_avg420.0_std1.6_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 68000(68000), 68000(68000), 28526083(129222080)
+      Padding overhead is 352.996 %
+MATRIX FINISHED. 		TOTAL TIME : 1121.574
+-------
+synthetic_68000_68000_avg420.0_std1.6_diagonal_0.5_n14
+>>>> synthetic_68000_68000_28526083_avg420.0_std1.6_diagonal_0.5_n14.mtx [256-512] 419.5012205882353 1.622343524092342 0.024451902249134953 0.0011111355330094943 17212.885260648218 1265.5654993403639
+	create_synthetic	 9.558
+	gen_rbs			 15.421
+	gen_vectors		 10.357
+	gen_paddedPars		 568.343
+	gen_chPars		 0.814
+	update_rbParams		 0.005
+	gen_nnzStore		 149.9
+	store_nnz		 9.648
+INFO: matrix synthetic_68000_68000_avg420.0_std1.6_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 68000(68000), 68000(68000), 28526083(79165152)
+      Padding overhead is 177.518 %
+MATRIX FINISHED. 		TOTAL TIME : 764.144
+-------
+synthetic_68000_68000_avg420.0_std1.6_diagonal_0.05_n14
+>>>> synthetic_68000_68000_28526083_avg420.0_std1.6_diagonal_0.05_n14.mtx [256-512] 419.5012205882353 1.622343524092342 0.23048133066608995 0.031814351130503016 1870.6204895257945 370.33286136804645
+	create_synthetic	 9.319
+	gen_rbs			 17.566
+	gen_vectors		 9.897
+	gen_paddedPars		 768.081
+	gen_chPars		 1.321
+	update_rbParams		 0.009
+	gen_nnzStore		 216.873
+	store_nnz		 13.565
+INFO: matrix synthetic_68000_68000_avg420.0_std1.6_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 68000(68000), 68000(68000), 28526083(114053280)
+      Padding overhead is 299.821 %
+MATRIX FINISHED. 		TOTAL TIME : 1036.834
+-------
+synthetic_68000_68000_avg420.0_std1.6_diagonal_0.005_n14
+>>>> synthetic_68000_68000_28526083_avg420.0_std1.6_diagonal_0.005_n14.mtx [256-512] 419.5012205882353 1.622343524092342 0.9952761029411764 0.0033309531945440686 421.49699882006246 2.1499560861825984
+	create_synthetic	 9.329
+	gen_rbs			 19.568
+	gen_vectors		 9.865
+	gen_paddedPars		 797.184
+	gen_chPars		 1.834
+	update_rbParams		 0.018
+	gen_nnzStore		 244.986
+	store_nnz		 18.373
+INFO: matrix synthetic_68000_68000_avg420.0_std1.6_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 68000(68000), 68000(68000), 28526083(129222080)
+      Padding overhead is 352.996 %
+MATRIX FINISHED. 		TOTAL TIME : 1101.395
+-------
+synthetic_5155000_5155000_avg6.0_std2.25_random_n14
+>>>> synthetic_5155000_5155000_28375480_avg6.0_std2.25_random_n14.mtx [256-512] 5.504457807953443 2.252169535320132 0.6418518763423686 0.24267865719872805 130750.76397205809 810474.5669081935
+	create_synthetic	 21.393
+	gen_rbs			 77.013
+	gen_vectors		 13.625
+	gen_paddedPars		 1660.659
+	gen_chPars		 1079.964
+	update_rbParams		 81.106
+	gen_nnzStore		 2278.3
+	store_nnz		 103.728
+INFO: matrix synthetic_5155000_5155000_avg6.0_std2.25_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 5155000(5155000), 5155000(5155000), 28375480(905956352)
+      Padding overhead is 3092.744 %
+MATRIX FINISHED. 		TOTAL TIME : 5371.73
+-------
+synthetic_5155000_5155000_avg6.0_std2.25_diagonal_0.5_n14
+>>>> synthetic_5155000_5155000_28375480_avg6.0_std2.25_diagonal_0.5_n14.mtx [256-512] 5.504457807953443 2.252169535320132 3.4468282467559963e-06 1.7936562614210763e-06 1859083.5082722672 876243.4013842122
+	create_synthetic	 53.285
+	gen_rbs			 65.335
+	gen_vectors		 11.946
+	gen_paddedPars		 648.373
+	gen_chPars		 3.658
+	update_rbParams		 0.322
+	gen_nnzStore		 322.322
+	store_nnz		 16.767
+INFO: matrix synthetic_5155000_5155000_avg6.0_std2.25_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 5155000(5155000), 5155000(5155000), 28375480(164698880)
+      Padding overhead is 480.427 %
+MATRIX FINISHED. 		TOTAL TIME : 1122.225
+-------
+synthetic_5155000_5155000_avg6.0_std2.25_diagonal_0.05_n14
+>>>> synthetic_5155000_5155000_28375480_avg6.0_std2.25_diagonal_0.05_n14.mtx [256-512] 5.504457807953443 2.252169535320132 3.0503874554193468e-05 1.758332848866363e-05 365543.9057267586 826493.6891974788
+	create_synthetic	 57.079
+	gen_rbs			 68.55
+	gen_vectors		 11.35
+	gen_paddedPars		 811.567
+	gen_chPars		 4.071
+	update_rbParams		 0.336
+	gen_nnzStore		 349.639
+	store_nnz		 18.05
+INFO: matrix synthetic_5155000_5155000_avg6.0_std2.25_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 5155000(5155000), 5155000(5155000), 28375480(180857600)
+      Padding overhead is 537.373 %
+MATRIX FINISHED. 		TOTAL TIME : 1320.802
+-------
+synthetic_5155000_5155000_avg6.0_std2.25_diagonal_0.005_n14
+>>>> synthetic_5155000_5155000_28375480_avg6.0_std2.25_diagonal_0.005_n14.mtx [256-512] 5.504457807953443 2.252169535320132 0.0003010649285909829 0.00017549467601206227 157963.93130380282 811785.8397838055
+	create_synthetic	 53.536
+	gen_rbs			 68.614
+	gen_vectors		 11.205
+	gen_paddedPars		 876.084
+	gen_chPars		 5.309
+	update_rbParams		 0.402
+	gen_nnzStore		 444.3
+	store_nnz		 24.173
+INFO: matrix synthetic_5155000_5155000_avg6.0_std2.25_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 5155000(5155000), 5155000(5155000), 28375480(230428800)
+      Padding overhead is 712.07 %
+MATRIX FINISHED. 		TOTAL TIME : 1483.86
+-------
+synthetic_141000_141000_avg220.0_std0.84_random_n14
+>>>> synthetic_141000_141000_30949435_avg220.0_std0.84_random_n14.mtx [256-512] 219.4995390070922 0.8864782902681513 0.9909371424475629 0.006366743512972252 221.5162274781365 1.6887505226476132
+	create_synthetic	 39.297
+	gen_rbs			 25.272
+	gen_vectors		 10.926
+	gen_paddedPars		 908.086
+	gen_chPars		 2.74
+	update_rbParams		 0.076
+	gen_nnzStore		 357.794
+	store_nnz		 18.909
+INFO: matrix synthetic_141000_141000_avg220.0_std0.84_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 141000(141000), 141000(141000), 30949435(186399776)
+      Padding overhead is 502.272 %
+MATRIX FINISHED. 		TOTAL TIME : 1363.223
+-------
+synthetic_141000_141000_avg220.0_std0.84_diagonal_0.5_n14
+>>>> synthetic_141000_141000_30949435_avg220.0_std0.84_diagonal_0.5_n14.mtx [256-512] 219.4995390070922 0.8864782902681513 0.006182024546048992 0.00014680097016335093 35537.06813191899 1342.1471413273125
+	create_synthetic	 39.198
+	gen_rbs			 17.512
+	gen_vectors		 10.881
+	gen_paddedPars		 603.286
+	gen_chPars		 0.937
+	update_rbParams		 0.009
+	gen_nnzStore		 167.173
+	store_nnz		 8.374
+INFO: matrix synthetic_141000_141000_avg220.0_std0.84_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 141000(141000), 141000(141000), 30949435(87140480)
+      Padding overhead is 181.558 %
+MATRIX FINISHED. 		TOTAL TIME : 847.503
+-------
+synthetic_141000_141000_avg220.0_std0.84_diagonal_0.05_n14
+>>>> synthetic_141000_141000_30949435_avg220.0_std0.84_diagonal_0.05_n14.mtx [256-512] 219.4995390070922 0.8864782902681513 0.060764149388863736 0.0043648782846246745 3641.7575122960097 414.9384987338775
+	create_synthetic	 40.46
+	gen_rbs			 20.004
+	gen_vectors		 10.933
+	gen_paddedPars		 842.341
+	gen_chPars		 1.286
+	update_rbParams		 0.015
+	gen_nnzStore		 239.675
+	store_nnz		 12.901
+INFO: matrix synthetic_141000_141000_avg220.0_std0.84_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 141000(141000), 141000(141000), 30949435(125271680)
+      Padding overhead is 304.762 %
+MATRIX FINISHED. 		TOTAL TIME : 1167.659
+-------
+synthetic_141000_141000_avg220.0_std0.84_diagonal_0.005_n14
+>>>> synthetic_141000_141000_30949435_avg220.0_std0.84_diagonal_0.005_n14.mtx [256-512] 219.4995390070922 0.8864782902681513 0.5210057825562096 0.10268558954429176 441.29508194751475 102.9872787184108
+	create_synthetic	 40.184
+	gen_rbs			 23.722
+	gen_vectors		 10.951
+	gen_paddedPars		 889.628
+	gen_chPars		 2.037
+	update_rbParams		 0.046
+	gen_nnzStore		 312.286
+	store_nnz		 16.887
+INFO: matrix synthetic_141000_141000_avg220.0_std0.84_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 141000(141000), 141000(141000), 30949435(161675584)
+      Padding overhead is 422.386 %
+MATRIX FINISHED. 		TOTAL TIME : 1295.819
+-------
+synthetic_5558000_5558000_avg6.0_std0.2_random_n14
+>>>> synthetic_5558000_5558000_30567218_avg6.0_std0.2_random_n14.mtx [256-512] 5.499679381072328 0.5000002570451065 0.6905084202223957 0.17086731731488833 8.665699138356612 3.3973059901296847
+	create_synthetic	 51.443
+	gen_rbs			 91.389
+	gen_vectors		 12.744
+	gen_paddedPars		 1803.132
+	gen_chPars		 1212.071
+	update_rbParams		 92.66
+	gen_nnzStore		 2474.005
+	store_nnz		 109.675
+INFO: matrix synthetic_5558000_5558000_avg6.0_std0.2_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 5558000(5558000), 5558000(5558000), 30567218(976423680)
+      Padding overhead is 3094.349 %
+MATRIX FINISHED. 		TOTAL TIME : 5906.35
+-------
+synthetic_5558000_5558000_avg6.0_std0.2_diagonal_0.5_n14
+>>>> synthetic_5558000_5558000_30567218_avg6.0_std0.2_diagonal_0.5_n14.mtx [256-512] 5.499679381072328 0.5000002570451065 3.1698261041500108e-06 7.129505314098175e-07 1826574.2473988982 470228.401953718
+	create_synthetic	 66.042
+	gen_rbs			 75.26
+	gen_vectors		 12.979
+	gen_paddedPars		 704.982
+	gen_chPars		 3.492
+	update_rbParams		 0.343
+	gen_nnzStore		 343.646
+	store_nnz		 18.345
+INFO: matrix synthetic_5558000_5558000_avg6.0_std0.2_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 5558000(5558000), 5558000(5558000), 30567218(178566592)
+      Padding overhead is 484.177 %
+MATRIX FINISHED. 		TOTAL TIME : 1225.254
+-------
+synthetic_5558000_5558000_avg6.0_std0.2_diagonal_0.05_n14
+>>>> synthetic_5558000_5558000_30567218_avg6.0_std0.2_diagonal_0.05_n14.mtx [256-512] 5.499679381072328 0.5000002570451065 2.7842224286373367e-05 7.459185095921311e-06 215396.2734620113 81634.65952454194
+	create_synthetic	 58.529
+	gen_rbs			 77.228
+	gen_vectors		 12.199
+	gen_paddedPars		 864.63
+	gen_chPars		 3.974
+	update_rbParams		 0.359
+	gen_nnzStore		 356.852
+	store_nnz		 20.015
+INFO: matrix synthetic_5558000_5558000_avg6.0_std0.2_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 5558000(5558000), 5558000(5558000), 30567218(184497824)
+      Padding overhead is 503.581 %
+MATRIX FINISHED. 		TOTAL TIME : 1393.941
+-------
+synthetic_5558000_5558000_avg6.0_std0.2_diagonal_0.005_n14
+>>>> synthetic_5558000_5558000_30567218_avg6.0_std0.2_diagonal_0.005_n14.mtx [256-512] 5.499679381072328 0.5000002570451065 0.00027455340298343587 7.487697558145683e-05 21957.451861042475 8818.778649120304
+	create_synthetic	 65.586
+	gen_rbs			 79.597
+	gen_vectors		 12.264
+	gen_paddedPars		 935.183
+	gen_chPars		 5.016
+	update_rbParams		 0.383
+	gen_nnzStore		 473.405
+	store_nnz		 26.533
+INFO: matrix synthetic_5558000_5558000_avg6.0_std0.2_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 5558000(5558000), 5558000(5558000), 30567218(244008064)
+      Padding overhead is 698.267 %
+MATRIX FINISHED. 		TOTAL TIME : 1598.145
+-------
+synthetic_1635000_1635000_avg20.0_std8.0_random_n14
+>>>> synthetic_1635000_1635000_31934039_avg20.0_std8.0_random_n14.mtx [256-512] 19.53152232415902 7.924885797648489 0.8729301525210187 0.1399572484183881 7996.085206068609 113901.53755974739
+	create_synthetic	 100.91
+	gen_rbs			 47.059
+	gen_vectors		 11.776
+	gen_paddedPars		 1589.135
+	gen_chPars		 150.489
+	update_rbParams		 9.043
+	gen_nnzStore		 1965.841
+	store_nnz		 139.252
+INFO: matrix synthetic_1635000_1635000_avg20.0_std8.0_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 1635000(1635000), 1635000(1635000), 31934039(994459712)
+      Padding overhead is 3014.106 %
+MATRIX FINISHED. 		TOTAL TIME : 4019.679
+-------
+synthetic_1635000_1635000_avg20.0_std8.0_diagonal_0.5_n14
+>>>> synthetic_1635000_1635000_31934039_avg20.0_std8.0_diagonal_0.5_n14.mtx [256-512] 19.53152232415902 7.924885797648489 4.4889596274163234e-05 1.9454291441247506e-05 452925.0672769403 117223.29523195967
+	create_synthetic	 64.297
+	gen_rbs			 34.604
+	gen_vectors		 11.777
+	gen_paddedPars		 648.42
+	gen_chPars		 1.76
+	update_rbParams		 0.105
+	gen_nnzStore		 216.31
+	store_nnz		 21.398
+INFO: matrix synthetic_1635000_1635000_avg20.0_std8.0_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 1635000(1635000), 1635000(1635000), 31934039(113021920)
+      Padding overhead is 253.923 %
+MATRIX FINISHED. 		TOTAL TIME : 998.901
+-------
+synthetic_1635000_1635000_avg20.0_std8.0_diagonal_0.05_n14
+>>>> synthetic_1635000_1635000_31934039_avg20.0_std8.0_diagonal_0.05_n14.mtx [256-512] 19.53152232415902 7.924885797648489 0.0004337763098878694 0.00019407483214237345 55719.61100433863 114529.30965604332
+	create_synthetic	 49.088
+	gen_rbs			 36.361
+	gen_vectors		 11.615
+	gen_paddedPars		 878.9
+	gen_chPars		 2.11
+	update_rbParams		 0.106
+	gen_nnzStore		 288.724
+	store_nnz		 26.648
+INFO: matrix synthetic_1635000_1635000_avg20.0_std8.0_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 1635000(1635000), 1635000(1635000), 31934039(150801632)
+      Padding overhead is 372.228 %
+MATRIX FINISHED. 		TOTAL TIME : 1294.064
+-------
+synthetic_1635000_1635000_avg20.0_std8.0_diagonal_0.005_n14
+>>>> synthetic_1635000_1635000_31934039_avg20.0_std8.0_diagonal_0.005_n14.mtx [256-512] 19.53152232415902 7.924885797648489 0.004316959127271369 0.001939042457426926 12887.854623246163 113995.77530500318
+	create_synthetic	 48.171
+	gen_rbs			 38.65
+	gen_vectors		 11.63
+	gen_paddedPars		 939.667
+	gen_chPars		 3.621
+	update_rbParams		 0.229
+	gen_nnzStore		 381.411
+	store_nnz		 42.23
+INFO: matrix synthetic_1635000_1635000_avg20.0_std8.0_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 1635000(1635000), 1635000(1635000), 31934039(198408960)
+      Padding overhead is 521.309 %
+MATRIX FINISHED. 		TOTAL TIME : 1467.157
+-------
+synthetic_83000_83000_avg420.0_std2.25_random_n14
+>>>> synthetic_83000_83000_34818356_avg420.0_std2.25_random_n14.mtx [256-512] 419.49826506024095 2.2667309675258465 0.9952768700827406 0.003311788135113609 421.49360188318855 2.66244978794704
+	create_synthetic	 42.272
+	gen_rbs			 24.744
+	gen_vectors		 12.454
+	gen_paddedPars		 986.763
+	gen_chPars		 1.883
+	update_rbParams		 0.028
+	gen_nnzStore		 312.954
+	store_nnz		 24.924
+INFO: matrix synthetic_83000_83000_avg420.0_std2.25_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 83000(83000), 83000(83000), 34818356(162645440)
+      Padding overhead is 367.126 %
+MATRIX FINISHED. 		TOTAL TIME : 1406.2
+-------
+synthetic_83000_83000_avg420.0_std2.25_diagonal_0.5_n14
+>>>> synthetic_83000_83000_34818356_avg420.0_std2.25_diagonal_0.5_n14.mtx [256-512] 419.49826506024095 2.2667309675258465 0.02005509783713166 0.0008300418229414911 20974.152267892277 1400.4038767204227
+	create_synthetic	 42.228
+	gen_rbs			 19.344
+	gen_vectors		 12.334
+	gen_paddedPars		 672.343
+	gen_chPars		 1.002
+	update_rbParams		 0.006
+	gen_nnzStore		 183.178
+	store_nnz		 36.005
+INFO: matrix synthetic_83000_83000_avg420.0_std2.25_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 83000(83000), 83000(83000), 34818356(96691008)
+      Padding overhead is 177.701 %
+MATRIX FINISHED. 		TOTAL TIME : 967.294
+-------
+synthetic_83000_83000_avg420.0_std2.25_diagonal_0.05_n14
+>>>> synthetic_83000_83000_34818356_avg420.0_std2.25_diagonal_0.05_n14.mtx [256-512] 419.49826506024095 2.2667309675258465 0.19107123196400058 0.024088378702894986 2247.344662673351 416.21806871705405
+	create_synthetic	 56.954
+	gen_rbs			 22.534
+	gen_vectors		 12.256
+	gen_paddedPars		 944.069
+	gen_chPars		 1.386
+	update_rbParams		 0.012
+	gen_nnzStore		 266.865
+	store_nnz		 22.452
+INFO: matrix synthetic_83000_83000_avg420.0_std2.25_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 83000(83000), 83000(83000), 34818356(139401600)
+      Padding overhead is 300.368 %
+MATRIX FINISHED. 		TOTAL TIME : 1327.218
+-------
+synthetic_83000_83000_avg420.0_std2.25_diagonal_0.005_n14
+>>>> synthetic_83000_83000_34818356_avg420.0_std2.25_diagonal_0.005_n14.mtx [256-512] 419.49826506024095 2.2667309675258465 0.9952766057482945 0.0033120523908438094 421.4937125635074 2.6621943446056906
+	create_synthetic	 41.957
+	gen_rbs			 25.681
+	gen_vectors		 12.454
+	gen_paddedPars		 987.654
+	gen_chPars		 1.885
+	update_rbParams		 0.028
+	gen_nnzStore		 309.907
+	store_nnz		 29.801
+INFO: matrix synthetic_83000_83000_avg420.0_std2.25_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 83000(83000), 83000(83000), 34818356(162645536)
+      Padding overhead is 367.126 %
+MATRIX FINISHED. 		TOTAL TIME : 1409.508
+-------
+synthetic_161000_161000_avg220.0_std2.5_random_n14
+>>>> synthetic_161000_161000_35338973_avg220.0_std2.5_random_n14.mtx [256-512] 219.49672670807453 2.5129704219231455 0.9909576972724818 0.006358520489602369 221.50849145075364 2.8901670605283707
+	create_synthetic	 43.634
+	gen_rbs			 28.35
+	gen_vectors		 12.44
+	gen_paddedPars		 1047.365
+	gen_chPars		 3.562
+	update_rbParams		 0.097
+	gen_nnzStore		 432.995
+	store_nnz		 43.195
+INFO: matrix synthetic_161000_161000_avg220.0_std2.5_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 161000(161000), 161000(161000), 35338973(226315296)
+      Padding overhead is 540.413 %
+MATRIX FINISHED. 		TOTAL TIME : 1611.825
+-------
+synthetic_161000_161000_avg220.0_std2.5_diagonal_0.5_n14
+>>>> synthetic_161000_161000_35338973_avg220.0_std2.5_diagonal_0.5_n14.mtx [256-512] 219.49672670807453 2.5129704219231455 0.005415064117896686 0.00013450644191490617 40565.62563283586 1434.9441222851046
+	create_synthetic	 42.7
+	gen_rbs			 20.009
+	gen_vectors		 12.416
+	gen_paddedPars		 683.977
+	gen_chPars		 1.044
+	update_rbParams		 0.011
+	gen_nnzStore		 188.537
+	store_nnz		 28.779
+INFO: matrix synthetic_161000_161000_avg220.0_std2.5_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 161000(161000), 161000(161000), 35338973(99518528)
+      Padding overhead is 181.611 %
+MATRIX FINISHED. 		TOTAL TIME : 977.895
+-------
+synthetic_161000_161000_avg220.0_std2.5_diagonal_0.05_n14
+>>>> synthetic_161000_161000_35338973_avg220.0_std2.5_diagonal_0.05_n14.mtx [256-512] 219.49672670807453 2.5129704219231455 0.05332027645538366 0.0036368489376748117 4146.145996712019 444.6715791130742
+	create_synthetic	 42.728
+	gen_rbs			 22.86
+	gen_vectors		 12.858
+	gen_paddedPars		 957.757
+	gen_chPars		 1.461
+	update_rbParams		 0.018
+	gen_nnzStore		 272.476
+	store_nnz		 28.991
+INFO: matrix synthetic_161000_161000_avg220.0_std2.5_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 161000(161000), 161000(161000), 35338973(143073056)
+      Padding overhead is 304.859 %
+MATRIX FINISHED. 		TOTAL TIME : 1340.22
+-------
+synthetic_161000_161000_avg220.0_std2.5_diagonal_0.005_n14
+>>>> synthetic_161000_161000_35338973_avg220.0_std2.5_diagonal_0.005_n14.mtx [256-512] 219.49672670807453 2.5129704219231455 0.4667144896801821 0.08872593893633188 491.75820627407757 114.67006918755128
+	create_synthetic	 42.467
+	gen_rbs			 26.677
+	gen_vectors		 12.428
+	gen_paddedPars		 1016.945
+	gen_chPars		 2.45
+	update_rbParams		 0.055
+	gen_nnzStore		 354.003
+	store_nnz		 44.998
+INFO: matrix synthetic_161000_161000_avg220.0_std2.5_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 161000(161000), 161000(161000), 35338973(185460000)
+      Padding overhead is 424.803 %
+MATRIX FINISHED. 		TOTAL TIME : 1501.731
+
+real	812m40.782s
+user	859m16.435s
+sys	139m38.008s
+pmpakos@gold1:/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/tests/fp64/spmv$ 
+-------
+synthetic_526000_526000_avg70.0_std2.5_diagonal_0.5_n14
+>>>> synthetic_526000_526000_36556775_avg70.0_std2.5_diagonal_0.5_n14.mtx [256-512] 69.49957224334601 2.5172846979402865 0.0005190666375110236 2.143589050870959e-05 133947.63028853975 2794.962030756357
+	create_synthetic	 14.21
+	gen_rbs			 28.078
+	gen_vectors		 13.797
+	gen_paddedPars		 722.67
+	gen_chPars		 1.265
+	update_rbParams		 0.034
+	gen_nnzStore		 203.724
+	store_nnz		 21.149
+INFO: matrix synthetic_526000_526000_avg70.0_std2.5_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 526000(526000), 526000(526000), 36556775(108369664)
+      Padding overhead is 196.442 %
+MATRIX FINISHED. 		TOTAL TIME : 1005.091
+-------
+synthetic_526000_526000_avg70.0_std2.5_diagonal_0.05_n14
+>>>> synthetic_526000_526000_36556775_avg70.0_std2.5_diagonal_0.05_n14.mtx [256-512] 69.49957224334601 2.5172846979402865 0.005134280096575056 0.00024177933928338366 13552.048507111798 542.6418120134385
+	create_synthetic	 14.663
+	gen_rbs			 27.054
+	gen_vectors		 15.268
+	gen_paddedPars		 994.887
+	gen_chPars		 2.062
+	update_rbParams		 0.034
+	gen_nnzStore		 293.176
+	store_nnz		 16.608
+INFO: matrix synthetic_526000_526000_avg70.0_std2.5_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 526000(526000), 526000(526000), 36556775(153455648)
+      Padding overhead is 319.773 %
+MATRIX FINISHED. 		TOTAL TIME : 1363.801
+-------
+synthetic_526000_526000_avg70.0_std2.5_diagonal_0.005_n14
+>>>> synthetic_526000_526000_36556775_avg70.0_std2.5_diagonal_0.005_n14.mtx [256-512] 69.49957224334601 2.5172846979402865 0.05067842396521565 0.003963603259155816 1381.4980899150407 148.65636190133526
+	create_synthetic	 16.35
+	gen_rbs			 29.201
+	gen_vectors		 13.892
+	gen_paddedPars		 1037.247
+	gen_chPars		 3.731
+	update_rbParams		 0.099
+	gen_nnzStore		 408.378
+	store_nnz		 26.854
+INFO: matrix synthetic_526000_526000_avg70.0_std2.5_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 526000(526000), 526000(526000), 36556775(204652256)
+      Padding overhead is 459.82 %
+MATRIX FINISHED. 		TOTAL TIME : 1536.218
+-------
+synthetic_4690000_4690000_avg6.0_std8.0_random_n14
+>>>> synthetic_4690000_4690000_35653194_avg6.0_std8.0_random_n14.mtx [256-512] 7.601960341151386 5.8630968184102095 0.6119582848820012 0.3307682606887445 350732.4105627002 1233636.7237143721
+	create_synthetic	 26.337
+	gen_rbs			 93.223
+	gen_vectors		 14.312
+	gen_paddedPars		 1945.282
+	gen_chPars		 999.02
+	update_rbParams		 67.994
+	gen_nnzStore		 2572.287
+	store_nnz		 171.698
+INFO: matrix synthetic_4690000_4690000_avg6.0_std8.0_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 4690000(4690000), 4690000(4690000), 35653194(1135184992)
+      Padding overhead is 3083.964 %
+MATRIX FINISHED. 		TOTAL TIME : 5934.215
+-------
+synthetic_4690000_4690000_avg6.0_std8.0_diagonal_0.5_n14
+>>>> synthetic_4690000_4690000_35653194_avg6.0_std8.0_diagonal_0.5_n14.mtx [256-512] 7.601960341151386 5.8630968184102095 5.630876109855839e-06 4.89348203527012e-06 1688015.225620031 1123699.1590176264
+	create_synthetic	 62.565
+	gen_rbs			 78.723
+	gen_vectors		 14.7
+	gen_paddedPars		 763.734
+	gen_chPars		 3.506
+	update_rbParams		 0.292
+	gen_nnzStore		 335.24
+	store_nnz		 17.963
+INFO: matrix synthetic_4690000_4690000_avg6.0_std8.0_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 4690000(4690000), 4690000(4690000), 35653194(174888224)
+      Padding overhead is 390.526 %
+MATRIX FINISHED. 		TOTAL TIME : 1277.427
+-------
+synthetic_4690000_4690000_avg6.0_std8.0_diagonal_0.05_n14
+>>>> synthetic_4690000_4690000_35653194_avg6.0_std8.0_diagonal_0.05_n14.mtx [256-512] 7.601960341151386 5.8630968184102095 5.218280190579242e-05 4.798016446098959e-05 537539.7691295474 1218590.9049126569
+	create_synthetic	 45.234
+	gen_rbs			 78.676
+	gen_vectors		 13.891
+	gen_paddedPars		 1003.031
+	gen_chPars		 4.344
+	update_rbParams		 0.299
+	gen_nnzStore		 404.314
+	store_nnz		 21.88
+INFO: matrix synthetic_4690000_4690000_avg6.0_std8.0_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 4690000(4690000), 4690000(4690000), 35653194(211902272)
+      Padding overhead is 494.343 %
+MATRIX FINISHED. 		TOTAL TIME : 1571.843
+-------
+synthetic_4690000_4690000_avg6.0_std8.0_diagonal_0.005_n14
+>>>> synthetic_4690000_4690000_35653194_avg6.0_std8.0_diagonal_0.005_n14.mtx [256-512] 7.601960341151386 5.8630968184102095 0.0005175649287828297 0.0004788074828202095 373594.6179911097 1231217.8186994563
+	create_synthetic	 46.105
+	gen_rbs			 88.169
+	gen_vectors		 14.013
+	gen_paddedPars		 1059.289
+	gen_chPars		 6.91
+	update_rbParams		 0.511
+	gen_nnzStore		 511.479
+	store_nnz		 27.677
+INFO: matrix synthetic_4690000_4690000_avg6.0_std8.0_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 4690000(4690000), 4690000(4690000), 35653194(265458016)
+      Padding overhead is 644.556 %
+MATRIX FINISHED. 		TOTAL TIME : 1754.439
+-------
+synthetic_171000_171000_avg220.0_std0.2_random_n14
+>>>> synthetic_171000_171000_37534470_avg220.0_std0.2_random_n14.mtx [256-512] 219.4998245614035 0.49999996922129797 0.9909517646113333 0.006354599757318209 221.5132308751047 1.5187973856325534
+	create_synthetic	 32.341
+	gen_rbs			 31.318
+	gen_vectors		 13.41
+	gen_paddedPars		 1094.001
+	gen_chPars		 3.742
+	update_rbParams		 0.106
+	gen_nnzStore		 476.46
+	store_nnz		 26.46
+INFO: matrix synthetic_171000_171000_avg220.0_std0.2_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 171000(171000), 171000(171000), 37534470(247247136)
+      Padding overhead is 558.72 %
+MATRIX FINISHED. 		TOTAL TIME : 1677.963
+-------
+synthetic_171000_171000_avg220.0_std0.2_diagonal_0.5_n14
+>>>> synthetic_171000_171000_37534470_avg220.0_std0.2_diagonal_0.5_n14.mtx [256-512] 219.4998245614035 0.49999996922129797 0.005098832563865807 0.00010958402050485863 43080.241766524894 1481.624992441574
+	create_synthetic	 32.664
+	gen_rbs			 21.843
+	gen_vectors		 13.374
+	gen_paddedPars		 720.599
+	gen_chPars		 1.243
+	update_rbParams		 0.011
+	gen_nnzStore		 200.469
+	store_nnz		 10.86
+INFO: matrix synthetic_171000_171000_avg220.0_std0.2_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 171000(171000), 171000(171000), 37534470(105694080)
+      Padding overhead is 181.592 %
+MATRIX FINISHED. 		TOTAL TIME : 1001.131
+-------
+synthetic_171000_171000_avg220.0_std0.2_diagonal_0.05_n14
+>>>> synthetic_171000_171000_37534470_avg220.0_std0.2_diagonal_0.05_n14.mtx [256-512] 219.4998245614035 0.49999996922129797 0.05024350521527993 0.0032817901816686174 4398.348051476504 458.8603503944798
+	create_synthetic	 32.516
+	gen_rbs			 24.802
+	gen_vectors		 13.387
+	gen_paddedPars		 1004.802
+	gen_chPars		 1.691
+	update_rbParams		 0.018
+	gen_nnzStore		 290.786
+	store_nnz		 15.941
+INFO: matrix synthetic_171000_171000_avg220.0_std0.2_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 171000(171000), 171000(171000), 37534470(151947552)
+      Padding overhead is 304.821 %
+MATRIX FINISHED. 		TOTAL TIME : 1383.998
+-------
+synthetic_171000_171000_avg220.0_std0.2_diagonal_0.005_n14
+>>>> synthetic_171000_171000_37534470_avg220.0_std0.2_diagonal_0.005_n14.mtx [256-512] 219.4998245614035 0.49999996922129797 0.443495982490339 0.08258039586192953 516.9841051768652 120.08898966566306
+	create_synthetic	 32.33
+	gen_rbs			 28.743
+	gen_vectors		 13.397
+	gen_paddedPars		 1064.466
+	gen_chPars		 2.538
+	update_rbParams		 0.056
+	gen_nnzStore		 375.629
+	store_nnz		 20.009
+INFO: matrix synthetic_171000_171000_avg220.0_std0.2_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 171000(171000), 171000(171000), 37534470(197232160)
+      Padding overhead is 425.469 %
+MATRIX FINISHED. 		TOTAL TIME : 1537.231
+-------
+synthetic_863000_863000_avg45.0_std0.84_random_n14
+>>>> synthetic_863000_863000_38403518_avg45.0_std0.84_random_n14.mtx [256-512] 44.50002085747393 0.8888103155821516 0.9560538706229721 0.030138833072217368 46.59311295935447 1.7756297860937056
+	create_synthetic	 34.281
+	gen_rbs			 43.418
+	gen_vectors		 13.956
+	gen_paddedPars		 1755.918
+	gen_chPars		 57.651
+	update_rbParams		 2.487
+	gen_nnzStore		 2134.26
+	store_nnz		 115.59
+INFO: matrix synthetic_863000_863000_avg45.0_std0.84_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 863000(863000), 863000(863000), 38403518(1110169824)
+      Padding overhead is 2790.802 %
+MATRIX FINISHED. 		TOTAL TIME : 4159.749
+-------
+synthetic_863000_863000_avg45.0_std0.84_diagonal_0.5_n14
+>>>> synthetic_863000_863000_38403518_avg45.0_std0.84_diagonal_0.5_n14.mtx [256-512] 44.50002085747393 0.8888103155821516 0.00020055382675702118 6.858293393621116e-06 222063.0916409799 6424.634222951265
+	create_synthetic	 45.766
+	gen_rbs			 29.669
+	gen_vectors		 13.985
+	gen_paddedPars		 747.517
+	gen_chPars		 1.573
+	update_rbParams		 0.055
+	gen_nnzStore		 220.319
+	store_nnz		 12.548
+INFO: matrix synthetic_863000_863000_avg45.0_std0.84_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 863000(863000), 863000(863000), 38403518(116451296)
+      Padding overhead is 203.231 %
+MATRIX FINISHED. 		TOTAL TIME : 1071.466
+-------
+synthetic_863000_863000_avg45.0_std0.84_diagonal_0.05_n14
+>>>> synthetic_863000_863000_38403518_avg45.0_std0.84_diagonal_0.05_n14.mtx [256-512] 44.50002085747393 0.8888103155821516 0.0019743449955623824 7.814386254588133e-05 22568.55488504243 880.8546629263592
+	create_synthetic	 42.784
+	gen_rbs			 32.077
+	gen_vectors		 13.805
+	gen_paddedPars		 1043.861
+	gen_chPars		 2.053
+	update_rbParams		 0.055
+	gen_nnzStore		 320.643
+	store_nnz		 16.884
+INFO: matrix synthetic_863000_863000_avg45.0_std0.84_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 863000(863000), 863000(863000), 38403518(167847968)
+      Padding overhead is 337.064 %
+MATRIX FINISHED. 		TOTAL TIME : 1472.241
+-------
+synthetic_863000_863000_avg45.0_std0.84_diagonal_0.005_n14
+>>>> synthetic_863000_863000_38403518_avg45.0_std0.84_diagonal_0.005_n14.mtx [256-512] 44.50002085747393 0.8888103155821516 0.01962074559897095 0.001097764236877267 2276.683448116017 171.14170104099114
+	create_synthetic	 35.944
+	gen_rbs			 34.983
+	gen_vectors		 13.879
+	gen_paddedPars		 1108.593
+	gen_chPars		 3.078
+	update_rbParams		 0.121
+	gen_nnzStore		 419.071
+	store_nnz		 22.871
+INFO: matrix synthetic_863000_863000_avg45.0_std0.84_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 863000(863000), 863000(863000), 38403518(220465504)
+      Padding overhead is 474.076 %
+MATRIX FINISHED. 		TOTAL TIME : 1638.638
+-------
+synthetic_186000_186000_avg220.0_std0.84_random_n14
+>>>> synthetic_186000_186000_40826933_avg220.0_std0.84_random_n14.mtx [256-512] 219.49963978494623 0.8874633897207125 0.9909525033818938 0.006347061829978023 221.51283608615438 1.6851607602640115
+	create_synthetic	 34.182
+	gen_rbs			 33.72
+	gen_vectors		 14.67
+	gen_paddedPars		 1205.616
+	gen_chPars		 4.928
+	update_rbParams		 0.127
+	gen_nnzStore		 547.457
+	store_nnz		 32.584
+INFO: matrix synthetic_186000_186000_avg220.0_std0.84_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 186000(186000), 186000(186000), 40826933(285666304)
+      Padding overhead is 599.701 %
+MATRIX FINISHED. 		TOTAL TIME : 1873.447
+-------
+synthetic_186000_186000_avg220.0_std0.84_diagonal_0.5_n14
+>>>> synthetic_186000_186000_40826933_avg220.0_std0.84_diagonal_0.5_n14.mtx [256-512] 219.49963978494623 0.8874633897207125 0.004688082292750608 9.819519249237246e-05 46852.093509666076 1547.0193873245557
+	create_synthetic	 39.525
+	gen_rbs			 23.94
+	gen_vectors		 15.132
+	gen_paddedPars		 809.843
+	gen_chPars		 1.348
+	update_rbParams		 0.012
+	gen_nnzStore		 218.501
+	store_nnz		 12.122
+INFO: matrix synthetic_186000_186000_avg220.0_std0.84_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 186000(186000), 186000(186000), 40826933(114977344)
+      Padding overhead is 181.621 %
+MATRIX FINISHED. 		TOTAL TIME : 1120.482
+-------
+synthetic_186000_186000_avg220.0_std0.84_diagonal_0.05_n14
+>>>> synthetic_186000_186000_40826933_avg220.0_std0.84_diagonal_0.05_n14.mtx [256-512] 219.49963978494623 0.8874633897207125 0.04623954078506187 0.002902759191030628 4776.71052013648 479.30320093836093
+	create_synthetic	 34.779
+	gen_rbs			 27.023
+	gen_vectors		 14.506
+	gen_paddedPars		 1097.426
+	gen_chPars		 1.852
+	update_rbParams		 0.02
+	gen_nnzStore		 313.311
+	store_nnz		 17.038
+INFO: matrix synthetic_186000_186000_avg220.0_std0.84_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 186000(186000), 186000(186000), 40826933(165317920)
+      Padding overhead is 304.924 %
+MATRIX FINISHED. 		TOTAL TIME : 1506.012
+-------
+synthetic_186000_186000_avg220.0_std0.84_diagonal_0.005_n14
+>>>> synthetic_186000_186000_40826933_avg220.0_std0.84_diagonal_0.005_n14.mtx [256-512] 219.49963978494623 0.8874633897207125 0.4125701652503179 0.0746320363849841 554.8355586293762 127.806463479928
+	create_synthetic	 37.71
+	gen_rbs			 31.639
+	gen_vectors		 14.847
+	gen_paddedPars		 1163.159
+	gen_chPars		 2.727
+	update_rbParams		 0.062
+	gen_nnzStore		 425.015
+	store_nnz		 32.536
+INFO: matrix synthetic_186000_186000_avg220.0_std0.84_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 186000(186000), 186000(186000), 40826933(215601408)
+      Padding overhead is 428.086 %
+MATRIX FINISHED. 		TOTAL TIME : 1707.81
+-------
+synthetic_952000_952000_avg45.0_std2.25_random_n14
+>>>> synthetic_952000_952000_42363888_avg45.0_std2.25_random_n14.mtx [256-512] 44.49988235294118 2.2703898683323964 0.9559502728367081 0.030255448914295303 46.593629786284595 2.738452260362246
+	create_synthetic	 37.683
+	gen_rbs			 48.392
+	gen_vectors		 15.426
+	gen_paddedPars		 1950.27
+	gen_chPars		 71.571
+	update_rbParams		 3.07
+	gen_nnzStore		 2367.709
+	store_nnz		 221.364
+INFO: matrix synthetic_952000_952000_avg45.0_std2.25_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 952000(952000), 952000(952000), 42363888(1235925536)
+      Padding overhead is 2817.403 %
+MATRIX FINISHED. 		TOTAL TIME : 4718.552
+-------
+synthetic_952000_952000_avg45.0_std2.25_diagonal_0.5_n14
+>>>> synthetic_952000_952000_42363888_avg45.0_std2.25_diagonal_0.5_n14.mtx [256-512] 44.49988235294118 2.2703898683323964 0.00018180539200974503 1.074893575137829e-05 244978.40624632768 7099.653088325532
+	create_synthetic	 44.735
+	gen_rbs			 34.032
+	gen_vectors		 15.43
+	gen_paddedPars		 825.406
+	gen_chPars		 1.729
+	update_rbParams		 0.061
+	gen_nnzStore		 246.748
+	store_nnz		 40.473
+INFO: matrix synthetic_952000_952000_avg45.0_std2.25_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 952000(952000), 952000(952000), 42363888(129679936)
+      Padding overhead is 206.11 %
+MATRIX FINISHED. 		TOTAL TIME : 1208.897
+-------
+synthetic_952000_952000_avg45.0_std2.25_diagonal_0.05_n14
+>>>> synthetic_952000_952000_42363888_avg45.0_std2.25_diagonal_0.05_n14.mtx [256-512] 44.49988235294118 2.2703898683323964 0.0017898669022756157 0.00011244372467625423 24896.480025154095 958.6748812936065
+	create_synthetic	 59.171
+	gen_rbs			 36.976
+	gen_vectors		 15.319
+	gen_paddedPars		 1143.32
+	gen_chPars		 2.257
+	update_rbParams		 0.061
+	gen_nnzStore		 352.537
+	store_nnz		 33.756
+INFO: matrix synthetic_952000_952000_avg45.0_std2.25_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 952000(952000), 952000(952000), 42363888(183406464)
+      Padding overhead is 332.931 %
+MATRIX FINISHED. 		TOTAL TIME : 1643.545
+-------
+synthetic_952000_952000_avg45.0_std2.25_diagonal_0.005_n14
+>>>> synthetic_952000_952000_42363888_avg45.0_std2.25_diagonal_0.005_n14.mtx [256-512] 44.49988235294118 2.2703898683323964 0.017795417002462757 0.0013036417749382504 2509.8206655535605 181.8332900122491
+	create_synthetic	 46.837
+	gen_rbs			 40.291
+	gen_vectors		 15.36
+	gen_paddedPars		 1214.813
+	gen_chPars		 3.484
+	update_rbParams		 0.137
+	gen_nnzStore		 462.042
+	store_nnz		 31.679
+INFO: matrix synthetic_952000_952000_avg45.0_std2.25_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 952000(952000), 952000(952000), 42363888(243270208)
+      Padding overhead is 474.24 %
+MATRIX FINISHED. 		TOTAL TIME : 1814.821
+-------
+synthetic_987000_987000_avg45.0_std0.2_random_n14
+>>>> synthetic_987000_987000_43921576_avg45.0_std0.2_random_n14.mtx [256-512] 44.500077001013175 0.4999999940708437 0.9560915509003055 0.03004957605886823 46.591579432396436 1.6119816381635614
+	create_synthetic	 46.123
+	gen_rbs			 52.436
+	gen_vectors		 16.671
+	gen_paddedPars		 2019.762
+	gen_chPars		 70.208
+	update_rbParams		 3.238
+	gen_nnzStore		 2472.106
+	store_nnz		 175.838
+INFO: matrix synthetic_987000_987000_avg45.0_std0.2_random_n14 partition done.
+      Original (Padded)  m, n, nnzs = 987000(987000), 987000(987000), 43921576(1285760736)
+      Padding overhead is 2827.401 %
+MATRIX FINISHED. 		TOTAL TIME : 4860.081
+-------
+synthetic_987000_987000_avg45.0_std0.2_diagonal_0.5_n14
+>>>> synthetic_987000_987000_43921576_avg45.0_std0.2_diagonal_0.5_n14.mtx [256-512] 44.500077001013175 0.4999999940708437 0.0001753605534563304 5.202936152489849e-06 253963.4296659672 7320.779925746161
+	create_synthetic	 45.366
+	gen_rbs			 35.736
+	gen_vectors		 16.235
+	gen_paddedPars		 851.804
+	gen_chPars		 1.755
+	update_rbParams		 0.063
+	gen_nnzStore		 253.162
+	store_nnz		 25.261
+INFO: matrix synthetic_987000_987000_avg45.0_std0.2_diagonal_0.5_n14 partition done.
+      Original (Padded)  m, n, nnzs = 987000(987000), 987000(987000), 43921576(132981824)
+      Padding overhead is 202.771 %
+MATRIX FINISHED. 		TOTAL TIME : 1229.709
+-------
+synthetic_987000_987000_avg45.0_std0.2_diagonal_0.05_n14
+>>>> synthetic_987000_987000_43921576_avg45.0_std0.2_diagonal_0.05_n14.mtx [256-512] 44.500077001013175 0.4999999940708437 0.0017263828729922627 6.1013304207754426e-05 25808.861449569384 986.0605923168923
+	create_synthetic	 44.39
+	gen_rbs			 38.497
+	gen_vectors		 15.97
+	gen_paddedPars		 1187.928
+	gen_chPars		 2.281
+	update_rbParams		 0.063
+	gen_nnzStore		 366.876
+	store_nnz		 31.923
+INFO: matrix synthetic_987000_987000_avg45.0_std0.2_diagonal_0.05_n14 partition done.
+      Original (Padded)  m, n, nnzs = 987000(987000), 987000(987000), 43921576(192263424)
+      Padding overhead is 337.743 %
+MATRIX FINISHED. 		TOTAL TIME : 1688.269
+-------
+synthetic_987000_987000_avg45.0_std0.2_diagonal_0.005_n14
+>>>> synthetic_987000_987000_43921576_avg45.0_std0.2_diagonal_0.005_n14.mtx [256-512] 44.500077001013175 0.4999999940708437 0.017166937561141845 0.0008792268413373735 2601.1934660794504 185.57936530726334
+	create_synthetic	 44.855
+	gen_rbs			 41.947
+	gen_vectors		 15.88
+	gen_paddedPars		 1257.944
+	gen_chPars		 3.547
+	update_rbParams		 0.137
+	gen_nnzStore		 482.935
+	store_nnz		 33.813
+INFO: matrix synthetic_987000_987000_avg45.0_std0.2_diagonal_0.005_n14 partition done.
+      Original (Padded)  m, n, nnzs = 987000(987000), 987000(987000), 43921576(252400256)
+      Padding overhead is 474.661 %
+MATRIX FINISHED. 		TOTAL TIME : 1881.418
+
+real	895m7.081s
+user	924m30.793s
+sys	68m20.069s
+pmpakos@gold1:/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/tests/fp64/spmv$ 
+>>>> synthetic_268000_268000_28006098_avg105_std0.2_random_n14.mtx [256-512] 104.50036567164179 0.49999986628423243 0.9810637971151704 0.013164469873017642 106.53688235185032 1.5390919362277
+>>>> synthetic_268000_268000_28006098_avg105_std0.2_diagonal_0.5_n14.mtx [256-512] 104.50036567164179 0.49999986628423243 0.0015405816161728671 2.6115751737450138e-05 67855.30840994857 1497.7489900581725
+>>>> synthetic_526000_526000_36556775_avg70_std2.5_random_n14.mtx [256-512] 69.49957224334601 2.5172846979402865 0.9716591070530153 0.0196586717545097 71.55414933816961 2.9232971210072507
+>>>> synthetic_171000_171000_22644684_avg105_std125_random_n14.mtx [256-512] 132.42505263157895 94.58022113975619 0.9519906798331109 0.123584328212973 886.7947683152854 11306.481046865618
+>>>> synthetic_171000_171000_22644684_avg105_std125_diagonal_0.5_n14.mtx [256-512] 132.42505263157895 94.58022113975619 0.0030655991587155026 0.002209113159741367 44664.08049937933 11099.001032947852
+>>>> synthetic_171000_171000_22644684_avg105_std125_diagonal_0.05_n14.mtx [256-512] 132.42505263157895 94.58022113975619 0.03018036332546767 0.02182705378528064 5345.4933527656685 11359.830375295209
+>>>> synthetic_171000_171000_22644684_avg105_std125_diagonal_0.005_n14.mtx [256-512] 132.42505263157895 94.58022113975619 0.26927418316747026 0.187378384272869 1268.089213064291 11318.278448272022
