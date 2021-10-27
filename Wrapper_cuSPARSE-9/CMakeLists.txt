@@ -30,8 +30,10 @@ add_definitions(-DNR_ITER=128)
 add_definitions(-DTEST)
 
 project (MakeSpMVGreatAgain9 CXX CUDA)
+set ( PROJECT_HEAD_DIR ${PROJECT_SOURCE_DIR}/../ )
 set ( PROJECT_TEST_DIR ${PROJECT_SOURCE_DIR}/tests )
 set ( PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src )
+message( "PROJECT_HEAD_DIR: " ${PROJECT_HEAD_DIR} )
 message( "PROJECT_TEST_DIR: " ${PROJECT_TEST_DIR} )
 message( "PROJECT_SOURCE_DIR: " ${PROJECT_SOURCE_DIR} )
 message( "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
@@ -76,11 +78,14 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/inc)
 message( "My header files: " ${CMAKE_CURRENT_SOURCE_DIR}/inc )
 
 # Mpakos header files 
-set (MPAKOS_PREFIX "${PROJECT_SOURCE_DIR}/artificial_matrix_generation/pmpakos_impl")
-include_directories( ${MPAKOS_PREFIX}/include)
-message( "Mpakos header files: " ${MPAKOS_PREFIX}/include )
+#set (MPAKOS_PREFIX "${PROJECT_HEAD_DIR}/artificial_matrix_generation/pmpakos_impl")
+#include_directories( ${MPAKOS_PREFIX}/include)
+#message( "Mpakos header files: " ${MPAKOS_PREFIX}/include )
 
-
+# DGAL header files 
+set (DGAL_PREFIX "${PROJECT_HEAD_DIR}/artificial-matrix-generator")
+include_directories( ${DGAL_PREFIX})
+message( "DGAL header files: " ${DGAL_PREFIX} )
 
 # cuSP header files
 #include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/inc/cuSP)
@@ -108,10 +113,11 @@ file(GLOB SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.c* ${NVEMAPI_PREFIX}/src/*.*)
 message( "SOURCE_FILES: " ${SOURCE_FILES} )
 
 ## datatype used in benchmarks. 0 = float, 1 = double
-set(DATATYPE 0) 
+set(DATATYPE 1) 
 
 if (${DATATYPE} EQUAL 1)
-	add_library(MyLib ${SOURCE_FILES} ${MPAKOS_PREFIX}/include/artificial_matrix_generation_double.o)
+	#add_library(MyLib ${SOURCE_FILES} ${MPAKOS_PREFIX}/include/artificial_matrix_generation_double.o)
+	add_library(MyLib ${SOURCE_FILES} ${DGAL_PREFIX}/sorted_set.o ${DGAL_PREFIX}/artificial_matrix_generation_double.o)
 	target_link_libraries(MyLib ${INTERNAL_LINK_LIB})
 	add_definitions(-DVALUE_TYPE_AX=double)
 	add_definitions(-DVALUE_TYPE_Y=double)
@@ -135,7 +141,8 @@ if (${DATATYPE} EQUAL 1)
 	add_executable (cuSPARSEDhybmv_ELL_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9-2_generate.cu)
 	target_link_libraries(cuSPARSEDhybmv_ELL_9-2_generate ${LINK_LIB} MyLib)
 elseif(${DATATYPE} EQUAL 0)
-	add_library(MyLib ${SOURCE_FILES} ${MPAKOS_PREFIX}/include/artificial_matrix_generation_float.o)
+	#add_library(MyLib ${SOURCE_FILES} ${MPAKOS_PREFIX}/include/artificial_matrix_generation_float.o)
+	add_library(MyLib ${SOURCE_FILES} ${DGAL_PREFIX}/sorted_set.o ${DGAL_PREFIX}/artificial_matrix_generation_float.o)
 	target_link_libraries(MyLib ${INTERNAL_LINK_LIB})
 	add_definitions(-DVALUE_TYPE_AX=float)
 	add_definitions(-DVALUE_TYPE_Y=float)

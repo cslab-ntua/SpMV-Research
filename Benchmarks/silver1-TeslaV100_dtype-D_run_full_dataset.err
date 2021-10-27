@@ -1,0 +1,1785 @@
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.016594 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.0912 ms.
+CSR->CSR5 tile_ptr time = 0.034816 ms.
+CSR->CSR5 tile_desc time = 0.106592 ms.
+CSR->CSR5 transpose time = 0.032768 ms.
+CSR->CSR5 time = 0.400384 ms.
+Serial-CSR: 2.150059 ms ( 0.29 Gflops/s 2.88 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 37507 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.026571 ms (23.715732 Gflops/s ). Average Watts = 117.157872, Estimated Joules = 0.002533
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.025598 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.103744 ms.
+CSR->CSR5 tile_ptr time = 0.034816 ms.
+CSR->CSR5 tile_desc time = 0.101408 ms.
+CSR->CSR5 transpose time = 0.033792 ms.
+CSR->CSR5 time = 0.403456 ms.
+Serial-CSR: 2.520084 ms ( 0.25 Gflops/s 2.46 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 39796 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.025047 ms (25.158393 Gflops/s ). Average Watts = 117.105708, Estimated Joules = 0.002510
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.038826 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.09168 ms.
+CSR->CSR5 tile_ptr time = 0.033792 ms.
+CSR->CSR5 tile_desc time = 0.099168 ms.
+CSR->CSR5 transpose time = 0.032768 ms.
+CSR->CSR5 time = 0.380928 ms.
+Serial-CSR: 2.161026 ms ( 0.29 Gflops/s 2.87 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 37980 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.026241 ms (24.013693 Gflops/s ). Average Watts = 114.617024, Estimated Joules = 0.002472
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.068460 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.100896 ms.
+CSR->CSR5 tile_ptr time = 0.036864 ms.
+CSR->CSR5 tile_desc time = 0.099712 ms.
+CSR->CSR5 transpose time = 0.033792 ms.
+CSR->CSR5 time = 0.410624 ms.
+Serial-CSR: 2.298832 ms ( 0.27 Gflops/s 2.70 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 39464 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.025257 ms (24.948740 Gflops/s ). Average Watts = 116.765904, Estimated Joules = 0.002514
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.016966 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.094208 ms.
+CSR->CSR5 tile_ptr time = 0.034816 ms.
+CSR->CSR5 tile_desc time = 0.09712 ms.
+CSR->CSR5 transpose time = 0.033792 ms.
+CSR->CSR5 time = 0.387072 ms.
+Serial-CSR: 1.911879 ms ( 0.33 Gflops/s 3.24 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 40568 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.024572 ms (25.644702 Gflops/s ). Average Watts = 114.662316, Estimated Joules = 0.002509
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.043032 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+Serial-CSR: 2.864838 ms ( 0.22 Gflops/s 3.21 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 25663 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.038773 ms (16.252157 Gflops/s ). Average Watts = 97.139374, Estimated Joules = 0.003256
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.044389 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+Serial-CSR: 2.382040 ms ( 0.26 Gflops/s 3.86 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 26572 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.037452 ms (16.825231 Gflops/s ). Average Watts = 95.745847, Estimated Joules = 0.003200
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.015545 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+Serial-CSR: 2.872944 ms ( 0.22 Gflops/s 3.20 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 26122 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.038095 ms (16.541410 Gflops/s ). Average Watts = 96.908023, Estimated Joules = 0.003268
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.126666 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+Serial-CSR: 2.453089 ms ( 0.26 Gflops/s 3.75 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 26422 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.037665 ms (16.730375 Gflops/s ). Average Watts = 99.619840, Estimated Joules = 0.003130
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.041670 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+Serial-CSR: 2.655983 ms ( 0.24 Gflops/s 3.47 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 26576 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.037447 ms (16.827741 Gflops/s ). Average Watts = 95.624232, Estimated Joules = 0.003212
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.023496 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.665043 ms ( 0.24 Gflops/s 2.33 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 43960 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2670, Elapsed_time = 0.873 s, Av. Watts = 160.999, J_total_estimated = 140.631
+cuSPARSE_csr11: t = 0.022681 ms (27.782287 Gflops/s ). Average Watts = 160.999425, Estimated Joules = 0.003190
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.021137 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.629995 ms ( 0.24 Gflops/s 2.36 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44267 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2755, Elapsed_time = 0.899 s, Av. Watts = 148.113, J_total_estimated = 133.172
+cuSPARSE_csr11: t = 0.022525 ms (27.975268 Gflops/s ). Average Watts = 148.112675, Estimated Joules = 0.003000
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.063948 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.612829 ms ( 0.24 Gflops/s 2.37 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44300 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2760, Elapsed_time = 0.878 s, Av. Watts = 162.941, J_total_estimated = 143.023
+cuSPARSE_csr11: t = 0.022508 ms (27.996103 Gflops/s ). Average Watts = 162.941150, Estimated Joules = 0.003219
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.088015 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.878904 ms ( 0.22 Gflops/s 2.15 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44689 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2669, Elapsed_time = 0.892 s, Av. Watts = 149.583, J_total_estimated = 133.426
+cuSPARSE_csr11: t = 0.022313 ms (28.241498 Gflops/s ). Average Watts = 149.583071, Estimated Joules = 0.002977
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.024355 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 3.387928 ms ( 0.19 Gflops/s 1.83 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 43946 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2779, Elapsed_time = 0.883 s, Av. Watts = 151.188, J_total_estimated = 133.444
+cuSPARSE_csr11: t = 0.022689 ms (27.773164 Gflops/s ). Average Watts = 151.188234, Estimated Joules = 0.003028
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.021386 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.785921 ms ( 0.23 Gflops/s 2.23 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 35908 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2843, Elapsed_time = 0.916 s, Av. Watts = 126.881, J_total_estimated = 116.235
+cuSPARSE_coo11: t = 0.027750 ms (22.708076 Gflops/s ). Average Watts = 126.881437, Estimated Joules = 0.003226
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.054202 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.772093 ms ( 0.23 Gflops/s 2.24 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 35927 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2846, Elapsed_time = 0.917 s, Av. Watts = 126.507, J_total_estimated = 116.053
+cuSPARSE_coo11: t = 0.027735 ms (22.720276 Gflops/s ). Average Watts = 126.507256, Estimated Joules = 0.003219
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.044018 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.692938 ms ( 0.23 Gflops/s 2.30 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 32592 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2585, Elapsed_time = 0.835 s, Av. Watts = 122.378, J_total_estimated = 102.168
+cuSPARSE_coo11: t = 0.030562 ms (20.618290 Gflops/s ). Average Watts = 122.378393, Estimated Joules = 0.003123
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.027778 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.830982 ms ( 0.22 Gflops/s 2.19 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 31862 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2433, Elapsed_time = 0.823 s, Av. Watts = 120.659, J_total_estimated = 99.312
+cuSPARSE_coo11: t = 0.031259 ms (20.158796 Gflops/s ). Average Watts = 120.658574, Estimated Joules = 0.003104
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.053626 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.420660, std_bandwidth = 0.255414
+		  avg_scattering=5129.806392, std_scattering=24330.927605
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.881050 ms ( 0.22 Gflops/s 2.15 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 36633 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2831, Elapsed_time = 0.920 s, Av. Watts = 123.830, J_total_estimated = 113.927
+cuSPARSE_coo11: t = 0.027202 ms (23.165223 Gflops/s ). Average Watts = 123.829637, Estimated Joules = 0.003099
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.040309 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.094336 ms.
+CSR->CSR5 tile_ptr time = 0.034816 ms.
+CSR->CSR5 tile_desc time = 0.09792 ms.
+CSR->CSR5 transpose time = 0.033792 ms.
+CSR->CSR5 time = 0.391168 ms.
+Serial-CSR: 1.228094 ms ( 0.51 Gflops/s 5.05 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 50206 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.019867 ms (31.718068 Gflops/s ). Average Watts = 105.025323, Estimated Joules = 0.001799
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.054701 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.089792 ms.
+CSR->CSR5 tile_ptr time = 0.032768 ms.
+CSR->CSR5 tile_desc time = 0.092576 ms.
+CSR->CSR5 transpose time = 0.031744 ms.
+CSR->CSR5 time = 0.366592 ms.
+Serial-CSR: 1.206875 ms ( 0.52 Gflops/s 5.14 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 48576 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.020532 ms (30.690820 Gflops/s ). Average Watts = 108.059447, Estimated Joules = 0.001802
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.039501 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.095488 ms.
+CSR->CSR5 tile_ptr time = 0.034816 ms.
+CSR->CSR5 tile_desc time = 0.09616 ms.
+CSR->CSR5 transpose time = 0.032768 ms.
+CSR->CSR5 time = 0.392192 ms.
+Serial-CSR: 1.228094 ms ( 0.51 Gflops/s 5.05 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 50668 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.019686 ms (32.009169 Gflops/s ). Average Watts = 107.010267, Estimated Joules = 0.001796
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.062455 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.098432 ms.
+CSR->CSR5 tile_ptr time = 0.03584 ms.
+CSR->CSR5 tile_desc time = 0.102528 ms.
+CSR->CSR5 transpose time = 0.033792 ms.
+CSR->CSR5 time = 0.39936 ms.
+Serial-CSR: 1.373053 ms ( 0.46 Gflops/s 4.52 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 48247 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.020672 ms (30.483412 Gflops/s ). Average Watts = 101.840548, Estimated Joules = 0.001744
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.060475 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.092192 ms.
+CSR->CSR5 tile_ptr time = 0.033792 ms.
+CSR->CSR5 tile_desc time = 0.100384 ms.
+CSR->CSR5 transpose time = 0.031744 ms.
+CSR->CSR5 time = 0.381952 ms.
+Serial-CSR: 1.250029 ms ( 0.50 Gflops/s 4.96 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 53117 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.018781 ms (33.552009 Gflops/s ). Average Watts = 106.177372, Estimated Joules = 0.001772
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.057888 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+Serial-CSR: 1.239061 ms ( 0.51 Gflops/s 7.43 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 29515 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.033734 ms (18.679527 Gflops/s ). Average Watts = 85.041243, Estimated Joules = 0.002501
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.029144 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+Serial-CSR: 1.227140 ms ( 0.51 Gflops/s 7.50 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 30203 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.032969 ms (19.113272 Gflops/s ). Average Watts = 86.746757, Estimated Joules = 0.002572
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.032514 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+Serial-CSR: 1.417875 ms ( 0.44 Gflops/s 6.49 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 28909 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.034438 ms (18.297632 Gflops/s ). Average Watts = 86.650061, Estimated Joules = 0.002581
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.068743 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+Serial-CSR: 1.230955 ms ( 0.51 Gflops/s 7.48 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 30714 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.032423 ms (19.434992 Gflops/s ). Average Watts = 84.885366, Estimated Joules = 0.002486
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.030368 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+Serial-CSR: 1.255035 ms ( 0.50 Gflops/s 7.33 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 29359 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.033913 ms (18.581035 Gflops/s ). Average Watts = 84.691802, Estimated Joules = 0.002521
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.107037 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.718044 ms ( 0.37 Gflops/s 3.61 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 47210 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2659, Elapsed_time = 0.883 s, Av. Watts = 130.693, J_total_estimated = 115.464
+cuSPARSE_csr11: t = 0.021124 ms (29.830254 Gflops/s ). Average Watts = 130.692514, Estimated Joules = 0.002439
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.066025 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.734018 ms ( 0.36 Gflops/s 3.58 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 46707 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2654, Elapsed_time = 0.884 s, Av. Watts = 131.882, J_total_estimated = 116.566
+cuSPARSE_csr11: t = 0.021352 ms (29.512772 Gflops/s ). Average Watts = 131.881666, Estimated Joules = 0.002489
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.028185 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.708984 ms ( 0.37 Gflops/s 3.63 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 47437 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2681, Elapsed_time = 0.879 s, Av. Watts = 133.917, J_total_estimated = 117.753
+cuSPARSE_csr11: t = 0.021024 ms (29.972970 Gflops/s ). Average Watts = 133.917226, Estimated Joules = 0.002476
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.069340 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.716852 ms ( 0.37 Gflops/s 3.61 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 47632 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2525, Elapsed_time = 0.838 s, Av. Watts = 134.246, J_total_estimated = 112.510
+cuSPARSE_csr11: t = 0.020938 ms (30.095624 Gflops/s ). Average Watts = 134.245884, Estimated Joules = 0.002356
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.028473 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.730919 ms ( 0.36 Gflops/s 3.58 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 43979 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2539, Elapsed_time = 0.849 s, Av. Watts = 129.116, J_total_estimated = 109.613
+cuSPARSE_csr11: t = 0.022672 ms (27.793699 Gflops/s ). Average Watts = 129.116017, Estimated Joules = 0.002485
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.062110 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.755953 ms ( 0.36 Gflops/s 3.53 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 41923 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2898, Elapsed_time = 0.919 s, Av. Watts = 112.475, J_total_estimated = 103.313
+cuSPARSE_coo11: t = 0.023780 ms (26.498387 Gflops/s ). Average Watts = 112.474685, Estimated Joules = 0.002457
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.019769 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.749992 ms ( 0.36 Gflops/s 3.54 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44055 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2787, Elapsed_time = 0.914 s, Av. Watts = 118.975, J_total_estimated = 108.733
+cuSPARSE_coo11: t = 0.022633 ms (27.841734 Gflops/s ). Average Watts = 118.974581, Estimated Joules = 0.002461
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.014381 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.753807 ms ( 0.36 Gflops/s 3.54 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 43276 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2549, Elapsed_time = 0.876 s, Av. Watts = 114.260, J_total_estimated = 100.087
+cuSPARSE_coo11: t = 0.023039 ms (27.351032 Gflops/s ). Average Watts = 114.259804, Estimated Joules = 0.002306
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.083469 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.751900 ms ( 0.36 Gflops/s 3.54 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 42766 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2643, Elapsed_time = 0.887 s, Av. Watts = 114.739, J_total_estimated = 101.724
+cuSPARSE_coo11: t = 0.023313 ms (27.029795 Gflops/s ). Average Watts = 114.738654, Estimated Joules = 0.002372
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.500000, seed = 14 ) -> Input time=0.015962 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000049, std_bandwidth = 0.000027
+		  avg_scattering=68233.104756, std_scattering=32046.762615
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.749039 ms ( 0.36 Gflops/s 3.55 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 42596 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2756, Elapsed_time = 0.916 s, Av. Watts = 111.207, J_total_estimated = 101.838
+cuSPARSE_coo11: t = 0.023406 ms (26.922243 Gflops/s ). Average Watts = 111.207282, Estimated Joules = 0.002384
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.051326 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.10144 ms.
+CSR->CSR5 tile_ptr time = 0.03584 ms.
+CSR->CSR5 tile_desc time = 0.099072 ms.
+CSR->CSR5 transpose time = 0.033792 ms.
+CSR->CSR5 time = 0.40448 ms.
+Serial-CSR: 1.414776 ms ( 0.45 Gflops/s 4.38 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 51114 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.019515 ms (32.290246 Gflops/s ). Average Watts = 105.872437, Estimated Joules = 0.001812
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.096089 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.121344 ms.
+CSR->CSR5 tile_ptr time = 0.039936 ms.
+CSR->CSR5 tile_desc time = 0.104544 ms.
+CSR->CSR5 transpose time = 0.036864 ms.
+CSR->CSR5 time = 0.451584 ms.
+Serial-CSR: 1.406908 ms ( 0.45 Gflops/s 4.41 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 47811 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.020860 ms (30.208493 Gflops/s ). Average Watts = 102.668724, Estimated Joules = 0.001831
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.046175 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.111136 ms.
+CSR->CSR5 tile_ptr time = 0.036864 ms.
+CSR->CSR5 tile_desc time = 0.109504 ms.
+CSR->CSR5 transpose time = 0.03584 ms.
+CSR->CSR5 time = 0.441344 ms.
+Serial-CSR: 1.394033 ms ( 0.45 Gflops/s 4.45 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 46568 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.021415 ms (29.425494 Gflops/s ). Average Watts = 102.586605, Estimated Joules = 0.001850
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.018868 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.094464 ms.
+CSR->CSR5 tile_ptr time = 0.034816 ms.
+CSR->CSR5 tile_desc time = 0.097152 ms.
+CSR->CSR5 transpose time = 0.034816 ms.
+CSR->CSR5 time = 0.392192 ms.
+Serial-CSR: 1.270056 ms ( 0.50 Gflops/s 4.88 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 50544 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.019735 ms (31.930619 Gflops/s ). Average Watts = 105.760956, Estimated Joules = 0.001843
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.018837 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.09456 ms.
+CSR->CSR5 tile_ptr time = 0.03584 ms.
+CSR->CSR5 tile_desc time = 0.098464 ms.
+CSR->CSR5 transpose time = 0.032768 ms.
+CSR->CSR5 time = 0.38912 ms.
+Serial-CSR: 1.234055 ms ( 0.51 Gflops/s 5.02 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 51738 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.019280 ms (32.683307 Gflops/s ). Average Watts = 106.776269, Estimated Joules = 0.001840
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.057174 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+Serial-CSR: 1.268148 ms ( 0.50 Gflops/s 7.26 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 29549 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.033695 ms (18.701211 Gflops/s ). Average Watts = 88.116104, Estimated Joules = 0.002555
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.038968 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+Serial-CSR: 1.252890 ms ( 0.50 Gflops/s 7.35 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 27709 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.035923 ms (17.541476 Gflops/s ). Average Watts = 86.369137, Estimated Joules = 0.002612
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.046419 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+Serial-CSR: 1.243114 ms ( 0.51 Gflops/s 7.41 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 30362 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.032797 ms (19.213137 Gflops/s ). Average Watts = 85.685177, Estimated Joules = 0.002555
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.090092 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+Serial-CSR: 1.441956 ms ( 0.44 Gflops/s 6.38 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 28202 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.035297 ms (17.852502 Gflops/s ). Average Watts = 85.315079, Estimated Joules = 0.002625
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.030391 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+Serial-CSR: 1.244068 ms ( 0.51 Gflops/s 7.40 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 27476 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.036227 ms (17.394463 Gflops/s ). Average Watts = 85.602925, Estimated Joules = 0.002532
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.034496 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.762867 ms ( 0.36 Gflops/s 3.52 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44102 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2654, Elapsed_time = 0.871 s, Av. Watts = 136.828, J_total_estimated = 119.229
+cuSPARSE_csr11: t = 0.022609 ms (27.871553 Gflops/s ). Average Watts = 136.827511, Estimated Joules = 0.002696
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.085950 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.739979 ms ( 0.36 Gflops/s 3.56 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 45036 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2541, Elapsed_time = 0.834 s, Av. Watts = 140.633, J_total_estimated = 117.331
+cuSPARSE_csr11: t = 0.022141 ms (28.460075 Gflops/s ). Average Watts = 140.632755, Estimated Joules = 0.002598
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.046247 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.017975 ms ( 0.31 Gflops/s 3.07 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44175 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2643, Elapsed_time = 0.849 s, Av. Watts = 137.507, J_total_estimated = 116.706
+cuSPARSE_csr11: t = 0.022572 ms (27.917553 Gflops/s ). Average Watts = 137.507159, Estimated Joules = 0.002634
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.049305 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.001047 ms ( 0.31 Gflops/s 3.10 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44862 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2503, Elapsed_time = 0.851 s, Av. Watts = 134.730, J_total_estimated = 114.700
+cuSPARSE_csr11: t = 0.022227 ms (28.350365 Gflops/s ). Average Watts = 134.729949, Estimated Joules = 0.002549
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.013807 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.722097 ms ( 0.37 Gflops/s 3.60 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 47052 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2303, Elapsed_time = 0.782 s, Av. Watts = 144.668, J_total_estimated = 113.080
+cuSPARSE_csr11: t = 0.021195 ms (29.730636 Gflops/s ). Average Watts = 144.668018, Estimated Joules = 0.002397
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.096100 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.761913 ms ( 0.36 Gflops/s 3.52 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 42694 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2892, Elapsed_time = 0.918 s, Av. Watts = 113.035, J_total_estimated = 103.814
+cuSPARSE_coo11: t = 0.023352 ms (26.984519 Gflops/s ). Average Watts = 113.034971, Estimated Joules = 0.002424
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.038769 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.766920 ms ( 0.36 Gflops/s 3.51 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 42255 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2780, Elapsed_time = 0.915 s, Av. Watts = 114.938, J_total_estimated = 105.225
+cuSPARSE_coo11: t = 0.023594 ms (26.707580 Gflops/s ). Average Watts = 114.937803, Estimated Joules = 0.002483
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.041803 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.760006 ms ( 0.36 Gflops/s 3.52 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 42942 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2776, Elapsed_time = 0.907 s, Av. Watts = 120.222, J_total_estimated = 109.016
+cuSPARSE_coo11: t = 0.023218 ms (27.140386 Gflops/s ). Average Watts = 120.222393, Estimated Joules = 0.002531
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.050212 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.785994 ms ( 0.35 Gflops/s 3.47 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 43304 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2741, Elapsed_time = 0.908 s, Av. Watts = 117.444, J_total_estimated = 106.604
+cuSPARSE_coo11: t = 0.023024 ms (27.368733 Gflops/s ). Average Watts = 117.444051, Estimated Joules = 0.002455
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.050000, seed = 14 ) -> Input time=0.020179 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.000401, std_bandwidth = 0.000277
+		  avg_scattering=17417.112289, std_scattering=28258.755323
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.960993 ms ( 0.32 Gflops/s 3.16 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 41122 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2691, Elapsed_time = 0.893 s, Av. Watts = 113.027, J_total_estimated = 100.945
+cuSPARSE_coo11: t = 0.024242 ms (25.993462 Gflops/s ). Average Watts = 113.026847, Estimated Joules = 0.002447
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.025101 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.09568 ms.
+CSR->CSR5 tile_ptr time = 0.034816 ms.
+CSR->CSR5 tile_desc time = 0.098304 ms.
+CSR->CSR5 transpose time = 0.032768 ms.
+CSR->CSR5 time = 0.393216 ms.
+Serial-CSR: 1.358986 ms ( 0.46 Gflops/s 4.56 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 45684 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.021828 ms (28.868070 Gflops/s ). Average Watts = 114.279031, Estimated Joules = 0.002158
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.050515 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.088224 ms.
+CSR->CSR5 tile_ptr time = 0.033792 ms.
+CSR->CSR5 tile_desc time = 0.093248 ms.
+CSR->CSR5 transpose time = 0.032768 ms.
+CSR->CSR5 time = 0.37888 ms.
+Serial-CSR: 1.292944 ms ( 0.49 Gflops/s 4.80 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 46879 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.021273 ms (29.621304 Gflops/s ). Average Watts = 112.931272, Estimated Joules = 0.002139
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.151279 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.09344 ms.
+CSR->CSR5 tile_ptr time = 0.034816 ms.
+CSR->CSR5 tile_desc time = 0.095904 ms.
+CSR->CSR5 transpose time = 0.033792 ms.
+CSR->CSR5 time = 0.384 ms.
+Serial-CSR: 1.288891 ms ( 0.49 Gflops/s 4.81 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 46674 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.021366 ms (29.492190 Gflops/s ). Average Watts = 114.867156, Estimated Joules = 0.002081
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.042180 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.089312 ms.
+CSR->CSR5 tile_ptr time = 0.032768 ms.
+CSR->CSR5 tile_desc time = 0.092672 ms.
+CSR->CSR5 transpose time = 0.031744 ms.
+CSR->CSR5 time = 0.36864 ms.
+Serial-CSR: 1.307964 ms ( 0.48 Gflops/s 4.74 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 47244 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.021109 ms (29.851311 Gflops/s ). Average Watts = 111.888605, Estimated Joules = 0.002126
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.018967 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315071
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.102784 ms.
+CSR->CSR5 tile_ptr time = 0.03584 ms.
+CSR->CSR5 tile_desc time = 0.10016 ms.
+CSR->CSR5 transpose time = 0.033792 ms.
+CSR->CSR5 time = 0.408576 ms.
+Serial-CSR: 1.473904 ms ( 0.43 Gflops/s 4.21 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 44911 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.022203 ms (28.381284 Gflops/s ). Average Watts = 114.272914, Estimated Joules = 0.002204
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.045901 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+Serial-CSR: 1.847982 ms ( 0.34 Gflops/s 4.98 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 28128 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.035390 ms (17.805522 Gflops/s ). Average Watts = 92.880794, Estimated Joules = 0.002856
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.168337 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+Serial-CSR: 1.614094 ms ( 0.39 Gflops/s 5.70 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 27222 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.036562 ms (17.234954 Gflops/s ). Average Watts = 92.815699, Estimated Joules = 0.002816
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.035329 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+Serial-CSR: 1.657963 ms ( 0.38 Gflops/s 5.55 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 27930 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.035640 ms (17.680825 Gflops/s ). Average Watts = 89.890176, Estimated Joules = 0.002789
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.018385 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+Serial-CSR: 1.734018 ms ( 0.36 Gflops/s 5.31 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 27612 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.036048 ms (17.480748 Gflops/s ). Average Watts = 91.717036, Estimated Joules = 0.002782
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.038821 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205420, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+Serial-CSR: 1.873016 ms ( 0.34 Gflops/s 4.91 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 28009 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.035539 ms (17.730865 Gflops/s ). Average Watts = 91.166435, Estimated Joules = 0.002832
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.035579 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.986980 ms ( 0.32 Gflops/s 3.12 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 45185 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2744, Elapsed_time = 0.887 s, Av. Watts = 150.313, J_total_estimated = 133.365
+cuSPARSE_csr11: t = 0.022069 ms (28.553757 Gflops/s ). Average Watts = 150.313028, Estimated Joules = 0.002943
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.046341 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.171040 ms ( 0.29 Gflops/s 2.86 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 43410 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2809, Elapsed_time = 0.878 s, Av. Watts = 141.960, J_total_estimated = 124.662
+cuSPARSE_csr11: t = 0.022968 ms (27.435318 Gflops/s ). Average Watts = 141.960196, Estimated Joules = 0.002863
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.096519 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.834869 ms ( 0.34 Gflops/s 3.38 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44644 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2820, Elapsed_time = 0.888 s, Av. Watts = 144.204, J_total_estimated = 128.098
+cuSPARSE_csr11: t = 0.022335 ms (28.213236 Gflops/s ). Average Watts = 144.203909, Estimated Joules = 0.002861
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.036995 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.888037 ms ( 0.33 Gflops/s 3.28 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44832 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2703, Elapsed_time = 0.876 s, Av. Watts = 148.179, J_total_estimated = 129.866
+cuSPARSE_csr11: t = 0.022242 ms (28.331372 Gflops/s ). Average Watts = 148.178764, Estimated Joules = 0.002888
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.129109 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.283096 ms ( 0.28 Gflops/s 2.72 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 43573 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2607, Elapsed_time = 0.858 s, Av. Watts = 147.125, J_total_estimated = 126.284
+cuSPARSE_csr11: t = 0.022883 ms (27.538047 Gflops/s ). Average Watts = 147.125390, Estimated Joules = 0.002890
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.057210 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.936913 ms ( 0.33 Gflops/s 3.20 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 41906 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2670, Elapsed_time = 0.914 s, Av. Watts = 122.381, J_total_estimated = 111.841
+cuSPARSE_coo11: t = 0.023790 ms (26.488014 Gflops/s ). Average Watts = 122.381497, Estimated Joules = 0.002661
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.044629 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.892090 ms ( 0.33 Gflops/s 3.28 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 40726 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2802, Elapsed_time = 0.908 s, Av. Watts = 119.376, J_total_estimated = 108.419
+cuSPARSE_coo11: t = 0.024477 ms (25.744229 Gflops/s ). Average Watts = 119.376148, Estimated Joules = 0.002654
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.048587 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.996994 ms ( 0.32 Gflops/s 3.11 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 40926 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2729, Elapsed_time = 0.911 s, Av. Watts = 119.487, J_total_estimated = 108.831
+cuSPARSE_coo11: t = 0.024358 ms (25.870223 Gflops/s ). Average Watts = 119.486962, Estimated Joules = 0.002651
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.060910 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.834869 ms ( 0.34 Gflops/s 3.38 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 40989 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2795, Elapsed_time = 0.919 s, Av. Watts = 122.609, J_total_estimated = 112.636
+cuSPARSE_coo11: t = 0.024321 ms (25.909850 Gflops/s ). Average Watts = 122.609154, Estimated Joules = 0.002739
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = diagonal, diagonal_factor = 0.005000, seed = 14 ) -> Input time=0.049881 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200856, density =0.002152, mem_footprint = 4.067284 MB, mem_range=[4-8]
+		  nr_nnzs=315071, avg_nnz_per_row=2.603893, std_nnz_per_row=0.704202
+		  avg_bandwidth=0.003914, std_bandwidth = 0.002758
+		  avg_scattering=6921.611505, std_scattering=24842.174636
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 1.837015 ms ( 0.34 Gflops/s 3.38 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 42198 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2745, Elapsed_time = 0.921 s, Av. Watts = 119.530, J_total_estimated = 110.057
+cuSPARSE_coo11: t = 0.023626 ms (26.671784 Gflops/s ). Average Watts = 119.530472, Estimated Joules = 0.002600
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.043310 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315058
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.096032 ms.
+CSR->CSR5 tile_ptr time = 0.034816 ms.
+CSR->CSR5 tile_desc time = 0.096512 ms.
+CSR->CSR5 transpose time = 0.033792 ms.
+CSR->CSR5 time = 0.38912 ms.
+Serial-CSR: 2.197981 ms ( 0.29 Gflops/s 2.82 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 37653 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.026468 ms (23.806541 Gflops/s ). Average Watts = 116.233202, Estimated Joules = 0.002562
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.049505 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315058
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.09024 ms.
+CSR->CSR5 tile_ptr time = 0.033792 ms.
+CSR->CSR5 tile_desc time = 0.102112 ms.
+CSR->CSR5 transpose time = 0.0328 ms.
+CSR->CSR5 time = 0.385024 ms.
+Serial-CSR: 2.165079 ms ( 0.29 Gflops/s 2.86 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 38277 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.026038 ms (24.199939 Gflops/s ). Average Watts = 115.899107, Estimated Joules = 0.002567
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.046154 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315058
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.094208 ms.
+CSR->CSR5 tile_ptr time = 0.033792 ms.
+CSR->CSR5 tile_desc time = 0.097408 ms.
+CSR->CSR5 transpose time = 0.033792 ms.
+CSR->CSR5 time = 0.38912 ms.
+Serial-CSR: 2.241850 ms ( 0.28 Gflops/s 2.77 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 38897 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.025624 ms (24.590460 Gflops/s ). Average Watts = 116.264129, Estimated Joules = 0.002602
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.074237 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315058
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.088672 ms.
+CSR->CSR5 tile_ptr time = 0.03584 ms.
+CSR->CSR5 tile_desc time = 0.104864 ms.
+CSR->CSR5 transpose time = 0.032768 ms.
+CSR->CSR5 time = 0.388096 ms.
+Serial-CSR: 2.151966 ms ( 0.29 Gflops/s 2.88 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 39511 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.025228 ms (24.977182 Gflops/s ). Average Watts = 113.520891, Estimated Joules = 0.002607
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.035558 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+alpha: 1, beta: 0
+ ( 121000, 121000 ) nnz = 315058
+omega = 32, sigma = 4. 
+CSR->CSR5 malloc time = 0.09328 ms.
+CSR->CSR5 tile_ptr time = 0.034816 ms.
+CSR->CSR5 tile_desc time = 0.097856 ms.
+CSR->CSR5 transpose time = 0.032768 ms.
+CSR->CSR5 time = 0.387072 ms.
+Serial-CSR: 2.260923 ms ( 0.28 Gflops/s 2.74 Gbytes/s)
+
+Running tests.. 
+Testing CSR5_9_csr...	 PASSED TEST
+Performing extra 39440 itter for more power measurments (min benchmark time : 1s)...
+CSR5_9: t = 0.025272 ms (24.933001 Gflops/s ). Average Watts = 118.821565, Estimated Joules = 0.002636
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.014024 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205160, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+Serial-CSR: 2.757072 ms ( 0.23 Gflops/s 3.34 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 22888 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.043446 ms (14.503363 Gflops/s ). Average Watts = 95.691173, Estimated Joules = 0.003568
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.014044 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205160, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+Serial-CSR: 2.976894 ms ( 0.21 Gflops/s 3.09 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 23077 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.043094 ms (14.621843 Gflops/s ). Average Watts = 95.333585, Estimated Joules = 0.003607
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.055990 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205160, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+Serial-CSR: 2.655983 ms ( 0.24 Gflops/s 3.47 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 23111 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.043031 ms (14.643362 Gflops/s ). Average Watts = 96.755726, Estimated Joules = 0.003601
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.021206 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205160, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+Serial-CSR: 2.998114 ms ( 0.21 Gflops/s 3.07 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 22725 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.043757 ms (14.400262 Gflops/s ). Average Watts = 96.618285, Estimated Joules = 0.003583
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.038707 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 9205160, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+Serial-CSR: 2.448082 ms ( 0.26 Gflops/s 3.76 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_hyb...	 PASSED TEST
+Timing cuSPARSE_hyb...
+Performing extra 22869 itter for more power measurments (min benchmark time : 1s)...
+cuSPARSE_hyb9-2: t = 0.043483 ms (14.490938 Gflops/s ). Average Watts = 96.052669, Estimated Joules = 0.003569
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.070743 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.712011 ms ( 0.23 Gflops/s 2.29 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44333 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2663, Elapsed_time = 0.881 s, Av. Watts = 152.077, J_total_estimated = 134.042
+cuSPARSE_csr11: t = 0.022491 ms (28.015814 Gflops/s ). Average Watts = 152.077366, Estimated Joules = 0.003015
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.025799 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 3.067017 ms ( 0.21 Gflops/s 2.02 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44503 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2596, Elapsed_time = 0.880 s, Av. Watts = 154.031, J_total_estimated = 135.519
+cuSPARSE_csr11: t = 0.022406 ms (28.122949 Gflops/s ). Average Watts = 154.031193, Estimated Joules = 0.003036
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.038522 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.861977 ms ( 0.22 Gflops/s 2.17 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44131 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2709, Elapsed_time = 0.890 s, Av. Watts = 151.809, J_total_estimated = 135.165
+cuSPARSE_csr11: t = 0.022594 ms (27.888784 Gflops/s ). Average Watts = 151.809030, Estimated Joules = 0.003054
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.062149 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.620220 ms ( 0.24 Gflops/s 2.37 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 43917 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2826, Elapsed_time = 0.886 s, Av. Watts = 151.611, J_total_estimated = 134.345
+cuSPARSE_csr11: t = 0.022704 ms (27.753790 Gflops/s ). Average Watts = 151.611031, Estimated Joules = 0.003050
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.035750 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 3.067017 ms ( 0.21 Gflops/s 2.02 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_csr...	 PASSED TEST
+Timing cuSPARSE_csr...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 44026 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcsrmv_11-0_generate": Total ticks = 2834, Elapsed_time = 0.898 s, Av. Watts = 147.113, J_total_estimated = 132.115
+cuSPARSE_csr11: t = 0.022648 ms (27.822268 Gflops/s ). Average Watts = 147.113079, Estimated Joules = 0.002992
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.038307 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.889872 ms ( 0.22 Gflops/s 2.15 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 35836 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2765, Elapsed_time = 0.899 s, Av. Watts = 125.076, J_total_estimated = 112.433
+cuSPARSE_coo11: t = 0.027806 ms (22.661505 Gflops/s ). Average Watts = 125.076487, Estimated Joules = 0.003126
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.105860 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.710104 ms ( 0.23 Gflops/s 2.29 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 37017 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2826, Elapsed_time = 0.923 s, Av. Watts = 126.559, J_total_estimated = 116.777
+cuSPARSE_coo11: t = 0.026921 ms (23.406279 Gflops/s ). Average Watts = 126.559095, Estimated Joules = 0.003144
+Device [0] Tesla V100-SXM2-32GB,  @ 1530MHz. 
+File=synthetic ( distribution = normal, placement = random, diagonal_factor = 1.000000, seed = 14 ) -> Input time=0.117718 s
+		  nr_rows(m)=121000, nr_cols(n)=121000, bytes = 6200700, density =0.002152, mem_footprint = 4.067135 MB, mem_range=[4-8]
+		  nr_nnzs=315058, avg_nnz_per_row=2.603785, std_nnz_per_row=0.889938
+		  avg_bandwidth=0.407798, std_bandwidth = 0.269509
+		  avg_scattering=10833.231543, std_scattering=34514.987496
+CUDA_VALUE_TYPE_AX: 1, CUDA_VALUE_TYPE_Y: 1, CUDA_VALUE_TYPE_COMP: 1
+Serial-CSR: 2.892017 ms ( 0.22 Gflops/s 2.14 Gbytes/s)
+
+Running tests.. 
+Testing cuSPARSE_coo...	 PASSED TEST
+Timing cuSPARSE_coo...
+NvemStartMeasure: Device [Tesla V100-SXM2-32GB] - Bus ID num: 98
+NvemStartMeasure: Device Bus ID : 0000:62:00.0
+NvemStartMeasure: Found 3 nvml devices
+NvemStartMeasure: Got handle for device with Bus ID 0000:62:00.0
+NvemStartMeasure: GPU with dev_id=0 is a CUDA-capable device
+Performing extra 36391 itter for more power measurments (min benchmark time : 1s)...
+NvemStopMeasure: Completed measurements "Energy measure cuSPARSEcoomv_11-0_generate": Total ticks = 2916, Elapsed_time = 0.921 s, Av. Watts = 127.162, J_total_estimated = 117.110
+cuSPARSE_coo11: t = 0.027383 ms (23.011425 Gflops/s ). Average Watts = 127.161604, Estimated Joules = 0.003207

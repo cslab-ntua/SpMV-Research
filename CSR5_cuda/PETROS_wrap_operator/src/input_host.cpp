@@ -9,7 +9,14 @@
 #include "gpu_utils.hpp"
 #include "mmio.h"
 #include "spmv_utils.hpp"
+
+#ifdef __cplusplus
+extern "C"{
+#endif 
 #include "artificial_matrix_generation.h"
+#ifdef __cplusplus
+}
+#endif
 
 //From cuda 11 - cuSPARSE
 #include <cuda_runtime_api.h> // cudaMalloc, cudaMemcpy, etc.
@@ -18,7 +25,17 @@
 void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix_generation_args, int verbose){
     ddebug(" -> SpmvOperator::mtx_generate_host()\n");
 	csr_matrix *matrix=NULL;
-	matrix =  artificial_matrix_generation(argc, argv, start_of_matrix_generation_args, verbose);
+	// FIXME: MPAKOS generator 
+	//matrix =  artificial_matrix_generation(argc, argv, start_of_matrix_generation_args, verbose);
+	long nr_rows_in = atoi(argv[start_of_matrix_generation_args]);
+	long nr_cols_in = nr_rows_in;
+	double avg_nnz_per_row_in = strtod(argv[start_of_matrix_generation_args+1], NULL);
+	double std_nnz_per_row_in = strtod(argv[start_of_matrix_generation_args+2], NULL);
+	char * distribution_in = argv[start_of_matrix_generation_args+3];
+	char * placement_in = argv[start_of_matrix_generation_args+4];
+	double d_f_in = strtod(argv[start_of_matrix_generation_args+5], NULL);
+	unsigned int seed_in = atoi(argv[start_of_matrix_generation_args+6]);
+	matrix = artificial_matrix_generation(nr_rows_in, nr_cols_in, avg_nnz_per_row_in, std_nnz_per_row_in, distribution_in, seed_in, placement_in, d_f_in);
 	/*
 		if(matrix!=NULL){
 		if(verbose){
