@@ -15,5 +15,6 @@ _deps
 */CSR5/
 build*/
 .ipynb*
+*.err
 *Plot_tries/
 validation_matrices/
