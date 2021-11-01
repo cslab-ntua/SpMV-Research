@@ -27,7 +27,7 @@ add_definitions(-DNR_ITER=128)
 #add_definitions(-DDDEBUG)
 
 ## 6) Define result testing flag
-add_definitions(-DTEST)
+#add_definitions(-DTEST)
 
 project (MakeSpMVGreatAgain11 CXX CUDA)
 set ( PROJECT_HEAD_DIR ${PROJECT_SOURCE_DIR}/../ )
