@@ -3762,3 +3762,48 @@ user	0m2.203s
 sys	0m3.759s
 All existing processes will be killed.
 Are you sure you wish to proceed? [y/n]: 
+pmpakos@gold1:/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/benchmarks/spmv_double$ time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_952000_952000_avg70.0_std8.0_random_n14 128 0; yes | xbutil reset -d 0; echo
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_0.dat	0 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_1.dat	1 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_2.dat	2 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_3.dat	3 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_4.dat	4 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_5.dat	5 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_6.dat	6 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_7.dat	7 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_8.dat	8 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_9.dat	9 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_10.dat	10 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_11.dat	11 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_12.dat	12 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_13.dat	13 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_14.dat	14 -> l_bytes 942.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/nnzVal_15.dat	15 -> l_bytes 835.71 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/parParam.dat	16 -> l_bytes 13.2542 MB
+l_sigFileNames ./sig_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/rbParam.dat	17 -> l_bytes 0.0569153 MB
+l_vecFileNames ./vec_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/inVec.dat	0 -> l_bytes 7.26318 MB
+l_vecFileNames ./vec_dat/synthetic_952000_952000_avg70.0_std8.0_random_n14/refVec.dat	1 -> l_bytes 7.26318 MB
+DATA_CSV:,synthetic_952000_952000_avg70.0_std8.0_random_n14,952000,952000,66162503,952000,952000,1830498080,2666.67,128,0,0,0,0,14986.2
+Some nonzero partition(s) is(are) larger than 256 MB. Exiting early!
+
+real	0m21.644s
+user	0m9.357s
+sys	0m12.139s
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: 

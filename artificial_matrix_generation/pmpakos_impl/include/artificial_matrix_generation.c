@@ -92,7 +92,7 @@ csr_matrix *artificial_matrix_generation(int argc, char *argv[], int starting_po
 	/* Error checking of pName left out */
 	// https://stackoverflow.com/a/35582046 (!!!)
 	PyRun_SimpleString("import sys");
-	PyRun_SimpleString("sys.path.append(\"/various/pmpakos/SpMV_research/artificial_matrix_generation/pmpakos_impl/include/\")");
+	PyRun_SimpleString("sys.path.append(\"/various/pmpakos/SpMV-Research/artificial_matrix_generation/pmpakos_impl/include/\")");
 
 	// no need to error-check these two, they are core of python
 	/*PyImport_ImportModule("random");
