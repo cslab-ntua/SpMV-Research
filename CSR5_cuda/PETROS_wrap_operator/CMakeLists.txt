@@ -27,7 +27,7 @@ add_definitions(-DNR_ITER=128)
 #add_definitions(-DDDEBUG)
 
 ## 6) Define result testing flag
-add_definitions(-DTEST)
+#add_definitions(-DTEST)
 
 project (MakeSpMVGreatAgainCSR5 CXX CUDA)
 set ( PROJECT_HEAD_DIR ${PROJECT_SOURCE_DIR}/../../ )
@@ -101,7 +101,7 @@ file(GLOB SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.c* ${NVEMAPI_PREFIX}/src/*.*)
 message( "SOURCE_FILES: " ${SOURCE_FILES} )
 
 ## datatype used in benchmarks. 0 = float, 1 = double
-set(DATATYPE 1) 
+set(DATATYPE 0) 
 
 if (${DATATYPE} EQUAL 1)
 	#add_library(MyLib ${SOURCE_FILES} ${MPAKOS_PREFIX}/include/artificial_matrix_generation_double.o)
