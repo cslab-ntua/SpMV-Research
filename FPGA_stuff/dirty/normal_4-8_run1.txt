@@ -3717,14 +3717,22 @@ l_sigFileNames ./sig_dat/synthetic_121000_121000_avg3.1_std1.6_diagonal_0.005_n1
 l_sigFileNames ./sig_dat/synthetic_121000_121000_avg3.1_std1.6_diagonal_0.005_n14/nnzVal_15.dat	15 -> l_bytes 1.92538 MB
 l_sigFileNames ./sig_dat/synthetic_121000_121000_avg3.1_std1.6_diagonal_0.005_n14/parParam.dat	16 -> l_bytes 0.0144348 MB
 l_sigFileNames ./sig_dat/synthetic_121000_121000_avg3.1_std1.6_diagonal_0.005_n14/rbParam.dat	17 -> l_bytes 0.00735474 MB
-terminate called after throwing an instance of 'std::bad_alloc'
-  what():  std::bad_alloc
-timeout: the monitored command dumped core
-Aborted
+l_vecFileNames ./vec_dat/synthetic_121000_121000_avg3.1_std1.6_diagonal_0.005_n14/inVec.dat	0 -> l_bytes 0.923157 MB
+l_vecFileNames ./vec_dat/synthetic_121000_121000_avg3.1_std1.6_diagonal_0.005_n14/refVec.dat	1 -> l_bytes 0.923157 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_121000_121000_avg3.1_std1.6_diagonal_0.005_n14,121000,121000,319103,121000,121000,4019456,1159.61,128,0.0661331,0.516665,1.23524,15.5592,32.8664
+INFO: Test pass!
 
-real	0m0.387s
-user	0m0.026s
-sys	0m0.029s
+real	0m7.636s
+user	0m0.200s
+sys	0m0.397s
 All existing processes will be killed.
 Are you sure you wish to proceed? [y/n]: 
 pmpakos@gold1:/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/benchmarks/spmv_double$ time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_4000_4000_avg45.0_std125.0_diagonal_0.5_n14 128 0; yes | xbutil reset -d 0; echo
@@ -4449,16 +4457,25 @@ l_sigFileNames ./sig_dat/synthetic_47000_47000_avg6.0_std8.0_diagonal_0.05_n14/n
 l_sigFileNames ./sig_dat/synthetic_47000_47000_avg6.0_std8.0_diagonal_0.05_n14/nnzVal_15.dat	15 -> l_bytes 1.01593 MB
 l_sigFileNames ./sig_dat/synthetic_47000_47000_avg6.0_std8.0_diagonal_0.05_n14/parParam.dat	16 -> l_bytes 0.00564575 MB
 l_sigFileNames ./sig_dat/synthetic_47000_47000_avg6.0_std8.0_diagonal_0.05_n14/rbParam.dat	17 -> l_bytes 0.00296021 MB
-terminate called after throwing an instance of 'std::bad_alloc'
-  what():  std::bad_alloc
-timeout: the monitored command dumped core
-Aborted
+l_vecFileNames ./vec_dat/synthetic_47000_47000_avg6.0_std8.0_diagonal_0.05_n14/inVec.dat	0 -> l_bytes 0.358582 MB
+l_vecFileNames ./vec_dat/synthetic_47000_47000_avg6.0_std8.0_diagonal_0.05_n14/refVec.dat	1 -> l_bytes 0.358582 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_47000_47000_avg6.0_std8.0_diagonal_0.05_n14,47000,47000,356865,47000,47000,2117728,493.426,128,0.0278466,0.217552,3.28074,19.4687,17.3104
+INFO: Test pass!
 
-real	0m0.763s
-user	0m0.023s
-sys	0m0.014s
+real	0m7.259s
+user	0m0.239s
+sys	0m0.417s
 All existing processes will be killed.
 Are you sure you wish to proceed? [y/n]: 
+
 pmpakos@gold1:/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/benchmarks/spmv_double$ time timeout 420 ./build_dir.hw.xilinx_u280_xdma_201920_3/host.exe ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin ./sig_dat ./vec_dat synthetic_141000_141000_avg4.0_std2.25_diagonal_0.5_n14 128 0; yes | xbutil reset -d 0; echo
 l_sigFileNames ./sig_dat/synthetic_141000_141000_avg4.0_std2.25_diagonal_0.5_n14/nnzVal_0.dat	0 -> l_bytes 2.13992 MB
 l_sigFileNames ./sig_dat/synthetic_141000_141000_avg4.0_std2.25_diagonal_0.5_n14/nnzVal_1.dat	1 -> l_bytes 2.13992 MB

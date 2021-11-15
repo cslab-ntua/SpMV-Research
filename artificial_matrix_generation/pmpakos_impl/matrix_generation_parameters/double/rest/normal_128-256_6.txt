@@ -1,0 +1,9 @@
+987000 20 1.6 normal random 1 14
+987000 20 1.6 normal diagonal 0.5 14
+987000 20 1.6 normal diagonal 0.05 14
+987000 20 1.6 normal diagonal 0.005 14
+987000 20 0.64 normal random 1 14
+987000 20 0.64 normal diagonal 0.5 14
+987000 20 0.64 normal diagonal 0.05 14
+987000 20 0.64 normal diagonal 0.005 14
+1000000 20 13 normal diagonal 0.5 14

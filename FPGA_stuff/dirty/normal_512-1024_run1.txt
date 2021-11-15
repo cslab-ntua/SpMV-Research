@@ -6917,3 +6917,514 @@ INFO: Test pass!
 real	0m15.095s
 user	0m1.660s
 sys	0m4.061s
+--->  synthetic_4690000_4690000_avg10.0_std0.02_random_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_0.dat	0 -> l_bytes 930.612 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_1.dat	1 -> l_bytes 930.531 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_2.dat	2 -> l_bytes 930.475 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_3.dat	3 -> l_bytes 930.45 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_4.dat	4 -> l_bytes 930.435 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_5.dat	5 -> l_bytes 930.425 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_6.dat	6 -> l_bytes 930.416 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_7.dat	7 -> l_bytes 930.406 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_8.dat	8 -> l_bytes 930.297 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_9.dat	9 -> l_bytes 929.417 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_10.dat	10 -> l_bytes 926.677 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_11.dat	11 -> l_bytes 779.368 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_12.dat	12 -> l_bytes 551.012 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_13.dat	13 -> l_bytes 352.589 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_14.dat	14 -> l_bytes 202.996 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/nnzVal_15.dat	15 -> l_bytes 83.1766 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/parParam.dat	16 -> l_bytes 311.324 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.02_random_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std0.02_random_n14,4690000,4690000,44553529,4690000,4690000,1420272992,3087.79,128,0,0,0,0,12510.9
+Some nonzero partition(s) is(are) larger than 256 MB. Exiting early!
+
+real	4m30.353s
+user	0m7.677s
+sys	0m13.950s
+--->  synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_0.dat	0 -> l_bytes 159.892 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_1.dat	1 -> l_bytes 159.887 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_2.dat	2 -> l_bytes 159.874 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_3.dat	3 -> l_bytes 159.853 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_4.dat	4 -> l_bytes 159.83 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_5.dat	5 -> l_bytes 159.796 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_6.dat	6 -> l_bytes 159.79 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_7.dat	7 -> l_bytes 159.776 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_8.dat	8 -> l_bytes 159.78 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_9.dat	9 -> l_bytes 159.787 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_10.dat	10 -> l_bytes 159.804 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_11.dat	11 -> l_bytes 159.829 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_12.dat	12 -> l_bytes 159.86 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_13.dat	13 -> l_bytes 159.878 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_14.dat	14 -> l_bytes 159.901 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/nnzVal_15.dat	15 -> l_bytes 153.933 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/parParam.dat	16 -> l_bytes 0.559357 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std0.02_diagonal_0.005_n14,4690000,4690000,44553529,4690000,4690000,312341824,601.048,128,3.4039,26.593,3.35077,23.4905,2552.31
+INFO: Test pass!
+
+real	1m9.723s
+user	0m1.895s
+sys	0m5.971s
+--->  synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_0.dat	0 -> l_bytes 159.892 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_1.dat	1 -> l_bytes 159.887 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_2.dat	2 -> l_bytes 159.874 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_3.dat	3 -> l_bytes 159.853 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_4.dat	4 -> l_bytes 159.83 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_5.dat	5 -> l_bytes 159.796 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_6.dat	6 -> l_bytes 159.79 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_7.dat	7 -> l_bytes 159.776 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_8.dat	8 -> l_bytes 159.78 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_9.dat	9 -> l_bytes 159.787 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_10.dat	10 -> l_bytes 159.804 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_11.dat	11 -> l_bytes 159.829 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_12.dat	12 -> l_bytes 159.86 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_13.dat	13 -> l_bytes 159.878 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_14.dat	14 -> l_bytes 159.901 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/nnzVal_15.dat	15 -> l_bytes 153.933 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/parParam.dat	16 -> l_bytes 0.559357 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std0.2_diagonal_0.005_n14,4690000,4690000,44553528,4690000,4690000,312341824,601.048,128,3.40377,26.5919,3.35091,23.4915,2552.31
+INFO: Test pass!
+
+real	0m56.572s
+user	0m1.845s
+sys	0m5.458s
+--->  synthetic_4690000_4690000_avg10.0_std0.2_random_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_0.dat	0 -> l_bytes 930.612 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_1.dat	1 -> l_bytes 930.531 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_2.dat	2 -> l_bytes 930.475 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_3.dat	3 -> l_bytes 930.45 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_4.dat	4 -> l_bytes 930.435 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_5.dat	5 -> l_bytes 930.425 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_6.dat	6 -> l_bytes 930.416 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_7.dat	7 -> l_bytes 930.406 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_8.dat	8 -> l_bytes 930.297 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_9.dat	9 -> l_bytes 929.417 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_10.dat	10 -> l_bytes 926.677 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_11.dat	11 -> l_bytes 779.368 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_12.dat	12 -> l_bytes 551.012 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_13.dat	13 -> l_bytes 352.589 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_14.dat	14 -> l_bytes 202.996 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/nnzVal_15.dat	15 -> l_bytes 83.1766 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/parParam.dat	16 -> l_bytes 311.324 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.2_random_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std0.2_random_n14,4690000,4690000,44553528,4690000,4690000,1420272960,3087.79,128,0,0,0,0,12510.9
+Some nonzero partition(s) is(are) larger than 256 MB. Exiting early!
+
+real	1m25.015s
+user	0m7.857s
+sys	0m11.635s
+--->  synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_0.dat	0 -> l_bytes 81.4625 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_1.dat	1 -> l_bytes 81.4577 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_2.dat	2 -> l_bytes 81.4597 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_3.dat	3 -> l_bytes 81.459 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_4.dat	4 -> l_bytes 81.4595 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_5.dat	5 -> l_bytes 81.4626 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_6.dat	6 -> l_bytes 81.4555 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_7.dat	7 -> l_bytes 81.4598 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_8.dat	8 -> l_bytes 81.4595 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_9.dat	9 -> l_bytes 81.4631 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_10.dat	10 -> l_bytes 81.4594 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_11.dat	11 -> l_bytes 81.2634 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_12.dat	12 -> l_bytes 80.7816 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_13.dat	13 -> l_bytes 80.6213 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_14.dat	14 -> l_bytes 80.5852 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/nnzVal_15.dat	15 -> l_bytes 78.0674 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/parParam.dat	16 -> l_bytes 0.559357 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.5_n14,4690000,4690000,44552108,4690000,4690000,158779232,256.39,128,2.48595,19.4215,4.58793,16.3509,1298.22
+INFO: Test pass!
+
+real	0m19.296s
+user	0m1.038s
+sys	0m2.874s
+--->  synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_0.dat	0 -> l_bytes 140.441 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_1.dat	1 -> l_bytes 140.441 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_2.dat	2 -> l_bytes 140.436 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_3.dat	3 -> l_bytes 140.438 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_4.dat	4 -> l_bytes 140.443 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_5.dat	5 -> l_bytes 140.444 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_6.dat	6 -> l_bytes 140.437 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_7.dat	7 -> l_bytes 140.451 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_8.dat	8 -> l_bytes 140.45 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_9.dat	9 -> l_bytes 140.468 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_10.dat	10 -> l_bytes 140.478 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_11.dat	11 -> l_bytes 140.517 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_12.dat	12 -> l_bytes 140.524 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_13.dat	13 -> l_bytes 140.555 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_14.dat	14 -> l_bytes 140.571 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/nnzVal_15.dat	15 -> l_bytes 133.354 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/parParam.dat	16 -> l_bytes 0.559357 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.05_n14,4690000,4690000,44552108,4690000,4690000,274285696,515.651,128,2.4877,19.4351,4.5847,28.2257,2241.29
+INFO: Test pass!
+
+real	0m53.945s
+user	0m1.644s
+sys	0m4.741s
+--->  synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_0.dat	0 -> l_bytes 159.208 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_1.dat	1 -> l_bytes 159.134 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_2.dat	2 -> l_bytes 159.044 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_3.dat	3 -> l_bytes 158.978 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_4.dat	4 -> l_bytes 158.922 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_5.dat	5 -> l_bytes 158.873 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_6.dat	6 -> l_bytes 158.844 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_7.dat	7 -> l_bytes 158.823 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_8.dat	8 -> l_bytes 158.824 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_9.dat	9 -> l_bytes 158.83 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_10.dat	10 -> l_bytes 158.845 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_11.dat	11 -> l_bytes 158.855 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_12.dat	12 -> l_bytes 158.874 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_13.dat	13 -> l_bytes 158.881 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_14.dat	14 -> l_bytes 158.884 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/nnzVal_15.dat	15 -> l_bytes 152.911 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/parParam.dat	16 -> l_bytes 0.809845 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std0.64_diagonal_0.005_n14,4690000,4690000,44552108,4690000,4690000,310527360,596.998,128,3.43024,26.7988,3.32494,23.1747,2537.82
+INFO: Test pass!
+
+real	0m19.073s
+user	0m1.755s
+sys	0m4.694s
+--->  synthetic_4690000_4690000_avg10.0_std0.64_random_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_0.dat	0 -> l_bytes 930.595 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_1.dat	1 -> l_bytes 930.513 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_2.dat	2 -> l_bytes 930.457 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_3.dat	3 -> l_bytes 930.432 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_4.dat	4 -> l_bytes 930.417 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_5.dat	5 -> l_bytes 930.407 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_6.dat	6 -> l_bytes 930.398 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_7.dat	7 -> l_bytes 930.388 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_8.dat	8 -> l_bytes 930.282 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_9.dat	9 -> l_bytes 929.421 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_10.dat	10 -> l_bytes 926.695 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_11.dat	11 -> l_bytes 779.541 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_12.dat	12 -> l_bytes 551.053 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_13.dat	13 -> l_bytes 352.347 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_14.dat	14 -> l_bytes 202.848 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/nnzVal_15.dat	15 -> l_bytes 83.0198 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/parParam.dat	16 -> l_bytes 311.328 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.64_random_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std0.64_random_n14,4690000,4690000,44552108,4690000,4690000,1420216160,3087.76,128,0,0,0,0,12510.4
+Some nonzero partition(s) is(are) larger than 256 MB. Exiting early!
+
+real	2m56.241s
+user	0m7.821s
+sys	0m13.159s
+--->  synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_0.dat	0 -> l_bytes 82.378 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_1.dat	1 -> l_bytes 82.3769 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_2.dat	2 -> l_bytes 82.3754 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_3.dat	3 -> l_bytes 82.3784 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_4.dat	4 -> l_bytes 82.378 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_5.dat	5 -> l_bytes 82.3766 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_6.dat	6 -> l_bytes 82.3752 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_7.dat	7 -> l_bytes 82.3746 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_8.dat	8 -> l_bytes 82.3763 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_9.dat	9 -> l_bytes 82.3791 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_10.dat	10 -> l_bytes 82.3768 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_11.dat	11 -> l_bytes 82.1911 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_12.dat	12 -> l_bytes 81.7586 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_13.dat	13 -> l_bytes 81.5621 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_14.dat	14 -> l_bytes 81.5007 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/nnzVal_15.dat	15 -> l_bytes 78.9598 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/parParam.dat	16 -> l_bytes 0.559357 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.5_n14,4690000,4690000,44551309,4690000,4690000,160574304,260.426,128,2.48607,19.4224,4.58763,16.535,1312.96
+INFO: Test pass!
+
+real	0m37.689s
+user	0m1.053s
+sys	0m3.041s
+--->  synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_0.dat	0 -> l_bytes 137.615 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_1.dat	1 -> l_bytes 137.613 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_2.dat	2 -> l_bytes 137.611 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_3.dat	3 -> l_bytes 137.611 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_4.dat	4 -> l_bytes 137.612 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_5.dat	5 -> l_bytes 137.617 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_6.dat	6 -> l_bytes 137.613 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_7.dat	7 -> l_bytes 137.629 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_8.dat	8 -> l_bytes 137.632 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_9.dat	9 -> l_bytes 137.65 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_10.dat	10 -> l_bytes 137.67 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_11.dat	11 -> l_bytes 137.685 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_12.dat	12 -> l_bytes 137.708 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_13.dat	13 -> l_bytes 137.724 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_14.dat	14 -> l_bytes 137.743 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/nnzVal_15.dat	15 -> l_bytes 130.509 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/parParam.dat	16 -> l_bytes 0.559357 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.05_n14,4690000,4690000,44551309,4690000,4690000,268729216,503.19,128,2.48754,19.4339,4.5849,27.6557,2196.08
+INFO: Test pass!
+
+real	0m49.045s
+user	0m1.714s
+sys	0m4.350s
+--->  synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_0.dat	0 -> l_bytes 158.266 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_1.dat	1 -> l_bytes 158.256 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_2.dat	2 -> l_bytes 158.227 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_3.dat	3 -> l_bytes 158.195 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_4.dat	4 -> l_bytes 158.161 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_5.dat	5 -> l_bytes 158.135 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_6.dat	6 -> l_bytes 158.104 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_7.dat	7 -> l_bytes 158.084 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_8.dat	8 -> l_bytes 158.073 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_9.dat	9 -> l_bytes 158.039 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_10.dat	10 -> l_bytes 158.025 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_11.dat	11 -> l_bytes 157.989 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_12.dat	12 -> l_bytes 157.967 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_13.dat	13 -> l_bytes 157.905 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_14.dat	14 -> l_bytes 157.842 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/nnzVal_15.dat	15 -> l_bytes 151.854 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/parParam.dat	16 -> l_bytes 0.838165 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std0.84_diagonal_0.005_n14,4690000,4690000,44551309,4690000,4690000,308831840,593.205,128,3.4526,26.9734,3.30335,22.899,2524.24
+INFO: Test pass!
+
+real	0m56.508s
+user	0m1.790s
+sys	0m4.913s
+--->  synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_0.dat	0 -> l_bytes 86.9138 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_1.dat	1 -> l_bytes 86.9142 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_2.dat	2 -> l_bytes 86.9162 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_3.dat	3 -> l_bytes 86.9167 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_4.dat	4 -> l_bytes 86.918 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_5.dat	5 -> l_bytes 86.9142 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_6.dat	6 -> l_bytes 86.9171 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_7.dat	7 -> l_bytes 86.9175 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_8.dat	8 -> l_bytes 86.9161 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_9.dat	9 -> l_bytes 86.9182 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_10.dat	10 -> l_bytes 86.9239 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_11.dat	11 -> l_bytes 86.7849 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_12.dat	12 -> l_bytes 86.4857 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_13.dat	13 -> l_bytes 86.2026 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_14.dat	14 -> l_bytes 86.0581 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/nnzVal_15.dat	15 -> l_bytes 83.2816 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/parParam.dat	16 -> l_bytes 0.559357 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.5_n14,4690000,4690000,44548248,4690000,4690000,169490752,280.466,128,2.48601,19.422,4.58741,17.4535,1385.74
+INFO: Test pass!
+
+real	0m53.794s
+user	0m1.054s
+sys	0m3.008s
+--->  synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_0.dat	0 -> l_bytes 130.345 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_1.dat	1 -> l_bytes 130.345 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_2.dat	2 -> l_bytes 130.344 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_3.dat	3 -> l_bytes 130.342 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_4.dat	4 -> l_bytes 130.346 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_5.dat	5 -> l_bytes 130.347 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_6.dat	6 -> l_bytes 130.351 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_7.dat	7 -> l_bytes 130.366 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_8.dat	8 -> l_bytes 130.378 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_9.dat	9 -> l_bytes 130.4 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_10.dat	10 -> l_bytes 130.413 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_11.dat	11 -> l_bytes 130.443 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_12.dat	12 -> l_bytes 130.452 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_13.dat	13 -> l_bytes 130.45 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_14.dat	14 -> l_bytes 130.456 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/nnzVal_15.dat	15 -> l_bytes 123.374 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/parParam.dat	16 -> l_bytes 0.559357 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.05_n14,4690000,4690000,44548248,4690000,4690000,254526944,471.351,128,2.48727,19.4318,4.5851,26.197,2079.99
+INFO: Test pass!
+
+real	0m18.817s
+user	0m1.558s
+sys	0m3.738s
+--->  synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14  <---
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_0.dat	0 -> l_bytes 156.682 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_1.dat	1 -> l_bytes 156.674 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_2.dat	2 -> l_bytes 156.657 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_3.dat	3 -> l_bytes 156.65 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_4.dat	4 -> l_bytes 156.634 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_5.dat	5 -> l_bytes 156.633 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_6.dat	6 -> l_bytes 156.638 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_7.dat	7 -> l_bytes 156.653 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_8.dat	8 -> l_bytes 156.67 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_9.dat	9 -> l_bytes 156.687 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_10.dat	10 -> l_bytes 156.705 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_11.dat	11 -> l_bytes 156.72 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_12.dat	12 -> l_bytes 156.719 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_13.dat	13 -> l_bytes 156.709 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_14.dat	14 -> l_bytes 156.473 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/nnzVal_15.dat	15 -> l_bytes 148.958 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/parParam.dat	16 -> l_bytes 0.838409 MB
+l_sigFileNames ./sig_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14/refVec.dat	1 -> l_bytes 35.7819 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,synthetic_4690000_4690000_avg10.0_std1.6_diagonal_0.005_n14,4690000,4690000,44548248,4690000,4690000,305870400,586.605,128,3.60448,28.16,3.16394,21.7238,2499.98
+INFO: Test pass!
+
+real	0m17.833s
+user	0m1.787s
+sys	0m4.274s

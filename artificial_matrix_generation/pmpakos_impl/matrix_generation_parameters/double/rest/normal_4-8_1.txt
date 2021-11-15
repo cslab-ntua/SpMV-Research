@@ -1,0 +1,2 @@
+121000 3.1 1.6 normal diagonal 0.005 14
+47000 6 8 normal diagonal 0.05 14
