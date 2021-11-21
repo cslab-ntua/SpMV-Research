@@ -181,7 +181,7 @@ def generate_random_matrix(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, \
     # thank you https://stackoverflow.com/questions/7894791/use-numpy-array-in-shared-memory-for-multiprocessing
     mp.freeze_support() # https://stackoverflow.com/questions/24374288/where-to-put-freeze-support-in-a-python-script
     # n_processes_list = [40, 20, 10,  8, 4, 2, 1]
-    n_processes = os.cpu_count()
+    n_processes = os.cpu_count() #os.cpu_count()#//4
     # Initialize 3 shared arrays. col_ind (the giant) and bandwidth and scattering (the goliaths) that will be shared among processes.
     # Bandwidth and Scattering were initially calculated in serial manner, but it was pretty time consuming for large matrices (20 sec for 5M rows)
     # Therefore, sharing is caring.
@@ -250,7 +250,7 @@ def sparse_matrix_generator_wrapper(nr_rows, avg_nnz_per_row, std_nnz_per_row, d
     save_it = False
     keep_it = True
     nr_cols = nr_rows
-    
+    # verbose=1    
     filename, row_ptr, col_ind, nr_nnz, density, mem_footprint, new_avg_nnz_per_row, new_std_nnz_per_row, avg_bw, std_bw, avg_sc, std_sc, time1, time2 = generate_random_matrix(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, seed, placement, d_f, save_it, keep_it, low_mb, high_mb, precision)
     pos = find_class(mem_footprint, low_mb_list, high_mb_list)
     if(pos!=-1):
@@ -265,5 +265,5 @@ def sparse_matrix_generator_wrapper(nr_rows, avg_nnz_per_row, std_nnz_per_row, d
         return [],           [],      0,       0,        '',                   0,                   0,       0,     0,      0,       0,    0,     0
 
 if __name__ == '__main__':
-    # sparse_matrix_generator_wrapper(14000, 26, 0.72, "gamma", "diagonal", 0.005, 14, 64, 1)
-    sparse_matrix_generator_wrapper(64000,10,13,"gamma","diagonal",0.005,14,64,0)
+    print("main")
+    # sparse_matrix_generator_wrapper(64000, 70, 0.2, "normal", "random", 1, 14, 64, 0)

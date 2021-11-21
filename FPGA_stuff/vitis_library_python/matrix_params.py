@@ -31,6 +31,8 @@ import scipy.io as sio
 import scipy.sparse as sp
 import math
 
+from tqdm import tqdm
+
 class row_block_param:
     def __init__(self, memBits, channels):
         self.channels = channels
@@ -328,7 +330,8 @@ class nnz_store:
        
     
     def write_file(self, filenames):
-        for i in range(self.channels):
+        for i in tqdm(range(self.channels)):
+        # for i in range(self.channels):
             assert self.totalBks[i] == (self.totalRowIdxBks[i]+self.totalColIdxBks[i]+self.totalNnzBks[i])
             int32Arr = np.zeros(self.memBytes//4, dtype=np.uint32)
             int32Arr[0:4] = [self.totalBks[i], self.totalRowIdxBks[i], self.totalColIdxBks[i], self.totalNnzBks[i]]

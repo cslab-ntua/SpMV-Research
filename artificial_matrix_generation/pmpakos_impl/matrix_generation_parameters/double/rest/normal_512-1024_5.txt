@@ -1,0 +1,3 @@
+5558000 10 13 normal diagonal 0.5 14
+5558000 10 13 normal diagonal 0.05 14
+5558000 10 13 normal diagonal 0.005 14

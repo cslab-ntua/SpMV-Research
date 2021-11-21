@@ -30,6 +30,8 @@ import numpy as np
 from collections import Counter
 from matrix_params import * 
 import time
+from tqdm import tqdm
+#######################################################################################################
 
 class signature:
     def __init__(self, parEntries, accLatency, channels, maxRows, maxCols, memBits):
@@ -88,7 +90,8 @@ class signature:
         l_parSpms = []
         l_totalPars = 0
         l_totalRbs = len(p_rbSpms)
-        for i in range(l_totalRbs):
+        for i in tqdm(range(l_totalRbs)):
+        # for i in range(l_totalRbs):
             l_rbSpm = p_rbSpms[i]
             assert l_rbSpm.nnz == self.rbParam.get_rbInfo(i,1)[1],"nnzs in rbParam != nnzs in rbSpm"
             assert l_rbSpm.m == self.rbParam.get_rbInfo(i,1)[0],"rows in rbParam != rows in rbSpm"
@@ -171,7 +174,8 @@ class signature:
         l_parSpms = self.gen_pars(p_rbSpms)
         l_paddedParSpms = []
         l_totalPars = len(l_parSpms)
-        for i in range(l_totalPars):
+        for i in tqdm(range(l_totalPars)):
+        # for i in range(l_totalPars):
             l_parSpm = l_parSpms[i]
             if l_parSpm.sort('r'):
                 l_paddedSpm = self.pad_par(l_parSpm)
@@ -189,7 +193,8 @@ class signature:
         for c in range(self.channels):
             l_chParSpms.append([]) 
         l_totalPars = len(p_paddedParSpms) 
-        for i in range(l_totalPars):
+        for i in tqdm(range(l_totalPars)):
+        # for i in range(l_totalPars):
             l_parSpm = p_paddedParSpms[i]
             assert l_parSpm.minColId % self.parEntries == 0
             l_baseParAddr = l_parSpm.minColId // self.parEntries
@@ -235,7 +240,8 @@ class signature:
     def update_rbParams(self, p_chParSpms):
         l_totalRbs = self.rbParam.totalRbs
         l_sRbParId = 0
-        for rbId in range(l_totalRbs):
+        for rbId in tqdm(range(l_totalRbs)):
+        # for rbId in range(l_totalRbs):
             [l_sRbRowId, l_minRbColId, l_rbCols, l_rbNumPars] = self.rbParam.get_rbInfo(rbId, 0)[0:4]
             l_chRbMinRowId = []
             l_chRbRows = [0] * self.channels
@@ -271,7 +277,8 @@ class signature:
         l_rowIdxMod = l_memIdxWidth * l_rowIdxGap
         l_colIdxMod = l_memIdxWidth * self.parEntries
         l_sParId = 0
-        for rbId in range(self.rbParam.totalRbs):
+        for rbId in tqdm(range(self.rbParam.totalRbs)):
+        # for rbId in range(self.rbParam.totalRbs):
             l_pars = self.rbParam.get_rbInfo(rbId, 0)[3]
             l_sRbRowId = self.rbParam.get_rbInfo(rbId, 0)[0]
             for parId in range(l_pars):
@@ -311,12 +318,12 @@ class signature:
         start = time.time()
         l_spm.read_matrix(mtxFullName, mtxName)
         end = time.time()
-        # print("\t\t\tread_matrix\t\t",round(end - start,3))
+        print("\t\t\tread_matrix\t\t",round(end - start,3))
 
         start = time.time()
         l_rbSpms = self.gen_rbs(l_spm)
         end = time.time()
-        # print("\t\t\tgen_rbs\t\t\t",round(end - start,3))
+        print("\t\t\tgen_rbs\t\t\t",round(end - start,3))
         
         assert self.rbParam.totalRows == l_spm.m,"total rows in rbParam != original total rows"
         del l_spm
@@ -324,26 +331,26 @@ class signature:
         start = time.time()
         l_paddedParSpms = self.gen_paddedPars(l_rbSpms)
         end = time.time()
-        # print("\t\t\tgen_paddedPars\t\t",round(end - start,3))
+        print("\t\t\tgen_paddedPars\t\t",round(end - start,3))
 
         del l_rbSpms
 
         start = time.time()
         l_chParSpms = self.gen_chPars(l_paddedParSpms)
         end = time.time()
-        # print("\t\t\tgen_chPars\t\t",round(end - start,3))
+        print("\t\t\tgen_chPars\t\t",round(end - start,3))
 
         del l_paddedParSpms
 
         start = time.time()
         self.update_rbParams(l_chParSpms)
         end = time.time()
-        # print("\t\t\tupdate_rbParams\t\t",round(end - start,3))
+        print("\t\t\tupdate_rbParams\t\t",round(end - start,3))
 
         start = time.time()
         self.gen_nnzStore(l_chParSpms)
         end = time.time()
-        # print("\t\t\tgen_nnzStore\t\t",round(end - start,3))
+        print("\t\t\tgen_nnzStore\t\t",round(end - start,3))
 
         del l_chParSpms
         print("INFO: matrix {} partition done.".format(mtxName))
@@ -407,7 +414,8 @@ class signature:
         l_chIdx = np.zeros(self.channels, dtype=np.uint32)
         l_chOffset += l_memBytes
         l_spmRow,l_spmCol,l_spmData = [],[],[]
-        for rbId in range(l_totalRbs):
+        for rbId in tqdm(range(l_totalRbs)):
+        # for rbId in range(l_totalRbs):
             [l_sRbRowId,l_minRbColId,l_rbCols,l_pars] = self.rbParam.get_rbInfo(rbId,0)[0:4]
             [l_rbRows, l_rbNnzs] = self.rbParam.get_rbInfo(rbId,1)[0:2]
             l_chRowOff = self.rbParam.get_chInfo16(rbId, 0)

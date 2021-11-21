@@ -39,6 +39,8 @@ import sys
 sys.path.append("/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/tests/fp64/spmv/python/")
 from artificial_matrix_generation import *
 
+import gc
+
 # def partition_matrix(mtxName, mtxFullName, maxRows, maxCols, channels, parEntries, accLatency, memBits, mtxSigPath):
 def partition_matrix(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose, maxRows, maxCols, channels, parEntries, accLatency, memBits, mtxSigPath, vecPath):
     start_total = time.time()
@@ -54,10 +56,18 @@ def partition_matrix(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distrib
     l_sig = signature(parEntries, accLatency, channels, maxRows, maxCols, memBits)
     
     # start = time.time()
-    l_sig.process_synthetic(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose, vecPath, parEntries)    
+    flag_abort = l_sig.process_synthetic(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose, vecPath, parEntries)    
     # end = time.time()
     # print("\t\tPARTITION - process\t\t",round(end - start,3))
     
+    if(flag_abort == True):
+        end_total = time.time()
+        print("INFO: matrix {} partition FAILED!!!!.".format(mtxName))
+        print("MATRIX FINISHED. \t\tTOTAL TIME :",round(end_total-start_total,3))
+        del l_sig
+        print_mem_usage()
+        return flag_abort
+
     # start = time.time()
     l_sig.store_rbParam(l_rbParamFileName)
     # end = time.time()
@@ -82,6 +92,12 @@ def partition_matrix(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distrib
     print("      Original (Padded)  m, n, nnzs = {}({}), {}({}), {}({})".format(l_sig.m, l_sig.mPad, l_sig.n, l_sig.nPad, l_sig.nnz, l_sig.nnzPad))
     print("      Padding overhead is {} %".format(round((l_sig.nnzPad-l_sig.nnz)*100/l_sig.nnz,3)))
     print("MATRIX FINISHED. \t\tTOTAL TIME :",round(end_total-start_total,3))
+
+    gc.collect()
+    del l_sig.nnzStore
+    del l_sig.parParam
+    del l_sig.rbParam
+    del l_sig
 
 def check_signature(mtxName, mtxFullName, maxRows, maxCols, channels, parEntries, accLatency, memBits, mtxSigPath):
     l_nnzFileNames = []
@@ -113,6 +129,7 @@ def process_matrices(isPartition, isClean, isCheck, mtxList, mtx_param_list, max
         if(len(line)==0): #empty line
             continue
         print('-------')
+        print(line)
         line = line.split(" ")
         nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed = int(line[0]), float(line[1]), float(line[2]), str(line[3]), str(line[4]), float(line[5]), int(line[6])
         precision = 64
@@ -140,8 +157,11 @@ def process_matrices(isPartition, isClean, isCheck, mtxList, mtx_param_list, max
         if not path.exists(mtxVecPath):
             subprocess.run(["mkdir", "-p", mtxVecPath])
         if isPartition:
-            partition_matrix(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose, maxRows, maxCols, channels, parEntries, accLatency, memBits, mtxSigPath, vecPath)
+            flag_abort = partition_matrix(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose, maxRows, maxCols, channels, parEntries, accLatency, memBits, mtxSigPath, vecPath)
+            print_mem_usage()
 
+        if(flag_abort==True):
+            print("flag_abort = TRUE!!!!")
         # if isCheck:
         #     l_equal = l_equal and check_signature(mtxName, mtxFullName, maxRows, maxCols, channels, parEntries, accLatency, memBits, mtxSigPath)
         # if isClean:

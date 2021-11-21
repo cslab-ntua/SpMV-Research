@@ -58,15 +58,17 @@ def gen_vectors(spm, isPcg, mtxName, vecPath, parEntries):
     l_inVec[0:spm.n] = np.random.rand(spm.n).astype(np.float64)
     l_cooMat = sp.coo_matrix((spm.data, (spm.row, spm.col)), shape=(spm.m, spm.n), dtype=np.float64)
     l_refVec[0:spm.m] = l_cooMat.dot(l_inVec[0:spm.n])
-    if spm.m == spm.n:
-        l_diagVec = np.full(l_mPad, 1, dtype=np.float64)
-        for i in range(spm.nnz):
-            if spm.row[i] == spm.col[i]:
-                l_diagVec[spm.row[i]] = spm.data[i]
-        start = time.time()
-        write_vec(l_diagVec, l_diagMatFileName)
-        end = time.time()
-        print("\tGEN_VECTORS - write_vec/diagVec\t",round(end - start,3))
+
+    # if spm.m == spm.n:
+    #     l_diagVec = np.full(l_mPad, 1, dtype=np.float64)
+    #     for i in range(spm.nnz):
+    #         if spm.row[i] == spm.col[i]:
+    #             l_diagVec[spm.row[i]] = spm.data[i]
+    #     start = time.time()
+    #     write_vec(l_diagVec, l_diagMatFileName)
+    #     end = time.time()
+    #     print("\tGEN_VECTORS - write_vec/diagVec\t",round(end - start,3))
+
     start = time.time()
     write_vec(l_inVec, l_inVecFileName)
     end = time.time()
@@ -133,11 +135,11 @@ if __name__ == '__main__':
     parser.add_argument('--par_entries',type=int,default=4,help='number of NNZ entries retrieved from one HBM channel')
     parser.add_argument('--vec_path',type=str,default='./vec_dat',help='directory for storing vectors, default value ./vec_dat')
     args = parser.parse_args()
-    print("args.gen_vec",args.gen_vec)
-    print("args.pcg",args.pcg)
-    print("args.clean",args.clean)
-    print("args.mtx_list",args.mtx_list)
-    print("args.par_entries",args.par_entries)
-    print("args.vec_path",args.vec_path)
-    # main(args)
+    # print("args.gen_vec",args.gen_vec)
+    # print("args.pcg",args.pcg)
+    # print("args.clean",args.clean)
+    # print("args.mtx_list",args.mtx_list)
+    # print("args.par_entries",args.par_entries)
+    # print("args.vec_path",args.vec_path)
+    main(args)
   

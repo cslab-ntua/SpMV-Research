@@ -25,7 +25,7 @@
  # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  # See the License for the specific language governing permissions and
  # limitations under the License.
- 
+
 import numpy as np
 import scipy.io as sio
 import scipy.sparse as sp
@@ -34,6 +34,18 @@ import math
 import sys
 sys.path.append("/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/tests/fp64/spmv/python/")
 from artificial_matrix_generation import *
+
+import multiprocessing as mp
+from multiprocessing import shared_memory
+from multiprocessing import Process, Array
+
+from tqdm import tqdm
+
+import os, psutil
+
+def print_mem_usage():
+    print("MEMORY USED :", psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2, "MB")
+#######################################################################################################
 
 class row_block_param:
     def __init__(self, memBits, channels):
@@ -329,17 +341,41 @@ class nnz_store:
             l_nnzIdx += self.parEntries
             l_nnzs -= self.parEntries
         return [l_row,l_col,l_data, l_offset]
-       
-    
+
     def write_file(self, filenames):
-        for i in range(self.channels):
+        for i in tqdm(range(self.channels)):
+        # for i in range(self.channels):
             assert self.totalBks[i] == (self.totalRowIdxBks[i]+self.totalColIdxBks[i]+self.totalNnzBks[i])
             int32Arr = np.zeros(self.memBytes//4, dtype=np.uint32)
             int32Arr[0:4] = [self.totalBks[i], self.totalRowIdxBks[i], self.totalColIdxBks[i], self.totalNnzBks[i]]
             self.buf[i][:self.memBytes] = int32Arr.tobytes()
+
+            # print("\tself.buf["+str(i)+"] size =", round(len(self.buf[i])*1.0/(1024*1024.0),3),"MB")
             fo = open(filenames[i], "wb")
             fo.write(self.buf[i])
             fo.close()
+        
+        del self.buf
+
+        ################################################################################################################################################################
+        # mp.freeze_support() # https://stackoverflow.com/questions/24374288/where-to-put-freeze-support-in-a-python-script
+        # n_processes = self.channels
+        # with closing(mp.Pool(n_processes, initializer=_init_parallel_fun, initargs=())) as p:
+        #     workload_augmented = []
+        #     for i in range(self.channels):
+        #         filename = filenames[i]
+        #         totalBks = self.totalBks[i]
+        #         totalRowIdxBks = self.totalRowIdxBks[i]
+        #         totalColIdxBks = self.totalColIdxBks[i]
+        #         totalNnzBks = self.totalNnzBks[i]
+        #         memBytes = self.memBytes
+        #         buff = self.buf[i]                
+        #         workload_augmented.append([filename, totalBks, totalRowIdxBks, totalColIdxBks, totalNnzBks, memBytes, buff])
+        #     p.map(parallel_function, workload_augmented)
+        #     # Close the processes.
+        # p.join()
+        ################################################################################################################################################################
+
 
     def read_file(self, filenames):
         for i in range(self.channels):
@@ -380,6 +416,12 @@ class sparse_matrix:
         self.minColId, self.minRowId = 0,0
         self.mtxName=""
     
+    def __del__(self):
+        # print("DELETING SPARSE_MATRIX")
+        del self.row
+        del self.col
+        del self.data
+
     def read_matrix(self, mtxFullName, mtxName):
         mat = sio.mmread(mtxFullName)
         if sp.issparse(mat):
@@ -421,6 +463,11 @@ class sparse_matrix:
             self.nnz = mat.nnz
             self.minRowId = np.amin(self.row)
             self.minColId = np.amin(self.col)
+            del mat
+            del row_ptr
+            del col_ind
+            del values
+            print_mem_usage()
             return True
         else:
             return False

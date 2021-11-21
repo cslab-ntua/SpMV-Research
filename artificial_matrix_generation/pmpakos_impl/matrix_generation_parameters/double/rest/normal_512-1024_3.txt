@@ -1,0 +1,14 @@
+5558000 4 13 normal diagonal 0.5 14
+161000 420 0.84 normal diagonal 0.5 14
+161000 420 0.84 normal diagonal 0.05 14
+161000 420 0.84 normal diagonal 0.005 14
+161000 420 0.02 normal random 1 14
+161000 420 0.02 normal diagonal 0.5 14
+161000 420 0.02 normal diagonal 0.05 14
+161000 420 0.02 normal diagonal 0.005 14
+161000 420 0.2 normal random 1 14
+161000 420 0.2 normal diagonal 0.5 14
+161000 420 0.2 normal diagonal 0.05 14
+161000 420 0.2 normal diagonal 0.005 14
+5155000 10 13 normal random 1 14
+5155000 10 13 normal diagonal 0.5 14

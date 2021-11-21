@@ -1,9 +1,0 @@
-83000 220 8 normal random 1 14
-83000 220 8 normal diagonal 0.5 14
-83000 220 8 normal diagonal 0.05 14
-5558000 4 2.5 normal random 1 14
-5558000 4 2.5 normal diagonal 0.5 14
-5558000 4 2.5 normal diagonal 0.05 14
-5558000 4 2.5 normal diagonal 0.005 14
-186000 105 0.2 normal diagonal 0.005 14
-207000 3.1 125 normal diagonal 0.05 14
