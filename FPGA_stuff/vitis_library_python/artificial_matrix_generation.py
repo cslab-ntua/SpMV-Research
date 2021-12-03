@@ -267,3 +267,4 @@ def sparse_matrix_generator_wrapper(nr_rows, avg_nnz_per_row, std_nnz_per_row, d
 if __name__ == '__main__':
     print("main")
     # sparse_matrix_generator_wrapper(64000, 70, 0.2, "normal", "random", 1, 14, 64, 0)
+    

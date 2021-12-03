@@ -1,4 +1,0 @@
-21000 2600 125 normal diagonal 0.005 14
-5558000 10 2.25 normal random 1 14
-5558000 10 2.25 normal diagonal 0.5 14
-5558000 10 2.25 normal diagonal 0.05 14

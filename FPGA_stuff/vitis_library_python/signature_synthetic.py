@@ -253,12 +253,19 @@ class signature:
                 assert l_paddedSpm.m <= self.maxRows
                 assert l_paddedSpm.n <= self.maxCols,"num of cols > maxCols in partition"
                 l_paddedParSpms.append(l_paddedSpm)
-                total_nnz_size += l_paddedSpm.nnz*8.0/(1024*1024)
+
+                total_nnz_size += l_paddedSpm.nnz*8.0/(1024*1024) # in MBs
+                blocks_completed = (i+1)/l_totalPars
+                hbm_mem_reserved = total_nnz_size/(256*16) # 16 HBM channels, 256MB each
+
                 if(i%2000 == 0 and i>0):
-                    print(i,"/", l_totalPars, "nonzero values alone occupy -> ", round(total_nnz_size,3), "MB", "(", round(i/l_totalPars*100,2) , "% of row_blocks -> ", round(total_nnz_size/(256*16)*100,2), "% of capacity!")
+                    print(i,"/", l_totalPars, "nonzero values alone occupy -> ", round(total_nnz_size,3), "MB", "(", round(blocks_completed*100,2) , "% of row_blocks -> ", round(hbm_mem_reserved*100,2), "% of capacity!")
                     print_mem_usage()
-                if(total_nnz_size > 256*16):
+                if(( i>100 and hbm_mem_reserved>2*blocks_completed) or (total_nnz_size > 256*16)):
+                    print(i,"/", l_totalPars, "nonzero values alone occupy -> ", round(total_nnz_size,3), "MB", "(", round(blocks_completed*100,2) , "% of row_blocks -> ", round(hbm_mem_reserved*100,2), "% of capacity!")
+                    print_mem_usage()
                     flag_abort=True
+                    del l_paddedSpm
                     break
                 del l_paddedSpm
             else:
