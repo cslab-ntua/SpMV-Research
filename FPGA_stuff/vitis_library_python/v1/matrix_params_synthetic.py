@@ -25,8 +25,6 @@
  # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  # See the License for the specific language governing permissions and
  # limitations under the License.
-import ctypes
-from cffi import FFI
 
 import numpy as np
 import scipy.io as sio
@@ -34,9 +32,8 @@ import scipy.sparse as sp
 import math
 
 import sys
-sys.path.append("/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/tests/fp64/spmv/python_exp/")
+sys.path.append("/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/tests/fp64/spmv/python/")
 from artificial_matrix_generation import *
-from artificial_matrix_generation_v2 import *
 
 import multiprocessing as mp
 from multiprocessing import shared_memory
@@ -441,134 +438,20 @@ class sparse_matrix:
         else:
             return False
 
-    # def create_synthetic_matrix(self, mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose):
-    def create_synthetic_matrix(self, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw_target, skew_coeff, seed, precision, verbose):
-        #####################################################################################################
-        ffi = FFI()
-        ffi.cdef(
-            """
-            struct csr_matrix {
-                int * row_ptr;
-                int * col_ind;
-                double * values;
+    def create_synthetic_matrix(self, mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose):
+        row_ptr, col_ind, nr_nnz, density, mem_range, new_avg_nnz_per_row, new_std_nnz_per_row, avg_bw, std_bw, avg_sc, std_sc, time1, time2 = sparse_matrix_generator_wrapper(nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose)
 
-                unsigned int nr_rows;
-                unsigned int nr_cols;
-                unsigned int nr_nzeros;
+        nr_cols = nr_rows
+        sample_values = np.asarray([4.1792, 2.1257, 7.2853, 4.3276, 4.6612, 1.184, 2.9755, 7.0970, 8.7629, 4.4306, 9.5388, 3.70473, 7.6795, 7.3303])
+        # values = np.asarray([sample_values[i%len(sample_values)] for i in range(nr_nnz)])
+        # iterable = (sample_values[i%len(sample_values)] for i in range(nr_nnz))
+        # values = np.fromiter(iterable, np.float64)
+        values = np.tile(sample_values, int(np.ceil(nr_nnz / len(sample_values))) )[0:nr_nnz]
 
-                double density;
-                double mem_footprint;
-                int precision;
-                char mem_range[128];
-
-                double avg_nnz_per_row;
-                double std_nnz_per_row;
-                double min_nnz_per_row;
-                double max_nnz_per_row;
-
-                double skew;
-
-                int seed;
-                char * distribution;
-                char * placement;
-                double bandwidth_scaled;
-
-                double avg_bw;
-                double std_bw;
-                double avg_sc;
-                double std_sc;
-            };
-            struct csr_matrix * artificial_matrix_generation(long nr_rows, long nr_cols, double avg_nnz_per_row, double std_nnz_per_row, char * distribution, unsigned int seed, char * placement, double bw_scaled, double skew);
-            int free_csr_matrix(struct csr_matrix *csr);
-            """
-        )
-
-        so_file = "/various/pmpakos/SpMV-Research/artificial-matrix-generator/artificial_matrix_generation_double.so"
-        # so_file = "/various/pmpakos/SpMV-Research/artificial-matrix-generator/artificial_matrix_generation_float.so"
-        lib = ffi.dlopen(so_file)
-        csr_matrix_struct = lib.artificial_matrix_generation(nr_rows, nr_rows, avg_nnz_per_row, std_nnz_per_row, str.encode(distribution), seed, str.encode(placement), avg_bw_target, skew_coeff)
-
-        nr_rows = csr_matrix_struct.nr_rows
-        nr_cols = csr_matrix_struct.nr_cols
-        nr_nnz = csr_matrix_struct.nr_nzeros
-        if(nr_nnz==0):
-            ret_val = lib.free_csr_matrix(csr_matrix_struct)
-            if(ret_val != 0):
-                print("PROBLEM WHEN DE-ALLOCATING C MEMORY. CAREFUL")
-            # need to create a dummy sparse array, in order to be able to free it without any warning later! ....
-            mat = sp.csr_matrix(([1.0], [0], [0,1]), shape=(1, 1)).tocoo()
-            self.row = mat.row.astype(np.uint32)
-            self.col = mat.col.astype(np.uint32)
-            self.data = mat.data.astype(np.float64)
-            del mat
-            return "<EMPTY>"
-
-        density = csr_matrix_struct.density
-        mem_footprint = csr_matrix_struct.mem_footprint
-        mem_range=[]
-        for i in csr_matrix_struct.mem_range:
-            mem_range.append(i.decode())
-            if(i==b"\x00"):
-                break
-        mem_range = "".join(i for i in mem_range)
-
-        avg_nnz_per_row = csr_matrix_struct.avg_nnz_per_row
-        std_nnz_per_row = csr_matrix_struct.std_nnz_per_row
-        
-        avg_bw = csr_matrix_struct.avg_bw
-        std_bw = csr_matrix_struct.std_bw
-
-        avg_sc = csr_matrix_struct.avg_sc
-        std_sc = csr_matrix_struct.std_sc
-
-        bandwidth_scaled = csr_matrix_struct.bandwidth_scaled
-
-        # https://python.hotexamples.com/site/file?hash=0x63c231f2401ca488a0fb143b43c83155fddc0a7bd1fe70552c09ef274b6968a3&fullName=eg-master/ffi/cffi/main.py&project=ben-albrecht/eg
-        # row_ptr = np.asarray([csr_matrix_struct.row_ptr[i] for i in range(nr_rows+1)])
-        # col_ind = np.asarray([csr_matrix_struct.col_ind[i] for i in range(nr_nnz)])
-        # values = np.asarray([csr_matrix_struct.values[i] for i in range(nr_nnz)])
-        row_ptr = np.frombuffer(ffi.buffer(csr_matrix_struct.row_ptr, (nr_rows+1)*4), dtype = np.int32)
-        col_ind = np.frombuffer(ffi.buffer(csr_matrix_struct.col_ind, nr_nnz*4), dtype = np.int32)
-        values = np.frombuffer(ffi.buffer(csr_matrix_struct.values, nr_nnz*8), dtype = np.float64)
-
-        # print("\tnr_rows", nr_rows)
-        # print("\tnr_cols", nr_cols)
-        # print("\tnr_nnz", nr_nnz)
-        # print("\tdensity", density)
-        # print("\tmem_footprint", mem_footprint)
-        # print("\tmem_range", mem_range)
-        # print("\tavg_nnz_per_row", avg_nnz_per_row)
-        # print("\tstd_nnz_per_row", std_nnz_per_row)
-        # print("\tavg_bw", avg_bw)
-        # print("\tstd_bw", std_bw)
-        # print("\tavg_sc", avg_sc)
-        # print("\tstd_sc", std_sc)
-        # print("\tseed", seed)
-        # print("\tdistribution", distribution)
-        # print("\tplacement", placement)
-        # print("\tbandwidth_scaled", bandwidth_scaled)
-        # this replaces the previous >>>> that was used in previous version of generator
-        mtxName =  "synthetic_"+\
-                   str(nr_rows)+"_"+str(nr_cols)+"_"+str(nr_nnz)+\
-                   "_avg"+str(round(avg_nnz_per_row,3))+"_std"+str(round(std_nnz_per_row,3))+\
-                   "_"+placement + "_bw" + str(round(avg_bw,3))+\
-                   "_skew"+str(round(skew_coeff,3))+\
-                   "_"+distribution[0]+str(seed)+\
-                   ".mtx"
-        print(">>>>", mtxName, mem_range, avg_nnz_per_row, std_nnz_per_row, avg_bw, std_bw, avg_sc, std_sc)
-
-        #####################################################################################################
-        # OLD OLD OLD OLD OLD OLD 
-        # # row_ptr, col_ind, nr_nnz, density, mem_range, new_avg_nnz_per_row, new_std_nnz_per_row, avg_bw, std_bw, avg_sc, std_sc, time1, time2 = sparse_matrix_generator_wrapper(nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose)
-        # row_ptr, col_ind, nr_nnz, density, mem_range, new_avg_nnz_per_row, new_std_nnz_per_row, avg_bw, std_bw, avg_sc, std_sc, time1, time2 = sparse_matrix_generator_wrapper_v2(nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw_target, skew_coeff, seed, precision, verbose)
-        # nr_cols = nr_rows
-        # sample_values = np.asarray([4.1792, 2.1257, 7.2853, 4.3276, 4.6612, 1.184, 2.9755, 7.0970, 8.7629, 4.4306, 9.5388, 3.70473, 7.6795, 7.3303])
-        # # values = np.asarray([sample_values[i%len(sample_values)] for i in range(nr_nnz)])
-        # # iterable = (sample_values[i%len(sample_values)] for i in range(nr_nnz))
-        # # values = np.fromiter(iterable, np.float64)
-        # values = np.tile(sample_values, int(np.ceil(nr_nnz / len(sample_values))) )[0:nr_nnz]
-        #####################################################################################################
         mat = sp.csr_matrix((values, col_ind, row_ptr), shape=(nr_rows, nr_cols))
+        # print("row_ptr[0:10]",mat.indptr[0:10])
+        # print("col_ind[0:10]",mat.indices[0:10])
+
         mat = mat.tocoo()
         if sp.issparse(mat):
             mat.eliminate_zeros()
@@ -580,21 +463,14 @@ class sparse_matrix:
             self.nnz = mat.nnz
             self.minRowId = np.amin(self.row)
             self.minColId = np.amin(self.col)
-
-            ret_val = lib.free_csr_matrix(csr_matrix_struct)
-            if(ret_val != 0):
-                print("PROBLEM WHEN DE-ALLOCATING C MEMORY. CAREFUL")
-
             del mat
             del row_ptr
             del col_ind
             del values
             print_mem_usage()
-            return mtxName
-            # return True
+            return True
         else:
-            return mtxName
-            # return False
+            return False
 
     def create_matrix(self, p_row, p_col, p_data):
         self.row = np.asarray(p_row).astype(np.uint32)

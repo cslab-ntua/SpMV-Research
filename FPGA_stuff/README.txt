@@ -5,5 +5,6 @@
 ./generation_stats : Need to keep some stats during generation of matrices (CSR format -> binary format for Alveo)
 
 ./vitis_library_python : Modified scripts from https://github.com/Xilinx/Vitis_Libraries/tree/master/sparse/L2/tests/fp64/spmv/python to use generated CSR matrix and not stored .mtx file
+(generator v2 now working with bw+skew from dgal formulas)
 
 results_extraction.ipynb : Jupyter notebook to combine stats from ./clean and ./generation_stats logs

@@ -34,7 +34,6 @@ from tqdm import tqdm
 import sys
 from pprint import pprint
 import os, psutil
-import subprocess
 
 def print_mem_usage():
     print("MEMORY USED :", psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2, "MB")
@@ -484,24 +483,15 @@ class signature:
 
         return flag_abort
 
-    # def process_synthetic(self, mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose, vecPath, parEntries):
-    def process_synthetic(self, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, seed, precision, verbose, vecPath, parEntries):
+    def process_synthetic(self, mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose, vecPath, parEntries):
         start = time.time()
         l_spm = sparse_matrix()
-        # l_spm.create_synthetic_matrix(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose)
-        mtxName = l_spm.create_synthetic_matrix(nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, seed, precision, verbose)
+        l_spm.create_synthetic_matrix(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose)
         end = time.time()
         print("\tcreate_synthetic\t",round(end - start,3))
-        if(mtxName == "<EMPTY>"):
-            flag_abort=True
-            del l_spm
-            return flag_abort, mtxName
         # print_mem_usage()
 
         start = time.time()
-        mtxVecPath = vecPath+'/'+mtxName
-        if not os.path.exists(mtxVecPath):
-            subprocess.run(["mkdir", "-p", mtxVecPath])
         gen_vectors(l_spm, False, mtxName, vecPath, parEntries)
         end = time.time()
         print("\tgen_vectors\t\t",round(end - start,3))
@@ -523,7 +513,7 @@ class signature:
 
         if(flag_abort == True):
             del l_paddedParSpms
-            return flag_abort, mtxName
+            return flag_abort
 
         start = time.time()
         l_chParSpms, flag_abort = self.gen_chPars(l_paddedParSpms)
@@ -535,7 +525,7 @@ class signature:
 
         if(flag_abort==True):
             del l_chParSpms
-            return flag_abort, mtxName
+            return flag_abort
 
         start = time.time()
         self.update_rbParams(l_chParSpms)
@@ -550,7 +540,7 @@ class signature:
         print_mem_usage()
 
         del l_chParSpms
-        return flag_abort, mtxName
+        return flag_abort
 
     def store_rbParam(self, fileName):
         self.rbParam.write_file(fileName)

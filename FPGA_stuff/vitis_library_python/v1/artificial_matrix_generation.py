@@ -3,6 +3,8 @@ import numpy as np
 import random
 import time
 import multiprocessing as mp
+from multiprocessing import shared_memory
+from multiprocessing import Process, Array
 
 from contextlib import closing
 import logging
@@ -248,10 +250,9 @@ def sparse_matrix_generator_wrapper(nr_rows, avg_nnz_per_row, std_nnz_per_row, d
     save_it = False
     keep_it = True
     nr_cols = nr_rows
-
+    # verbose=1    
     filename, row_ptr, col_ind, nr_nnz, density, mem_footprint, new_avg_nnz_per_row, new_std_nnz_per_row, avg_bw, std_bw, avg_sc, std_sc, time1, time2 = generate_random_matrix(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, seed, placement, d_f, save_it, keep_it, low_mb, high_mb, precision)
     pos = find_class(mem_footprint, low_mb_list, high_mb_list)
-
     if(pos!=-1):
         mem_range = '['+str(low_mb_list[pos])+'-'+str(high_mb_list[pos])+']'
         if(verbose):
@@ -261,7 +262,7 @@ def sparse_matrix_generator_wrapper(nr_rows, avg_nnz_per_row, std_nnz_per_row, d
         print(">>>>", filename, mem_range, new_avg_nnz_per_row, new_std_nnz_per_row, avg_bw, std_bw, avg_sc, std_sc)
         return row_ptr, col_ind, nr_nnz, density, mem_range, new_avg_nnz_per_row, new_std_nnz_per_row, avg_bw, std_bw, avg_sc, std_sc, time1, time2
     else:
-        return      [],      [],      0,       0,        '',                   0,                   0,       0,     0,      0,       0,    0,     0
+        return [],           [],      0,       0,        '',                   0,                   0,       0,     0,      0,       0,    0,     0
 
 if __name__ == '__main__':
     print("main")
