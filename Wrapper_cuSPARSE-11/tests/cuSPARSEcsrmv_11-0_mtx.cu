@@ -104,16 +104,16 @@ int main(int argc, char **argv) {
 	exc_timer = csecond() - exc_timer;
 
 	fprintf(stdout,
-	  "File=%s ( distribution = %s, placement = %s, diagonal_factor = %lf, seed = %d ) -> Input time=%lf s\n\t\
+	  "File=%s ( distribution = %s, placement = %s, seed = %d ) -> Input time=%lf s\n\t\
 	  nr_rows(m)=%d, nr_cols(n)=%d, bytes = %d, density =%lf, mem_footprint = %lf MB, mem_range=%s\n\t\
 	  nr_nnzs=%d, avg_nnz_per_row=%lf, std_nnz_per_row=%lf\n\t\
 	  avg_bandwidth=%lf, std_bandwidth = %lf\n\t\
-	  avg_scattering=%lf, std_scattering=%lf\n",
-	  op.mtx_name, op.distribution, op.placement, op.diagonal_factor, op.seed, exc_timer, 
+	  avg_scattering=%lf, std_scattering=%lf, bw_scaled = %lf, skew =%lf\n",
+	  op.mtx_name, op.distribution, op.placement, op.seed, exc_timer, 
 	  op.m, op.n, op.bytes, op.density, op.A_mem_footprint, op.mem_range,
 	  op.nz, op.avg_nz_row,  op.std_nz_row, 
 	  op.avg_bandwidth,  op.std_bandwidth, 
-	  op.avg_scattering,  op.std_scattering );
+	  op.avg_scattering,  op.std_scattering, op.bw_scaled, op.skew);
 	  
 	VALUE_TYPE_AX *x = (VALUE_TYPE_AX *)malloc(op.n * sizeof(VALUE_TYPE_AX));
 	VALUE_TYPE_Y *out = (VALUE_TYPE_Y *)calloc(op.m, sizeof(VALUE_TYPE_Y));
@@ -237,11 +237,11 @@ int main(int argc, char **argv) {
 	gflops_s = op.flops*1e-9/op.timer;
 	double W_avg = nvem_data->W_avg, J_estimated = nvem_data->J_estimated/(NR_ITER+extra_itter); 
 	fprintf(stdout, "cuSPARSE_csr11: t = %lf ms (%lf Gflops/s ). Average Watts = %lf, Estimated Joules = %lf\n", op.timer*1000, gflops_s, W_avg, J_estimated);
-	foutp << op.mtx_name << "," << op.distribution << "," << op.placement << "," << op.diagonal_factor << "," << op.seed <<
+	foutp << op.mtx_name << "," << op.distribution << "," << op.placement << "," << op.seed <<
 	"," << op.m << "," << op.n << "," << op.nz << "," << op.density << 
 	"," << op.A_mem_footprint << "," << op.mem_range << "," << op.avg_nz_row << "," << op.std_nz_row <<
 	"," << op.avg_bandwidth << "," << op.std_bandwidth <<
-	"," << op.avg_scattering << "," << op.std_scattering <<
+	"," << op.avg_scattering << "," << op.std_scattering << "," << op.bw_scaled << "," << op.skew <<
 	"," << "cuSPARSE_csr11" <<  "," << op.timer << "," << gflops_s << "," << W_avg <<  "," << J_estimated << endl;
 
     // destroy matrix/vector descriptors

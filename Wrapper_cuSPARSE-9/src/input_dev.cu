@@ -194,7 +194,8 @@ void SpmvOperator::mtx_read_uni(){
 	A_mem_footprint = ((nz) * sizeof(VALUE_TYPE_AX) +  nz * sizeof(int) + (m+1)* sizeof(int))/ 1024.0 / 1024.0;
 	mem_range = (char*) malloc (128*sizeof(char)); 
 	strcpy(mem_range, "unused");
-	diagonal_factor = 0;
+	bw_scaled = 0; 
+	skew = 0;
 	seed = 0;
   	format_data = csr_output;
   	ddebug(" <- SpmvOperator::mtx_read_uni()\n");

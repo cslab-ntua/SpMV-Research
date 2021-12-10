@@ -569,8 +569,9 @@ massert(false,"SpmvOperator::spmv_data_copy_numa -> No numa please");
       break;
   }
   ddebug(" <- SpmvOperator::spmv_data_copy_numa()\n");
+  */
   return NULL;
-*/
+
 }
 
 void *SpmvOperator::spmv_data_subcopy_host(int *start, int *nzc, int mode) {

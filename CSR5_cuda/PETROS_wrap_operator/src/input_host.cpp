@@ -28,14 +28,15 @@ void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix
 	// FIXME: MPAKOS generator 
 	//matrix =  artificial_matrix_generation(argc, argv, start_of_matrix_generation_args, verbose);
 	long nr_rows_in = atoi(argv[start_of_matrix_generation_args]);
-	long nr_cols_in = nr_rows_in;
-	double avg_nnz_per_row_in = strtod(argv[start_of_matrix_generation_args+1], NULL);
-	double std_nnz_per_row_in = strtod(argv[start_of_matrix_generation_args+2], NULL);
-	char * distribution_in = argv[start_of_matrix_generation_args+3];
-	char * placement_in = argv[start_of_matrix_generation_args+4];
-	double d_f_in = strtod(argv[start_of_matrix_generation_args+5], NULL);
-	unsigned int seed_in = atoi(argv[start_of_matrix_generation_args+6]);
-	matrix = artificial_matrix_generation(nr_rows_in, nr_cols_in, avg_nnz_per_row_in, std_nnz_per_row_in, distribution_in, seed_in, placement_in, d_f_in);
+	long nr_cols_in = atoi(argv[start_of_matrix_generation_args+1]);;
+	double avg_nnz_per_row_in = strtod(argv[start_of_matrix_generation_args+2], NULL);
+	double std_nnz_per_row_in = strtod(argv[start_of_matrix_generation_args+3], NULL);
+	char * distribution_in = argv[start_of_matrix_generation_args+4];
+	char * placement_in = argv[start_of_matrix_generation_args+5];
+	double bw_scaled_in = strtod(argv[start_of_matrix_generation_args+6], NULL);
+	double skew_in = strtod(argv[start_of_matrix_generation_args+7], NULL);
+	unsigned int seed_in = atoi(argv[start_of_matrix_generation_args+8]);
+	matrix = artificial_matrix_generation(nr_rows_in, nr_cols_in, avg_nnz_per_row_in, std_nnz_per_row_in, distribution_in, seed_in, placement_in, bw_scaled_in, skew_in);
 	/*
 		if(matrix!=NULL){
 		if(verbose){
@@ -91,7 +92,8 @@ void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix
 	std_scattering = matrix->std_sc;
 	strcpy(distribution, matrix->distribution);
 	strcpy(placement, matrix->placement);
-	diagonal_factor = matrix->diagonal_factor;
+	bw_scaled = matrix->bandwidth_scaled; 
+	skew = matrix->skew;
 	seed = matrix->seed;
 	A_mem_footprint = matrix->mem_footprint;
 	mem_range = (char*) malloc (128*sizeof(char)); 
@@ -295,7 +297,8 @@ void SpmvOperator::mtx_read_host(){
 	A_mem_footprint = (nz) * sizeof(VALUE_TYPE_AX) + (2 * nz) * sizeof(int);
 	mem_range = (char*) malloc (128*sizeof(char)); 
 	strcpy(mem_range, "unused");
-	diagonal_factor = 0;
+	bw_scaled = 0; 
+	skew = 0;
 	seed = 0;
   	format_data = csr_output;
   	ddebug(" <- SpmvOperator::mtx_read_host()\n");

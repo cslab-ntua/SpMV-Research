@@ -73,11 +73,10 @@ class SpmvOperator {
 
   // Matrix Generation values
   char distribution[256], placement[256];
-  double diagonal_factor;
   int seed;
 
   // Statistic values
-  double density, avg_nz_row, std_nz_row, avg_bandwidth, std_bandwidth, avg_scattering, std_scattering;
+  double density, avg_nz_row, std_nz_row, avg_bandwidth, std_bandwidth, avg_scattering, std_scattering, bw_scaled, skew;
   
   // Operator variables TODO: Might be outdated in latest versions
   int bytes = 0;

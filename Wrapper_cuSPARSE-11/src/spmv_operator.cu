@@ -97,7 +97,8 @@ SpmvOperator::SpmvOperator(SpmvOperator &op) {
   std_scattering = op.std_scattering;
   strcpy(distribution, op.distribution);
   strcpy(placement, op.placement);
-  diagonal_factor = op.diagonal_factor;
+  skew = op.skew;
+  bw_scaled = op.bw_scaled;
   seed = op.seed;
   flops = op.flops;
   bytes = op.bytes;
@@ -173,7 +174,8 @@ SpmvOperator::SpmvOperator(SpmvOperator &op, int start, int end, int mode) {
   nz = end - start;
   strcpy(distribution, op.distribution);
   strcpy(placement, op.placement);
-  diagonal_factor = op.diagonal_factor;
+  skew = op.skew;
+  bw_scaled = op.bw_scaled;
   seed = op.seed;
   density = 0; 
   avg_nz_row = 0;
