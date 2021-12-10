@@ -8,7 +8,7 @@ BUILD_DIR_CSR5=$MASTEDIR/CSR5_cuda/PETROS_wrap_operator/silver1_build
 
 STORE_TIMER_DIR=$MASTEDIR/Benchmarks
 
-cd build_runtrash
+cd ${MASTEDIR}/build_runtrash
 
 #MPAKOSDIR=/various/pmpakos/artificial_matrix_generation/matrix_generation_parameters/double/small
 #MPAKOSDIR=/various/pmpakos/artificial_matrix_generation/matrix_generation_parameters/double

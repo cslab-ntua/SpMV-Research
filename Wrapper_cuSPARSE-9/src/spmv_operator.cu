@@ -106,7 +106,10 @@ SpmvOperator::SpmvOperator(SpmvOperator &op) {
   strcpy(distribution, op.distribution);
   strcpy(placement, op.placement);
   skew = op.skew;
-  bw_scaled = op.bw_scaled;
+	avg_bw_scaled = op.avg_bw_scaled;
+	std_bw_scaled = op.std_bw_scaled;
+	avg_sc_scaled = op.avg_sc_scaled;
+	std_sc_scaled = op.std_sc_scaled;
   seed = op.seed;
   A_mem_footprint = op.A_mem_footprint;
   mem_range = (char*) malloc (128*sizeof(char)); 
@@ -187,7 +190,10 @@ SpmvOperator::SpmvOperator(SpmvOperator &op, int start, int end, int mode) {
   strcpy(distribution, op.distribution);
   strcpy(placement, op.placement);
   skew = op.skew;
-  bw_scaled = op.bw_scaled;
+	avg_bw_scaled = 0;
+	std_bw_scaled = 0;
+	avg_sc_scaled = 0;
+	std_sc_scaled = 0;
   seed = op.seed;
   density = 0; 
   avg_nz_row = 0;

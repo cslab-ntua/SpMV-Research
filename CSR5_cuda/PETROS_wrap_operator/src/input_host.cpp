@@ -92,7 +92,10 @@ void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix
 	std_scattering = matrix->std_sc;
 	strcpy(distribution, matrix->distribution);
 	strcpy(placement, matrix->placement);
-	bw_scaled = matrix->bandwidth_scaled; 
+	avg_bw_scaled = matrix->avg_bw_scaled;
+	std_bw_scaled = matrix->std_bw_scaled;
+	avg_sc_scaled = matrix->avg_sc_scaled;
+	std_sc_scaled = matrix->std_sc_scaled;
 	skew = matrix->skew;
 	seed = matrix->seed;
 	A_mem_footprint = matrix->mem_footprint;
@@ -297,7 +300,10 @@ void SpmvOperator::mtx_read_host(){
 	A_mem_footprint = (nz) * sizeof(VALUE_TYPE_AX) + (2 * nz) * sizeof(int);
 	mem_range = (char*) malloc (128*sizeof(char)); 
 	strcpy(mem_range, "unused");
-	bw_scaled = 0; 
+	avg_bw_scaled = 0;
+	std_bw_scaled = 0;
+	avg_sc_scaled = 0;
+	std_sc_scaled = 0;
 	skew = 0;
 	seed = 0;
   	format_data = csr_output;

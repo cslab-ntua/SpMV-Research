@@ -47,13 +47,13 @@ int main(int argc, char **argv) {
 	  "File=%s ( distribution = %s, placement = %s, seed = %d ) -> Input time=%lf s\n\t\
 	  nr_rows(m)=%d, nr_cols(n)=%d, bytes = %d, density =%lf, mem_footprint = %lf MB, mem_range=%s\n\t\
 	  nr_nnzs=%d, avg_nnz_per_row=%lf, std_nnz_per_row=%lf\n\t\
-	  avg_bandwidth=%lf, std_bandwidth = %lf\n\t\
-	  avg_scattering=%lf, std_scattering=%lf, bw_scaled = %lf, skew =%lf\n",
+	  avg_bandwidth=%lf, std_bandwidth = %lf, avg_bw_scaled = %lf, std_bw_scaled = %lf\n\t\
+	  avg_scattering=%lf, std_scattering=%lf, avg_sc_scaled = %lf, std_sc_scaled = %lf, skew =%lf\n",
 	  op.mtx_name, op.distribution, op.placement, op.seed, exc_timer, 
 	  op.m, op.n, op.bytes, op.density, op.A_mem_footprint, op.mem_range,
 	  op.nz, op.avg_nz_row,  op.std_nz_row, 
-	  op.avg_bandwidth,  op.std_bandwidth, 
-	  op.avg_scattering,  op.std_scattering, op.bw_scaled, op.skew);
+	  op.avg_bandwidth,  op.std_bandwidth, op.avg_bw_scaled, op.std_bw_scaled,
+	  op.avg_scattering,  op.std_scattering, op.avg_sc_scaled, op.std_sc_scaled, op.skew);
 		
 	VALUE_TYPE_AX *x = (VALUE_TYPE_AX *)malloc(op.n * sizeof(VALUE_TYPE_AX));
 	VALUE_TYPE_AX *out = (VALUE_TYPE_AX *)malloc(op.m * sizeof(VALUE_TYPE_AX));
@@ -126,7 +126,10 @@ int main(int argc, char **argv) {
 	"," << op.m << "," << op.n << "," << op.nz << "," << op.density << 
 	"," << op.A_mem_footprint << "," << op.mem_range << "," << op.avg_nz_row << "," << op.std_nz_row <<
 	"," << op.avg_bandwidth << "," << op.std_bandwidth <<
-	"," << op.avg_scattering << "," << op.std_scattering << "," << op.bw_scaled << "," << op.skew <<
+	"," << op.avg_bw_scaled << "," << op.std_bw_scaled <<
+	"," << op.avg_scattering << "," << op.std_scattering <<
+	"," << op.avg_sc_scaled << "," << op.std_sc_scaled <<
+	"," << op.skew <<
 	"," << "cuSPARSE_csr9-2" <<  "," << op.timer << "," << gflops_s << "," << W_avg <<  "," << J_estimated << endl;
 
 	foutp.close();
