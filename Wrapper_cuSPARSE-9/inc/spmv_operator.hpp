@@ -85,7 +85,19 @@ class SpmvOperator {
   int seed;
 
   // Statistic values
-  double density, avg_nz_row, std_nz_row, avg_bandwidth, std_bandwidth, avg_scattering, std_scattering, bw_scaled, skew;
+  double density;
+  double avg_nz_row;
+  double std_nz_row;
+  double avg_bandwidth;
+  double std_bandwidth;
+  double avg_scattering;
+  double std_scattering;
+  double skew;
+  
+  double avg_bw_scaled;
+  double std_bw_scaled;
+  double avg_sc_scaled;
+  double std_sc_scaled;
   
   // Operator variables TODO: Might be outdated in latest versions
   int bytes = 0;

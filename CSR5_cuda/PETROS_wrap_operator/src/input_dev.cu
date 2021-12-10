@@ -199,7 +199,10 @@ void SpmvOperator::mtx_read_uni(){
 	density = 0; 
   	strcpy(distribution, "unused");
 	strcpy(placement, "unused");
-	bw_scaled = 0; 
+	avg_bw_scaled = 0;
+	std_bw_scaled = 0;
+	avg_sc_scaled = 0;
+	std_sc_scaled = 0;
 	skew = 0;
 	seed = 0;
   	format_data = csr_output;
