@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# CUDA Library paths
+export LD_LIBRARY_PATH="/usr/local/cuda-9.2/lib64:/usr/local/cuda-9.2/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="/usr/local/cuda-11.0/lib64:/usr/local/cuda-11.0/lib:$LD_LIBRARY_PATH"
+
+
 # TODO: Define these variables for your system
 MASTEDIR=/home/users/panastas/PhD_stuff/SpMV-Research
 BUILD_DIR_9=$MASTEDIR/Wrapper_cuSPARSE-9/silver1_build
