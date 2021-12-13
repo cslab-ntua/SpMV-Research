@@ -122,8 +122,8 @@ function find_mem_range(mem,
 
     avg_bw = avg_bw_scaled * n
     std_bw = std_bw_scaled * n
-    avg_sc = avg_sc_scaled / m
-    std_sc = std_sc_scaled / m
+    avg_sc = avg_sc_scaled / n
+    std_sc = std_sc_scaled / n
 
     str = ""
     str = sprintf("%s,%s,%s,%d", matrix, distribution, placement, seed)
