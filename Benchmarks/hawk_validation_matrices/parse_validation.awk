@@ -117,13 +117,13 @@ function find_mem_range(mem,
     skew = feat[i++]
     avg_bw_scaled = feat[i++]
     std_bw_scaled = feat[i++]
-    avg_sc_scaled = feat[i++]
-    std_sc_scaled = feat[i++]
+    avg_sc = feat[i++]
+    std_sc = feat[i++]
 
     avg_bw = avg_bw_scaled * n
     std_bw = std_bw_scaled * n
-    avg_sc = avg_sc_scaled / n
-    std_sc = std_sc_scaled / n
+    avg_sc_scaled = avg_sc * n
+    std_sc_scaled = std_sc * n
 
     str = ""
     str = sprintf("%s,%s,%s,%d", matrix, distribution, placement, seed)
