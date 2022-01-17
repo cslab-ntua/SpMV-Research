@@ -18,3 +18,5 @@ build*/
 *.err
 *Plot_tries/
 validation_matrices/
+HiSparse/
+*cnpy/
