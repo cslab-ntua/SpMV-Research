@@ -57,6 +57,61 @@ def ngroups_and_dis_calc(row_ptr, col_ind, nnz_per_row):
     dis = np.asarray(dis)
     return ngroups,dis
 
+def neigh_calc(nr_nnzs, row_ptr, col_ind, window_size):
+    num_neighbours = np.zeros((nr_nnzs))
+    for i in range(len(row_ptr)-1):
+        for j in range(row_ptr[i], row_ptr[i+1]):
+            for k in range(j+1, row_ptr[i+1]):
+                if(col_ind[k] - col_ind[j] > window_size):
+                    break
+                num_neighbours[j]+=1
+                num_neighbours[k]+=1
+    return num_neighbours
+
+def cross_row_neigh_calc(nr_rows, nr_cols, row_ptr, col_ind, window_size):
+    cross_row_similarity = np.zeros((nr_rows-1))
+
+    for i in range(nr_rows-1):
+        min_curr_row = row_ptr[i];
+        max_curr_row = row_ptr[i+1]-1;
+        
+        curr_neigh = 0;
+        row_nonzeros = row_ptr[i+1] - row_ptr[i];
+
+        if(row_nonzeros>0):
+            next_row_nonzeros = 0
+            next_row = i
+            while(next_row_nonzeros == 0):
+                next_row+=1
+                next_row_nonzeros = row_ptr[next_row+1] - row_ptr[next_row];
+            
+            next_row-=1
+
+            min_next_row = row_ptr[next_row];
+            max_next_row = row_ptr[next_row+1]-1;
+            
+            for j in range(row_ptr[i], row_ptr[i+1]):
+                start_next_row = col_ind[j] - window_size
+                if(start_next_row < 0):
+                    start_next_row = 0
+                finish_next_row = col_ind[j] + window_size
+                if(col_ind[j] + window_size >  nr_cols - 1):
+                    finish_next_row = nr_cols - 1
+
+                    k = min_next_row;
+                    while( k <= max_next_row ):
+                        if( col_ind[k] >= start_next_row and col_ind[k] <= finish_next_row ):
+                            curr_neigh += 1
+                            min_next_row = k; 
+                            break
+                        if( col_ind[k] >= finish_next_row):
+                            break;
+                        if (col_ind[k] < start_next_row):
+                            k+=1
+            
+            cross_row_similarity[i] = curr_neigh * 1.0 / row_nonzeros;
+
+    return cross_row_similarity
 
 def mmread_fun(filename, plot_it=False):
     spm_coo = mmread(filename)
@@ -73,29 +128,39 @@ def mmread_fun(filename, plot_it=False):
     mem_footprint = round((row_ptr.nbytes + col_ind.nbytes + values.nbytes)/(1024*1024),3)
     print(filename, ":\tdimensions", spm_coo.get_shape(), "/ nnz", spm_coo.getnnz(),"/ mem footprint",mem_footprint,'MB (CSR)')
 
-    spm_csc = spm_coo.tocsc()
-    col_ptr = spm_csc.indptr
+    print_mem_usage()
+    # spm_csc = spm_coo.tocsc()
+    # col_ptr = spm_csc.indptr
     
     # simple, just keep #nnzs of each row and each column separately
     nnz_per_row = np.ediff1d(row_ptr)    
-    nnz_per_col = np.ediff1d(col_ptr)
-        
+    # nnz_per_col = np.ediff1d(col_ptr)
+    print("1")
+
     # the column distance between the first and last nonzero element of each row (normalized by number of columns)
     bandwidth   = np.asarray([(col_ind[row_ptr[i+1]-1]-col_ind[row_ptr[i]])/nr_cols if nnz_per_row[i]>0 else 0 for i in range(len(row_ptr)-1)])
+    print("2")
     
-    # how nonzeros are scattered within each row (how irregular the accesses to the right hand-side vector will be)
-    scatter     = np.asarray([(nnz_per_row[i]/(col_ind[row_ptr[i+1]-1]-col_ind[row_ptr[i]])) if (nnz_per_row[i]>0 and (col_ind[row_ptr[i+1]-1]-col_ind[row_ptr[i]])>0) else 0 for i in range(len(row_ptr)-1)])
+    # # how nonzeros are scattered within each row (how irregular the accesses to the right hand-side vector will be)
+    # scatter     = np.asarray([(nnz_per_row[i]/(col_ind[row_ptr[i+1]-1]-col_ind[row_ptr[i]])) if (nnz_per_row[i]>0 and (col_ind[row_ptr[i+1]-1]-col_ind[row_ptr[i]])>0) else 0 for i in range(len(row_ptr)-1)])
 
-    # ngroups : number of groups formed by consecutive elements of each row
-    # dis : average distance between each ngroup of each row
-    ngroups,dis = ngroups_and_dis_calc(row_ptr, col_ind, nnz_per_row)
+    # # ngroups : number of groups formed by consecutive elements of each row
+    # # dis : average distance between each ngroup of each row
+    # ngroups,dis = ngroups_and_dis_calc(row_ptr, col_ind, nnz_per_row)
 
-    # how clustered nonzero groups are within each row
-    clustering  = np.asarray([(ngroups[i]/nnz_per_row[i]) if (nnz_per_row[i]>0) else 0 for i in range(len(ngroups))])
+    # # how clustered nonzero groups are within each row
+    # clustering  = np.asarray([(ngroups[i]/nnz_per_row[i]) if (nnz_per_row[i]>0) else 0 for i in range(len(ngroups))])
+
+    window_size = 1
+    num_neighbours = neigh_calc(nr_nnzs, row_ptr, col_ind, window_size)
+    print("3")
+    
+    cross_row_similarity = cross_row_neigh_calc(nr_rows, nr_cols, row_ptr, col_ind, window_size)
+    print("4")
 
     if(plot_it == True):
-        fig, axs = plt.subplots(5,2)
-        fig.set_size_inches(15,20)
+        fig, axs = plt.subplots(6,2)
+        fig.set_size_inches(18,20)
         img_filename = []
 
         if("sparse_" in filename):
@@ -144,16 +209,24 @@ def mmread_fun(filename, plot_it=False):
 
         axs[4,0].plot(clustering)
         axs[4,0].set_title("clustering")
+
+        axs[5,0].plot(num_neighbours)
+        axs[5,0].set_title("num_neighbours")
+        
+        axs[5,1].plot(cross_row_similarity)
+        axs[5,1].set_title("cross_row_similarity")
         
         plt.tight_layout()
         # plt.savefig("/various/pmpakos/SpMV-Research/validation_matrices/features/"+filename.replace(".mtx","_features.jpg"),transparent=False, dpi=150)
         plt.savefig("/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/features/"+filename.replace(".mtx","_features.jpg"),transparent=False, dpi=150)
         plt.pause(0.05)
     
-    return spm, nnz_per_row, nnz_per_col, bandwidth, scatter, ngroups, dis, clustering
+    # return spm, nnz_per_row, nnz_per_col, bandwidth, scatter, ngroups, dis, clustering, num_neighbours, cross_row_similarity
+    return spm, nnz_per_row, bandwidth, num_neighbours, cross_row_similarity
 
 
-def return_stats(filename, spm,nnz_per_row, nnz_per_col, bandwidth, scatter, ngroups, dis, clustering):
+# def return_stats(filename, spm,nnz_per_row, nnz_per_col, bandwidth, scatter, ngroups, dis, clustering, num_neighbours, cross_row_similarity):
+def return_stats(filename, spm,nnz_per_row, bandwidth, num_neighbours, cross_row_similarity):
     filename = filename.split("/")[-1]
     nr_rows = spm.get_shape()[0]
     nr_cols = spm.get_shape()[1]
@@ -165,45 +238,62 @@ def return_stats(filename, spm,nnz_per_row, nnz_per_col, bandwidth, scatter, ngr
     avg_nnz_per_row = np.mean(nnz_per_row)
     std_nnz_per_row = np.std(nnz_per_row)
 
-    min_nnz_per_col = np.min(nnz_per_col)
-    max_nnz_per_col = np.max(nnz_per_col)
-    avg_nnz_per_col = np.mean(nnz_per_col)
-    std_nnz_per_col = np.std(nnz_per_col)
+    # min_nnz_per_col = np.min(nnz_per_col)
+    # max_nnz_per_col = np.max(nnz_per_col)
+    # avg_nnz_per_col = np.mean(nnz_per_col)
+    # std_nnz_per_col = np.std(nnz_per_col)
     
     min_bandwidth = np.min(bandwidth)
     max_bandwidth = np.max(bandwidth)
     avg_bandwidth = np.mean(bandwidth)
     std_bandwidth = np.std(bandwidth)
     
-    min_scatter = np.min(scatter)
-    max_scatter = np.max(scatter)
-    avg_scatter = np.mean(scatter)
-    std_scatter = np.std(scatter)
+    # min_scatter = np.min(scatter)
+    # max_scatter = np.max(scatter)
+    # avg_scatter = np.mean(scatter)
+    # std_scatter = np.std(scatter)
     
-    min_ngroups = np.min(ngroups)
-    max_ngroups = np.max(ngroups)
-    avg_ngroups = np.mean(ngroups)
-    std_ngroups = np.std(ngroups)
+    # min_ngroups = np.min(ngroups)
+    # max_ngroups = np.max(ngroups)
+    # avg_ngroups = np.mean(ngroups)
+    # std_ngroups = np.std(ngroups)
     
-    min_dis = np.min(dis)
-    max_dis = np.max(dis)
-    avg_dis = np.mean(dis)
-    std_dis = np.std(dis)
+    # min_dis = np.min(dis)
+    # max_dis = np.max(dis)
+    # avg_dis = np.mean(dis)
+    # std_dis = np.std(dis)
     
-    min_clustering = np.min(clustering)
-    max_clustering = np.max(clustering)
-    avg_clustering = np.mean(clustering)
-    std_clustering = np.std(clustering)
+    # min_clustering = np.min(clustering)
+    # max_clustering = np.max(clustering)
+    # avg_clustering = np.mean(clustering)
+    # std_clustering = np.std(clustering)
 
-    stats = [nr_rows,nr_cols,nr_nnzs,density,min_nnz_per_row,max_nnz_per_row,avg_nnz_per_row,std_nnz_per_row,min_nnz_per_col,max_nnz_per_col,avg_nnz_per_col,std_nnz_per_col,min_bandwidth,max_bandwidth,avg_bandwidth,std_bandwidth,min_scatter,max_scatter,avg_scatter,std_scatter,min_ngroups,max_ngroups,avg_ngroups,std_ngroups,min_dis,max_dis,avg_dis,std_dis,min_clustering,max_clustering,avg_clustering,std_clustering]
+    min_num_neighbours = np.min(num_neighbours)
+    max_num_neighbours = np.max(num_neighbours)
+    avg_num_neighbours = np.mean(num_neighbours)
+    std_num_neighbours = np.std(num_neighbours)
+
+    min_cross_row_similarity = np.min(cross_row_similarity)
+    max_cross_row_similarity = np.max(cross_row_similarity)
+    avg_cross_row_similarity = np.mean(cross_row_similarity)
+    std_cross_row_similarity = np.std(cross_row_similarity)
+
+
+    # stats = [nr_rows,nr_cols,nr_nnzs,density,min_nnz_per_row,max_nnz_per_row,avg_nnz_per_row,std_nnz_per_row,min_nnz_per_col,max_nnz_per_col,avg_nnz_per_col,std_nnz_per_col,min_bandwidth,max_bandwidth,avg_bandwidth,std_bandwidth,min_scatter,max_scatter,avg_scatter,std_scatter,min_ngroups,max_ngroups,avg_ngroups,std_ngroups,min_dis,max_dis,avg_dis,std_dis,min_clustering,max_clustering,avg_clustering,std_clustering,min_num_neighbours,max_num_neighbours,avg_num_neighbours,std_num_neighbours,min_cross_row_similarity,max_cross_row_similarity,avg_cross_row_similarity,std_cross_row_similarity]    
+    stats = [nr_rows, nr_cols, nr_nnzs, density, 
+        min_nnz_per_row, max_nnz_per_row, avg_nnz_per_row, std_nnz_per_row, 
+        min_bandwidth, max_bandwidth, avg_bandwidth, std_bandwidth, 
+        min_num_neighbours, max_num_neighbours, avg_num_neighbours, std_num_neighbours, 
+        min_cross_row_similarity, max_cross_row_similarity, avg_cross_row_similarity, std_cross_row_similarity]
     stats = "\t".join((str(x) for x in stats))
     line = filename.replace(".mtx","") + "\t" + stats
     return line
     
 def stats_extraction(filename, plot_it):
-#     spm, nnz_per_row, nnz_per_col, bandwidth, scatter, ngroups, dis, clustering, nnz_r_hist, bin_edges_r = mmread_fun(filename, plot_it)
-    spm, nnz_per_row, nnz_per_col, bandwidth, scatter, ngroups, dis, clustering = mmread_fun(filename, plot_it)
-    line = return_stats(filename, spm, nnz_per_row, nnz_per_col, bandwidth, scatter, ngroups, dis, clustering)
+    # spm, nnz_per_row, nnz_per_col, bandwidth, scatter, ngroups, dis, clustering, nnz_r_hist, bin_edges_r = mmread_fun(filename, plot_it)
+    spm, nnz_per_row, bandwidth, num_neighbours, cross_row_similarity = mmread_fun(filename, plot_it)
+    # line = return_stats(filename, spm, nnz_per_row, nnz_per_col, bandwidth, scatter, ngroups, dis, clustering, num_neighbours, cross_row_similarity)
+    line = return_stats(filename, spm, nnz_per_row, bandwidth, num_neighbours, cross_row_similarity)
     
     return line #, nnz_r_hist, bin_edges_r, nnz_per_row
 
@@ -456,47 +546,97 @@ if __name__ == '__main__':
     '''
     v2_dgal generator first validation matrices "friends"
     '''
+    # filenames = [
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_4284_4284_9017780_avg2104.991_std764.374_random_bw1.0_skew20.33_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_21200_21200_1488681_avg70.221_std6.341_random_bw0.066_skew0.139_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_36417_36417_4343880_avg119.282_std31.869_random_bw0.13_skew0.71_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_38120_38120_14577949_avg382.423_std245.445_random_bw0.482_skew1.317_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_38744_38744_1768999_avg45.659_std31.436_random_bw0.029_skew1.755_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_42138_42138_3884671_avg92.189_std51.06_random_bw0.602_skew0.995_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_46835_46835_2372893_avg50.665_std27.766_random_bw0.186_skew1.861_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_62451_62451_4007810_avg64.175_std14.044_random_bw0.009_skew0.216_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_63838_63838_14150047_avg221.656_std96.326_random_bw0.866_skew14.444_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_66463_66463_10387201_avg156.285_std398.714_random_bw0.59_skew425.242_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_68121_68121_5407070_avg79.374_std1077.003_random_bw0.045_skew861.9_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_83334_83334_6011057_avg72.132_std19.105_random_bw0.07_skew0.123_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_121192_121192_2626755_avg21.674_std13.799_random_bw0.608_skew2.741_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_140874_140874_7813336_avg55.463_std11.085_random_bw0.046_skew0.839_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_161070_161070_8186221_avg50.824_std19.687_random_bw0.039_skew0.81_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_170998_170998_958305_avg5.604_std4.459_random_bw0.287_skew61.947_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_185639_185639_15011481_avg80.864_std117.762_random_bw0.188_skew7.187_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_206500_206500_1273294_avg6.166_std4.444_random_bw0.002_skew6.135_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_217918_217918_11619584_avg53.321_std4.756_random_bw0.059_skew2.371_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_268096_268096_18498642_avg69.0_std101.276_random_bw0.168_skew9.179_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_525825_525825_2104694_avg4.003_std0.078_random_bw0.001_skew0.001_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_862664_862664_19213423_avg22.272_std29.816_random_bw0.249_skew312.266_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_952203_952203_46522684_avg48.858_std11.947_random_bw0.204_skew0.576_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_986703_986703_71659094_avg72.625_std15.808_random_bw0.018_skew0.115_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_1000005_1000005_3170796_avg3.171_std25.563_random_bw0.147_skew1512.434_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_1382908_1382908_16945359_avg12.253_std37.522_random_bw0.021_skew632.78_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_1634989_1634989_19780430_avg12.098_std31.198_random_bw0.339_skew410.374_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_4690002_4690002_18769835_avg4.002_std1.183_random_bw0.001_skew288.024_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_5154859_5154859_99196687_avg19.243_std5.743_random_bw0.211_skew1.442_n14.mtx",
+    #     "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_5558326_5558326_60190921_avg10.829_std1412.188_random_bw0.45_skew120504.85_n14.mtx",
+    # ]
+
+    # stats_list = []
+    # plot_it = True
+    # for filename in filenames:
+    #     print_mem_usage()
+    #     line = stats_extraction(filename, plot_it)
+    #     stats_list.append(line)
+
+    # file = open("/various/pmpakos/SpMV-Research/Benchmarks/validation_matrices_synthetic_features.txt","w")
+    # for line in stats_list:
+    #     file.write(line+"\n")
+    # file.close()
+
+    ############################################################################################################################################################################################################################
     filenames = [
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_4284_4284_9017780_avg2104.991_std764.374_random_bw1.0_skew20.33_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_21200_21200_1488681_avg70.221_std6.341_random_bw0.066_skew0.139_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_36417_36417_4343880_avg119.282_std31.869_random_bw0.13_skew0.71_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_38120_38120_14577949_avg382.423_std245.445_random_bw0.482_skew1.317_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_38744_38744_1768999_avg45.659_std31.436_random_bw0.029_skew1.755_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_42138_42138_3884671_avg92.189_std51.06_random_bw0.602_skew0.995_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_46835_46835_2372893_avg50.665_std27.766_random_bw0.186_skew1.861_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_62451_62451_4007810_avg64.175_std14.044_random_bw0.009_skew0.216_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_63838_63838_14150047_avg221.656_std96.326_random_bw0.866_skew14.444_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_66463_66463_10387201_avg156.285_std398.714_random_bw0.59_skew425.242_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_68121_68121_5407070_avg79.374_std1077.003_random_bw0.045_skew861.9_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_83334_83334_6011057_avg72.132_std19.105_random_bw0.07_skew0.123_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_121192_121192_2626755_avg21.674_std13.799_random_bw0.608_skew2.741_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_140874_140874_7813336_avg55.463_std11.085_random_bw0.046_skew0.839_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_161070_161070_8186221_avg50.824_std19.687_random_bw0.039_skew0.81_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_170998_170998_958305_avg5.604_std4.459_random_bw0.287_skew61.947_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_185639_185639_15011481_avg80.864_std117.762_random_bw0.188_skew7.187_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_206500_206500_1273294_avg6.166_std4.444_random_bw0.002_skew6.135_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_217918_217918_11619584_avg53.321_std4.756_random_bw0.059_skew2.371_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_268096_268096_18498642_avg69.0_std101.276_random_bw0.168_skew9.179_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_525825_525825_2104694_avg4.003_std0.078_random_bw0.001_skew0.001_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_862664_862664_19213423_avg22.272_std29.816_random_bw0.249_skew312.266_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_952203_952203_46522684_avg48.858_std11.947_random_bw0.204_skew0.576_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_986703_986703_71659094_avg72.625_std15.808_random_bw0.018_skew0.115_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_1000005_1000005_3170796_avg3.171_std25.563_random_bw0.147_skew1512.434_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_1382908_1382908_16945359_avg12.253_std37.522_random_bw0.021_skew632.78_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_1634989_1634989_19780430_avg12.098_std31.198_random_bw0.339_skew410.374_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_4690002_4690002_18769835_avg4.002_std1.183_random_bw0.001_skew288.024_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_5154859_5154859_99196687_avg19.243_std5.743_random_bw0.211_skew1.442_n14.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/v2_dgal/matrices/synthetic_5558326_5558326_60190921_avg10.829_std1412.188_random_bw0.45_skew120504.85_n14.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/scircuit.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/raefsky3.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/bbmat.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.real.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/mc2depi.real.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/rma10.sorted.mtx",
+        "/various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/cant.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/consph.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/shipsec1.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/PR02R.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/mip1.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/rail4284.real.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/pwtk.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/in-2004.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/eu-2005.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/rajat31.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/ldoor.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/circuit5M.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/bone010.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/cage15.sorted.mtx",
     ]
 
     stats_list = []
-    plot_it = True
+    plot_it = False
     for filename in filenames:
         print_mem_usage()
         line = stats_extraction(filename, plot_it)
         stats_list.append(line)
 
-    file = open("/various/pmpakos/SpMV-Research/Benchmarks/validation_matrices_synthetic_features.txt","w")
+    file = open("/various/pmpakos/SpMV-Research/Benchmarks/validation_matrices_features.txt","w")
+    # file.write("\t".join(["matrix","nr_rows","nr_cols","nr_nnzs","density","nnz-r-min","nnz-r-max","nnz-r-avg","nnz-r-std","nnz-c-min","nnz-c-max","nnz-c-avg","nnz-c-std","bw-min","bw-max","bw-avg","bw-std","sc-min","sc-max","sc-avg","sc-std","ng-min","ng-max","ng-avg","ng-std","dis-min","dis-max","dis-avg","dis-std","cl-min","cl-max","cl-avg","cl-std","neigh-min","neigh-max","neigh-avg","neigh-std","cross_row_sim-min","cross_row_sim-max","cross_row_sim-avg","cross_row_sim-std"])+"\n")
+    file.write("\t".join(["matrix","nr_rows","nr_cols","nr_nnzs","density","nnz-r-min","nnz-r-max","nnz-r-avg","nnz-r-std","bw-min","bw-max","bw-avg","bw-std","neigh-min","neigh-max","neigh-avg","neigh-std","cross_row_sim-min","cross_row_sim-max","cross_row_sim-avg","cross_row_sim-std"])+"\n")
     for line in stats_list:
+        print_mem_usage()
         file.write(line+"\n")
     file.close()
