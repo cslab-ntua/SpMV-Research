@@ -20,5 +20,4 @@ build*/
 validation_matrices/
 HiSparse/
 *cnpy/
-Sextans/
 Pythonia/local_ipynb/petama
