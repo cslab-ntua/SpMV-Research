@@ -101,7 +101,7 @@ file(GLOB SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.c* ${NVEMAPI_PREFIX}/src/*.*)
 message( "SOURCE_FILES: " ${SOURCE_FILES} )
 
 ## datatype used in benchmarks. 0 = float, 1 = double
-set(DATATYPE 1) 
+set(DATATYPE 0) 
 
 if (${DATATYPE} EQUAL 1)
 	#add_library(MyLib ${SOURCE_FILES} ${MPAKOS_PREFIX}/include/artificial_matrix_generation_double.o)

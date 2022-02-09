@@ -25,18 +25,18 @@ extern "C"{
 void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix_generation_args, int verbose){
     ddebug(" -> SpmvOperator::mtx_generate_host()\n");
 	csr_matrix *matrix=NULL;
-	// FIXME: MPAKOS generator 
-	//matrix =  artificial_matrix_generation(argc, argv, start_of_matrix_generation_args, verbose);
 	long nr_rows_in = atoi(argv[start_of_matrix_generation_args]);
-	long nr_cols_in = atoi(argv[start_of_matrix_generation_args+1]);;
+	long nr_cols_in = atoi(argv[start_of_matrix_generation_args+1]);
 	double avg_nnz_per_row_in = strtod(argv[start_of_matrix_generation_args+2], NULL);
 	double std_nnz_per_row_in = strtod(argv[start_of_matrix_generation_args+3], NULL);
 	char * distribution_in = argv[start_of_matrix_generation_args+4];
 	char * placement_in = argv[start_of_matrix_generation_args+5];
 	double bw_scaled_in = strtod(argv[start_of_matrix_generation_args+6], NULL);
 	double skew_in = strtod(argv[start_of_matrix_generation_args+7], NULL);
-	unsigned int seed_in = atoi(argv[start_of_matrix_generation_args+8]);
-	matrix = artificial_matrix_generation(nr_rows_in, nr_cols_in, avg_nnz_per_row_in, std_nnz_per_row_in, distribution_in, seed_in, placement_in, bw_scaled_in, skew_in);
+	double avg_num_neighbours_in = atoi(argv[start_of_matrix_generation_args+8]);
+	double cross_row_similarity_in = atoi(argv[start_of_matrix_generation_args+9]);
+	unsigned int seed_in = atoi(argv[start_of_matrix_generation_args+10]);
+	matrix = artificial_matrix_generation(nr_rows_in, nr_cols_in, avg_nnz_per_row_in, std_nnz_per_row_in, distribution_in, seed_in, placement_in, bw_scaled_in, skew_in, avg_num_neighbours_in, cross_row_similarity_in);
 	/*
 		if(matrix!=NULL){
 		if(verbose){
@@ -84,23 +84,25 @@ void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix
   	nz = (int) matrix->nr_nzeros;
   	density =  matrix->density;
 	//bytes = matrix->mem_footprint;
-	avg_nz_row = matrix->avg_nnz_per_row;
-	std_nz_row = matrix->std_nnz_per_row;
-	avg_bandwidth = matrix->avg_bw;
-	std_bandwidth = matrix->std_bw;
-	avg_scattering = matrix->avg_sc;
-	std_scattering = matrix->std_sc;
-	strcpy(distribution, matrix->distribution);
-	strcpy(placement, matrix->placement);
+	avg_nnz_per_row = matrix->avg_nnz_per_row;
+	std_nnz_per_row = matrix->std_nnz_per_row;
+	avg_bw = matrix->avg_bw;
+	std_bw = matrix->std_bw;
+	avg_sc = matrix->avg_sc;
+	std_sc = matrix->std_sc;
+	distribution = matrix->distribution;
+	seed = matrix->seed;
+	placement = matrix->placement;
 	avg_bw_scaled = matrix->avg_bw_scaled;
 	std_bw_scaled = matrix->std_bw_scaled;
 	avg_sc_scaled = matrix->avg_sc_scaled;
 	std_sc_scaled = matrix->std_sc_scaled;
 	skew = matrix->skew;
-	seed = matrix->seed;
-	A_mem_footprint = matrix->mem_footprint;
-	mem_range = (char*) malloc (128*sizeof(char)); 
-	strcpy(mem_range, matrix->mem_range);
+	mem_footprint = matrix->mem_footprint;
+	mem_range = matrix->mem_range;
+	avg_num_neighbours = matrix->avg_num_neighbours;
+	cross_row_similarity = matrix->cross_row_similarity;
+	
   	SpmvCsrData * csr_output = (SpmvCsrData *) malloc(sizeof(SpmvCsrData));
   	csr_output->rowPtr = (int*) matrix->row_ptr;
   	csr_output->colInd = (int*) matrix->col_ind;
@@ -288,24 +290,25 @@ void SpmvOperator::mtx_read_host(){
   	csr_output->rowPtr = csrRowPtrA;
   	csr_output->colInd = csrColIdxA;
   	csr_output->values = csrValA;
-  	avg_nz_row = 0;
-	std_nz_row = 0;
-	avg_bandwidth = 0;
-	std_bandwidth = 0;
-	avg_scattering = 0;
-	std_scattering = 0;
+  	avg_nnz_per_row = 0;
+	std_nnz_per_row = 0;
+	avg_bw = 0;
+	std_bw = 0;
+	avg_sc = 0;
+	std_sc = 0;
 	density = 0; 
-  	strcpy(distribution, "unused");
-	strcpy(placement, "unused");
-	A_mem_footprint = (nz) * sizeof(VALUE_TYPE_AX) + (2 * nz) * sizeof(int);
-	mem_range = (char*) malloc (128*sizeof(char)); 
-	strcpy(mem_range, "unused");
+  	distribution = "unused";
+	placement = "unused";
+	mem_footprint = ((nz) * sizeof(VALUE_TYPE_AX) +  nz * sizeof(int) + (m+1)* sizeof(int))/ 1024.0 / 1024.0;
+	mem_range = "unused";
 	avg_bw_scaled = 0;
 	std_bw_scaled = 0;
 	avg_sc_scaled = 0;
 	std_sc_scaled = 0;
 	skew = 0;
 	seed = 0;
+	avg_num_neighbours = 0;
+	cross_row_similarity = 0;
   	format_data = csr_output;
   	ddebug(" <- SpmvOperator::mtx_read_host()\n");
 }

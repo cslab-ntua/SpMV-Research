@@ -71,32 +71,41 @@ class SpmvOperator {
   int nz = 0;
   int bsr_blockDim = 0;
 
-  // Matrix Generation values
-  char distribution[256], placement[256];
-  int seed;
-
   // Statistic values
-  double density;
-  double avg_nz_row;
-  double std_nz_row;
-  double avg_bandwidth;
-  double std_bandwidth;
-  double avg_scattering;
-  double std_scattering;
-  double skew;
-  
-  double avg_bw_scaled;
-  double std_bw_scaled;
-  double avg_sc_scaled;
-  double std_sc_scaled;
+	double density;
+	double mem_footprint;
+	int precision;
+	char* mem_range;
+
+	double avg_nnz_per_row;
+	double std_nnz_per_row;
+	double min_nnz_per_row;
+	double max_nnz_per_row;
+
+	double skew;
+
+	int seed;
+	char * distribution;
+	char * placement;
+
+	double avg_bw;
+	double std_bw;
+	double avg_bw_scaled;
+	double std_bw_scaled;
+
+	double avg_sc;
+	double std_sc;
+	double avg_sc_scaled;
+	double std_sc_scaled;
+
+	double avg_num_neighbours;
+	double cross_row_similarity;
   
   // Operator variables TODO: Might be outdated in latest versions
   int bytes = 0;
   int flops = 0;
   size_t mem_bytes = 0;
   size_t gpu_mem_bytes = 0;
-  double A_mem_footprint;
-  char* mem_range;
   double timer;
 
   // Data

@@ -89,20 +89,24 @@ SpmvOperator::SpmvOperator(SpmvOperator &op) {
   nz = op.nz;
   density =  op.density;
 	//bytes = matrix->mem_footprint;
-  avg_nz_row = op.avg_nz_row;
-  std_nz_row = op.std_nz_row;
-  avg_bandwidth = op.avg_bandwidth;
-  std_bandwidth = op.std_bandwidth;
-  avg_scattering = op.avg_scattering;
-  std_scattering = op.std_scattering;
-  strcpy(distribution, op.distribution);
-  strcpy(placement, op.placement);
-  skew = op.skew;
+	avg_nnz_per_row = op.avg_nnz_per_row;
+	std_nnz_per_row = op.std_nnz_per_row;
+	avg_bw = op.avg_bw;
+	std_bw = op.std_bw;
+	avg_sc = op.avg_sc;
+	std_sc = op.std_sc;
+	distribution = op.distribution;
+	placement = op.placement;
+	skew = op.skew;
 	avg_bw_scaled = op.avg_bw_scaled;
 	std_bw_scaled = op.std_bw_scaled;
 	avg_sc_scaled = op.avg_sc_scaled;
 	std_sc_scaled = op.std_sc_scaled;
-  seed = op.seed;
+	avg_num_neighbours = op.avg_num_neighbours;
+	cross_row_similarity = op.cross_row_similarity;
+	mem_range = op.mem_range; 
+	seed = op.seed;
+  
   flops = op.flops;
   bytes = op.bytes;
   format_data = op.spmv_data_get_copy();
@@ -175,21 +179,26 @@ SpmvOperator::SpmvOperator(SpmvOperator &op, int start, int end, int mode) {
   // TODO: All the splitting mechanism will be defined here
   m = n = op.m;
   nz = end - start;
-  strcpy(distribution, op.distribution);
-  strcpy(placement, op.placement);
-  skew = op.skew;
+  
+	distribution = op.distribution;
+	placement = op.placement;
+	avg_num_neighbours = 0;
+	cross_row_similarity = 0;
+	mem_range = op.mem_range; 
+	skew = 0;
 	avg_bw_scaled = 0;
 	std_bw_scaled = 0;
 	avg_sc_scaled = 0;
 	std_sc_scaled = 0;
-  seed = op.seed;
-  density = 0; 
-  avg_nz_row = 0;
-  std_nz_row = 0;
-  avg_bandwidth = 0;
-  std_bandwidth = 0;
-  avg_scattering = 0;
-  std_scattering = 0;
+	seed = op.seed;
+	density = 0; 
+	avg_nnz_per_row = 0;
+	std_nnz_per_row = 0;
+	avg_bw = 0;
+	std_bw = 0;
+	avg_sc = 0;
+	std_sc = 0;
+	
   format_data = op.spmv_data_get_subcopy(&start, &nz, mode);
   /// FIXME:EXP
   /*

@@ -48,13 +48,15 @@ int main(int argc, char **argv) {
 	  "File=%s ( distribution = %s, placement = %s, seed = %d ) -> Input time=%lf s\n\t\
 	  nr_rows(m)=%d, nr_cols(n)=%d, bytes = %d, density =%lf, mem_footprint = %lf MB, mem_range=%s\n\t\
 	  nr_nnzs=%d, avg_nnz_per_row=%lf, std_nnz_per_row=%lf\n\t\
-	  avg_bandwidth=%lf, std_bandwidth = %lf, avg_bw_scaled = %lf, std_bw_scaled = %lf\n\t\
-	  avg_scattering=%lf, std_scattering=%lf, avg_sc_scaled = %lf, std_sc_scaled = %lf, skew =%lf\n",
+	  avg_bw=%lf, std_bw = %lf, avg_bw_scaled = %lf, std_bw_scaled = %lf\n\t\
+	  avg_sc=%lf, std_sc=%lf, avg_sc_scaled = %lf, std_sc_scaled = %lf\
+	  \n\t, skew =%lf, avg_num_neighbours =%lf, cross_row_similarity =%lf\n",
 	  op.mtx_name, op.distribution, op.placement, op.seed, exc_timer, 
-	  op.m, op.n, op.bytes, op.density, op.A_mem_footprint, op.mem_range,
-	  op.nz, op.avg_nz_row,  op.std_nz_row, 
-	  op.avg_bandwidth,  op.std_bandwidth, op.avg_bw_scaled, op.std_bw_scaled,
-	  op.avg_scattering,  op.std_scattering, op.avg_sc_scaled, op.std_sc_scaled, op.skew);
+	  op.m, op.n, op.bytes, op.density, op.mem_footprint, op.mem_range,
+	  op.nz, op.avg_nnz_per_row,  op.std_nnz_per_row, 
+	  op.avg_bw,  op.std_bw, op.avg_bw_scaled, op.std_bw_scaled,
+	  op.avg_sc,  op.std_sc, op.avg_sc_scaled, op.std_sc_scaled, 
+	  op.skew, op.avg_num_neighbours, op.cross_row_similarity);
 		
 	VALUE_TYPE_AX *x = (VALUE_TYPE_AX *)malloc(op.n * sizeof(VALUE_TYPE_AX));
 	VALUE_TYPE_AX *out = (VALUE_TYPE_AX *)malloc(op.m * sizeof(VALUE_TYPE_AX));
@@ -125,12 +127,12 @@ int main(int argc, char **argv) {
 	fprintf(stdout, "cuSPARSE_bsr9-2: t = %lf ms (%lf Gflops/s ). Average Watts = %lf, Estimated Joules = %lf\n", op.timer*1000, gflops_s, W_avg, J_estimated);
 	foutp << op.mtx_name << "," << op.distribution << "," << op.placement << "," << op.seed <<
 	"," << op.m << "," << op.n << "," << op.nz << "," << op.density << 
-	"," << op.A_mem_footprint << "," << op.mem_range << "," << op.avg_nz_row << "," << op.std_nz_row <<
-	"," << op.avg_bandwidth << "," << op.std_bandwidth <<
+	"," << op.mem_footprint << "," << op.mem_range << "," << op.avg_nnz_per_row << "," << op.std_nnz_per_row <<
+	"," << op.avg_bw << "," << op.std_bw <<
 	"," << op.avg_bw_scaled << "," << op.std_bw_scaled <<
-	"," << op.avg_scattering << "," << op.std_scattering <<
+	"," << op.avg_sc << "," << op.std_sc <<
 	"," << op.avg_sc_scaled << "," << op.std_sc_scaled <<
-	"," << op.skew <<
+	"," << op.skew << "," << op.avg_num_neighbours << "," << op.cross_row_similarity <<
 	"," << "cuSPARSE_bsr9-2_" << blockdim <<  "," << op.timer << "," << gflops_s << "," << W_avg <<  "," << J_estimated << endl;
 
 	foutp.close();
