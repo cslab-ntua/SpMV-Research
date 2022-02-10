@@ -16,7 +16,7 @@ for rep in 1 2 3 4 5
 do
 	for dtype in D #S
 	do
-		for filename in `cat ${MASTEDIR}/dataset_sorted_run_order.in`;
+		for filename in `cat ${MASTEDIR}/dataset_sorted_run_order_continue.in`;
 		do
 			cat $MPAKOSDIR/$filename | while read line
 			do
