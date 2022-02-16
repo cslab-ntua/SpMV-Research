@@ -485,10 +485,11 @@ class signature:
         return flag_abort
 
     # def process_synthetic(self, mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose, vecPath, parEntries):
-    def process_synthetic(self, nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, avg_num_neighbors, cross_row_similarity, seed, precision, verbose, vecPath, parEntries):
+    def process_synthetic(self, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, seed, precision, verbose, vecPath, parEntries):
         start = time.time()
         l_spm = sparse_matrix()
-        mtxName = l_spm.create_synthetic_matrix(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, avg_num_neighbors, cross_row_similarity, seed, precision, verbose)
+        # l_spm.create_synthetic_matrix(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose)
+        mtxName = l_spm.create_synthetic_matrix(nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, seed, precision, verbose)
         end = time.time()
         print("\tcreate_synthetic\t",round(end - start,3))
         if(mtxName == "<EMPTY>"):

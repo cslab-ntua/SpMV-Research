@@ -21,3 +21,5 @@ validation_matrices/
 HiSparse/
 *cnpy/
 Pythonia/local_ipynb/petama
+matrix_generation_parameters/progress*
+matrix_generation_parameters/*part*

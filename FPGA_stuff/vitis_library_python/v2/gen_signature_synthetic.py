@@ -37,18 +37,21 @@ from matrix_params_synthetic import *
 from signature_synthetic import *
 
 import sys
-# sys.path.append("/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/tests/fp64/spmv/python/")
-# from artificial_matrix_generation import *
-# from artificial_matrix_generation_v2 import *
+sys.path.append("/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/tests/fp64/spmv/python/")
+from artificial_matrix_generation import *
+from artificial_matrix_generation_v2 import *
 
 import gc
 
-def partition_matrix(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, avg_num_neighbors, cross_row_similarity, seed, precision, verbose, maxRows, maxCols, channels, parEntries, accLatency, memBits, sigPath, vecPath):
+# def partition_matrix(mtxName, mtxFullName, maxRows, maxCols, channels, parEntries, accLatency, memBits, mtxSigPath):
+# def partition_matrix(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose, maxRows, maxCols, channels, parEntries, accLatency, memBits, mtxSigPath, vecPath):
+def partition_matrix(nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, seed, precision, verbose, maxRows, maxCols, channels, parEntries, accLatency, memBits, sigPath, vecPath):
     start_total = time.time()
     l_sig = signature(parEntries, accLatency, channels, maxRows, maxCols, memBits)
     
     # start = time.time()
-    flag_abort, mtxName = l_sig.process_synthetic(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, avg_num_neighbors, cross_row_similarity, seed, precision, verbose, vecPath, parEntries)
+    # flag_abort = l_sig.process_synthetic(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose, vecPath, parEntries)    
+    flag_abort, mtxName = l_sig.process_synthetic(nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, seed, precision, verbose, vecPath, parEntries)
     # end = time.time()
     # print("\t\tPARTITION - process\t\t",round(end - start,3))
     
@@ -132,9 +135,10 @@ def process_matrices(isPartition, isClean, isCheck, mtxList, mtx_param_list, max
         print('-------')
         print(line)
         line = line.split(" ")
-        nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, avg_num_neighbors, cross_row_similarity, seed = int(line[0]), int(line[1]), float(line[2]), float(line[3]), str(line[4]), str(line[5]), float(line[6]), float(line[7]), float(line[8]), float(line[9]), int(line[10])
+        nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, seed = int(line[0]), float(line[1]), float(line[2]), str(line[3]), str(line[4]), float(line[5]), float(line[6]), int(line[7])
         precision = 64
         verbose = 0
+        nr_cols = nr_rows
 
         # placement_full = placement
         # if(placement=="diagonal"): # need to add diagonal_factor too
@@ -156,7 +160,8 @@ def process_matrices(isPartition, isClean, isCheck, mtxList, mtx_param_list, max
         # if not path.exists(mtxVecPath):
         #     subprocess.run(["mkdir", "-p", mtxVecPath])
         if isPartition:
-            flag_abort = partition_matrix(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, avg_num_neighbors, cross_row_similarity, seed, precision, verbose, maxRows, maxCols, channels, parEntries, accLatency, memBits, sigPath, vecPath)
+            # flag_abort = partition_matrix(mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose, maxRows, maxCols, channels, parEntries, accLatency, memBits, mtxSigPath, vecPath)
+            flag_abort = partition_matrix(nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw, skew_coeff, seed, precision, verbose, maxRows, maxCols, channels, parEntries, accLatency, memBits, sigPath, vecPath)
             # print_mem_usage()
 
         if(flag_abort==True):

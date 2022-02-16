@@ -34,9 +34,9 @@ import scipy.sparse as sp
 import math
 
 import sys
-# sys.path.append("/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/tests/fp64/spmv/python_exp/")
-# from artificial_matrix_generation import *
-# from artificial_matrix_generation_v2 import *
+sys.path.append("/various/pmpakos/vitis-workspace/2/Vitis_Libraries/sparse/L2/tests/fp64/spmv/python_exp/")
+from artificial_matrix_generation import *
+from artificial_matrix_generation_v2 import *
 
 import multiprocessing as mp
 from multiprocessing import shared_memory
@@ -441,7 +441,8 @@ class sparse_matrix:
         else:
             return False
 
-    def create_synthetic_matrix(self, nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw_target, skew_coeff, avg_num_neighbours, cross_row_similarity, seed, precision, verbose):
+    # def create_synthetic_matrix(self, mtxName, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, d_f, seed, precision, verbose):
+    def create_synthetic_matrix(self, nr_rows, avg_nnz_per_row, std_nnz_per_row, distribution, placement, avg_bw_target, skew_coeff, seed, precision, verbose):
         #####################################################################################################
         ffi = FFI()
         ffi.cdef(
@@ -470,21 +471,14 @@ class sparse_matrix:
                 int seed;
                 char * distribution;
                 char * placement;
+                double bandwidth_scaled;
 
                 double avg_bw;
                 double std_bw;
-                double avg_bw_scaled;
-                double std_bw_scaled;
-
                 double avg_sc;
                 double std_sc;
-                double avg_sc_scaled;
-                double std_sc_scaled;
-
-                double avg_num_neighbours;
-                double cross_row_similarity;
             };
-            struct csr_matrix * artificial_matrix_generation(long nr_rows, long nr_cols, double avg_nnz_per_row, double std_nnz_per_row, char * distribution, unsigned int seed, char * placement, double bw_scaled, double skew, double avg_num_neighbours, double cross_row_similarity);
+            struct csr_matrix * artificial_matrix_generation(long nr_rows, long nr_cols, double avg_nnz_per_row, double std_nnz_per_row, char * distribution, unsigned int seed, char * placement, double bw_scaled, double skew);
             int free_csr_matrix(struct csr_matrix *csr);
             """
         )
@@ -492,7 +486,7 @@ class sparse_matrix:
         so_file = "/various/pmpakos/SpMV-Research/artificial-matrix-generator/artificial_matrix_generation_double.so"
         # so_file = "/various/pmpakos/SpMV-Research/artificial-matrix-generator/artificial_matrix_generation_float.so"
         lib = ffi.dlopen(so_file)
-        csr_matrix_struct = lib.artificial_matrix_generation(nr_rows, nr_rows, avg_nnz_per_row, std_nnz_per_row, str.encode(distribution), seed, str.encode(placement), avg_bw_target, skew_coeff, avg_num_neighbours, cross_row_similarity)
+        csr_matrix_struct = lib.artificial_matrix_generation(nr_rows, nr_rows, avg_nnz_per_row, std_nnz_per_row, str.encode(distribution), seed, str.encode(placement), avg_bw_target, skew_coeff)
 
         nr_rows = csr_matrix_struct.nr_rows
         nr_cols = csr_matrix_struct.nr_cols
@@ -513,30 +507,21 @@ class sparse_matrix:
         mem_footprint = csr_matrix_struct.mem_footprint
         mem_range=[]
         for i in csr_matrix_struct.mem_range:
+            mem_range.append(i.decode())
             if(i==b"\x00"):
                 break
-            mem_range.append(i.decode())
         mem_range = "".join(i for i in mem_range)
 
         avg_nnz_per_row = csr_matrix_struct.avg_nnz_per_row
         std_nnz_per_row = csr_matrix_struct.std_nnz_per_row
-        min_nnz_per_row = csr_matrix_struct.min_nnz_per_row
-        max_nnz_per_row = csr_matrix_struct.max_nnz_per_row
         
-        skew_coeff = csr_matrix_struct.skew
-
         avg_bw = csr_matrix_struct.avg_bw
         std_bw = csr_matrix_struct.std_bw
-        avg_bw_scaled = csr_matrix_struct.avg_bw_scaled
-        std_bw_scaled = csr_matrix_struct.std_bw_scaled
 
         avg_sc = csr_matrix_struct.avg_sc
         std_sc = csr_matrix_struct.std_sc
-        avg_sc_scaled = csr_matrix_struct.avg_sc_scaled
-        std_sc_scaled = csr_matrix_struct.std_sc_scaled
 
-        avg_num_neighbours = csr_matrix_struct.avg_num_neighbours
-        cross_row_similarity = csr_matrix_struct.cross_row_similarity
+        bandwidth_scaled = csr_matrix_struct.bandwidth_scaled
 
         # https://python.hotexamples.com/site/file?hash=0x63c231f2401ca488a0fb143b43c83155fddc0a7bd1fe70552c09ef274b6968a3&fullName=eg-master/ffi/cffi/main.py&project=ben-albrecht/eg
         # row_ptr = np.asarray([csr_matrix_struct.row_ptr[i] for i in range(nr_rows+1)])
@@ -565,22 +550,12 @@ class sparse_matrix:
         # this replaces the previous >>>> that was used in previous version of generator
         mtxName =  "synthetic_"+\
                    str(nr_rows)+"_"+str(nr_cols)+"_"+str(nr_nnz)+\
-                   "_avg"+str(round(avg_nnz_per_row,4))+"_std"+str(round(std_nnz_per_row,4))+\
-                   "_"+placement + "_bw" + str(round(avg_bw,4))+\
-                   "_skew"+str(round(skew_coeff,4))+\
-                   "_neigh"+str(round(avg_num_neighbours,4))+\
-                   "_cross"+str(round(cross_row_similarity,4))+\
+                   "_avg"+str(round(avg_nnz_per_row,3))+"_std"+str(round(std_nnz_per_row,3))+\
+                   "_"+placement + "_bw" + str(round(avg_bw,3))+\
+                   "_skew"+str(round(skew_coeff,3))+\
                    "_"+distribution[0]+str(seed)+\
                    ".mtx"
-        # print(">>>>", mtxName, mem_range, avg_nnz_per_row, std_nnz_per_row, avg_bw, std_bw, avg_sc, std_sc)
-        print(">>>>", mtxName, distribution, placement, seed, \
-            nr_rows, nr_cols, nr_nnz, density, mem_footprint, mem_range,\
-            avg_nnz_per_row, std_nnz_per_row, \
-            avg_bw, std_bw, avg_bw_scaled, std_bw_scaled, \
-            avg_sc, std_sc, avg_sc_scaled, std_sc_scaled, skew_coeff,
-            avg_num_neighbours, cross_row_similarity)
-
-        # return "<EMPTY>" # if you want just to print generation stats!!
+        print(">>>>", mtxName, mem_range, avg_nnz_per_row, std_nnz_per_row, avg_bw, std_bw, avg_sc, std_sc)
 
         #####################################################################################################
         # OLD OLD OLD OLD OLD OLD 
