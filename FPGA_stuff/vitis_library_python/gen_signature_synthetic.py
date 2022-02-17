@@ -56,6 +56,9 @@ def partition_matrix(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distrib
         end_total = time.time()
         print("INFO: matrix {} partition FAILED!!!!".format(mtxName))
         print("MATRIX FINISHED. \t\tTOTAL TIME :",round(end_total-start_total,3))
+        mtxVecPath = vecPath+'/'+mtxName
+        if os.path.exists(mtxVecPath):
+            subprocess.run(["rm", "-rf", mtxVecPath])
         del l_sig
         print_mem_usage()
         return flag_abort

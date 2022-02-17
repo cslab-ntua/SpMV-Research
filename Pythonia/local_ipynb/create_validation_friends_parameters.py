@@ -133,9 +133,10 @@ if __name__ == '__main__':
     distribution = "normal"
     placement = "random" 
     skew_coeff_list = [0, 100, 1000, 10000]
-    avg_num_neigh_list = [0.05, 0.5, 0.95]
+    avg_num_neigh_list = [0.05, 0.5, 0.95, 1.4, 1.9]
+
     cross_row_similarity_list = [0.05, 0.5, 0.95]
     seed = 14
 
-    param_file_small = "synthetic_matrices_small_dataset"
+    param_file_small = "synthetic_matrices_small_dataset_extra"
     create_param_file(param_file_small, mem_range_list, matrices_per_mem_range, avg_nnz_per_row_list, avg_bw_list, distribution, placement, skew_coeff_list, avg_num_neigh_list, cross_row_similarity_list, seed)
