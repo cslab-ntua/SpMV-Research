@@ -132,16 +132,16 @@ void quickSort(int *a, int *b, double *c, int l, int r) {
 void SpmvOperator::mtx_generate_host(int argc, char *argv[], int start_of_matrix_generation_args, int verbose){
     ddebug(" -> SpmvOperator::mtx_generate_host()\n");
 	csr_matrix *matrix=NULL;
-	long nr_rows_in = atoi(argv[start_of_matrix_generation_args]);
-	long nr_cols_in = atoi(argv[start_of_matrix_generation_args+1]);
-	double avg_nnz_per_row_in = strtod(argv[start_of_matrix_generation_args+2], NULL);
-	double std_nnz_per_row_in = strtod(argv[start_of_matrix_generation_args+3], NULL);
+	long nr_rows_in = atol(argv[start_of_matrix_generation_args]);
+	long nr_cols_in = atol(argv[start_of_matrix_generation_args+1]);
+	double avg_nnz_per_row_in = atof(argv[start_of_matrix_generation_args+2]);
+	double std_nnz_per_row_in = atof(argv[start_of_matrix_generation_args+3]);
 	char * distribution_in = argv[start_of_matrix_generation_args+4];
 	char * placement_in = argv[start_of_matrix_generation_args+5];
-	double bw_scaled_in = strtod(argv[start_of_matrix_generation_args+6], NULL);
-	double skew_in = strtod(argv[start_of_matrix_generation_args+7], NULL);
-	double avg_num_neighbours_in = atoi(argv[start_of_matrix_generation_args+8]);
-	double cross_row_similarity_in = atoi(argv[start_of_matrix_generation_args+9]);
+	double bw_scaled_in = atof(argv[start_of_matrix_generation_args+6]);
+	double skew_in = atof(argv[start_of_matrix_generation_args+7]);
+	double avg_num_neighbours_in = atof(argv[start_of_matrix_generation_args+8]);
+	double cross_row_similarity_in = atof(argv[start_of_matrix_generation_args+9]);
 	unsigned int seed_in = atoi(argv[start_of_matrix_generation_args+10]);
 	matrix = artificial_matrix_generation(nr_rows_in, nr_cols_in, avg_nnz_per_row_in, std_nnz_per_row_in, distribution_in, seed_in, placement_in, bw_scaled_in, skew_in, avg_num_neighbours_in, cross_row_similarity_in);
 	/*

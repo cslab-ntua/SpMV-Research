@@ -1,2 +1,6 @@
-synthetic_matrices_small_dataset_32-512_continue.txt
-synthetic_matrices_small_dataset_512-2048.txt
+synthetic_matrices_small_dataset_extra_1.4_4-32.txt
+synthetic_matrices_small_dataset_extra_1.4_32-512.txt
+synthetic_matrices_small_dataset_extra_1.4_512-2048.txt
+synthetic_matrices_small_dataset_extra_1.9_4-32.txt
+synthetic_matrices_small_dataset_extra_1.9_32-512.txt
+synthetic_matrices_small_dataset_extra_1.9_512-2048.txt
