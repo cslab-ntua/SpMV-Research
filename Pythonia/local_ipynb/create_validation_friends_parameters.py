@@ -78,6 +78,10 @@ name = webbase-1M
 #     scaling_list_large = [0.8, 0.85, 0.9, 0.95, 1, 1.05, 1.1, 1.15, 1.2]
 #     create_param_file(param_file_large, scaling_list_large)
 
+##################################################################################################################################
+##################################################################################################################################
+##################################################################################################################################
+
 def create_param_file(param_file, mem_range_list, matrices_per_mem_range, avg_nnz_per_row_list, avg_bw_list, distribution, placement, skew_coeff_list, avg_num_neighbours_list, cross_row_similarity_list, seed):
     prefix = "../../matrix_generation_parameters/"
     cnt = 0
@@ -233,7 +237,6 @@ def create_validation_twins_param_file(param_file, num_samples, percentage, dist
 
     fw.close()
     print(cnt, 'total matrices')
-
 
 if __name__ == '__main__':
 
