@@ -12,11 +12,11 @@ cd build_runtrash
 
 #MPAKOSDIR=/various/pmpakos/artificial_matrix_generation/matrix_generation_parameters/double/small
 MPAKOSDIR=${MASTEDIR}/matrix_generation_parameters
-for rep in 1 2 3 4 5
+for rep in 1 # 2 3 4 5
 do
 	for dtype in D #S
 	do
-		for filename in `cat ${MASTEDIR}/dataset_sorted_run_order.in`;
+		for filename in `cat ${MASTEDIR}/dataset_sorted_run_order_continue.in`;
 		do
 			cat $MPAKOSDIR/$filename | while read line
 			do
