@@ -5,7 +5,7 @@ bench_dir='../'
 val_mat_dir="./"
 
 data=(
-    'csr5_d.out                     CSR5_CPU'
+    'csr5_d.out                     CSR5'
     'csr_custom_BV_d.txt            Custom_CSR_BV_CPU'
     'csr_custom_B_d.txt             Custom_CSR_B_CPU'
     'csr_naive_d.out                Naive_CSR_CPU'
