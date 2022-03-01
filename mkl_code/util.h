@@ -30,6 +30,7 @@
 
 
 #include "debug.h"
+#include "io.h"
 #include "macros/cpp_defines.h"
 #include "parallel_util.h"
 #include "artificial_matrix_generation.h"
@@ -56,6 +57,25 @@ typedef ValueType  Vector_Value_t  __attribute__((vector_size(32), aligned(1)));
 
 // typedef MKL_INT  Vector_Index_t  __attribute__((vector_size(VECTOR_ELEM_NUM*sizeof(MKL_INT)), aligned(1)));
 typedef MKL_INT  Vector_Index_t  __attribute__((vector_size(VECTOR_ELEM_NUM*sizeof(MKL_INT))));
+
+
+template<typename T>
+T *
+transpose(T * a, MKL_INT m, MKL_INT n)
+{
+	T * t = (T *) mkl_malloc(m*n * sizeof(*t), 64);
+	#pragma omp parallel
+	{
+		long i, j;
+		#pragma omp for schedule(static)
+		for (j=0;j<n;j++)
+		{
+			for (i=0;i<m;i++)
+				t[j*m + i] = a[i*n + j];
+		}
+	}
+	return t;
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -94,7 +114,7 @@ struct COOArrays
 /**
  * Builds a MARKET COO sparse from the given file.
  */
-void create_coo_matrix(const std::string&   market_filename, COOArrays *coo)
+void create_coo_matrix(const std::string & market_filename, COOArrays * coo)
 {
 	std::ifstream ifs;
 	ifs.open(market_filename.c_str(), std::ifstream::in);
@@ -631,6 +651,100 @@ void CSR_to_LDU(CSRArrays * csr, LDUArrays * ldu)
 				}
 			}
 	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// ELLPACK format
+//////////////////////////////////////////////////////////////////////////
+
+
+struct ELLArrays
+{
+	MKL_INT m;      //< rows
+	MKL_INT n;      //< columns
+	MKL_INT width;  //< max nnz per row
+	MKL_INT nnz;    //< the number of nnz (== ia[m])
+	ValueType *a;   //< the values (of size NNZ)
+	MKL_INT *ja;    //< the colidx of each NNZ (of size nnz)
+
+	ELLArrays(){
+		a = NULL;
+		ja= NULL;
+	}
+
+	~ELLArrays(){
+		mkl_free(a);
+		mkl_free(ja);
+	}
+};
+
+
+void CSR_to_ELL(CSRArrays * csr, ELLArrays * ell)
+{
+	long i, j, j_s, j_e;
+	long degree;
+	long max_nnz_per_row;
+
+	// ell->m = csr->m;
+	ell->m = ((csr->m + VECTOR_ELEM_NUM - 1) / VECTOR_ELEM_NUM) * VECTOR_ELEM_NUM;
+
+	ell->n = csr->n;
+	ell->nnz = csr->nnz;
+
+	max_nnz_per_row = 0;
+	for (i=0;i<ell->m;i++)
+	{
+		degree = csr->ia[i+1] - csr->ia[i];
+		if (degree > max_nnz_per_row)
+			max_nnz_per_row = degree;
+	}
+	printf("max degree = %ld\n", max_nnz_per_row);
+
+	ell->width = max_nnz_per_row;
+	// ell->width = ((max_nnz_per_row + VECTOR_ELEM_NUM - 1) / VECTOR_ELEM_NUM) * VECTOR_ELEM_NUM;
+
+	printf("width = %d\n", ell->width);
+
+	ell->a = (ValueType *) mkl_malloc(ell->m * ell->width * sizeof(ValueType), 64);
+	ell->ja = (MKL_INT *) mkl_malloc(ell->m * ell->width * sizeof(MKL_INT), 64);
+	#pragma omp parallel
+	{
+		long i, j, k;
+		#pragma omp for
+		for (i=0;i<csr->m;i++)
+		{
+			k = i * ell->width;
+			for (j=csr->ia[i];j<csr->ia[i+1];j++,k++)
+			{
+				ell->a[k] = csr->a[j];
+				ell->ja[k] = csr->ja[j];
+			}
+			for (;k<(i+1)*ell->width;k++)
+			{
+				ell->a[k] = 0;
+				ell->ja[k] = 0;
+			}
+		}
+	}
+	for (i=csr->m;i<ell->m;i++)
+	{
+		j_s = i * ell->width;
+		j_e = (i + 1) * ell->width;
+		for (j=j_s;j<j_e;j++)
+		{
+			ell->a[j] = 0;
+			ell->ja[j] = 0;
+		}
+	}
+
+	// ValueType * a = transpose<ValueType>(ell->a, ell->m, ell->width);
+	// MKL_INT * ja = transpose<MKL_INT>(ell->ja, ell->m, ell->width);
+	// mkl_free(ell->a);
+	// mkl_free(ell->ja);
+	// ell->a = a;
+	// ell->ja = ja;
+
 }
 
 

@@ -13,9 +13,9 @@ if [[ "$(whoami)" == 'xexdgala' ]]; then
 
     path="$path_selected"
 
-    cores='1 2 4 8 16 32 64 128'
+    # cores='1 2 4 8 16 32 64 128'
     # cores='64'
-    # cores='128'
+    cores='128'
     max_cores=128
     cpu_node_size=64
 else
@@ -29,7 +29,9 @@ else
 
     path="$path_selected"
 
+    # cores='1'
     # cores='1 2 4 8'
+    # cores='6'
     cores='8'
     max_cores=8
     cpu_node_size=4
@@ -249,8 +251,8 @@ matrices=(
 
     # /home/jim/Documents/Synced_Documents/other/ASIC_680k.mtx
 
-    # "$path_openFoam"/100K.mtx
-    "$path_openFoam"/600K.mtx
+    "$path_openFoam"/100K.mtx
+    # "$path_openFoam"/600K.mtx
     # "$path_selected"/thermomech_dK.mtx
     # "$path_selected"/ASIC_680k.mtx
     # "$path_selected"/xenon2.mtx
@@ -296,21 +298,16 @@ artificial_matrices_files=(
     # "$path_artificial"/validation_friends/validation_matrices_friends_medium.txt
     # "$path_artificial"/validation_friends/validation_matrices_friends_large.txt
 
-    "$path_artificial"/validation_friends/twins_random.txt
-    # "$path_artificial"/validation_friends/twins_diagonal.txt
+    # "$path_artificial"/validation_friends/twins_random.txt
 
-    # "$path_artificial"/double/normal_4-8.txt
-    # "$path_artificial"/double/normal_8-16.txt
-    # "$path_artificial"/double/normal_16-32.txt
-    # "$path_artificial"/double/normal_32-64.txt
-    # "$path_artificial"/double/normal_64-128.txt
-    # "$path_artificial"/double/normal_128-256.txt
-    # "$path_artificial"/double/normal_256-512.txt
-    # "$path_artificial"/double/normal_512-1024.txt
-    # "$path_artificial"/double/normal_1024-2048.txt
+
+    # "$path_artificial"/SpMV-Research/validation_matrices_10_samples_30_range_twins.txt
+
+    "$path_artificial"/SpMV-Research/synthetic_matrices_small_dataset_4-32.txt
+    "$path_artificial"/SpMV-Research/synthetic_matrices_small_dataset_32-512.txt
+    "$path_artificial"/SpMV-Research/synthetic_matrices_small_dataset_512-2048.txt
 
 )
-
 
 
 # use_artificial_matrices=0
@@ -329,11 +326,16 @@ else
     echo "number of matrices: ${#prog_args[@]}"
 fi
 
+# prog_args=(
+    # This bugs at 128 threads with mkl and mkl_sparse_set_mv_hint() for some reason.
+    # '28508159 28508159 5 1.6667 normal random 0.05 0 0.05 0.05 14'
+# )
 
 progs=()
+# progs+=('./spmv_ell.exe')
 # progs+=('./spmv_ldu.exe')
 progs+=('./spmv_sparse_mv.exe')
-# progs+=('./spmv_csr_naive.exe')
+progs+=('./spmv_csr_naive.exe')
 # progs+=('./spmv_csr_custom.exe')
 # progs+=('./spmv_csr_custom_vector.exe')
 # progs+=('./spmv_csr.exe')
@@ -343,7 +345,7 @@ progs+=('./spmv_sparse_mv.exe')
 # progs+=('./spmv_bsr_2.exe' './spmv_bsr_4.exe' './spmv_bsr_8.exe' './spmv_bsr_16.exe')
 # progs+=('./spmv_bsr_2.exe' './spmv_bsr_4.exe' './spmv_bsr_8.exe' './spmv_bsr_16.exe' './spmv_bsr_32.exe' './spmv_bsr_64.exe')
 # progs+=('./spmv_coo.exe')
-# progs+=('../Benchmark_SpMV_using_CSR5/CSR5_avx2/spmv')
+progs+=('../Benchmark_SpMV_using_CSR5/CSR5_avx2/spmv')
 
 
 for p in "${progs[@]}"; do
@@ -360,7 +362,7 @@ for p in "${progs[@]}"; do
     for a in "${prog_args[@]}"
     do
         if ((use_artificial_matrices)); then
-            echo $a
+            echo "File: $a"
             bench $p $a
         else
             echo "File: $a"

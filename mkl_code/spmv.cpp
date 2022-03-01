@@ -10,7 +10,7 @@
 #include "macros/macrolib.h"
 #include "time_it.h"
 #include "parallel_util.h"
-#include "pthread_functions.h"
+// #include "pthread_functions.h"
 #include "matrix_util.h"
 
 
@@ -48,6 +48,7 @@ DIAArrays dia;
 CSCArrays csc;
 COOArrays coo;
 LDUArrays ldu;
+ELLArrays ell;
 
 ValueType * thread_partial_sums_s;
 ValueType * thread_partial_sums_e;
@@ -56,6 +57,43 @@ MKL_INT * thread_partial_sums_row_e;
 
 
 #include "spmv_kernels.h"
+
+
+void
+rapl_open_files(long * n_out, int ** fds_out, long ** max_values_out)
+{
+	long buf_n = 1000;
+	char buf[buf_n];
+	long n = 0;
+	long i = 0;
+	int * fds;
+	int fd;
+	long * max_values;
+	while (1)
+	{
+		snprintf(buf, buf_n, "/sys/class/powercap/intel-rapl/intel-rapl:%ld/energy_uj", i);
+		if (access(buf, R_OK))
+			break;
+		i++;
+	}
+	n = i;
+	fds = (typeof(fds)) malloc(n * sizeof(*fds));
+	max_values = (typeof(max_values)) malloc(n * sizeof(*max_values));
+	for (i=0;i<n;i++)
+	{
+		snprintf(buf, buf_n, "/sys/class/powercap/intel-rapl/intel-rapl:%ld/energy_uj", i);
+		fds[i] = safe_open(buf, O_RDONLY);
+		snprintf(buf, buf_n, "/sys/class/powercap/intel-rapl/intel-rapl:%ld/max_energy_range_uj", i);
+		fd = safe_open(buf, O_RDONLY);
+		if (read(fd, buf, buf_n) < 0)
+			error("read");
+		max_values[i] = atol(buf);
+		safe_close(fd);
+	}
+	*n_out = n;
+	*fds_out = fds;
+	*max_values_out = max_values;
+}
 
 
 void
@@ -79,6 +117,9 @@ spmv()
 		compute_coo(&coo, x, y);
 	#elif defined(USE_LDU)
 		compute_ldu(&ldu, x, y);
+	#elif defined(USE_ELL)
+		// compute_ell(&ell, x, y);
+		compute_ell_v(&ell, x, y);
 	#endif
 }
 
@@ -90,7 +131,9 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 	MKL_INT m, n, nnz;
 	double mem_footprint;
 	double gflops;
-	__attribute__((unused)) double time_balance, time_warm_up, time_after_warm_up;
+	__attribute__((unused)) double time, time_balance, time_warm_up, time_after_warm_up;
+	long buf_n = 1000;
+	char buf[buf_n];
 	long i;
 
 	dimMultipleBlock = ((csr.m+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
@@ -183,11 +226,18 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		const sparse_memory_usage_t policy = SPARSE_MEMORY_NONE;
 
 		time_balance = time_it(1,
-			mkl_sparse_set_memory_hint (A, policy);
 			mkl_sparse_set_mv_hint(A, operation, descr, expected_calls);
+			mkl_sparse_set_memory_hint(A, policy);
 			mkl_sparse_optimize(A);
 		);
 		printf("mkl optimize time = %g\n", time_balance);
+
+		// _Pragma("omp parallel")
+		// {
+			// printf("max_threads=%d , num_threads=%d , tnum=%d\n", omp_get_max_threads(), omp_get_num_threads(), omp_get_thread_num());
+		// }
+		// printf("out\n");
+
 		m = csr.m;
 		n = csr.n;
 		nnz = csr.nnz;
@@ -225,7 +275,7 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 	#elif defined(USE_CUSTOM_DIA)
 		format_name = (char *) "Custom_DIA";
 		CSR_to_DIA(&csr, &dia);
-		ValueType * t = transpose(dia.val, dia.ndiag, dia.lval);
+		ValueType * t = transpose<ValueType>(dia.val, dia.ndiag, dia.lval);
 		mkl_free(dia.val);
 		dia.val = t;
 		m = dia.m;
@@ -252,6 +302,13 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		n = ldu.n;
 		nnz = ldu.nnz;
 		mem_footprint = nnz * sizeof(ValueType) + ldu.upper_n * 2 * sizeof(MKL_INT);
+	#elif defined(USE_ELL)
+		format_name = (char *) "ELL";
+		CSR_to_ELL(&csr, &ell);
+		m = ell.m;
+		n = ell.n;
+		nnz = ell.nnz;
+		mem_footprint = m * ell.width * (sizeof(ValueType) + sizeof(MKL_INT));
 	#else
 		format_name = (char *) "OTHER";
 	#endif
@@ -264,8 +321,8 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 				#if defined(NAIVE) || defined(PROC_BENCH)
 					loop_partitioner_balance_iterations(num_threads, tnum, 0, m, &thread_i_s[tnum], &thread_i_e[tnum]);
 				#else
-					// loop_partitioner_balance_partial_sums(num_threads, tnum, csr.ia, csr.m, csr.nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
-					loop_partitioner_balance(num_threads, tnum, 2, csr.ia, csr.m, csr.nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+					loop_partitioner_balance_partial_sums(num_threads, tnum, csr.ia, csr.m, csr.nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+					// loop_partitioner_balance(num_threads, tnum, 2, csr.ia, csr.m, csr.nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 				#endif
 			}
 		);
@@ -277,6 +334,14 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 			loop_partitioner_balance_iterations(num_threads, tnum, 0, m, &thread_i_s[tnum], &thread_i_e[tnum]);
 		}
 	#endif
+
+	long rapl_fds_n;
+	int * rapl_fds;
+	long * rapl_max_values;
+
+	rapl_open_files(&rapl_fds_n, &rapl_fds, &rapl_max_values);
+
+	long ujoule_s[rapl_fds_n] = {0}, ujoule_e[rapl_fds_n] = {0};
 
 	// warm up caches
 	time_warm_up = time_it(1,
@@ -298,12 +363,27 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		raise(SIGSTOP);
 	#endif
 
-	const double timeStart = omp_get_wtime();
-	for(int idxLoop = 0 ; idxLoop < loop ; ++idxLoop)
-		spmv();
-	const double timeEnd = omp_get_wtime();
 
-	double time = timeEnd-timeStart;
+	for (i=0;i<rapl_fds_n;i++)
+	{
+		if (read(rapl_fds[i], buf, buf_n) < 0)
+			error("read");
+		lseek(rapl_fds[i], 0, SEEK_SET);
+		ujoule_s[i] = atol(buf);
+	}
+
+	time = time_it(1,
+		for(int idxLoop = 0 ; idxLoop < loop ; ++idxLoop)
+			spmv();
+	);
+
+	for (i=0;i<rapl_fds_n;i++)
+	{
+		if (read(rapl_fds[i], buf, buf_n) < 0)
+			error("read");
+		lseek(rapl_fds[i], 0, SEEK_SET);
+		ujoule_e[i] = atol(buf);
+	}
 
 
 	//=============================================================================
@@ -385,6 +465,15 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 
 	gflops = nnz / time * loop * 2 * 1e-9;
 
+	double J_estimated = 0;
+	double W_avg;
+	for (i=0;i<rapl_fds_n;i++)
+	{
+		long diff = (ujoule_e[i] - ujoule_s[i] + rapl_max_values[i] + 1) % (rapl_max_values[i] + 1);   // micro joules
+		J_estimated += ((double) diff) / 1000000.0;
+	}
+	W_avg = J_estimated / time;
+
 	if (AM == NULL)
 	{
 		std::cout
@@ -408,9 +497,7 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 	}
 	else
 	{
-		double W_avg = 250;
-		double J_estimated = W_avg * time;
-		std::cout << "synthetic" << "," << AM->distribution << "," << AM->placement << "," << AM->seed
+		std::cerr << "synthetic" << "," << AM->distribution << "," << AM->placement << "," << AM->seed
 			<< "," << AM->nr_rows << "," << AM->nr_cols << "," << AM->nr_nzeros
 			<< "," << AM->density << "," << AM->mem_footprint << "," << AM->mem_range
 			<< "," << AM->avg_nnz_per_row << "," << AM->std_nnz_per_row
@@ -419,6 +506,7 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 			<< "," << AM->avg_sc << "," << AM->std_sc
 			<< "," << AM->avg_sc_scaled << "," << AM->std_sc_scaled
 			<< "," << AM->skew
+			<< "," << AM->avg_num_neighbours << "," << AM->cross_row_similarity
 			<< "," << format_name <<  "," << time << "," << gflops << "," << W_avg << "," << J_estimated
 		#ifdef PER_THREAD_STATS
 			<< "," << iters_per_t_avg << "," << iters_per_t_std << "," << iters_per_t_balance
@@ -527,6 +615,7 @@ child_proc_label:
 			long nr_rows, nr_cols, seed;
 			double avg_nnz_per_row, std_nnz_per_row, bw, skew;
 			double avg_num_neighbours;
+			double cross_row_similarity;
 			char * distribution, * placement;
 			long i;
 
@@ -540,9 +629,10 @@ child_proc_label:
 			bw = atof(argv[i++]);
 			skew = atof(argv[i++]);
 			avg_num_neighbours = atof(argv[i++]);
+			cross_row_similarity = atof(argv[i++]);
 			seed = atoi(argv[i++]);
 
-			AM = artificial_matrix_generation(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, seed, placement, bw, skew, avg_num_neighbours);
+			AM = artificial_matrix_generation(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, seed, placement, bw, skew, avg_num_neighbours, cross_row_similarity);
 
 		);
 		printf("time generate artificial matrix: %lf\n", time);
