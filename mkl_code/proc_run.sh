@@ -276,8 +276,8 @@ matrices=(
 
     # /home/jim/Documents/Synced_Documents/other/ASIC_680k.mtx
 
-    "$path_openFoam"/100K.mtx
-    # "$path_openFoam"/600K.mtx
+    # "$path_openFoam"/100K.mtx
+    "$path_openFoam"/600K.mtx
     # "$path_selected"/thermomech_dK.mtx
     # "$path_selected"/ASIC_680k.mtx
     # "$path_selected"/xenon2.mtx
@@ -343,7 +343,7 @@ fi
 progs=()
 progs+=('./spmv_ell.exe')
 # progs+=('./spmv_ldu.exe')
-# progs+=('./spmv_sparse_mv.exe')
+progs+=('./spmv_sparse_mv.exe')
 # progs+=('./spmv_csr_naive.exe')
 # progs+=('./spmv_csr_custom.exe')
 # progs+=('./spmv_csr_custom_vector.exe')

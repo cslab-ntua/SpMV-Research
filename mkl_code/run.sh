@@ -310,8 +310,8 @@ artificial_matrices_files=(
 )
 
 
-# use_artificial_matrices=0
-use_artificial_matrices=1
+use_artificial_matrices=0
+# use_artificial_matrices=1
 
 
 if ((!use_artificial_matrices)); then
@@ -335,7 +335,7 @@ progs=()
 # progs+=('./spmv_ell.exe')
 # progs+=('./spmv_ldu.exe')
 progs+=('./spmv_sparse_mv.exe')
-progs+=('./spmv_csr_naive.exe')
+# progs+=('./spmv_csr_naive.exe')
 # progs+=('./spmv_csr_custom.exe')
 # progs+=('./spmv_csr_custom_vector.exe')
 # progs+=('./spmv_csr.exe')
@@ -345,7 +345,7 @@ progs+=('./spmv_csr_naive.exe')
 # progs+=('./spmv_bsr_2.exe' './spmv_bsr_4.exe' './spmv_bsr_8.exe' './spmv_bsr_16.exe')
 # progs+=('./spmv_bsr_2.exe' './spmv_bsr_4.exe' './spmv_bsr_8.exe' './spmv_bsr_16.exe' './spmv_bsr_32.exe' './spmv_bsr_64.exe')
 # progs+=('./spmv_coo.exe')
-progs+=('../Benchmark_SpMV_using_CSR5/CSR5_avx2/spmv')
+# progs+=('../Benchmark_SpMV_using_CSR5/CSR5_avx2/spmv')
 
 
 for p in "${progs[@]}"; do

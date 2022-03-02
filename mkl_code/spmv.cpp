@@ -10,7 +10,7 @@
 #include "macros/macrolib.h"
 #include "time_it.h"
 #include "parallel_util.h"
-// #include "pthread_functions.h"
+#include "pthread_functions.h"
 #include "matrix_util.h"
 
 
@@ -119,7 +119,8 @@ spmv()
 		compute_ldu(&ldu, x, y);
 	#elif defined(USE_ELL)
 		// compute_ell(&ell, x, y);
-		compute_ell_v(&ell, x, y);
+		// compute_ell_v(&ell, x, y);
+		compute_ell_v_hor(&ell, x, y);
 	#endif
 }
 
@@ -463,7 +464,7 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 	}
 	#endif
 
-	gflops = nnz / time * loop * 2 * 1e-9;
+	gflops = coo.nnz / time * loop * 2 * 1e-9;    // Use coo.nnz to be sure we have the initial nnz.
 
 	double J_estimated = 0;
 	double W_avg;

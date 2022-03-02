@@ -19,7 +19,6 @@ endif
 # AMG_PATH = artificial_matrix_generation/include
 # CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c
 
-
 AMG_PATH = ../artificial-matrix-generator
 CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/ordered_set.c
 
@@ -63,6 +62,7 @@ CFLAGS += -O3
 
 
 # CFLAGS += -I "$(library)"
+CFLAGS += -Ilib
 CFLAGS += -I$(AMG_PATH)
 
 
@@ -81,9 +81,9 @@ CFLAGS += -D'DOUBLE=$(DOUBLE)'
 # CFLAGS += -D'PARALLEL_INIT'
 
 
-CFLAGS += $(PYTHON_CFLAGS)
+# CFLAGS += $(PYTHON_CFLAGS)
 
-LDFLAGS += $(PYTHON_LFLAGS)
+# LDFLAGS += $(PYTHON_LFLAGS)
 
 
 # PROC_BENCH = 1

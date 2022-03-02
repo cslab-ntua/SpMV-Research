@@ -353,6 +353,7 @@ void compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 	}
 	for (i=i_vector;i<ell->m;i++)
 	{
+	printf("i_vector = %ld\n", i_vector);
 		j_s = i * ell->width;
 		j_e = (i + 1) * ell->width;
 		sum = 0;
@@ -361,6 +362,41 @@ void compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 		y[i] = sum;
 	}
 }
+
+
+void compute_ell_v_hor(ELLArrays * ell, ValueType * x , ValueType * y)
+{
+	long i, j, j_s, j_e, k, j_vector_width, j_vector;
+	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+	__attribute__((unused)) ValueType sum = 0;
+	j_vector_width = ell->width & mask;
+	for (i=0;i<ell->m;i++)
+	{
+		v_sum = zero;
+		j_s = i * ell->width;
+		j_e = (i + 1) * ell->width;
+		j_vector = j_s + j_vector_width;
+		for (j=j_s;j<j_vector;j+=VECTOR_ELEM_NUM)
+		{
+			v_a = *(Vector_Value_t *) &ell->a[j];
+			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+			PRAGMA(GCC ivdep)
+			for (k=0;k<VECTOR_ELEM_NUM;k++)
+			{
+				v_mul[k] = v_a[k] * x[ell->ja[j+k]];
+			}
+			v_sum += v_mul;
+		}
+		for (;j<j_e;j++)
+			v_sum[0] += ell->a[j] * x[ell->ja[j]];
+		for (j=1;j<VECTOR_ELEM_NUM;j++)
+			v_sum[0] += v_sum[j];
+		y[i] = v_sum[0];
+	}
+}
+
 
 // void compute_ell(ELLArrays * ell, ValueType * x , ValueType * y)
 // {
