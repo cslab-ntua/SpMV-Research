@@ -17,7 +17,7 @@ cd ${MASTEDIR}/build_runtrash
 
 #MPAKOSDIR=/various/pmpakos/artificial_matrix_generation/matrix_generation_parameters/double/small
 #MPAKOSDIR=/various/pmpakos/artificial_matrix_generation/matrix_generation_parameters/double
-MPAKOSDIR=${MASTEDIR}/Pythonia/local_ipynb/
+MPAKOSDIR=${MASTEDIR}/matrix_generation_parameters
 for rep in 1 #2 3 4 5
 do
 	for dtype in D #S

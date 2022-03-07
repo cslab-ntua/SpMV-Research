@@ -3,7 +3,7 @@
 #PBS -o job_spmv.out
 #PBS -e job_spmv.err
 #PBS -l select=1:ncpus=128:node_type=rome
-#PBS -l walltime=05:00:00
+#PBS -l walltime=24:00:00
 
 cd /zhome/academic/HLRS/xex/xexdgala/Shared/benchmarks/SpMV/mpakos_code
 > job_spmv.out
@@ -24,6 +24,6 @@ cd /zhome/academic/HLRS/xex/xexdgala/Shared/benchmarks/SpMV/Benchmark_SpMV_using
 make clean; make -j
 cd /zhome/academic/HLRS/xex/xexdgala/Shared/benchmarks/SpMV/mpakos_code
 make clean; make -j
-./run.sh
+time ./run.sh
 # ./proc_run.sh
 

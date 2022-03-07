@@ -9,7 +9,7 @@ if [[ "$(whoami)" == 'xexdgala' ]]; then
     path_selected='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/selected_matrices'
     path_selected_sorted='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/selected_matrices_sorted'
     path_validation='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices'
-    path_artificial='./artificial_matrix_generation/matrix_generation_parameters/double'
+    path_artificial='./artificial_matrix_generation/matrix_generation_parameters'
 
     path="$path_selected"
 
@@ -25,10 +25,11 @@ else
     path_openFoam='/home/jim/Data/graphs/matrices_openFoam'
     path_selected_sorted='/home/jim/Data/graphs/selected_matrices_sorted'
     path_validation='/home/jim/Data/graphs/validation_matrices'
-    path_artificial='./artificial_matrix_generation/matrix_generation_parameters/double'
+    path_artificial='./artificial_matrix_generation/matrix_generation_parameters'
 
     path="$path_selected"
 
+    # cores='1'
     # cores='1 2 4 8'
     cores='8'
     max_cores=8
@@ -65,7 +66,7 @@ fi
 
 export MKL_DEBUG_CPU_TYPE=5
 
-export LD_LIBRARY_PATH="${HOME}/Documents/gcc_current/lib64:/opt/hlrs/spack/current/papi/c048e224f-gcc-9.2.0-hxfnx7kt/lib:${LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${HOME}/Documents/gcc_current/lib64:/opt/hlrs/spack/current/papi/c048e224f-gcc-9.2.0-hxfnx7kt/lib:/opt/intel/oneapi/mkl/latest/lib/intel64:${LD_LIBRARY_PATH}"
 
 
 # Encourages idle threads to spin rather than sleep.
@@ -225,7 +226,7 @@ BEGIN {
 }
 
 END {
-    gflops = (nnz * num_procs) / time_max * 128 * 2 * 1e-9
+    gflops = (time_max > 0) ? (nnz * num_procs) / time_max * 128 * 2 * 1e-9 : 0
 
     printf("%s", file)
     printf(",%d", num_procs)
@@ -275,8 +276,8 @@ matrices=(
 
     # /home/jim/Documents/Synced_Documents/other/ASIC_680k.mtx
 
-    "$path_openFoam"/100K.mtx
-    # "$path_openFoam"/600K.mtx
+    # "$path_openFoam"/100K.mtx
+    "$path_openFoam"/600K.mtx
     # "$path_selected"/thermomech_dK.mtx
     # "$path_selected"/ASIC_680k.mtx
     # "$path_selected"/xenon2.mtx
@@ -317,24 +318,7 @@ matrices=(
 
 
 artificial_matrices_file=(
-    # "$path_artificial"/gamma_4-8.txt
-    # "$path_artificial"/gamma_8-16.txt
-    # "$path_artificial"/gamma_16-32.txt
-    # "$path_artificial"/gamma_32-64.txt
-    # "$path_artificial"/gamma_64-128.txt
-    # "$path_artificial"/gamma_128-256.txt
-    # "$path_artificial"/gamma_256-512.txt
-    # "$path_artificial"/gamma_512-1024.txt
-    # "$path_artificial"/gamma_1024-2048.txt
-    "$path_artificial"/normal_4-8.txt
-    # "$path_artificial"/normal_8-16.txt
-    # "$path_artificial"/normal_16-32.txt
-    # "$path_artificial"/normal_32-64.txt
-    # "$path_artificial"/normal_64-128.txt
-    # "$path_artificial"/normal_128-256.txt
-    # "$path_artificial"/normal_256-512.txt
-    # "$path_artificial"/normal_512-1024.txt
-    # "$path_artificial"/normal_1024-2048.txt
+
 )
 
 
@@ -357,9 +341,12 @@ fi
 
 
 progs=()
+progs+=('./spmv_ell.exe')
+# progs+=('./spmv_ldu.exe')
 progs+=('./spmv_sparse_mv.exe')
 # progs+=('./spmv_csr_naive.exe')
 # progs+=('./spmv_csr_custom.exe')
+# progs+=('./spmv_csr_custom_vector.exe')
 # progs+=('./spmv_csr.exe')
 # progs+=('./spmv_dia.exe')
 # progs+=('./spmv_dia_custom.exe')
@@ -372,19 +359,19 @@ progs+=('./spmv_sparse_mv.exe')
 
 for p in "${progs[@]}"; do
 
-    declare base file_out
-    base="${p/*\//}"
-    base="${base%%.*}"
-    file_out="out_${base}.out"
-    > "$file_out"
-    exec 1>>"$file_out"
+    # declare base file_out
+    # base="${p/*\//}"
+    # base="${base%%.*}"
+    # file_out="out_${base}.out"
+    # > "$file_out"
+    # exec 1>>"$file_out"
 
     echo "program: $p"
 
     for a in "${prog_args[@]}"
     do
         if ((use_artificial_matrices)); then
-            echo $a
+            echo "File: $a"
             bench $p $a
         else
             echo "File: $a"

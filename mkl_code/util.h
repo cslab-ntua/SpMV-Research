@@ -30,6 +30,7 @@
 
 
 #include "debug.h"
+#include "io.h"
 #include "macros/cpp_defines.h"
 #include "parallel_util.h"
 #include "artificial_matrix_generation.h"
@@ -40,6 +41,7 @@
 #elif DOUBLE == 1
 	#define ValueType  double
 #endif
+
 
 /* #define error(...)                       \
 do {                                     \
@@ -56,6 +58,25 @@ typedef ValueType  Vector_Value_t  __attribute__((vector_size(32), aligned(1)));
 
 // typedef MKL_INT  Vector_Index_t  __attribute__((vector_size(VECTOR_ELEM_NUM*sizeof(MKL_INT)), aligned(1)));
 typedef MKL_INT  Vector_Index_t  __attribute__((vector_size(VECTOR_ELEM_NUM*sizeof(MKL_INT))));
+
+
+template<typename T>
+T *
+transpose(T * a, MKL_INT m, MKL_INT n)
+{
+	T * t = (T *) mkl_malloc(m*n * sizeof(*t), 64);
+	#pragma omp parallel
+	{
+		long i, j;
+		#pragma omp for schedule(static)
+		for (j=0;j<n;j++)
+		{
+			for (i=0;i<m;i++)
+				t[j*m + i] = a[i*n + j];
+		}
+	}
+	return t;
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -94,7 +115,7 @@ struct COOArrays
 /**
  * Builds a MARKET COO sparse from the given file.
  */
-void create_coo_matrix(const std::string&   market_filename, COOArrays *coo)
+void create_coo_matrix(const std::string & market_filename, COOArrays * coo)
 {
 	std::ifstream ifs;
 	ifs.open(market_filename.c_str(), std::ifstream::in);
@@ -248,16 +269,20 @@ struct CSRArrays
 };
 
 
+#include "csr_converter.h"
+
+
 /** See https://software.intel.com/fr-fr/node/520849#449CA855-CE5B-4061-B003-70D078CA5E05 */
 void COO_to_CSR(COOArrays * coo, CSRArrays * csr)
 {
-	MKL_INT job[6] = {1,//if job(1)=1, the matrix in the coordinate format is converted to the CSR format.
-		0,//If job(2)=0, zero-based indexing for the matrix in CSR format is used;
-		0,//If job(3)=0, zero-based indexing for the matrix in coordinate format is used;
-		0,
-		coo->nnz,//job(5)=nnz - sets number of the non-zero elements of the matrix A if job(1)=1.
-		0 //If job(6)=0, all arrays acsr, ja, ia are filled in for the output storage.
-	};
+	// MKL_INT job[6] = {1,//if job(1)=1, the matrix in the coordinate format is converted to the CSR format.
+		// 0,//If job(2)=0, zero-based indexing for the matrix in CSR format is used;
+		// 0,//If job(3)=0, zero-based indexing for the matrix in coordinate format is used;
+		// 0,
+		// coo->nnz,//job(5)=nnz - sets number of the non-zero elements of the matrix A if job(1)=1.
+		// 0 //If job(6)=0, all arrays acsr, ja, ia are filled in for the output storage.
+	// };
+
 	// Init csr
 	csr->m = coo->m;
 	csr->n = coo->n;
@@ -265,8 +290,8 @@ void COO_to_CSR(COOArrays * coo, CSRArrays * csr)
 	csr->a = (ValueType *) mkl_malloc((csr->nnz + VECTOR_ELEM_NUM) * sizeof(ValueType), 64);
 	csr->ja = (MKL_INT *) mkl_malloc((csr->nnz + VECTOR_ELEM_NUM) * sizeof(MKL_INT), 64);
 	csr->ia = (MKL_INT *) mkl_malloc((csr->m+1 + VECTOR_ELEM_NUM) * sizeof(MKL_INT), 64);
-	MKL_INT nnz = coo->nnz;
-	MKL_INT info;
+	// MKL_INT nnz = coo->nnz;
+	// MKL_INT info;
 
 	// const double mem_footprint = csr->nnz*(sizeof(ValueType)+sizeof(MKL_INT)) + (csr->m+1)*sizeof(MKL_INT);
 	// std::cout << mem_footprint/(1024*1024) << "\n";
@@ -282,11 +307,53 @@ void COO_to_CSR(COOArrays * coo, CSRArrays * csr)
 	for (int i=0;i<csr->m+1 + VECTOR_ELEM_NUM;i++)
 		csr->ia[i] = 0;
 
-	#if DOUBLE == 0
-		mkl_scsrcoo(job, &coo->m, csr->a, csr->ja, csr->ia, &nnz, coo->val, coo->rowind, coo->colind, &info);
-	#elif DOUBLE == 1
-		mkl_dcsrcoo(job, &coo->m, csr->a, csr->ja, csr->ia, &nnz, coo->val, coo->rowind, coo->colind, &info);
-	#endif
+	coo_to_csr_fully_sorted(coo->rowind, coo->colind, coo->val, coo->m, coo->n, coo->nnz, csr);
+
+	// #if DOUBLE == 0
+		// mkl_scsrcoo(job, &coo->m, csr->a, csr->ja, csr->ia, &nnz, coo->val, coo->rowind, coo->colind, &info);
+	// #elif DOUBLE == 1
+		// mkl_dcsrcoo(job, &coo->m, csr->a, csr->ja, csr->ia, &nnz, coo->val, coo->rowind, coo->colind, &info);
+	// #endif
+	// CSRArrays * csr2 = (typeof(csr2)) malloc(sizeof(*csr2));
+	// csr2->m = coo->m;
+	// csr2->n = coo->n;
+	// csr2->nnz = coo->nnz;
+	// csr2->a = (ValueType *) mkl_malloc((csr2->nnz + VECTOR_ELEM_NUM) * sizeof(ValueType), 64);
+	// csr2->ja = (MKL_INT *) mkl_malloc((csr2->nnz + VECTOR_ELEM_NUM) * sizeof(MKL_INT), 64);
+	// csr2->ia = (MKL_INT *) mkl_malloc((csr2->m+1 + VECTOR_ELEM_NUM) * sizeof(MKL_INT), 64);
+	// coo_to_csr_fully_sorted(coo->rowind, coo->colind, coo->val, coo->m, coo->n, coo->nnz, csr2);
+
+	/* for (int i=0;i<csr->m+1 + VECTOR_ELEM_NUM;i++)
+	{
+		if (csr->ia[i] != csr2->ia[i])
+		{
+			printf("%d: different ia: %d %d\n", i, csr->ia[i], csr2->ia[i]);
+			exit(1);
+		}
+	}
+	for (int i=0;i<csr->m+1 + VECTOR_ELEM_NUM;i++)
+	{
+		for (int j=csr->ia[i];j<csr->ia[i+1];j++)
+		{
+			// if (csr->a[i] != csr2->a[i])
+			// {
+				// printf("%d,%d: different a: %lf %lf\n", i, j, csr->a[j], csr2->a[j]);
+				// exit(1);
+			// }
+			// if (csr->ja[j] != csr2->ja[j])
+			// {
+				printf("%d,%d: different ja: %d %d\n", i, j, csr->ja[j], csr2->ja[j]);
+				for (int j=csr->ia[i];j<csr->ia[i+1];j++)
+					printf("%d ", csr->ja[j]);
+				printf("\n");
+				for (int j=csr->ia[i];j<csr->ia[i+1];j++)
+					printf("%d ", csr2->ja[j]);
+				printf("\n\n");
+				// exit(1);
+			// }
+		}
+	} */
+
 }
 
 
@@ -635,6 +702,100 @@ void CSR_to_LDU(CSRArrays * csr, LDUArrays * ldu)
 
 
 //////////////////////////////////////////////////////////////////////////
+// ELLPACK format
+//////////////////////////////////////////////////////////////////////////
+
+
+struct ELLArrays
+{
+	MKL_INT m;      //< rows
+	MKL_INT n;      //< columns
+	MKL_INT width;  //< max nnz per row
+	MKL_INT nnz;    //< the number of nnz (== ia[m])
+	ValueType *a;   //< the values (of size NNZ)
+	MKL_INT *ja;    //< the colidx of each NNZ (of size nnz)
+
+	ELLArrays(){
+		a = NULL;
+		ja= NULL;
+	}
+
+	~ELLArrays(){
+		mkl_free(a);
+		mkl_free(ja);
+	}
+};
+
+
+void CSR_to_ELL(CSRArrays * csr, ELLArrays * ell)
+{
+	long i, j, j_s, j_e;
+	long degree;
+	long max_nnz_per_row;
+
+	// ell->m = csr->m;
+	ell->m = ((csr->m + VECTOR_ELEM_NUM - 1) / VECTOR_ELEM_NUM) * VECTOR_ELEM_NUM;
+
+	ell->n = csr->n;
+	ell->nnz = csr->nnz;
+
+	max_nnz_per_row = 0;
+	for (i=0;i<ell->m;i++)
+	{
+		degree = csr->ia[i+1] - csr->ia[i];
+		if (degree > max_nnz_per_row)
+			max_nnz_per_row = degree;
+	}
+	printf("max degree = %ld\n", max_nnz_per_row);
+
+	ell->width = max_nnz_per_row;
+	// ell->width = ((max_nnz_per_row + VECTOR_ELEM_NUM - 1) / VECTOR_ELEM_NUM) * VECTOR_ELEM_NUM;
+
+	printf("width = %d\n", ell->width);
+
+	ell->a = (ValueType *) mkl_malloc(ell->m * ell->width * sizeof(ValueType), 64);
+	ell->ja = (MKL_INT *) mkl_malloc(ell->m * ell->width * sizeof(MKL_INT), 64);
+	#pragma omp parallel
+	{
+		long i, j, k;
+		#pragma omp for
+		for (i=0;i<csr->m;i++)
+		{
+			k = i * ell->width;
+			for (j=csr->ia[i];j<csr->ia[i+1];j++,k++)
+			{
+				ell->a[k] = csr->a[j];
+				ell->ja[k] = csr->ja[j];
+			}
+			for (;k<(i+1)*ell->width;k++)
+			{
+				ell->a[k] = 0;
+				ell->ja[k] = 0;
+			}
+		}
+	}
+	for (i=csr->m;i<ell->m;i++)
+	{
+		j_s = i * ell->width;
+		j_e = (i + 1) * ell->width;
+		for (j=j_s;j<j_e;j++)
+		{
+			ell->a[j] = 0;
+			ell->ja[j] = 0;
+		}
+	}
+
+	// ValueType * a = transpose<ValueType>(ell->a, ell->m, ell->width);
+	// MKL_INT * ja = transpose<MKL_INT>(ell->ja, ell->m, ell->width);
+	// mkl_free(ell->a);
+	// mkl_free(ell->ja);
+	// ell->a = a;
+	// ell->ja = ja;
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
@@ -644,9 +805,11 @@ void
 CheckAccuracy(COOArrays * coo, ValueType * x, ValueType * y)
 {
 	#if DOUBLE == 0
-		ValueType epsilon = 1e-5;
+		// ValueType epsilon = 1e-5;
+		ValueType epsilon = 1e-7;
 	#elif DOUBLE == 1
-		ValueType epsilon = 1e-8;
+		// ValueType epsilon = 1e-8;
+		ValueType epsilon = 1e-10;
 	#endif
 	int i, j;
 
@@ -680,8 +843,10 @@ CheckAccuracy(COOArrays * coo, ValueType * x, ValueType * y)
 		maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
 		// std::cout << idx << ": " << y_gold[idx]-y[idx] << "\n";
 		if (y_gold[idx] != 0.0) {
-			maxDiff = Max(maxDiff, Abs((y_gold[idx]-y[idx])/y_gold[idx]));
-			// maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
+			// if (Abs((y_gold[idx]-y[idx])/y_gold[idx]) > epsilon)
+				// printf("Error: %g != %g , diff=%g , diff_frac=%g\n", y_gold[idx], y[idx], Abs(y_gold[idx]-y[idx]), Abs((y_gold[idx]-y[idx])/y_gold[idx]));
+			// maxDiff = Max(maxDiff, Abs((y_gold[idx]-y[idx])/y_gold[idx]));
+			maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
 		}
 
 		// if(maxDiff>epsilon)

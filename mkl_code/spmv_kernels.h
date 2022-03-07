@@ -236,30 +236,6 @@ void compute_dia_custom(DIAArrays * dia , ValueType * x , ValueType * y)
 }
 
 
-ValueType *
-transpose(ValueType * a, MKL_INT m, MKL_INT n)
-{
-	ValueType * t = (ValueType *) mkl_malloc(m*n * sizeof(*t), 64);
-	#pragma omp parallel
-	{
-		long i, j;
-		#pragma omp for schedule(static)
-		for (j=0;j<n;j++)
-		{
-			for (i=0;i<m;i++)
-				t[j*m + i] = a[i*n + j];
-		}
-	}
-	// for (i=0;i<n;i++)
-	// {
-		// for (long j=0;j<m;j++)
-			// printf("%lf ", a[i*m + j]);
-		// printf("\n");
-	// }
-	return t;
-}
-
-
 void compute_csc(CSCArrays * csc, ValueType * x , ValueType * y)
 {
     char transa = 'N';
@@ -302,82 +278,156 @@ void compute_ldu(LDUArrays * ldu, ValueType * x , ValueType * y)
 }
 
 
-// void compute_ldu_csr(LDUArrays * ldu, ValueType * x , ValueType * y)
+
+void compute_ell_par(ELLArrays * ell, ValueType * x , ValueType * y)
+{
+	#pragma omp parallel
+	{
+		ValueType sum;
+		long i, j, j_s, j_e;
+		PRAGMA(omp for schedule(static))
+		for (i=0;i<ell->m;i++)
+		{
+			j_s = i * ell->width;
+			j_e = (i + 1) * ell->width;
+			sum = 0;
+			for (j=j_s;j<j_e;j++)
+				sum += ell->a[j] * x[ell->ja[j]];
+			y[i] = sum;
+		}
+	}
+}
+
+
+void compute_ell(ELLArrays * ell, ValueType * x , ValueType * y)
+{
+	ValueType sum;
+	long i, j, j_s, j_e;
+	for (i=0;i<ell->m;i++)
+	{
+		j_s = i * ell->width;
+		j_e = (i + 1) * ell->width;
+		sum = 0;
+		for (j=j_s;j<j_e;j++)
+			sum += ell->a[j] * x[ell->ja[j]];
+		y[i] = sum;
+	}
+}
+
+
+void compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
+{
+	long i, i_vector, j, j_s, j_e, k;
+	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
+	__attribute__((unused)) ValueType sum = 0;
+	i_vector = ell->m & mask;
+	for (i=0;i<i_vector;i+=VECTOR_ELEM_NUM)
+	{
+		v_sum = zero;
+		j_s = i * ell->width;
+		j_e = (i + 1) * ell->width;
+		for (j=j_s;j<j_e;j++)
+		{
+
+			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+			PRAGMA(GCC ivdep)
+			for (k=0;k<VECTOR_ELEM_NUM;k++)
+			{
+				v_mul[k] = ell->a[j+k*ell->width] * x[ell->ja[j+k*ell->width]];
+			}
+			v_sum += v_mul;
+
+			// PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+			// PRAGMA(GCC ivdep)
+			// for (k=0;k<VECTOR_ELEM_NUM;k++)
+			// {
+				// v_a[k] = ell->a[j+k*ell->width] ;
+				// v_x[k] = x[ell->ja[j+k*ell->width]];
+			// }
+			// v_sum += v_a * v_x;
+
+		}
+		*((Vector_Value_t *)&y[i]) = v_sum;
+	}
+	for (i=i_vector;i<ell->m;i++)
+	{
+	printf("i_vector = %ld\n", i_vector);
+		j_s = i * ell->width;
+		j_e = (i + 1) * ell->width;
+		sum = 0;
+		for (j=j_s;j<j_e;j++)
+			sum += ell->a[j] * x[ell->ja[j]];
+		y[i] = sum;
+	}
+}
+
+
+void compute_ell_v_hor(ELLArrays * ell, ValueType * x , ValueType * y)
+{
+	long i, j, j_s, j_e, k, j_vector_width, j_vector;
+	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+	__attribute__((unused)) ValueType sum = 0;
+	j_vector_width = ell->width & mask;
+	for (i=0;i<ell->m;i++)
+	{
+		v_sum = zero;
+		j_s = i * ell->width;
+		j_e = (i + 1) * ell->width;
+		j_vector = j_s + j_vector_width;
+		for (j=j_s;j<j_vector;j+=VECTOR_ELEM_NUM)
+		{
+			v_a = *(Vector_Value_t *) &ell->a[j];
+			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+			PRAGMA(GCC ivdep)
+			for (k=0;k<VECTOR_ELEM_NUM;k++)
+			{
+				v_mul[k] = v_a[k] * x[ell->ja[j+k]];
+			}
+			v_sum += v_mul;
+		}
+		for (;j<j_e;j++)
+			v_sum[0] += ell->a[j] * x[ell->ja[j]];
+		for (j=1;j<VECTOR_ELEM_NUM;j++)
+			v_sum[0] += v_sum[j];
+		y[i] = v_sum[0];
+	}
+}
+
+
+// void compute_ell(ELLArrays * ell, ValueType * x , ValueType * y)
 // {
-	// for (i=0;i<csr->m;i++)
+	// long i, j, row;
+	// for (i=0;i<ell->n;i++)
+		// y[i] = 0;
+	// for (i=0;i<ell->width;i++)
 	// {
-		// y[i] = csr->diag[i] * x[i];
-		// for (j=csr->ia[i];j<csr->ia[i+1];j++)
-		// {
-			// y[i] += csr->U[j] * x[csr->ja[j]];
-			// y[i] += csr->L[csr->ja[j]] * x[j];
-		// }
+		// PRAGMA(GCC ivdep)
+		// for (row=0,j=i*ell->m;j<(i + 1)*ell->m;row++,j++)
+			// y[row] += ell->a[j] * x[ell->ja[j]];
 	// }
 // }
 
-/* void compute_ldu(LDUArrays * ldu, ValueType * x , ValueType * y)
-{
-	int num_threads = omp_get_max_threads();
-	#pragma omp parallel
-	{
-		long tnum = omp_get_thread_num();
-		ValueType sum;
-		long i, i_s, i_e;
-		long row, col;
-		long row_s, row_e;
 
-		#pragma omp for schedule(static)
-		for (i=0;i<ldu->m;i++)
-			y[i] = ldu->diag[i] * x[i];
-
-		loop_partitioner_balance_iterations(num_threads, tnum, 0, ldu->upper_n, &i_s, &i_e);
-		row_s = -1;
-		row_e = -1;
-		if (i_s < ldu->upper_n)
-		{
-			row_s = ldu->row_idx[i_s];
-			row_e = ldu->row_idx[i_e-1];
-			if (row_s == row_e)                       // Ending row is not the starting row.
-				row_e = -1;
-		}
-		__atomic_store_n(&thread_partial_sums_row_s[tnum], row_s, __ATOMIC_RELAXED);
-		__atomic_store_n(&thread_partial_sums_row_e[tnum], row_e, __ATOMIC_RELAXED);
-
-		thread_partial_sums_s[tnum] = 0;
-		thread_partial_sums_e[tnum] = 0;
-		thread_partial_sums_row_s[tnum] = -1;
-		thread_partial_sums_row_e[tnum] = -1;
-
-		i = i_s;
-		row = row_s;
-
-		sum = 0;
-		for (;i<i_e;i++)
-		{
-			row = ldu->row_idx[i];
-			if (row != row_s)
-				break;
-			col = ldu->col_idx[i];
-			sum += ldu->upper[i] * x[col];
-		}
-		__atomic_store(&thread_partial_sums_s[tnum], &sum, __ATOMIC_RELAXED);
-
-		sum = 0;
-		for (;i<i_e;i++)
-		{
-			if (row != ldu->row_idx[i])
-			{
-				y[row] = sum;
-				row = ldu->row_idx[i];
-				sum = 0;
-			}
-			col = ldu->col_idx[i];
-			sum += ldu->upper[i] * x[col];
-		}
-
-		__atomic_store(&thread_partial_sums_e[tnum], &sum, __ATOMIC_RELAXED);
-	}
-} */
+// void compute_ell(ELLArrays * ell, ValueType * x , ValueType * y)
+// {
+	// ValueType sum;
+	// long i, j, j_s, j_e;
+	// Vector_Value_t zero = {0};
+	// Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+	// for (i=0;i<ell->m;i+=VECTOR_ELEM_NUM)
+	// {
+		// j_s = i * ell->width;
+		// j_e = (i + 1) * ell->width;
+		// v_sum = zero;
+		// for (j=j_s;j<j_e;j++)
+			// sum += ell->a[j] * x[ell->ja[j]];
+		// y[i] = sum;
+	// }
+// }
 
 
 #endif /* SPMV_KERNELS_H */
