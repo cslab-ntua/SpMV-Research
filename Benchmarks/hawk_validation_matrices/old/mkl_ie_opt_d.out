@@ -1,0 +1,1426 @@
+rm -f spmv
+c++ -mavx -mavx2 -march=native   -I../../mpakos_code/artificial_matrices -Wno-deprecated-writable-strings -Wno-write-strings -Wno-unused-result -fopenmp -O3 main.cpp ../../mpakos_code/artificial_matrices/artificial_matrix_generation.c ../../mpakos_code/artificial_matrices/sorted_set.c -o spmv -D VALUE_TYPE=double -D NUM_RUN=128
+rm -f *.exe
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_MKL_COO' -o spmv_coo.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_MKL_DIA' -o spmv_dia.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_MKL_CSC' -o spmv_csc.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_MKL_CSR' -o spmv_csr.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_MKL_IE' -o spmv_sparse_mv.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_MKL_BSR' -D'BLOCK_SIZE=2'  -o spmv_bsr_2.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_MKL_BSR' -D'BLOCK_SIZE=4'  -o spmv_bsr_4.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_MKL_BSR' -D'BLOCK_SIZE=8'  -o spmv_bsr_8.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_MKL_BSR' -D'BLOCK_SIZE=16' -o spmv_bsr_16.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_MKL_BSR' -D'BLOCK_SIZE=32' -o spmv_bsr_32.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_MKL_BSR' -D'BLOCK_SIZE=64' -o spmv_bsr_64.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_CUSTOM_CSR' -D'NAIVE' -o spmv_csr_naive.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_CUSTOM_CSR' -o spmv_csr_custom.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_CUSTOM_CSR' -D'CUSTOM_VECTOR' -o spmv_csr_custom_vector.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+g++ spmv.cpp artificial_matrices/artificial_matrix_generation.c artificial_matrices/sorted_set.c  -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -mavx2 -fopenmp -Wno-deprecated-declarations -O3 -I "/zhome/academic/HLRS/xex/xexdgala/Shared/lib/C" -D'DOUBLE=1' -Iartificial_matrices -fPIE -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8 -I/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/include/python3.8  -Wno-unused-result -Wsign-compare  -DNDEBUG -g -fwrapv -O3 -Wall -D'USE_CUSTOM_DIA' -o spmv_dia_custom.exe  -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi  -L/sw/hawk-rh8/hlrs/non-spack/development/python/vanilla_python/3.8.3/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
+program: ./spmv_sparse_mv.exe
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/scircuit.sorted.mtx
+max threads 1
+time read: 0.504731
+time coo to csr: 0.117830
+mkl optimize time = 0.0447182
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/scircuit.sorted.mtx,1,170998,170998,958936,0.181361,1.35359,11.6265,0.0447182,0.00422011,0.0015255,1,0,1,1,0,1
+Test failed! (84.3333)
+max threads 2
+time read: 0.199423
+time coo to csr: 0.007061
+mkl optimize time = 0.0268251
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/scircuit.sorted.mtx,2,170998,170998,958936,0.0934451,2.62708,11.6265,0.0268251,0.000856012,0.00081813,0.5,0,1,0.5,0.0241361,0.953951
+Test failed! (84.3333)
+max threads 4
+time read: 0.201141
+time coo to csr: 0.006584
+mkl optimize time = 0.0273175
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/scircuit.sorted.mtx,4,170998,170998,958936,0.0497471,4.93472,11.6265,0.0273175,0.000526371,0.000450758,0.25,2.92401e-06,0.999988,0.25,0.0424064,0.846405
+Test failed! (84.3333)
+max threads 8
+time read: 0.197801
+time coo to csr: 0.006855
+mkl optimize time = 0.0270622
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/scircuit.sorted.mtx,8,170998,170998,958936,0.0254424,9.64877,11.6265,0.0270622,0.000475906,0.000231255,0.125,2.53227e-06,0.999988,0.125,0.0215038,0.82895
+Test failed! (84.3333)
+max threads 16
+time read: 0.199597
+time coo to csr: 0.012466
+mkl optimize time = 0.0273602
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/scircuit.sorted.mtx,16,170998,170998,958936,0.0126488,19.408,11.6265,0.0273602,0.000511152,0.000210837,0.0625,2.83116e-06,0.999942,0.0625,0.0111454,0.790075
+Test failed! (84.3333)
+max threads 32
+time read: 0.197800
+time coo to csr: 0.007068
+mkl optimize time = 0.0276117
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/scircuit.sorted.mtx,32,170998,170998,958936,0.00450347,54.5108,11.6265,0.0276117,0.0004412,0.000101621,0.03125,2.71063e-06,0.999942,0.03125,0.0057192,0.782606
+Test failed! (84.3333)
+max threads 64
+time read: 0.198835
+time coo to csr: 0.007499
+mkl optimize time = 0.0280317
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/scircuit.sorted.mtx,64,170998,170998,958936,0.00334263,73.4414,11.6265,0.0280317,0.000502566,3.3492e-05,0.015625,2.12337e-06,0.999942,0.015625,0.00296947,0.751009
+Test failed! (84.3333)
+max threads 128
+time read: 0.195727
+time coo to csr: 0.008511
+mkl optimize time = 0.0297372
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/scircuit.sorted.mtx,128,170998,170998,958936,0.00511889,47.9572,11.6265,0.0297372,0.000688777,4.262e-05,0.0078125,1.56942e-06,0.999942,0.0078125,0.00155409,0.727984
+Test failed! (84.3333)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mac_econ_fwd500.sorted.mtx
+max threads 1
+time read: 0.332571
+time coo to csr: 0.009026
+mkl optimize time = 0.0219413
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mac_econ_fwd500.sorted.mtx,1,206500,206500,1273389,0.131041,2.48767,15.3605,0.0219413,0.00111824,0.00101586,1,0,1,1,0,1
+Test failed! (2)
+max threads 2
+time read: 0.243077
+time coo to csr: 0.008006
+mkl optimize time = 0.0267156
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mac_econ_fwd500.sorted.mtx,2,206500,206500,1273389,0.0661713,4.92642,15.3605,0.0267156,0.00070115,0.000587155,0.5,0,1,0.5,0.000108765,0.999783
+Test failed! (2)
+max threads 4
+time read: 0.239828
+time coo to csr: 0.008432
+mkl optimize time = 0.0269179
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mac_econ_fwd500.sorted.mtx,4,206500,206500,1273389,0.0393326,8.28798,15.3605,0.0269179,0.000561627,0.000372752,0.25,0,1,0.25,0.000142493,0.99952
+Test failed! (2)
+max threads 8
+time read: 0.243648
+time coo to csr: 0.019845
+mkl optimize time = 0.0269983
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mac_econ_fwd500.sorted.mtx,8,206500,206500,1273389,0.0125673,25.9394,15.3605,0.0269983,0.000525259,0.000172776,0.125,2.42131e-06,0.999981,0.125,0.00013566,0.999094
+Test failed! (2)
+max threads 16
+time read: 0.241160
+time coo to csr: 0.008429
+mkl optimize time = 0.0273271
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mac_econ_fwd500.sorted.mtx,16,206500,206500,1273389,0.007081,46.0369,15.3605,0.0273271,0.000480134,8.9027e-05,0.0625,2.09691e-06,0.999942,0.0625,0.000102407,0.998693
+Test failed! (2)
+max threads 32
+time read: 0.242480
+time coo to csr: 0.008181
+mkl optimize time = 0.027472
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mac_econ_fwd500.sorted.mtx,32,206500,206500,1273389,0.00516267,63.1432,15.3605,0.027472,0.000375768,6.1005e-05,0.03125,1.60154e-06,0.999864,0.03125,7.67594e-05,0.997904
+Test failed! (2)
+max threads 64
+time read: 0.242900
+time coo to csr: 0.009267
+mkl optimize time = 0.027912
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mac_econ_fwd500.sorted.mtx,64,206500,206500,1273389,0.00373459,87.2887,15.3605,0.027912,0.000450838,3.0889e-05,0.015625,2.40232e-06,0.999864,0.015625,5.26908e-05,0.997578
+Test failed! (2)
+max threads 128
+time read: 0.241840
+time coo to csr: 0.009895
+mkl optimize time = 0.0299991
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mac_econ_fwd500.sorted.mtx,128,206500,206500,1273389,0.00550499,59.2167,15.3605,0.0299991,0.000544155,4.3652e-05,0.0078125,2.17728e-06,0.999555,0.0078125,3.81841e-05,0.995333
+Test failed! (2)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/raefsky3.sorted.mtx
+max threads 1
+time read: 0.382941
+time coo to csr: 0.010024
+mkl optimize time = 0.0215129
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/raefsky3.sorted.mtx,1,21200,21200,1488768,0.0965577,3.94712,17.1185,0.0215129,0.00101392,0.00081293,1,0,1,1,0,1
+Test failed! (52.7778)
+max threads 2
+time read: 0.313349
+time coo to csr: 0.009417
+mkl optimize time = 0.0270431
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/raefsky3.sorted.mtx,2,21200,21200,1488768,0.0503047,7.57633,17.1185,0.0270431,0.000682976,0.0004836,0.5,0,1,0.5,0.00249334,0.995038
+Test failed! (52.7778)
+max threads 4
+time read: 0.310414
+time coo to csr: 0.009461
+mkl optimize time = 0.0268368
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/raefsky3.sorted.mtx,4,21200,21200,1488768,0.0265265,14.3677,17.1185,0.0268368,0.000493599,0.000336705,0.25,0,1,0.25,0.00476165,0.982265
+Test failed! (52.7778)
+max threads 8
+time read: 0.316543
+time coo to csr: 0.009359
+mkl optimize time = 0.0270523
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/raefsky3.sorted.mtx,8,21200,21200,1488768,0.0101513,37.5444,17.1185,0.0270523,0.000542972,0.000162155,0.125,0,1,0.125,0.00398306,0.981271
+Test failed! (52.7778)
+max threads 16
+time read: 0.320977
+time coo to csr: 0.009648
+mkl optimize time = 0.0269859
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/raefsky3.sorted.mtx,16,21200,21200,1488768,0.00638139,59.7243,17.1185,0.0269859,0.000461389,8.2646e-05,0.0625,0,1,0.0625,0.00304414,0.979288
+Test failed! (52.7778)
+max threads 32
+time read: 0.317039
+time coo to csr: 0.009310
+mkl optimize time = 0.0278441
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/raefsky3.sorted.mtx,32,21200,21200,1488768,0.00415596,91.7054,17.1185,0.0278441,0.000402087,6.7577e-05,0.03125,2.35849e-05,0.999246,0.03125,0.00210327,0.97461
+Test failed! (52.7778)
+max threads 64
+time read: 0.311512
+time coo to csr: 0.009708
+mkl optimize time = 0.0286096
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/raefsky3.sorted.mtx,64,21200,21200,1488768,0.00349519,109.043,17.1185,0.0286096,0.00047797,2.7973e-05,0.015625,2.04251e-05,0.997741,0.015625,0.00106255,0.973143
+Test failed! (52.7778)
+max threads 128
+time read: 0.316452
+time coo to csr: 0.010861
+mkl optimize time = 0.030228
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/raefsky3.sorted.mtx,128,21200,21200,1488768,0.00526572,72.3784,17.1185,0.030228,0.00083391,4.1628e-05,0.0078125,2.2836e-05,0.997741,0.0078125,0.000576737,0.973143
+Test failed! (52.7778)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bbmat.sorted.mtx
+max threads 1
+time read: 0.461677
+time coo to csr: 0.012353
+mkl optimize time = 0.0215779
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bbmat.sorted.mtx,1,38744,38744,1771722,0.138615,3.2721,20.4235,0.0215779,0.0012465,0.00110651,1,0,1,1,0,1
+max threads 2
+time read: 0.389350
+time coo to csr: 0.011288
+mkl optimize time = 0.0268707
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bbmat.sorted.mtx,2,38744,38744,1771722,0.0766624,5.91634,20.4235,0.0268707,0.000874145,0.000679971,0.5,0,1,0.5,0.00314609,0.993747
+max threads 4
+time read: 0.384585
+time coo to csr: 0.010899
+mkl optimize time = 0.0269765
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bbmat.sorted.mtx,4,38744,38744,1771722,0.056288,8.05787,20.4235,0.0269765,0.000767394,0.000502877,0.25,0,1,0.25,0.0119708,0.947032
+max threads 8
+time read: 0.388541
+time coo to csr: 0.010814
+mkl optimize time = 0.0269798
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bbmat.sorted.mtx,8,38744,38744,1771722,0.0131362,34.5275,20.4235,0.0269798,0.000681383,0.000192693,0.125,0,1,0.125,0.027551,0.811897
+max threads 16
+time read: 0.391202
+time coo to csr: 0.011408
+mkl optimize time = 0.0268282
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bbmat.sorted.mtx,16,38744,38744,1771722,0.00741165,61.1956,20.4235,0.0268282,0.000503488,9.9227e-05,0.0625,1.29052e-05,0.999794,0.0625,0.0161738,0.799687
+max threads 32
+time read: 0.403409
+time coo to csr: 0.011736
+mkl optimize time = 0.0272175
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bbmat.sorted.mtx,32,38744,38744,1771722,0.0053506,84.7682,20.4235,0.0272175,0.000395825,5.7989e-05,0.03125,1.11763e-05,0.999794,0.03125,0.00867724,0.793327
+max threads 64
+time read: 0.385616
+time coo to csr: 0.011328
+mkl optimize time = 0.0282888
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bbmat.sorted.mtx,64,38744,38744,1771722,0.00392599,115.528,20.4235,0.0282888,0.00039321,3.2171e-05,0.015625,1.24954e-05,0.998969,0.015625,0.00457011,0.743731
+max threads 128
+time read: 0.389435
+time coo to csr: 0.012280
+mkl optimize time = 0.0298591
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bbmat.sorted.mtx,128,38744,38744,1771722,0.00546059,83.0608,20.4235,0.0298591,0.000722711,6.4792e-05,0.0078125,1.19635e-05,0.998969,0.0078125,0.0023951,0.698364
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/conf5_4-8x8-15.real.mtx
+max threads 1
+time read: 0.494916
+time coo to csr: 0.012779
+mkl optimize time = 0.0215276
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/conf5_4-8x8-15.real.mtx,1,49152,49152,1916928,0.146631,3.34673,22.125,0.0215276,0.00131758,0.00116192,1,0,1,1,0,1
+max threads 2
+time read: 0.344528
+time coo to csr: 0.011149
+mkl optimize time = 0.0268939
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/conf5_4-8x8-15.real.mtx,2,49152,49152,1916928,0.0840281,5.84011,22.125,0.0268939,0.000950579,0.000725416,0.5,0,1,0.5,0,1
+max threads 4
+time read: 0.346482
+time coo to csr: 0.011398
+mkl optimize time = 0.0271751
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/conf5_4-8x8-15.real.mtx,4,49152,49152,1916928,0.0732856,6.69618,22.125,0.0271751,0.000797231,0.00064766,0.25,0,1,0.25,0,1
+max threads 8
+time read: 0.342724
+time coo to csr: 0.011583
+mkl optimize time = 0.0271096
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/conf5_4-8x8-15.real.mtx,8,49152,49152,1916928,0.0131832,37.224,22.125,0.0271096,0.000749261,0.000218882,0.125,0,1,0.125,0,1
+max threads 16
+time read: 0.349343
+time coo to csr: 0.011830
+mkl optimize time = 0.0270345
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/conf5_4-8x8-15.real.mtx,16,49152,49152,1916928,0.00820774,59.7891,22.125,0.0270345,0.00058973,0.000211899,0.0625,0,1,0.0625,0,1
+max threads 32
+time read: 0.353388
+time coo to csr: 0.011085
+mkl optimize time = 0.0270872
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/conf5_4-8x8-15.real.mtx,32,49152,49152,1916928,0.0052923,92.7259,22.125,0.0270872,0.000428167,5.7538e-05,0.03125,0,1,0.03125,0,1
+max threads 64
+time read: 0.347010
+time coo to csr: 0.011324
+mkl optimize time = 0.0283173
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/conf5_4-8x8-15.real.mtx,64,49152,49152,1916928,0.00416362,117.862,22.125,0.0283173,0.000403419,3.3273e-05,0.015625,0,1,0.015625,0,1
+max threads 128
+time read: 0.348087
+time coo to csr: 0.012809
+mkl optimize time = 0.0300596
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/conf5_4-8x8-15.real.mtx,128,49152,49152,1916928,0.00546482,89.7987,22.125,0.0300596,0.000788475,4.3302e-05,0.0078125,0,1,0.0078125,0,1
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mc2depi.real.mtx
+max threads 1
+time read: 0.366010
+time coo to csr: 0.013135
+mkl optimize time = 0.0216117
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mc2depi.real.mtx,1,525825,525825,2100225,0.208786,2.57517,26.041,0.0216117,0.00177795,0.0016702,1,0,1,1,0,1
+max threads 2
+time read: 0.251154
+time coo to csr: 0.011958
+mkl optimize time = 0.0267913
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mc2depi.real.mtx,2,525825,525825,2100225,0.148004,3.63273,26.041,0.0267913,0.00139244,0.0011612,0.5,9.50887e-07,0.999998,0.5,7.14209e-07,0.999999
+max threads 4
+time read: 0.246496
+time coo to csr: 0.012475
+mkl optimize time = 0.0270586
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mc2depi.real.mtx,4,525825,525825,2100225,0.151531,3.54817,26.041,0.0270586,0.00138453,0.00120443,0.25,8.23492e-07,0.999994,0.25,0.000121535,0.999513
+max threads 8
+time read: 0.250224
+time coo to csr: 0.011895
+mkl optimize time = 0.0269845
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mc2depi.real.mtx,8,525825,525825,2100225,0.0349805,15.3702,26.041,0.0269845,0.00112499,0.000524177,0.125,6.28952e-07,0.999987,0.125,0.000105047,0.999513
+max threads 16
+time read: 0.248442
+time coo to csr: 0.012083
+mkl optimize time = 0.0271374
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mc2depi.real.mtx,16,525825,525825,2100225,0.0117483,45.7649,26.041,0.0271374,0.000696111,0.000160883,0.0625,4.60346e-07,0.999971,0.0625,6.46041e-05,0.999513
+max threads 32
+time read: 0.248265
+time coo to csr: 0.012321
+mkl optimize time = 0.027351
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mc2depi.real.mtx,32,525825,525825,2100225,0.00759687,70.7735,26.041,0.027351,0.000437364,9.8105e-05,0.03125,3.30895e-07,0.999941,0.03125,3.74019e-05,0.999513
+max threads 64
+time read: 0.259342
+time coo to csr: 0.012197
+mkl optimize time = 0.0276673
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mc2depi.real.mtx,64,525825,525825,2100225,0.00520146,103.367,26.041,0.0276673,0.000434758,6.0174e-05,0.015625,2.35857e-07,0.99988,0.015625,2.08942e-05,0.999513
+max threads 128
+time read: 0.255036
+time coo to csr: 0.013626
+mkl optimize time = 0.0288739
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mc2depi.real.mtx,128,525825,525825,2100225,0.00601115,89.4434,26.041,0.0288739,0.000800718,5.7137e-05,0.0078125,1.67437e-07,0.999759,0.0078125,1.14573e-05,0.999513
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rma10.sorted.mtx
+max threads 1
+time read: 0.547499
+time coo to csr: 0.016613
+mkl optimize time = 0.0226617
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rma10.sorted.mtx,1,46835,46835,2374001,0.186888,3.25192,27.347,0.0226617,0.00162935,0.00147383,1,0,1,1,0,1
+Test failed! (0.00895411)
+max threads 2
+time read: 0.451899
+time coo to csr: 0.014078
+mkl optimize time = 0.0281338
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rma10.sorted.mtx,2,46835,46835,2374001,0.108734,5.5893,27.347,0.0281338,0.00111765,0.000864157,0.5,1.06758e-05,0.999979,0.5,0.0397698,0.926321
+Test failed! (0.00895411)
+max threads 4
+time read: 0.451352
+time coo to csr: 0.013614
+mkl optimize time = 0.027078
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rma10.sorted.mtx,4,46835,46835,2374001,0.103225,5.88757,27.347,0.027078,0.00105129,0.000847305,0.25,9.24549e-06,0.999979,0.25,0.0633224,0.746757
+Test failed! (0.00895411)
+max threads 8
+time read: 0.450662
+time coo to csr: 0.013502
+mkl optimize time = 0.0272154
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rma10.sorted.mtx,8,46835,46835,2374001,0.0184401,32.9578,27.347,0.0272154,0.000920624,0.0002656,0.125,1.03368e-05,0.999893,0.125,0.0374552,0.63768
+Test failed! (0.00895411)
+max threads 16
+time read: 0.462095
+time coo to csr: 0.014066
+mkl optimize time = 0.0274828
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rma10.sorted.mtx,16,46835,46835,2374001,0.00984251,61.7469,27.347,0.0274828,0.00071195,0.000136567,0.0625,8.33378e-06,0.999723,0.0625,0.0222141,0.617211
+Test failed! (0.00895411)
+max threads 32
+time read: 0.462360
+time coo to csr: 0.017224
+mkl optimize time = 0.0275758
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rma10.sorted.mtx,32,46835,46835,2374001,0.00663124,91.6487,27.347,0.0275758,0.00049394,7.0442e-05,0.03125,1.04864e-05,0.999723,0.03125,0.0113215,0.617042
+Test failed! (0.00895411)
+max threads 64
+time read: 0.455402
+time coo to csr: 0.014830
+mkl optimize time = 0.0285645
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rma10.sorted.mtx,64,46835,46835,2374001,0.00470754,129.1,27.347,0.0285645,0.000432875,3.9594e-05,0.015625,8.59026e-06,0.999723,0.015625,0.00578943,0.613607
+Test failed! (0.00895411)
+max threads 128
+time read: 0.455453
+time coo to csr: 0.014817
+mkl optimize time = 0.0301517
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rma10.sorted.mtx,128,46835,46835,2374001,0.00593841,102.341,27.347,0.0301517,0.000512184,4.7941e-05,0.0078125,6.44971e-06,0.999723,0.0078125,0.00301064,0.603681
+Test failed! (0.00895411)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cop20k_A.sorted.mtx
+max threads 1
+time read: 0.262571
+time coo to csr: 0.020066
+mkl optimize time = 0.0217902
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cop20k_A.sorted.mtx,1,121192,121192,2624331,0.261338,2.57073,30.4954,0.0217902,0.0021825,0.00207697,1,0,1,1,0,1
+max threads 2
+time read: 0.239490
+time coo to csr: 0.018251
+mkl optimize time = 0.0269061
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cop20k_A.sorted.mtx,2,121192,121192,2624331,0.150605,4.46087,30.4954,0.0269061,0.00143302,0.00120269,0.5,0,1,0.5,0.00967466,0.981018
+max threads 4
+time read: 0.239189
+time coo to csr: 0.018239
+mkl optimize time = 0.0269883
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cop20k_A.sorted.mtx,4,121192,121192,2624331,0.126298,5.31938,30.4954,0.0269883,0.00120608,0.0010441,0.25,0,1,0.25,0.0745552,0.695351
+max threads 8
+time read: 0.242944
+time coo to csr: 0.018559
+mkl optimize time = 0.0268536
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cop20k_A.sorted.mtx,8,121192,121192,2624331,0.0364551,18.4289,30.4954,0.0268536,0.00106471,0.000513677,0.125,0,1,0.125,0.0582555,0.494926
+max threads 16
+time read: 0.253929
+time coo to csr: 0.018247
+mkl optimize time = 0.0271955
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cop20k_A.sorted.mtx,16,121192,121192,2624331,0.0172339,38.983,30.4954,0.0271955,0.000961851,0.000235253,0.0625,4.12568e-06,0.999934,0.0625,0.0349966,0.479265
+max threads 32
+time read: 0.239841
+time coo to csr: 0.018487
+mkl optimize time = 0.0275653
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cop20k_A.sorted.mtx,32,121192,121192,2624331,0.0109089,61.5852,30.4954,0.0275653,0.000820335,0.000236124,0.03125,3.57295e-06,0.999802,0.03125,0.0179812,0.473037
+max threads 64
+time read: 0.239393
+time coo to csr: 0.018692
+mkl optimize time = 0.0281437
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cop20k_A.sorted.mtx,64,121192,121192,2624331,0.00839291,80.0472,30.4954,0.0281437,0.00080763,7.7907e-05,0.015625,3.99468e-06,0.999802,0.015625,0.00927535,0.468186
+max threads 128
+time read: 0.242942
+time coo to csr: 0.021728
+mkl optimize time = 0.0305421
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cop20k_A.sorted.mtx,128,121192,121192,2624331,0.00708464,94.8289,30.4954,0.0305421,0.000900145,8.0321e-05,0.0078125,3.22061e-06,0.999802,0.0078125,0.00469245,0.464059
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/webbase-1M.sorted.mtx
+max threads 1
+time read: 0.609103
+time coo to csr: 0.019144
+mkl optimize time = 0.0213888
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/webbase-1M.sorted.mtx,1,1000005,1000005,3105536,0.5421,1.46655,39.3548,0.0213888,0.00445625,0.00428849,1,0,1,1,0,1
+max threads 2
+time read: 0.484436
+time coo to csr: 0.017663
+mkl optimize time = 0.039671
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/webbase-1M.sorted.mtx,2,1000005,1000005,3105536,0.337103,2.35838,39.3548,0.039671,0.00307314,0.00269738,0.5,4.99997e-07,0.999999,0.5,0.0357487,0.933273
+max threads 4
+time read: 0.472765
+time coo to csr: 0.018332
+mkl optimize time = 0.0266932
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/webbase-1M.sorted.mtx,4,1000005,1000005,3105536,0.293097,2.71247,39.3548,0.0266932,0.0025862,0.00230597,0.25,4.33011e-07,0.999997,0.25,0.0692637,0.723957
+max threads 8
+time read: 0.472632
+time coo to csr: 0.018557
+mkl optimize time = 0.0269633
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/webbase-1M.sorted.mtx,8,1000005,1000005,3105536,0.252818,3.14462,39.3548,0.0269633,0.00226058,0.00205353,0.125,4.8412e-07,0.999997,0.125,0.0515419,0.510152
+max threads 16
+time read: 0.490723
+time coo to csr: 0.018911
+mkl optimize time = 0.027452
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/webbase-1M.sorted.mtx,16,1000005,1000005,3105536,0.0384952,20.6524,39.3548,0.027452,0.0014882,0.000513998,0.0625,4.6351e-07,0.999989,0.0625,0.0340153,0.360569
+max threads 32
+time read: 0.500375
+time coo to csr: 0.017551
+mkl optimize time = 0.0278899
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/webbase-1M.sorted.mtx,32,1000005,1000005,3105536,0.0206566,38.4874,39.3548,0.0278899,0.000750362,0.000183536,0.03125,3.6309e-07,0.999973,0.03125,0.0199213,0.247414
+max threads 64
+time read: 0.486583
+time coo to csr: 0.017959
+mkl optimize time = 0.0280391
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/webbase-1M.sorted.mtx,64,1000005,1000005,3105536,0.0103889,76.5253,39.3548,0.0280391,0.000699997,0.000103595,0.015625,2.68367e-07,0.999941,0.015625,0.0105968,0.191276
+max threads 128
+time read: 0.493871
+time coo to csr: 0.020909
+mkl optimize time = 0.0317885
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/webbase-1M.sorted.mtx,128,1000005,1000005,3105536,0.00792687,100.294,39.3548,0.0317885,0.0010171,8.2756e-05,0.0078125,4.98469e-07,0.999941,0.0078125,0.00574247,0.145871
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cant.sorted.mtx
+max threads 1
+time read: 0.515211
+time coo to csr: 0.022756
+mkl optimize time = 0.0218992
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cant.sorted.mtx,1,62451,62451,4007383,0.295835,3.46778,46.0991,0.0218992,0.0025379,0.00231862,1,0,1,1,0,1
+Test failed! (5)
+max threads 2
+time read: 0.424222
+time coo to csr: 0.019926
+mkl optimize time = 0.0270631
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cant.sorted.mtx,2,62451,62451,4007383,0.181625,5.6484,46.0991,0.0270631,0.00170615,0.00141427,0.5,8.00628e-06,0.999984,0.5,0.00199669,0.996023
+Test failed! (5)
+max threads 4
+time read: 0.414832
+time coo to csr: 0.020182
+mkl optimize time = 0.0269904
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cant.sorted.mtx,4,62451,62451,4007383,0.179968,5.7004,46.0991,0.0269904,0.00169779,0.00140862,0.25,6.93364e-06,0.999984,0.25,0.00222443,0.992998
+Test failed! (5)
+max threads 8
+time read: 0.417675
+time coo to csr: 0.020248
+mkl optimize time = 0.0270502
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cant.sorted.mtx,8,62451,62451,4007383,0.157407,6.51743,46.0991,0.0270502,0.00170082,0.00146306,0.125,7.75204e-06,0.99992,0.125,0.00177422,0.99267
+Test failed! (5)
+max threads 16
+time read: 0.413418
+time coo to csr: 0.019507
+mkl optimize time = 0.0270387
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cant.sorted.mtx,16,62451,62451,4007383,0.0145194,70.6566,46.0991,0.0270387,0.00117573,0.000246243,0.0625,6.2499e-06,0.999792,0.0625,0.00129345,0.991856
+Test failed! (5)
+max threads 32
+time read: 0.416202
+time coo to csr: 0.018871
+mkl optimize time = 0.0274404
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cant.sorted.mtx,32,62451,62451,4007383,0.00951021,107.873,46.0991,0.0274404,0.000645354,0.000113013,0.03125,7.86428e-06,0.999792,0.03125,0.00093091,0.989692
+Test failed! (5)
+max threads 64
+time read: 0.413722
+time coo to csr: 0.047923
+mkl optimize time = 0.0290771
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cant.sorted.mtx,64,62451,62451,4007383,0.00677653,151.389,46.0991,0.0290771,0.000502014,6.1716e-05,0.015625,6.44225e-06,0.999792,0.015625,0.000663825,0.986519
+Test failed! (5)
+max threads 128
+time read: 0.408837
+time coo to csr: 0.020848
+mkl optimize time = 0.0298583
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cant.sorted.mtx,128,62451,62451,4007383,0.00693292,147.974,46.0991,0.0298583,0.000868594,6.1596e-05,0.0078125,4.83695e-06,0.999792,0.0078125,0.000470617,0.980234
+Test failed! (5)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pdb1HYS.sorted.mtx
+max threads 1
+time read: 0.503295
+time coo to csr: 0.027276
+mkl optimize time = 0.0216305
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pdb1HYS.sorted.mtx,1,36417,36417,4344765,0.333126,3.33886,49.8608,0.0216305,0.00279022,0.00260984,1,0,1,1,0,1
+Test failed! (0.000391891)
+max threads 2
+time read: 0.431076
+time coo to csr: 0.024813
+mkl optimize time = 0.0268341
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pdb1HYS.sorted.mtx,2,36417,36417,4344765,0.196578,5.65812,49.8608,0.0268341,0.00180288,0.00153286,0.5,1.37299e-05,0.999973,0.5,0.00161516,0.99678
+Test failed! (0.000391891)
+max threads 4
+time read: 0.429958
+time coo to csr: 0.024377
+mkl optimize time = 0.0268201
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pdb1HYS.sorted.mtx,4,36417,36417,4344765,0.190924,5.82566,49.8608,0.0268201,0.00176845,0.00149433,0.25,1.18904e-05,0.999918,0.25,0.00404379,0.98191
+Test failed! (0.000391891)
+max threads 8
+time read: 0.432840
+time coo to csr: 0.025023
+mkl optimize time = 0.0272168
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pdb1HYS.sorted.mtx,8,36417,36417,4344765,0.179594,6.19318,49.8608,0.0272168,0.0017894,0.00157945,0.125,9.08144e-06,0.999808,0.125,0.00343662,0.958904
+Test failed! (0.000391891)
+max threads 16
+time read: 0.428472
+time coo to csr: 0.024148
+mkl optimize time = 0.0274828
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pdb1HYS.sorted.mtx,16,36417,36417,4344765,0.0161394,68.9158,49.8608,0.0274828,0.00130997,0.000243839,0.0625,6.64694e-06,0.999588,0.0625,0.0026689,0.920629
+Test failed! (0.000391891)
+max threads 32
+time read: 0.430264
+time coo to csr: 0.022842
+mkl optimize time = 0.0276109
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pdb1HYS.sorted.mtx,32,36417,36417,4344765,0.0101224,109.881,49.8608,0.0276109,0.00065887,0.000123302,0.03125,4.77779e-06,0.999149,0.03125,0.00176239,0.90238
+Test failed! (0.000391891)
+max threads 64
+time read: 0.431909
+time coo to csr: 0.023781
+mkl optimize time = 0.0283167
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pdb1HYS.sorted.mtx,64,36417,36417,4344765,0.00722464,153.954,49.8608,0.0283167,0.00054769,6.8389e-05,0.015625,3.40554e-06,0.998273,0.015625,0.00131817,0.831744
+Test failed! (0.000391891)
+max threads 128
+time read: 0.432817
+time coo to csr: 0.026253
+mkl optimize time = 0.0308959
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pdb1HYS.sorted.mtx,128,36417,36417,4344765,0.00731616,152.028,49.8608,0.0308959,0.000843777,6.399e-05,0.0078125,1.37282e-05,0.998273,0.0078125,0.000865728,0.811792
+Test failed! (0.000391891)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b300_c3.sorted.mtx
+max threads 1
+time read: 1.237053
+time coo to csr: 0.028135
+mkl optimize time = 0.0340303
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b300_c3.sorted.mtx,1,42138,42138,4413449,0.325142,3.47492,50.6687,0.0340303,0.00274434,0.00254221,1,0,1,1,0,1
+Test failed! (0.888889)
+max threads 2
+time read: 0.987661
+time coo to csr: 0.025854
+mkl optimize time = 0.0396285
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b300_c3.sorted.mtx,2,42138,42138,4413449,0.195185,5.78856,50.6687,0.0396285,0.00181919,0.00152743,0.5,0,1,0.5,0.480541,0.509922
+Test failed! (0.888889)
+max threads 4
+time read: 0.983499
+time coo to csr: 0.026127
+mkl optimize time = 0.0393301
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b300_c3.sorted.mtx,4,42138,42138,4413449,0.19398,5.82453,50.6687,0.0393301,0.0017759,0.00151403,0.25,1.18658e-05,0.999953,0.25,0.240346,0.501178
+Test failed! (0.888889)
+max threads 8
+time read: 1.005557
+time coo to csr: 0.025802
+mkl optimize time = 0.0392416
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b300_c3.sorted.mtx,8,42138,42138,4413449,0.186596,6.05503,50.6687,0.0392416,0.00180926,0.00161609,0.125,1.02761e-05,0.999858,0.125,0.120249,0.501162
+Test failed! (0.888889)
+max threads 16
+time read: 0.982331
+time coo to csr: 0.025568
+mkl optimize time = 0.0395404
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b300_c3.sorted.mtx,16,42138,42138,4413449,0.0161857,69.8051,50.6687,0.0395404,0.00138184,0.000251353,0.0625,1.1489e-05,0.999858,0.0625,0.0601984,0.501067
+Test failed! (0.888889)
+max threads 32
+time read: 0.985811
+time coo to csr: 0.024707
+mkl optimize time = 0.0400953
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b300_c3.sorted.mtx,32,42138,42138,4413449,0.0105399,107.197,50.6687,0.0400953,0.000714845,0.00013804,0.03125,9.26272e-06,0.999858,0.03125,0.0301743,0.501067
+Test failed! (0.888889)
+max threads 64
+time read: 0.984539
+time coo to csr: 0.028604
+mkl optimize time = 0.0405921
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b300_c3.sorted.mtx,64,42138,42138,4413449,0.00754331,149.781,50.6687,0.0405921,0.000517384,9.2203e-05,0.015625,1.16553e-05,0.999099,0.015625,0.0151541,0.501448
+Test failed! (0.888889)
+max threads 128
+time read: 1.021778
+time coo to csr: 0.027608
+mkl optimize time = 0.0426918
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b300_c3.sorted.mtx,128,42138,42138,4413449,0.00721081,156.687,50.6687,0.0426918,0.000890805,7.3588e-05,0.0078125,9.54779e-06,0.997585,0.0078125,0.00762747,0.501448
+Test failed! (0.888889)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Chebyshev4.sorted.mtx
+max threads 1
+time read: 1.539666
+time coo to csr: 0.033343
+mkl optimize time = 0.0339062
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Chebyshev4.sorted.mtx,1,68121,68121,5377761,0.409126,3.36499,61.8035,0.0339062,0.00337705,0.00320909,1,0,1,1,0,1
+Test failed! (0.0063166)
+max threads 2
+time read: 1.303075
+time coo to csr: 0.030726
+mkl optimize time = 0.0389487
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Chebyshev4.sorted.mtx,2,68121,68121,5377761,0.243735,5.64839,61.8035,0.0389487,0.00214952,0.00190864,0.5,7.33988e-06,0.999985,0.5,0.221695,0.692813
+Test failed! (0.0063166)
+max threads 4
+time read: 1.279375
+time coo to csr: 0.030978
+mkl optimize time = 0.039749
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Chebyshev4.sorted.mtx,4,68121,68121,5377761,0.238954,5.76138,61.8035,0.039749,0.00211104,0.00187303,0.25,6.35652e-06,0.999956,0.25,0.191248,0.43011
+Test failed! (0.0063166)
+max threads 8
+time read: 1.321618
+time coo to csr: 0.030947
+mkl optimize time = 0.0395728
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Chebyshev4.sorted.mtx,8,68121,68121,5377761,0.244368,5.63375,61.8035,0.0395728,0.002194,0.00196991,0.125,4.85487e-06,0.999897,0.125,0.145729,0.244834
+Test failed! (0.0063166)
+max threads 16
+time read: 1.279741
+time coo to csr: 0.029581
+mkl optimize time = 0.0405836
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Chebyshev4.sorted.mtx,16,68121,68121,5377761,0.0291092,47.2946,61.8035,0.0405836,0.00171524,0.000592094,0.0625,7.28231e-06,0.999897,0.0625,0.106684,0.131393
+Test failed! (0.0063166)
+max threads 32
+time read: 1.336379
+time coo to csr: 0.029085
+mkl optimize time = 0.0399577
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Chebyshev4.sorted.mtx,32,68121,68121,5377761,0.0167411,82.2354,61.8035,0.0399577,0.000870968,0.000238809,0.03125,6.06859e-06,0.999897,0.03125,0.0766904,0.0681968
+Test failed! (0.0063166)
+max threads 64
+time read: 1.279048
+time coo to csr: 0.030121
+mkl optimize time = 0.0413396
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Chebyshev4.sorted.mtx,64,68121,68121,5377761,0.0126326,108.98,61.8035,0.0413396,0.000666724,0.000190388,0.015625,7.16212e-06,0.999428,0.015625,0.0547223,0.0347254
+Test failed! (0.0063166)
+max threads 128
+time read: 1.322111
+time coo to csr: 0.030203
+mkl optimize time = 0.0432136
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Chebyshev4.sorted.mtx,128,68121,68121,5377761,0.0111522,123.447,61.8035,0.0432136,0.00104047,0.000112121,0.0078125,5.81966e-06,0.99849,0.0078125,0.0281256,0.0281968
+Test failed! (0.0063166)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/consph.sorted.mtx
+max threads 1
+time read: 0.754252
+time coo to csr: 0.033425
+mkl optimize time = 0.0215808
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/consph.sorted.mtx,1,83334,83334,6010480,0.44773,3.43663,69.1024,0.0215808,0.00372578,0.00350678,1,0,1,1,0,1
+Test failed! (148.846)
+max threads 2
+time read: 0.626392
+time coo to csr: 0.030411
+mkl optimize time = 0.038939
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/consph.sorted.mtx,2,83334,83334,6010480,0.271923,5.65853,69.1024,0.038939,0.00247224,0.00213233,0.5,0,1,0.5,0.00220332,0.995613
+Test failed! (148.846)
+max threads 4
+time read: 0.628873
+time coo to csr: 0.029859
+mkl optimize time = 0.0269783
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/consph.sorted.mtx,4,83334,83334,6010480,0.268316,5.73459,69.1024,0.0269783,0.00241959,0.00209876,0.25,5.99995e-06,0.999976,0.25,0.00355516,0.977124
+Test failed! (148.846)
+max threads 8
+time read: 0.626630
+time coo to csr: 0.031484
+mkl optimize time = 0.0268224
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/consph.sorted.mtx,8,83334,83334,6010480,0.276266,5.56956,69.1024,0.0268224,0.00244971,0.00223612,0.125,5.19611e-06,0.999976,0.125,0.00364694,0.973453
+Test failed! (148.846)
+max threads 16
+time read: 0.620949
+time coo to csr: 0.029793
+mkl optimize time = 0.0269677
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/consph.sorted.mtx,16,83334,83334,6010480,0.0627998,24.5014,69.1024,0.0269677,0.00197282,0.000841593,0.0625,5.80943e-06,0.99988,0.0625,0.00306292,0.97291
+Test failed! (148.846)
+max threads 32
+time read: 0.633287
+time coo to csr: 0.028456
+mkl optimize time = 0.0275949
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/consph.sorted.mtx,32,83334,83334,6010480,0.013161,116.912,69.1024,0.0275949,0.00100621,0.000218321,0.03125,4.68371e-06,0.999688,0.03125,0.00231843,0.973114
+Test failed! (148.846)
+max threads 64
+time read: 0.630248
+time coo to csr: 0.028567
+mkl optimize time = 0.0284177
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/consph.sorted.mtx,64,83334,83334,6010480,0.00941598,163.412,69.1024,0.0284177,0.000603265,0.000128812,0.015625,3.49774e-06,0.999304,0.015625,0.00125812,0.933768
+Test failed! (148.846)
+max threads 128
+time read: 0.621039
+time coo to csr: 0.031183
+mkl optimize time = 0.0303449
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/consph.sorted.mtx,128,83334,83334,6010480,0.00854302,180.11,69.1024,0.0303449,0.0010622,6.8208e-05,0.0078125,2.53643e-06,0.998538,0.0078125,0.000759724,0.927818
+Test failed! (148.846)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/shipsec1.sorted.mtx
+max threads 1
+time read: 0.798285
+time coo to csr: 0.040894
+mkl optimize time = 0.021555
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/shipsec1.sorted.mtx,1,140874,140874,7813404,0.582154,3.43591,89.9547,0.021555,0.00478524,0.0045579,1,0,1,1,0,1
+Test failed! (1241)
+max threads 2
+time read: 0.585796
+time coo to csr: 0.036743
+mkl optimize time = 0.039065
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/shipsec1.sorted.mtx,2,140874,140874,7813404,0.354458,5.64307,89.9547,0.039065,0.00310785,0.00277397,0.5,0,1,0.5,0.00803542,0.984183
+Test failed! (1241)
+max threads 4
+time read: 0.586569
+time coo to csr: 0.037377
+mkl optimize time = 0.0387042
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/shipsec1.sorted.mtx,4,140874,140874,7813404,0.35173,5.68684,89.9547,0.0387042,0.00307943,0.00275755,0.25,3.54927e-06,0.999986,0.25,0.00476501,0.978376
+Test failed! (1241)
+max threads 8
+time read: 0.574347
+time coo to csr: 0.037594
+mkl optimize time = 0.0396704
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/shipsec1.sorted.mtx,8,140874,140874,7813404,0.362915,5.51157,89.9547,0.0396704,0.00318896,0.00285989,0.125,3.07376e-06,0.999957,0.125,0.00283873,0.960299
+Test failed! (1241)
+max threads 16
+time read: 0.586776
+time coo to csr: 0.037094
+mkl optimize time = 0.0407171
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/shipsec1.sorted.mtx,16,140874,140874,7813404,0.26333,7.59591,89.9547,0.0407171,0.00271484,0.00238066,0.0625,3.43657e-06,0.999957,0.0625,0.00153525,0.953263
+Test failed! (1241)
+max threads 32
+time read: 0.582899
+time coo to csr: 0.033852
+mkl optimize time = 0.0276238
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/shipsec1.sorted.mtx,32,140874,140874,7813404,0.0166155,120.384,89.9547,0.0276238,0.00129189,0.000230534,0.03125,3.29026e-06,0.999844,0.03125,0.00109467,0.925555
+Test failed! (1241)
+max threads 64
+time read: 0.575121
+time coo to csr: 0.034077
+mkl optimize time = 0.0283949
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/shipsec1.sorted.mtx,64,140874,140874,7813404,0.0115291,173.494,89.9547,0.0283949,0.000662336,0.000124144,0.015625,2.57743e-06,0.999617,0.015625,0.000732687,0.886906
+Test failed! (1241)
+max threads 128
+time read: 0.583776
+time coo to csr: 0.035922
+mkl optimize time = 0.0302875
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/shipsec1.sorted.mtx,128,140874,140874,7813404,0.00943821,211.929,89.9547,0.0302875,0.00114799,8.5381e-05,0.0078125,3.50568e-06,0.999617,0.0078125,0.000464363,0.835279
+Test failed! (1241)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/PR02R.sorted.mtx
+max threads 1
+time read: 2.282186
+time coo to csr: 0.044912
+mkl optimize time = 0.033982
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/PR02R.sorted.mtx,1,161070,161070,8185136,0.605934,3.45813,94.2859,0.033982,0.00492533,0.00477012,1,0,1,1,0,1
+Test failed! (3.8147e-05)
+max threads 2
+time read: 1.903397
+time coo to csr: 0.041886
+mkl optimize time = 0.0393199
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/PR02R.sorted.mtx,2,161070,161070,8185136,0.368786,5.68187,94.2859,0.0393199,0.00317178,0.00287713,0.5,0,1,0.5,7.57471e-06,0.999985
+Test failed! (3.8147e-05)
+max threads 4
+time read: 1.958474
+time coo to csr: 0.042226
+mkl optimize time = 0.0394818
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/PR02R.sorted.mtx,4,161070,161070,8185136,0.367819,5.69681,94.2859,0.0394818,0.00315755,0.00287706,0.25,3.10424e-06,0.999988,0.25,0.000282633,0.998826
+Test failed! (3.8147e-05)
+max threads 8
+time read: 1.905582
+time coo to csr: 0.041539
+mkl optimize time = 0.0395634
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/PR02R.sorted.mtx,8,161070,161070,8185136,0.380407,5.5083,94.2859,0.0395634,0.0032701,0.00299597,0.125,2.68835e-06,0.999988,0.125,0.00191265,0.984972
+Test failed! (3.8147e-05)
+max threads 16
+time read: 1.893829
+time coo to csr: 0.041103
+mkl optimize time = 0.0398125
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/PR02R.sorted.mtx,16,161070,161070,8185136,0.281446,7.44509,94.2859,0.0398125,0.00296259,0.00244839,0.0625,2.05326e-06,0.999988,0.0625,0.00165303,0.984972
+Test failed! (3.8147e-05)
+max threads 32
+time read: 1.874485
+time coo to csr: 0.038426
+mkl optimize time = 0.0400527
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/PR02R.sorted.mtx,32,161070,161070,8185136,0.0168968,124.011,94.2859,0.0400527,0.00134956,0.00029942,0.03125,3.07989e-06,0.999888,0.03125,0.00126239,0.984847
+Test failed! (3.8147e-05)
+max threads 64
+time read: 1.883051
+time coo to csr: 0.038442
+mkl optimize time = 0.0415257
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/PR02R.sorted.mtx,64,161070,161070,8185136,0.0127241,164.679,94.2859,0.0415257,0.000758759,0.000157194,0.015625,2.79139e-06,0.999888,0.015625,0.000923538,0.984828
+Test failed! (3.8147e-05)
+max threads 128
+time read: 1.929956
+time coo to csr: 0.041231
+mkl optimize time = 0.0420621
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/PR02R.sorted.mtx,128,161070,161070,8185136,0.00980782,213.645,94.2859,0.0420621,0.00130807,8.9217e-05,0.0078125,2.97894e-06,0.999491,0.0078125,0.000596658,0.983927
+Test failed! (3.8147e-05)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mip1.sorted.mtx
+max threads 1
+time read: 0.529371
+time coo to csr: 0.065942
+mkl optimize time = 0.0212549
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mip1.sorted.mtx,1,66463,66463,10352819,0.751935,3.52467,118.732,0.0212549,0.00614139,0.00589023,1,0,1,1,0,1
+max threads 2
+time read: 0.386576
+time coo to csr: 0.062374
+mkl optimize time = 0.0395483
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mip1.sorted.mtx,2,66463,66463,10352819,0.450258,5.88623,118.732,0.0395483,0.00382439,0.00353094,0.5,7.52298e-06,0.999985,0.5,0.235474,0.679834
+max threads 4
+time read: 0.389550
+time coo to csr: 0.062067
+mkl optimize time = 0.0268459
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mip1.sorted.mtx,4,66463,66463,10352819,0.449257,5.89935,118.732,0.0268459,0.00377372,0.00351262,0.25,6.51509e-06,0.999985,0.25,0.174751,0.456198
+max threads 8
+time read: 0.385887
+time coo to csr: 0.061777
+mkl optimize time = 0.0279924
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mip1.sorted.mtx,8,66463,66463,10352819,0.460297,5.75785,118.732,0.0279924,0.00393396,0.00363025,0.125,4.97599e-06,0.999985,0.125,0.0893517,0.411469
+max threads 16
+time read: 0.395743
+time coo to csr: 0.061068
+mkl optimize time = 0.0275697
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mip1.sorted.mtx,16,66463,66463,10352819,0.380626,6.96307,118.732,0.0275697,0.0033854,0.00303122,0.0625,3.64205e-06,0.999985,0.0625,0.0496717,0.324859
+max threads 32
+time read: 0.386314
+time coo to csr: 0.057960
+mkl optimize time = 0.0281857
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mip1.sorted.mtx,32,66463,66463,10352819,0.0233448,113.53,118.732,0.0281857,0.00170612,0.000358214,0.03125,2.61789e-06,0.999985,0.03125,0.0268256,0.312097
+max threads 64
+time read: 0.387340
+time coo to csr: 0.057886
+mkl optimize time = 0.0288364
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mip1.sorted.mtx,64,66463,66463,10352819,0.0153133,173.073,118.732,0.0288364,0.000851834,0.00018114,0.015625,7.51931e-06,0.999504,0.015625,0.0155229,0.311073
+max threads 128
+time read: 0.386939
+time coo to csr: 0.064945
+mkl optimize time = 0.0303891
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/mip1.sorted.mtx,128,66463,66463,10352819,0.011238,235.836,118.732,0.0303891,0.000987829,0.000125567,0.0078125,6.4458e-06,0.998543,0.0078125,0.00917716,0.218571
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rail4284.real.mtx
+max threads 1
+time read: 1.529445
+time coo to csr: 0.070449
+mkl optimize time = 0.0334183
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rail4284.real.mtx,1,4284,1096894,11284032,1.59211,1.8144,129.152,0.0334183,0.0126625,0.0125168,1,0,1,1,0,1
+max threads 2
+time read: 1.213881
+time coo to csr: 0.065639
+mkl optimize time = 0.0391413
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rail4284.real.mtx,2,4284,1096894,11284032,0.87006,3.32013,129.152,0.0391413,0.00728317,0.00682766,0.5,0,1,0.5,0.000740338,0.998522
+max threads 4
+time read: 1.205534
+time coo to csr: 0.066108
+mkl optimize time = 0.0396756
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rail4284.real.mtx,4,4284,1096894,11284032,0.628052,4.59948,129.152,0.0396756,0.00572991,0.00497944,0.25,0,1,0.25,0.120223,0.60838
+max threads 8
+time read: 1.202473
+time coo to csr: 0.065662
+mkl optimize time = 0.0391935
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rail4284.real.mtx,8,4284,1096894,11284032,0.595303,4.85251,129.152,0.0391935,0.00553981,0.00474933,0.125,0.000116713,0.999067,0.125,0.0651857,0.509085
+max threads 16
+time read: 1.278396
+time coo to csr: 0.065699
+mkl optimize time = 0.0401505
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rail4284.real.mtx,16,4284,1096894,11284032,0.486134,5.94222,129.152,0.0401505,0.00492097,0.00400321,0.0625,0.000101077,0.999067,0.0625,0.0391055,0.391051
+max threads 32
+time read: 1.225076
+time coo to csr: 0.061244
+mkl optimize time = 0.0396858
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rail4284.real.mtx,32,4284,1096894,11284032,0.234122,12.3385,129.152,0.0396858,0.00318875,0.00190763,0.03125,7.71986e-05,0.999067,0.03125,0.0218969,0.3177
+max threads 64
+time read: 1.212031
+time coo to csr: 0.059413
+mkl optimize time = 0.0410025
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rail4284.real.mtx,64,4284,1096894,11284032,0.0315121,91.6698,129.152,0.0410025,0.00202762,0.00050458,0.015625,5.65036e-05,0.999067,0.015625,0.0126043,0.218653
+max threads 128
+time read: 1.186371
+time coo to csr: 0.062175
+mkl optimize time = 0.0432884
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rail4284.real.mtx,128,4284,1096894,11284032,0.0182041,158.685,129.152,0.0432884,0.00219634,0.000482869,0.0078125,0.000116485,0.984375,0.0078125,0.00691814,0.205753
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pwtk.sorted.mtx
+max threads 1
+time read: 1.398154
+time coo to csr: 0.058184
+mkl optimize time = 0.0333021
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pwtk.sorted.mtx,1,217918,217918,11634424,0.863432,3.4495,133.977,0.0333021,0.00701752,0.00676302,1,0,1,1,0,1
+Test failed! (3.99933)
+max threads 2
+time read: 1.170214
+time coo to csr: 0.053685
+mkl optimize time = 0.0398612
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pwtk.sorted.mtx,2,217918,217918,11634424,0.523827,5.68587,133.977,0.0398612,0.0044046,0.00412679,0.5,0,1,0.5,0.00212413,0.99577
+Test failed! (3.99933)
+max threads 4
+time read: 1.183899
+time coo to csr: 0.053132
+mkl optimize time = 0.0389968
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pwtk.sorted.mtx,4,217918,217918,11634424,0.522563,5.69963,133.977,0.0389968,0.00441443,0.00407596,0.25,2.29444e-06,0.999991,0.25,0.00270244,0.990658
+Test failed! (3.99933)
+max threads 8
+time read: 1.185916
+time coo to csr: 0.053643
+mkl optimize time = 0.0393337
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pwtk.sorted.mtx,8,217918,217918,11634424,0.536266,5.55398,133.977,0.0393337,0.004572,0.00422269,0.125,1.98704e-06,0.999991,0.125,0.0016022,0.988311
+Test failed! (3.99933)
+max threads 16
+time read: 1.191997
+time coo to csr: 0.052798
+mkl optimize time = 0.0401365
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pwtk.sorted.mtx,16,217918,217918,11634424,0.460413,6.46901,133.977,0.0401365,0.0038633,0.00366935,0.0625,1.51763e-06,0.999991,0.0625,0.00100424,0.98814
+Test failed! (3.99933)
+max threads 32
+time read: 1.194991
+time coo to csr: 0.049592
+mkl optimize time = 0.0400913
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pwtk.sorted.mtx,32,217918,217918,11634424,0.0404846,73.569,133.977,0.0400913,0.00203993,0.000954727,0.03125,1.11079e-06,0.999991,0.03125,0.000608786,0.956783
+Test failed! (3.99933)
+max threads 64
+time read: 1.190638
+time coo to csr: 0.048421
+mkl optimize time = 0.0408866
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pwtk.sorted.mtx,64,217918,217918,11634424,0.0167389,177.934,133.977,0.0408866,0.000956941,0.000171963,0.015625,7.98432e-07,0.999991,0.015625,0.000410354,0.927366
+Test failed! (3.99933)
+max threads 128
+time read: 1.165583
+time coo to csr: 0.050324
+mkl optimize time = 0.0430246
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/pwtk.sorted.mtx,128,217918,217918,11634424,0.0116577,255.489,133.977,0.0430246,0.00133639,0.000129414,0.0078125,2.29332e-06,0.999697,0.0078125,0.000259416,0.867938
+Test failed! (3.99933)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/crankseg_2.sorted.mtx
+max threads 1
+time read: 1.361829
+time coo to csr: 0.096719
+mkl optimize time = 0.0343259
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/crankseg_2.sorted.mtx,1,63838,63838,14148858,1.04156,3.47759,162.164,0.0343259,0.00838961,0.00815524,1,0,1,1,0,1
+Test failed! (7.62939e-05)
+max threads 2
+time read: 1.245692
+time coo to csr: 0.091529
+mkl optimize time = 0.0385327
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/crankseg_2.sorted.mtx,2,63838,63838,14148858,0.6242,5.8028,162.164,0.0385327,0.00523435,0.00487375,0.5,0,1,0.5,0.0655483,0.884098
+Test failed! (7.62939e-05)
+max threads 4
+time read: 1.225961
+time coo to csr: 0.090608
+mkl optimize time = 0.039724
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/crankseg_2.sorted.mtx,4,63838,63838,14148858,0.614146,5.8978,162.164,0.039724,0.00512067,0.00480272,0.25,7.83233e-06,0.999969,0.25,0.0495983,0.803742
+Test failed! (7.62939e-05)
+max threads 8
+time read: 1.204224
+time coo to csr: 0.091322
+mkl optimize time = 0.0391397
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/crankseg_2.sorted.mtx,8,63838,63838,14148858,0.622178,5.82166,162.164,0.0391397,0.00529947,0.00487081,0.125,6.78299e-06,0.999969,0.125,0.0317055,0.651461
+Test failed! (7.62939e-05)
+max threads 16
+time read: 1.246223
+time coo to csr: 0.090189
+mkl optimize time = 0.0403082
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/crankseg_2.sorted.mtx,16,63838,63838,14148858,0.525319,6.89507,162.164,0.0403082,0.00456671,0.00414378,0.0625,5.1806e-06,0.999969,0.0625,0.0167151,0.648876
+Test failed! (7.62939e-05)
+max threads 32
+time read: 1.246610
+time coo to csr: 0.085032
+mkl optimize time = 0.0397988
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/crankseg_2.sorted.mtx,32,63838,63838,14148858,0.191724,18.8923,162.164,0.0397988,0.00264356,0.0018396,0.03125,3.79181e-06,0.999969,0.03125,0.00875854,0.560819
+Test failed! (7.62939e-05)
+max threads 64
+time read: 1.245585
+time coo to csr: 0.082856
+mkl optimize time = 0.0412103
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/crankseg_2.sorted.mtx,64,63838,63838,14148858,0.0214011,169.249,162.164,0.0412103,0.00131989,0.000254479,0.015625,7.81701e-06,0.999468,0.015625,0.00474789,0.51335
+Test failed! (7.62939e-05)
+max threads 128
+time read: 1.207727
+time coo to csr: 0.094793
+mkl optimize time = 0.0431915
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/crankseg_2.sorted.mtx,128,63838,63838,14148858,0.0140382,258.019,162.164,0.0431915,0.00172071,0.000145254,0.0078125,6.91854e-06,0.999468,0.0078125,0.00245534,0.510922
+Test failed! (7.62939e-05)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Si41Ge41H72.sorted.mtx
+max threads 1
+time read: 2.162978
+time coo to csr: 0.102130
+mkl optimize time = 0.033747
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Si41Ge41H72.sorted.mtx,1,185639,185639,15011265,1.14229,3.36418,172.498,0.033747,0.00925448,0.00894202,1,0,1,1,0,1
+max threads 2
+time read: 1.582360
+time coo to csr: 0.096942
+mkl optimize time = 0.0396528
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Si41Ge41H72.sorted.mtx,2,185639,185639,15011265,0.682506,5.63055,172.498,0.0396528,0.00571079,0.0053178,0.5,2.6934e-06,0.999995,0.5,0.015557,0.969825
+max threads 4
+time read: 1.627918
+time coo to csr: 0.095720
+mkl optimize time = 0.039835
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Si41Ge41H72.sorted.mtx,4,185639,185639,15011265,0.670087,5.7349,172.498,0.039835,0.00560773,0.00524769,0.25,2.33255e-06,0.999995,0.25,0.0793745,0.736587
+max threads 8
+time read: 1.586535
+time coo to csr: 0.096478
+mkl optimize time = 0.0394329
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Si41Ge41H72.sorted.mtx,8,185639,185639,15011265,0.679744,5.65343,172.498,0.0394329,0.00577077,0.00535728,0.125,1.78152e-06,0.999995,0.125,0.0446937,0.694464
+max threads 16
+time read: 1.579165
+time coo to csr: 0.096006
+mkl optimize time = 0.039872
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Si41Ge41H72.sorted.mtx,16,185639,185639,15011265,0.573195,6.70432,172.498,0.039872,0.0049303,0.00451473,0.0625,2.67227e-06,0.999952,0.0625,0.022848,0.689033
+max threads 32
+time read: 1.613834
+time coo to csr: 0.091421
+mkl optimize time = 0.0403688
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Si41Ge41H72.sorted.mtx,32,185639,185639,15011265,0.239558,16.0416,172.498,0.0403688,0.00272921,0.00232252,0.03125,2.2269e-06,0.999865,0.03125,0.0117884,0.623656
+max threads 64
+time read: 1.592064
+time coo to csr: 0.093447
+mkl optimize time = 0.040989
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Si41Ge41H72.sorted.mtx,64,185639,185639,15011265,0.0238011,161.458,172.498,0.040989,0.00124115,0.000246464,0.015625,2.62817e-06,0.999865,0.015625,0.00621234,0.546133
+max threads 128
+time read: 1.584983
+time coo to csr: 0.103749
+mkl optimize time = 0.0430221
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Si41Ge41H72.sorted.mtx,128,185639,185639,15011265,0.0144464,266.009,172.498,0.0430221,0.00169539,0.00014312,0.0078125,2.47941e-06,0.999521,0.0078125,0.00400614,0.50167
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b2383.sorted.mtx
+max threads 1
+time read: 4.660378
+time coo to csr: 0.099845
+mkl optimize time = 0.0338237
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b2383.sorted.mtx,1,38120,38120,16171169,1.15828,3.57412,185.21,0.0338237,0.009272,0.00908488,1,0,1,1,0,1
+Test failed! (3.03165e-08)
+max threads 2
+time read: 3.657423
+time coo to csr: 0.092364
+mkl optimize time = 0.0396407
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b2383.sorted.mtx,2,38120,38120,16171169,0.689301,6.00583,185.21,0.0396407,0.00568515,0.00540345,0.5,0,1,0.5,0.494521,0.502755
+Test failed! (3.03165e-08)
+max threads 4
+time read: 3.622434
+time coo to csr: 0.091905
+mkl optimize time = 0.0394946
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b2383.sorted.mtx,4,38120,38120,16171169,0.68588,6.03578,185.21,0.0394946,0.00563515,0.00535116,0.25,0,1,0.25,0.253975,0.431554
+Test failed! (3.03165e-08)
+max threads 8
+time read: 3.659400
+time coo to csr: 0.092839
+mkl optimize time = 0.0396362
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b2383.sorted.mtx,8,38120,38120,16171169,0.708045,5.84683,185.21,0.0396362,0.00586774,0.00555527,0.125,0,1,0.125,0.133449,0.431554
+Test failed! (3.03165e-08)
+max threads 16
+time read: 3.636628
+time coo to csr: 0.092061
+mkl optimize time = 0.039675
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b2383.sorted.mtx,16,38120,38120,16171169,0.592388,6.98835,185.21,0.039675,0.0050343,0.00465128,0.0625,1.31165e-05,0.99979,0.0625,0.0702509,0.431644
+Test failed! (3.03165e-08)
+max threads 32
+time read: 3.675749
+time coo to csr: 0.086310
+mkl optimize time = 0.0404498
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b2383.sorted.mtx,32,38120,38120,16171169,0.257414,16.0823,185.21,0.0404498,0.00279289,0.00239895,0.03125,1.13592e-05,0.999371,0.03125,0.0352111,0.431644
+Test failed! (3.03165e-08)
+max threads 64
+time read: 3.658001
+time coo to csr: 0.083727
+mkl optimize time = 0.0416581
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b2383.sorted.mtx,64,38120,38120,16171169,0.0240051,172.456,185.21,0.0416581,0.0014819,0.000269668,0.015625,1.27e-05,0.999371,0.015625,0.0176799,0.431282
+Test failed! (3.03165e-08)
+max threads 128
+time read: 3.631418
+time coo to csr: 0.085362
+mkl optimize time = 0.0437741
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/TSOPF_RS_b2383.sorted.mtx,128,38120,38120,16171169,0.0150989,274.18,185.21,0.0437741,0.00135257,0.000195208,0.0078125,1.0239e-05,0.999371,0.0078125,0.00890401,0.431282
+Test failed! (3.03165e-08)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/in-2004.sorted.mtx
+max threads 1
+time read: 2.121405
+time coo to csr: 0.090898
+mkl optimize time = 0.0334375
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/in-2004.sorted.mtx,1,1382908,1382908,16917053,2.20311,1.96575,198.876,0.0334375,0.0176367,0.0173793,1,0,1,1,0,1
+max threads 2
+time read: 1.317884
+time coo to csr: 0.085110
+mkl optimize time = 0.0394229
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/in-2004.sorted.mtx,2,1382908,1382908,16917053,1.25786,3.44297,198.876,0.0394229,0.010181,0.00989707,0.5,0,1,0.5,0.0391619,0.927365
+max threads 4
+time read: 1.309399
+time coo to csr: 0.084775
+mkl optimize time = 0.0389721
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/in-2004.sorted.mtx,4,1382908,1382908,16917053,0.90771,4.77109,198.876,0.0389721,0.00754161,0.00709772,0.25,0,1,0.25,0.0560934,0.727093
+max threads 8
+time read: 1.315013
+time coo to csr: 0.084218
+mkl optimize time = 0.0397317
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/in-2004.sorted.mtx,8,1382908,1382908,16917053,0.937248,4.62073,198.876,0.0397317,0.0080792,0.00730691,0.125,3.61557e-07,0.999997,0.125,0.0351169,0.62359
+max threads 16
+time read: 1.298072
+time coo to csr: 0.083581
+mkl optimize time = 0.0397003
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/in-2004.sorted.mtx,16,1382908,1382908,16917053,0.796582,5.43669,198.876,0.0397003,0.00708953,0.00623793,0.0625,3.13118e-07,0.999997,0.0625,0.0278575,0.413974
+max threads 32
+time read: 1.298039
+time coo to csr: 0.079529
+mkl optimize time = 0.0399761
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/in-2004.sorted.mtx,32,1382908,1382908,16917053,0.381502,11.3519,198.876,0.0399761,0.0038923,0.00306262,0.03125,2.39147e-07,0.999997,0.03125,0.0212126,0.255108
+max threads 64
+time read: 1.367760
+time coo to csr: 0.077647
+mkl optimize time = 0.0418104
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/in-2004.sorted.mtx,64,1382908,1382908,16917053,0.0569663,76.0233,198.876,0.0418104,0.00205766,0.000553241,0.015625,1.75038e-07,0.999997,0.015625,0.0156151,0.139575
+max threads 128
+time read: 1.315250
+time coo to csr: 0.077826
+mkl optimize time = 0.0443791
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/in-2004.sorted.mtx,128,1382908,1382908,16917053,0.0344072,125.868,198.876,0.0443791,0.00125569,0.000271281,0.0078125,1.25816e-07,0.999997,0.0078125,0.0103152,0.0736269
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Ga41As41H72.sorted.mtx
+max threads 1
+time read: 2.646400
+time coo to csr: 0.126306
+mkl optimize time = 0.0342337
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Ga41As41H72.sorted.mtx,1,268096,268096,18488476,1.40984,3.35717,212.607,0.0342337,0.0113314,0.0110265,1,0,1,1,0,1
+max threads 2
+time read: 1.931823
+time coo to csr: 0.119875
+mkl optimize time = 0.0387909
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Ga41As41H72.sorted.mtx,2,268096,268096,18488476,0.846834,5.58911,212.607,0.0387909,0.00708515,0.00662794,0.5,0,1,0.5,0.00386024,0.992339
+max threads 4
+time read: 1.928824
+time coo to csr: 0.120247
+mkl optimize time = 0.0393093
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Ga41As41H72.sorted.mtx,4,268096,268096,18488476,0.835623,5.6641,212.607,0.0393093,0.00699333,0.00654467,0.25,0,1,0.25,0.0708982,0.769824
+max threads 8
+time read: 1.923612
+time coo to csr: 0.118636
+mkl optimize time = 0.0392694
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Ga41As41H72.sorted.mtx,8,268096,268096,18488476,0.848295,5.57949,212.607,0.0392694,0.00739024,0.00665587,0.125,0,1,0.125,0.0402633,0.729782
+max threads 16
+time read: 1.937881
+time coo to csr: 0.118273
+mkl optimize time = 0.0392372
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Ga41As41H72.sorted.mtx,16,268096,268096,18488476,0.71289,6.63924,212.607,0.0392372,0.00678099,0.00561859,0.0625,0,1,0.0625,0.0205261,0.711337
+max threads 32
+time read: 1.934913
+time coo to csr: 0.112822
+mkl optimize time = 0.0402815
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Ga41As41H72.sorted.mtx,32,268096,268096,18488476,0.345345,13.7053,212.607,0.0402815,0.00337658,0.00286139,0.03125,0,1,0.03125,0.0105419,0.655059
+max threads 64
+time read: 1.969127
+time coo to csr: 0.112431
+mkl optimize time = 0.0411345
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Ga41As41H72.sorted.mtx,64,268096,268096,18488476,0.0301362,157.055,212.607,0.0411345,0.00158059,0.000362763,0.015625,0,1,0.015625,0.00544597,0.597195
+max threads 128
+time read: 1.933149
+time coo to csr: 0.127023
+mkl optimize time = 0.0434064
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/Ga41As41H72.sorted.mtx,128,268096,268096,18488476,0.0173324,273.076,212.607,0.0434064,0.00177852,0.000174869,0.0078125,1.865e-06,0.999761,0.0078125,0.00357069,0.502338
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/eu-2005.sorted.mtx
+max threads 1
+time read: 2.273784
+time coo to csr: 0.101559
+mkl optimize time = 0.0336359
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/eu-2005.sorted.mtx,1,862664,862664,19235140,2.20134,2.23691,223.42,0.0336359,0.0175029,0.0174407,1,0,1,1,0,1
+max threads 2
+time read: 1.460050
+time coo to csr: 0.094508
+mkl optimize time = 0.0397982
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/eu-2005.sorted.mtx,2,862664,862664,19235140,1.21355,4.05767,223.42,0.0397982,0.00982953,0.00952588,0.5,0,1,0.5,0.0212291,0.959271
+max threads 4
+time read: 1.476145
+time coo to csr: 0.093765
+mkl optimize time = 0.0391256
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/eu-2005.sorted.mtx,4,862664,862664,19235140,0.976194,5.04428,223.42,0.0391256,0.00802714,0.0076267,0.25,0,1,0.25,0.0168718,0.946567
+max threads 8
+time read: 1.479195
+time coo to csr: 0.094839
+mkl optimize time = 0.0398086
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/eu-2005.sorted.mtx,8,862664,862664,19235140,0.980822,5.02048,223.42,0.0398086,0.00845371,0.00767891,0.125,0,1,0.125,0.0252423,0.777274
+max threads 16
+time read: 1.463010
+time coo to csr: 0.092461
+mkl optimize time = 0.039659
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/eu-2005.sorted.mtx,16,862664,862664,19235140,0.845073,5.82695,223.42,0.039659,0.00767036,0.00661042,0.0625,5.796e-07,0.999991,0.0625,0.0187207,0.622983
+max threads 32
+time read: 1.462059
+time coo to csr: 0.088418
+mkl optimize time = 0.0401409
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/eu-2005.sorted.mtx,32,862664,862664,19235140,0.421943,11.6703,223.42,0.0401409,0.00416794,0.00333962,0.03125,5.01948e-07,0.999972,0.03125,0.0107235,0.582189
+max threads 64
+time read: 1.469074
+time coo to csr: 0.083447
+mkl optimize time = 0.0418913
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/eu-2005.sorted.mtx,64,862664,862664,19235140,0.0571728,86.1283,223.42,0.0418913,0.00223602,0.000703313,0.015625,3.83369e-07,0.999935,0.015625,0.006673,0.412107
+max threads 128
+time read: 1.485275
+time coo to csr: 0.084014
+mkl optimize time = 0.043696
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/eu-2005.sorted.mtx,128,862664,862664,19235140,0.0291742,168.786,223.42,0.043696,0.00131268,0.000285959,0.0078125,5.75054e-07,0.999935,0.0078125,0.00413765,0.265493
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/wikipedia-20051105.sorted.mtx
+max threads 1
+time read: 2.306088
+time coo to csr: 0.107632
+mkl optimize time = 0.0338605
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/wikipedia-20051105.sorted.mtx,1,1634989,1634989,19753078,7.06655,0.715595,232.293,0.0338605,0.0558875,0.0552035,1,0,1,1,0,1
+max threads 2
+time read: 1.579480
+time coo to csr: 0.099517
+mkl optimize time = 0.0396811
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/wikipedia-20051105.sorted.mtx,2,1634989,1634989,19753078,3.91376,1.29205,232.293,0.0396811,0.0311084,0.0305862,0.5,3.05812e-07,0.999999,0.5,0.174456,0.741338
+max threads 4
+time read: 1.621702
+time coo to csr: 0.098747
+mkl optimize time = 0.0396253
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/wikipedia-20051105.sorted.mtx,4,1634989,1634989,19753078,2.21406,2.28395,232.293,0.0396253,0.018013,0.0172683,0.25,2.64841e-07,0.999998,0.25,0.122783,0.545814
+max threads 8
+time read: 1.574205
+time coo to csr: 0.100850
+mkl optimize time = 0.0397895
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/wikipedia-20051105.sorted.mtx,8,1634989,1634989,19753078,1.43373,3.52702,232.293,0.0397895,0.0123996,0.0111947,0.125,2.96102e-07,0.999998,0.125,0.0698886,0.423253
+max threads 16
+time read: 1.616234
+time coo to csr: 0.100231
+mkl optimize time = 0.0398006
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/wikipedia-20051105.sorted.mtx,16,1634989,1634989,19753078,1.13364,4.46067,232.293,0.0398006,0.0103555,0.0088603,0.0625,2.38725e-07,0.999998,0.0625,0.0365097,0.356451
+max threads 32
+time read: 1.573607
+time coo to csr: 0.121517
+mkl optimize time = 0.0400887
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/wikipedia-20051105.sorted.mtx,32,1634989,1634989,19753078,0.585912,8.63063,232.293,0.0400887,0.00575111,0.00446968,0.03125,3.00389e-07,0.999988,0.03125,0.0195867,0.273246
+max threads 64
+time read: 1.574437
+time coo to csr: 0.092120
+mkl optimize time = 0.041257
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/wikipedia-20051105.sorted.mtx,64,1634989,1634989,19753078,0.307119,16.4652,232.293,0.041257,0.00449496,0.00233019,0.015625,2.7944e-07,0.999988,0.015625,0.00992747,0.24478
+max threads 128
+time read: 1.584469
+time coo to csr: 0.090952
+mkl optimize time = 0.0444154
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/wikipedia-20051105.sorted.mtx,128,1634989,1634989,19753078,0.0807348,62.6346,232.293,0.0444154,0.00460568,0.000930002,0.0078125,2.92025e-07,0.999949,0.0078125,0.00501434,0.242161
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rajat31.sorted.mtx
+max threads 1
+time read: 5.430867
+time coo to csr: 0.102812
+mkl optimize time = 0.0339636
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rajat31.sorted.mtx,1,4690002,4690002,20316253,2.70455,1.92304,250.392,0.0339636,0.0209031,0.0208304,1,0,1,1,0,1
+max threads 2
+time read: 3.850022
+time coo to csr: 0.095325
+mkl optimize time = 0.0394288
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rajat31.sorted.mtx,2,4690002,4690002,20316253,1.60969,3.23103,250.392,0.0394288,0.012735,0.012342,0.5,0,1,0.5,0.000128247,0.999744
+max threads 4
+time read: 3.872143
+time coo to csr: 0.114441
+mkl optimize time = 0.0404957
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rajat31.sorted.mtx,4,4690002,4690002,20316253,1.42123,3.65948,250.392,0.0404957,0.0114899,0.0111052,0.25,1.0661e-07,1,0.25,0.00011497,0.999699
+max threads 8
+time read: 3.746027
+time coo to csr: 0.094334
+mkl optimize time = 0.0402676
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rajat31.sorted.mtx,8,4690002,4690002,20316253,1.4488,3.58984,250.392,0.0402676,0.0121393,0.0113226,0.125,9.23268e-08,0.999999,0.125,8.76276e-05,0.999698
+max threads 16
+time read: 3.741515
+time coo to csr: 0.098610
+mkl optimize time = 0.0396117
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rajat31.sorted.mtx,16,4690002,4690002,20316253,1.2541,4.14716,250.392,0.0396117,0.011103,0.00978971,0.0625,7.05157e-08,0.999997,0.0625,6.46558e-05,0.999694
+max threads 32
+time read: 3.665928
+time coo to csr: 0.088659
+mkl optimize time = 0.0402111
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rajat31.sorted.mtx,32,4690002,4690002,20316253,0.628221,8.27887,250.392,0.0402111,0.00550466,0.00499141,0.03125,1.05774e-07,0.999997,0.03125,4.7674e-05,0.99954
+max threads 64
+time read: 3.714684
+time coo to csr: 0.086690
+mkl optimize time = 0.0409873
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rajat31.sorted.mtx,64,4690002,4690002,20316253,0.215655,24.1171,250.392,0.0409873,0.00283171,0.00172651,0.015625,9.58655e-08,0.99999,0.015625,3.35119e-05,0.999532
+max threads 128
+time read: 3.679634
+time coo to csr: 0.087393
+mkl optimize time = 0.0442111
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/rajat31.sorted.mtx,128,4690002,4690002,20316253,0.02435,213.592,250.392,0.0442111,0.00180361,0.000337716,0.0078125,1.02306e-07,0.99999,0.0078125,2.33388e-05,0.999532
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/ldoor.sorted.mtx
+max threads 1
+time read: 5.690343
+time coo to csr: 0.278926
+mkl optimize time = 0.0344306
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/ldoor.sorted.mtx,1,952203,952203,46522475,3.89354,3.05885,536.04,0.0344306,0.0307572,0.0304372,1,0,1,1,0,1
+Test failed! (7.45058e-08)
+max threads 2
+time read: 4.391261
+time coo to csr: 0.266080
+mkl optimize time = 0.0395179
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/ldoor.sorted.mtx,2,952203,952203,46522475,2.49211,4.77899,536.04,0.0395179,0.0199292,0.0194648,0.5,5.25098e-07,0.999999,0.5,0.0154973,0.969937
+Test failed! (7.45058e-08)
+max threads 4
+time read: 4.326861
+time coo to csr: 0.260010
+mkl optimize time = 0.0394707
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/ldoor.sorted.mtx,4,952203,952203,46522475,2.27322,5.23917,536.04,0.0394707,0.0182491,0.0177553,0.25,4.54748e-07,0.999999,0.25,0.0113759,0.946996
+Test failed! (7.45058e-08)
+max threads 8
+time read: 4.374096
+time coo to csr: 0.259648
+mkl optimize time = 0.0398413
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/ldoor.sorted.mtx,8,952203,952203,46522475,2.30235,5.17287,536.04,0.0398413,0.0188719,0.017974,0.125,5.08424e-07,0.999995,0.125,0.00673184,0.937231
+Test failed! (7.45058e-08)
+max threads 16
+time read: 4.359114
+time coo to csr: 0.257946
+mkl optimize time = 0.0394421
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/ldoor.sorted.mtx,16,952203,952203,46522475,1.93151,6.16602,536.04,0.0394421,0.016417,0.0151073,0.0625,4.86779e-07,0.999995,0.0625,0.00353623,0.92721
+Test failed! (7.45058e-08)
+max threads 32
+time read: 4.395735
+time coo to csr: 0.243265
+mkl optimize time = 0.0406176
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/ldoor.sorted.mtx,32,952203,952203,46522475,0.962541,12.3732,536.04,0.0406176,0.00858197,0.00757307,0.03125,4.988e-07,0.999978,0.03125,0.00203052,0.869432
+Test failed! (7.45058e-08)
+max threads 64
+time read: 4.408598
+time coo to csr: 0.241820
+mkl optimize time = 0.0412376
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/ldoor.sorted.mtx,64,952203,952203,46522475,0.531249,22.4184,536.04,0.0412376,0.00471815,0.0041204,0.015625,3.96209e-07,0.999944,0.015625,0.0010616,0.854999
+Test failed! (7.45058e-08)
+max threads 128
+time read: 4.439943
+time coo to csr: 0.266878
+mkl optimize time = 0.0441984
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/ldoor.sorted.mtx,128,952203,952203,46522475,0.129933,91.661,536.04,0.0441984,0.00298305,0.00150715,0.0078125,2.9434e-07,0.999877,0.0078125,0.000579782,0.819034
+Test failed! (7.45058e-08)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/circuit5M.sorted.mtx
+max threads 1
+time read: 18.498944
+time coo to csr: 0.322514
+mkl optimize time = 0.0350795
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/circuit5M.sorted.mtx,1,5558326,5558326,59524291,5.65356,2.69533,702.405,0.0350795,0.0445112,0.0441219,1,0,1,1,0,1
+Test failed! (15.1373)
+max threads 2
+time read: 12.534250
+time coo to csr: 0.297303
+mkl optimize time = 0.0396542
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/circuit5M.sorted.mtx,2,5558326,5558326,59524291,4.08779,3.72774,702.405,0.0396542,0.0323649,0.031833,0.5,0,1,0.5,0.266557,0.652267
+Test failed! (15.1373)
+max threads 4
+time read: 12.043481
+time coo to csr: 0.293689
+mkl optimize time = 0.0406253
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/circuit5M.sorted.mtx,4,5558326,5558326,59524291,4.0662,3.74753,702.405,0.0406253,0.0322536,0.0316605,0.25,8.99551e-08,1,0.25,0.230844,0.384714
+Test failed! (15.1373)
+max threads 8
+time read: 12.351361
+time coo to csr: 0.295413
+mkl optimize time = 0.0403465
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/circuit5M.sorted.mtx,8,5558326,5558326,59524291,3.93928,3.86827,702.405,0.0403465,0.0316669,0.0307619,0.125,7.79034e-08,1,0.125,0.17631,0.211337
+Test failed! (15.1373)
+max threads 16
+time read: 11.846848
+time coo to csr: 0.294547
+mkl optimize time = 0.0402444
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/circuit5M.sorted.mtx,16,5558326,5558326,59524291,3.44637,4.42152,702.405,0.0402444,0.0285856,0.0269507,0.0625,8.70987e-08,0.999998,0.0625,0.0942348,0.160288
+Test failed! (15.1373)
+max threads 32
+time read: 11.832139
+time coo to csr: 0.327017
+mkl optimize time = 0.0409391
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/circuit5M.sorted.mtx,32,5558326,5558326,59524291,1.6961,8.98428,702.405,0.0409391,0.0146243,0.0132522,0.03125,8.33906e-08,0.999998,0.03125,0.0569411,0.107963
+Test failed! (15.1373)
+max threads 64
+time read: 12.057467
+time coo to csr: 0.268946
+mkl optimize time = 0.0420779
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/circuit5M.sorted.mtx,64,5558326,5558326,59524291,0.87798,17.356,702.405,0.0420779,0.00792259,0.0068776,0.015625,6.5324e-08,0.999998,0.015625,0.0362881,0.0655454
+Test failed! (15.1373)
+max threads 128
+time read: 12.019324
+time coo to csr: 0.268223
+mkl optimize time = 0.0446856
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/circuit5M.sorted.mtx,128,5558326,5558326,59524291,0.686436,22.199,702.405,0.0446856,0.00500751,0.00520687,0.0078125,8.88503e-08,0.999987,0.0078125,0.0234705,0.0367044
+Test failed! (15.1373)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bone010.sorted.mtx
+max threads 1
+time read: 6.530398
+time coo to csr: 0.413005
+mkl optimize time = 0.0354595
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bone010.sorted.mtx,1,986703,986703,71666325,5.21472,3.51823,823.92,0.0354595,0.0410712,0.0407372,1,0,1,1,0,1
+Test failed! (3.86535e-08)
+max threads 2
+time read: 5.329845
+time coo to csr: 0.389167
+mkl optimize time = 0.039848
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bone010.sorted.mtx,2,986703,986703,71666325,3.17527,5.77796,823.92,0.039848,0.0252858,0.0247732,0.5,5.06738e-07,0.999999,0.5,0.00608501,0.987976
+Test failed! (3.86535e-08)
+max threads 4
+time read: 5.325185
+time coo to csr: 0.384876
+mkl optimize time = 0.0398046
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bone010.sorted.mtx,4,986703,986703,71666325,3.21249,5.71102,823.92,0.0398046,0.0255013,0.0250951,0.25,4.38848e-07,0.999999,0.25,0.00357466,0.977914
+Test failed! (3.86535e-08)
+max threads 8
+time read: 5.359912
+time coo to csr: 0.383828
+mkl optimize time = 0.0400669
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bone010.sorted.mtx,8,986703,986703,71666325,3.32023,5.52569,823.92,0.0400669,0.026732,0.0259801,0.125,3.35176e-07,0.999999,0.125,0.00217538,0.970726
+Test failed! (3.86535e-08)
+max threads 16
+time read: 5.356452
+time coo to csr: 0.380328
+mkl optimize time = 0.0404283
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bone010.sorted.mtx,16,986703,986703,71666325,2.81917,6.50778,823.92,0.0404283,0.0231926,0.02207,0.0625,2.45324e-07,0.999999,0.0625,0.00134383,0.965325
+Test failed! (3.86535e-08)
+max threads 32
+time read: 5.305582
+time coo to csr: 0.357397
+mkl optimize time = 0.0413203
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bone010.sorted.mtx,32,986703,986703,71666325,1.45901,12.5746,823.92,0.0413203,0.0122649,0.0114249,0.03125,5.05747e-07,0.999983,0.03125,0.000836731,0.958568
+Test failed! (3.86535e-08)
+max threads 64
+time read: 5.334033
+time coo to csr: 0.350903
+mkl optimize time = 0.0422212
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bone010.sorted.mtx,64,986703,986703,71666325,0.713629,25.7089,823.92,0.0422212,0.00681336,0.00560132,0.015625,4.29316e-07,0.99995,0.015625,0.000548811,0.956898
+Test failed! (3.86535e-08)
+max threads 128
+time read: 5.387070
+time coo to csr: 0.386311
+mkl optimize time = 0.043962
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/bone010.sorted.mtx,128,986703,986703,71666325,0.353264,51.9344,823.92,0.043962,0.00435526,0.00283317,0.0078125,4.92624e-07,0.99995,0.0078125,0.000336639,0.92861
+Test failed! (3.86535e-08)
+File: /zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cage15.sorted.mtx
+max threads 1
+time read: 24.918496
+time coo to csr: 0.487143
+mkl optimize time = 0.0347877
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cage15.sorted.mtx,1,5154859,5154859,99199551,9.5533,2.65825,1154.91,0.0347877,0.0750045,0.0746181,1,0,1,1,0,1
+max threads 2
+time read: 16.739422
+time coo to csr: 0.453792
+mkl optimize time = 0.0404665
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cage15.sorted.mtx,2,5154859,5154859,99199551,6.01558,4.22155,1154.91,0.0404665,0.0474263,0.0470001,0.5,9.69959e-08,1,0.5,0.0594999,0.893655
+max threads 4
+time read: 16.801100
+time coo to csr: 0.446016
+mkl optimize time = 0.0406926
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cage15.sorted.mtx,4,5154859,5154859,99199551,5.71005,4.44743,1154.91,0.0406926,0.045065,0.0446205,0.25,8.40009e-08,1,0.25,0.0378476,0.831966
+max threads 8
+time read: 16.313132
+time coo to csr: 0.449753
+mkl optimize time = 0.0404828
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cage15.sorted.mtx,8,5154859,5154859,99199551,5.7533,4.41401,1154.91,0.0404828,0.0458571,0.0449041,0.125,9.39158e-08,0.999999,0.125,0.020155,0.790154
+max threads 16
+time read: 16.436980
+time coo to csr: 0.444242
+mkl optimize time = 0.0406727
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cage15.sorted.mtx,16,5154859,5154859,99199551,4.87175,5.21272,1154.91,0.0406727,0.0398511,0.0380493,0.0625,8.99176e-08,0.999999,0.0625,0.0105041,0.754179
+max threads 32
+time read: 16.324426
+time coo to csr: 0.414437
+mkl optimize time = 0.0414837
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cage15.sorted.mtx,32,5154859,5154859,99199551,2.41578,10.5122,1154.91,0.0414837,0.020376,0.0188744,0.03125,9.21381e-08,0.999996,0.03125,0.0054169,0.716763
+max threads 64
+time read: 16.285856
+time coo to csr: 0.396590
+mkl optimize time = 0.0423268
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cage15.sorted.mtx,64,5154859,5154859,99199551,1.26385,20.0935,1154.91,0.0423268,0.0110941,0.00993153,0.015625,9.10851e-08,0.999996,0.015625,0.00290056,0.684483
+max threads 128
+time read: 16.189969
+time coo to csr: 0.397869
+mkl optimize time = 0.0463294
+/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices/cage15.sorted.mtx,128,5154859,5154859,99199551,0.662007,38.3607,1154.91,0.0463294,0.00596491,0.00519475,0.0078125,9.16256e-08,0.999984,0.0078125,0.00156436,0.596006
