@@ -101,7 +101,7 @@ void SpmvOperator::print_op() {
   ddebug(" <- SpmvOperator::print_op()\n");
 }
 
-double csecond(void) {
+double csecond_su(void) {
   ddebug(" -> csecond()\n");
   struct timespec tms;
 

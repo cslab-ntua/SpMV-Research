@@ -11,7 +11,10 @@
 #include "spmv_utils.hpp"
 
 #ifdef __cplusplus
+#pragma message("__cplusplus defined")
 extern "C"{
+#else
+#pragma message("__cplusplus not defined")
 #endif 
 #include "artificial_matrix_generation.h"
 #ifdef __cplusplus
