@@ -13,9 +13,9 @@ export LD_LIBRARY_PATH="/opt/system/cuda/9.2.88/lib64:/opt/system/cuda/9.2.88/li
 # TODO: Define these variables for your system
 MASTEDIR=/zhome/academic/HLRS/xex/xexpanas/SpMV-Research
 export LD_LIBRARY_PATH="${MASTEDIR}/artificial-matrix-generator:$LD_LIBRARY_PATH"
-BUILD_DIR_9=$MASTEDIR/Wrapper_cuSPARSE-9/vulcan-build
-BUILD_DIR_11=$MASTEDIR/Wrapper_cuSPARSE-11/vulcan-build
-BUILD_DIR_CSR5=$MASTEDIR/CSR5_cuda/PETROS_wrap_operator/vulcan-build
+BUILD_DIR_9=$MASTEDIR/Wrapper_cuSPARSE-9/${system}-build
+BUILD_DIR_11=$MASTEDIR/Wrapper_cuSPARSE-11/${system}-build
+BUILD_DIR_CSR5=$MASTEDIR/CSR5_cuda/PETROS_wrap_operator/${system}-build
 
 STORE_TIMER_DIR=$MASTEDIR/Benchmarks/${system}
 

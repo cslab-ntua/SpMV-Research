@@ -11,16 +11,16 @@ set (CUDA_TOOLKIT_ROOT_DIR "/opt/system/cuda/10.1.243")
 
 # 	a) Compiler
 set (CMAKE_CUDA_COMPILER ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvcc)
-set (CMAKE_CXX_COMPILER ${CXX_PREFIX}/bin/c++)
-set (CMAKE_C_COMPILER ${CXX_PREFIX}/bin/gcc)
+#set (CMAKE_CXX_COMPILER ${CXX_PREFIX}/bin/c++)
+#set (CMAKE_C_COMPILER ${CXX_PREFIX}/bin/gcc)
 
 # 	b) Compile flags
-set (CMAKE_CUDA_FLAGS "-w -O3 -arch=sm_70") #35 for Tesla K40, 70 for V100, 61 for GTX 1060/70
+set (CMAKE_CUDA_FLAGS "-w -O3 -arch=sm_60") #35 for Tesla K40, 70 for V100, 61 for GTX 1060/70
 message("CMAKE_CUDA_FLAGS: " ${CMAKE_CUDA_FLAGS})
 
 #	c) Architecture 
 if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-  set(CMAKE_CUDA_ARCHITECTURES 70)
+  set(CMAKE_CUDA_ARCHITECTURES 60)
 endif()
 
 ## 4) ITER run for benchmark results
@@ -104,7 +104,7 @@ file(GLOB DGAL_FILES ${DGAL_PREFIX}/*.c*)
 message( "DGAL_FILES: " ${DGAL_FILES} )
 
 ## datatype used in benchmarks. 0 = float, 1 = double
-set(DATATYPE 1) 
+set(DATATYPE 0) 
 
 if (${DATATYPE} EQUAL 1)
 	#add_library(MyLib ${SOURCE_FILES} ${MPAKOS_PREFIX}/include/artificial_matrix_generation_double.o)
