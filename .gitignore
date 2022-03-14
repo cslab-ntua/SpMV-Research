@@ -22,3 +22,4 @@ HiSparse/
 Pythonia/local_ipynb/petama
 matrix_generation_parameters/progress*
 matrix_generation_parameters/*part*
+Benchmarks/arm_petama
