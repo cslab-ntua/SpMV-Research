@@ -240,30 +240,30 @@ def create_validation_twins_param_file(param_file, num_samples, percentage, dist
 
 if __name__ == '__main__':
 
-    # mem_range_list = ["4-32", "32-512", "512-2048"]
-    # matrices_per_mem_range = 5
-    # avg_nnz_per_row_list = [5, 50, 100, 500]
-    # avg_bw_list = [0.05, 0.3, 0.6]
-    # distribution = "normal"
-    # placement = "random" 
-    # skew_coeff_list = [0, 100, 1000, 10000]
-    # avg_num_neighbours_list = [0.05, 0.5, 0.95, 1.4, 1.9]
+    mem_range_list = ["4-32", "32-512", "512-2048"]
+    matrices_per_mem_range = 5
+    avg_nnz_per_row_list = [5, 10, 20, 50, 100, 500]
+    avg_bw_list = [0.05, 0.3, 0.6]
+    distribution = "normal"
+    placement = "random" 
+    skew_coeff_list = [0, 100, 1000, 10000]
+    avg_num_neighbours_list = [0.05, 0.5, 0.95, 1.4, 1.9]
 
-    # cross_row_similarity_list = [0.05, 0.5, 0.95]
-    # seed = 14
-
-    # param_file_small = "synthetic_matrices_small_dataset_extra"
-    # create_param_file(param_file_small, mem_range_list, matrices_per_mem_range, avg_nnz_per_row_list, avg_bw_list, distribution, placement, skew_coeff_list, avg_num_neighbours_list, cross_row_similarity_list, seed)
-
-    num_samples = 10
-    percentage = 30 # 
-    param_file = '../../matrix_generation_parameters/validation_matrices_'+str(num_samples)+'_samples_'+str(percentage)+'_range_twins.txt'
-    scaling_start = 1 - percentage*0.01
-    scaling_stop = 1 + percentage*0.01
-    scaling_list = np.linspace(scaling_start, scaling_stop, num = num_samples)
-    # print(scaling_list)
-
-    distribution = 'normal'
-    placement = 'random'
+    cross_row_similarity_list = [0.05, 0.5, 0.95]
     seed = 14
-    create_validation_twins_param_file(param_file, num_samples, percentage, distribution, placement, seed, scaling_list)
+
+    param_file_small = "synthetic_matrices_small_dataset_extra10"
+    create_param_file(param_file_small, mem_range_list, matrices_per_mem_range, avg_nnz_per_row_list, avg_bw_list, distribution, placement, skew_coeff_list, avg_num_neighbours_list, cross_row_similarity_list, seed)
+
+    # num_samples = 10
+    # percentage = 30 # 
+    # param_file = '../../matrix_generation_parameters/validation_matrices_'+str(num_samples)+'_samples_'+str(percentage)+'_range_twins.txt'
+    # scaling_start = 1 - percentage*0.01
+    # scaling_stop = 1 + percentage*0.01
+    # scaling_list = np.linspace(scaling_start, scaling_stop, num = num_samples)
+    # # print(scaling_list)
+
+    # distribution = 'normal'
+    # placement = 'random'
+    # seed = 14
+    # create_validation_twins_param_file(param_file, num_samples, percentage, distribution, placement, seed, scaling_list)

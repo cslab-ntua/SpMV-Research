@@ -20,6 +20,7 @@ validation_matrices/
 HiSparse/
 *cnpy/
 Pythonia/local_ipynb/petama
+Pythonia/local_ipynb/Paper_plots2
 matrix_generation_parameters/progress*
 matrix_generation_parameters/*part*
 Benchmarks/arm_petama
