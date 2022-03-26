@@ -49,9 +49,9 @@ BEGINFILE {
 
 
 /^File:/ {
-    matrix = $2
-    sub(".*/", "", matrix)
-    sub("\\..*$", "", matrix)
+    # matrix = $2
+    # sub(".*/", "", matrix)
+    # sub("\\..*$", "", matrix)
 }
 
 
@@ -96,6 +96,11 @@ function find_mem_range(mem,
 #         << "," << format_name <<  "," << time << "," << gflops << "," << W_avg << "," << J_estimated
 /^\// {
     num_fields = split($0, tok, ",")
+
+    matrix = tok[1]
+    sub(".*/", "", matrix)
+    sub("\\..*$", "", matrix)
+
     threads = tok[2]
     m = tok[3]
     n = tok[4]
