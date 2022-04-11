@@ -262,7 +262,7 @@ class signature:
                 if(i%2000 == 0 and i>0):
                     print(i,"/", l_totalPars, "nonzero values alone occupy -> ", round(total_nnz_size,3), "MB", "(", round(blocks_completed*100,2) , "% of row_blocks -> ", round(hbm_mem_reserved*100,2), "% of capacity!")
                     print_mem_usage()
-                if(( i>100 and hbm_mem_reserved>2*blocks_completed) or (total_nnz_size > 256*16)):
+                if(( i>100 and hbm_mem_reserved>1.2*blocks_completed) or (total_nnz_size > 256*16)):
                     print(i,"/", l_totalPars, "nonzero values alone occupy -> ", round(total_nnz_size,3), "MB", "(", round(blocks_completed*100,2) , "% of row_blocks -> ", round(hbm_mem_reserved*100,2), "% of capacity!")
                     print_mem_usage()
                     flag_abort=True

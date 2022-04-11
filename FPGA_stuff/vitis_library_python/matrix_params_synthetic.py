@@ -489,7 +489,7 @@ class sparse_matrix:
             """
         )
 
-        so_file = "/various/pmpakos/SpMV-Research/artificial-matrix-generator/artificial_matrix_generation_double.so"
+        so_file = "/various/pmpakos/SpMV-Research/artificial-matrix-generator/libartificial_matrix_generation_double.so"
         # so_file = "/various/pmpakos/SpMV-Research/artificial-matrix-generator/artificial_matrix_generation_float.so"
         lib = ffi.dlopen(so_file)
         csr_matrix_struct = lib.artificial_matrix_generation(nr_rows, nr_rows, avg_nnz_per_row, std_nnz_per_row, str.encode(distribution), seed, str.encode(placement), avg_bw_target, skew_coeff, avg_num_neighbours, cross_row_similarity)
