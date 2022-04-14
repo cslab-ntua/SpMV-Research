@@ -43,7 +43,6 @@ matrices_validation=(
     "$path_validation"/Ga41As41H72.sorted.mtx
     "$path_validation"/eu-2005.sorted.mtx
     "$path_validation"/wikipedia-20051105.sorted.mtx
-    "$path_validation"/rajat31.sorted.mtx
     "$path_validation"/ldoor.sorted.mtx
     "$path_validation"/circuit5M.sorted.mtx
     "$path_validation"/bone010.sorted.mtx
@@ -57,7 +56,7 @@ matrices=(
 )
 
 
-for a in "${matrices[@]}"
+for a in "${matrices_validation[@]}"
 do
     ./mat_feat.exe   $a
 done
