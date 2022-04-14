@@ -1,0 +1,49 @@
+.phony: all clean
+
+USERNAME := $(shell whoami)
+REMOTE_MACHINE := $(findstring xexdgala,$(HOSTNAME))
+
+C_LIB_PATH = 
+
+ifdef REMOTE_MACHINE
+    max_cores = 128
+else
+    max_cores = 8
+endif
+
+
+CFLAGS = 
+LDFLAGS =
+
+all: mat_feat.exe
+
+
+CC=g++
+
+
+CFLAGS += -Wall
+
+LDFLAGS += -lm
+
+CFLAGS += -fopenmp
+CFLAGS += -Wno-deprecated-declarations
+
+# CFLAGS += -O0
+CFLAGS += -O3
+
+
+CFLAGS += -Ilib
+
+
+# DOUBLE := 0
+DOUBLE := 1
+
+CFLAGS += -D'DOUBLE=$(DOUBLE)'
+
+
+mat_feat.exe: mat_feat.cpp
+	$(CC) $^ $(CFLAGS) -o $@ $(LDFLAGS)
+
+
+clean:
+	rm -f *.exe
