@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 
 def create_validation_twins_param_file(param_file, num_samples, percentage, distribution, placement, seed, scaling_list):
-    vm_features = pd.read_csv("../../Benchmarks/validation_matrices_features.csv", sep="\t")
+    # vm_features = pd.read_csv("../../Benchmarks/validation_matrices_features.csv", sep="\t")
+    vm_features = pd.read_csv("../Benchmarks/validation_matrices_features.csv", sep="\t")
     
     mtx_names = list(vm_features["matrix"])
     vm_features = vm_features[['matrix','nr_rows','nr_cols', 'nnz-r-avg', 'nnz-r-std', 'bw-avg', 'skew_coeff', 'neigh-avg', 'cross_row_sim-avg']]
@@ -114,7 +115,8 @@ def create_validation_twins_param_file(param_file, num_samples, percentage, dist
 if __name__ == '__main__':
     num_samples = 10
     percentage = 30
-    prefix = "../../matrix_generation_parameters/"
+    # prefix = "../../matrix_generation_parameters/"
+    prefix = ""
     param_file = prefix+'validation_matrices_'+str(num_samples)+'_samples_'+str(percentage)+'_range_twins.txt'
     scaling_start = 1 - percentage*0.01
     scaling_stop = 1 + percentage*0.01

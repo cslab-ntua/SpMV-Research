@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 
 def create_param_file(param_file, mem_range_list, matrices_per_mem_range, avg_nnz_per_row_list, avg_bw_list, distribution, placement, skew_coeff_list, avg_num_neighbours_list, cross_row_similarity_list, seed):
-    prefix = "../../matrix_generation_parameters/"
+    # prefix = "../../matrix_generation_parameters/"
+    prefix = ""
     cnt = 0
     param_list = []
     for mem_range in mem_range_list:
