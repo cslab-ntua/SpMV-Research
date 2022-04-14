@@ -18,8 +18,8 @@ build*/
 *Plot_tries/
 HiSparse/
 *cnpy/
-Pythonia/local_ipynb/petama
-Pythonia/local_ipynb/Paper_plots2
+results_visualization/local_ipynb/petama
+results_visualization/local_ipynb/Paper_plots2
 matrix_generation_parameters/progress*
 matrix_generation_parameters/*part*
 matrix_generation_parameters/trash
@@ -35,10 +35,11 @@ matrix_generation_parameters/synthetic_matrices_small_dataset_12*.txt
 matrix_generation_parameters/synthetic_matrices_small_dataset_13*.txt
 matrix_generation_parameters/synthetic_matrices_small_dataset_14*.txt
 matrix_generation_parameters/synthetic_matrices_small_dataset_15*.txt
-Benchmarks/arm_petama
 validation_matrices/trash
 validation_matrices/v2_dgal
 validation_matrices/digital_twins
 validation_matrices/features
 validation_matrices/images
 validation_matrices/*.mtx
+benchmark_results/arm_petama
+benchmark_code/FPGA/old_artificial_matrix_generation
