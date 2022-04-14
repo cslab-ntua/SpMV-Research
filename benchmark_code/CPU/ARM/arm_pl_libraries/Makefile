@@ -16,8 +16,8 @@ obj := o
 DOUBLE := 1
 CFLAGS += -D'DOUBLE=$(DOUBLE)'
 
-AMG_PATH = ../../../artificial-matrix-generator
-OLD_PATH = ../../../mkl_code
+AMG_PATH = ../../../../artificial-matrix-generator
+OLD_PATH = ../mkl_code
 CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/ordered_set.c
 
 CFLAGS += -fopenmp -O3

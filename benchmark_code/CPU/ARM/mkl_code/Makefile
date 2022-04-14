@@ -19,7 +19,7 @@ endif
 # AMG_PATH = artificial_matrix_generation/include
 # CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c
 
-AMG_PATH = ../artificial-matrix-generator
+AMG_PATH = ../../../../artificial-matrix-generator
 CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/ordered_set.c
 
 

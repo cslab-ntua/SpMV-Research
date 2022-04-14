@@ -9,7 +9,7 @@ NUM_RUN = 128
 library = ${C_LIB_PATH}
 
 
-AMG_PATH = ../../artificial-matrix-generator
+AMG_PATH = ../../../../../artificial-matrix-generator
 CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/ordered_set.c
 
 CFLAGS =
