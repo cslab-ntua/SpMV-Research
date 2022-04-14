@@ -1,0 +1,1102 @@
+--->  cop20k_A  <---
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_0.dat	0 -> l_bytes 10.6574 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_1.dat	1 -> l_bytes 10.6568 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_2.dat	2 -> l_bytes 10.6571 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_3.dat	3 -> l_bytes 10.6578 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_4.dat	4 -> l_bytes 10.6568 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_5.dat	5 -> l_bytes 10.6568 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_6.dat	6 -> l_bytes 10.6568 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_7.dat	7 -> l_bytes 10.6568 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_8.dat	8 -> l_bytes 10.6571 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_9.dat	9 -> l_bytes 10.6563 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_10.dat	10 -> l_bytes 10.6551 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_11.dat	11 -> l_bytes 10.6543 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_12.dat	12 -> l_bytes 10.6521 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_13.dat	13 -> l_bytes 10.6479 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_14.dat	14 -> l_bytes 10.6155 MB
+l_sigFileNames ./sig_dat/cop20k_A/nnzVal_15.dat	15 -> l_bytes 9.52283 MB
+l_sigFileNames ./sig_dat/cop20k_A/parParam.dat	16 -> l_bytes 0.162384 MB
+l_sigFileNames ./sig_dat/cop20k_A/rbParam.dat	17 -> l_bytes 0.00637817 MB
+l_vecFileNames ./vec_dat/cop20k_A/inVec.dat	0 -> l_bytes 0.924622 MB
+l_vecFileNames ./vec_dat/cop20k_A/refVec.dat	1 -> l_bytes 0.924622 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,cop20k_A,121192,121192,2624331,121192,121192,20706112,689.005,128,0.453237,3.54091,1.48229,11.6954,169.486
+INFO: Test pass!
+
+real	0m17.140s
+user	0m0.280s
+sys	0m0.611s
+--->  scircuit  <---
+l_sigFileNames ./sig_dat/scircuit/nnzVal_0.dat	0 -> l_bytes 5.91269 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_1.dat	1 -> l_bytes 5.8996 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_2.dat	2 -> l_bytes 5.89337 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_3.dat	3 -> l_bytes 5.8894 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_4.dat	4 -> l_bytes 5.88547 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_5.dat	5 -> l_bytes 5.88327 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_6.dat	6 -> l_bytes 5.87622 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_7.dat	7 -> l_bytes 5.87216 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_8.dat	8 -> l_bytes 5.86868 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_9.dat	9 -> l_bytes 5.8573 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_10.dat	10 -> l_bytes 5.84854 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_11.dat	11 -> l_bytes 5.82993 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_12.dat	12 -> l_bytes 5.80167 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_13.dat	13 -> l_bytes 5.75507 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_14.dat	14 -> l_bytes 5.59561 MB
+l_sigFileNames ./sig_dat/scircuit/nnzVal_15.dat	15 -> l_bytes 4.49075 MB
+l_sigFileNames ./sig_dat/scircuit/parParam.dat	16 -> l_bytes 0.270538 MB
+l_sigFileNames ./sig_dat/scircuit/rbParam.dat	17 -> l_bytes 0.0102844 MB
+l_vecFileNames ./vec_dat/scircuit/inVec.dat	0 -> l_bytes 1.30463 MB
+l_vecFileNames ./vec_dat/scircuit/refVec.dat	1 -> l_bytes 1.30463 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,scircuit,170998,170998,958936,170998,171000,11238432,1071.97,128,0.474793,3.70932,0.517042,6.05957,92.4406
+INFO: Test pass!
+
+real	0m12.338s
+user	0m0.202s
+sys	0m0.505s
+--->  mac_econ_fwd500  <---
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_0.dat	0 -> l_bytes 4.16516 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_1.dat	1 -> l_bytes 4.16385 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_2.dat	2 -> l_bytes 4.16541 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_3.dat	3 -> l_bytes 4.16577 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_4.dat	4 -> l_bytes 4.16568 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_5.dat	5 -> l_bytes 4.16672 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_6.dat	6 -> l_bytes 4.16605 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_7.dat	7 -> l_bytes 4.16681 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_8.dat	8 -> l_bytes 4.16449 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_9.dat	9 -> l_bytes 4.16467 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_10.dat	10 -> l_bytes 4.16461 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_11.dat	11 -> l_bytes 4.16742 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_12.dat	12 -> l_bytes 4.16519 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_13.dat	13 -> l_bytes 4.16354 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_14.dat	14 -> l_bytes 4.16351 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/nnzVal_15.dat	15 -> l_bytes 3.92679 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/parParam.dat	16 -> l_bytes 0.0246887 MB
+l_sigFileNames ./sig_dat/mac_econ_fwd500/rbParam.dat	17 -> l_bytes 0.0124817 MB
+l_vecFileNames ./vec_dat/mac_econ_fwd500/inVec.dat	0 -> l_bytes 1.57547 MB
+l_vecFileNames ./vec_dat/mac_econ_fwd500/refVec.dat	1 -> l_bytes 1.57547 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,mac_econ_fwd500,206500,206500,1273389,206500,206500,8128608,538.344,128,0.113091,0.883522,2.88253,18.4005,66.4428
+INFO: Test pass!
+
+real	0m13.965s
+user	0m0.204s
+sys	0m0.464s
+--->  mc2depi  <---
+--->  mc2depi  <---
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_0.dat 0 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_1.dat 1 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_2.dat 2 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_3.dat 3 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_4.dat 4 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_5.dat 5 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_6.dat 6 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_7.dat 7 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_8.dat 8 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_9.dat 9 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_10.dat  10 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_11.dat  11 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_12.dat  12 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_13.dat  13 -> l_bytes 10.0927 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_14.dat  14 -> l_bytes 10.0925 MB
+l_sigFileNames ./sig_dat/mc2depi/nnzVal_15.dat  15 -> l_bytes 9.63937 MB
+l_sigFileNames ./sig_dat/mc2depi/parParam.dat 16 -> l_bytes 0.0627747 MB
+l_sigFileNames ./sig_dat/mc2depi/rbParam.dat  17 -> l_bytes 0.0315247 MB
+l_vecFileNames ./vec_dat/mc2depi/inVec.dat  0 -> l_bytes 4.01175 MB
+l_vecFileNames ./vec_dat/mc2depi/refVec.dat 1 -> l_bytes 4.01175 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")   ->  PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")   ->  PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}") ->  PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")   ->  PREPARED l_kernelStoreY
+DATA_CSV:,mc2depi,525825,525825,2100225,525825,525828,19709728,838.458,128,0.281277,2.19747,1.91149,17.9385,161.125
+INFO: Test pass!
+
+real  0m8.621s
+user  0m0.211s
+sys 0m0.645s
+--->  raefsky3  <---
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_0.dat	0 -> l_bytes 1.01492 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_1.dat	1 -> l_bytes 1.01544 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_2.dat	2 -> l_bytes 1.01569 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_3.dat	3 -> l_bytes 1.01569 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_4.dat	4 -> l_bytes 1.01544 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_5.dat	5 -> l_bytes 1.01544 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_6.dat	6 -> l_bytes 1.01569 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_7.dat	7 -> l_bytes 1.01544 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_8.dat	8 -> l_bytes 1.01569 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_9.dat	9 -> l_bytes 1.01569 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_10.dat	10 -> l_bytes 1.0152 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_11.dat	11 -> l_bytes 1.01569 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_12.dat	12 -> l_bytes 1.01413 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_13.dat	13 -> l_bytes 1.01385 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_14.dat	14 -> l_bytes 1.01361 MB
+l_sigFileNames ./sig_dat/raefsky3/nnzVal_15.dat	15 -> l_bytes 0.983734 MB
+l_sigFileNames ./sig_dat/raefsky3/parParam.dat	16 -> l_bytes 0.00271606 MB
+l_sigFileNames ./sig_dat/raefsky3/rbParam.dat	17 -> l_bytes 0.00149536 MB
+l_vecFileNames ./vec_dat/raefsky3/inVec.dat	0 -> l_bytes 0.161743 MB
+l_vecFileNames ./vec_dat/raefsky3/refVec.dat	1 -> l_bytes 0.161743 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,raefsky3,21200,21200,1488768,21200,21200,1984768,33.3161,128,0.0226025,0.176582,16.8621,22.4799,16.2155
+INFO: Test pass!
+
+real	0m8.307s
+user	0m0.162s
+sys	0m0.387s
+--->  bbmat  <---
+l_sigFileNames ./sig_dat/bbmat/nnzVal_0.dat	0 -> l_bytes 1.89523 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_1.dat	1 -> l_bytes 1.89188 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_2.dat	2 -> l_bytes 1.89453 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_3.dat	3 -> l_bytes 1.89294 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_4.dat	4 -> l_bytes 1.89502 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_5.dat	5 -> l_bytes 1.89444 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_6.dat	6 -> l_bytes 1.89468 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_7.dat	7 -> l_bytes 1.896 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_8.dat	8 -> l_bytes 1.89816 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_9.dat	9 -> l_bytes 1.89609 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_10.dat	10 -> l_bytes 1.89526 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_11.dat	11 -> l_bytes 1.89706 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_12.dat	12 -> l_bytes 1.89713 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_13.dat	13 -> l_bytes 1.89581 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_14.dat	14 -> l_bytes 1.89819 MB
+l_sigFileNames ./sig_dat/bbmat/nnzVal_15.dat	15 -> l_bytes 1.78625 MB
+l_sigFileNames ./sig_dat/bbmat/parParam.dat	16 -> l_bytes 0.00540161 MB
+l_sigFileNames ./sig_dat/bbmat/rbParam.dat	17 -> l_bytes 0.00247192 MB
+l_vecFileNames ./vec_dat/bbmat/inVec.dat	0 -> l_bytes 0.295593 MB
+l_vecFileNames ./vec_dat/bbmat/refVec.dat	1 -> l_bytes 0.295593 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,bbmat,38744,38744,1771722,38744,38744,3699584,108.813,128,0.0369575,0.288731,12.2725,25.6265,30.2266
+INFO: Test pass!
+
+real	0m8.547s
+user	0m0.201s
+sys	0m0.381s
+--->  pdb1HYS  <---
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_0.dat	0 -> l_bytes 3.2095 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_1.dat	1 -> l_bytes 3.20953 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_2.dat	2 -> l_bytes 3.20953 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_3.dat	3 -> l_bytes 3.20999 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_4.dat	4 -> l_bytes 3.20871 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_5.dat	5 -> l_bytes 3.20999 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_6.dat	6 -> l_bytes 3.21085 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_7.dat	7 -> l_bytes 3.21387 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_8.dat	8 -> l_bytes 3.21448 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_9.dat	9 -> l_bytes 3.20944 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_10.dat	10 -> l_bytes 3.21341 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_11.dat	11 -> l_bytes 3.20929 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_12.dat	12 -> l_bytes 3.20792 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_13.dat	13 -> l_bytes 3.20297 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_14.dat	14 -> l_bytes 3.19638 MB
+l_sigFileNames ./sig_dat/pdb1HYS/nnzVal_15.dat	15 -> l_bytes 2.94284 MB
+l_sigFileNames ./sig_dat/pdb1HYS/parParam.dat	16 -> l_bytes 0.0127258 MB
+l_sigFileNames ./sig_dat/pdb1HYS/rbParam.dat	17 -> l_bytes 0.00222778 MB
+l_vecFileNames ./vec_dat/pdb1HYS/inVec.dat	0 -> l_bytes 0.277863 MB
+l_vecFileNames ./vec_dat/pdb1HYS/refVec.dat	1 -> l_bytes 0.277863 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,pdb1HYS,36417,36417,4344765,36417,36420,6252896,43.9179,128,0.0674539,0.526983,16.4892,23.7309,51.0937
+INFO: Test pass!
+
+real	0m9.247s
+user	0m0.208s
+sys	0m0.430s
+--->  conf5_4-8x8-15  <---
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_0.dat	0 -> l_bytes 2.99048 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_1.dat	1 -> l_bytes 2.99213 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_2.dat	2 -> l_bytes 2.99152 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_3.dat	3 -> l_bytes 2.992 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_4.dat	4 -> l_bytes 2.9903 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_5.dat	5 -> l_bytes 2.99127 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_6.dat	6 -> l_bytes 2.99188 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_7.dat	7 -> l_bytes 2.99115 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_8.dat	8 -> l_bytes 2.99271 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_9.dat	9 -> l_bytes 2.99146 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_10.dat	10 -> l_bytes 2.99054 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_11.dat	11 -> l_bytes 2.98975 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_12.dat	12 -> l_bytes 2.98999 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_13.dat	13 -> l_bytes 2.99023 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_14.dat	14 -> l_bytes 2.99097 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/nnzVal_15.dat	15 -> l_bytes 2.87192 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/parParam.dat	16 -> l_bytes 0.0132141 MB
+l_sigFileNames ./sig_dat/conf5_4-8x8-15/rbParam.dat	17 -> l_bytes 0.00296021 MB
+l_vecFileNames ./vec_dat/conf5_4-8x8-15/inVec.dat	0 -> l_bytes 0.375 MB
+l_vecFileNames ./vec_dat/conf5_4-8x8-15/refVec.dat	1 -> l_bytes 0.375 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,conf5_4-8x8-15,49152,49152,1916928,49152,49152,5844224,204.874,128,0.0578174,0.451698,8.48765,25.8767,47.7545
+INFO: Test pass!
+
+real	0m10.359s
+user	0m0.189s
+sys	0m0.455s
+--->  cant  <---
+l_sigFileNames ./sig_dat/cant/nnzVal_0.dat	0 -> l_bytes 3.67798 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_1.dat	1 -> l_bytes 3.67773 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_2.dat	2 -> l_bytes 3.67953 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_3.dat	3 -> l_bytes 3.68063 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_4.dat	4 -> l_bytes 3.68152 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_5.dat	5 -> l_bytes 3.68054 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_6.dat	6 -> l_bytes 3.68314 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_7.dat	7 -> l_bytes 3.68213 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_8.dat	8 -> l_bytes 3.68301 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_9.dat	9 -> l_bytes 3.68402 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_10.dat	10 -> l_bytes 3.68167 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_11.dat	11 -> l_bytes 3.68271 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_12.dat	12 -> l_bytes 3.68271 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_13.dat	13 -> l_bytes 3.68094 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_14.dat	14 -> l_bytes 3.68097 MB
+l_sigFileNames ./sig_dat/cant/nnzVal_15.dat	15 -> l_bytes 3.49829 MB
+l_sigFileNames ./sig_dat/cant/parParam.dat	16 -> l_bytes 0.00759888 MB
+l_sigFileNames ./sig_dat/cant/rbParam.dat	17 -> l_bytes 0.00393677 MB
+l_vecFileNames ./vec_dat/cant/inVec.dat	0 -> l_bytes 0.476471 MB
+l_vecFileNames ./vec_dat/cant/refVec.dat	1 -> l_bytes 0.476471 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,cant,62451,62451,4007383,62451,62452,7189408,79.4041,128,0.0676458,0.528483,15.1656,27.2077,58.7291
+INFO: Test pass!
+
+real	0m9.685s
+user	0m0.223s
+sys	0m0.419s
+--->  rma10  <---
+l_sigFileNames ./sig_dat/rma10/nnzVal_0.dat	0 -> l_bytes 2.23706 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_1.dat	1 -> l_bytes 2.23837 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_2.dat	2 -> l_bytes 2.2373 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_3.dat	3 -> l_bytes 2.23807 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_4.dat	4 -> l_bytes 2.23782 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_5.dat	5 -> l_bytes 2.23773 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_6.dat	6 -> l_bytes 2.23749 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_7.dat	7 -> l_bytes 2.23737 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_8.dat	8 -> l_bytes 2.23621 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_9.dat	9 -> l_bytes 2.23755 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_10.dat	10 -> l_bytes 2.23676 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_11.dat	11 -> l_bytes 2.2388 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_12.dat	12 -> l_bytes 2.23782 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_13.dat	13 -> l_bytes 2.23831 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_14.dat	14 -> l_bytes 2.23413 MB
+l_sigFileNames ./sig_dat/rma10/nnzVal_15.dat	15 -> l_bytes 2.0993 MB
+l_sigFileNames ./sig_dat/rma10/parParam.dat	16 -> l_bytes 0.00881958 MB
+l_sigFileNames ./sig_dat/rma10/rbParam.dat	17 -> l_bytes 0.00296021 MB
+l_vecFileNames ./vec_dat/rma10/inVec.dat	0 -> l_bytes 0.35733 MB
+l_vecFileNames ./vec_dat/rma10/refVec.dat	1 -> l_bytes 0.35733 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,rma10,46835,46835,2329092,46835,46836,4365504,87.4337,128,0.0439435,0.343308,13.5685,25.432,35.6719
+INFO: Test pass!
+
+real	0m9.891s
+user	0m0.176s
+sys	0m0.424s
+--->  mip1  <---
+l_sigFileNames ./sig_dat/mip1/nnzVal_0.dat  0 -> l_bytes 8.20651 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_1.dat  1 -> l_bytes 8.06345 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_2.dat  2 -> l_bytes 8.01761 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_3.dat  3 -> l_bytes 7.98703 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_4.dat  4 -> l_bytes 7.98419 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_5.dat  5 -> l_bytes 7.98129 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_6.dat  6 -> l_bytes 7.98581 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_7.dat  7 -> l_bytes 7.9913 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_8.dat  8 -> l_bytes 7.99622 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_9.dat  9 -> l_bytes 7.99026 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_10.dat 10 -> l_bytes 7.97937 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_11.dat 11 -> l_bytes 7.97665 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_12.dat 12 -> l_bytes 7.96643 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_13.dat 13 -> l_bytes 7.95905 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_14.dat 14 -> l_bytes 7.89783 MB
+l_sigFileNames ./sig_dat/mip1/nnzVal_15.dat 15 -> l_bytes 7.16934 MB
+l_sigFileNames ./sig_dat/mip1/parParam.dat  16 -> l_bytes 0.0224915 MB
+l_sigFileNames ./sig_dat/mip1/rbParam.dat 17 -> l_bytes 0.00418091 MB
+l_vecFileNames ./vec_dat/mip1/inVec.dat 0 -> l_bytes 0.50708 MB
+l_vecFileNames ./vec_dat/mip1/refVec.dat  1 -> l_bytes 0.50708 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")   ->  PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")   ->  PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}") ->  PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")   ->  PREPARED l_kernelStoreY
+DATA_CSV:,mip1,66463,66463,10352819,66463,66464,15567808,50.3726,128,0.161354,1.26058,16.4255,24.6995,127.179
+INFO: Test pass!
+
+real  0m10.939s
+user  0m0.221s
+sys 0m0.561s
+--->  webbase-1M  <---
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_0.dat	0 -> l_bytes 37.3931 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_1.dat	1 -> l_bytes 36.631 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_2.dat	2 -> l_bytes 36.2126 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_3.dat	3 -> l_bytes 35.9721 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_4.dat	4 -> l_bytes 35.7853 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_5.dat	5 -> l_bytes 35.6519 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_6.dat	6 -> l_bytes 35.5442 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_7.dat	7 -> l_bytes 35.4671 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_8.dat	8 -> l_bytes 35.3556 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_9.dat	9 -> l_bytes 35.1793 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_10.dat	10 -> l_bytes 34.9953 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_11.dat	11 -> l_bytes 34.6768 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_12.dat	12 -> l_bytes 34.3044 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_13.dat	13 -> l_bytes 33.6604 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_14.dat	14 -> l_bytes 32.5455 MB
+l_sigFileNames ./sig_dat/webbase-1M/nnzVal_15.dat	15 -> l_bytes 27.7104 MB
+l_sigFileNames ./sig_dat/webbase-1M/parParam.dat	16 -> l_bytes 3.11819 MB
+l_sigFileNames ./sig_dat/webbase-1M/rbParam.dat	17 -> l_bytes 0.059845 MB
+l_vecFileNames ./vec_dat/webbase-1M/inVec.dat	0 -> l_bytes 7.62946 MB
+l_vecFileNames ./vec_dat/webbase-1M/refVec.dat	1 -> l_bytes 7.62946 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,webbase-1M,1000005,1000005,3105536,1000005,1000008,67805984,2083.39,128,4.01416,31.3606,0.198053,4.32428,560.263
+INFO: Test pass!
+
+real	0m28.223s
+user	0m0.503s
+sys	0m1.340s
+--->  consph  <---
+l_sigFileNames ./sig_dat/consph/nnzVal_0.dat	0 -> l_bytes 6.08911 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_1.dat	1 -> l_bytes 6.09122 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_2.dat	2 -> l_bytes 6.09262 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_3.dat	3 -> l_bytes 6.09293 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_4.dat	4 -> l_bytes 6.0903 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_5.dat	5 -> l_bytes 6.08939 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_6.dat	6 -> l_bytes 6.09393 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_7.dat	7 -> l_bytes 6.09149 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_8.dat	8 -> l_bytes 6.09061 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_9.dat	9 -> l_bytes 6.09476 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_10.dat	10 -> l_bytes 6.09207 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_11.dat	11 -> l_bytes 6.09076 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_12.dat	12 -> l_bytes 6.09167 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_13.dat	13 -> l_bytes 6.08725 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_14.dat	14 -> l_bytes 6.07245 MB
+l_sigFileNames ./sig_dat/consph/nnzVal_15.dat	15 -> l_bytes 5.69492 MB
+l_sigFileNames ./sig_dat/consph/parParam.dat	16 -> l_bytes 0.023468 MB
+l_sigFileNames ./sig_dat/consph/rbParam.dat	17 -> l_bytes 0.00515747 MB
+l_vecFileNames ./vec_dat/consph/inVec.dat	0 -> l_bytes 0.635803 MB
+l_vecFileNames ./vec_dat/consph/refVec.dat	1 -> l_bytes 0.635803 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,consph,83334,83334,6010480,83334,83336,11880576,97.6643,128,0.122872,0.959941,12.5226,24.7527,97.0741
+INFO: Test pass!
+
+real	0m11.129s
+user	0m0.207s
+sys	0m0.527s
+--->  shipsec1  <---
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_0.dat	0 -> l_bytes 6.91818 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_1.dat	1 -> l_bytes 6.91751 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_2.dat	2 -> l_bytes 6.91589 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_3.dat	3 -> l_bytes 6.91827 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_4.dat	4 -> l_bytes 6.91846 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_5.dat	5 -> l_bytes 6.91995 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_6.dat	6 -> l_bytes 6.91925 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_7.dat	7 -> l_bytes 6.91818 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_8.dat	8 -> l_bytes 6.91772 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_9.dat	9 -> l_bytes 6.91818 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_10.dat	10 -> l_bytes 6.91772 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_11.dat	11 -> l_bytes 6.91696 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_12.dat	12 -> l_bytes 6.91711 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_13.dat	13 -> l_bytes 6.91666 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_14.dat	14 -> l_bytes 6.91833 MB
+l_sigFileNames ./sig_dat/shipsec1/nnzVal_15.dat	15 -> l_bytes 6.61847 MB
+l_sigFileNames ./sig_dat/shipsec1/parParam.dat	16 -> l_bytes 0.0273743 MB
+l_sigFileNames ./sig_dat/shipsec1/rbParam.dat	17 -> l_bytes 0.00857544 MB
+l_vecFileNames ./vec_dat/shipsec1/inVec.dat	0 -> l_bytes 1.0748 MB
+l_vecFileNames ./vec_dat/shipsec1/refVec.dat	1 -> l_bytes 1.0748 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,shipsec1,140874,140874,3568176,140874,140876,13513344,278.719,128,0.142639,1.11436,6.40397,24.253,110.423
+INFO: Test pass!
+
+real	0m13.465s
+user	0m0.249s
+sys	0m0.505s
+--->  TSOPF_RS_b300_c3  <---
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_0.dat	0 -> l_bytes 3.69501 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_1.dat	1 -> l_bytes 3.69501 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_2.dat	2 -> l_bytes 3.69501 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_3.dat	3 -> l_bytes 3.69501 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_4.dat	4 -> l_bytes 3.69556 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_5.dat	5 -> l_bytes 3.69632 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_6.dat	6 -> l_bytes 3.6958 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_7.dat	7 -> l_bytes 3.69528 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_8.dat	8 -> l_bytes 3.69528 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_9.dat	9 -> l_bytes 3.69476 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_10.dat	10 -> l_bytes 3.69501 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_11.dat	11 -> l_bytes 3.69528 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_12.dat	12 -> l_bytes 3.69559 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_13.dat	13 -> l_bytes 3.69583 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_14.dat	14 -> l_bytes 3.67758 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/nnzVal_15.dat	15 -> l_bytes 3.5463 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/parParam.dat	16 -> l_bytes 0.0110168 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b300_c3/rbParam.dat	17 -> l_bytes 0.00271606 MB
+l_vecFileNames ./vec_dat/TSOPF_RS_b300_c3/inVec.dat	0 -> l_bytes 0.321503 MB
+l_vecFileNames ./vec_dat/TSOPF_RS_b300_c3/refVec.dat	1 -> l_bytes 0.321503 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,TSOPF_RS_b300_c3,42138,42138,4413449,42138,42140,7218400,63.5546,128,0.0667941,0.521829,16.9153,27.6658,58.9724
+INFO: Test pass!
+
+real	0m9.160s
+user	0m0.203s
+sys	0m0.438s
+--->  crankseg_2  <---
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_0.dat	0 -> l_bytes 13.0195 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_1.dat	1 -> l_bytes 13.0261 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_2.dat	2 -> l_bytes 13.0284 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_3.dat	3 -> l_bytes 13.0346 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_4.dat	4 -> l_bytes 13.0324 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_5.dat	5 -> l_bytes 13.0313 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_6.dat	6 -> l_bytes 13.0316 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_7.dat	7 -> l_bytes 13.0306 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_8.dat	8 -> l_bytes 13.0301 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_9.dat	9 -> l_bytes 13.0309 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_10.dat	10 -> l_bytes 13.0265 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_11.dat	11 -> l_bytes 13.0275 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_12.dat	12 -> l_bytes 13.027 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_13.dat	13 -> l_bytes 13.0181 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_14.dat	14 -> l_bytes 13.0075 MB
+l_sigFileNames ./sig_dat/crankseg_2/nnzVal_15.dat	15 -> l_bytes 11.8847 MB
+l_sigFileNames ./sig_dat/crankseg_2/parParam.dat	16 -> l_bytes 0.0539856 MB
+l_sigFileNames ./sig_dat/crankseg_2/rbParam.dat	17 -> l_bytes 0.00393677 MB
+l_vecFileNames ./vec_dat/crankseg_2/inVec.dat	0 -> l_bytes 0.487061 MB
+l_vecFileNames ./vec_dat/crankseg_2/refVec.dat	1 -> l_bytes 0.487061 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,crankseg_2,63838,63838,14148858,63838,63840,25375072,79.3436,128,0.271678,2.12248,13.3324,23.9108,207.345
+INFO: Test pass!
+
+real	0m12.821s
+user	0m0.288s
+sys	0m0.713s
+--->  pwtk  <---
+l_sigFileNames ./sig_dat/pwtk/nnzVal_0.dat	0 -> l_bytes 9.23767 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_1.dat	1 -> l_bytes 9.23831 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_2.dat	2 -> l_bytes 9.23776 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_3.dat	3 -> l_bytes 9.2356 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_4.dat	4 -> l_bytes 9.24323 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_5.dat	5 -> l_bytes 9.24265 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_6.dat	6 -> l_bytes 9.24313 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_7.dat	7 -> l_bytes 9.245 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_8.dat	8 -> l_bytes 9.24557 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_9.dat	9 -> l_bytes 9.24237 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_10.dat	10 -> l_bytes 9.24402 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_11.dat	11 -> l_bytes 9.24329 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_12.dat	12 -> l_bytes 9.24289 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_13.dat	13 -> l_bytes 9.23932 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_14.dat	14 -> l_bytes 9.237 MB
+l_sigFileNames ./sig_dat/pwtk/nnzVal_15.dat	15 -> l_bytes 8.71695 MB
+l_sigFileNames ./sig_dat/pwtk/parParam.dat	16 -> l_bytes 0.0359192 MB
+l_sigFileNames ./sig_dat/pwtk/rbParam.dat	17 -> l_bytes 0.0132141 MB
+l_vecFileNames ./vec_dat/pwtk/inVec.dat	0 -> l_bytes 1.6626 MB
+l_vecFileNames ./vec_dat/pwtk/refVec.dat	1 -> l_bytes 1.6626 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,pwtk,217918,217918,11524432,217918,217920,18037152,56.5123,128,0.175164,1.36847,16.8428,26.3611,147.384
+INFO: Test pass!
+
+real	0m10.066s
+user	0m0.280s
+sys	0m0.565s
+--->  rail4284  <---
+l_sigFileNames ./sig_dat/rail4284/nnzVal_0.dat	0 -> l_bytes 12.2776 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_1.dat	1 -> l_bytes 12.2981 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_2.dat	2 -> l_bytes 12.3515 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_3.dat	3 -> l_bytes 12.3551 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_4.dat	4 -> l_bytes 12.4448 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_5.dat	5 -> l_bytes 12.4519 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_6.dat	6 -> l_bytes 12.3757 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_7.dat	7 -> l_bytes 12.2963 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_8.dat	8 -> l_bytes 12.335 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_9.dat	9 -> l_bytes 12.4416 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_10.dat	10 -> l_bytes 12.299 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_11.dat	11 -> l_bytes 12.3582 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_12.dat	12 -> l_bytes 12.4383 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_13.dat	13 -> l_bytes 12.1446 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_14.dat	14 -> l_bytes 11.9066 MB
+l_sigFileNames ./sig_dat/rail4284/nnzVal_15.dat	15 -> l_bytes 6.84583 MB
+l_sigFileNames ./sig_dat/rail4284/parParam.dat	16 -> l_bytes 0.127716 MB
+l_sigFileNames ./sig_dat/rail4284/rbParam.dat	17 -> l_bytes 0.000518799 MB
+l_vecFileNames ./vec_dat/rail4284/inVec.dat	0 -> l_bytes 8.36865 MB
+l_vecFileNames ./vec_dat/rail4284/refVec.dat	1 -> l_bytes 0.0326843 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,rail4284,4284,1096894,11284032,4284,1096896,23444224,107.765,128,0.474373,3.70604,6.08954,12.6519,191.748
+INFO: Test pass!
+
+real	0m18.647s
+user	0m0.312s
+sys	0m0.662s
+--->  Chebyshev4  <---
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_0.dat	0 -> l_bytes 5.61374 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_1.dat	1 -> l_bytes 5.6293 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_2.dat	2 -> l_bytes 5.64493 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_3.dat	3 -> l_bytes 6.11545 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_4.dat	4 -> l_bytes 5.64832 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_5.dat	5 -> l_bytes 5.62863 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_6.dat	6 -> l_bytes 5.65289 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_7.dat	7 -> l_bytes 6.08069 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_8.dat	8 -> l_bytes 5.621 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_9.dat	9 -> l_bytes 5.65942 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_10.dat	10 -> l_bytes 5.6586 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_11.dat	11 -> l_bytes 6.09076 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_12.dat	12 -> l_bytes 5.63773 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_13.dat	13 -> l_bytes 5.6337 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_14.dat	14 -> l_bytes 5.65094 MB
+l_sigFileNames ./sig_dat/Chebyshev4/nnzVal_15.dat	15 -> l_bytes 3.54764 MB
+l_sigFileNames ./sig_dat/Chebyshev4/parParam.dat	16 -> l_bytes 0.0117493 MB
+l_sigFileNames ./sig_dat/Chebyshev4/rbParam.dat	17 -> l_bytes 0.00418091 MB
+l_vecFileNames ./vec_dat/Chebyshev4/inVec.dat	0 -> l_bytes 0.519745 MB
+l_vecFileNames ./vec_dat/Chebyshev4/refVec.dat	1 -> l_bytes 0.519745 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,Chebyshev4,68121,68121,5377761,68121,68124,10960160,103.805,128,0.120167,0.938801,11.4567,23.3493,89.5297
+INFO: Test pass!
+
+real	0m9.964s
+user	0m0.224s
+sys	0m0.486s
+--->  in-2004  <---
+l_sigFileNames ./sig_dat/in-2004/nnzVal_0.dat	0 -> l_bytes 32.6958 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_1.dat	1 -> l_bytes 31.5421 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_2.dat	2 -> l_bytes 30.9285 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_3.dat	3 -> l_bytes 30.5646 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_4.dat	4 -> l_bytes 30.304 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_5.dat	5 -> l_bytes 30.1412 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_6.dat	6 -> l_bytes 30.0042 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_7.dat	7 -> l_bytes 29.912 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_8.dat	8 -> l_bytes 29.8427 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_9.dat	9 -> l_bytes 29.7506 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_10.dat	10 -> l_bytes 29.6147 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_11.dat	11 -> l_bytes 29.5388 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_12.dat	12 -> l_bytes 29.3727 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_13.dat	13 -> l_bytes 29.2294 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_14.dat	14 -> l_bytes 28.9332 MB
+l_sigFileNames ./sig_dat/in-2004/nnzVal_15.dat	15 -> l_bytes 26.0887 MB
+l_sigFileNames ./sig_dat/in-2004/parParam.dat	16 -> l_bytes 2.85696 MB
+l_sigFileNames ./sig_dat/in-2004/rbParam.dat	17 -> l_bytes 0.0823059 MB
+l_vecFileNames ./vec_dat/in-2004/inVec.dat	0 -> l_bytes 10.5508 MB
+l_vecFileNames ./vec_dat/in-2004/refVec.dat	1 -> l_bytes 10.5508 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,in-2004,1382908,1382908,16917053,1382908,1382908,58338848,244.852,128,2.31658,18.0983,1.86946,6.44689,481.402
+INFO: Test pass!
+
+real	0m23.701s
+user	0m0.503s
+sys	0m1.234s
+--->  Si41Ge41H72  <---
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_0.dat	0 -> l_bytes 33.7286 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_1.dat	1 -> l_bytes 33.729 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_2.dat	2 -> l_bytes 33.7299 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_3.dat	3 -> l_bytes 33.7308 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_4.dat	4 -> l_bytes 33.7389 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_5.dat	5 -> l_bytes 33.7376 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_6.dat	6 -> l_bytes 33.7492 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_7.dat	7 -> l_bytes 33.7545 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_8.dat	8 -> l_bytes 33.7332 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_9.dat	9 -> l_bytes 33.7395 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_10.dat	10 -> l_bytes 33.7395 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_11.dat	11 -> l_bytes 33.7498 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_12.dat	12 -> l_bytes 33.7323 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_13.dat	13 -> l_bytes 33.725 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_14.dat	14 -> l_bytes 33.7175 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/nnzVal_15.dat	15 -> l_bytes 31.9272 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/parParam.dat	16 -> l_bytes 0.118927 MB
+l_sigFileNames ./sig_dat/Si41Ge41H72/rbParam.dat	17 -> l_bytes 0.011261 MB
+l_vecFileNames ./vec_dat/Si41Ge41H72/inVec.dat	0 -> l_bytes 1.41632 MB
+l_vecFileNames ./vec_dat/Si41Ge41H72/refVec.dat	1 -> l_bytes 1.41632 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,Si41Ge41H72,185639,185639,15011265,185639,185640,65859136,338.731,128,0.659058,5.14889,5.83087,25.5819,538.093
+INFO: Test pass!
+
+real	0m18.986s
+user	0m0.493s
+sys	0m1.354s
+--->  PR02R  <---
+l_sigFileNames ./sig_dat/PR02R/nnzVal_0.dat	0 -> l_bytes 9.92267 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_1.dat	1 -> l_bytes 9.91968 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_2.dat	2 -> l_bytes 9.91806 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_3.dat	3 -> l_bytes 9.92297 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_4.dat	4 -> l_bytes 9.92874 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_5.dat	5 -> l_bytes 9.92999 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_6.dat	6 -> l_bytes 9.93384 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_7.dat	7 -> l_bytes 9.9295 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_8.dat	8 -> l_bytes 9.92471 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_9.dat	9 -> l_bytes 9.92432 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_10.dat	10 -> l_bytes 9.91196 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_11.dat	11 -> l_bytes 9.89169 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_12.dat	12 -> l_bytes 9.88229 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_13.dat	13 -> l_bytes 9.8642 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_14.dat	14 -> l_bytes 9.85748 MB
+l_sigFileNames ./sig_dat/PR02R/nnzVal_15.dat	15 -> l_bytes 9.43561 MB
+l_sigFileNames ./sig_dat/PR02R/parParam.dat	16 -> l_bytes 0.0473938 MB
+l_sigFileNames ./sig_dat/PR02R/rbParam.dat	17 -> l_bytes 0.00979614 MB
+l_vecFileNames ./vec_dat/PR02R/inVec.dat	0 -> l_bytes 1.22888 MB
+l_vecFileNames ./vec_dat/PR02R/refVec.dat	1 -> l_bytes 1.22888 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,PR02R,161070,161070,8185136,161070,161072,19352800,136.438,128,0.219541,1.71516,9.54443,22.5667,158.155
+INFO: Test pass!
+
+real	0m11.775s
+user	0m0.271s
+sys	0m0.592s
+--->  eu-2005  <---
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_0.dat	0 -> l_bytes 50.1418 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_1.dat	1 -> l_bytes 49.6267 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_2.dat	2 -> l_bytes 49.3434 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_3.dat	3 -> l_bytes 49.1498 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_4.dat	4 -> l_bytes 49.0084 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_5.dat	5 -> l_bytes 48.8892 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_6.dat	6 -> l_bytes 48.7521 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_7.dat	7 -> l_bytes 48.6756 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_8.dat	8 -> l_bytes 48.5598 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_9.dat	9 -> l_bytes 48.3185 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_10.dat	10 -> l_bytes 48.1214 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_11.dat	11 -> l_bytes 47.8409 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_12.dat	12 -> l_bytes 47.485 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_13.dat	13 -> l_bytes 46.8313 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_14.dat	14 -> l_bytes 45.6382 MB
+l_sigFileNames ./sig_dat/eu-2005/nnzVal_15.dat	15 -> l_bytes 38.733 MB
+l_sigFileNames ./sig_dat/eu-2005/parParam.dat	16 -> l_bytes 3.16678 MB
+l_sigFileNames ./sig_dat/eu-2005/rbParam.dat	17 -> l_bytes 0.0513 MB
+l_vecFileNames ./vec_dat/eu-2005/inVec.dat	0 -> l_bytes 6.5816 MB
+l_vecFileNames ./vec_dat/eu-2005/refVec.dat	1 -> l_bytes 6.5816 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,eu-2005,862664,862664,19235140,862664,862664,93214656,384.606,128,4.47603,34.969,1.10012,5.33127,768.333
+INFO: Test pass!
+
+real	0m27.835s
+user	0m0.620s
+sys	0m1.744s
+--->  wikipedia-20051105  <---
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_0.dat	0 -> l_bytes 238.454 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_1.dat	1 -> l_bytes 238.424 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_2.dat	2 -> l_bytes 238.438 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_3.dat	3 -> l_bytes 238.4 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_4.dat	4 -> l_bytes 238.28 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_5.dat	5 -> l_bytes 238.167 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_6.dat	6 -> l_bytes 238.009 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_7.dat	7 -> l_bytes 237.789 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_8.dat	8 -> l_bytes 236.724 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_9.dat	9 -> l_bytes 232.901 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_10.dat	10 -> l_bytes 228.929 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_11.dat	11 -> l_bytes 221.451 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_12.dat	12 -> l_bytes 210.685 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_13.dat	13 -> l_bytes 193.449 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_14.dat	14 -> l_bytes 165.147 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/nnzVal_15.dat	15 -> l_bytes 102.198 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/parParam.dat	16 -> l_bytes 37.5811 MB
+l_sigFileNames ./sig_dat/wikipedia-20051105/rbParam.dat	17 -> l_bytes 0.0976868 MB
+l_vecFileNames ./vec_dat/wikipedia-20051105/inVec.dat	0 -> l_bytes 12.474 MB
+l_vecFileNames ./vec_dat/wikipedia-20051105/refVec.dat	1 -> l_bytes 12.474 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,wikipedia-20051105,1634989,1634989,19753078,1634989,1634992,420560672,2029.09,128,85.3435,666.746,0.0592521,1.26153,3535.12
+INFO: Test pass!
+
+real	3m20.657s
+user	0m2.474s
+sys	0m7.031s
+--->  Ga41As41H72  <---
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_0.dat	0 -> l_bytes 51.2413 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_1.dat	1 -> l_bytes 51.2381 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_2.dat	2 -> l_bytes 51.2406 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_3.dat	3 -> l_bytes 51.2435 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_4.dat	4 -> l_bytes 51.2404 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_5.dat	5 -> l_bytes 51.2425 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_6.dat	6 -> l_bytes 51.2528 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_7.dat	7 -> l_bytes 51.2529 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_8.dat	8 -> l_bytes 51.2534 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_9.dat	9 -> l_bytes 51.2476 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_10.dat	10 -> l_bytes 51.2453 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_11.dat	11 -> l_bytes 51.2398 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_12.dat	12 -> l_bytes 51.2403 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_13.dat	13 -> l_bytes 51.2264 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_14.dat	14 -> l_bytes 51.2096 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/nnzVal_15.dat	15 -> l_bytes 48.8787 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/parParam.dat	16 -> l_bytes 0.205597 MB
+l_sigFileNames ./sig_dat/Ga41As41H72/rbParam.dat	17 -> l_bytes 0.0161438 MB
+l_vecFileNames ./vec_dat/Ga41As41H72/inVec.dat	0 -> l_bytes 2.04541 MB
+l_vecFileNames ./vec_dat/Ga41As41H72/refVec.dat	1 -> l_bytes 2.04541 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,Ga41As41H72,268096,268096,18488476,268096,268096,100076224,441.29,128,0.961007,7.50786,4.9251,26.659,817.715
+INFO: Test pass!
+
+real	0m22.788s
+user	0m0.661s
+sys	0m2.006s
+--->  TSOPF_RS_b2383  <---
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_0.dat	0 -> l_bytes 9.50528 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_1.dat	1 -> l_bytes 9.50946 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_2.dat	2 -> l_bytes 9.50735 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_3.dat	3 -> l_bytes 9.51233 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_4.dat	4 -> l_bytes 9.51279 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_5.dat	5 -> l_bytes 9.51413 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_6.dat	6 -> l_bytes 9.51172 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_7.dat	7 -> l_bytes 9.5112 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_8.dat	8 -> l_bytes 9.5112 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_9.dat	9 -> l_bytes 9.5112 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_10.dat	10 -> l_bytes 9.5112 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_11.dat	11 -> l_bytes 9.5112 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_12.dat	12 -> l_bytes 9.5112 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_13.dat	13 -> l_bytes 9.51016 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_14.dat	14 -> l_bytes 9.51016 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/nnzVal_15.dat	15 -> l_bytes 9.10962 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/parParam.dat	16 -> l_bytes 0.00930786 MB
+l_sigFileNames ./sig_dat/TSOPF_RS_b2383/rbParam.dat	17 -> l_bytes 0.00247192 MB
+l_vecFileNames ./vec_dat/TSOPF_RS_b2383/inVec.dat	0 -> l_bytes 0.290833 MB
+l_vecFileNames ./vec_dat/TSOPF_RS_b2383/refVec.dat	1 -> l_bytes 0.290833 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,TSOPF_RS_b2383,38120,38120,16171169,38120,38120,18584608,14.9243,128,0.164898,1.28827,25.1053,28.8521,151.782
+INFO: Test pass!
+
+real	0m10.933s
+user	0m0.263s
+sys	0m0.581s
+--->  rajat31  <---
+l_sigFileNames ./sig_dat/rajat31/nnzVal_0.dat	0 -> l_bytes 87.2689 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_1.dat	1 -> l_bytes 87.2344 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_2.dat	2 -> l_bytes 87.2339 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_3.dat	3 -> l_bytes 87.2339 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_4.dat	4 -> l_bytes 87.2339 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_5.dat	5 -> l_bytes 87.2332 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_6.dat	6 -> l_bytes 87.2332 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_7.dat	7 -> l_bytes 87.2332 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_8.dat	8 -> l_bytes 87.2329 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_9.dat	9 -> l_bytes 87.2329 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_10.dat	10 -> l_bytes 87.1585 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_11.dat	11 -> l_bytes 87.1585 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_12.dat	12 -> l_bytes 87.1585 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_13.dat	13 -> l_bytes 87.158 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_14.dat	14 -> l_bytes 86.6152 MB
+l_sigFileNames ./sig_dat/rajat31/nnzVal_15.dat	15 -> l_bytes 78.3705 MB
+l_sigFileNames ./sig_dat/rajat31/parParam.dat	16 -> l_bytes 1.17825 MB
+l_sigFileNames ./sig_dat/rajat31/rbParam.dat	17 -> l_bytes 0.279816 MB
+l_vecFileNames ./vec_dat/rajat31/inVec.dat	0 -> l_bytes 35.7819 MB
+l_vecFileNames ./vec_dat/rajat31/refVec.dat	1 -> l_bytes 35.7819 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,rajat31,4690002,4690002,20316253,4690002,4690004,169497280,734.294,128,2.49626,19.5021,2.0835,17.3825,1387.45
+INFO: Test pass!
+
+real	0m38.177s
+user	0m1.061s
+sys	0m3.273s
+--->  ldoor  <---
+l_sigFileNames ./sig_dat/ldoor/nnzVal_0.dat	0 -> l_bytes 62.1233 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_1.dat	1 -> l_bytes 62.1713 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_2.dat	2 -> l_bytes 62.1678 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_3.dat	3 -> l_bytes 62.1992 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_4.dat	4 -> l_bytes 62.1913 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_5.dat	5 -> l_bytes 62.1928 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_6.dat	6 -> l_bytes 62.0902 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_7.dat	7 -> l_bytes 61.8047 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_8.dat	8 -> l_bytes 61.7985 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_9.dat	9 -> l_bytes 61.6738 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_10.dat	10 -> l_bytes 61.1545 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_11.dat	11 -> l_bytes 60.5541 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_12.dat	12 -> l_bytes 59.8941 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_13.dat	13 -> l_bytes 57.6675 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_14.dat	14 -> l_bytes 52.7672 MB
+l_sigFileNames ./sig_dat/ldoor/nnzVal_15.dat	15 -> l_bytes 36.6244 MB
+l_sigFileNames ./sig_dat/ldoor/parParam.dat	16 -> l_bytes 5.04593 MB
+l_sigFileNames ./sig_dat/ldoor/rbParam.dat	17 -> l_bytes 0.0569153 MB
+l_vecFileNames ./vec_dat/ldoor/inVec.dat	0 -> l_bytes 7.26474 MB
+l_vecFileNames ./vec_dat/ldoor/refVec.dat	1 -> l_bytes 7.26474 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,ldoor,952203,952203,42493817,952203,952204,115256640,171.232,128,8.29454,64.8011,1.31151,3.55724,954.178
+INFO: Test pass!
+
+real	0m35.493s
+user	0m0.820s
+sys	0m2.346s
+--->  bone010  <---
+l_sigFileNames ./sig_dat/bone010/nnzVal_0.dat	0 -> l_bytes 72.058 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_1.dat	1 -> l_bytes 72.0616 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_2.dat	2 -> l_bytes 72.0573 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_3.dat	3 -> l_bytes 72.0704 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_4.dat	4 -> l_bytes 72.0673 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_5.dat	5 -> l_bytes 72.067 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_6.dat	6 -> l_bytes 72.0701 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_7.dat	7 -> l_bytes 72.077 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_8.dat	8 -> l_bytes 72.07 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_9.dat	9 -> l_bytes 72.0714 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_10.dat	10 -> l_bytes 72.076 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_11.dat	11 -> l_bytes 72.07 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_12.dat	12 -> l_bytes 72.069 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_13.dat	13 -> l_bytes 72.0618 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_14.dat	14 -> l_bytes 72.024 MB
+l_sigFileNames ./sig_dat/bone010/nnzVal_15.dat	15 -> l_bytes 68.4338 MB
+l_sigFileNames ./sig_dat/bone010/parParam.dat	16 -> l_bytes 0.315216 MB
+l_sigFileNames ./sig_dat/bone010/rbParam.dat	17 -> l_bytes 0.0588684 MB
+l_vecFileNames ./vec_dat/bone010/inVec.dat	0 -> l_bytes 7.52795 MB
+l_vecFileNames ./vec_dat/bone010/refVec.dat	1 -> l_bytes 7.52795 MB
+Found Platform
+Platform Name: Xilinx
+INFO: Importing ./build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin
+Loading: './build_dir.hw.xilinx_u280_xdma_201920_3/spmv.xclbin'
+getCU("loadNnzKernel:{krnl_loadNnz}")		->	PREPARED l_kernelLoadNnz
+getCU("loadParXkernel:{krnl_loadParX}")		->	PREPARED l_kernelLoadParX
+getCU("loadRbParamKernel:{krnl_loadRbParam}")	->	PREPARED l_kernelLoadRbParam
+getCU("storeYkernel:{krnl_storeY}")		->	PREPARED l_kernelStoreY
+DATA_CSV:,bone010,986703,986703,47851783,986703,986704,140701056,194.035,128,1.26277,9.86542,9.70092,28.5241,1149.78
+INFO: Test pass!
+
+real	0m34.319s
+user	0m0.913s
+sys	0m2.366s
+--->  circuit5M  <---
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_0.dat	0 -> l_bytes 426.02 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_1.dat	1 -> l_bytes 423.528 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_2.dat	2 -> l_bytes 381.724 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_3.dat	3 -> l_bytes 381.538 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_4.dat	4 -> l_bytes 381.505 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_5.dat	5 -> l_bytes 381.358 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_6.dat	6 -> l_bytes 381.354 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_7.dat	7 -> l_bytes 381.31 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_8.dat	8 -> l_bytes 381.137 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_9.dat	9 -> l_bytes 381.215 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_10.dat	10 -> l_bytes 380.771 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_11.dat	11 -> l_bytes 379.953 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_12.dat	12 -> l_bytes 379.723 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_13.dat	13 -> l_bytes 379.431 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_14.dat	14 -> l_bytes 379.286 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/nnzVal_15.dat	15 -> l_bytes 376.559 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/circuit5M/parParam.dat	16 -> l_bytes 2.40067 MB
+l_sigFileNames ./sig_dat/circuit5M/rbParam.dat	17 -> l_bytes 0.331573 MB
+l_vecFileNames ./vec_dat/circuit5M/inVec.dat	0 -> l_bytes 42.4067 MB
+l_vecFileNames ./vec_dat/circuit5M/refVec.dat	1 -> l_bytes 42.4067 MB
+DATA_CSV:,circuit5M,5558326,5558326,59524291,5558326,5558328,756326272,1170.62,128,0,0,0,0,6179.14
+Some nonzero partition(s) is(are) larger than 256 MB. Exiting early!
+
+real	2m5.469s
+user	0m3.797s
+sys	0m7.115s
+--->  cage15  <---
+l_sigFileNames ./sig_dat/cage15/nnzVal_0.dat	0 -> l_bytes 724.481 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_1.dat	1 -> l_bytes 724.475 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_2.dat	2 -> l_bytes 724.477 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_3.dat	3 -> l_bytes 724.483 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_4.dat	4 -> l_bytes 724.48 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_5.dat	5 -> l_bytes 724.482 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_6.dat	6 -> l_bytes 724.486 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_7.dat	7 -> l_bytes 724.482 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_8.dat	8 -> l_bytes 724.472 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_9.dat	9 -> l_bytes 724.466 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_10.dat	10 -> l_bytes 724.452 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_11.dat	11 -> l_bytes 724.436 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_12.dat	12 -> l_bytes 724.413 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_13.dat	13 -> l_bytes 724.324 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_14.dat	14 -> l_bytes 723.987 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/nnzVal_15.dat	15 -> l_bytes 696.499 MB
+	WARNING! LARGER THAN 256 MB! It will break.
+l_sigFileNames ./sig_dat/cage15/parParam.dat	16 -> l_bytes 7.22708 MB
+l_sigFileNames ./sig_dat/cage15/rbParam.dat	17 -> l_bytes 0.307404 MB
+l_vecFileNames ./vec_dat/cage15/inVec.dat	0 -> l_bytes 39.3285 MB
+l_vecFileNames ./vec_dat/cage15/refVec.dat	1 -> l_bytes 39.3285 MB
+DATA_CSV:,cage15,5154859,5154859,99199551,5154859,5154860,1415024096,1326.44,128,0,0,0,0,11570.4
+Some nonzero partition(s) is(are) larger than 256 MB. Exiting early!
+
+real	3m47.155s
+user	0m7.043s
+sys	0m12.835s

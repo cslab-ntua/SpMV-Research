@@ -22,6 +22,8 @@ Pythonia/local_ipynb/petama
 Pythonia/local_ipynb/Paper_plots2
 matrix_generation_parameters/progress*
 matrix_generation_parameters/*part*
+matrix_generation_parameters/trash
+matrix_generation_parameters/vulcanP100 
 matrix_generation_parameters/synthetic_matrices_small_dataset_5*.txt
 matrix_generation_parameters/synthetic_matrices_small_dataset_6*.txt
 matrix_generation_parameters/synthetic_matrices_small_dataset_7*.txt
