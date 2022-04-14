@@ -17,6 +17,7 @@ build*/
 *.err
 *Plot_tries/
 HiSparse/
+benchmark_code/FPGA/HiSparse/
 *cnpy/
 results_visualization/local_ipynb/petama
 results_visualization/local_ipynb/Paper_plots2
