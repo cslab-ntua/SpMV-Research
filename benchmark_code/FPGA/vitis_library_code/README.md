@@ -24,7 +24,7 @@ To get the benchmark results, please run the following command.
 **Generate test inputs:**
 
 ```
-    python3 ../csr_to_vitis_converter/gen_signature_synthetic.py --partition --mtx_param_list ../../../matrix_generation_parameters/ synthetic_matrices_small_dataset.txt --sig_path ./sig_dat --vec_path ./vec_dat
+    python3 ../csr_to_vitis_converter/gen_signature_synthetic.py --partition --mtx_param_list ../../../matrix_generation_parameters/synthetic_matrices_small_dataset.txt --sig_path ./sig_dat --vec_path ./vec_dat
 
 ```
 This triggers a set of python scripts to generate every artificial matrix, whose parameters are described in the txt file, and partition it evenly across 16 HBM channels. Each partitioned data set, including the value and indices of each NNZ entry, is stored in one HBM channel. Each row of the partitioned data set is padded to multiple of 32 to accommodate the double precision accumulation latency. The padding overhead for each matrix is summarized in the benchmark result as well. This overhead will be reduced with the improvement of floating point support on FPGA platforms.
