@@ -1,7 +1,8 @@
 #!/bin/bash
 
 
-path_validation='/home/jim/Data/graphs/validation_matrices'
+# path_validation='/home/jim/Data/graphs/validation_matrices'
+path_validation='../'
 
 
 # cores='8'
@@ -15,7 +16,7 @@ export OMP_WAIT_POLICY='active'
 # Don't let the runtime deliver fewer threads than those we asked for.
 export OMP_DYNAMIC='false'
 
-
+export path_validation='../'
 matrices_validation=(
     "$path_validation"/scircuit.sorted.mtx
     "$path_validation"/mac_econ_fwd500.sorted.mtx
@@ -56,7 +57,7 @@ matrices=(
 )
 
 
-for a in "${matrices_validation[@]}"
+for a in "${matrices[@]}"
 do
     ./mat_feat.exe   $a
 done
