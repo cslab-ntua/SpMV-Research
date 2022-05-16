@@ -149,6 +149,7 @@ function find_mem_range(mem,
 
     str = sprintf("%s,%s,%g,%g,0,0,HawkAmdRome", str, IMPLEMENTATION, time, gflops)
     # str = sprintf("%s,%s,%g,%g,0,0,Arm", str, IMPLEMENTATION, time, gflops)
+    # str = sprintf("%s,%s,%g,%g,0,0,Epyc1AmdRome", str, IMPLEMENTATION, time, gflops)
     printf("%s\n", str)
 }
 
