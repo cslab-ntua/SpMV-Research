@@ -14,10 +14,9 @@ _deps
 */CSR5/
 build*/
 .ipynb*
+*__pycache__*/
 *.err
 *Plot_tries/
-HiSparse/
-benchmark_code/FPGA/HiSparse/
 *cnpy/
 results_visualization/local_ipynb/petama
 results_visualization/local_ipynb/Paper_plots2
@@ -44,3 +43,5 @@ validation_matrices/images
 validation_matrices/*.mtx
 benchmark_results/arm_petama
 benchmark_code/FPGA/old_artificial_matrix_generation
+benchmark_code/FPGA/HiSparse/
+benchmark_code/FPGA/HPCG_FPGA
