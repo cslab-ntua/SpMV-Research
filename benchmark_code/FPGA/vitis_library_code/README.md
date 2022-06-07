@@ -1,11 +1,23 @@
 SpMV targeting Xilinx FPGAs
 =========
+<!-- _(Modified version of README from Vitis Sparse Library)_ -->
 
-_(Modified version of README from Vitis Sparse Library)_
+### Hardware/Software Requirements
+**Hardware :**
 
-To run this benchmark, you first have to download the [Vitis Accelerated Libraries](https://github.com/Xilinx/Vitis_Libraries/) and replace the `sparse/L2/benchmarks/spmv_double` directory with the code of this directory. 
+* Xilinx Alveo U280 Data Center Accelerator Card
+
+**Software :**
+
+* Ubuntu 18.04.6 LTS (gcc 7.5.0)
+* Vitis Unified Software Platform 2020.2 (or greater)
+* Xilinx Runtime (XRT) 2020.2 (or greater)
+* Development & Deployment Target Platforms for Alveo U280, compatible with Xilinx tools 2020.2 and Ubuntu 18.04, available [here](https://www.xilinx.com/products/boards-and-kits/alveo/u280.html#gettingStarted)
+* [Vitis Accelerated Libraries](https://github.com/Xilinx/Vitis_Libraries/) 2021.1 (or greater)
 
 ### How to compile
+To compile this benchmark, you first have to download the Vitis Accelerated Libraries and replace the `sparse/L2/benchmarks/spmv_double` directory with the code of this directory. 
+
 **Generate build file :**
 
 Run the following commands to generate a build script and build your XCLBIN and host binary targeting Alveo U280. 

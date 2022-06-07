@@ -1,23 +1,22 @@
 usage(){ echo "Usage : $0 -l <Xilinx Tools License Path> -v <Vitis Tools Path> -x <XRT Path> -p <Xilinx Platforms Path> -d <Target Device>"; exit 1; }
 
 if [ "$#" -ne 10 ]; then
-    usage
+	usage
 fi
 
 while getopts l:v:x:p:d: flag; do
-    case "${flag}" in
-        l) XILINX_LIC=${OPTARG};;
-        v) VITIS_PATH=${OPTARG};;
-        x) XRT_PATH=${OPTARG};;
-        p) XIL_PLATFORMS=${OPTARG};;
-        d) XIL_DEVICE=${OPTARG};;
-
- 		:) # If expected argument omitted:
-      		echo "Error: -${OPTARG} requires an argument."
-      		usage;;
-    	*) # If unknown (any other) option:
-    		usage;;
-    esac
+	case "${flag}" in
+		l) XILINX_LIC=${OPTARG};;
+		v) VITIS_PATH=${OPTARG};;
+		x) XRT_PATH=${OPTARG};;
+		p) XIL_PLATFORMS=${OPTARG};;
+		d) XIL_DEVICE=${OPTARG};;
+		:) # If expected argument omitted:
+			echo "Error: -${OPTARG} requires an argument."
+			usage;;
+		*) # If unknown (any other) option:
+			usage;;
+	esac
 done
 
 export BUILD_FILE="build_em.sh"

@@ -1,20 +1,20 @@
 usage(){ echo "Usage : $0 -l <Xilinx Tools License Path> -v <Vitis Tools Path> -x <XRT Path>"; exit 1; }
 
 if [ "$#" -ne 6 ]; then
-    usage
+	usage
 fi
 
 while getopts l:v:x: flag; do
-    case "${flag}" in
-        l) XILINX_LIC=${OPTARG};;
-        v) VITIS_PATH=${OPTARG};;
-        x) XRT_PATH=${OPTARG};;
- 		:) # If expected argument omitted:
-      		echo "Error: -${OPTARG} requires an argument."
-      		usage;;
-    	*) # If unknown (any other) option:
-    		usage;;
-    esac
+	case "${flag}" in
+		l) XILINX_LIC=${OPTARG};;
+		v) VITIS_PATH=${OPTARG};;
+		x) XRT_PATH=${OPTARG};;
+		:) # If expected argument omitted:
+			echo "Error: -${OPTARG} requires an argument."
+			usage;;
+		*) # If unknown (any other) option:
+			usage;;
+	esac
 done
 
 export RUN_FILE="run_em.sh"
