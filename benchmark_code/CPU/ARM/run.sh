@@ -1,14 +1,12 @@
 #!/bin/bash
 
-source ./config.sh
+source config.sh
 echo
-
 
 if [[ $hyperthreading == 1 ]]; then
     max_cores=$((2*max_cores))
     cores="$cores $max_cores"
 fi
-
 
 # GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
 # e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
@@ -24,18 +22,13 @@ else
     export GOMP_CPU_AFFINITY="0-$((max_cores-1))"
 fi
 
-
 # export MKL_DEBUG_CPU_TYPE=5
-
-
 # export LD_LIBRARY_PATH="${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
-
 
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'
 # Don't let the runtime deliver fewer threads than those we asked for.
 # export OMP_DYNAMIC='false'
-
 
 matrices_validation=(
     "$path_validation"/scircuit.mtx
@@ -71,7 +64,6 @@ matrices_validation=(
     "$path_validation"/cage15.mtx
 )
 
-
 bench()
 {
     declare args=("$@")
@@ -88,11 +80,8 @@ bench()
     done
 }
 
-
 matrices=(
-
     "${matrices_validation[@]}"
-
 )
 
 
@@ -108,14 +97,7 @@ else
     echo "number of matrices: ${#prog_args[@]}"
 fi
 
-# prog_args=(
-    # This bugs at 128 threads with mkl and mkl_sparse_set_mv_hint() for some reason.
-    # '28508159 28508159 5 1.6667 normal random 0.05 0 0.05 0.05 14'
-# )
-
-
 for p in "${progs[@]}"; do
-
     # declare base file_out file_err
     # base="${p/*\//}"
     # base="${base%%.*}"
@@ -125,14 +107,11 @@ for p in "${progs[@]}"; do
     # > "$file_err"
     # exec 1>>"$file_out"
     # exec 2>>"$file_err"
-
-
     echo "program: $p"
-
     for a in "${prog_args[@]}"
     do
         if ((use_artificial_matrices)); then
-            echo "File: $a"
+            echo "Matrix: $a"
             bench $p $a
         else
             echo "File: $a"
@@ -140,4 +119,3 @@ for p in "${progs[@]}"; do
         fi
     done
 done
-
