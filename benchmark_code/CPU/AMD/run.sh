@@ -12,8 +12,6 @@ fi
 
 # GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
 # e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
-# export GOMP_CPU_AFFINITY="0-$((max_cores-1))"
-# export KMP_AFFINITY="granularity=fine,proclist=[0,1,2,3,4,5,6,7], explicit, verbose"
 if [[ $hyperthreading == 1 ]]; then
     affinity=''
     for ((i=0;i<max_cores/2;i++)); do
@@ -30,7 +28,6 @@ fi
 export MKL_DEBUG_CPU_TYPE=5
 
 
-# export LD_LIBRARY_PATH="/opt/hlrs/spack/current/papi/c048e224f-gcc-9.2.0-hxfnx7kt/lib:/opt/intel/oneapi/mkl/latest/lib/intel64:${LD_LIBRARY_PATH}"
 export LD_LIBRARY_PATH="${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
 
 
@@ -38,23 +35,6 @@ export LD_LIBRARY_PATH="${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
 # export OMP_WAIT_POLICY='active'
 # Don't let the runtime deliver fewer threads than those we asked for.
 # export OMP_DYNAMIC='false'
-
-interleaved=()
-# interleaved=('numactl' '-i' 'all')
-
-
-# amduprof_out='/zhome/academic/HLRS/xex/xexdgala/uprof_out.txt'
-# amduprof_out='$HOME/uprof_out.txt'
-
-# amduprof_exe='AMDuProfCLI'
-amduprof_exe='/home/jim/Documents/Synced_Documents/apps/AMDuProf_Linux_x64_3.4.475/bin/AMDuProfCLI'
-
-# amduprof=()
-# amduprof=($amduprof_exe timechart --event power --interval 100)
-
-# amduprof output hawk:
-#    /opt/hlrs/non-spack/performance/uprof/3.2.228/bin/AMDuProfCLI
-#    ERROR: Power profiler not supported in the current configuration.
 
 
 matrices_validation=(
@@ -97,40 +77,14 @@ bench()
     declare args=("$@")
     declare prog="${args[0]}"
     declare prog_args=("${args[@]:1}")
-    declare m
     declare t
 
-    # group_sizes="$cores"
-    group_sizes="1"
+    for t in $cores
+    do
+        export OMP_NUM_THREADS="$t"
+        # export MKL_NUM_THREADS="$t"
 
-    for group_size in $group_sizes; do                      
-        # echo "group size: $group_size"                
-        export OMP_MAX_THREAD_GROUP_SIZE="$group_size"
-
-        # for t in 1
-        # for t in 8
-        # for t in $max_cores
-        for t in $cores
-        do
-            export OMP_NUM_THREADS="$t"
-            # export MKL_NUM_THREADS="$t"
-
-            # amduprof_out="$HOME/uprof_out_${prog/*\//}_${f/.mtx/}.txt"
-
-            # "${interleaved[@]}" "$prog" 4690000 4 1.6 normal random 1 14
-            "${interleaved[@]}" "$prog" "${prog_args[@]}"
-
-            # "${interleaved[@]}" "$prog" "$m" 4000 105 0.02 gamma random 1 14
-            # "${amduprof[@]}" -o "$amduprof_out" "$prog" "$m"
-
-            # numactl --physcpubind=0-"$((t-1))" -- "$prog" "$m"
-            # numactl --physcpubind=0-"$((max_cores-1))" -- "$prog" "$m"
-            # numactl -i all --physcpubind=0-"$((t-1))" -- "$prog" "$m"
-            # numactl -i all --physcpubind=0-"$((max_cores-1))" -- "$prog" "$m"
-
-            # taskset -c 0-"$((max_cores-1))" "$prog" "$m"
-        done
-
+        "$prog" "${prog_args[@]}"
     done
 }
 
@@ -162,12 +116,16 @@ fi
 
 for p in "${progs[@]}"; do
 
-    # declare base file_out
+    # declare base file_out file_err
     # base="${p/*\//}"
     # base="${base%%.*}"
     # file_out="out_${base}.out"
+    # file_err="out_${base}.err"
     # > "$file_out"
+    # > "$file_err"
     # exec 1>>"$file_out"
+    # exec 2>>"$file_err"
+
 
     echo "program: $p"
 
