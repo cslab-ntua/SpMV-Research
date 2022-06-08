@@ -1,28 +1,17 @@
 .phony: all clean
 
 CPATH = 
-
-
 define NEWLINE
 
 
 endef
 
-
 shell_out := $(shell ../config.sh)
 shell_out := $(subst ;,$(NEWLINE),$(shell_out))
 $(eval $(shell_out))
 
-
-# PYTHON_CFLAGS = -fPIE $(shell python3-config --cflags)
-# PYTHON_LFLAGS = $(shell python3-config --ldflags --embed)
-
-# AMG_PATH = artificial_matrix_generation/include
-# CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c
-
 AMG_PATH = ../../../../artificial-matrix-generator
-CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/ordered_set.c
-
+CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c $(AMG_PATH)/ordered_set.c
 
 CFLAGS = 
 LDFLAGS =
@@ -43,13 +32,10 @@ executables += spmv_csr_naive.exe
 
 all: $(executables)
 
-
 CC=g++
-
 
 CFLAGS += -m64 -Wall
 CFLAGS += -mavx2
-
 
 CFLAGS += -I'lib'
 CFLAGS += -I'$(AMG_PATH)' -I'$(AMG_PATH)/lib'
@@ -58,9 +44,7 @@ CFLAGS += -I'$(AMG_PATH)' -I'$(AMG_PATH)/lib'
 # CFLAGS += -I/opt/intel/oneapi/mkl/latest/include
 CFLAGS += -I'$(MKL_PATH)/include'
 
-
 # LDFLAGS += -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -L/opt/intel/oneapi/mkl/latest/lib/intel64
-# LDFLAGS += -L/opt/intel/oneapi/mkl/latest/lib/intel64
 LDFLAGS += -L'$(MKL_PATH)/lib/intel64'
 LDFLAGS += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl
 
@@ -70,12 +54,10 @@ CFLAGS += -Wno-deprecated-declarations
 # CFLAGS += -O0
 CFLAGS += -O3
 
-
 # Double as float type.
 # DOUBLE = 0
 DOUBLE = 1
 CFLAGS += -D'DOUBLE=$(DOUBLE)'
-
 
 # spmv_all: main.cpp
 # $(CC) main.cpp $(CFLAGS) -o $@ $(LDFLAGS)
@@ -121,7 +103,6 @@ spmv_ldu.exe: spmv.cpp $(CSRC_ART_MAT)
 
 spmv_ell.exe: spmv.cpp $(CSRC_ART_MAT)
 	$(CC) $^ $(CFLAGS) -D'USE_ELL' -o $@ $(LDFLAGS)
-
 
 clean:
 	rm -f *.exe

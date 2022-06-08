@@ -1,8 +1,6 @@
 #!/bin/bash
 
-
 declare -A conf_vars
-
 conf_vars=(
     # Maximum number of the machine's cores.
     # ['max_cores']=128
@@ -26,13 +24,13 @@ conf_vars=(
 
     # Path for the validation matrices.
     # ['path_validation']='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices'
-    ['path_validation']='/home/jim/Data/graphs/validation_matrices'
+    # ['path_validation']='/home/jim/Data/graphs/validation_matrices'
+    ['path_validation']='../../../validation_matrices/'
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
     # ['use_artificial_matrices']=0
     ['use_artificial_matrices']=1
 )
-
 
 path_artificial='../../../matrix_generation_parameters'
 
@@ -48,7 +46,6 @@ artificial_matrices_files=(
     # The synthetic dataset studied in the paper.
     "$path_artificial"/synthetic_matrices_small_dataset.txt
 )
-
 
 # SpMV kernels to benchmark (uncomment the one you want).
 progs=(
@@ -76,7 +73,6 @@ progs=(
     # './spmv_code_mkl-naive/spmv_bsr_64.exe'
     # './spmv_code_mkl-naive/spmv_coo.exe'
 )
-
 
 # Export variables for make.
 for index in "${!conf_vars[@]}"; do

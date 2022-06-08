@@ -13,13 +13,9 @@ SpMV targeting AMD EPYC CPUs
 
 ### How to compile
 
-To compile this benchmark, you need to first edit the `config.sh` file with the
-appropriate library paths and benchmark configurations that you want (number of
-threads, desired matrices, spmv kernels ...) and then you run `make` in both
-the 'spmv\_code\_csr5' and 'spmv\_code\_mkl-naive' directories.
+To compile this benchmark, you need to first edit the `config.sh` file with the appropriate library paths and benchmark configurations that you want (number of threads, desired matrices, spmv kernels ...) and then you run `make` in both the `spmv_code_csr5` and `spmv_code_mkl-naive` directories.
 
 ### How to run
 
 To run the SpMV benchmarks you simply run the `run.sh` bash script file.
 All the configuration needed is in the `config.sh` file, along with documentation comments for each option.
-

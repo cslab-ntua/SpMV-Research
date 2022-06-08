@@ -1,7 +1,17 @@
 .phony: all clean
 
+CPATH = 
+define NEWLINE
+
+
+endef
+
+shell_out := $(shell ../config.sh)
+shell_out := $(subst ;,$(NEWLINE),$(shell_out))
+$(eval $(shell_out))
+
 AMG_PATH = ../../../../artificial-matrix-generator
-CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/ordered_set.c
+CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c $(AMG_PATH)/ordered_set.c
 
 CFLAGS = 
 LDFLAGS =

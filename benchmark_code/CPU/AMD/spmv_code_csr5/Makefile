@@ -1,5 +1,23 @@
+.phony: all clean
 
 CPATH = 
+define NEWLINE
+
+
+endef
+
+shell_out := $(shell ../config.sh)
+shell_out := $(subst ;,$(NEWLINE),$(shell_out))
+$(eval $(shell_out))
+
+AMG_PATH = ../../../../artificial-matrix-generator
+CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c $(AMG_PATH)/ordered_set.c
+
+CFLAGS =
+
+executables = 
+executables += avx2
+all: $(executables)
 
 #compilers
 CC=c++
@@ -11,16 +29,7 @@ NUM_RUN = 128
 
 library = ${C_LIB_PATH}
 
-
-AMG_PATH = ../../../../../artificial-matrix-generator
-CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/artificial_matrix_generation.c  $(AMG_PATH)/ordered_set.c
-
-CFLAGS =
-CFLAGS += -I$(AMG_PATH)
-CFLAGS += -I "$(library)"
-CFLAGS += -Wno-deprecated-writable-strings
-CFLAGS += -Wno-write-strings
-CFLAGS += -Wno-unused-result
+CFLAGS += -I$(AMG_PATH) -I "$(library)" -Wno-deprecated-writable-strings -Wno-write-strings -Wno-unused-result
 
 #ENVIRONMENT_PARAMETERS
 #OPTIONS=-xCORE-AVX2 -opt-prefetch=3 #icc/icpc option
