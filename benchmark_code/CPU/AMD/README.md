@@ -1,4 +1,4 @@
-SpMV targeting ARM CPUs
+SpMV targeting AMD EPYC CPUs
 =========
 
 ### Hardware/Software Requirements
