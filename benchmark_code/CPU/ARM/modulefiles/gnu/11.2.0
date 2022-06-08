@@ -1,0 +1,87 @@
+#%Module1.0################################################################
+##
+##         gnu
+##
+##
+##  Copyright 2015-2022 Arm Limited. All rights reserved.
+##
+
+###########################################################################
+# Module description                                                      #
+###########################################################################
+
+proc ModulesHelp { } {
+  puts stderr " "
+  puts stderr "This module loads the the GCC 11 'gnu' toolchain."
+  puts stderr "\nVersion 11.2\n"
+}
+
+module-whatis "Name: GCC"
+module-whatis "Version: 11.2"
+module-whatis "Category: compiler, runtime support"
+module-whatis "Description: This module loads the GCC, providing armclang, armclang++, and armflang."
+
+###########################################################################
+# Variable definitions                                                    #
+###########################################################################
+
+# Base install directory of GCC
+set install_prefix   /home/spmv/arm
+
+# Base module directory of GCC
+#   This is worked out dynamically so that the modulefiles can be moved
+#   from the install directory
+set module_prefix [file dirname $ModulesCurrentModulefile]/../..
+
+# Base directory of all dependant modules
+set moduledeps       $module_prefix/moduledeps
+
+# Licensing directories to search (colon-separated)
+set license_paths    $install_prefix/licences:$install_prefix/licenses
+
+###########################################################################
+# Main section                                                            #
+###########################################################################
+# Pull in some utility functions
+source $module_prefix/moduleglobals/gcc_functions/11.2.0
+
+# Load modules on which this module depends
+set dependencies [list \
+    binutils/11.2.0 \
+  ]
+depends-on $dependencies
+
+# Install directory of this package
+set package_prefix   $install_prefix/gcc-11.2.0_Generic-AArch64_Ubuntu-20.04_aarch64-linux
+
+# GNU-specific environment variables
+   setenv GCC_BUILD 213
+   setenv GCC_DIR $package_prefix
+   setenv GCC_INCLUDES $package_prefix/include
+   append-path GCC_LIBRARIES $package_prefix/lib
+   append-path GCC_LIBRARIES $package_prefix/lib64
+   setenv COMPILER_PATH $package_prefix
+
+# Standard environment variables
+   prepend-path PATH $package_prefix/bin
+   prepend-path CPATH $package_prefix/include
+   prepend-path LD_LIBRARY_PATH $package_prefix/lib
+   prepend-path LD_LIBRARY_PATH $package_prefix/lib64
+   prepend-path LIBRARY_PATH $package_prefix/lib
+   prepend-path LIBRARY_PATH $package_prefix/lib64
+   prepend-path MANPATH $package_prefix/share/man
+
+
+# Make dependant modules available
+prepend-path    MODULEPATH                       $moduledeps/gnu/11.2.0
+
+# Configure Licensing
+# GCC searches these directories for a valid product license
+append-path     ARM_LICENSE_DIR                  $license_paths
+
+if { [is-lmod] } {
+  # Lmod family
+  # When this modulefile is used with lmod, This ensures only one compiler is loaded at once
+  family "compiler"
+}
+

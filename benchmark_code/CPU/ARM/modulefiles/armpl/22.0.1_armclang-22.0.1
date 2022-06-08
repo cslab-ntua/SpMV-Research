@@ -1,0 +1,76 @@
+#%Module1.0################################################################
+##
+##         armpl
+##
+##
+##  Copyright 2015-2019 ARM Limited. All rights reserved.
+##
+
+set root                    /
+# parts points to full absolute path of this current module file
+set parts                   [split $ModulesCurrentModulefile '/']
+# Using the path of this module file, and keeping all that's on the left of "modulefiles"
+set root_prefix             /[eval [list file join] [lrange $parts 0 [expr [lsearch $parts modulefiles] -1 ]]]
+set modulefile_dir          modulefiles/
+set modulefile_prefix       $root_prefix/$modulefile_dir
+set this_module_path        armpl/22.0.1_armclang-22.0.1
+set this_module_file        [string map {// /} $ModulesCurrentModulefile]
+# Calculate the relative path to this modulefile location
+set relative_module_prefix  [string range $this_module_file 0 \
+  [expr [string length $this_module_file] - [string length $this_module_path] - 1]]
+
+set package_prefix          $root_prefix/armpl-22.0.1_AArch64_Ubuntu-20.04_arm-linux-compiler_aarch64-linux
+# Calculate the relative path to this package location
+set package_root            [string range $package_prefix [expr [string length $root_prefix] + 1] [string length $package_prefix]]
+set relative_root_prefix    [string range $relative_module_prefix 0 \
+  [expr [string length $relative_module_prefix] - [string length $modulefile_dir] - 1]]
+set relative_root           [string range $relative_module_prefix 0 \
+  [expr [string length $relative_module_prefix] - [string length $modulefile_prefix]]]
+set root                    $relative_root
+
+set relative_package_prefix $relative_root_prefix$package_root
+
+if { [file exists $relative_package_prefix] } {
+  set package_prefix $relative_package_prefix
+}
+
+# Add a directory to MODULEPATH if it is not already included
+proc add_modulefile_path {modulepath} {
+  if { [module-info mode load] } {
+    set found 0
+    foreach path [split $::env(MODULEPATH) :] {
+      if { $path == $modulepath } {
+        set found 1
+        break
+      }
+    }
+    if { $found != 1 } {
+      module use $modulepath
+    }
+  }
+}
+
+# Standard environment variables
+prepend-path CPATH $package_prefix/include_common
+prepend-path LD_LIBRARY_PATH $package_prefix/lib
+prepend-path LIBRARY_PATH $package_prefix/lib
+# Arm-specific environment variables
+setenv ARMPL_LIBRARIES $package_prefix/lib
+append-path ARMPL_BUILD 870
+append-path ARMPL_DIR $package_prefix
+append-path ARMPL_INCLUDES $package_prefix/include
+append-path ARMPL_INCLUDES_ILP64 $package_prefix/include_ilp64
+append-path ARMPL_INCLUDES_ILP64_MP $package_prefix/include_ilp64_mp
+append-path ARMPL_INCLUDES_INT64 $package_prefix/include_ilp64
+append-path ARMPL_INCLUDES_INT64_MP $package_prefix/include_ilp64_mp
+append-path ARMPL_INCLUDES_LP64_MP $package_prefix/include_lp64_mp
+append-path ARMPL_INCLUDES_MP $package_prefix/include_lp64_mp
+# Standard environment variables for BLAS and LAPACK
+append-path BLAS $package_prefix/lib/libarmpl_lp64.a
+append-path BLAS_SHARED $package_prefix/lib/libarmpl_lp64.so
+append-path BLAS_STATIC $package_prefix/lib/libarmpl_lp64.a
+append-path LAPACK $package_prefix/lib/libarmpl_lp64.a
+append-path LAPACK_SHARED $package_prefix/lib/libarmpl_lp64.so
+append-path LAPACK_STATIC $package_prefix/lib/libarmpl_lp64.a
+
+module-whatis "armpl"

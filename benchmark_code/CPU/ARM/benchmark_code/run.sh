@@ -29,8 +29,7 @@ else
 
     path="$path_selected"
 
-    # cores='80 160'
-    cores='80'
+    cores='80 160'
     # cores='160'
     max_cores=160
     cpu_node_size=160
@@ -219,10 +218,8 @@ bench()
 
             # amduprof_out="$HOME/uprof_out_${prog/*\//}_${f/.mtx/}.txt"
 
-            # "${interleaved[@]}" "$prog" "${prog_args[@]}" 2>>arm_friends_10_samples_30_range_t${t}_d_${iter}.csv
+            "${interleaved[@]}" "$prog" "${prog_args[@]}" 2>>arm_friends_10_samples_30_range_t${t}_d_${iter}.csv
             # "${interleaved[@]}" "$prog" "${prog_args[@]}" 2>>arm_synthetic_t${t}_d_${iter}.csv
-            # "${interleaved[@]}" "$prog" "${prog_args[@]}" 2>>arm_synthetic_t${t}_d_${iter}_col_ind0.csv
-            "${interleaved[@]}" "$prog" "${prog_args[@]}" 2>>arm_synthetic_t${t}_d_${iter}_simple.csv
 
             # "${interleaved[@]}" "$prog" "$m" 4000 105 0.02 gamma random 1 14
             # "${amduprof[@]}" -o "$amduprof_out" "$prog" "$m"
@@ -303,29 +300,17 @@ artificial_matrices_files=(
 
     # "$path_artificial"/validation_friends/twins_random.txt
 
-    # "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
+    "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
 
-    # "$path_artificial"/synthetic_matrices_small_dataset_4-32.txt
-    # "$path_artificial"/synthetic_matrices_small_dataset_32-512.txt
-    # "$path_artificial"/synthetic_matrices_small_dataset_512-2048.txt
+    # "$path_artificial"/SpMV-Research/synthetic_matrices_small_dataset_4-32.txt
+    # "$path_artificial"/SpMV-Research/synthetic_matrices_small_dataset_32-512.txt
+    # "$path_artificial"/SpMV-Research/synthetic_matrices_small_dataset_512-2048.txt
 
-    "$path_artificial"/synthetic_matrices_small_dataset_simple_4-32.txt
-    "$path_artificial"/synthetic_matrices_small_dataset_simple_32-512.txt
-    "$path_artificial"/synthetic_matrices_small_dataset_simple_512-2048.txt
-
-    # "$path_artificial"/synthetic_matrices_small_dataset_extra20_512-2048.txt
-    # "$path_artificial"/synthetic_matrices_small_dataset_extra10_512-2048.txt
- 
-    # "$path_artificial"/synthetic_matrices_small_dataset_extra20_32-512.txt
-    # "$path_artificial"/synthetic_matrices_small_dataset_extra10_32-512.txt
-
-    # "$path_artificial"/synthetic_matrices_small_dataset_extra20_4-32.txt
-    # "$path_artificial"/synthetic_matrices_small_dataset_extra10_4-32.txt
 )
 
 
-# use_artificial_matrices=0
-use_artificial_matrices=1
+use_artificial_matrices=0
+# use_artificial_matrices=1
 
 
 if ((!use_artificial_matrices)); then
@@ -347,7 +332,7 @@ fi
 
 progs=()
 progs+=('./spmv_csr_naive.exe')
-progs+=('../arm-performance-libraries/armpl_21.1_gcc-10.2/examples/spmv_c_example.exe')
+progs+=('./spmv_armpl.exe')
 
 for iter in 1 2 3 4 5; do
     echo '-------'

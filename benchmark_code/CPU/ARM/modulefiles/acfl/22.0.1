@@ -1,0 +1,102 @@
+#%Module1.0################################################################
+##
+##         acfl
+##
+##
+##  Copyright 2015-2022 Arm Limited. All rights reserved.
+##
+
+###########################################################################
+# Module description                                                      #
+###########################################################################
+
+proc ModulesHelp { } {
+  puts stderr " "
+  puts stderr "This module loads the the Arm Linux Compiler 22 'acfl' toolchain."
+  puts stderr "\nVersion 22.0.1\n"
+}
+
+module-whatis "Name: Arm Linux Compiler"
+module-whatis "Version: 22.0.1"
+module-whatis "Category: compiler, runtime support"
+module-whatis "Description: This module loads the Arm Linux Compiler, providing armclang, armclang++, and armflang."
+
+###########################################################################
+# Variable definitions                                                    #
+###########################################################################
+
+# Base install directory of Arm Linux Compiler
+# set install_prefix   /home/spmv/arm
+set install_prefix   [file dirname $ModulesCurrentModulefile]/../..
+
+# Base module directory of Arm Linux Compiler
+#   This is worked out dynamically so that the modulefiles can be moved
+#   from the install directory
+set module_prefix [file dirname $ModulesCurrentModulefile]/../..
+
+# Base directory of all dependant modules
+set moduledeps       $module_prefix/moduledeps
+
+# Licensing directories to search (colon-separated)
+set license_paths    $install_prefix/licences:$install_prefix/licenses
+
+###########################################################################
+# Main section                                                            #
+###########################################################################
+# Pull in some utility functions
+source $module_prefix/moduleglobals/compiler_functions/22.0.1
+
+# Load modules on which this module depends
+set dependencies [list \
+  binutils/11.2.0 \
+  armpl/22.0.1_armclang-22.0.1 \
+]
+depends-on $dependencies
+
+# Install directory of this package
+set package_prefix   $install_prefix/arm-linux-compiler-22.0.1_Generic-AArch64_Ubuntu-20.04_aarch64-linux
+
+# Arm-specific environment variables
+setenv ARM_LINUX_COMPILER_DIR $package_prefix
+setenv ARM_LINUX_COMPILER_BUILD 1630
+setenv ARM_LINUX_COMPILER_INCLUDES $package_prefix/includes
+append-path ARM_LINUX_COMPILER_LIBRARIES $package_prefix/lib
+append-path ARM_HPC_COMPILER_LICENSE_SEARCH_PATH $install_prefix/licenses
+append-path ARM_HPC_COMPILER_LICENSE_SEARCH_PATH $install_prefix/licences
+
+# Standard environment variables
+prepend-path PATH $package_prefix/bin
+prepend-path CPATH $package_prefix/include
+prepend-path LD_LIBRARY_PATH $package_prefix/lib
+append-path LD_LIBRARY_PATH $package_prefix/lib/clang/13.0.0/armpl_links/lib
+prepend-path LIBRARY_PATH $package_prefix/lib
+prepend-path MANPATH $package_prefix/share/man
+
+
+# Make dependant modules available
+prepend-path    MODULEPATH                       $moduledeps/acfl/22.0.1
+
+# Configure Licensing
+# Arm Linux Compiler searches these directories for a valid product license
+append-path     ARM_LICENSE_DIR                  $license_paths
+
+if { [is-lmod] } {
+  # Lmod family
+  # When this modulefile is used with lmod, This ensures only one compiler is loaded at once
+  family "compiler"
+}
+
+# Source the bash-autocomplete.sh
+set SHELL [module-info shell]
+switch -- $SHELL {
+  {sh} - {bash} {
+    if { [is-lmod] } {
+      module load clang-autocomplete/22.0.1
+    } else {
+      set autocomplete_file $package_prefix/share/utils/bash-autocomplete.sh
+      if { [file exists $autocomplete_file] } {
+        puts "source $autocomplete_file"
+      }
+    }
+  }
+}
