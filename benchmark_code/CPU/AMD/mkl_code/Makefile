@@ -1,16 +1,17 @@
 .phony: all clean
 
-USERNAME := $(shell whoami)
-REMOTE_MACHINE := $(findstring xexdgala,$(HOSTNAME))
+CPATH = 
 
-C_LIB_PATH = 
-# library = ${C_LIB_PATH}
 
-ifdef REMOTE_MACHINE
-    max_cores = 128
-else
-    max_cores = 8
-endif
+define NEWLINE
+
+
+endef
+
+
+shell_out := $(shell ../config.sh)
+shell_out := $(subst ;,$(NEWLINE),$(shell_out))
+$(eval $(shell_out))
 
 
 # PYTHON_CFLAGS = -fPIE $(shell python3-config --cflags)
@@ -27,32 +28,41 @@ CFLAGS =
 LDFLAGS =
 
 executables = 
-executables += spmv_coo.exe
-executables += spmv_dia.exe
-executables += spmv_csc.exe
-executables += spmv_csr.exe
+# executables += spmv_coo.exe
+# executables += spmv_dia.exe
+# executables += spmv_csc.exe
+# executables += spmv_csr.exe
 executables += spmv_sparse_mv.exe
-executables += spmv_bsr_2.exe spmv_bsr_4.exe spmv_bsr_8.exe spmv_bsr_16.exe spmv_bsr_32.exe spmv_bsr_64.exe
+# executables += spmv_bsr_2.exe spmv_bsr_4.exe spmv_bsr_8.exe spmv_bsr_16.exe spmv_bsr_32.exe spmv_bsr_64.exe
 executables += spmv_csr_naive.exe
-executables += spmv_csr_custom.exe
-executables += spmv_csr_custom_vector.exe
-executables += spmv_dia_custom.exe
-executables += spmv_ldu.exe
-executables += spmv_ell.exe
+# executables += spmv_csr_custom.exe
+# executables += spmv_csr_custom_vector.exe
+# executables += spmv_dia_custom.exe
+# executables += spmv_ldu.exe
+# executables += spmv_ell.exe
 
 all: $(executables)
 
 
 CC=g++
-# CC = ${HOME}/Documents/gcc_current/bin/g++
 
 
-# CFLAGS += -m64 -Wall -I/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/include -I/home/users/nikela/local/papi/include#-Wno-unused-variable #-funroll-all-loops -fopenmp -m64
-CFLAGS += -m64 -Wall -I/usr/include/mkl -I/home/users/nikela/local/papi/include -I/opt/intel/oneapi/mkl/latest/include
+CFLAGS += -m64 -Wall
 CFLAGS += -mavx2
 
-LDFLAGS += -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -L/opt/intel/oneapi/mkl/latest/lib/intel64
-LDFLAGS += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi
+
+CFLAGS += -I'lib'
+CFLAGS += -I'$(AMG_PATH)' -I'$(AMG_PATH)/lib'
+
+# CFLAGS += -I/usr/include/mkl -I/opt/intel/oneapi/mkl/latest/include
+# CFLAGS += -I/opt/intel/oneapi/mkl/latest/include
+CFLAGS += -I'$(MKL_PATH)/include'
+
+
+# LDFLAGS += -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -L/opt/intel/oneapi/mkl/latest/lib/intel64
+# LDFLAGS += -L/opt/intel/oneapi/mkl/latest/lib/intel64
+LDFLAGS += -L'$(MKL_PATH)/lib/intel64'
+LDFLAGS += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl
 
 CFLAGS += -fopenmp
 CFLAGS += -Wno-deprecated-declarations
@@ -61,36 +71,10 @@ CFLAGS += -Wno-deprecated-declarations
 CFLAGS += -O3
 
 
-# CFLAGS += -I "$(library)"
-CFLAGS += -Ilib
-CFLAGS += -I$(AMG_PATH)
-
-
-# DOUBLE := 0
-DOUBLE := 1
-
-# ifeq (DOUBLE, 0)
-    # CFLAGS += -D'VALUE_TYPE_AX=float'
-# else
-    # CFLAGS += -D'VALUE_TYPE_AX=double'
-# endif
-
+# Double as float type.
+# DOUBLE = 0
+DOUBLE = 1
 CFLAGS += -D'DOUBLE=$(DOUBLE)'
-
-
-# CFLAGS += -D'PARALLEL_INIT'
-
-
-# CFLAGS += $(PYTHON_CFLAGS)
-
-# LDFLAGS += $(PYTHON_LFLAGS)
-
-
-# PROC_BENCH = 1
-
-ifdef PROC_BENCH
-    CFLAGS += -D'PROC_BENCH' 
-endif
 
 
 # spmv_all: main.cpp

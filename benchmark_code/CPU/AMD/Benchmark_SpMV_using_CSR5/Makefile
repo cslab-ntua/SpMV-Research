@@ -1,3 +1,6 @@
+
+CPATH = 
+
 #compilers
 CC=c++
 

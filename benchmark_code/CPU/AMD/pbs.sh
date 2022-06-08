@@ -5,6 +5,8 @@
 #PBS -l select=1:ncpus=128:node_type=rome
 #PBS -l walltime=24:00:00
 
+
+
 cd /zhome/academic/HLRS/xex/xexdgala/Shared/benchmarks/SpMV/mpakos_code
 > job_spmv.out
 > job_spmv.err
@@ -20,7 +22,7 @@ module load python/3
 
 
 # ./conf.sh
-cd /zhome/academic/HLRS/xex/xexdgala/Shared/benchmarks/SpMV/Benchmark_SpMV_using_CSR5/CSR5_avx2
+cd /zhome/academic/HLRS/xex/xexdgala/Shared/benchmarks/SpMV/Benchmark_SpMV_using_CSR5
 make clean; make -j
 cd /zhome/academic/HLRS/xex/xexdgala/Shared/benchmarks/SpMV/mpakos_code
 make clean; make -j

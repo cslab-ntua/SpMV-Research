@@ -10,7 +10,6 @@
 #include "macros/macrolib.h"
 #include "time_it.h"
 #include "parallel_util.h"
-#include "pthread_functions.h"
 #include "matrix_util.h"
 
 
