@@ -27,9 +27,11 @@ VALUE_TYPE = double
 
 NUM_RUN = 128
 
-library = ${C_LIB_PATH}
 
-CFLAGS += -I$(AMG_PATH) -I "$(library)" -Wno-deprecated-writable-strings -Wno-write-strings -Wno-unused-result
+CFLAGS += -Wno-deprecated-writable-strings -Wno-write-strings -Wno-unused-result
+
+CFLAGS += -I'$(AMG_PATH)' -I'$(AMG_PATH)/lib'
+
 
 #ENVIRONMENT_PARAMETERS
 #OPTIONS=-xCORE-AVX2 -opt-prefetch=3 #icc/icpc option

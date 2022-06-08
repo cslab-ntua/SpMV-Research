@@ -47,7 +47,7 @@ artificial_matrices_files=(
     "$path_artificial"/synthetic_matrices_small_dataset.txt
 )
 
-# SpMV kernels to benchmark (uncomment the one you want).
+# SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
     # MKL IE
     './spmv_code_mkl-naive/spmv_sparse_mv.exe'
