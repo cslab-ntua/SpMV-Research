@@ -1,3 +1,6 @@
 [submodule "artificial-matrix-generator"]
 	path = artificial-matrix-generator
 	url = git@github.com:DimitrisGalanopoulos/artificial-matrix-generator.git
+[submodule "benchmark_code/GPU/NVIDIA-CUDA/nvidia-energy-measure"]
+	path = benchmark_code/GPU/NVIDIA-CUDA/nvidia-energy-measure
+	url = git@github.com:p-anastas/nvidia-energy-measure.git
