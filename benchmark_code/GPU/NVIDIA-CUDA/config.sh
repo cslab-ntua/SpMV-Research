@@ -2,29 +2,23 @@
 
 declare -A conf_vars
 conf_vars=(
-    # Maximum number of the machine's cores.
-    # ['max_cores']=128
-    ['max_cores']=8
 
-    # Cores / Threads to utilize. Use spaces to define a set of different thread numbers to benchmark.
-    # ['cores']=1
-    # ['cores']=64
-    # ['cores']=128
-    # ['cores']='1 2 4 8 16 32 64 128'
-    ['cores']=8
-    # ['cores']='1 2 4 8'
-    # ['cores']=6
-
-    # Use hyperthreading.
-    ['hyperthreading']=0
-    # ['hyperthreading']=1
-
-    # Path for the mkl library.
-    ['MKL_PATH']='/opt/intel/oneapi/mkl/latest'
+    # A desired name for the GPU testbed to be used for your build-dirs and logfiles.
+    ['system']='silver1V100'
+    
+     # Flag ( 0 = no, 1 = yes) declaring if cuda-9 benchmarks should be included (compilation not supported in latest systems like A100)
+    ['run_cuda_9']=1
+    
+    # Define cuda architecture 80") # (Tesla K40 = 35, GTX 1060/70 = 61,) P100 = 60, V100 = 70, A100 = 80
+    ['CUDA_arch']=70
+  
+    # Define datatype used for benchmarks 0 = float, 1 = double
+    ['dtype_id']=1  
+    
+    # Path for the cuda toolkit root
+    ['CUDA_TOOLKIT_DIR']='/usr/local/cuda-11.6'
 
     # Path for the validation matrices.
-    # ['path_validation']='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices'
-    # ['path_validation']='/home/jim/Data/graphs/validation_matrices'
     ['path_validation']='../../../validation_matrices/'
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
@@ -47,36 +41,68 @@ artificial_matrices_files=(
     "$path_artificial"/synthetic_matrices_small_dataset.txt
 )
 
-# SpMV kernels to benchmark (uncomment the ones you want).
-progs=(
-    # MKL IE
-    './spmv_code_mkl-naive/spmv_sparse_mv.exe'
-
-    # Custom naive
-    './spmv_code_mkl-naive/spmv_csr_naive.exe'
-
-    # CSR5
-    './spmv_code_csr5/spmv_csr5.exe'
-
-    # './spmv_code_mkl-naive/spmv_ell.exe'
-    # './spmv_code_mkl-naive/spmv_ldu.exe'
-    # './spmv_code_mkl-naive/spmv_csr_custom.exe'
-    # './spmv_code_mkl-naive/spmv_csr_custom_vector.exe'
-    # './spmv_code_mkl-naive/spmv_csr.exe'
-    # './spmv_code_mkl-naive/spmv_dia.exe'
-    # './spmv_code_mkl-naive/spmv_dia_custom.exe'
-    # './spmv_code_mkl-naive/spmv_bsr_2.exe'
-    # './spmv_code_mkl-naive/spmv_bsr_4.exe'
-    # './spmv_code_mkl-naive/spmv_bsr_8.exe'
-    # './spmv_code_mkl-naive/spmv_bsr_16.exe'
-    # './spmv_code_mkl-naive/spmv_bsr_32.exe'
-    # './spmv_code_mkl-naive/spmv_bsr_64.exe'
-    # './spmv_code_mkl-naive/spmv_coo.exe'
-)
-
 # Export variables for make.
 for index in "${!conf_vars[@]}"; do
     eval "$index='${conf_vars["$index"]}'"
     printf "%s=%s;" "$index"  "${conf_vars["$index"]}"
 done
+
+path_generator='../../../artificial-matrix-generator'
+cd $path_generator
+make
+cd -
+
+mkdir -p ./spmv_code_cusparse-11.x/${system}-build
+cp ./spmv_code_cusparse-11.x/CMakeLists.txt ./spmv_code_cusparse-11.x/${system}-build/CMakeLists.txt
+cd ./spmv_code_cusparse-11.x/${system}-build
+cmake ./
+cd -
+
+if ((run_cuda_9)); then
+	mkdir -p ./spmv_code_cusparse-9.x/${system}-build
+	cp ./spmv_code_cusparse-9.x/CMakeLists.txt ./spmv_code_cusparse-9.x/${system}-build/CMakeLists.txt
+	cd ./spmv_code_cusparse-9.x/${system}-build
+	cmake ./
+	cd -
+	
+	mkdir -p ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build
+	cp ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/CMakeLists.txt ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build/CMakeLists.txt
+	cd ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build
+	cmake ./
+	cd -
+fi
+
+if ((dtype_id)); then
+	dtype=D
+else
+	dtype=S
+fi
+
+if ((use_artificial_matrices)); then
+	progtype_string=generate
+else
+	progtype_string=mtx
+fi
+
+# SpMV kernels to benchmark (uncomment the ones you want).
+progs=(
+    # cuSPARSE 9 hyb 
+    "./spmv_code_cusparse-9.x/${system}-build/cuSPARSE${dtype}hybmv_9_${progtype_string}"
+
+    # CSR5 cuda 9
+    "./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build/CSR5_CUDA_${dtype}SPMV_9_${progtype_string}"
+    
+    # cuSPARSE 11 coo
+    "./spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}coomv_11_${progtype_string}"
+    
+    # cuSPARSE 11 csr
+    "./spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}csrmv_11_${progtype_string}"
+
+    ## Other options not used in paper
+    # cuSPARSE 9 csr ( <= perf to cuSPARSE 11 csr) 
+    #"./spmv_code_cusparse-9.x/${system}-build/cuSPARSE${dtype}csrmv_9_${progtype_string}"
+    # cuSPARSE 9 bsr 
+    #"./spmv_code_cusparse-9.x/${system}-build/cuSPARSE${dtype}bsrmv_9_${progtype_string}"    
+
+)
 

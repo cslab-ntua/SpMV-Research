@@ -1,23 +1,26 @@
 cmake_minimum_required (VERSION 3.10)
 #set(CMAKE_VERBOSE_MAKEFILE on)
 
+set()
+
 #	c) auto
 
 #	d) auto
 
 ## 2) CUDA PREFIX
-set (CUDA_TOOLKIT_ROOT_DIR "/usr/local/cuda-11.4")
+set (CUDA_TOOLKIT_ROOT_DIR $ENV{CUDA_TOOLKIT_DIR})
+
 
 # 	a) Compiler
 set (CMAKE_CUDA_COMPILER ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvcc)
 
 # 	b) Compile flags
-set (CMAKE_CUDA_FLAGS "-w -O3 -arch=sm_80") #35 for Tesla K40, 70 for V100, 61 for GTX 1060/70
+set (CMAKE_CUDA_FLAGS "-w -O3")
 message("CMAKE_CUDA_FLAGS: " ${CMAKE_CUDA_FLAGS})
 
 #	c) Architecture 
 if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-  set(CMAKE_CUDA_ARCHITECTURES 80)
+  set(CMAKE_CUDA_ARCHITECTURES $ENV{CUDA_arch})
 endif()
 
 ## 4) ITER run for benchmark results
@@ -30,7 +33,7 @@ add_definitions(-DNR_ITER=128)
 add_definitions(-DTEST)
 
 project (MakeSpMVGreatAgainCSR59 CXX CUDA)
-set ( PROJECT_HEAD_DIR ${PROJECT_SOURCE_DIR}/../../../../ )
+set ( PROJECT_HEAD_DIR ${PROJECT_SOURCE_DIR}/../../../../../ )
 set ( PROJECT_TEST_DIR ${PROJECT_SOURCE_DIR}/tests )
 set ( PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src )
 message( "PROJECT_HEAD_DIR: " ${PROJECT_HEAD_DIR} )
@@ -40,22 +43,10 @@ message( "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
 message( "CMAKE_CURRENT_SOURCE_DIR: " ${CMAKE_CURRENT_SOURCE_DIR} )
 message( "CMAKE_CURRENT_BINARY_DIR: " ${CMAKE_CURRENT_BINARY_DIR} )
 
-##Mpakos Python flags
-#execute_process(COMMAND python3-config --cflags OUTPUT_VARIABLE MPAKOS_PYTHON_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-#message( "MPAKOS_PYTHON_CFLAGS: " ${MPAKOS_PYTHON_CFLAGS} )
-
-##Mpakos C flags
-#set (MPAKOS_CFLAGS "-g -Wall -Wno-unused-result -Wsign-compare -Wformat -Werror=format-security -DNDEBUG -fwrapv -fstack-protector" )
-#message( "MPAKOS_CFLAGS: " ${MPAKOS_CFLAGS} )
-
 # C++ compile flags
 #set(CMAKE_CXX_STANDARD 11) # For dungani
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -O3 -fopenmp -lm") # ${MPAKOS_PYTHON_CFLAGS}
 message( "CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS})
-
-#execute_process(COMMAND python3-config --embed --ldflags OUTPUT_VARIABLE PYTHON_LINK OUTPUT_STRIP_TRAILING_WHITESPACE)
-#set(PYTHON_LINK "${PYTHON_LINK} -Xlinker -export-dynamic")
-#message( "PYTHON_LINK: " ${PYTHON_LINK} )
 
 ## CUDA libs and includes
 set (CUDA_INCLUDE_DIRS ${CUDA_TOOLKIT_ROOT_DIR}/include ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc)
@@ -65,7 +56,7 @@ set (CUDA_LD "${CUDA_TOOLKIT_ROOT_DIR}/lib64,${CUDA_TOOLKIT_ROOT_DIR}/lib")
 set (CUDA_LINK "-lcudart -lcublas -lcusparse") # -L${CUDA_LD} 
 message( "CUDA_LINK: " ${CUDA_LINK} )
 
-set(NVEMAPI_PREFIX "/home/panastas/PhD_stuff/SpMV-Research/benchmark_code/GPU/nvidia-energy-measure")
+set(NVEMAPI_PREFIX "../../../nvidia-energy-measure")
 set (NVEMAPI_INCLUDE_DIRS ${NVEMAPI_PREFIX}/include) # -L${CUDA_LD} 
 include_directories(${NVEMAPI_INCLUDE_DIRS} )
 message( "NVEMAPI_INCLUDE_DIRS: " ${NVEMAPI_INCLUDE_DIRS} )
@@ -81,15 +72,10 @@ message( "My header files: " ${CMAKE_CURRENT_SOURCE_DIR}/inc )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../)
 message( "csr5 header files: "  ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
-# Mpakos header files 
-#set (MPAKOS_PREFIX "${PROJECT_HEAD_DIR}/artificial_matrix_generation/pmpakos_impl")
-#include_directories( ${MPAKOS_PREFIX}/include)
-#message( "Mpakos header files: " ${MPAKOS_PREFIX}/include )
-
-# DGAL header files 
-set (DGAL_PREFIX "${PROJECT_HEAD_DIR}/artificial-matrix-generator")
-include_directories( ${DGAL_PREFIX})
-message( "DGAL header files: " ${DGAL_PREFIX} )
+# Artificial matrix generator header files 
+set (AMG_PREFIX "${PROJECT_HEAD_DIR}/artificial-matrix-generator")
+include_directories( ${AMG_PREFIX})
+message( "DGAL header files: " ${AMG_PREFIX} )
 
 set (INTERNAL_LINK_LIB "${CUDA_LINK} ${NVEMAPI_LINK} ${PYTHON_LINK} -lrt -ldl")
 message( "INTERNAL_LINK_LIB: " ${INTERNAL_LINK_LIB})
@@ -101,40 +87,34 @@ file(GLOB SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.c* ${NVEMAPI_PREFIX}/src/*.*)
 message( "SOURCE_FILES: " ${SOURCE_FILES} )
 
 ## datatype used in benchmarks. 0 = float, 1 = double
-set(DATATYPE 1) 
+set(DATATYPE $ENV{dtype_id}) 
 
 if (${DATATYPE} EQUAL 1)
-	#add_library(MyLib ${SOURCE_FILES} ${MPAKOS_PREFIX}/include/artificial_matrix_generation_double.o)
-	#add_library(MyLib ${SOURCE_FILES} ${DGAL_PREFIX}/ordered_set.o ${DGAL_PREFIX}/artificial_matrix_generation_double.o)
-	#target_link_libraries(MyLib ${INTERNAL_LINK_LIB})
-	set (DGAL_LINK "-L${DGAL_PREFIX} -lartificial_matrix_generation_double")
+	set (DGAL_LINK "-L${AMG_PREFIX} -lartificial_matrix_generation_double")
 	add_library(MyLib ${SOURCE_FILES})
 	target_link_libraries(MyLib ${INTERNAL_LINK_LIB} ${DGAL_LINK})
 	add_definitions(-DVALUE_TYPE_AX=double)
 	add_definitions(-DVALUE_TYPE_Y=double)
 	add_definitions(-DVALUE_TYPE_COMP=double)
 
-	add_executable (CSR5_CUDA_DSPMV_9-2_mtx ${PROJECT_TEST_DIR}/testCudaCSR5_mtx.cu)
-	target_link_libraries(CSR5_CUDA_DSPMV_9-2_mtx ${LINK_LIB} MyLib)
+	add_executable (CSR5_CUDA_DSPMV_9_mtx ${PROJECT_TEST_DIR}/testCudaCSR5_mtx.cu)
+	target_link_libraries(CSR5_CUDA_DSPMV_9_mtx ${LINK_LIB} MyLib)
 
-	add_executable (CSR5_CUDA_DSPMV_9-2_generate ${PROJECT_TEST_DIR}/testCudaCSR5_generate.cu)
-	target_link_libraries(CSR5_CUDA_DSPMV_9-2_generate ${LINK_LIB} MyLib)
+	add_executable (CSR5_CUDA_DSPMV_9_generate ${PROJECT_TEST_DIR}/testCudaCSR5_generate.cu)
+	target_link_libraries(CSR5_CUDA_DSPMV_9_generate ${LINK_LIB} MyLib)
 elseif(${DATATYPE} EQUAL 0)
-	#add_library(MyLib ${SOURCE_FILES} ${MPAKOS_PREFIX}/include/artificial_matrix_generation_float.o)
-	#add_library(MyLib ${SOURCE_FILES} ${DGAL_PREFIX}/ordered_set.o ${DGAL_PREFIX}/artificial_matrix_generation_float.o)
-	#target_link_libraries(MyLib ${INTERNAL_LINK_LIB})
-	set (DGAL_LINK "-L${DGAL_PREFIX} -lartificial_matrix_generation_float")
+	set (DGAL_LINK "-L${AMG_PREFIX} -lartificial_matrix_generation_float")
 	add_library(MyLib ${SOURCE_FILES})
 	target_link_libraries(MyLib ${INTERNAL_LINK_LIB} ${DGAL_LINK})
 	add_definitions(-DVALUE_TYPE_AX=float)
 	add_definitions(-DVALUE_TYPE_Y=float)
 	add_definitions(-DVALUE_TYPE_COMP=float)
 
-	add_executable (CSR5_CUDA_SSPMV_9-2_mtx ${PROJECT_TEST_DIR}/testCudaCSR5_mtx.cu)
-	target_link_libraries(CSR5_CUDA_SSPMV_9-2_mtx ${LINK_LIB} MyLib)
+	add_executable (CSR5_CUDA_SSPMV_9_mtx ${PROJECT_TEST_DIR}/testCudaCSR5_mtx.cu)
+	target_link_libraries(CSR5_CUDA_SSPMV_9_mtx ${LINK_LIB} MyLib)
 
-	add_executable (CSR5_CUDA_SSPMV_9-2_generate ${PROJECT_TEST_DIR}/testCudaCSR5_generate.cu)
-	target_link_libraries(CSR5_CUDA_SSPMV_9-2_generate ${LINK_LIB} MyLib)
+	add_executable (CSR5_CUDA_SSPMV_9_generate ${PROJECT_TEST_DIR}/testCudaCSR5_generate.cu)
+	target_link_libraries(CSR5_CUDA_SSPMV_9_generate ${LINK_LIB} MyLib)
 else()
 
 #add_definitions(-DVALUE_TYPE_AX=int8_t)

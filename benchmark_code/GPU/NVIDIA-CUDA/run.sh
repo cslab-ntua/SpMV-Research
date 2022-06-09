@@ -1,34 +1,17 @@
 #!/bin/bash
 
 source config.sh
-echo
 
-if [[ $hyperthreading == 1 ]]; then
-    max_cores=$((2*max_cores))
-    cores="$cores $max_cores"
-fi
+# Artificial matrix generator .so file used in Cmake requires linking. 
+export LD_LIBRARY_PATH="../../../artificial-matrix-generator:$LD_LIBRARY_PATH"
 
-# GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
-# e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
-if [[ $hyperthreading == 1 ]]; then
-    affinity=''
-    for ((i=0;i<max_cores/2;i++)); do
-        affinity="$affinity,$i,$((i,max_cores/2+i))"
-    done
-    affinity="${affinity:1}"
-    export GOMP_CPU_AFFINITY="$affinity"
-    printf "cpu affinities: %s\n" "$affinity"
-else
-    export GOMP_CPU_AFFINITY="0-$((max_cores-1))"
-fi
+# CHECKME: CUDA Library paths, in case the benchmark system (or modules) do not load them correctly, or (either) CUDA is installed locally and requires linking by hand.
+#if ((run_cuda_9)); then
+#    export LD_LIBRARY_PATH="path_to_cuda_9/lib64:path_to_cuda_9/lib:$LD_LIBRARY_PATH"
+#fi
+#export LD_LIBRARY_PATH="path_to_cuda_11/lib64:path_to_cuda_11/lib:$LD_LIBRARY_PATH"
 
-export MKL_DEBUG_CPU_TYPE=5
-export LD_LIBRARY_PATH="${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
 
-# Encourages idle threads to spin rather than sleep.
-# export OMP_WAIT_POLICY='active'
-# Don't let the runtime deliver fewer threads than those we asked for.
-# export OMP_DYNAMIC='false'
 
 matrices_validation=(
     "$path_validation"/scircuit.mtx
@@ -69,15 +52,8 @@ bench()
     declare args=("$@")
     declare prog="${args[0]}"
     declare prog_args=("${args[@]:1}")
-    declare t
 
-    for t in $cores
-    do
-        export OMP_NUM_THREADS="$t"
-        # export MKL_NUM_THREADS="$t"
-
-        "$prog" "${prog_args[@]}"
-    done
+    "$prog" "${prog_args[@]}"
 }
 
 matrices=(
