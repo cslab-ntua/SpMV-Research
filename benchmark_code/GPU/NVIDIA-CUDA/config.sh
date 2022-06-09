@@ -1,78 +1,60 @@
 #!/bin/bash
 
-declare -A conf_vars
-conf_vars=(
+# CHECKME: Cmake command (with path if needed for local installations etc) 
+cmake_command=~/Lib_install/cmake-3.20/bin/cmake
 
-    # A desired name for the GPU testbed to be used for your build-dirs and logfiles.
-    ['system']='silver1V100'
-    
-     # Flag ( 0 = no, 1 = yes) declaring if cuda-9 benchmarks should be included (compilation not supported in latest systems like A100)
-    ['run_cuda_9']=1
-    
-    # Define cuda architecture 80") # (Tesla K40 = 35, GTX 1060/70 = 61,) P100 = 60, V100 = 70, A100 = 80
-    ['CUDA_arch']=70
-  
-    # Define datatype used for benchmarks 0 = float, 1 = double
-    ['dtype_id']=1  
-    
-    # Path for the cuda toolkit root
-    ['CUDA_TOOLKIT_DIR']='/usr/local/cuda-11.6'
+# CHECKME: A desired name for the GPU testbed to be used for your build-dirs and logfiles.
+system='silver1V100'
 
-    # Path for the validation matrices.
-    ['path_validation']='../../../validation_matrices/'
+# CHECKME: Define cuda architecture 80") # (Tesla K40 = 35, GTX 1060/70 = 61,) P100 = 60, V100 = 70, A100 = 80
+export cnf_CUDA_arch=70
 
-    # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    # ['use_artificial_matrices']=0
-    ['use_artificial_matrices']=1
-)
+# CHECKME: Flag ( 0 = no, 1 = yes) declaring if cuda-9 benchmarks should be included (compilation not supported in latest systems like A100)
+run_cuda_9=0
 
+# CHECKME: Path for the cuda toolkit root
+if ((run_cuda_9)); then
+	export cnf_CUDA_TOOLKIT_9_DIR='/usr/local/cuda-9.2'
+fi
+export cnf_CUDA_TOOLKIT_11_DIR='/usr/local/cuda-11.6'
+
+# CHECKME: CUDA Library paths, in case the benchmark system (or modules) do not load them correctly, or (either) CUDA is installed locally and requires linking by hand.
+#if ((run_cuda_9)); then
+#    export LD_LIBRARY_PATH="path_to_cuda_9/lib64:path_to_cuda_9/lib:$LD_LIBRARY_PATH"
+#fi
+#export LD_LIBRARY_PATH="path_to_cuda_11/lib64:path_to_cuda_11/lib:$LD_LIBRARY_PATH"
+
+# CHECKME: Define datatype used for benchmarks 0 = float, 1 = double. Double used in paper. 
+export cnf_dtype_id=1
+
+# CHECKME: Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
+# ['use_artificial_matrices']=0
+use_artificial_matrices=1
+
+# Path for the matrix generation parameters.
 path_artificial='../../../matrix_generation_parameters'
 
-# Artificial matrices to benchmark.
-artificial_matrices_files=(
+# CHECKME: Artificial matrices to benchmark. 2 choises for full set or validation 'friends'
+if ((use_artificial_matrices)); then
+	# The synthetic dataset studied in the paper.
+	filename_artificial=synthetic_matrices_small_dataset
 
-    # Validation matrices artificial twins.
-    # "$path_artificial"/validation_friends/twins_random.txt
+	# Validation matrices artificial twins in a +-30% value space of each feature.
+	# filename_artificial=validation_matrices_10_samples_30_range_twins
 
-    # Validation matrices artificial twins in a +-30% value space of each feature.
-    # "$path_artificial"/SpMV-Research/validation_matrices_10_samples_30_range_twins.txt
-
-    # The synthetic dataset studied in the paper.
-    "$path_artificial"/synthetic_matrices_small_dataset.txt
-)
-
-# Export variables for make.
-for index in "${!conf_vars[@]}"; do
-    eval "$index='${conf_vars["$index"]}'"
-    printf "%s=%s;" "$index"  "${conf_vars["$index"]}"
-done
-
-path_generator='../../../artificial-matrix-generator'
-cd $path_generator
-make
-cd -
-
-mkdir -p ./spmv_code_cusparse-11.x/${system}-build
-cp ./spmv_code_cusparse-11.x/CMakeLists.txt ./spmv_code_cusparse-11.x/${system}-build/CMakeLists.txt
-cd ./spmv_code_cusparse-11.x/${system}-build
-cmake ./
-cd -
-
-if ((run_cuda_9)); then
-	mkdir -p ./spmv_code_cusparse-9.x/${system}-build
-	cp ./spmv_code_cusparse-9.x/CMakeLists.txt ./spmv_code_cusparse-9.x/${system}-build/CMakeLists.txt
-	cd ./spmv_code_cusparse-9.x/${system}-build
-	cmake ./
-	cd -
-	
-	mkdir -p ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build
-	cp ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/CMakeLists.txt ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build/CMakeLists.txt
-	cd ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build
-	cmake ./
-	cd -
+		
+	artificial_matrices_files=( "$path_artificial"/"$filename_artificial.txt" )
 fi
 
-if ((dtype_id)); then
+# CHECKME: Ideally you don't want to edit bellow here...
+# Unless you want to change which implementations/libraries to run (lines 91-121) or mess with paths (don't). 
+# =========================================================================================================================================
+# =========================================================================================================================================
+
+# Path for the validation matrices.
+path_validation='../../../../validation_matrices'
+
+if ((cnf_dtype_id)); then
 	dtype=D
 else
 	dtype=S
@@ -84,25 +66,34 @@ else
 	progtype_string=mtx
 fi
 
-# SpMV kernels to benchmark (uncomment the ones you want).
-progs=(
-    # cuSPARSE 9 hyb 
-    "./spmv_code_cusparse-9.x/${system}-build/cuSPARSE${dtype}hybmv_9_${progtype_string}"
+if ((run_cuda_9)); then
+	progs=(
+		# cuSPARSE 9 hyb 
+		"../spmv_code_cusparse-9.x/${system}-build/cuSPARSE${dtype}hybmv_9_${progtype_string}"
 
-    # CSR5 cuda 9
-    "./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build/CSR5_CUDA_${dtype}SPMV_9_${progtype_string}"
-    
-    # cuSPARSE 11 coo
-    "./spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}coomv_11_${progtype_string}"
-    
-    # cuSPARSE 11 csr
-    "./spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}csrmv_11_${progtype_string}"
+		# CSR5 cuda 9
+		"../spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build/CSR5_CUDA_${dtype}SPMV_9_${progtype_string}"
+		
+		# cuSPARSE 11 coo
+		"../spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}coomv_11_${progtype_string}"
+		
+		# cuSPARSE 11 csr
+		"../spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}csrmv_11_${progtype_string}"
 
-    ## Other options not used in paper
-    # cuSPARSE 9 csr ( <= perf to cuSPARSE 11 csr) 
-    #"./spmv_code_cusparse-9.x/${system}-build/cuSPARSE${dtype}csrmv_9_${progtype_string}"
-    # cuSPARSE 9 bsr 
-    #"./spmv_code_cusparse-9.x/${system}-build/cuSPARSE${dtype}bsrmv_9_${progtype_string}"    
+		## Other options not used in paper
+		# cuSPARSE 9 csr ( <= perf to cuSPARSE 11 csr) 
+		#"./spmv_code_cusparse-9.x/${system}-build/cuSPARSE${dtype}csrmv_9_${progtype_string}"
+		# cuSPARSE 9 bsr 
+		#"./spmv_code_cusparse-9.x/${system}-build/cuSPARSE${dtype}bsrmv_9_${progtype_string}"    
 
-)
-
+	)
+else
+	progs=(
+		# cuSPARSE 11 coo
+		"../spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}coomv_11_${progtype_string}"
+		
+		# cuSPARSE 11 csr
+		"../spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}csrmv_11_${progtype_string}"
+  
+	)
+fi

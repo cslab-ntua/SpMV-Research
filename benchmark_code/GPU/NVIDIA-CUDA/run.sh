@@ -2,16 +2,38 @@
 
 source config.sh
 
+# Path for the matrix generator
+path_generator='../../../artificial-matrix-generator'
+cd $path_generator
+make -j
+cd -
+
+mkdir -p ./spmv_code_cusparse-11.x/${system}-build
+cp ./spmv_code_cusparse-11.x/CMakeLists.txt ./spmv_code_cusparse-11.x/${system}-build/CMakeLists.txt
+cd ./spmv_code_cusparse-11.x/${system}-build
+$cmake_command ./
+make -j
+cd -
+
+if ((run_cuda_9)); then
+	mkdir -p ./spmv_code_cusparse-9.x/${system}-build
+	cp ./spmv_code_cusparse-9.x/CMakeLists.txt ./spmv_code_cusparse-9.x/${system}-build/CMakeLists.txt
+	cd ./spmv_code_cusparse-9.x/${system}-build
+	$cmake_command ./
+	make -j
+	cd -
+	
+	mkdir -p ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build
+	cp ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/CMakeLists.txt ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build/CMakeLists.txt
+	cd ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build
+	$cmake_command ./
+	make -j
+	cd -
+fi
+
+
 # Artificial matrix generator .so file used in Cmake requires linking. 
-export LD_LIBRARY_PATH="../../../artificial-matrix-generator:$LD_LIBRARY_PATH"
-
-# CHECKME: CUDA Library paths, in case the benchmark system (or modules) do not load them correctly, or (either) CUDA is installed locally and requires linking by hand.
-#if ((run_cuda_9)); then
-#    export LD_LIBRARY_PATH="path_to_cuda_9/lib64:path_to_cuda_9/lib:$LD_LIBRARY_PATH"
-#fi
-#export LD_LIBRARY_PATH="path_to_cuda_11/lib64:path_to_cuda_11/lib:$LD_LIBRARY_PATH"
-
-
+export LD_LIBRARY_PATH="../../../../artificial-matrix-generator:$LD_LIBRARY_PATH"
 
 matrices_validation=(
     "$path_validation"/scircuit.mtx
@@ -47,13 +69,23 @@ matrices_validation=(
     "$path_validation"/cage15.mtx
 )
 
+
+#The directory where the benchmark logs will be stored
+store_log_dir=../../../../benchmark_results/${system}
+mkdir -p $store_log_dir
+if ((!use_artificial_matrices)); then
+	store_log_file=$store_log_dir/${system}_dtype-${dtype}_run_validation_matrices.csv
+else 
+	store_log_file=$store_log_dir/${system}_dtype-${dtype}_run_${filename_artificial}.csv
+fi
+
 bench()
 {
     declare args=("$@")
     declare prog="${args[0]}"
     declare prog_args=("${args[@]:1}")
-
-    "$prog" "${prog_args[@]}"
+	echo "$prog ${store_log_file} ${prog_args[@]}"
+    "$prog" "${store_log_file}" "${prog_args[@]}"
 }
 
 matrices=(
@@ -72,6 +104,10 @@ else
     done
     echo "number of matrices: ${#prog_args[@]}"
 fi
+
+#Make a temporary dir for file outputs for the nvem power measurment logs (not used, can be deleted afterwards unless needed for debugging/checking)
+mkdir -p ./build_runtrash
+cd ./build_runtrash
 
 for p in "${progs[@]}"; do
     # declare base file_out file_err

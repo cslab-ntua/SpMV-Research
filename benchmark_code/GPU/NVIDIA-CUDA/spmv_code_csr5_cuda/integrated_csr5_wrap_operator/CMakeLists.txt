@@ -1,15 +1,15 @@
 cmake_minimum_required (VERSION 3.10)
 #set(CMAKE_VERBOSE_MAKEFILE on)
 
-set()
+## 1) CXX compiler stuff
 
-#	c) auto
+#	a) auto
 
-#	d) auto
+#	b) auto
 
-## 2) CUDA PREFIX
-set (CUDA_TOOLKIT_ROOT_DIR $ENV{CUDA_TOOLKIT_DIR})
+## 2) CUDA Compiler stuff
 
+set (CUDA_TOOLKIT_ROOT_DIR $ENV{cnf_CUDA_TOOLKIT_9_DIR})
 
 # 	a) Compiler
 set (CMAKE_CUDA_COMPILER ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvcc)
@@ -20,7 +20,7 @@ message("CMAKE_CUDA_FLAGS: " ${CMAKE_CUDA_FLAGS})
 
 #	c) Architecture 
 if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-  set(CMAKE_CUDA_ARCHITECTURES $ENV{CUDA_arch})
+  set(CMAKE_CUDA_ARCHITECTURES $ENV{cnf_CUDA_arch})
 endif()
 
 ## 4) ITER run for benchmark results
@@ -30,13 +30,15 @@ add_definitions(-DNR_ITER=128)
 #add_definitions(-DDDEBUG)
 
 ## 6) Define result testing flag
-add_definitions(-DTEST)
+#add_definitions(-DTEST)
 
 project (MakeSpMVGreatAgainCSR59 CXX CUDA)
 set ( PROJECT_HEAD_DIR ${PROJECT_SOURCE_DIR}/../../../../../ )
-set ( PROJECT_TEST_DIR ${PROJECT_SOURCE_DIR}/tests )
-set ( PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src )
+set ( PROJECT_INC_DIR ${PROJECT_SOURCE_DIR}/../inc )
+set ( PROJECT_TEST_DIR ${PROJECT_SOURCE_DIR}/../tests )
+set ( PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../src )
 message( "PROJECT_HEAD_DIR: " ${PROJECT_HEAD_DIR} )
+message( "PROJECT_INC_DIR: " ${PROJECT_INC_DIR} )
 message( "PROJECT_TEST_DIR: " ${PROJECT_TEST_DIR} )
 message( "PROJECT_SOURCE_DIR: " ${PROJECT_SOURCE_DIR} )
 message( "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
@@ -44,8 +46,7 @@ message( "CMAKE_CURRENT_SOURCE_DIR: " ${CMAKE_CURRENT_SOURCE_DIR} )
 message( "CMAKE_CURRENT_BINARY_DIR: " ${CMAKE_CURRENT_BINARY_DIR} )
 
 # C++ compile flags
-#set(CMAKE_CXX_STANDARD 11) # For dungani
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -O3 -fopenmp -lm") # ${MPAKOS_PYTHON_CFLAGS}
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -O3 -fopenmp -lm")
 message( "CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS})
 
 ## CUDA libs and includes
@@ -56,7 +57,7 @@ set (CUDA_LD "${CUDA_TOOLKIT_ROOT_DIR}/lib64,${CUDA_TOOLKIT_ROOT_DIR}/lib")
 set (CUDA_LINK "-lcudart -lcublas -lcusparse") # -L${CUDA_LD} 
 message( "CUDA_LINK: " ${CUDA_LINK} )
 
-set(NVEMAPI_PREFIX "../../../nvidia-energy-measure")
+set(NVEMAPI_PREFIX "../../nvidia-energy-measure")
 set (NVEMAPI_INCLUDE_DIRS ${NVEMAPI_PREFIX}/include) # -L${CUDA_LD} 
 include_directories(${NVEMAPI_INCLUDE_DIRS} )
 message( "NVEMAPI_INCLUDE_DIRS: " ${NVEMAPI_INCLUDE_DIRS} )
@@ -65,12 +66,12 @@ set (NVEMAPI_LINK "-L${CUDA_LD} -lnvidia-ml -L/usr/lib64 -lcuda -lpthread") #  $
 message( "NVEMAPI_LINK: " ${NVEMAPI_LINK} )
 
 # My header files 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/inc)
-message( "My header files: " ${CMAKE_CURRENT_SOURCE_DIR}/inc )
+include_directories(${PROJECT_INC_DIR})
+message( "My header files: " ${PROJECT_INC_DIR} )
 
 # csr5 cuda header files
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../)
-message( "csr5 header files: "  ${CMAKE_CURRENT_SOURCE_DIR}/../)
+include_directories( ${PROJECT_SOURCE_DIR}/../)
+message( "csr5 header files: "  ${PROJECT_SOURCE_DIR}/../)
 
 # Artificial matrix generator header files 
 set (AMG_PREFIX "${PROJECT_HEAD_DIR}/artificial-matrix-generator")
@@ -87,7 +88,7 @@ file(GLOB SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.c* ${NVEMAPI_PREFIX}/src/*.*)
 message( "SOURCE_FILES: " ${SOURCE_FILES} )
 
 ## datatype used in benchmarks. 0 = float, 1 = double
-set(DATATYPE $ENV{dtype_id}) 
+set(DATATYPE $ENV{cnf_dtype_id}) 
 
 if (${DATATYPE} EQUAL 1)
 	set (DGAL_LINK "-L${AMG_PREFIX} -lartificial_matrix_generation_double")

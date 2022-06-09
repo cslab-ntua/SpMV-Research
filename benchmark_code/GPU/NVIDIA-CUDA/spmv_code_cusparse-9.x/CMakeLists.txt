@@ -1,24 +1,26 @@
 cmake_minimum_required (VERSION 3.10)
 #set(CMAKE_VERBOSE_MAKEFILE on)
 
-#	c) auto
+## 1) CXX compiler stuff
 
-#	d) auto
+#	a) auto
 
-## 2) CUDA PREFIX
-#set (CUDA_TOOLKIT_ROOT_DIR "/usr/local/cuda-9.2")
-set (CUDA_TOOLKIT_ROOT_DIR "/opt/system/cuda/9.2.88")
+#	b) auto
+
+## 2) CUDA Compiler stuff
+
+set (CUDA_TOOLKIT_ROOT_DIR $ENV{cnf_CUDA_TOOLKIT_9_DIR})
 
 # 	a) Compiler
 set (CMAKE_CUDA_COMPILER ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvcc)
 
 # 	b) Compile flags
-set (CMAKE_CUDA_FLAGS "-w -O3 -arch=sm_70") #35 for Tesla K40, 70 for V100, 61 for GTX 1060/70
+set (CMAKE_CUDA_FLAGS "-w -O3")
 message("CMAKE_CUDA_FLAGS: " ${CMAKE_CUDA_FLAGS})
 
 #	c) Architecture 
 if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-  set(CMAKE_CUDA_ARCHITECTURES 70)
+  set(CMAKE_CUDA_ARCHITECTURES $ENV{cnf_CUDA_arch})
 endif()
 
 ## 4) ITER run for benchmark results
@@ -31,32 +33,21 @@ add_definitions(-DNR_ITER=128)
 #add_definitions(-DTEST)
 
 project (MakeSpMVGreatAgain9 CXX CUDA)
-set ( PROJECT_HEAD_DIR ${PROJECT_SOURCE_DIR}/../ )
-set ( PROJECT_TEST_DIR ${PROJECT_SOURCE_DIR}/tests )
-set ( PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src )
+set ( PROJECT_HEAD_DIR ${PROJECT_SOURCE_DIR}/../../../../ )
+set ( PROJECT_INC_DIR ${PROJECT_SOURCE_DIR}/../inc )
+set ( PROJECT_TEST_DIR ${PROJECT_SOURCE_DIR}/../tests )
+set ( PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../src )
 message( "PROJECT_HEAD_DIR: " ${PROJECT_HEAD_DIR} )
+message( "PROJECT_INC_DIR: " ${PROJECT_INC_DIR} )
 message( "PROJECT_TEST_DIR: " ${PROJECT_TEST_DIR} )
 message( "PROJECT_SOURCE_DIR: " ${PROJECT_SOURCE_DIR} )
 message( "PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR} )
 message( "CMAKE_CURRENT_SOURCE_DIR: " ${CMAKE_CURRENT_SOURCE_DIR} )
 message( "CMAKE_CURRENT_BINARY_DIR: " ${CMAKE_CURRENT_BINARY_DIR} )
 
-##Mpakos Python flags
-#execute_process(COMMAND python3-config --cflags OUTPUT_VARIABLE MPAKOS_PYTHON_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-#message( "MPAKOS_PYTHON_CFLAGS: " ${MPAKOS_PYTHON_CFLAGS} )
-
-##Mpakos C flags
-#set (MPAKOS_CFLAGS "-g -Wall -Wno-unused-result -Wsign-compare -Wformat -Werror=format-security -DNDEBUG -fwrapv -fstack-protector" )
-#message( "MPAKOS_CFLAGS: " ${MPAKOS_CFLAGS} )
-
 # C++ compile flags
-#set(CMAKE_CXX_STANDARD 11) # For dungani
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -O3 -fopenmp -lm") # ${MPAKOS_PYTHON_CFLAGS}
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -O3 -fopenmp -lm")
 message( "CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS})
-
-#execute_process(COMMAND python3-config --embed --ldflags OUTPUT_VARIABLE PYTHON_LINK OUTPUT_STRIP_TRAILING_WHITESPACE)
-#set(PYTHON_LINK "${PYTHON_LINK} -Xlinker -export-dynamic")
-#message( "PYTHON_LINK: " ${PYTHON_LINK} )
 
 ## CUDA libs and includes
 set (CUDA_INCLUDE_DIRS ${CUDA_TOOLKIT_ROOT_DIR}/include ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc)
@@ -66,7 +57,7 @@ set (CUDA_LD "${CUDA_TOOLKIT_ROOT_DIR}/lib64,${CUDA_TOOLKIT_ROOT_DIR}/lib")
 set (CUDA_LINK "-lcudart -lcublas -lcusparse") # -L${CUDA_LD} 
 message( "CUDA_LINK: " ${CUDA_LINK} )
 
-set(NVEMAPI_PREFIX "/zhome/academic/HLRS/xex/xexpanas/SpMV-Research/nvidia-energy-measure")
+set(NVEMAPI_PREFIX "../../nvidia-energy-measure")
 set (NVEMAPI_INCLUDE_DIRS ${NVEMAPI_PREFIX}/include) # -L${CUDA_LD} 
 include_directories(${NVEMAPI_INCLUDE_DIRS} )
 message( "NVEMAPI_INCLUDE_DIRS: " ${NVEMAPI_INCLUDE_DIRS} )
@@ -75,51 +66,30 @@ set (NVEMAPI_LINK "-L${CUDA_LD} -lnvidia-ml -L/usr/lib64 -lcuda -lpthread") #  $
 message( "NVEMAPI_LINK: " ${NVEMAPI_LINK} )
 
 # My header files 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/inc)
-message( "My header files: " ${CMAKE_CURRENT_SOURCE_DIR}/inc )
-
-# Mpakos header files 
-#set (MPAKOS_PREFIX "${PROJECT_HEAD_DIR}/artificial_matrix_generation/pmpakos_impl")
-#include_directories( ${MPAKOS_PREFIX}/include)
-#message( "Mpakos header files: " ${MPAKOS_PREFIX}/include )
-
-# DGAL header files 
-set (DGAL_PREFIX "${PROJECT_HEAD_DIR}/artificial-matrix-generator")
-include_directories( ${DGAL_PREFIX})
-message( "DGAL header files: " ${DGAL_PREFIX} )
-
-# cuSP header files
-#include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/inc/cuSP)
-#message( "cuSP header files: " ${CMAKE_CURRENT_SOURCE_DIR}/inc/cuSP )
+include_directories(${PROJECT_INC_DIR})
+message( "My header files: " ${PROJECT_INC_DIR} )
 
 # csr5 cuda header files
-#include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/inc/CSR5/CSR5_cuda)
-#message( "CSR5_cuda header files: "  ${CMAKE_CURRENT_SOURCE_DIR}/inc/CSR5/CSR5_cuda)
+include_directories( ${PROJECT_SOURCE_DIR}/../)
+message( "csr5 header files: "  ${PROJECT_SOURCE_DIR}/../)
 
-# csr5 avx512 header files
-#include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/inc/CSR5/CSR5_avx512)
-#message( "CSR5_avx512 header files: "  ${CMAKE_CURRENT_SOURCE_DIR}/inc/CSR5/CSR5_avx512)
+# Artificial matrix generator header files 
+set (AMG_PREFIX "${PROJECT_HEAD_DIR}/artificial-matrix-generator")
+include_directories( ${AMG_PREFIX})
+message( "DGAL header files: " ${AMG_PREFIX} )
 
-# merge-spmv header files
-#include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../merge-spmv)
-#message( "merge-spmv header files: "  ${CMAKE_CURRENT_SOURCE_DIR}/../merge-spmv)
-
-set (INTERNAL_LINK_LIB "${CUDA_LINK} ${NVEMAPI_LINK} -lrt -ldl") # ${PYTHON_LINK}
+set (INTERNAL_LINK_LIB "${CUDA_LINK} ${NVEMAPI_LINK} ${PYTHON_LINK} -lrt -ldl")
 message( "INTERNAL_LINK_LIB: " ${INTERNAL_LINK_LIB})
 
-set (LINK_LIB "${CUDA_LINK} -lrt -ldl ${NVEMAPI_LINK}") # ${PYTHON_LINK}
+set (LINK_LIB "${CUDA_LINK} -lrt -ldl ${PYTHON_LINK} ${NVEMAPI_LINK}")
 message( "LINK_LIB: " ${LINK_LIB} )
 
 file(GLOB SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.c* ${NVEMAPI_PREFIX}/src/*.*)
 message( "SOURCE_FILES: " ${SOURCE_FILES} )
 
 ## datatype used in benchmarks. 0 = float, 1 = double
-set(DATATYPE 1) 
-
+set(DATATYPE $ENV{cnf_dtype_id}) 
 if (${DATATYPE} EQUAL 1)
-	#add_library(MyLib ${SOURCE_FILES} ${MPAKOS_PREFIX}/include/artificial_matrix_generation_double.o)
-	#add_library(MyLib ${SOURCE_FILES} ${DGAL_PREFIX}/ordered_set.o ${DGAL_PREFIX}/artificial_matrix_generation_double.o)
-	#target_link_libraries(MyLib ${INTERNAL_LINK_LIB})
 	set (DGAL_LINK "-L${DGAL_PREFIX} -lartificial_matrix_generation_double")
 	add_library(MyLib ${SOURCE_FILES})
 	target_link_libraries(MyLib ${INTERNAL_LINK_LIB} ${DGAL_LINK})
@@ -127,27 +97,24 @@ if (${DATATYPE} EQUAL 1)
 	add_definitions(-DVALUE_TYPE_Y=double)
 	add_definitions(-DVALUE_TYPE_COMP=double)
 
-	add_executable (cuSPARSEDcsrmv_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEcsrmv_9-2_mtx.cu)
-	target_link_libraries(cuSPARSEDcsrmv_9-2_mtx ${LINK_LIB} MyLib)
-	add_executable (cuSPARSEDhybmv_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEhybmv_9-2_mtx.cu)
-	target_link_libraries(cuSPARSEDhybmv_9-2_mtx ${LINK_LIB} MyLib)
-	add_executable (cuSPARSEDbsrmv_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEbsrmv_9-2_mtx.cu)
-	target_link_libraries(cuSPARSEDbsrmv_9-2_mtx ${LINK_LIB} MyLib)
-	add_executable (cuSPARSEDhybmv_ELL_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9-2_mtx.cu)
-	target_link_libraries(cuSPARSEDhybmv_ELL_9-2_mtx ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEDcsrmv_9_mtx ${PROJECT_TEST_DIR}/cuSPARSEcsrmv_9_mtx.cu)
+	target_link_libraries(cuSPARSEDcsrmv_9_mtx ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEDhybmv_9_mtx ${PROJECT_TEST_DIR}/cuSPARSEhybmv_9_mtx.cu)
+	target_link_libraries(cuSPARSEDhybmv_9_mtx ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEDbsrmv_9_mtx ${PROJECT_TEST_DIR}/cuSPARSEbsrmv_9_mtx.cu)
+	target_link_libraries(cuSPARSEDbsrmv_9_mtx ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEDhybmv_ELL_9_mtx ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9_mtx.cu)
+	target_link_libraries(cuSPARSEDhybmv_ELL_9_mtx ${LINK_LIB} MyLib)
 
-	add_executable (cuSPARSEDcsrmv_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEcsrmv_9-2_generate.cu)
-	target_link_libraries(cuSPARSEDcsrmv_9-2_generate ${LINK_LIB} MyLib)
-	add_executable (cuSPARSEDhybmv_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_9-2_generate.cu)
-	target_link_libraries(cuSPARSEDhybmv_9-2_generate ${LINK_LIB} MyLib)
-	add_executable (cuSPARSEDbsrmv_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEbsrmv_9-2_generate.cu)
-	target_link_libraries(cuSPARSEDbsrmv_9-2_generate ${LINK_LIB} MyLib)
-	add_executable (cuSPARSEDhybmv_ELL_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9-2_generate.cu)
-	target_link_libraries(cuSPARSEDhybmv_ELL_9-2_generate ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEDcsrmv_9_generate ${PROJECT_TEST_DIR}/cuSPARSEcsrmv_9_generate.cu)
+	target_link_libraries(cuSPARSEDcsrmv_9_generate ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEDhybmv_9_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_9_generate.cu)
+	target_link_libraries(cuSPARSEDhybmv_9_generate ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEDbsrmv_9_generate ${PROJECT_TEST_DIR}/cuSPARSEbsrmv_9_generate.cu)
+	target_link_libraries(cuSPARSEDbsrmv_9_generate ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEDhybmv_ELL_9_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9_generate.cu)
+	target_link_libraries(cuSPARSEDhybmv_ELL_9_generate ${LINK_LIB} MyLib)
 elseif(${DATATYPE} EQUAL 0)
-	#add_library(MyLib ${SOURCE_FILES} ${MPAKOS_PREFIX}/include/artificial_matrix_generation_float.o)
-	#add_library(MyLib ${SOURCE_FILES} ${DGAL_PREFIX}/ordered_set.o ${DGAL_PREFIX}/artificial_matrix_generation_float.o)
-	#target_link_libraries(MyLib ${INTERNAL_LINK_LIB})
 	set (DGAL_LINK "-L${DGAL_PREFIX} -lartificial_matrix_generation_float")
 	add_library(MyLib ${SOURCE_FILES})
 	target_link_libraries(MyLib ${INTERNAL_LINK_LIB} ${DGAL_LINK})
@@ -155,23 +122,23 @@ elseif(${DATATYPE} EQUAL 0)
 	add_definitions(-DVALUE_TYPE_Y=float)
 	add_definitions(-DVALUE_TYPE_COMP=float)
 
-	add_executable (cuSPARSEScsrmv_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEcsrmv_9-2_mtx.cu)
-	target_link_libraries(cuSPARSEScsrmv_9-2_mtx ${LINK_LIB} MyLib)
-	add_executable (cuSPARSEShybmv_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEhybmv_9-2_mtx.cu)
-	target_link_libraries(cuSPARSEShybmv_9-2_mtx ${LINK_LIB} MyLib)
-	add_executable (cuSPARSESbsrmv_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEbsrmv_9-2_mtx.cu)
-	target_link_libraries(cuSPARSESbsrmv_9-2_mtx ${LINK_LIB} MyLib)
-	add_executable (cuSPARSEShybmv_ELL_9-2_mtx ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9-2_mtx.cu)
-	target_link_libraries(cuSPARSEShybmv_ELL_9-2_mtx ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEScsrmv_9_mtx ${PROJECT_TEST_DIR}/cuSPARSEcsrmv_9_mtx.cu)
+	target_link_libraries(cuSPARSEScsrmv_9_mtx ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEShybmv_9_mtx ${PROJECT_TEST_DIR}/cuSPARSEhybmv_9_mtx.cu)
+	target_link_libraries(cuSPARSEShybmv_9_mtx ${LINK_LIB} MyLib)
+	add_executable (cuSPARSESbsrmv_9_mtx ${PROJECT_TEST_DIR}/cuSPARSEbsrmv_9_mtx.cu)
+	target_link_libraries(cuSPARSESbsrmv_9_mtx ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEShybmv_ELL_9_mtx ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9_mtx.cu)
+	target_link_libraries(cuSPARSEShybmv_ELL_9_mtx ${LINK_LIB} MyLib)
 
-	add_executable (cuSPARSEScsrmv_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEcsrmv_9-2_generate.cu)
-	target_link_libraries(cuSPARSEScsrmv_9-2_generate ${LINK_LIB} MyLib)
-	add_executable (cuSPARSEShybmv_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_9-2_generate.cu)
-	target_link_libraries(cuSPARSEShybmv_9-2_generate ${LINK_LIB} MyLib)
-	add_executable (cuSPARSESbsrmv_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEbsrmv_9-2_generate.cu)
-	target_link_libraries(cuSPARSESbsrmv_9-2_generate ${LINK_LIB} MyLib)
-	add_executable (cuSPARSEShybmv_ELL_9-2_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9-2_generate.cu)
-	target_link_libraries(cuSPARSEShybmv_ELL_9-2_generate ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEScsrmv_9_generate ${PROJECT_TEST_DIR}/cuSPARSEcsrmv_9_generate.cu)
+	target_link_libraries(cuSPARSEScsrmv_9_generate ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEShybmv_9_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_9_generate.cu)
+	target_link_libraries(cuSPARSEShybmv_9_generate ${LINK_LIB} MyLib)
+	add_executable (cuSPARSESbsrmv_9_generate ${PROJECT_TEST_DIR}/cuSPARSEbsrmv_9_generate.cu)
+	target_link_libraries(cuSPARSESbsrmv_9_generate ${LINK_LIB} MyLib)
+	add_executable (cuSPARSEShybmv_ELL_9_generate ${PROJECT_TEST_DIR}/cuSPARSEhybmv_ELL_9_generate.cu)
+	target_link_libraries(cuSPARSEShybmv_ELL_9_generate ${LINK_LIB} MyLib)
 else()
 
 endif()
