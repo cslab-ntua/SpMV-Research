@@ -2,8 +2,7 @@ import numpy as np
 import pandas as pd
 
 def create_validation_twins_param_file(param_file, num_samples, percentage, distribution, placement, seed, scaling_list):
-    # vm_features = pd.read_csv("../../Benchmarks/validation_matrices_features.csv", sep="\t")
-    vm_features = pd.read_csv("../Benchmarks/validation_matrices_features.csv", sep="\t")
+    vm_features = pd.read_csv("../benchmark_results/validation_matrices_features.csv", sep="\t")
     
     mtx_names = list(vm_features["matrix"])
     vm_features = vm_features[['matrix','nr_rows','nr_cols', 'nnz-r-avg', 'nnz-r-std', 'bw-avg', 'skew_coeff', 'neigh-avg', 'cross_row_sim-avg']]
