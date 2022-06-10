@@ -20,14 +20,14 @@ To compile this benchmark, you first have to download the Vitis Accelerated Libr
 **Generate build file :**
 
 Run the following commands to generate a build script and build your XCLBIN and host binary targeting Alveo U280. 
-The arguments for the ```gen_build_em.sh``` script should be provided between ' ' (apostrophes). Currently the only supported Target Device is the Xilinx Alveo U280 (xilinx_u280_xdma_201920_3).
+The arguments for the ```gen_build.sh``` script should be provided between ' ' (apostrophes). Currently the only supported Target Device is the Xilinx Alveo U280 (xilinx_u280_xdma_201920_3).
 
 Please note that the hardware building process will take a long time. It can be 8-10 hours. 
 
 ```
-    bash gen_build_em.sh -l <Xilinx Tools License Path> -v <Vitis Tools Path> -x <XRT Path> \
-                         -p <Xilinx Platforms Path> -d <Target Device>
-    bash build_em.sh
+    bash gen_build.sh -l <Xilinx Tools License Path> -v <Vitis Tools Path> -x <XRT Path> \
+                      -p <Xilinx Platforms Path> -d <Target Device>
+    bash build.sh
 ```
 
 ### How to run
@@ -55,7 +55,7 @@ This triggers a set of python scripts to generate every artificial matrix, whose
 **Run tests:**
 
 ```
-    bash gen_run_em.sh -l <Xilinx Tools License Path> -v <Vitis Tools Path> -x <XRT Path>
-    bash run_em.sh 
+    bash gen_run.sh -l <Xilinx Tools License Path> -v <Vitis Tools Path> -x <XRT Path>
+    bash run.sh 
 ```
 First, generate the run script, for all matrices that are generated in the `sig_dat` directory. This script generates a bash script that performs 5 replications of SpMV runs on each matrix in our dataset. Results from running the benchmark are stored in a separate file per replication.
