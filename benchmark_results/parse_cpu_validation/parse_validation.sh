@@ -17,22 +17,23 @@ data=(
 
     # 'arm_csr_naive_d.out            Naive_CSR_CPU'
     # 'arm_library_d.out              ARM_library'
+    'arm_sell-c-sigma_d.out              SELL-C-s'
 
-    'epyc1_csr5_d.csv                     CSR5'
-    'epyc1_csr_naive_d.csv                Naive_CSR_CPU'
-    'epyc1_mkl_ie_opt_d.csv               MKL_IE'
+    # 'epyc1_csr5_d.csv                     CSR5'
+    # 'epyc1_csr_naive_d.csv                Naive_CSR_CPU'
+    # 'epyc1_mkl_ie_opt_d.csv               MKL_IE'
 
 )
 
 
 # THREADS='64 128'
 # THREADS='80 160'
-THREADS='24'
+THREADS='80'
 
 for t in $THREADS; do
     # file_out="${bench_dir}/hawk_validation_matrices_t${t}_d.csv"
     # file_out="${bench_dir}/arm_validation_matrices_t${t}_d.csv"
-    file_out="${bench_dir}/epyc1_validation_matrices_t${t}_d.csv"
+    file_out="${bench_dir}/arm_validation_matrices_sell_c_s_t${t}_d.csv"
     > "${file_out}"
     for tuple in "${data[@]}"; do
         tuple=($tuple)
