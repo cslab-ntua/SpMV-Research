@@ -4,10 +4,10 @@
 cmake_command=~/Lib_install/cmake-3.20/bin/cmake
 
 # CHECKME: A desired name for the GPU testbed to be used for your build-dirs and logfiles.
-system='silver1V100'
+system='epyc5A100'
 
 # CHECKME: Define cuda architecture 80") # (Tesla K40 = 35, GTX 1060/70 = 61,) P100 = 60, V100 = 70, A100 = 80
-export cnf_CUDA_arch=70
+export cnf_CUDA_arch=80
 
 # CHECKME: Flag ( 0 = no, 1 = yes) declaring if cuda-9 benchmarks should be included (compilation not supported in latest systems like A100)
 run_cuda_9=0
@@ -16,7 +16,7 @@ run_cuda_9=0
 if ((run_cuda_9)); then
 	export cnf_CUDA_TOOLKIT_9_DIR='/usr/local/cuda-9.2'
 fi
-export cnf_CUDA_TOOLKIT_11_DIR='/usr/local/cuda-11.6'
+export cnf_CUDA_TOOLKIT_11_DIR='/usr/local/cuda-11.4'
 
 # CHECKME: CUDA Library paths, in case the benchmark system (or modules) do not load them correctly, or (either) CUDA is installed locally and requires linking by hand.
 #if ((run_cuda_9)); then
@@ -37,10 +37,10 @@ path_artificial='../../../matrix_generation_parameters'
 # CHECKME: Artificial matrices to benchmark. 2 choises for full set or validation 'friends'
 if ((use_artificial_matrices)); then
 	# The synthetic dataset studied in the paper.
-	filename_artificial=synthetic_matrices_small_dataset
+	#filename_artificial=synthetic_matrices_small_dataset
 
 	# Validation matrices artificial twins in a +-30% value space of each feature.
-	# filename_artificial=validation_matrices_10_samples_30_range_twins
+	filename_artificial=validation_matrices_10_samples_30_range_twins
 
 		
 	artificial_matrices_files=( "$path_artificial"/"$filename_artificial.txt" )
@@ -72,7 +72,7 @@ if ((run_cuda_9)); then
 		"../spmv_code_cusparse-9.x/${system}-build/cuSPARSE${dtype}hybmv_9_${progtype_string}"
 
 		# CSR5 cuda 9
-		"../spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build/CSR5_CUDA_${dtype}SPMV_9_${progtype_string}"
+		"../spmv_code_csr5_cuda/${system}-build/CSR5_CUDA_${dtype}SPMV_9_${progtype_string}"
 		
 		# cuSPARSE 11 coo
 		"../spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}coomv_11_${progtype_string}"
@@ -94,6 +94,9 @@ else
 		
 		# cuSPARSE 11 csr
 		"../spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}csrmv_11_${progtype_string}"
+		
+		# CSR5 cuda 11
+		#"../spmv_code_csr5_cuda_11.x_exp/${system}-build/CSR5_CUDA_${dtype}SPMV_11_${progtype_string}"
   
 	)
 fi

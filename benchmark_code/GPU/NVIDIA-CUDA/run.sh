@@ -15,6 +15,13 @@ $cmake_command ./
 make -j
 cd -
 
+mkdir -p ./spmv_code_csr5_cuda_11.x_exp/${system}-build
+cp ./spmv_code_csr5_cuda_11.x_exp/integrated_csr5_wrap_operator/CMakeLists.txt ./spmv_code_csr5_cuda_11.x_exp/${system}-build/CMakeLists.txt
+cd ./spmv_code_csr5_cuda_11.x_exp/${system}-build
+$cmake_command ./
+make -j
+cd -
+	
 if ((run_cuda_9)); then
 	mkdir -p ./spmv_code_cusparse-9.x/${system}-build
 	cp ./spmv_code_cusparse-9.x/CMakeLists.txt ./spmv_code_cusparse-9.x/${system}-build/CMakeLists.txt
@@ -23,9 +30,9 @@ if ((run_cuda_9)); then
 	make -j
 	cd -
 	
-	mkdir -p ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build
-	cp ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/CMakeLists.txt ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build/CMakeLists.txt
-	cd ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/${system}-build
+	mkdir -p ./spmv_code_csr5_cuda/${system}-build
+	cp ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/CMakeLists.txt ./spmv_code_csr5_cuda/${system}-build/CMakeLists.txt
+	cd ./spmv_code_csr5_cuda/${system}-build
 	$cmake_command ./
 	make -j
 	cd -
@@ -72,7 +79,6 @@ matrices_validation=(
 
 #The directory where the benchmark logs will be stored
 store_log_dir=../../../../benchmark_results/${system}
-mkdir -p $store_log_dir
 if ((!use_artificial_matrices)); then
 	store_log_file=$store_log_dir/${system}_dtype-${dtype}_run_validation_matrices.csv
 else 
@@ -108,6 +114,9 @@ fi
 #Make a temporary dir for file outputs for the nvem power measurment logs (not used, can be deleted afterwards unless needed for debugging/checking)
 mkdir -p ./build_runtrash
 cd ./build_runtrash
+mkdir -p $store_log_dir
+echo "Runing Dir:"
+pwd
 
 for p in "${progs[@]}"; do
     # declare base file_out file_err
@@ -124,10 +133,16 @@ for p in "${progs[@]}"; do
     do
         if ((use_artificial_matrices)); then
             echo "Matrix: $a"
-            bench $p $a
+            for reps in 1 2 3 4 5
+            do
+            	bench $p $a
+            done
         else
             echo "File: $a"
-            bench $p "$a"
+            for reps in 1 2 3 4 5
+            do
+            	bench $p "$a"
+           	done
         fi
     done
 done

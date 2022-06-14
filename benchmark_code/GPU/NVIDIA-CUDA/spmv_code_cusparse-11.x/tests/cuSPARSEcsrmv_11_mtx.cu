@@ -204,7 +204,7 @@ int main(int argc, char **argv) {
 #endif
 
 	// Warmup
-	for (int i = 0; i < 100; i++)     CHECK_CUSPARSE( cusparseSpMV(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
+	for (int i = 0; i < 10000; i++)     CHECK_CUSPARSE( cusparseSpMV(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
                                  &alpha, matA, vecX, &beta, vecY, CUDA_VALUE_TYPE_COMP,
                                  CUSPARSE_MV_ALG_DEFAULT, dBuffer) )
 	cudaDeviceSynchronize();
