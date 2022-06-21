@@ -37,10 +37,10 @@ path_artificial='../../../matrix_generation_parameters'
 # CHECKME: Artificial matrices to benchmark. 2 choises for full set or validation 'friends'
 if ((use_artificial_matrices)); then
 	# The synthetic dataset studied in the paper.
-	#filename_artificial=synthetic_matrices_small_dataset
+	filename_artificial=synthetic_matrices_small_dataset
 
 	# Validation matrices artificial twins in a +-30% value space of each feature.
-	filename_artificial=validation_matrices_10_samples_30_range_twins
+	#filename_artificial=validation_matrices_10_samples_30_range_twins
 
 		
 	artificial_matrices_files=( "$path_artificial"/"$filename_artificial.txt" )
