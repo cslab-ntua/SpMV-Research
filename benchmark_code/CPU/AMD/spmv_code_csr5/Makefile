@@ -30,6 +30,7 @@ NUM_RUN = 128
 
 CFLAGS += -Wno-deprecated-writable-strings -Wno-write-strings -Wno-unused-result
 
+CFLAGS += -I'../../lib'
 CFLAGS += -I'$(AMG_PATH)' -I'$(AMG_PATH)/lib'
 
 

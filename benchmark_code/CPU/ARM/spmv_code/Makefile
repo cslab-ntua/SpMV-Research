@@ -28,11 +28,12 @@ CC=armclang++
 DOUBLE := 1
 
 # https://community.arm.com/arm-community-blogs/b/tools-software-ides-blog/posts/compiler-flags-across-architectures-march-mtune-and-mcpu
-CFLAGS += -Wall -Wno-deprecated-declarations -mcpu=native -fopenmp -O3 -D'DOUBLE=$(DOUBLE)'
+CFLAGS += -Wall -Wno-deprecated-declarations -march=native -fopenmp -O3 -D'DOUBLE=$(DOUBLE)'
 CFLAGS += -Rpass=.* -Rpass-analysis=.* -armpl=lp64,parallel
-CFLAGS += -Ilib -I$(AMG_PATH) -I$(AMG_PATH)/lib
+CFLAGS += -I'../../lib' -I$(AMG_PATH) -I$(AMG_PATH)/lib
 
-LDFLAGS ?= -Wl,--no-as-needed -larmpl_lp64_mp -lm -lgomp -lpthread -ldl -lpapi
+LDFLAGS += -Wl,--no-as-needed -larmpl_lp64_mp -lm -lgomp -lpthread -ldl -lpapi
+# LDFLAGS += -lm
 
 spmv_csr_naive.exe: spmv.cpp $(CSRC_ART_MAT)
 	$(CC) $^ $(CFLAGS) -D'USE_CUSTOM_CSR' -D'NAIVE' -o $@ $(LDFLAGS)

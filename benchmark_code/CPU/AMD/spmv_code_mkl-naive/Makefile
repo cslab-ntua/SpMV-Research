@@ -37,7 +37,7 @@ CC=g++
 CFLAGS += -m64 -Wall
 CFLAGS += -mavx2
 
-CFLAGS += -I'lib'
+CFLAGS += -I'../../lib'
 CFLAGS += -I'$(AMG_PATH)' -I'$(AMG_PATH)/lib'
 
 # CFLAGS += -I/usr/include/mkl -I/opt/intel/oneapi/mkl/latest/include
