@@ -19,6 +19,9 @@ build*/
 *Plot_tries/
 *cnpy/
 
+benchmark_code/CPU/ARM/spmv_code/*.csv
+benchmark_code/CPU/ARM/spmv_code_merge/*.csv
+
 benchmark_code/FPGA/HiSparse/
 benchmark_code/FPGA/HPCG_FPGA
 benchmark_code/FPGA/old_artificial_matrix_generation

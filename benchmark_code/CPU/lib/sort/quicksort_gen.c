@@ -48,11 +48,11 @@ static int cmp(_TYPE_V a, _TYPE_V b, _TYPE_AD * aux_data);
 //==========================================================================================================================================
 
 
-#undef swap
-#define swap  QUICKSORT_GEN_EXPAND(swap)
-static inline
+// #undef swap
+// #define swap  QUICKSORT_GEN_EXPAND(swap)
+// static inline
 void
-swap(_TYPE_V * A, _TYPE_I i, _TYPE_I j)
+swap_cus(_TYPE_V * A, _TYPE_I i, _TYPE_I j)
 {
 	_TYPE_V tmp;
 	tmp = A[j];
@@ -68,14 +68,14 @@ _TYPE_I
 partition(_TYPE_V * A, _TYPE_I s, _TYPE_I e, _TYPE_AD * aux_data)
 {
 	_TYPE_V pivot;
-	swap(A, s, (s + e) / 2);    // A somewhat better pivot than simply the first element.
+	swap_cus(A, s, (s + e) / 2);    // A somewhat better pivot than simply the first element.
 	pivot = A[s];
 	_TYPE_I i_s = s+1, i_e = e;
 	while (i_s < i_e)
 	{
 		if (cmp(A[i_s], pivot, aux_data) > 0)
 		{
-			swap(A, i_s, i_e);
+			swap_cus(A, i_s, i_e);
 			i_e--;
 		}
 		else
@@ -84,7 +84,7 @@ partition(_TYPE_V * A, _TYPE_I s, _TYPE_I e, _TYPE_AD * aux_data)
 		}
 	}
 	if (cmp(A[s], A[i_s], aux_data) > 0)
-		swap(A, s, i_s);
+		swap_cus(A, s, i_s);
 	return i_s;
 }
 

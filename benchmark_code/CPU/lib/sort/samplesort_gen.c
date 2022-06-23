@@ -55,17 +55,17 @@ typedef SAMPLESORT_GEN_TYPE_4  _TYPE_AD;
 //==========================================================================================================================================
 
 
-#undef swap
-#define swap  SAMPLESORT_GEN_EXPAND(swap)
-static inline
-void
-swap(_TYPE_V * A, _TYPE_I i, _TYPE_I j)
-{
-	_TYPE_V tmp;
-	tmp = A[j];
-	A[j] = A[i];
-	A[i] = tmp;
-}
+// #undef swap
+// #define swap  SAMPLESORT_GEN_EXPAND(swap)
+// static inline
+// void
+// swap(_TYPE_V * A, _TYPE_I i, _TYPE_I j)
+// {
+// 	_TYPE_V tmp;
+// 	tmp = A[j];
+// 	A[j] = A[i];
+// 	A[i] = tmp;
+// }
 
 
 #undef sorted_array_to_tree

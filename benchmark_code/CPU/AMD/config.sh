@@ -28,8 +28,8 @@ conf_vars=(
     ['path_validation']='../../../validation_matrices/'
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    # ['use_artificial_matrices']=0
-    ['use_artificial_matrices']=1
+    ['use_artificial_matrices']=0
+    # ['use_artificial_matrices']=1
 )
 
 path_artificial='../../../matrix_generation_parameters'
@@ -45,6 +45,7 @@ artificial_matrices_files=(
 
     # The synthetic dataset studied in the paper.
     "$path_artificial"/synthetic_matrices_small_dataset.txt
+    # "$path_artificial"/synthetic_matrices_small_dataset2.txt
 )
 
 # SpMV kernels to benchmark (uncomment the ones you want).
@@ -57,6 +58,9 @@ progs=(
 
     # CSR5
     './spmv_code_csr5/spmv_csr5.exe'
+
+    # merge spmv
+    './spmv_code_merge/spmv_merge.exe'
 
     # './spmv_code_mkl-naive/spmv_ell.exe'
     # './spmv_code_mkl-naive/spmv_ldu.exe'
