@@ -21,7 +21,14 @@ cd ./spmv_code_csr5_cuda_11.x_exp/${system}-build
 $cmake_command ./
 make -j
 cd -
-	
+
+mkdir -p ./spmv_code_merge_cuda_11.x/${system}-build
+cp ./spmv_code_merge_cuda_11.x/CMakeLists.txt ./spmv_code_merge_cuda_11.x/${system}-build/CMakeLists.txt
+cd ./spmv_code_merge_cuda_11.x/${system}-build
+$cmake_command ./
+make -j
+cd -
+
 if ((run_cuda_9)); then
 	mkdir -p ./spmv_code_cusparse-9.x/${system}-build
 	cp ./spmv_code_cusparse-9.x/CMakeLists.txt ./spmv_code_cusparse-9.x/${system}-build/CMakeLists.txt
