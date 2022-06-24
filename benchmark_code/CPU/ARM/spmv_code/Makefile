@@ -29,8 +29,8 @@ DOUBLE := 1
 
 # https://community.arm.com/arm-community-blogs/b/tools-software-ides-blog/posts/compiler-flags-across-architectures-march-mtune-and-mcpu
 CFLAGS += -Wall -Wno-deprecated-declarations -mcpu=native -fopenmp -O3 -D'DOUBLE=$(DOUBLE)'
-CFLAGS += -Rpass=.* -Rpass-analysis=.* -armpl=lp64,parallel
-CFLAGS += -Ilib -I$(AMG_PATH) -I$(AMG_PATH)/lib
+CFLAGS += -armpl=lp64,parallel -Rpass=.* -Rpass-analysis=.*
+CFLAGS += -I'../../lib' -I$(AMG_PATH) -I$(AMG_PATH)/lib
 
 LDFLAGS ?= -Wl,--no-as-needed -larmpl_lp64_mp -lm -lgomp -lpthread -ldl -lpapi
 

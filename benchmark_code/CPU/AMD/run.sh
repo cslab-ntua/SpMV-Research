@@ -57,7 +57,6 @@ matrices_validation=(
     "$path_validation"/Ga41As41H72.mtx
     "$path_validation"/eu-2005.mtx
     "$path_validation"/wikipedia-20051105.mtx
-    "$path_validation"/rajat31.mtx
     "$path_validation"/ldoor.mtx
     "$path_validation"/circuit5M.mtx
     "$path_validation"/bone010.mtx
@@ -76,7 +75,17 @@ bench()
         export OMP_NUM_THREADS="$t"
         # export MKL_NUM_THREADS="$t"
 
-        "$prog" "${prog_args[@]}"
+        if [ $prog = "./spmv_code_merge/spmv_merge.exe" ]; then
+            if ((!use_artificial_matrices)); then
+                "$prog" --mtx="${prog_args[@]}"
+            else
+                prog_args2="${prog_args[@]}"  # need to replace the original prog_args  spaces with \(space), in order to be read as a string between " " for --artif_args argument to work! (shit...)
+                "$prog" --param="${prog_args2[@]}"
+            fi
+        else
+            "$prog" "${prog_args[@]}"
+        fi
+
     done
 }
 

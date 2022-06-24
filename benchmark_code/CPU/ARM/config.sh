@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # To reproduce results, this environment variable has to change to the root directory of the ARM Compiler (<ARM-Compiler-Path> in README.md)
-# export ARM_ROOT_DIR=/home/spmv/arm
-export ARM_ROOT_DIR="<ARM-Compiler-Path>"
+# export ARM_ROOT_DIR="<ARM-Compiler-Path>"
+export ARM_ROOT_DIR=/home/spmv/arm/
 
 export ARMCLANG_ROOT_DIR=${ARM_ROOT_DIR}/arm-linux-compiler-22.0.1_Generic-AArch64_Ubuntu-20.04_aarch64-linux
 export GCC_ROOT_DIR=${ARM_ROOT_DIR}/gcc-11.2.0_Generic-AArch64_Ubuntu-20.04_aarch64-linux
@@ -91,12 +91,14 @@ artificial_matrices_files=(
 
 	# The synthetic dataset studied in the paper.
 	"$path_artificial"/synthetic_matrices_small_dataset.txt
+	# "$path_artificial"/synthetic_matrices_small_dataset2.txt
 )
 
 # SpMV kernels to benchmark.
 progs=(
 	./spmv_code/spmv_csr_naive.exe
 	./spmv_code/spmv_armpl.exe
+	./spmv_code_merge/spmv_merge.exe
 )
 
 # Export variables for make.

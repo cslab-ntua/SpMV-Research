@@ -58,44 +58,6 @@ MKL_INT * thread_partial_sums_row_e;
 
 #include "spmv_kernels.h"
 
-
-void
-rapl_open_files(long * n_out, int ** fds_out, long ** max_values_out)
-{
-	long buf_n = 1000;
-	char buf[buf_n];
-	long n = 0;
-	long i = 0;
-	int * fds;
-	int fd;
-	long * max_values;
-	while (1)
-	{
-		snprintf(buf, buf_n, "/sys/class/powercap/intel-rapl/intel-rapl:%ld/energy_uj", i);
-		if (access(buf, R_OK))
-			break;
-		i++;
-	}
-	n = i;
-	fds = (typeof(fds)) malloc(n * sizeof(*fds));
-	max_values = (typeof(max_values)) malloc(n * sizeof(*max_values));
-	for (i=0;i<n;i++)
-	{
-		snprintf(buf, buf_n, "/sys/class/powercap/intel-rapl/intel-rapl:%ld/energy_uj", i);
-		fds[i] = safe_open(buf, O_RDONLY);
-		snprintf(buf, buf_n, "/sys/class/powercap/intel-rapl/intel-rapl:%ld/max_energy_range_uj", i);
-		fd = safe_open(buf, O_RDONLY);
-		if (read(fd, buf, buf_n) < 0)
-			error("read");
-		max_values[i] = atol(buf);
-		safe_close(fd);
-	}
-	*n_out = n;
-	*fds_out = fds;
-	*max_values_out = max_values;
-}
-
-
 void
 spmv()
 {
@@ -133,8 +95,6 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 	double mem_footprint;
 	double gflops;
 	__attribute__((unused)) double time, time_balance, time_warm_up, time_after_warm_up;
-	long buf_n = 1000;
-	char buf[buf_n];
 	long i;
 
 	dimMultipleBlock = ((csr.m+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
@@ -336,14 +296,6 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		}
 	#endif
 
-	long rapl_fds_n;
-	int * rapl_fds;
-	long * rapl_max_values;
-
-	rapl_open_files(&rapl_fds_n, &rapl_fds, &rapl_max_values);
-
-	long ujoule_s[rapl_fds_n] = {0}, ujoule_e[rapl_fds_n] = {0};
-
 	// warm up caches
 	time_warm_up = time_it(1,
 		spmv();
@@ -364,28 +316,10 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		raise(SIGSTOP);
 	#endif
 
-
-	for (i=0;i<rapl_fds_n;i++)
-	{
-		if (read(rapl_fds[i], buf, buf_n) < 0)
-			error("read");
-		lseek(rapl_fds[i], 0, SEEK_SET);
-		ujoule_s[i] = atol(buf);
-	}
-
 	time = time_it(1,
 		for(int idxLoop = 0 ; idxLoop < loop ; ++idxLoop)
 			spmv();
 	);
-
-	for (i=0;i<rapl_fds_n;i++)
-	{
-		if (read(rapl_fds[i], buf, buf_n) < 0)
-			error("read");
-		lseek(rapl_fds[i], 0, SEEK_SET);
-		ujoule_e[i] = atol(buf);
-	}
-
 
 	//=============================================================================
 	//= Output section.
@@ -465,14 +399,6 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 	#endif
 
 	gflops = nnz / time * loop * 2 * 1e-9;
-
-	// double J_estimated = 0;
-	// for (i=0;i<rapl_fds_n;i++)
-	// {
-	// 	long diff = (ujoule_e[i] - ujoule_s[i] + rapl_max_values[i] + 1) % (rapl_max_values[i] + 1);   // micro joules
-	// 	J_estimated += ((double) diff) / 1000000.0;
-	// }
-	// double W_avg = J_estimated / time;
 
 	double W_avg = 250;
 	double J_estimated = W_avg*time;
