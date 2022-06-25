@@ -310,7 +310,7 @@ void COO_to_CSR(COOArrays * coo, CSRArrays * csr)
 	for (int i=0;i<csr->m+1 + VECTOR_ELEM_NUM;i++)
 		csr->ia[i] = 0;
 
-	coo_to_csr_fully_sorted(coo->rowind, coo->colind, coo->val, coo->m, coo->n, coo->nnz, csr);
+	coo_to_csr(coo->rowind, coo->colind, coo->val, coo->m, coo->n, coo->nnz, csr->ia, csr->ja, csr->a, 1);
 
 	// #if DOUBLE == 0
 		// mkl_scsrcoo(job, &coo->m, csr->a, csr->ja, csr->ia, &nnz, coo->val, coo->rowind, coo->colind, &info);

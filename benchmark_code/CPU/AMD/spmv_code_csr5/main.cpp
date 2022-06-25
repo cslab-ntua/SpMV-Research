@@ -151,8 +151,6 @@ int call_anonymouslib(char  *filename, int m, int n, int nnzA,
 		// double bw = gb/(1.0e+9 * CSR5Spmv_time) * NUM_RUN;
 		// cout << "CSR5-based SpMV time = " << CSR5Spmv_time << " ms. Bandwidth = " << bw << " GB/s. GFlops = " << gflops  << " GFlops." << endl;
 
-		cout << filename << "," << omp_get_max_threads() << "," << m << "," << n << "," << nnzA << "," << CSR5Spmv_time << "," << gflops << "," << mem_footprint/(1024*1024) << "\n";
-
 		double J_estimated = 0;
 		double W_avg;
 		for (i=0;i<rapl_fds_n;i++)
@@ -175,6 +173,14 @@ int call_anonymouslib(char  *filename, int m, int n, int nnzA,
 				<< "," << AM->skew
 				<< "," << AM->avg_num_neighbours << "," << AM->cross_row_similarity
 				<< "," << "CSR5" <<  "," << CSR5Spmv_time << "," << gflops << "," << W_avg << "," << J_estimated
+				<< "\n";
+		}
+		else
+		{
+			std::cerr << filename << "," << omp_get_max_threads()
+				<< "," << m << "," << n << "," << nnzA
+				<< "," << CSR5Spmv_time << "," << gflops << "," << mem_footprint/(1024*1024)
+				<< "," << W_avg << "," << J_estimated
 				<< "\n";
 		}
 
