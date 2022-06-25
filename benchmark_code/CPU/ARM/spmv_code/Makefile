@@ -23,8 +23,8 @@ executables += spmv_csr_naive.exe
 all: $(executables)
 
 # CC=g++
-CC=clang++
-# CC=armclang++
+# CC=clang++
+CC=armclang++
 
 DOUBLE := 1
 
