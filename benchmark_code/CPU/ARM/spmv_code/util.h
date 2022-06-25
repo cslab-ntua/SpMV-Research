@@ -34,6 +34,7 @@
 #include "macros/cpp_defines.h"
 #include "parallel_util.h"
 #include "artificial_matrix_generation.h"
+#include "aux/csr_converter.h"
 
 
 #if DOUBLE == 0
@@ -270,9 +271,6 @@ struct CSRArrays
 		free(ja);
 	}
 };
-
-
-#include "csr_converter.h"
 
 
 /** See https://software.intel.com/fr-fr/node/520849#449CA855-CE5B-4061-B003-70D078CA5E05 */

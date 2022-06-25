@@ -18,21 +18,34 @@ LDFLAGS =
 
 executables = 
 executables += spmv_csr_naive.exe
-executables += spmv_armpl.exe
+# executables += spmv_armpl.exe
 
 all: $(executables)
 
 # CC=g++
-CC=armclang++
+CC=clang++
+# CC=armclang++
 
 DOUBLE := 1
 
 # https://community.arm.com/arm-community-blogs/b/tools-software-ides-blog/posts/compiler-flags-across-architectures-march-mtune-and-mcpu
 CFLAGS += -Wall -Wno-deprecated-declarations -mcpu=native -fopenmp -O3 -D'DOUBLE=$(DOUBLE)'
-CFLAGS += -armpl=lp64,parallel -Rpass=.* -Rpass-analysis=.*
-CFLAGS += -I'../../lib' -I$(AMG_PATH) -I$(AMG_PATH)/lib
+CFLAGS += -fopenmp
+CFLAGS += -D'DOUBLE=$(DOUBLE)'
 
-LDFLAGS ?= -Wl,--no-as-needed -larmpl_lp64_mp -lm -lgomp -lpthread -ldl -lpapi
+CFLAGS += -O3
+CFLAGS += -mcpu=native
+
+CFLAGS += -I'../../../../lib' -I$(AMG_PATH) -I$(AMG_PATH)/lib
+
+CFLAGS += -armpl=lp64,parallel -Rpass=.* -Rpass-analysis=.*
+
+LDFLAGS =
+LDFLAGS += -Wl,--no-as-needed -lm -lpapi
+LDFLAGS += -lgomp -lpthread -ldl
+
+LDFLAGS += -larmpl_lp64_mp
+
 
 spmv_csr_naive.exe: spmv.cpp $(CSRC_ART_MAT)
 	$(CC) $^ $(CFLAGS) -D'USE_CUSTOM_CSR' -D'NAIVE' -o $@ $(LDFLAGS)

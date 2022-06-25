@@ -25,7 +25,8 @@ conf_vars=(
     # Path for the validation matrices.
     # ['path_validation']='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices'
     # ['path_validation']='/home/jim/Data/graphs/validation_matrices'
-    ['path_validation']='../../../validation_matrices'
+    # ['path_validation']='../../../validation_matrices'
+    ['path_validation']='../../../../validation_matrices'
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
     ['use_artificial_matrices']=0

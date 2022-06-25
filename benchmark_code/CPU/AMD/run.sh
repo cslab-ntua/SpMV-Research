@@ -103,10 +103,19 @@ bench()
         export OMP_NUM_THREADS="$t"
         # export MKL_NUM_THREADS="$t"
 
-        # "$prog" 4690000 4 1.6 normal random 1 14
+        if [ $prog = "./spmv_code_merge/spmv_merge.exe" ]; then
+            if ((!use_artificial_matrices)); then
+                "$prog" --mtx="${prog_args[@]}"
+            else
+                prog_args2="${prog_args[@]}"  # need to replace the original prog_args  spaces with \(space), in order to be read as a string between " " for --artif_args argument to work! (shit...)
+                "$prog" --param="${prog_args2[@]}"
+            fi
+        else
+            # "$prog" 4690000 4 1.6 normal random 1 14
 
-        # numactl -i all "$prog" "${prog_args[@]}"
-        "$prog" "${prog_args[@]}"
+            # numactl -i all "$prog" "${prog_args[@]}"
+            "$prog" "${prog_args[@]}"
+        fi
     done
 }
 
