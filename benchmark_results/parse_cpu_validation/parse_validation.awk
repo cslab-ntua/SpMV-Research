@@ -42,20 +42,16 @@ BEGIN {
     matrix_features["cage15"]               = "19.24389222,5.736719369,1.442333363,0.2119567644,0.130329138,0.0000345,0.0000954,0.197548,0.794106"
 }
 
-
 BEGINFILE {
 }
 
+# /^File:/ {
+#     matrix = $2
+#     sub(".*/", "", matrix)
+#     sub("\\..*$", "", matrix)
+# }
 
-/^File:/ {
-    # matrix = $2
-    # sub(".*/", "", matrix)
-    # sub("\\..*$", "", matrix)
-}
-
-
-function find_mem_range(mem,
-                        str)
+function find_mem_range(mem, str)
 {
     str = ""
     for (i=0;i<mb_list_n;i++)
@@ -69,7 +65,6 @@ function find_mem_range(mem,
         str = sprintf("[%g-%g]", mb_list[i-1], mb_list[i])
     return str
 }
-
 
 # Variables given as a -v command line option: THREADS, IMPLEMENTATION
 #
@@ -93,7 +88,15 @@ function find_mem_range(mem,
 #         << "," << AM->skew
 #         << "," << AM->avg_num_neighbours << "," << AM->cross_row_similarity
 #         << "," << format_name <<  "," << time << "," << gflops << "," << W_avg << "," << J_estimated
-/^\// {
+
+# ^   Indicates the beginning of the line
+# $   Indicates the end of a line
+# \A  Denotes the beginning of a string
+# \z  Denotes the end of a string
+# \b  Marks a word boundary
+# The ‘^‘ symbol indicates the start of a line, and the ‘|‘ symbol indicates a logical OR statement.
+
+/^(\/|..)/{
     num_fields = split($0, tok, ",")
 
     matrix = tok[1]
@@ -146,15 +149,10 @@ function find_mem_range(mem,
     str = sprintf("%s,%g,%g", str, avg_sc_scaled, std_sc_scaled)
     str = sprintf("%s,%g", str, skew)
 
-    str = sprintf("%s,%s,%g,%g,0,0,HawkAmdRome", str, IMPLEMENTATION, time, gflops)
-    # str = sprintf("%s,%s,%g,%g,0,0,Arm", str, IMPLEMENTATION, time, gflops)
-    # str = sprintf("%s,%s,%g,%g,0,0,Epyc1AmdRome", str, IMPLEMENTATION, time, gflops)
+    # str = sprintf("%s,%s,%g,%g,0,0,HawkAmdRome", str, IMPLEMENTATION, time, gflops)
+    str = sprintf("%s,%s,%g,%g,0,0,%s", str, IMPLEMENTATION, time, gflops, DEVICE)
     printf("%s\n", str)
 }
 
-
 END {
 }
-
-
-

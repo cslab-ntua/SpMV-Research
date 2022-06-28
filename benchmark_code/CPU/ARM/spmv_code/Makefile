@@ -35,9 +35,7 @@ CFLAGS += -D'DOUBLE=$(DOUBLE)'
 
 CFLAGS += -O3
 CFLAGS += -mcpu=native
-
-CFLAGS += -I'../../../../lib' -I$(AMG_PATH) -I$(AMG_PATH)/lib
-
+CFLAGS += -I'../../../../lib' -I$(AMG_PATH)
 CFLAGS += -armpl=lp64,parallel -Rpass=.* -Rpass-analysis=.*
 
 LDFLAGS =

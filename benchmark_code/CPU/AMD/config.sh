@@ -4,14 +4,14 @@ declare -A conf_vars
 conf_vars=(
     # Maximum number of the machine's cores.
     # ['max_cores']=128
-    ['max_cores']=8
+    ['max_cores']=56
 
     # Cores / Threads to utilize. Use spaces to define a set of different thread numbers to benchmark.
     # ['cores']=1
     # ['cores']=64
     # ['cores']=128
     # ['cores']='1 2 4 8 16 32 64 128'
-    ['cores']=8
+    ['cores']=14
     # ['cores']='1 2 4 8'
     # ['cores']=6
 
@@ -20,17 +20,17 @@ conf_vars=(
     # ['hyperthreading']=1
 
     # Path for the mkl library.
-    ['MKL_PATH']='/opt/intel/oneapi/mkl/latest'
+    # ['MKL_PATH']='/opt/intel/oneapi/mkl/latest'
+    ['MKL_PATH']='/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/'
 
     # Path for the validation matrices.
     # ['path_validation']='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices'
     # ['path_validation']='/home/jim/Data/graphs/validation_matrices'
-    # ['path_validation']='../../../validation_matrices'
-    ['path_validation']='../../../../validation_matrices'
+    ['path_validation']='../../../validation_matrices'
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    ['use_artificial_matrices']=0
-    # ['use_artificial_matrices']=1
+    # ['use_artificial_matrices']=0
+    ['use_artificial_matrices']=1
 )
 
 
@@ -44,10 +44,10 @@ artificial_matrices_files=(
     # "$path_artificial"/validation_friends/twins_random.txt
 
     # Validation matrices artificial twins in a +-30% value space of each feature.
-    # "$path_artificial"/SpMV-Research/validation_matrices_10_samples_30_range_twins.txt
+    "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
 
     # The synthetic dataset studied in the paper.
-    "$path_artificial"/synthetic_matrices_small_dataset.txt
+    # "$path_artificial"/synthetic_matrices_small_dataset.txt
     # "$path_artificial"/synthetic_matrices_small_dataset2.txt
 )
 
@@ -89,10 +89,10 @@ matrices_validation_artificial_twins=(
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
     # MKL IE
-    './spmv_code_mkl-naive/spmv_sparse_mv.exe                                       mkl_ie_opt_d'
+    # './spmv_code_mkl-naive/spmv_sparse_mv.exe                                       mkl_ie_opt_d'
 
     # Custom naive
-    './spmv_code_mkl-naive/spmv_csr_naive.exe                                       csr_naive_d'
+    # './spmv_code_mkl-naive/spmv_csr_naive.exe                                       csr_naive_d'
     # './spmv_code_mkl-naive/spmv_csr_custom.exe                                      csr_custom_d'
     # './spmv_code_mkl-naive/spmv_csr_custom_vector.exe                               csr_custom_vector_d'
     # './spmv_code_mkl-naive/spmv_csr_custom_vector_perfect_nnz_balance.exe           csr_custom_vector_perfect_nnz_balance_d'
@@ -101,7 +101,7 @@ progs=(
     # './spmv_code_csr5/spmv_csr5.exe                                                 csr5_d'
 
     # merge spmv
-    # './spmv_code_merge/spmv_merge.exe                                               merge_d'
+    './spmv_code_merge/spmv_merge.exe' #                                               merge_d'
 
     # './spmv_code_mkl-naive/spmv_ell.exe                                             ell_d'
     # './spmv_code_mkl-naive/spmv_ldu.exe                                             ldu_d'

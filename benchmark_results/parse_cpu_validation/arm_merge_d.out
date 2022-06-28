@@ -1,0 +1,3015 @@
+program: ./spmv_code_merge/spmv_merge.exe
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx, Ordering...done.
+	 num_rows: 170998
+	 num_cols: 170998
+	 num_nonzeros: 958936
+	 row_length_mean: 5.60788
+	 row_length_std_dev: 4.39216
+	 row_length_variation: 0.78321
+	 row_length_skewness: 20.25595
+CSR matrix (170998 rows, 170998 columns, 958936 non-zeros, max-length 353):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	160842 (94.06%)
+	Degree 1e1: 	10128 (5.92%)
+	Degree 1e2: 	28 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 36.80731 gflops, 407.454 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx,80,170998,170998,958936,0.006670,36.807310,11.626461,0.045789,0.000343,0.000398
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx, Ordering...done.
+	 num_rows: 206500
+	 num_cols: 206500
+	 num_nonzeros: 1273389
+	 row_length_mean: 6.16653
+	 row_length_std_dev: 4.43587
+	 row_length_variation: 0.71935
+	 row_length_skewness: 3.17017
+CSR matrix (206500 rows, 206500 columns, 1273389 non-zeros, max-length 44):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	176537 (85.49%)
+	Degree 1e1: 	29963 (14.51%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 46.39564 gflops, 509.099 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx,80,206500,206500,1273389,0.007026,46.395637,15.360519,0.059991,0.000459,0.000199
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx, Ordering...done.
+	 num_rows: 21200
+	 num_cols: 21200
+	 num_nonzeros: 1488768
+	 row_length_mean: 70.22491
+	 row_length_std_dev: 6.32700
+	 row_length_variation: 0.09010
+	 row_length_skewness: -3.30132
+CSR matrix (21200 rows, 21200 columns, 1488768 non-zeros, max-length 80):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	21200 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 45.21642 gflops, 456.028 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx,80,21200,21200,1488768,0.008429,45.216423,17.118473,0.067486,0.000247,0.000046
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx, Ordering...done.
+	 num_rows: 38744
+	 num_cols: 38744
+	 num_nonzeros: 1771722
+	 row_length_mean: 45.72894
+	 row_length_std_dev: 38.39531
+	 row_length_variation: 0.83963
+	 row_length_skewness: 0.82252
+CSR matrix (38744 rows, 38744 columns, 1771722 non-zeros, max-length 126):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	36 (0.09%)
+	Degree 1e1: 	31137 (80.37%)
+	Degree 1e2: 	7571 (19.54%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 47.68331 gflops, 483.090 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx,80,38744,38744,1771722,0.009512,47.683314,20.423550,0.070926,0.000296,0.000047
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx, Ordering...done.
+	 num_rows: 49152
+	 num_cols: 49152
+	 num_nonzeros: 1916928
+	 row_length_mean: 39.00000
+	 row_length_std_dev: 0.00000
+	 row_length_variation: 0.00000
+	 row_length_skewness: nan
+CSR matrix (49152 rows, 49152 columns, 1916928 non-zeros, max-length 39):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	49152 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 65.13987 gflops, 661.420 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx,80,49152,49152,1916928,0.007534,65.139873,22.125004,0.077358,0.000296,0.000052
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx, Ordering...done.
+	 num_rows: 525825
+	 num_cols: 525825
+	 num_nonzeros: 2100225
+	 row_length_mean: 3.99415
+	 row_length_std_dev: 0.07632
+	 row_length_variation: 0.01911
+	 row_length_skewness: -13.00019
+CSR matrix (525825 rows, 525825 columns, 2100225 non-zeros, max-length 4):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	525825 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 54.30281 gflops, 624.602 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx,80,525825,525825,2100225,0.009901,54.302811,26.041035,0.084711,0.000288,0.000200
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx, Ordering...done.
+	 num_rows: 46835
+	 num_cols: 46835
+	 num_nonzeros: 2374001
+	 row_length_mean: 50.68861
+	 row_length_std_dev: 27.78060
+	 row_length_variation: 0.54806
+	 row_length_skewness: 0.91766
+CSR matrix (46835 rows, 46835 columns, 2374001 non-zeros, max-length 145):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	610 (1.30%)
+	Degree 1e1: 	41238 (88.05%)
+	Degree 1e2: 	4987 (10.65%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 93.25788 gflops, 943.618 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx,80,46835,46835,2374001,0.006517,93.257876,27.346951,0.098092,0.000272,0.000052
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx, Ordering...done.
+	 num_rows: 121192
+	 num_cols: 121192
+	 num_nonzeros: 2624331
+	 row_length_mean: 21.65433
+	 row_length_std_dev: 13.79266
+	 row_length_variation: 0.63695
+	 row_length_skewness: 0.42892
+CSR matrix (121192 rows, 121192 columns, 2624331 non-zeros, max-length 81):
+	Degree 1e-1: 	21349 (17.62%)
+	Degree 1e0: 	224 (0.18%)
+	Degree 1e1: 	99619 (82.20%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 69.54042 gflops, 714.673 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx,80,121192,121192,2624331,0.009661,69.540422,30.495399,0.136338,0.000329,0.000192
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx, Ordering...done.
+	 num_rows: 1000005
+	 num_cols: 1000005
+	 num_nonzeros: 3105536
+	 row_length_mean: 3.10552
+	 row_length_std_dev: 25.34521
+	 row_length_variation: 8.16134
+	 row_length_skewness: 121.49432
+CSR matrix (1000005 rows, 1000005 columns, 3105536 non-zeros, max-length 4700):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	982292 (98.23%)
+	Degree 1e1: 	15944 (1.59%)
+	Degree 1e2: 	1714 (0.17%)
+	Degree 1e3: 	55 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 48.39252 gflops, 577.422 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx,80,1000005,1000005,3105536,0.016429,48.392518,39.354759,0.137249,0.000535,0.000361
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx, Ordering...done.
+	 num_rows: 62451
+	 num_cols: 62451
+	 num_nonzeros: 4007383
+	 row_length_mean: 64.16844
+	 row_length_std_dev: 14.05626
+	 row_length_variation: 0.21905
+	 row_length_skewness: -0.90855
+CSR matrix (62451 rows, 62451 columns, 4007383 non-zeros, max-length 78):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	243 (0.39%)
+	Degree 1e1: 	62208 (99.61%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 90.30830 gflops, 911.527 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cant.mtx,80,62451,62451,4007383,0.011360,90.308304,46.099094,0.206209,0.000455,0.000165
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx, Ordering...done.
+	 num_rows: 36417
+	 num_cols: 36417
+	 num_nonzeros: 4344765
+	 row_length_mean: 119.30596
+	 row_length_std_dev: 31.86038
+	 row_length_variation: 0.26705
+	 row_length_skewness: -0.49652
+CSR matrix (36417 rows, 36417 columns, 4344765 non-zeros, max-length 204):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	9745 (26.76%)
+	Degree 1e2: 	26672 (73.24%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 102.65148 gflops, 1031.677 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx,80,36417,36417,4344765,0.010835,102.651484,49.860813,0.225290,0.000406,0.000115
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx, Ordering...done.
+	 num_rows: 42138
+	 num_cols: 42138
+	 num_nonzeros: 4413449
+	 row_length_mean: 104.73798
+	 row_length_std_dev: 102.44317
+	 row_length_variation: 0.97809
+	 row_length_skewness: 0.03496
+CSR matrix (42138 rows, 42138 columns, 4413449 non-zeros, max-length 209):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	21340 (50.64%)
+	Degree 1e1: 	98 (0.23%)
+	Degree 1e2: 	20700 (49.12%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 79.98011 gflops, 804.383 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx,80,42138,42138,4413449,0.014127,79.980113,50.668663,0.210786,0.000426,0.000173
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx, Ordering...done.
+	 num_rows: 68121
+	 num_cols: 68121
+	 num_nonzeros: 5377761
+	 row_length_mean: 78.94425
+	 row_length_std_dev: 1061.43997
+	 row_length_variation: 13.44544
+	 row_length_skewness: 61.20894
+CSR matrix (68121 rows, 68121 columns, 5377761 non-zeros, max-length 68121):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	9 (0.01%)
+	Degree 1e1: 	66040 (96.95%)
+	Degree 1e2: 	24 (0.04%)
+	Degree 1e3: 	2032 (2.98%)
+	Degree 1e4: 	16 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 98.28686 gflops, 990.339 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx,80,68121,68121,5377761,0.014007,98.286860,61.803455,0.256204,0.000692,0.001005
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx, Ordering...done.
+	 num_rows: 83334
+	 num_cols: 83334
+	 num_nonzeros: 6010480
+	 row_length_mean: 72.12518
+	 row_length_std_dev: 19.08019
+	 row_length_variation: 0.26454
+	 row_length_skewness: -2.54808
+CSR matrix (83334 rows, 83334 columns, 6010480 non-zeros, max-length 81):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	3655 (4.39%)
+	Degree 1e1: 	79679 (95.61%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 90.05626 gflops, 908.054 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/consph.mtx,80,83334,83334,6010480,0.017086,90.056258,69.102383,0.301934,0.000710,0.000363
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx, Ordering...done.
+	 num_rows: 140874
+	 num_cols: 140874
+	 num_nonzeros: 7813404
+	 row_length_mean: 55.46378
+	 row_length_std_dev: 11.07481
+	 row_length_variation: 0.19968
+	 row_length_skewness: 0.71883
+CSR matrix (140874 rows, 140874 columns, 7813404 non-zeros, max-length 102):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	140802 (99.95%)
+	Degree 1e2: 	72 (0.05%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0002 avg s, 63.03462 gflops, 637.165 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx,80,140874,140874,7813404,0.031732,63.034618,89.954708,0.398490,0.000980,0.001151
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx, Ordering...done.
+	 num_rows: 161070
+	 num_cols: 161070
+	 num_nonzeros: 8185136
+	 row_length_mean: 50.81726
+	 row_length_std_dev: 19.69828
+	 row_length_variation: 0.38763
+	 row_length_skewness: -0.92051
+CSR matrix (161070 rows, 161070 columns, 8185136 non-zeros, max-length 92):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	2303 (1.43%)
+	Degree 1e1: 	158767 (98.57%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0003 avg s, 53.28940 gflops, 539.186 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx,80,161070,161070,8185136,0.039321,53.289401,94.285885,0.391908,0.001021,0.002037
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx, Ordering...done.
+	 num_rows: 66463
+	 num_cols: 66463
+	 num_nonzeros: 10352819
+	 row_length_mean: 155.76816
+	 row_length_std_dev: 350.74432
+	 row_length_variation: 2.25171
+	 row_length_skewness: 102.17195
+CSR matrix (66463 rows, 66463 columns, 10352819 non-zeros, max-length 66395):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	9882 (14.87%)
+	Degree 1e1: 	33239 (50.01%)
+	Degree 1e2: 	23270 (35.01%)
+	Degree 1e3: 	71 (0.11%)
+	Degree 1e4: 	1 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0006 avg s, 37.37763 gflops, 375.216 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx,80,66463,66463,10352819,0.070907,37.377627,118.732151,0.521209,0.001865,0.001045
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx, Ordering...done.
+	 num_rows: 4284
+	 num_cols: 1096894
+	 num_nonzeros: 11284032
+	 row_length_mean: 2633.99440
+	 row_length_std_dev: 4209.25932
+	 row_length_variation: 1.59805
+	 row_length_skewness: 4.05684
+CSR matrix (4284 rows, 1096894 columns, 11284032 non-zeros, max-length 56182):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	82 (0.01%)
+	Degree 1e1: 	381 (0.03%)
+	Degree 1e2: 	1529 (0.14%)
+	Degree 1e3: 	2064 (0.19%)
+	Degree 1e4: 	228 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0023 avg s, 9.81546 gflops, 98.177 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx,80,4284,1096894,11284032,0.294302,9.815458,129.151844,0.532948,0.001672,0.002563
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx, Ordering...done.
+	 num_rows: 217918
+	 num_cols: 217918
+	 num_nonzeros: 11634424
+	 row_length_mean: 53.38900
+	 row_length_std_dev: 4.74390
+	 row_length_variation: 0.08886
+	 row_length_skewness: -1.72447
+CSR matrix (217918 rows, 217918 columns, 11634424 non-zeros, max-length 180):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	204 (0.09%)
+	Degree 1e1: 	217708 (99.90%)
+	Degree 1e2: 	6 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0007 avg s, 33.49568 gflops, 338.721 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx,80,217918,217918,11634424,0.088919,33.495680,133.976711,0.588912,0.001534,0.001178
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx, Ordering...done.
+	 num_rows: 63838
+	 num_cols: 63838
+	 num_nonzeros: 14148858
+	 row_length_mean: 221.63692
+	 row_length_std_dev: 95.87570
+	 row_length_variation: 0.43258
+	 row_length_skewness: 2.85133
+CSR matrix (63838 rows, 63838 columns, 14148858 non-zeros, max-length 3423):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	2610 (4.09%)
+	Degree 1e2: 	61224 (95.91%)
+	Degree 1e3: 	4 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0011 avg s, 26.53903 gflops, 266.109 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx,80,63838,63838,14148858,0.136482,26.539032,162.164356,0.723200,0.001803,0.001431
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx, Ordering...done.
+	 num_rows: 185639
+	 num_cols: 185639
+	 num_nonzeros: 15011265
+	 row_length_mean: 80.86267
+	 row_length_std_dev: 126.97186
+	 row_length_variation: 1.57022
+	 row_length_skewness: 2.57422
+CSR matrix (185639 rows, 185639 columns, 15011265 non-zeros, max-length 662):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	161149 (86.81%)
+	Degree 1e2: 	24490 (13.19%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0013 avg s, 23.16024 gflops, 233.321 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx,80,185639,185639,15011265,0.165926,23.160236,172.498455,0.814062,0.001956,0.001706
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx, Ordering...done.
+	 num_rows: 38120
+	 num_cols: 38120
+	 num_nonzeros: 16171169
+	 row_length_mean: 424.21744
+	 row_length_std_dev: 484.23750
+	 row_length_variation: 1.14148
+	 row_length_skewness: 0.28726
+CSR matrix (38120 rows, 38120 columns, 16171169 non-zeros, max-length 983):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	21152 (55.49%)
+	Degree 1e1: 	618 (1.62%)
+	Degree 1e2: 	16350 (42.89%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0014 avg s, 23.29371 gflops, 233.267 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx,80,38120,38120,16171169,0.177723,23.293707,185.209763,0.804566,0.002124,0.001674
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx, Ordering...done.
+	 num_rows: 1382908
+	 num_cols: 1382908
+	 num_nonzeros: 16917053
+	 row_length_mean: 12.23296
+	 row_length_std_dev: 37.23001
+	 row_length_variation: 3.04342
+	 row_length_skewness: 23.67409
+CSR matrix (1382908 rows, 1382908 columns, 16917053 non-zeros, max-length 7753):
+	Degree 1e-1: 	282306 (20.41%)
+	Degree 1e0: 	658146 (47.59%)
+	Degree 1e1: 	424227 (30.68%)
+	Degree 1e2: 	18189 (1.32%)
+	Degree 1e3: 	40 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0021 avg s, 16.37141 gflops, 171.744 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx,80,1382908,1382908,16917053,0.264532,16.371413,198.875687,0.842955,0.002656,0.002263
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx, Ordering...done.
+	 num_rows: 268096
+	 num_cols: 268096
+	 num_nonzeros: 18488476
+	 row_length_mean: 68.96215
+	 row_length_std_dev: 105.38755
+	 row_length_variation: 1.52819
+	 row_length_skewness: 2.90932
+CSR matrix (268096 rows, 268096 columns, 18488476 non-zeros, max-length 702):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	240943 (89.87%)
+	Degree 1e2: 	27153 (10.13%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0019 avg s, 19.57642 gflops, 197.467 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx,80,268096,268096,18488476,0.241773,19.576417,212.606525,1.000798,0.002530,0.002181
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx, Ordering...done.
+	 num_rows: 862664
+	 num_cols: 862664
+	 num_nonzeros: 19235140
+	 row_length_mean: 22.29737
+	 row_length_std_dev: 29.33341
+	 row_length_variation: 1.31555
+	 row_length_skewness: 26.37988
+CSR matrix (862664 rows, 862664 columns, 19235140 non-zeros, max-length 6985):
+	Degree 1e-1: 	71675 (8.31%)
+	Degree 1e0: 	217568 (25.22%)
+	Degree 1e1: 	563147 (65.28%)
+	Degree 1e2: 	10261 (1.19%)
+	Degree 1e3: 	13 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0024 avg s, 16.03009 gflops, 164.614 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx,80,862664,862664,19235140,0.307184,16.030094,223.419514,0.957487,0.002844,0.002523
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx, Ordering...done.
+	 num_rows: 1634989
+	 num_cols: 1634989
+	 num_nonzeros: 19753078
+	 row_length_mean: 12.08147
+	 row_length_std_dev: 31.07498
+	 row_length_variation: 2.57212
+	 row_length_skewness: 19.91539
+CSR matrix (1634989 rows, 1634989 columns, 19753078 non-zeros, max-length 4970):
+	Degree 1e-1: 	72556 (4.44%)
+	Degree 1e0: 	1031212 (63.07%)
+	Degree 1e1: 	509651 (31.17%)
+	Degree 1e2: 	21466 (1.31%)
+	Degree 1e3: 	104 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0047 avg s, 8.36766 gflops, 87.832 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx,80,1634989,1634989,19753078,0.604325,8.367663,232.293030,1.005406,0.004121,0.004204
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx, Ordering...done.
+	 num_rows: 952203
+	 num_cols: 952203
+	 num_nonzeros: 46522475
+	 row_length_mean: 48.85773
+	 row_length_std_dev: 11.94657
+	 row_length_variation: 0.24452
+	 row_length_skewness: 0.02027
+CSR matrix (952203 rows, 952203 columns, 46522475 non-zeros, max-length 77):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	952203 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0064 avg s, 14.60190 gflops, 147.812 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx,80,952203,952203,46522475,0.815631,14.601896,536.039845,2.481363,0.006674,0.006649
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx, Ordering...done.
+	 num_rows: 5558326
+	 num_cols: 5558326
+	 num_nonzeros: 59524291
+	 row_length_mean: 10.70903
+	 row_length_std_dev: 1356.61627
+	 row_length_variation: 126.67964
+	 row_length_skewness: 868.02862
+CSR matrix (5558326 rows, 5558326 columns, 59524291 non-zeros, max-length 1290501):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	5205090 (93.64%)
+	Degree 1e1: 	325350 (5.85%)
+	Degree 1e2: 	20298 (0.37%)
+	Degree 1e3: 	7568 (0.14%)
+	Degree 1e4: 	0 (0.00%)
+	Degree 1e5: 	14 (0.00%)
+	Degree 1e6: 	6 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0109 avg s, 10.90669 gflops, 115.178 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx,80,5558326,5558326,59524291,1.397144,10.906691,702.404785,3.126350,0.011537,0.011131
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx, Ordering...done.
+	 num_rows: 986703
+	 num_cols: 986703
+	 num_nonzeros: 71666325
+	 row_length_mean: 72.63211
+	 row_length_std_dev: 15.81043
+	 row_length_variation: 0.21768
+	 row_length_skewness: -1.83825
+CSR matrix (986703 rows, 986703 columns, 71666325 non-zeros, max-length 81):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	986703 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0093 avg s, 15.40594 gflops, 155.332 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx,80,986703,986703,71666325,1.190877,15.405945,823.919979,3.981427,0.010075,0.009645
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx, Ordering...done.
+	 num_rows: 5154859
+	 num_cols: 5154859
+	 num_nonzeros: 99199551
+	 row_length_mean: 19.24389
+	 row_length_std_dev: 5.73672
+	 row_length_variation: 0.29811
+	 row_length_skewness: 0.45659
+CSR matrix (5154859 rows, 5154859 columns, 99199551 non-zeros, max-length 47):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	125956 (2.44%)
+	Degree 1e1: 	5028903 (97.56%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0169 avg s, 11.73506 gflops, 121.009 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx,80,5154859,5154859,99199551,2.164035,11.735060,1154.912998,5.190778,0.017425,0.016828
+program: ./spmv_code_merge/spmv_merge.exe
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx, Ordering...done.
+	 num_rows: 170998
+	 num_cols: 170998
+	 num_nonzeros: 958936
+	 row_length_mean: 5.60788
+	 row_length_std_dev: 4.39216
+	 row_length_variation: 0.78321
+	 row_length_skewness: 20.25595
+CSR matrix (170998 rows, 170998 columns, 958936 non-zeros, max-length 353):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	160842 (94.06%)
+	Degree 1e1: 	10128 (5.92%)
+	Degree 1e2: 	28 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 41.50700 gflops, 459.479 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx,80,170998,170998,958936,0.005914,41.506996,11.626461,0.043960,0.000228,0.000197
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx, Ordering...done.
+	 num_rows: 206500
+	 num_cols: 206500
+	 num_nonzeros: 1273389
+	 row_length_mean: 6.16653
+	 row_length_std_dev: 4.43587
+	 row_length_variation: 0.71935
+	 row_length_skewness: 3.17017
+CSR matrix (206500 rows, 206500 columns, 1273389 non-zeros, max-length 44):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	176537 (85.49%)
+	Degree 1e1: 	29963 (14.51%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 54.89294 gflops, 602.340 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx,80,206500,206500,1273389,0.005939,54.892935,15.360519,0.054685,0.000251,0.000178
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx, Ordering...done.
+	 num_rows: 21200
+	 num_cols: 21200
+	 num_nonzeros: 1488768
+	 row_length_mean: 70.22491
+	 row_length_std_dev: 6.32700
+	 row_length_variation: 0.09010
+	 row_length_skewness: -3.30132
+CSR matrix (21200 rows, 21200 columns, 1488768 non-zeros, max-length 80):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	21200 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 63.34165 gflops, 638.828 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx,80,21200,21200,1488768,0.006017,63.341650,17.118473,0.061068,0.000275,0.000047
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx, Ordering...done.
+	 num_rows: 38744
+	 num_cols: 38744
+	 num_nonzeros: 1771722
+	 row_length_mean: 45.72894
+	 row_length_std_dev: 38.39531
+	 row_length_variation: 0.83963
+	 row_length_skewness: 0.82252
+CSR matrix (38744 rows, 38744 columns, 1771722 non-zeros, max-length 126):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	36 (0.09%)
+	Degree 1e1: 	31137 (80.37%)
+	Degree 1e2: 	7571 (19.54%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 68.52980 gflops, 694.290 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx,80,38744,38744,1771722,0.006618,68.529801,20.423550,0.080955,0.000264,0.000056
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx, Ordering...done.
+	 num_rows: 49152
+	 num_cols: 49152
+	 num_nonzeros: 1916928
+	 row_length_mean: 39.00000
+	 row_length_std_dev: 0.00000
+	 row_length_variation: 0.00000
+	 row_length_skewness: nan
+CSR matrix (49152 rows, 49152 columns, 1916928 non-zeros, max-length 39):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	49152 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 80.97263 gflops, 822.184 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx,80,49152,49152,1916928,0.006060,80.972634,22.125004,0.083525,0.000262,0.000051
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx, Ordering...done.
+	 num_rows: 525825
+	 num_cols: 525825
+	 num_nonzeros: 2100225
+	 row_length_mean: 3.99415
+	 row_length_std_dev: 0.07632
+	 row_length_variation: 0.01911
+	 row_length_skewness: -13.00019
+CSR matrix (525825 rows, 525825 columns, 2100225 non-zeros, max-length 4):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	525825 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 69.15594 gflops, 795.445 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx,80,525825,525825,2100225,0.007775,69.155936,26.041035,0.088904,0.000290,0.000218
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx, Ordering...done.
+	 num_rows: 46835
+	 num_cols: 46835
+	 num_nonzeros: 2374001
+	 row_length_mean: 50.68861
+	 row_length_std_dev: 27.78060
+	 row_length_variation: 0.54806
+	 row_length_skewness: 0.91766
+CSR matrix (46835 rows, 46835 columns, 2374001 non-zeros, max-length 145):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	610 (1.30%)
+	Degree 1e1: 	41238 (88.05%)
+	Degree 1e2: 	4987 (10.65%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 92.11195 gflops, 932.023 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx,80,46835,46835,2374001,0.006598,92.111949,27.346951,0.108331,0.000309,0.000076
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx, Ordering...done.
+	 num_rows: 121192
+	 num_cols: 121192
+	 num_nonzeros: 2624331
+	 row_length_mean: 21.65433
+	 row_length_std_dev: 13.79266
+	 row_length_variation: 0.63695
+	 row_length_skewness: 0.42892
+CSR matrix (121192 rows, 121192 columns, 2624331 non-zeros, max-length 81):
+	Degree 1e-1: 	21349 (17.62%)
+	Degree 1e0: 	224 (0.18%)
+	Degree 1e1: 	99619 (82.20%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 72.98131 gflops, 750.035 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx,80,121192,121192,2624331,0.009205,72.981309,30.495399,0.138611,0.000334,0.000240
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx, Ordering...done.
+	 num_rows: 1000005
+	 num_cols: 1000005
+	 num_nonzeros: 3105536
+	 row_length_mean: 3.10552
+	 row_length_std_dev: 25.34521
+	 row_length_variation: 8.16134
+	 row_length_skewness: 121.49432
+CSR matrix (1000005 rows, 1000005 columns, 3105536 non-zeros, max-length 4700):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	982292 (98.23%)
+	Degree 1e1: 	15944 (1.59%)
+	Degree 1e2: 	1714 (0.17%)
+	Degree 1e3: 	55 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 46.72246 gflops, 557.494 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx,80,1000005,1000005,3105536,0.017016,46.722458,39.354759,0.137452,0.000644,0.000352
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx, Ordering...done.
+	 num_rows: 62451
+	 num_cols: 62451
+	 num_nonzeros: 4007383
+	 row_length_mean: 64.16844
+	 row_length_std_dev: 14.05626
+	 row_length_variation: 0.21905
+	 row_length_skewness: -0.90855
+CSR matrix (62451 rows, 62451 columns, 4007383 non-zeros, max-length 78):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	243 (0.39%)
+	Degree 1e1: 	62208 (99.61%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 86.54719 gflops, 873.564 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cant.mtx,80,62451,62451,4007383,0.011854,86.547191,46.099094,0.207579,0.000448,0.000287
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx, Ordering...done.
+	 num_rows: 36417
+	 num_cols: 36417
+	 num_nonzeros: 4344765
+	 row_length_mean: 119.30596
+	 row_length_std_dev: 31.86038
+	 row_length_variation: 0.26705
+	 row_length_skewness: -0.49652
+CSR matrix (36417 rows, 36417 columns, 4344765 non-zeros, max-length 204):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	9745 (26.76%)
+	Degree 1e2: 	26672 (73.24%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 82.15196 gflops, 825.651 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx,80,36417,36417,4344765,0.013539,82.151959,49.860813,0.225613,0.000542,0.000247
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx, Ordering...done.
+	 num_rows: 42138
+	 num_cols: 42138
+	 num_nonzeros: 4413449
+	 row_length_mean: 104.73798
+	 row_length_std_dev: 102.44317
+	 row_length_variation: 0.97809
+	 row_length_skewness: 0.03496
+CSR matrix (42138 rows, 42138 columns, 4413449 non-zeros, max-length 209):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	21340 (50.64%)
+	Degree 1e1: 	98 (0.23%)
+	Degree 1e2: 	20700 (49.12%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 79.53562 gflops, 799.912 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx,80,42138,42138,4413449,0.014205,79.535617,50.668663,0.207941,0.000528,0.000265
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx, Ordering...done.
+	 num_rows: 68121
+	 num_cols: 68121
+	 num_nonzeros: 5377761
+	 row_length_mean: 78.94425
+	 row_length_std_dev: 1061.43997
+	 row_length_variation: 13.44544
+	 row_length_skewness: 61.20894
+CSR matrix (68121 rows, 68121 columns, 5377761 non-zeros, max-length 68121):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	9 (0.01%)
+	Degree 1e1: 	66040 (96.95%)
+	Degree 1e2: 	24 (0.04%)
+	Degree 1e3: 	2032 (2.98%)
+	Degree 1e4: 	16 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0002 avg s, 45.09506 gflops, 454.378 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx,80,68121,68121,5377761,0.030529,45.095057,61.803455,0.255260,0.000642,0.000464
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx, Ordering...done.
+	 num_rows: 83334
+	 num_cols: 83334
+	 num_nonzeros: 6010480
+	 row_length_mean: 72.12518
+	 row_length_std_dev: 19.08019
+	 row_length_variation: 0.26454
+	 row_length_skewness: -2.54808
+CSR matrix (83334 rows, 83334 columns, 6010480 non-zeros, max-length 81):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	3655 (4.39%)
+	Degree 1e1: 	79679 (95.61%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0003 avg s, 46.56766 gflops, 469.550 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/consph.mtx,80,83334,83334,6010480,0.033042,46.567656,69.102383,0.304309,0.000743,0.000572
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx, Ordering...done.
+	 num_rows: 140874
+	 num_cols: 140874
+	 num_nonzeros: 7813404
+	 row_length_mean: 55.46378
+	 row_length_std_dev: 11.07481
+	 row_length_variation: 0.19968
+	 row_length_skewness: 0.71883
+CSR matrix (140874 rows, 140874 columns, 7813404 non-zeros, max-length 102):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	140802 (99.95%)
+	Degree 1e2: 	72 (0.05%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0003 avg s, 45.50621 gflops, 459.985 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx,80,140874,140874,7813404,0.043955,45.506209,89.954708,0.398996,0.000953,0.000703
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx, Ordering...done.
+	 num_rows: 161070
+	 num_cols: 161070
+	 num_nonzeros: 8185136
+	 row_length_mean: 50.81726
+	 row_length_std_dev: 19.69828
+	 row_length_variation: 0.38763
+	 row_length_skewness: -0.92051
+CSR matrix (161070 rows, 161070 columns, 8185136 non-zeros, max-length 92):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	2303 (1.43%)
+	Degree 1e1: 	158767 (98.57%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0004 avg s, 36.95259 gflops, 373.889 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx,80,161070,161070,8185136,0.056705,36.952594,94.285885,0.392003,0.001004,0.000744
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx, Ordering...done.
+	 num_rows: 66463
+	 num_cols: 66463
+	 num_nonzeros: 10352819
+	 row_length_mean: 155.76816
+	 row_length_std_dev: 350.74432
+	 row_length_variation: 2.25171
+	 row_length_skewness: 102.17195
+CSR matrix (66463 rows, 66463 columns, 10352819 non-zeros, max-length 66395):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	9882 (14.87%)
+	Degree 1e1: 	33239 (50.01%)
+	Degree 1e2: 	23270 (35.01%)
+	Degree 1e3: 	71 (0.11%)
+	Degree 1e4: 	1 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0007 avg s, 29.39338 gflops, 295.066 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx,80,66463,66463,10352819,0.090167,29.393377,118.732151,0.529809,0.001271,0.000966
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx, Ordering...done.
+	 num_rows: 4284
+	 num_cols: 1096894
+	 num_nonzeros: 11284032
+	 row_length_mean: 2633.99440
+	 row_length_std_dev: 4209.25932
+	 row_length_variation: 1.59805
+	 row_length_skewness: 4.05684
+CSR matrix (4284 rows, 1096894 columns, 11284032 non-zeros, max-length 56182):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	82 (0.01%)
+	Degree 1e1: 	381 (0.03%)
+	Degree 1e2: 	1529 (0.14%)
+	Degree 1e3: 	2064 (0.19%)
+	Degree 1e4: 	228 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0022 avg s, 10.44268 gflops, 104.451 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx,80,4284,1096894,11284032,0.276626,10.442681,129.151844,0.538460,0.001973,0.002175
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx, Ordering...done.
+	 num_rows: 217918
+	 num_cols: 217918
+	 num_nonzeros: 11634424
+	 row_length_mean: 53.38900
+	 row_length_std_dev: 4.74390
+	 row_length_variation: 0.08886
+	 row_length_skewness: -1.72447
+CSR matrix (217918 rows, 217918 columns, 11634424 non-zeros, max-length 180):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	204 (0.09%)
+	Degree 1e1: 	217708 (99.90%)
+	Degree 1e2: 	6 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0007 avg s, 33.11528 gflops, 334.874 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx,80,217918,217918,11634424,0.089941,33.115277,133.976711,0.596244,0.001524,0.001174
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx, Ordering...done.
+	 num_rows: 63838
+	 num_cols: 63838
+	 num_nonzeros: 14148858
+	 row_length_mean: 221.63692
+	 row_length_std_dev: 95.87570
+	 row_length_variation: 0.43258
+	 row_length_skewness: 2.85133
+CSR matrix (63838 rows, 63838 columns, 14148858 non-zeros, max-length 3423):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	2610 (4.09%)
+	Degree 1e2: 	61224 (95.91%)
+	Degree 1e3: 	4 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0012 avg s, 24.13248 gflops, 241.978 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx,80,63838,63838,14148858,0.150093,24.132479,162.164356,0.734659,0.001810,0.001542
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx, Ordering...done.
+	 num_rows: 185639
+	 num_cols: 185639
+	 num_nonzeros: 15011265
+	 row_length_mean: 80.86267
+	 row_length_std_dev: 126.97186
+	 row_length_variation: 1.57022
+	 row_length_skewness: 2.57422
+CSR matrix (185639 rows, 185639 columns, 15011265 non-zeros, max-length 662):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	161149 (86.81%)
+	Degree 1e2: 	24490 (13.19%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0014 avg s, 22.04942 gflops, 222.130 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx,80,185639,185639,15011265,0.174285,22.049419,172.498455,0.829830,0.001963,0.001749
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx, Ordering...done.
+	 num_rows: 38120
+	 num_cols: 38120
+	 num_nonzeros: 16171169
+	 row_length_mean: 424.21744
+	 row_length_std_dev: 484.23750
+	 row_length_variation: 1.14148
+	 row_length_skewness: 0.28726
+CSR matrix (38120 rows, 38120 columns, 16171169 non-zeros, max-length 983):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	21152 (55.49%)
+	Degree 1e1: 	618 (1.62%)
+	Degree 1e2: 	16350 (42.89%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0015 avg s, 21.64698 gflops, 216.776 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx,80,38120,38120,16171169,0.191242,21.646981,185.209763,0.816449,0.002100,0.001771
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx, Ordering...done.
+	 num_rows: 1382908
+	 num_cols: 1382908
+	 num_nonzeros: 16917053
+	 row_length_mean: 12.23296
+	 row_length_std_dev: 37.23001
+	 row_length_variation: 3.04342
+	 row_length_skewness: 23.67409
+CSR matrix (1382908 rows, 1382908 columns, 16917053 non-zeros, max-length 7753):
+	Degree 1e-1: 	282306 (20.41%)
+	Degree 1e0: 	658146 (47.59%)
+	Degree 1e1: 	424227 (30.68%)
+	Degree 1e2: 	18189 (1.32%)
+	Degree 1e3: 	40 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0020 avg s, 17.19330 gflops, 180.366 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx,80,1382908,1382908,16917053,0.251887,17.193304,198.875687,0.867243,0.002634,0.002309
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx, Ordering...done.
+	 num_rows: 268096
+	 num_cols: 268096
+	 num_nonzeros: 18488476
+	 row_length_mean: 68.96215
+	 row_length_std_dev: 105.38755
+	 row_length_variation: 1.52819
+	 row_length_skewness: 2.90932
+CSR matrix (268096 rows, 268096 columns, 18488476 non-zeros, max-length 702):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	240943 (89.87%)
+	Degree 1e2: 	27153 (10.13%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0019 avg s, 19.14066 gflops, 193.072 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx,80,268096,268096,18488476,0.247277,19.140664,212.606525,1.002147,0.002536,0.002284
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx, Ordering...done.
+	 num_rows: 862664
+	 num_cols: 862664
+	 num_nonzeros: 19235140
+	 row_length_mean: 22.29737
+	 row_length_std_dev: 29.33341
+	 row_length_variation: 1.31555
+	 row_length_skewness: 26.37988
+CSR matrix (862664 rows, 862664 columns, 19235140 non-zeros, max-length 6985):
+	Degree 1e-1: 	71675 (8.31%)
+	Degree 1e0: 	217568 (25.22%)
+	Degree 1e1: 	563147 (65.28%)
+	Degree 1e2: 	10261 (1.19%)
+	Degree 1e3: 	13 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0024 avg s, 16.27526 gflops, 167.132 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx,80,862664,862664,19235140,0.302557,16.275262,223.419514,0.972888,0.002857,0.002575
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx, Ordering...done.
+	 num_rows: 1634989
+	 num_cols: 1634989
+	 num_nonzeros: 19753078
+	 row_length_mean: 12.08147
+	 row_length_std_dev: 31.07498
+	 row_length_variation: 2.57212
+	 row_length_skewness: 19.91539
+CSR matrix (1634989 rows, 1634989 columns, 19753078 non-zeros, max-length 4970):
+	Degree 1e-1: 	72556 (4.44%)
+	Degree 1e0: 	1031212 (63.07%)
+	Degree 1e1: 	509651 (31.17%)
+	Degree 1e2: 	21466 (1.31%)
+	Degree 1e3: 	104 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0049 avg s, 8.11760 gflops, 85.207 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx,80,1634989,1634989,19753078,0.622941,8.117598,232.293030,1.000388,0.004813,0.005133
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx, Ordering...done.
+	 num_rows: 952203
+	 num_cols: 952203
+	 num_nonzeros: 46522475
+	 row_length_mean: 48.85773
+	 row_length_std_dev: 11.94657
+	 row_length_variation: 0.24452
+	 row_length_skewness: 0.02027
+CSR matrix (952203 rows, 952203 columns, 46522475 non-zeros, max-length 77):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	952203 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0063 avg s, 14.86837 gflops, 150.510 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx,80,952203,952203,46522475,0.801013,14.868365,536.039845,2.500063,0.006693,0.006522
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx, Ordering...done.
+	 num_rows: 5558326
+	 num_cols: 5558326
+	 num_nonzeros: 59524291
+	 row_length_mean: 10.70903
+	 row_length_std_dev: 1356.61627
+	 row_length_variation: 126.67964
+	 row_length_skewness: 868.02862
+CSR matrix (5558326 rows, 5558326 columns, 59524291 non-zeros, max-length 1290501):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	5205090 (93.64%)
+	Degree 1e1: 	325350 (5.85%)
+	Degree 1e2: 	20298 (0.37%)
+	Degree 1e3: 	7568 (0.14%)
+	Degree 1e4: 	0 (0.00%)
+	Degree 1e5: 	14 (0.00%)
+	Degree 1e6: 	6 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0110 avg s, 10.83619 gflops, 114.433 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx,80,5558326,5558326,59524291,1.406234,10.836191,702.404785,3.143021,0.011737,0.011132
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx, Ordering...done.
+	 num_rows: 986703
+	 num_cols: 986703
+	 num_nonzeros: 71666325
+	 row_length_mean: 72.63211
+	 row_length_std_dev: 15.81043
+	 row_length_variation: 0.21768
+	 row_length_skewness: -1.83825
+CSR matrix (986703 rows, 986703 columns, 71666325 non-zeros, max-length 81):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	986703 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0093 avg s, 15.40265 gflops, 155.299 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx,80,986703,986703,71666325,1.191131,15.402655,823.919979,3.982192,0.010188,0.009615
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx, Ordering...done.
+	 num_rows: 5154859
+	 num_cols: 5154859
+	 num_nonzeros: 99199551
+	 row_length_mean: 19.24389
+	 row_length_std_dev: 5.73672
+	 row_length_variation: 0.29811
+	 row_length_skewness: 0.45659
+CSR matrix (5154859 rows, 5154859 columns, 99199551 non-zeros, max-length 47):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	125956 (2.44%)
+	Degree 1e1: 	5028903 (97.56%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0170 avg s, 11.65244 gflops, 120.157 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx,80,5154859,5154859,99199551,2.179379,11.652438,1154.912998,5.183793,0.017520,0.017119
+program: ./spmv_code_merge/spmv_merge.exe
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx, Ordering...done.
+	 num_rows: 170998
+	 num_cols: 170998
+	 num_nonzeros: 958936
+	 row_length_mean: 5.60788
+	 row_length_std_dev: 4.39216
+	 row_length_variation: 0.78321
+	 row_length_skewness: 20.25595
+CSR matrix (170998 rows, 170998 columns, 958936 non-zeros, max-length 353):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	160842 (94.06%)
+	Degree 1e1: 	10128 (5.92%)
+	Degree 1e2: 	28 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 41.00454 gflops, 453.917 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx,80,170998,170998,958936,0.005987,41.004539,11.626461,0.048488,0.000219,0.000180
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx, Ordering...done.
+	 num_rows: 206500
+	 num_cols: 206500
+	 num_nonzeros: 1273389
+	 row_length_mean: 6.16653
+	 row_length_std_dev: 4.43587
+	 row_length_variation: 0.71935
+	 row_length_skewness: 3.17017
+CSR matrix (206500 rows, 206500 columns, 1273389 non-zeros, max-length 44):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	176537 (85.49%)
+	Degree 1e1: 	29963 (14.51%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 55.46950 gflops, 608.666 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx,80,206500,206500,1273389,0.005877,55.469497,15.360519,0.059649,0.000266,0.000196
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx, Ordering...done.
+	 num_rows: 21200
+	 num_cols: 21200
+	 num_nonzeros: 1488768
+	 row_length_mean: 70.22491
+	 row_length_std_dev: 6.32700
+	 row_length_variation: 0.09010
+	 row_length_skewness: -3.30132
+CSR matrix (21200 rows, 21200 columns, 1488768 non-zeros, max-length 80):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	21200 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 62.48067 gflops, 630.145 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx,80,21200,21200,1488768,0.006100,62.480671,17.118473,0.066968,0.000248,0.000053
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx, Ordering...done.
+	 num_rows: 38744
+	 num_cols: 38744
+	 num_nonzeros: 1771722
+	 row_length_mean: 45.72894
+	 row_length_std_dev: 38.39531
+	 row_length_variation: 0.83963
+	 row_length_skewness: 0.82252
+CSR matrix (38744 rows, 38744 columns, 1771722 non-zeros, max-length 126):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	36 (0.09%)
+	Degree 1e1: 	31137 (80.37%)
+	Degree 1e2: 	7571 (19.54%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 68.20996 gflops, 691.049 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx,80,38744,38744,1771722,0.006649,68.209963,20.423550,0.080926,0.000250,0.000051
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx, Ordering...done.
+	 num_rows: 49152
+	 num_cols: 49152
+	 num_nonzeros: 1916928
+	 row_length_mean: 39.00000
+	 row_length_std_dev: 0.00000
+	 row_length_variation: 0.00000
+	 row_length_skewness: nan
+CSR matrix (49152 rows, 49152 columns, 1916928 non-zeros, max-length 39):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	49152 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 71.94957 gflops, 730.565 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx,80,49152,49152,1916928,0.006821,71.949574,22.125004,0.084033,0.000261,0.000051
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx, Ordering...done.
+	 num_rows: 525825
+	 num_cols: 525825
+	 num_nonzeros: 2100225
+	 row_length_mean: 3.99415
+	 row_length_std_dev: 0.07632
+	 row_length_variation: 0.01911
+	 row_length_skewness: -13.00019
+CSR matrix (525825 rows, 525825 columns, 2100225 non-zeros, max-length 4):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	525825 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 68.60537 gflops, 789.112 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx,80,525825,525825,2100225,0.007837,68.605367,26.041035,0.089791,0.000276,0.000209
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx, Ordering...done.
+	 num_rows: 46835
+	 num_cols: 46835
+	 num_nonzeros: 2374001
+	 row_length_mean: 50.68861
+	 row_length_std_dev: 27.78060
+	 row_length_variation: 0.54806
+	 row_length_skewness: 0.91766
+CSR matrix (46835 rows, 46835 columns, 2374001 non-zeros, max-length 145):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	610 (1.30%)
+	Degree 1e1: 	41238 (88.05%)
+	Degree 1e2: 	4987 (10.65%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 92.98923 gflops, 940.899 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx,80,46835,46835,2374001,0.006536,92.989229,27.346951,0.104917,0.000263,0.000059
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx, Ordering...done.
+	 num_rows: 121192
+	 num_cols: 121192
+	 num_nonzeros: 2624331
+	 row_length_mean: 21.65433
+	 row_length_std_dev: 13.79266
+	 row_length_variation: 0.63695
+	 row_length_skewness: 0.42892
+CSR matrix (121192 rows, 121192 columns, 2624331 non-zeros, max-length 81):
+	Degree 1e-1: 	21349 (17.62%)
+	Degree 1e0: 	224 (0.18%)
+	Degree 1e1: 	99619 (82.20%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 70.52105 gflops, 724.751 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx,80,121192,121192,2624331,0.009527,70.521050,30.495399,0.138756,0.000343,0.000260
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx, Ordering...done.
+	 num_rows: 1000005
+	 num_cols: 1000005
+	 num_nonzeros: 3105536
+	 row_length_mean: 3.10552
+	 row_length_std_dev: 25.34521
+	 row_length_variation: 8.16134
+	 row_length_skewness: 121.49432
+CSR matrix (1000005 rows, 1000005 columns, 3105536 non-zeros, max-length 4700):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	982292 (98.23%)
+	Degree 1e1: 	15944 (1.59%)
+	Degree 1e2: 	1714 (0.17%)
+	Degree 1e3: 	55 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 44.34826 gflops, 529.165 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx,80,1000005,1000005,3105536,0.017927,44.348264,39.354759,0.142405,0.000537,0.000378
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx, Ordering...done.
+	 num_rows: 62451
+	 num_cols: 62451
+	 num_nonzeros: 4007383
+	 row_length_mean: 64.16844
+	 row_length_std_dev: 14.05626
+	 row_length_variation: 0.21905
+	 row_length_skewness: -0.90855
+CSR matrix (62451 rows, 62451 columns, 4007383 non-zeros, max-length 78):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	243 (0.39%)
+	Degree 1e1: 	62208 (99.61%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 93.98178 gflops, 948.605 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cant.mtx,80,62451,62451,4007383,0.010916,93.981777,46.099094,0.206619,0.000425,0.000199
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx, Ordering...done.
+	 num_rows: 36417
+	 num_cols: 36417
+	 num_nonzeros: 4344765
+	 row_length_mean: 119.30596
+	 row_length_std_dev: 31.86038
+	 row_length_variation: 0.26705
+	 row_length_skewness: -0.49652
+CSR matrix (36417 rows, 36417 columns, 4344765 non-zeros, max-length 204):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	9745 (26.76%)
+	Degree 1e2: 	26672 (73.24%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 88.92700 gflops, 893.742 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx,80,36417,36417,4344765,0.012508,88.926999,49.860813,0.229531,0.000497,0.000230
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx, Ordering...done.
+	 num_rows: 42138
+	 num_cols: 42138
+	 num_nonzeros: 4413449
+	 row_length_mean: 104.73798
+	 row_length_std_dev: 102.44317
+	 row_length_variation: 0.97809
+	 row_length_skewness: 0.03496
+CSR matrix (42138 rows, 42138 columns, 4413449 non-zeros, max-length 209):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	21340 (50.64%)
+	Degree 1e1: 	98 (0.23%)
+	Degree 1e2: 	20700 (49.12%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 82.64281 gflops, 831.162 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx,80,42138,42138,4413449,0.013671,82.642807,50.668663,0.212927,0.000480,0.000240
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx, Ordering...done.
+	 num_rows: 68121
+	 num_cols: 68121
+	 num_nonzeros: 5377761
+	 row_length_mean: 78.94425
+	 row_length_std_dev: 1061.43997
+	 row_length_variation: 13.44544
+	 row_length_skewness: 61.20894
+CSR matrix (68121 rows, 68121 columns, 5377761 non-zeros, max-length 68121):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	9 (0.01%)
+	Degree 1e1: 	66040 (96.95%)
+	Degree 1e2: 	24 (0.04%)
+	Degree 1e3: 	2032 (2.98%)
+	Degree 1e4: 	16 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0002 avg s, 61.00260 gflops, 614.662 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx,80,68121,68121,5377761,0.022568,61.002600,61.803455,0.253557,0.000620,0.000445
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx, Ordering...done.
+	 num_rows: 83334
+	 num_cols: 83334
+	 num_nonzeros: 6010480
+	 row_length_mean: 72.12518
+	 row_length_std_dev: 19.08019
+	 row_length_variation: 0.26454
+	 row_length_skewness: -2.54808
+CSR matrix (83334 rows, 83334 columns, 6010480 non-zeros, max-length 81):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	3655 (4.39%)
+	Degree 1e1: 	79679 (95.61%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0002 avg s, 61.79608 gflops, 623.102 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/consph.mtx,80,83334,83334,6010480,0.024899,61.796077,69.102383,0.306336,0.000796,0.000510
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx, Ordering...done.
+	 num_rows: 140874
+	 num_cols: 140874
+	 num_nonzeros: 7813404
+	 row_length_mean: 55.46378
+	 row_length_std_dev: 11.07481
+	 row_length_variation: 0.19968
+	 row_length_skewness: 0.71883
+CSR matrix (140874 rows, 140874 columns, 7813404 non-zeros, max-length 102):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	140802 (99.95%)
+	Degree 1e2: 	72 (0.05%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0004 avg s, 40.06796 gflops, 405.014 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx,80,140874,140874,7813404,0.049921,40.067964,89.954708,0.399362,0.000941,0.000690
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx, Ordering...done.
+	 num_rows: 161070
+	 num_cols: 161070
+	 num_nonzeros: 8185136
+	 row_length_mean: 50.81726
+	 row_length_std_dev: 19.69828
+	 row_length_variation: 0.38763
+	 row_length_skewness: -0.92051
+CSR matrix (161070 rows, 161070 columns, 8185136 non-zeros, max-length 92):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	2303 (1.43%)
+	Degree 1e1: 	158767 (98.57%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0004 avg s, 42.46583 gflops, 429.672 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx,80,161070,161070,8185136,0.049343,42.465827,94.285885,0.395493,0.000996,0.000730
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx, Ordering...done.
+	 num_rows: 66463
+	 num_cols: 66463
+	 num_nonzeros: 10352819
+	 row_length_mean: 155.76816
+	 row_length_std_dev: 350.74432
+	 row_length_variation: 2.25171
+	 row_length_skewness: 102.17195
+CSR matrix (66463 rows, 66463 columns, 10352819 non-zeros, max-length 66395):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	9882 (14.87%)
+	Degree 1e1: 	33239 (50.01%)
+	Degree 1e2: 	23270 (35.01%)
+	Degree 1e3: 	71 (0.11%)
+	Degree 1e4: 	1 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0005 avg s, 43.27892 gflops, 434.456 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx,80,66463,66463,10352819,0.061238,43.278920,118.732151,0.530887,0.001289,0.000956
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx, Ordering...done.
+	 num_rows: 4284
+	 num_cols: 1096894
+	 num_nonzeros: 11284032
+	 row_length_mean: 2633.99440
+	 row_length_std_dev: 4209.25932
+	 row_length_variation: 1.59805
+	 row_length_skewness: 4.05684
+CSR matrix (4284 rows, 1096894 columns, 11284032 non-zeros, max-length 56182):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	82 (0.01%)
+	Degree 1e1: 	381 (0.03%)
+	Degree 1e2: 	1529 (0.14%)
+	Degree 1e3: 	2064 (0.19%)
+	Degree 1e4: 	228 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0023 avg s, 9.72379 gflops, 97.260 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx,80,4284,1096894,11284032,0.297077,9.723786,129.151844,0.538722,0.001796,0.004374
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx, Ordering...done.
+	 num_rows: 217918
+	 num_cols: 217918
+	 num_nonzeros: 11634424
+	 row_length_mean: 53.38900
+	 row_length_std_dev: 4.74390
+	 row_length_variation: 0.08886
+	 row_length_skewness: -1.72447
+CSR matrix (217918 rows, 217918 columns, 11634424 non-zeros, max-length 180):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	204 (0.09%)
+	Degree 1e1: 	217708 (99.90%)
+	Degree 1e2: 	6 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0007 avg s, 33.56767 gflops, 339.449 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx,80,217918,217918,11634424,0.088729,33.567669,133.976711,0.595811,0.001509,0.001176
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx, Ordering...done.
+	 num_rows: 63838
+	 num_cols: 63838
+	 num_nonzeros: 14148858
+	 row_length_mean: 221.63692
+	 row_length_std_dev: 95.87570
+	 row_length_variation: 0.43258
+	 row_length_skewness: 2.85133
+CSR matrix (63838 rows, 63838 columns, 14148858 non-zeros, max-length 3423):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	2610 (4.09%)
+	Degree 1e2: 	61224 (95.91%)
+	Degree 1e3: 	4 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0012 avg s, 24.18231 gflops, 242.478 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx,80,63838,63838,14148858,0.149783,24.182313,162.164356,0.733296,0.001804,0.001573
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx, Ordering...done.
+	 num_rows: 185639
+	 num_cols: 185639
+	 num_nonzeros: 15011265
+	 row_length_mean: 80.86267
+	 row_length_std_dev: 126.97186
+	 row_length_variation: 1.57022
+	 row_length_skewness: 2.57422
+CSR matrix (185639 rows, 185639 columns, 15011265 non-zeros, max-length 662):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	161149 (86.81%)
+	Degree 1e2: 	24490 (13.19%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0013 avg s, 22.36594 gflops, 225.319 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx,80,185639,185639,15011265,0.171819,22.365940,172.498455,0.830574,0.002021,0.001704
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx, Ordering...done.
+	 num_rows: 38120
+	 num_cols: 38120
+	 num_nonzeros: 16171169
+	 row_length_mean: 424.21744
+	 row_length_std_dev: 484.23750
+	 row_length_variation: 1.14148
+	 row_length_skewness: 0.28726
+CSR matrix (38120 rows, 38120 columns, 16171169 non-zeros, max-length 983):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	21152 (55.49%)
+	Degree 1e1: 	618 (1.62%)
+	Degree 1e2: 	16350 (42.89%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0014 avg s, 23.10077 gflops, 231.334 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx,80,38120,38120,16171169,0.179207,23.100766,185.209763,0.816927,0.002081,0.001700
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx, Ordering...done.
+	 num_rows: 1382908
+	 num_cols: 1382908
+	 num_nonzeros: 16917053
+	 row_length_mean: 12.23296
+	 row_length_std_dev: 37.23001
+	 row_length_variation: 3.04342
+	 row_length_skewness: 23.67409
+CSR matrix (1382908 rows, 1382908 columns, 16917053 non-zeros, max-length 7753):
+	Degree 1e-1: 	282306 (20.41%)
+	Degree 1e0: 	658146 (47.59%)
+	Degree 1e1: 	424227 (30.68%)
+	Degree 1e2: 	18189 (1.32%)
+	Degree 1e3: 	40 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0019 avg s, 17.79429 gflops, 186.671 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx,80,1382908,1382908,16917053,0.243379,17.794293,198.875687,0.854457,0.002612,0.002355
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx, Ordering...done.
+	 num_rows: 268096
+	 num_cols: 268096
+	 num_nonzeros: 18488476
+	 row_length_mean: 68.96215
+	 row_length_std_dev: 105.38755
+	 row_length_variation: 1.52819
+	 row_length_skewness: 2.90932
+CSR matrix (268096 rows, 268096 columns, 18488476 non-zeros, max-length 702):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	240943 (89.87%)
+	Degree 1e2: 	27153 (10.13%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0019 avg s, 19.38897 gflops, 195.577 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx,80,268096,268096,18488476,0.244110,19.388966,212.606525,1.002328,0.002461,0.002198
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx, Ordering...done.
+	 num_rows: 862664
+	 num_cols: 862664
+	 num_nonzeros: 19235140
+	 row_length_mean: 22.29737
+	 row_length_std_dev: 29.33341
+	 row_length_variation: 1.31555
+	 row_length_skewness: 26.37988
+CSR matrix (862664 rows, 862664 columns, 19235140 non-zeros, max-length 6985):
+	Degree 1e-1: 	71675 (8.31%)
+	Degree 1e0: 	217568 (25.22%)
+	Degree 1e1: 	563147 (65.28%)
+	Degree 1e2: 	10261 (1.19%)
+	Degree 1e3: 	13 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0023 avg s, 16.37046 gflops, 168.110 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx,80,862664,862664,19235140,0.300798,16.370460,223.419514,0.973083,0.002839,0.002528
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx, Ordering...done.
+	 num_rows: 1634989
+	 num_cols: 1634989
+	 num_nonzeros: 19753078
+	 row_length_mean: 12.08147
+	 row_length_std_dev: 31.07498
+	 row_length_variation: 2.57212
+	 row_length_skewness: 19.91539
+CSR matrix (1634989 rows, 1634989 columns, 19753078 non-zeros, max-length 4970):
+	Degree 1e-1: 	72556 (4.44%)
+	Degree 1e0: 	1031212 (63.07%)
+	Degree 1e1: 	509651 (31.17%)
+	Degree 1e2: 	21466 (1.31%)
+	Degree 1e3: 	104 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0048 avg s, 8.18567 gflops, 85.922 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx,80,1634989,1634989,19753078,0.617761,8.185669,232.293030,1.000242,0.004535,0.005022
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx, Ordering...done.
+	 num_rows: 952203
+	 num_cols: 952203
+	 num_nonzeros: 46522475
+	 row_length_mean: 48.85773
+	 row_length_std_dev: 11.94657
+	 row_length_variation: 0.24452
+	 row_length_skewness: 0.02027
+CSR matrix (952203 rows, 952203 columns, 46522475 non-zeros, max-length 77):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	952203 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0063 avg s, 14.80541 gflops, 149.872 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx,80,952203,952203,46522475,0.804419,14.805410,536.039845,2.480141,0.006709,0.006529
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx, Ordering...done.
+	 num_rows: 5558326
+	 num_cols: 5558326
+	 num_nonzeros: 59524291
+	 row_length_mean: 10.70903
+	 row_length_std_dev: 1356.61627
+	 row_length_variation: 126.67964
+	 row_length_skewness: 868.02862
+CSR matrix (5558326 rows, 5558326 columns, 59524291 non-zeros, max-length 1290501):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	5205090 (93.64%)
+	Degree 1e1: 	325350 (5.85%)
+	Degree 1e2: 	20298 (0.37%)
+	Degree 1e3: 	7568 (0.14%)
+	Degree 1e4: 	0 (0.00%)
+	Degree 1e5: 	14 (0.00%)
+	Degree 1e6: 	6 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0109 avg s, 10.88748 gflops, 114.975 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx,80,5558326,5558326,59524291,1.399610,10.887477,702.404785,3.140574,0.011837,0.011179
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx, Ordering...done.
+	 num_rows: 986703
+	 num_cols: 986703
+	 num_nonzeros: 71666325
+	 row_length_mean: 72.63211
+	 row_length_std_dev: 15.81043
+	 row_length_variation: 0.21768
+	 row_length_skewness: -1.83825
+CSR matrix (986703 rows, 986703 columns, 71666325 non-zeros, max-length 81):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	986703 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0093 avg s, 15.42004 gflops, 155.474 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx,80,986703,986703,71666325,1.189788,15.420039,823.919979,3.976194,0.010307,0.009692
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx, Ordering...done.
+	 num_rows: 5154859
+	 num_cols: 5154859
+	 num_nonzeros: 99199551
+	 row_length_mean: 19.24389
+	 row_length_std_dev: 5.73672
+	 row_length_variation: 0.29811
+	 row_length_skewness: 0.45659
+CSR matrix (5154859 rows, 5154859 columns, 99199551 non-zeros, max-length 47):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	125956 (2.44%)
+	Degree 1e1: 	5028903 (97.56%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0170 avg s, 11.67036 gflops, 120.342 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx,80,5154859,5154859,99199551,2.176032,11.670363,1154.912998,5.187586,0.017564,0.017333
+program: ./spmv_code_merge/spmv_merge.exe
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx, Ordering...done.
+	 num_rows: 170998
+	 num_cols: 170998
+	 num_nonzeros: 958936
+	 row_length_mean: 5.60788
+	 row_length_std_dev: 4.39216
+	 row_length_variation: 0.78321
+	 row_length_skewness: 20.25595
+CSR matrix (170998 rows, 170998 columns, 958936 non-zeros, max-length 353):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	160842 (94.06%)
+	Degree 1e1: 	10128 (5.92%)
+	Degree 1e2: 	28 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 41.00454 gflops, 453.917 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx,80,170998,170998,958936,0.005987,41.004539,11.626461,0.048488,0.000219,0.000180
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx, Ordering...done.
+	 num_rows: 206500
+	 num_cols: 206500
+	 num_nonzeros: 1273389
+	 row_length_mean: 6.16653
+	 row_length_std_dev: 4.43587
+	 row_length_variation: 0.71935
+	 row_length_skewness: 3.17017
+CSR matrix (206500 rows, 206500 columns, 1273389 non-zeros, max-length 44):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	176537 (85.49%)
+	Degree 1e1: 	29963 (14.51%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 55.46950 gflops, 608.666 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx,80,206500,206500,1273389,0.005877,55.469497,15.360519,0.059649,0.000266,0.000196
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx, Ordering...done.
+	 num_rows: 21200
+	 num_cols: 21200
+	 num_nonzeros: 1488768
+	 row_length_mean: 70.22491
+	 row_length_std_dev: 6.32700
+	 row_length_variation: 0.09010
+	 row_length_skewness: -3.30132
+CSR matrix (21200 rows, 21200 columns, 1488768 non-zeros, max-length 80):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	21200 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 62.48067 gflops, 630.145 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx,80,21200,21200,1488768,0.006100,62.480671,17.118473,0.066968,0.000248,0.000053
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx, Ordering...done.
+	 num_rows: 38744
+	 num_cols: 38744
+	 num_nonzeros: 1771722
+	 row_length_mean: 45.72894
+	 row_length_std_dev: 38.39531
+	 row_length_variation: 0.83963
+	 row_length_skewness: 0.82252
+CSR matrix (38744 rows, 38744 columns, 1771722 non-zeros, max-length 126):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	36 (0.09%)
+	Degree 1e1: 	31137 (80.37%)
+	Degree 1e2: 	7571 (19.54%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 68.20996 gflops, 691.049 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx,80,38744,38744,1771722,0.006649,68.209963,20.423550,0.080926,0.000250,0.000051
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx, Ordering...done.
+	 num_rows: 49152
+	 num_cols: 49152
+	 num_nonzeros: 1916928
+	 row_length_mean: 39.00000
+	 row_length_std_dev: 0.00000
+	 row_length_variation: 0.00000
+	 row_length_skewness: nan
+CSR matrix (49152 rows, 49152 columns, 1916928 non-zeros, max-length 39):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	49152 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 71.94957 gflops, 730.565 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx,80,49152,49152,1916928,0.006821,71.949574,22.125004,0.084033,0.000261,0.000051
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx, Ordering...done.
+	 num_rows: 525825
+	 num_cols: 525825
+	 num_nonzeros: 2100225
+	 row_length_mean: 3.99415
+	 row_length_std_dev: 0.07632
+	 row_length_variation: 0.01911
+	 row_length_skewness: -13.00019
+CSR matrix (525825 rows, 525825 columns, 2100225 non-zeros, max-length 4):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	525825 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 68.60537 gflops, 789.112 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx,80,525825,525825,2100225,0.007837,68.605367,26.041035,0.089791,0.000276,0.000209
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx, Ordering...done.
+	 num_rows: 46835
+	 num_cols: 46835
+	 num_nonzeros: 2374001
+	 row_length_mean: 50.68861
+	 row_length_std_dev: 27.78060
+	 row_length_variation: 0.54806
+	 row_length_skewness: 0.91766
+CSR matrix (46835 rows, 46835 columns, 2374001 non-zeros, max-length 145):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	610 (1.30%)
+	Degree 1e1: 	41238 (88.05%)
+	Degree 1e2: 	4987 (10.65%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 92.98923 gflops, 940.899 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx,80,46835,46835,2374001,0.006536,92.989229,27.346951,0.104917,0.000263,0.000059
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx, Ordering...done.
+	 num_rows: 121192
+	 num_cols: 121192
+	 num_nonzeros: 2624331
+	 row_length_mean: 21.65433
+	 row_length_std_dev: 13.79266
+	 row_length_variation: 0.63695
+	 row_length_skewness: 0.42892
+CSR matrix (121192 rows, 121192 columns, 2624331 non-zeros, max-length 81):
+	Degree 1e-1: 	21349 (17.62%)
+	Degree 1e0: 	224 (0.18%)
+	Degree 1e1: 	99619 (82.20%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 70.52105 gflops, 724.751 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx,80,121192,121192,2624331,0.009527,70.521050,30.495399,0.138756,0.000343,0.000260
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx, Ordering...done.
+	 num_rows: 1000005
+	 num_cols: 1000005
+	 num_nonzeros: 3105536
+	 row_length_mean: 3.10552
+	 row_length_std_dev: 25.34521
+	 row_length_variation: 8.16134
+	 row_length_skewness: 121.49432
+CSR matrix (1000005 rows, 1000005 columns, 3105536 non-zeros, max-length 4700):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	982292 (98.23%)
+	Degree 1e1: 	15944 (1.59%)
+	Degree 1e2: 	1714 (0.17%)
+	Degree 1e3: 	55 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 44.34826 gflops, 529.165 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx,80,1000005,1000005,3105536,0.017927,44.348264,39.354759,0.142405,0.000537,0.000378
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx, Ordering...done.
+	 num_rows: 62451
+	 num_cols: 62451
+	 num_nonzeros: 4007383
+	 row_length_mean: 64.16844
+	 row_length_std_dev: 14.05626
+	 row_length_variation: 0.21905
+	 row_length_skewness: -0.90855
+CSR matrix (62451 rows, 62451 columns, 4007383 non-zeros, max-length 78):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	243 (0.39%)
+	Degree 1e1: 	62208 (99.61%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 93.98178 gflops, 948.605 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cant.mtx,80,62451,62451,4007383,0.010916,93.981777,46.099094,0.206619,0.000425,0.000199
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx, Ordering...done.
+	 num_rows: 36417
+	 num_cols: 36417
+	 num_nonzeros: 4344765
+	 row_length_mean: 119.30596
+	 row_length_std_dev: 31.86038
+	 row_length_variation: 0.26705
+	 row_length_skewness: -0.49652
+CSR matrix (36417 rows, 36417 columns, 4344765 non-zeros, max-length 204):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	9745 (26.76%)
+	Degree 1e2: 	26672 (73.24%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 88.92700 gflops, 893.742 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx,80,36417,36417,4344765,0.012508,88.926999,49.860813,0.229531,0.000497,0.000230
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx, Ordering...done.
+	 num_rows: 42138
+	 num_cols: 42138
+	 num_nonzeros: 4413449
+	 row_length_mean: 104.73798
+	 row_length_std_dev: 102.44317
+	 row_length_variation: 0.97809
+	 row_length_skewness: 0.03496
+CSR matrix (42138 rows, 42138 columns, 4413449 non-zeros, max-length 209):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	21340 (50.64%)
+	Degree 1e1: 	98 (0.23%)
+	Degree 1e2: 	20700 (49.12%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 82.64281 gflops, 831.162 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx,80,42138,42138,4413449,0.013671,82.642807,50.668663,0.212927,0.000480,0.000240
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx, Ordering...done.
+	 num_rows: 68121
+	 num_cols: 68121
+	 num_nonzeros: 5377761
+	 row_length_mean: 78.94425
+	 row_length_std_dev: 1061.43997
+	 row_length_variation: 13.44544
+	 row_length_skewness: 61.20894
+CSR matrix (68121 rows, 68121 columns, 5377761 non-zeros, max-length 68121):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	9 (0.01%)
+	Degree 1e1: 	66040 (96.95%)
+	Degree 1e2: 	24 (0.04%)
+	Degree 1e3: 	2032 (2.98%)
+	Degree 1e4: 	16 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0002 avg s, 61.00260 gflops, 614.662 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx,80,68121,68121,5377761,0.022568,61.002600,61.803455,0.253557,0.000620,0.000445
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx, Ordering...done.
+	 num_rows: 83334
+	 num_cols: 83334
+	 num_nonzeros: 6010480
+	 row_length_mean: 72.12518
+	 row_length_std_dev: 19.08019
+	 row_length_variation: 0.26454
+	 row_length_skewness: -2.54808
+CSR matrix (83334 rows, 83334 columns, 6010480 non-zeros, max-length 81):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	3655 (4.39%)
+	Degree 1e1: 	79679 (95.61%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0002 avg s, 61.79608 gflops, 623.102 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/consph.mtx,80,83334,83334,6010480,0.024899,61.796077,69.102383,0.306336,0.000796,0.000510
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx, Ordering...done.
+	 num_rows: 140874
+	 num_cols: 140874
+	 num_nonzeros: 7813404
+	 row_length_mean: 55.46378
+	 row_length_std_dev: 11.07481
+	 row_length_variation: 0.19968
+	 row_length_skewness: 0.71883
+CSR matrix (140874 rows, 140874 columns, 7813404 non-zeros, max-length 102):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	140802 (99.95%)
+	Degree 1e2: 	72 (0.05%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0004 avg s, 40.06796 gflops, 405.014 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx,80,140874,140874,7813404,0.049921,40.067964,89.954708,0.399362,0.000941,0.000690
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx, Ordering...done.
+	 num_rows: 161070
+	 num_cols: 161070
+	 num_nonzeros: 8185136
+	 row_length_mean: 50.81726
+	 row_length_std_dev: 19.69828
+	 row_length_variation: 0.38763
+	 row_length_skewness: -0.92051
+CSR matrix (161070 rows, 161070 columns, 8185136 non-zeros, max-length 92):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	2303 (1.43%)
+	Degree 1e1: 	158767 (98.57%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0004 avg s, 42.46583 gflops, 429.672 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx,80,161070,161070,8185136,0.049343,42.465827,94.285885,0.395493,0.000996,0.000730
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx, Ordering...done.
+	 num_rows: 66463
+	 num_cols: 66463
+	 num_nonzeros: 10352819
+	 row_length_mean: 155.76816
+	 row_length_std_dev: 350.74432
+	 row_length_variation: 2.25171
+	 row_length_skewness: 102.17195
+CSR matrix (66463 rows, 66463 columns, 10352819 non-zeros, max-length 66395):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	9882 (14.87%)
+	Degree 1e1: 	33239 (50.01%)
+	Degree 1e2: 	23270 (35.01%)
+	Degree 1e3: 	71 (0.11%)
+	Degree 1e4: 	1 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0005 avg s, 43.27892 gflops, 434.456 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx,80,66463,66463,10352819,0.061238,43.278920,118.732151,0.530887,0.001289,0.000956
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx, Ordering...done.
+	 num_rows: 4284
+	 num_cols: 1096894
+	 num_nonzeros: 11284032
+	 row_length_mean: 2633.99440
+	 row_length_std_dev: 4209.25932
+	 row_length_variation: 1.59805
+	 row_length_skewness: 4.05684
+CSR matrix (4284 rows, 1096894 columns, 11284032 non-zeros, max-length 56182):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	82 (0.01%)
+	Degree 1e1: 	381 (0.03%)
+	Degree 1e2: 	1529 (0.14%)
+	Degree 1e3: 	2064 (0.19%)
+	Degree 1e4: 	228 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0023 avg s, 9.72379 gflops, 97.260 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx,80,4284,1096894,11284032,0.297077,9.723786,129.151844,0.538722,0.001796,0.004374
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx, Ordering...done.
+	 num_rows: 217918
+	 num_cols: 217918
+	 num_nonzeros: 11634424
+	 row_length_mean: 53.38900
+	 row_length_std_dev: 4.74390
+	 row_length_variation: 0.08886
+	 row_length_skewness: -1.72447
+CSR matrix (217918 rows, 217918 columns, 11634424 non-zeros, max-length 180):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	204 (0.09%)
+	Degree 1e1: 	217708 (99.90%)
+	Degree 1e2: 	6 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0007 avg s, 33.56767 gflops, 339.449 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx,80,217918,217918,11634424,0.088729,33.567669,133.976711,0.595811,0.001509,0.001176
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx, Ordering...done.
+	 num_rows: 63838
+	 num_cols: 63838
+	 num_nonzeros: 14148858
+	 row_length_mean: 221.63692
+	 row_length_std_dev: 95.87570
+	 row_length_variation: 0.43258
+	 row_length_skewness: 2.85133
+CSR matrix (63838 rows, 63838 columns, 14148858 non-zeros, max-length 3423):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	2610 (4.09%)
+	Degree 1e2: 	61224 (95.91%)
+	Degree 1e3: 	4 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0012 avg s, 24.18231 gflops, 242.478 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx,80,63838,63838,14148858,0.149783,24.182313,162.164356,0.733296,0.001804,0.001573
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx, Ordering...done.
+	 num_rows: 185639
+	 num_cols: 185639
+	 num_nonzeros: 15011265
+	 row_length_mean: 80.86267
+	 row_length_std_dev: 126.97186
+	 row_length_variation: 1.57022
+	 row_length_skewness: 2.57422
+CSR matrix (185639 rows, 185639 columns, 15011265 non-zeros, max-length 662):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	161149 (86.81%)
+	Degree 1e2: 	24490 (13.19%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0013 avg s, 22.36594 gflops, 225.319 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx,80,185639,185639,15011265,0.171819,22.365940,172.498455,0.830574,0.002021,0.001704
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx, Ordering...done.
+	 num_rows: 38120
+	 num_cols: 38120
+	 num_nonzeros: 16171169
+	 row_length_mean: 424.21744
+	 row_length_std_dev: 484.23750
+	 row_length_variation: 1.14148
+	 row_length_skewness: 0.28726
+CSR matrix (38120 rows, 38120 columns, 16171169 non-zeros, max-length 983):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	21152 (55.49%)
+	Degree 1e1: 	618 (1.62%)
+	Degree 1e2: 	16350 (42.89%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0014 avg s, 23.10077 gflops, 231.334 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx,80,38120,38120,16171169,0.179207,23.100766,185.209763,0.816927,0.002081,0.001700
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx, Ordering...done.
+	 num_rows: 1382908
+	 num_cols: 1382908
+	 num_nonzeros: 16917053
+	 row_length_mean: 12.23296
+	 row_length_std_dev: 37.23001
+	 row_length_variation: 3.04342
+	 row_length_skewness: 23.67409
+CSR matrix (1382908 rows, 1382908 columns, 16917053 non-zeros, max-length 7753):
+	Degree 1e-1: 	282306 (20.41%)
+	Degree 1e0: 	658146 (47.59%)
+	Degree 1e1: 	424227 (30.68%)
+	Degree 1e2: 	18189 (1.32%)
+	Degree 1e3: 	40 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0019 avg s, 17.79429 gflops, 186.671 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx,80,1382908,1382908,16917053,0.243379,17.794293,198.875687,0.854457,0.002612,0.002355
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx, Ordering...done.
+	 num_rows: 268096
+	 num_cols: 268096
+	 num_nonzeros: 18488476
+	 row_length_mean: 68.96215
+	 row_length_std_dev: 105.38755
+	 row_length_variation: 1.52819
+	 row_length_skewness: 2.90932
+CSR matrix (268096 rows, 268096 columns, 18488476 non-zeros, max-length 702):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	240943 (89.87%)
+	Degree 1e2: 	27153 (10.13%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0019 avg s, 19.38897 gflops, 195.577 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx,80,268096,268096,18488476,0.244110,19.388966,212.606525,1.002328,0.002461,0.002198
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx, Ordering...done.
+	 num_rows: 862664
+	 num_cols: 862664
+	 num_nonzeros: 19235140
+	 row_length_mean: 22.29737
+	 row_length_std_dev: 29.33341
+	 row_length_variation: 1.31555
+	 row_length_skewness: 26.37988
+CSR matrix (862664 rows, 862664 columns, 19235140 non-zeros, max-length 6985):
+	Degree 1e-1: 	71675 (8.31%)
+	Degree 1e0: 	217568 (25.22%)
+	Degree 1e1: 	563147 (65.28%)
+	Degree 1e2: 	10261 (1.19%)
+	Degree 1e3: 	13 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0023 avg s, 16.37046 gflops, 168.110 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx,80,862664,862664,19235140,0.300798,16.370460,223.419514,0.973083,0.002839,0.002528
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx, Ordering...done.
+	 num_rows: 1634989
+	 num_cols: 1634989
+	 num_nonzeros: 19753078
+	 row_length_mean: 12.08147
+	 row_length_std_dev: 31.07498
+	 row_length_variation: 2.57212
+	 row_length_skewness: 19.91539
+CSR matrix (1634989 rows, 1634989 columns, 19753078 non-zeros, max-length 4970):
+	Degree 1e-1: 	72556 (4.44%)
+	Degree 1e0: 	1031212 (63.07%)
+	Degree 1e1: 	509651 (31.17%)
+	Degree 1e2: 	21466 (1.31%)
+	Degree 1e3: 	104 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0048 avg s, 8.18567 gflops, 85.922 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx,80,1634989,1634989,19753078,0.617761,8.185669,232.293030,1.000242,0.004535,0.005022
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx, Ordering...done.
+	 num_rows: 952203
+	 num_cols: 952203
+	 num_nonzeros: 46522475
+	 row_length_mean: 48.85773
+	 row_length_std_dev: 11.94657
+	 row_length_variation: 0.24452
+	 row_length_skewness: 0.02027
+CSR matrix (952203 rows, 952203 columns, 46522475 non-zeros, max-length 77):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	952203 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0063 avg s, 14.80541 gflops, 149.872 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx,80,952203,952203,46522475,0.804419,14.805410,536.039845,2.480141,0.006709,0.006529
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx, Ordering...done.
+	 num_rows: 5558326
+	 num_cols: 5558326
+	 num_nonzeros: 59524291
+	 row_length_mean: 10.70903
+	 row_length_std_dev: 1356.61627
+	 row_length_variation: 126.67964
+	 row_length_skewness: 868.02862
+CSR matrix (5558326 rows, 5558326 columns, 59524291 non-zeros, max-length 1290501):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	5205090 (93.64%)
+	Degree 1e1: 	325350 (5.85%)
+	Degree 1e2: 	20298 (0.37%)
+	Degree 1e3: 	7568 (0.14%)
+	Degree 1e4: 	0 (0.00%)
+	Degree 1e5: 	14 (0.00%)
+	Degree 1e6: 	6 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0109 avg s, 10.88748 gflops, 114.975 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx,80,5558326,5558326,59524291,1.399610,10.887477,702.404785,3.140574,0.011837,0.011179
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx, Ordering...done.
+	 num_rows: 986703
+	 num_cols: 986703
+	 num_nonzeros: 71666325
+	 row_length_mean: 72.63211
+	 row_length_std_dev: 15.81043
+	 row_length_variation: 0.21768
+	 row_length_skewness: -1.83825
+CSR matrix (986703 rows, 986703 columns, 71666325 non-zeros, max-length 81):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	986703 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0093 avg s, 15.42004 gflops, 155.474 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx,80,986703,986703,71666325,1.189788,15.420039,823.919979,3.976194,0.010307,0.009692
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx, Ordering...done.
+	 num_rows: 5154859
+	 num_cols: 5154859
+	 num_nonzeros: 99199551
+	 row_length_mean: 19.24389
+	 row_length_std_dev: 5.73672
+	 row_length_variation: 0.29811
+	 row_length_skewness: 0.45659
+CSR matrix (5154859 rows, 5154859 columns, 99199551 non-zeros, max-length 47):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	125956 (2.44%)
+	Degree 1e1: 	5028903 (97.56%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0170 avg s, 11.67036 gflops, 120.342 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx,80,5154859,5154859,99199551,2.176032,11.670363,1154.912998,5.187586,0.017564,0.017333
+program: ./spmv_code_merge/spmv_merge.exe
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx, Ordering...done.
+	 num_rows: 170998
+	 num_cols: 170998
+	 num_nonzeros: 958936
+	 row_length_mean: 5.60788
+	 row_length_std_dev: 4.39216
+	 row_length_variation: 0.78321
+	 row_length_skewness: 20.25595
+CSR matrix (170998 rows, 170998 columns, 958936 non-zeros, max-length 353):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	160842 (94.06%)
+	Degree 1e1: 	10128 (5.92%)
+	Degree 1e2: 	28 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 42.31988 gflops, 468.478 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx,80,170998,170998,958936,0.005801,42.319883,11.626461,0.043659,0.000201,0.000147
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx, Ordering...done.
+	 num_rows: 206500
+	 num_cols: 206500
+	 num_nonzeros: 1273389
+	 row_length_mean: 6.16653
+	 row_length_std_dev: 4.43587
+	 row_length_variation: 0.71935
+	 row_length_skewness: 3.17017
+CSR matrix (206500 rows, 206500 columns, 1273389 non-zeros, max-length 44):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	176537 (85.49%)
+	Degree 1e1: 	29963 (14.51%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 49.92608 gflops, 547.839 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx,80,206500,206500,1273389,0.006529,49.926083,15.360519,0.059162,0.000259,0.000197
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx, Ordering...done.
+	 num_rows: 21200
+	 num_cols: 21200
+	 num_nonzeros: 1488768
+	 row_length_mean: 70.22491
+	 row_length_std_dev: 6.32700
+	 row_length_variation: 0.09010
+	 row_length_skewness: -3.30132
+CSR matrix (21200 rows, 21200 columns, 1488768 non-zeros, max-length 80):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	21200 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 63.19172 gflops, 637.316 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx,80,21200,21200,1488768,0.006031,63.191722,17.118473,0.063656,0.000237,0.000048
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx, Ordering...done.
+	 num_rows: 38744
+	 num_cols: 38744
+	 num_nonzeros: 1771722
+	 row_length_mean: 45.72894
+	 row_length_std_dev: 38.39531
+	 row_length_variation: 0.83963
+	 row_length_skewness: 0.82252
+CSR matrix (38744 rows, 38744 columns, 1771722 non-zeros, max-length 126):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	36 (0.09%)
+	Degree 1e1: 	31137 (80.37%)
+	Degree 1e2: 	7571 (19.54%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 74.90282 gflops, 758.856 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx,80,38744,38744,1771722,0.006055,74.902820,20.423550,0.076321,0.000260,0.000074
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx, Ordering...done.
+	 num_rows: 49152
+	 num_cols: 49152
+	 num_nonzeros: 1916928
+	 row_length_mean: 39.00000
+	 row_length_std_dev: 0.00000
+	 row_length_variation: 0.00000
+	 row_length_skewness: nan
+CSR matrix (49152 rows, 49152 columns, 1916928 non-zeros, max-length 39):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	49152 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0000 avg s, 84.44960 gflops, 857.488 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx,80,49152,49152,1916928,0.005811,84.449598,22.125004,0.084979,0.000261,0.000051
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx, Ordering...done.
+	 num_rows: 525825
+	 num_cols: 525825
+	 num_nonzeros: 2100225
+	 row_length_mean: 3.99415
+	 row_length_std_dev: 0.07632
+	 row_length_variation: 0.01911
+	 row_length_skewness: -13.00019
+CSR matrix (525825 rows, 525825 columns, 2100225 non-zeros, max-length 4):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	525825 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 66.24037 gflops, 761.910 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx,80,525825,525825,2100225,0.008117,66.240373,26.041035,0.089810,0.000295,0.000203
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx, Ordering...done.
+	 num_rows: 46835
+	 num_cols: 46835
+	 num_nonzeros: 2374001
+	 row_length_mean: 50.68861
+	 row_length_std_dev: 27.78060
+	 row_length_variation: 0.54806
+	 row_length_skewness: 0.91766
+CSR matrix (46835 rows, 46835 columns, 2374001 non-zeros, max-length 145):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	610 (1.30%)
+	Degree 1e1: 	41238 (88.05%)
+	Degree 1e2: 	4987 (10.65%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 91.74822 gflops, 928.342 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx,80,46835,46835,2374001,0.006624,91.748223,27.346951,0.105460,0.000277,0.000054
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx, Ordering...done.
+	 num_rows: 121192
+	 num_cols: 121192
+	 num_nonzeros: 2624331
+	 row_length_mean: 21.65433
+	 row_length_std_dev: 13.79266
+	 row_length_variation: 0.63695
+	 row_length_skewness: 0.42892
+CSR matrix (121192 rows, 121192 columns, 2624331 non-zeros, max-length 81):
+	Degree 1e-1: 	21349 (17.62%)
+	Degree 1e0: 	224 (0.18%)
+	Degree 1e1: 	99619 (82.20%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 59.64385 gflops, 612.965 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx,80,121192,121192,2624331,0.011264,59.643851,30.495399,0.138814,0.000336,0.000215
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx, Ordering...done.
+	 num_rows: 1000005
+	 num_cols: 1000005
+	 num_nonzeros: 3105536
+	 row_length_mean: 3.10552
+	 row_length_std_dev: 25.34521
+	 row_length_variation: 8.16134
+	 row_length_skewness: 121.49432
+CSR matrix (1000005 rows, 1000005 columns, 3105536 non-zeros, max-length 4700):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	982292 (98.23%)
+	Degree 1e1: 	15944 (1.59%)
+	Degree 1e2: 	1714 (0.17%)
+	Degree 1e3: 	55 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 47.46006 gflops, 566.295 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx,80,1000005,1000005,3105536,0.016751,47.460056,39.354759,0.138102,0.000697,0.000411
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx, Ordering...done.
+	 num_rows: 62451
+	 num_cols: 62451
+	 num_nonzeros: 4007383
+	 row_length_mean: 64.16844
+	 row_length_std_dev: 14.05626
+	 row_length_variation: 0.21905
+	 row_length_skewness: -0.90855
+CSR matrix (62451 rows, 62451 columns, 4007383 non-zeros, max-length 78):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	243 (0.39%)
+	Degree 1e1: 	62208 (99.61%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 96.89536 gflops, 978.014 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cant.mtx,80,62451,62451,4007383,0.010588,96.895361,46.099094,0.208678,0.000518,0.000208
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx, Ordering...done.
+	 num_rows: 36417
+	 num_cols: 36417
+	 num_nonzeros: 4344765
+	 row_length_mean: 119.30596
+	 row_length_std_dev: 31.86038
+	 row_length_variation: 0.26705
+	 row_length_skewness: -0.49652
+CSR matrix (36417 rows, 36417 columns, 4344765 non-zeros, max-length 204):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	9745 (26.76%)
+	Degree 1e2: 	26672 (73.24%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 94.10295 gflops, 945.762 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx,80,36417,36417,4344765,0.011820,94.102949,49.860813,0.228723,0.000502,0.000220
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx, Ordering...done.
+	 num_rows: 42138
+	 num_cols: 42138
+	 num_nonzeros: 4413449
+	 row_length_mean: 104.73798
+	 row_length_std_dev: 102.44317
+	 row_length_variation: 0.97809
+	 row_length_skewness: 0.03496
+CSR matrix (42138 rows, 42138 columns, 4413449 non-zeros, max-length 209):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	21340 (50.64%)
+	Degree 1e1: 	98 (0.23%)
+	Degree 1e2: 	20700 (49.12%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0001 avg s, 89.35967 gflops, 898.716 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx,80,42138,42138,4413449,0.012644,89.359667,50.668663,0.212624,0.000455,0.000231
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx, Ordering...done.
+	 num_rows: 68121
+	 num_cols: 68121
+	 num_nonzeros: 5377761
+	 row_length_mean: 78.94425
+	 row_length_std_dev: 1061.43997
+	 row_length_variation: 13.44544
+	 row_length_skewness: 61.20894
+CSR matrix (68121 rows, 68121 columns, 5377761 non-zeros, max-length 68121):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	9 (0.01%)
+	Degree 1e1: 	66040 (96.95%)
+	Degree 1e2: 	24 (0.04%)
+	Degree 1e3: 	2032 (2.98%)
+	Degree 1e4: 	16 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0002 avg s, 65.74615 gflops, 662.458 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx,80,68121,68121,5377761,0.020940,65.746147,61.803455,0.252553,0.000617,0.000357
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx, Ordering...done.
+	 num_rows: 83334
+	 num_cols: 83334
+	 num_nonzeros: 6010480
+	 row_length_mean: 72.12518
+	 row_length_std_dev: 19.08019
+	 row_length_variation: 0.26454
+	 row_length_skewness: -2.54808
+CSR matrix (83334 rows, 83334 columns, 6010480 non-zeros, max-length 81):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	3655 (4.39%)
+	Degree 1e1: 	79679 (95.61%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0002 avg s, 68.05232 gflops, 686.184 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/consph.mtx,80,83334,83334,6010480,0.022610,68.052317,69.102383,0.304726,0.000663,0.000492
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx, Ordering...done.
+	 num_rows: 140874
+	 num_cols: 140874
+	 num_nonzeros: 7813404
+	 row_length_mean: 55.46378
+	 row_length_std_dev: 11.07481
+	 row_length_variation: 0.19968
+	 row_length_skewness: 0.71883
+CSR matrix (140874 rows, 140874 columns, 7813404 non-zeros, max-length 102):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	140802 (99.95%)
+	Degree 1e2: 	72 (0.05%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0004 avg s, 40.62084 gflops, 410.603 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx,80,140874,140874,7813404,0.049242,40.620836,89.954708,0.401301,0.000948,0.000686
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx, Ordering...done.
+	 num_rows: 161070
+	 num_cols: 161070
+	 num_nonzeros: 8185136
+	 row_length_mean: 50.81726
+	 row_length_std_dev: 19.69828
+	 row_length_variation: 0.38763
+	 row_length_skewness: -0.92051
+CSR matrix (161070 rows, 161070 columns, 8185136 non-zeros, max-length 92):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	2303 (1.43%)
+	Degree 1e1: 	158767 (98.57%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0004 avg s, 41.01056 gflops, 414.948 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx,80,161070,161070,8185136,0.051094,41.010558,94.285885,0.394736,0.000982,0.000715
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx, Ordering...done.
+	 num_rows: 66463
+	 num_cols: 66463
+	 num_nonzeros: 10352819
+	 row_length_mean: 155.76816
+	 row_length_std_dev: 350.74432
+	 row_length_variation: 2.25171
+	 row_length_skewness: 102.17195
+CSR matrix (66463 rows, 66463 columns, 10352819 non-zeros, max-length 66395):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	9882 (14.87%)
+	Degree 1e1: 	33239 (50.01%)
+	Degree 1e2: 	23270 (35.01%)
+	Degree 1e3: 	71 (0.11%)
+	Degree 1e4: 	1 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0005 avg s, 43.99537 gflops, 441.648 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx,80,66463,66463,10352819,0.060241,43.995374,118.732151,0.530670,0.001275,0.000946
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx, Ordering...done.
+	 num_rows: 4284
+	 num_cols: 1096894
+	 num_nonzeros: 11284032
+	 row_length_mean: 2633.99440
+	 row_length_std_dev: 4209.25932
+	 row_length_variation: 1.59805
+	 row_length_skewness: 4.05684
+CSR matrix (4284 rows, 1096894 columns, 11284032 non-zeros, max-length 56182):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	82 (0.01%)
+	Degree 1e1: 	381 (0.03%)
+	Degree 1e2: 	1529 (0.14%)
+	Degree 1e3: 	2064 (0.19%)
+	Degree 1e4: 	228 (0.02%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0023 avg s, 9.94622 gflops, 99.485 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx,80,4284,1096894,11284032,0.290433,9.946218,129.151844,0.538990,0.001781,0.001795
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx, Ordering...done.
+	 num_rows: 217918
+	 num_cols: 217918
+	 num_nonzeros: 11634424
+	 row_length_mean: 53.38900
+	 row_length_std_dev: 4.74390
+	 row_length_variation: 0.08886
+	 row_length_skewness: -1.72447
+CSR matrix (217918 rows, 217918 columns, 11634424 non-zeros, max-length 180):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	204 (0.09%)
+	Degree 1e1: 	217708 (99.90%)
+	Degree 1e2: 	6 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0007 avg s, 33.85903 gflops, 342.395 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx,80,217918,217918,11634424,0.087965,33.859028,133.976711,0.596758,0.001527,0.001180
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx, Ordering...done.
+	 num_rows: 63838
+	 num_cols: 63838
+	 num_nonzeros: 14148858
+	 row_length_mean: 221.63692
+	 row_length_std_dev: 95.87570
+	 row_length_variation: 0.43258
+	 row_length_skewness: 2.85133
+CSR matrix (63838 rows, 63838 columns, 14148858 non-zeros, max-length 3423):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	2610 (4.09%)
+	Degree 1e2: 	61224 (95.91%)
+	Degree 1e3: 	4 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0012 avg s, 24.39296 gflops, 244.590 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx,80,63838,63838,14148858,0.148490,24.392958,162.164356,0.736616,0.001797,0.001535
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx, Ordering...done.
+	 num_rows: 185639
+	 num_cols: 185639
+	 num_nonzeros: 15011265
+	 row_length_mean: 80.86267
+	 row_length_std_dev: 126.97186
+	 row_length_variation: 1.57022
+	 row_length_skewness: 2.57422
+CSR matrix (185639 rows, 185639 columns, 15011265 non-zeros, max-length 662):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	161149 (86.81%)
+	Degree 1e2: 	24490 (13.19%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0013 avg s, 22.68231 gflops, 228.506 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx,80,185639,185639,15011265,0.169422,22.682315,172.498455,0.826444,0.001948,0.001724
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx, Ordering...done.
+	 num_rows: 38120
+	 num_cols: 38120
+	 num_nonzeros: 16171169
+	 row_length_mean: 424.21744
+	 row_length_std_dev: 484.23750
+	 row_length_variation: 1.14148
+	 row_length_skewness: 0.28726
+CSR matrix (38120 rows, 38120 columns, 16171169 non-zeros, max-length 983):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	21152 (55.49%)
+	Degree 1e1: 	618 (1.62%)
+	Degree 1e2: 	16350 (42.89%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0014 avg s, 22.97425 gflops, 230.067 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx,80,38120,38120,16171169,0.180194,22.974246,185.209763,0.818046,0.002098,0.001679
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx, Ordering...done.
+	 num_rows: 1382908
+	 num_cols: 1382908
+	 num_nonzeros: 16917053
+	 row_length_mean: 12.23296
+	 row_length_std_dev: 37.23001
+	 row_length_variation: 3.04342
+	 row_length_skewness: 23.67409
+CSR matrix (1382908 rows, 1382908 columns, 16917053 non-zeros, max-length 7753):
+	Degree 1e-1: 	282306 (20.41%)
+	Degree 1e0: 	658146 (47.59%)
+	Degree 1e1: 	424227 (30.68%)
+	Degree 1e2: 	18189 (1.32%)
+	Degree 1e3: 	40 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0019 avg s, 17.73939 gflops, 186.095 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx,80,1382908,1382908,16917053,0.244133,17.739390,198.875687,0.868619,0.002644,0.002293
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx, Ordering...done.
+	 num_rows: 268096
+	 num_cols: 268096
+	 num_nonzeros: 18488476
+	 row_length_mean: 68.96215
+	 row_length_std_dev: 105.38755
+	 row_length_variation: 1.52819
+	 row_length_skewness: 2.90932
+CSR matrix (268096 rows, 268096 columns, 18488476 non-zeros, max-length 702):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	240943 (89.87%)
+	Degree 1e2: 	27153 (10.13%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0019 avg s, 19.44096 gflops, 196.101 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx,80,268096,268096,18488476,0.243458,19.440962,212.606525,1.002995,0.002500,0.002266
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx, Ordering...done.
+	 num_rows: 862664
+	 num_cols: 862664
+	 num_nonzeros: 19235140
+	 row_length_mean: 22.29737
+	 row_length_std_dev: 29.33341
+	 row_length_variation: 1.31555
+	 row_length_skewness: 26.37988
+CSR matrix (862664 rows, 862664 columns, 19235140 non-zeros, max-length 6985):
+	Degree 1e-1: 	71675 (8.31%)
+	Degree 1e0: 	217568 (25.22%)
+	Degree 1e1: 	563147 (65.28%)
+	Degree 1e2: 	10261 (1.19%)
+	Degree 1e3: 	13 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0023 avg s, 16.47535 gflops, 169.187 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx,80,862664,862664,19235140,0.298883,16.475348,223.419514,0.974490,0.002826,0.002614
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx, Ordering...done.
+	 num_rows: 1634989
+	 num_cols: 1634989
+	 num_nonzeros: 19753078
+	 row_length_mean: 12.08147
+	 row_length_std_dev: 31.07498
+	 row_length_variation: 2.57212
+	 row_length_skewness: 19.91539
+CSR matrix (1634989 rows, 1634989 columns, 19753078 non-zeros, max-length 4970):
+	Degree 1e-1: 	72556 (4.44%)
+	Degree 1e0: 	1031212 (63.07%)
+	Degree 1e1: 	509651 (31.17%)
+	Degree 1e2: 	21466 (1.31%)
+	Degree 1e3: 	104 (0.01%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0049 avg s, 8.06799 gflops, 84.687 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx,80,1634989,1634989,19753078,0.626772,8.067989,232.293030,1.017449,0.004619,0.005134
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx, Ordering...done.
+	 num_rows: 952203
+	 num_cols: 952203
+	 num_nonzeros: 46522475
+	 row_length_mean: 48.85773
+	 row_length_std_dev: 11.94657
+	 row_length_variation: 0.24452
+	 row_length_skewness: 0.02027
+CSR matrix (952203 rows, 952203 columns, 46522475 non-zeros, max-length 77):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	952203 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0063 avg s, 14.79631 gflops, 149.780 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx,80,952203,952203,46522475,0.804914,14.796307,536.039845,2.480071,0.006682,0.006549
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx, Ordering...done.
+	 num_rows: 5558326
+	 num_cols: 5558326
+	 num_nonzeros: 59524291
+	 row_length_mean: 10.70903
+	 row_length_std_dev: 1356.61627
+	 row_length_variation: 126.67964
+	 row_length_skewness: 868.02862
+CSR matrix (5558326 rows, 5558326 columns, 59524291 non-zeros, max-length 1290501):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	5205090 (93.64%)
+	Degree 1e1: 	325350 (5.85%)
+	Degree 1e2: 	20298 (0.37%)
+	Degree 1e3: 	7568 (0.14%)
+	Degree 1e4: 	0 (0.00%)
+	Degree 1e5: 	14 (0.00%)
+	Degree 1e6: 	6 (0.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0109 avg s, 10.88720 gflops, 114.972 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx,80,5558326,5558326,59524291,1.399645,10.887204,702.404785,3.140869,0.011636,0.011045
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+Reading... Parsing... (symmetric: 1, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx, Ordering...done.
+	 num_rows: 986703
+	 num_cols: 986703
+	 num_nonzeros: 71666325
+	 row_length_mean: 72.63211
+	 row_length_std_dev: 15.81043
+	 row_length_variation: 0.21768
+	 row_length_skewness: -1.83825
+CSR matrix (986703 rows, 986703 columns, 71666325 non-zeros, max-length 81):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	0 (0.00%)
+	Degree 1e1: 	986703 (100.00%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0093 avg s, 15.38560 gflops, 155.127 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx,80,986703,986703,71666325,1.192451,15.385601,823.919979,3.982438,0.010109,0.009862
+
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+Reading... Parsing... (symmetric: 0, skew: 0, array: 0) done. /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx, Ordering...done.
+	 num_rows: 5154859
+	 num_cols: 5154859
+	 num_nonzeros: 99199551
+	 row_length_mean: 19.24389
+	 row_length_std_dev: 5.73672
+	 row_length_variation: 0.29811
+	 row_length_skewness: 0.45659
+CSR matrix (5154859 rows, 5154859 columns, 99199551 non-zeros, max-length 47):
+	Degree 1e-1: 	0 (0.00%)
+	Degree 1e0: 	125956 (2.44%)
+	Degree 1e1: 	5028903 (97.56%)
+Merge CsrMV, 	Using 80 threads on 160 procs
+	PASS
+J_estimated = 0.000000	W_avg = 0.000000
+fp64: 0.0000 setup ms, 0.0170 avg s, 11.67034 gflops, 120.342 effective GB/s
+/various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx,80,5154859,5154859,99199551,2.176036,11.670342,1154.912998,5.193733,0.017649,0.017143

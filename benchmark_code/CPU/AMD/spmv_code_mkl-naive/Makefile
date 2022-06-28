@@ -54,7 +54,7 @@ CFLAGS += -I'$(MKL_PATH)/include'
 
 # LDFLAGS += -L/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/lib/intel64 -L/home/users/nikela/local/papi/lib -L/opt/intel/oneapi/mkl/latest/lib/intel64
 LDFLAGS += -L'$(MKL_PATH)/lib/intel64'
-LDFLAGS += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi
+LDFLAGS += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl #-lpapi
 
 CFLAGS += -fopenmp
 CFLAGS += -Wno-deprecated-declarations

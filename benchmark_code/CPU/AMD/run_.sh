@@ -66,8 +66,9 @@ matrices_validation=(
 bench()
 {
     declare args=("$@")
-    declare prog="${args[0]}"
-    declare prog_args=("${args[@]:1}")
+    declare iter="${args[0]}"
+    declare prog="${args[1]}"
+    declare prog_args=("${args[@]:2}")
     declare t
 
     for t in $cores
@@ -77,10 +78,11 @@ bench()
 
         if [ $prog = "./spmv_code_merge/spmv_merge.exe" ]; then
             if ((!use_artificial_matrices)); then
-                "$prog" --mtx="${prog_args[@]}"
+                "$prog" --mtx="${prog_args[@]}" 2>>xeon-gold_validation_matrices_merge_iter_${iter}_t${t}_d.csv
             else
                 prog_args2="${prog_args[@]}"  # need to replace the original prog_args  spaces with \(space), in order to be read as a string between " " for --artif_args argument to work! (shit...)
-                "$prog" --param="${prog_args2[@]}"
+                # "$prog" --param="${prog_args2[@]}" 2>>xeon-gold_synthetic_merge_iter_${iter}_t${t}_d.csv
+                "$prog" --param="${prog_args2[@]}" 2>>xeon-gold_friends_10_samples_30_range_merge_iter_${iter}_t${t}_d.csv
             fi
         else
             "$prog" "${prog_args[@]}"
@@ -107,25 +109,27 @@ fi
 
 echo "number of matrices: ${#prog_args[@]}"
 
-for p in "${progs[@]}"; do
-    # declare base file_out file_err
-    # base="${p/*\//}"
-    # base="${base%%.*}"
-    # file_out="out_${base}.out"
-    # file_err="out_${base}.err"
-    # > "$file_out"
-    # > "$file_err"
-    # exec 1>>"$file_out"
-    # exec 2>>"$file_err"
-    echo "program: $p"
-    for a in "${prog_args[@]}"
-    do
-        if ((use_artificial_matrices)); then
-            echo "Matrix: $a"
-            bench $p $a
-        else
-            echo "File: $a"
-            bench $p "$a"
-        fi
+for i in 1 2 3 4 5; do
+    for p in "${progs[@]}"; do
+        # declare base file_out file_err
+        # base="${p/*\//}"
+        # base="${base%%.*}"
+        # file_out="out_${base}.out"
+        # file_err="out_${base}.err"
+        # > "$file_out"
+        # > "$file_err"
+        # exec 1>>"$file_out"
+        # exec 2>>"$file_err"
+        echo "program: $p"
+        for a in "${prog_args[@]}"
+        do
+            if ((use_artificial_matrices)); then
+                echo "Matrix: $a"
+                bench $i $p $a
+            else
+                echo "File: $a"
+                bench $i $p "$a"
+            fi
+        done
     done
 done
