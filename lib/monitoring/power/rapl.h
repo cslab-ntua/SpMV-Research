@@ -1,5 +1,7 @@
-#include <stdlib.h>
-#include <stdio.h>
+#ifndef RAPL_H
+#define RAPL_H
+
+#include "macros/cpp_defines.h"
 
 
 /* Power Capping Framework - RAPL
@@ -18,7 +20,6 @@
  *     name (ro)
  *         Name of this power zone.
 */
-
 
 struct RAPL_Register {
 	int fd;
@@ -41,4 +42,7 @@ void rapl_close(struct RAPL_Register * regs, long n);
 
 void rapl_read_start(struct RAPL_Register * regs, long n);
 void rapl_read_end(struct RAPL_Register * regs, long n);
+
+
+#endif /* RAPL_H */
 

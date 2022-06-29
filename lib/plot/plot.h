@@ -2,21 +2,11 @@
 #define PLOT_H
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <stdint.h>
-#include <complex.h>
-#ifdef __cplusplus
-	#define complex  _Complex
-#endif
-#include <math.h>
 
-#include "debug.h"
-#include "io.h"
-#include "parallel_io.h"
-#include "plot/ppm.h"
+#include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
 #include "genlib.h"
-#include "matrix_metrics.h"
 
 
 /*
@@ -166,7 +156,7 @@ do {                                                                            
 do {                                                                                  \
 	struct Figure * _fig;                                                         \
 	__attribute__((unused)) struct Figure_Series * _s;                            \
-	_fig = malloc(sizeof(*_fig));                                                 \
+	_fig = (typeof(_fig)) malloc(sizeof(*_fig));                                  \
 	figure_init(_fig, x_num_pixels, y_num_pixels);                                \
 	_s = _figure_simple_plot_add_series(_fig, UNPACK(series_args));               \
 	__VA_ARGS__                                                                   \

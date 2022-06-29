@@ -27,347 +27,191 @@ void compute_csr(CSRArrays * csr, ValueType * x , ValueType * y)
 	#endif
 }
 
-
-//==========================================================================================================================================
-//= CSR Custom
-//==========================================================================================================================================
-
-
 void compute_csr_custom(CSRArrays * csr, ValueType * x , ValueType * y)
 {
-	#pragma omp parallel
-	{
-		int tnum = omp_get_thread_num();
-		ValueType sum;
-		long i, i_s, i_e, j, j_s, j_e;
-		i_s = thread_i_s[tnum];
-		i_e = thread_i_e[tnum];
+	#if !defined(CUSTOM_VECTOR)
 
-		#ifdef TIME_BARRIER
-		double time;
-		time = time_it(1,
-		#endif
+		// #if defined(NAIVE) || defined(PROC_BENCH)
 
+		// #pragma omp parallel
+		// {
+			// ValueType sum;
+			// long i, j;
+			// PRAGMA(omp for schedule(static))
+			// for (i=0;i<csr->m;i++)
+			// {
+				// sum = 0;
+				// for (j=csr->ia[i];j<csr->ia[i+1];j++)
+					// sum += csr->a[j] * x[csr->ja[j]];
+				// y[i] = sum;
+			// }
+		// }
+
+		// #else
+
+		#pragma omp parallel
+		{
+			int tnum = omp_get_thread_num();
+			ValueType sum;
+			long i, i_s, i_e, j, j_s, j_e;
+			i_s = thread_i_s[tnum];
+			i_e = thread_i_e[tnum];
+
+			#ifdef TIME_BARRIER
+			double time;
+			time = time_it(1,
+			#endif
+
+				for (i=i_s;i<i_e;i++)
+				{
+					j_s = csr->ia[i];
+					j_e = csr->ia[i+1];
+					if (j_s == j_e)
+						continue;
+					sum = 0;
+					for (j=j_s;j<j_e;j++)
+						sum += csr->a[j] * x[csr->ja[j]];
+					y[i] = sum;
+				}
+
+			#ifdef TIME_BARRIER
+			);
+			thread_time_compute[tnum] += time;
+			time = time_it(1,
+				_Pragma("omp barrier")
+			);
+			thread_time_barrier[tnum] += time;
+			#endif
+		}
+
+		// #endif
+
+	#else
+
+		// #pragma omp parallel
+		// {
+			// int tnum = omp_get_thread_num();
+			// long i, i_s, i_e, j, j_s, j_e, k, j_vector;
+			// const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
+			// Vector_Value_t zero = {0};
+			// __attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+			// __attribute__((unused)) ValueType sum = 0;
+			// i_s = thread_i_s[tnum];
+			// i_e = thread_i_e[tnum];
+			// for (i=i_s;i<i_e;i++)
+			// {
+				// v_sum = zero;
+				// y[i] = 0;
+				// j_s = csr->ia[i];
+				// j_e = csr->ia[i+1];
+				// if (j_s == j_e)
+					// continue;
+				// v_a = *(Vector_Value_t *) &csr->a[0];
+				// j = j_s;
+				// j_vector = j_s + ((j_e - j_s) & mask);
+				// for (j=j_s;j<j_vector;j+=VECTOR_ELEM_NUM)
+				// {
+					// v_a = *(Vector_Value_t *) &csr->a[j];
+					// PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+					// PRAGMA(GCC ivdep)
+					// for (k=0;k<VECTOR_ELEM_NUM;k++)
+					// {
+						// v_mul[k] = v_a[k] * x[csr->ja[j+k]];
+					// }
+					// v_sum += v_mul;
+				// }
+				// for (;j<j_e;j++)
+					// v_sum[0] += csr->a[j] * x[csr->ja[j]];
+				// PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+				// for (j=1;j<VECTOR_ELEM_NUM;j++)
+					// v_sum[0] += v_sum[j];
+				// y[i] = v_sum[0];
+			// }
+		// }
+
+		#pragma omp parallel
+		{
+			int tnum = omp_get_thread_num();
+			long i, i_s, i_e, j, j_s, j_e, k, j_vector;
+			const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
+			Vector_Value_t zero = {0};
+			__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+			__attribute__((unused)) ValueType sum = 0;
+			i_s = thread_i_s[tnum];
+			i_e = thread_i_e[tnum];
 			for (i=i_s;i<i_e;i++)
 			{
+				v_sum = zero;
+				y[i] = 0;
 				j_s = csr->ia[i];
 				j_e = csr->ia[i+1];
 				if (j_s == j_e)
 					continue;
+				v_a = *(Vector_Value_t *) &csr->a[0];
+				j = j_s;
+				j_vector = j_s + ((j_e - j_s) & mask);
+				for (j=j_s;j<j_vector;j+=VECTOR_ELEM_NUM)
+				{
+					v_a = *(Vector_Value_t *) &csr->a[j];
+					PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+					PRAGMA(GCC ivdep)
+					for (k=0;k<VECTOR_ELEM_NUM;k++)
+					{
+						v_mul[k] = v_a[k] * x[csr->ja[j+k]];
+					}
+					v_sum += v_mul;
+				}
 				sum = 0;
-				for (j=j_s;j<j_e;j++)
+				for (;j<j_e;j++)
 					sum += csr->a[j] * x[csr->ja[j]];
+				PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+				for (j=0;j<VECTOR_ELEM_NUM;j++)
+					sum += v_sum[j];
 				y[i] = sum;
 			}
-
-		#ifdef TIME_BARRIER
-		);
-		thread_time_compute[tnum] += time;
-		time = time_it(1,
-			_Pragma("omp barrier")
-		);
-		thread_time_barrier[tnum] += time;
-		#endif
-	}
-}
-
-
-//==========================================================================================================================================
-//= CSR Custom Vector
-//==========================================================================================================================================
-
-
-void compute_csr_custom_vector(CSRArrays * csr, ValueType * x , ValueType * y)
-{
-
-	// #pragma omp parallel
-	// {
-		// int tnum = omp_get_thread_num();
-		// long i, i_s, i_e, j, j_s, j_e, k, j_vector;
-		// const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-		// Vector4_Value_t zero = {0};
-		// __attribute__((unused)) Vector4_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
-		// __attribute__((unused)) ValueType sum = 0;
-		// i_s = thread_i_s[tnum];
-		// i_e = thread_i_e[tnum];
-		// for (i=i_s;i<i_e;i++)
-		// {
-			// v_sum = zero;
-			// y[i] = 0;
-			// j_s = csr->ia[i];
-			// j_e = csr->ia[i+1];
-			// if (j_s == j_e)
-				// continue;
-			// v_a = *(Vector4_Value_t *) &csr->a[0];
-			// j = j_s;
-			// j_vector = j_s + ((j_e - j_s) & mask);
-			// for (j=j_s;j<j_vector;j+=VECTOR_ELEM_NUM)
-			// {
-				// v_a = *(Vector4_Value_t *) &csr->a[j];
-				// PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-				// PRAGMA(GCC ivdep)
-				// for (k=0;k<VECTOR_ELEM_NUM;k++)
-				// {
-					// v_mul[k] = v_a[k] * x[csr->ja[j+k]];
-				// }
-				// v_sum += v_mul;
-			// }
-			// for (;j<j_e;j++)
-				// v_sum[0] += csr->a[j] * x[csr->ja[j]];
-			// PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-			// for (j=1;j<VECTOR_ELEM_NUM;j++)
-				// v_sum[0] += v_sum[j];
-			// y[i] = v_sum[0];
-		// }
-	// }
-
-	#pragma omp parallel
-	{
-		int tnum = omp_get_thread_num();
-		long i, i_s, i_e, j, j_s, j_e, k, j_vector;
-		const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-		Vector4_Value_t zero = {0};
-		__attribute__((unused)) Vector4_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
-		__attribute__((unused)) ValueType sum = 0;
-		i_s = thread_i_s[tnum];
-		i_e = thread_i_e[tnum];
-		for (i=i_s;i<i_e;i++)
-		{
-			v_sum = zero;
-			y[i] = 0;
-			j_s = csr->ia[i];
-			j_e = csr->ia[i+1];
-			if (j_s == j_e)
-				continue;
-			v_a = *(Vector4_Value_t *) &csr->a[0];
-			j = j_s;
-			j_vector = j_s + ((j_e - j_s) & mask);
-			for (j=j_s;j<j_vector;j+=VECTOR_ELEM_NUM)
-			{
-				v_a = *(Vector4_Value_t *) &csr->a[j];
-				PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-				PRAGMA(GCC ivdep)
-				for (k=0;k<VECTOR_ELEM_NUM;k++)
-				{
-					v_mul[k] = v_a[k] * x[csr->ja[j+k]];
-				}
-				v_sum += v_mul;
-			}
-			sum = 0;
-			for (;j<j_e;j++)
-				sum += csr->a[j] * x[csr->ja[j]];
-			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-			for (j=0;j<VECTOR_ELEM_NUM;j++)
-				sum += v_sum[j];
-			y[i] = sum;
 		}
-	}
-
-}
-
-
-//==========================================================================================================================================
-//= CSR Custom Perfect NNZ Balance
-//==========================================================================================================================================
-
-
-static inline
-double
-compute_csr_custom_8(CSRArrays * csr, ValueType * x, MKL_INT j)
-{
-	Vector4_Value_t * v_a = (Vector4_Value_t *) &csr->a[j];
-	MKL_INT * ja = &csr->ja[j];
-	Vector4_Value_t v_x1, v_x2;
-	Vector4_Value_t v_sum;
-	Vector4_Value_t tmp1, tmp2;
-	v_x1[0] = x[ja[0]];
-	v_x1[1] = x[ja[1]];
-	v_x1[2] = x[ja[2]];
-	v_x1[3] = x[ja[3]];
-	tmp1 = v_a[0] * v_x1;
-	v_x2[0] = x[ja[4]];
-	v_x2[1] = x[ja[5]];
-	v_x2[2] = x[ja[6]];
-	v_x2[3] = x[ja[7]];
-	tmp2 = v_a[1] * v_x2;
-	v_sum = tmp1 + tmp2;
-	return v_sum[0] + v_sum[1] + v_sum[2] + v_sum[3];
-}
-
-
-static inline
-double
-compute_csr_custom_7(CSRArrays * csr, ValueType * x, MKL_INT j)
-{
-	ValueType * a = &csr->a[j];
-	MKL_INT * ja = &csr->ja[j];
-	return a[0]*x[ja[0]] + a[1]*x[ja[1]] + a[2]*x[ja[2]] + a[3]*x[ja[3]] + a[4]*x[ja[4]] + a[5]*x[ja[5]] + a[6]*x[ja[6]];
-}
-
-static inline
-double
-compute_csr_custom_6(CSRArrays * csr, ValueType * x, MKL_INT j)
-{
-	ValueType * a = &csr->a[j];
-	MKL_INT * ja = &csr->ja[j];
-	return a[0]*x[ja[0]] + a[1]*x[ja[1]] + a[2]*x[ja[2]] + a[3]*x[ja[3]] + a[4]*x[ja[4]] + a[5]*x[ja[5]];
-}
-
-static inline
-double
-compute_csr_custom_5(CSRArrays * csr, ValueType * x, MKL_INT j)
-{
-	ValueType * a = &csr->a[j];
-	MKL_INT * ja = &csr->ja[j];
-	return a[0]*x[ja[0]] + a[1]*x[ja[1]] + a[2]*x[ja[2]] + a[3]*x[ja[3]] + a[4]*x[ja[4]];
-}
-
-static inline
-double
-compute_csr_custom_4(CSRArrays * csr, ValueType * x, MKL_INT j)
-{
-	ValueType * a = &csr->a[j];
-	MKL_INT * ja = &csr->ja[j];
-	return a[0]*x[ja[0]] + a[1]*x[ja[1]] + a[2]*x[ja[2]] + a[3]*x[ja[3]];
-}
-
-static inline
-double
-compute_csr_custom_3(CSRArrays * csr, ValueType * x, MKL_INT j)
-{
-	ValueType * a = &csr->a[j];
-	MKL_INT * ja = &csr->ja[j];
-	return a[0]*x[ja[0]] + a[1]*x[ja[1]] + a[2]*x[ja[2]];
-}
-
-static inline
-double
-compute_csr_custom_2(CSRArrays * csr, ValueType * x, MKL_INT j)
-{
-	ValueType * a = &csr->a[j];
-	MKL_INT * ja = &csr->ja[j];
-	return a[0]*x[ja[0]] + a[1]*x[ja[1]];
-}
-
-static inline
-double
-compute_csr_custom_1(CSRArrays * csr, ValueType * x, MKL_INT j)
-{
-	ValueType * a = &csr->a[j];
-	MKL_INT * ja = &csr->ja[j];
-	return a[0]*x[ja[0]];
-}
-
-static inline
-double
-compute_csr_custom_perfect_nnz_balance_line(CSRArrays * csr, ValueType * x, MKL_INT j_s, MKL_INT j_e)
-{
-	__label__ CASE0_LABEL, CASE1_LABEL, CASE2_LABEL, CASE3_LABEL, CASE4_LABEL, CASE5_LABEL, CASE6_LABEL, CASE7_LABEL, CASE8_LABEL;
-	ValueType sum;
-	long j, num_rows;
-
-	#if 0
-
-		sum = 0;
-		for (j=j_s;j<j_e;j++)
-			sum += csr->a[j] * x[csr->ja[j]];
-		return sum;
-
-	#else
-
-	void *jump_table[9] = {
-		[0] = &&CASE0_LABEL,
-		[1] = &&CASE1_LABEL,
-		[2] = &&CASE2_LABEL,
-		[3] = &&CASE3_LABEL,
-		[4] = &&CASE4_LABEL,
-		[5] = &&CASE5_LABEL,
-		[6] = &&CASE6_LABEL,
-		[7] = &&CASE7_LABEL,
-		[8] = &&CASE8_LABEL,
-	};
-
-	num_rows = j_e - j_s;
-	if (__builtin_expect((num_rows > 8),0))
-	{
-		sum = 0;
-		for (j=j_s;j<j_e;j++)
-			sum += csr->a[j] * x[csr->ja[j]];
-		return sum;
-	}
-
-	goto *jump_table[num_rows];
-
-CASE0_LABEL: return 0;
-CASE1_LABEL: return compute_csr_custom_1(csr, x, j_s);
-CASE2_LABEL: return compute_csr_custom_2(csr, x, j_s);
-CASE3_LABEL: return compute_csr_custom_3(csr, x, j_s);
-CASE4_LABEL: return compute_csr_custom_4(csr, x, j_s);
-CASE5_LABEL: return compute_csr_custom_5(csr, x, j_s);
-CASE6_LABEL: return compute_csr_custom_6(csr, x, j_s);
-CASE7_LABEL: return compute_csr_custom_7(csr, x, j_s);
-CASE8_LABEL: return compute_csr_custom_8(csr, x, j_s);
-
-	// switch (num_rows) {
-		// case 0: return 0;
-		// case 1: return compute_csr_custom_1(csr, x, j_s);
-		// case 2: return compute_csr_custom_2(csr, x, j_s);
-		// case 3: return compute_csr_custom_3(csr, x, j_s);
-		// case 4: return compute_csr_custom_4(csr, x, j_s);
-		// case 5: return compute_csr_custom_5(csr, x, j_s);
-		// case 6: return compute_csr_custom_6(csr, x, j_s);
-		// case 7: return compute_csr_custom_7(csr, x, j_s);
-		// case 8: return compute_csr_custom_8(csr, x, j_s);
-	// }
-
-	// error("csr line");
-	return 0;
 
 	#endif
 }
 
 
 static inline
-double
-compute_csr_custom_perfect_nnz_balance_line_vector(CSRArrays * csr, ValueType * x, MKL_INT j_s, MKL_INT j_e)
+double compute_csr_custom_perfect_nnz_balance_line(CSRArrays * csr, ValueType * x, MKL_INT i, MKL_INT j_s, MKL_INT j_e)
 {
-	long j, k, j_rem, rows;
-	Vector4_Value_t zero = {0};
-	__attribute__((unused)) Vector4_Value_t v_a, v_x, v_mul, v_sum;
+	long j, k, j_vector;
+	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
 	ValueType sum = 0;
 
-	rows = j_e - j_s;
-	if (rows <= 0)
+	v_sum = zero;
+	if (j_s == j_e)
 		return 0;
-	sum = 0;
-	j_rem = j_s + rows % VECTOR_ELEM_NUM;
-	for (j=j_s;j<j_rem;j++)
-		sum += csr->a[j] * x[csr->ja[j]];
-	if (rows >= VECTOR_ELEM_NUM)
+	v_a = *(Vector_Value_t *) &csr->a[0];
+	j = j_s;
+	j_vector = j_s + ((j_e - j_s) & mask);
+	for (j=j_s;j<j_vector;j+=VECTOR_ELEM_NUM)
 	{
-		v_sum = zero;
-		v_mul = zero;
-		for (j=j_rem;j<j_e;j+=VECTOR_ELEM_NUM)
-		{
-			v_a = *(Vector4_Value_t *) &csr->a[j];
-			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-			PRAGMA(GCC ivdep)
-			for (k=0;k<VECTOR_ELEM_NUM;k++)
-			{
-				v_mul[k] = v_a[k] * x[csr->ja[j+k]];
-			}
-			v_sum += v_mul;
-		}
+		v_a = *(Vector_Value_t *) &csr->a[j];
 		PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-		for (j=0;j<VECTOR_ELEM_NUM;j++)
-			sum += v_sum[j];
+		PRAGMA(GCC ivdep)
+		for (k=0;k<VECTOR_ELEM_NUM;k++)
+		{
+			v_mul[k] = v_a[k] * x[csr->ja[j+k]];
+		}
+		v_sum += v_mul;
 	}
+	sum = 0;
+	for (;j<j_e;j++)
+		sum += csr->a[j] * x[csr->ja[j]];
+	PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+	for (j=0;j<VECTOR_ELEM_NUM;j++)
+		sum += v_sum[j];
 	return sum;
 }
 
 
-void
-compute_csr_custom_perfect_nnz_balance(CSRArrays * csr, ValueType * x , ValueType * y)
+void compute_csr_custom_perfect_nnz_balance(CSRArrays * csr, ValueType * x , ValueType * y)
 {
 	int num_threads = omp_get_max_threads();
 	long t;
@@ -392,15 +236,14 @@ compute_csr_custom_perfect_nnz_balance(CSRArrays * csr, ValueType * x , ValueTyp
 		if (j_s < j_e)
 		{
 			// printf("%d, %ld, %ld\n", tnum, j_s, j_e);
-			thread_v_s[tnum] = compute_csr_custom_perfect_nnz_balance_line(csr, x, j_s, j_e);
+			thread_v_s[tnum] = compute_csr_custom_perfect_nnz_balance_line(csr, x, i, j_s, j_e);
 		}
 
-		PRAGMA(GCC ivdep)
 		for (i=i_s+1;i<i_e-1;i++)
 		{
 			j_s = csr->ia[i];
 			j_e = csr->ia[i+1];
-			y[i] = compute_csr_custom_perfect_nnz_balance_line(csr, x, j_s, j_e);
+			y[i] = compute_csr_custom_perfect_nnz_balance_line(csr, x, i, j_s, j_e);
 		}
 
 		i = i_e-1;
@@ -413,7 +256,7 @@ compute_csr_custom_perfect_nnz_balance(CSRArrays * csr, ValueType * x , ValueTyp
 			y[i] = 0;
 			if (j_s < j_e)
 			{
-				thread_v_e[tnum] = compute_csr_custom_perfect_nnz_balance_line(csr, x, j_s, j_e);
+				thread_v_e[tnum] = compute_csr_custom_perfect_nnz_balance_line(csr, x, i, j_s, j_e);
 			}
 		}
 	}
@@ -637,8 +480,8 @@ void compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, i_vector, j, j_s, j_e, k;
 	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector4_Value_t zero = {0};
-	__attribute__((unused)) Vector4_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
 	i_vector = ell->m & mask;
 	for (i=0;i<i_vector;i+=VECTOR_ELEM_NUM)
@@ -667,7 +510,7 @@ void compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 			// v_sum += v_a * v_x;
 
 		}
-		*((Vector4_Value_t *)&y[i]) = v_sum;
+		*((Vector_Value_t *)&y[i]) = v_sum;
 	}
 	for (i=i_vector;i<ell->m;i++)
 	{
@@ -685,8 +528,8 @@ void compute_ell_v_hor(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, j, j_s, j_e, k, j_vector_width, j_vector;
 	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector4_Value_t zero = {0};
-	__attribute__((unused)) Vector4_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
 	j_vector_width = ell->width & mask;
 	for (i=0;i<ell->m;i++)
@@ -697,7 +540,7 @@ void compute_ell_v_hor(ELLArrays * ell, ValueType * x , ValueType * y)
 		j_vector = j_s + j_vector_width;
 		for (j=j_s;j<j_vector;j+=VECTOR_ELEM_NUM)
 		{
-			v_a = *(Vector4_Value_t *) &ell->a[j];
+			v_a = *(Vector_Value_t *) &ell->a[j];
 			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
 			PRAGMA(GCC ivdep)
 			for (k=0;k<VECTOR_ELEM_NUM;k++)
@@ -720,8 +563,8 @@ void compute_ell_v_hor_split(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, j, j_s, j_e, k, j_vector_width, j_vector;
 	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector4_Value_t zero = {0};
-	__attribute__((unused)) Vector4_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
 	j_vector_width = ell->width & mask;
 	for (i=0;i<ell->m;i++)
@@ -731,7 +574,7 @@ void compute_ell_v_hor_split(ELLArrays * ell, ValueType * x , ValueType * y)
 		j_vector = j_s + j_vector_width;
 		for (j=j_s;j<j_vector;j+=VECTOR_ELEM_NUM)
 		{
-			v_a = *(Vector4_Value_t *) &ell->a[j];
+			v_a = *(Vector_Value_t *) &ell->a[j];
 			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
 			PRAGMA(GCC ivdep)
 			for (k=0;k<VECTOR_ELEM_NUM;k++)
@@ -773,8 +616,8 @@ void compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, i_vector, j, j_s, j_e, k;
 	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector4_Value_t zero = {0};
-	__attribute__((unused)) Vector4_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
 	i_vector = ell->m & mask;
 	PRAGMA(GCC unroll VECTOR_ELEM_NUM)
@@ -795,7 +638,7 @@ void compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 			}
 			v_sum += v_mul;
 
-			// v_a = *(Vector4_Value_t *) &ell->a[j];
+			// v_a = *(Vector_Value_t *) &ell->a[j];
 			// PRAGMA(GCC unroll VECTOR_ELEM_NUM)
 			// PRAGMA(GCC ivdep)
 			// for (k=0;k<VECTOR_ELEM_NUM;k++)
@@ -805,7 +648,7 @@ void compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 			// v_sum += v_a * v_x;
 
 		}
-		*((Vector4_Value_t *)&y[i]) = v_sum;
+		*((Vector_Value_t *)&y[i]) = v_sum;
 	}
 	for (i=i_vector;i<ell->m;i++)
 	{

@@ -1,6 +1,7 @@
 #ifndef MACROLIB_H
 #define MACROLIB_H
 
+#include "macros/cpp_defines.h"
 #include "debug.h"
 
 

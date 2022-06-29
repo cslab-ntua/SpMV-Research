@@ -1,10 +1,16 @@
+#include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <unistd.h>
+#include <sys/stat.h>
 #include <pthread.h>
+#include <sstream>
 
 #include "util.h"
+
+#ifdef __cplusplus
+extern "C"{
+#endif
 
 #include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
@@ -13,6 +19,13 @@
 #include "pthread_functions.h"
 #include "matrix_util.h"
 
+#include "string_util.h"
+#include "parallel_io.h"
+#include "file_formats/openfoam/openfoam_matrix.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 // #define VERBOSE
 // #define PER_THREAD_STATS
@@ -58,6 +71,17 @@ ELLArrays ell;
 
 
 #include "spmv_kernels.h"
+
+
+int isDirectoryExists(const char *path)
+{
+    struct stat stats;
+    stat(path, &stats);
+    // Check for file existence
+    if (S_ISDIR(stats.st_mode))
+        return 1;
+    return 0;
+}
 
 
 void
@@ -107,6 +131,8 @@ spmv()
 	#elif defined(USE_CUSTOM_CSR)
 		#if defined(CUSTOM_VECTOR_PERFECT_NNZ_BALANCE)
 			compute_csr_custom_perfect_nnz_balance(&csr, x, y);
+		#elif defined(CUSTOM_VECTOR)
+			compute_csr_custom_vector(&csr, x, y);
 		#else
 			compute_csr_custom(&csr, x, y);
 		#endif
@@ -253,7 +279,7 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		printf("mkl optimize time = %g\n", time_balance);
 
 		// Even with the 'optimize' it doesn't seem to sort the columns.
-		#if 1
+		#if 0
 			for (i=0;i<csr.m;i++)
 			{
 				for (long j=csr.ia[i];j<csr.ia[i+1];j++)
@@ -264,11 +290,11 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 			}
 		#endif
 
-		_Pragma("omp parallel")
-		{
-			printf("max_threads=%d , num_threads=%d , tnum=%d\n", omp_get_max_threads(), omp_get_num_threads(), omp_get_thread_num());
-		}
-		printf("out\n");
+		// _Pragma("omp parallel")
+		// {
+			// printf("max_threads=%d , num_threads=%d , tnum=%d\n", omp_get_max_threads(), omp_get_num_threads(), omp_get_thread_num());
+		// }
+		// printf("out\n");
 
 		m = csr.m;
 		n = csr.n;
@@ -552,9 +578,10 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 	}
 	W_avg = J_estimated / time;
 
+	std::stringstream stream;
 	if (AM == NULL)
 	{
-		std::cerr
+		stream
 		#ifdef PROC_BENCH
 			<< "pnum_" << process_custom_id << "," << matrix_filename << "," << num_procs
 		#else
@@ -571,12 +598,13 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 			<< "," << gflops_per_t_avg << "," << gflops_per_t_std << "," << gflops_per_t_balance
 		#endif
 			<< "\n";
+		std::cerr << stream.str();
 
 		CheckAccuracy(&coo, x, y);
 	}
 	else
 	{
-		std::cerr << "synthetic" << "," << AM->distribution << "," << AM->placement << "," << AM->seed
+		stream << "synthetic" << "," << AM->distribution << "," << AM->placement << "," << AM->seed
 			<< "," << AM->nr_rows << "," << AM->nr_cols << "," << AM->nr_nzeros
 			<< "," << AM->density << "," << AM->mem_footprint << "," << AM->mem_range
 			<< "," << AM->avg_nnz_per_row << "," << AM->std_nnz_per_row
@@ -594,6 +622,7 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 			<< "," << gflops_per_t_avg << "," << gflops_per_t_std << "," << gflops_per_t_balance
 		#endif
 			<< "\n";
+		std::cerr << stream.str();
 	}
 
 	mkl_free(x);
@@ -676,7 +705,28 @@ child_proc_label:
 
 		file_in = argv[i++];
 		time = time_it(1,
-			create_coo_matrix(file_in, &coo);
+			if (isDirectoryExists(file_in))
+			{
+				int nnz_non_diag, N;
+				int * rowind, * colind;
+				read_openfoam_matrix_dir(file_in, &rowind, &colind, &N, &nnz_non_diag);
+				coo.m = N;
+				coo.n = N;
+				coo.nnz = N + nnz_non_diag;
+				coo.rowind = (MKL_INT *) mkl_malloc(coo.nnz * sizeof(MKL_INT), 64);
+				coo.colind = (MKL_INT *) mkl_malloc(coo.nnz * sizeof(MKL_INT), 64);
+				coo.val = (ValueType *) mkl_malloc(coo.nnz * sizeof(ValueType), 64);
+				for (i=0;i<coo.nnz;i++)
+				{
+					coo.rowind[i] = rowind[i];
+					coo.colind[i] = colind[i];
+					coo.val[i] = 1.0;
+				}
+				free(rowind);
+				free(colind);
+			}
+			else
+				create_coo_matrix(file_in, &coo);
 		);
 		printf("time read: %lf\n", time);
 		time = time_it(1,

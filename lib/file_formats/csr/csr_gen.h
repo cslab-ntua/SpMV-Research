@@ -6,11 +6,7 @@
 	#error "CSR_GEN_SUFFIX not defined"
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <omp.h>
-#include <math.h>
-
+#include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
 
 

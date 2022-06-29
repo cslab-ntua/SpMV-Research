@@ -3,19 +3,17 @@
 source config.sh
 echo
 
-# if [[ "$(whoami)" == 'xexdgala' ]]; then
-    # path_other='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/other'
-    # path_athena='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/matrices_athena'
-    # path_openFoam='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/openFoam'
-    # path_selected='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/selected_matrices'
-    # path_selected_sorted='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/selected_matrices_sorted'
-# else
-    # path_other='/home/jim/Data/graphs/other'
-    # path_athena='/home/jim/Data/graphs/matrices_athena'
-    # path_selected='/home/jim/Data/graphs/selected_matrices'
-    # path_openFoam='/home/jim/Data/graphs/matrices_openFoam'
-    # path_selected_sorted='/home/jim/Data/graphs/selected_matrices_sorted'
-# fi
+if [[ "$(whoami)" == 'xexdgala' ]]; then
+    path_other='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/other'
+    path_athena='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/matrices_athena'
+    path_selected='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/selected_matrices'
+    path_selected_sorted='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/selected_matrices_sorted'
+else
+    path_other='/home/jim/Data/graphs/other'
+    path_athena='/home/jim/Data/graphs/matrices_athena'
+    path_selected='/home/jim/Data/graphs/selected_matrices'
+    path_selected_sorted='/home/jim/Data/graphs/selected_matrices_sorted'
+fi
 
 
 if [[ $hyperthreading == 1 ]]; then
@@ -46,6 +44,8 @@ export LD_LIBRARY_PATH="${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
 # export OMP_DYNAMIC='false'
 
 matrices_openFoam=("$path_openFoam"/*.mtx)
+
+matrices_openFoam_own_neigh=( "$path_openFoam"/TestMatrices/*/*/* )
 
 matrices_validation=(
     "$path_validation"/scircuit.mtx
@@ -83,13 +83,19 @@ matrices_validation=(
 
 matrices_validation_loop=()
 for ((i=0;i<${#matrices_validation[@]};i++)); do
+    path="${matrices_validation[i]}"
+    dir="$(dirname "${path}")"
+    filename="$(basename "${path}")"
+    base="${filename%.*}"
+    ext="${filename#${filename%.*}}"
     n=128
     for ((j=0;j<n;j++)); do
-        matrices_validation_loop+=( "${matrices_validation_artificial_twins[i]}" )
+        matrices_validation_loop+=( "${matrices_validation_artificial_twins["$base"]}" )
     done
     matrices_validation_loop+=( "${matrices_validation[i]}" )
 done
-
+# printf "%s\n" "${matrices_validation_loop[@]}"
+# exit
 
 bench()
 {
@@ -134,17 +140,37 @@ matrices=(
 
     # "$path_openFoam"/100K.mtx
     # "$path_openFoam"/600K.mtx
+    # "$path_openFoam"/TestMatrices/HEXmats/5krows/processor0
+    # "${matrices_openFoam_own_neigh[@]}"
 
-    # "$path_validation"/shipsec1.mtx
-    # "$path_validation"/webbase-1M.mtx
+    # "$path_validation"/scircuit.mtx
+    # "$path_validation"/mac_econ_fwd500.mtx
+    # "$path_validation"/raefsky3.mtx
+    # "$path_validation"/bbmat.mtx
+    # "$path_validation"/conf5_4-8x8-15.mtx
+    # "$path_validation"/mc2depi.mtx
+    # "$path_validation"/rma10.mtx
+    # "$path_validation"/cop20k_A.mtx
+    "$path_validation"/webbase-1M.mtx
+    # "$path_validation"/cant.mtx
+    # "$path_validation"/pdb1HYS.mtx
+    # "$path_validation"/TSOPF_RS_b300_c3.mtx
     # "$path_validation"/Chebyshev4.mtx
+    # "$path_validation"/consph.mtx
+    # "$path_validation"/shipsec1.mtx
+    # "$path_validation"/PR02R.mtx
+    # "$path_validation"/mip1.mtx
+    # "$path_validation"/rail4284.mtx
+    # "$path_validation"/pwtk.mtx
+    # "$path_validation"/crankseg_2.mtx
+    # "$path_validation"/Si41Ge41H72.mtx
     # "$path_validation"/TSOPF_RS_b2383.mtx
     # "$path_validation"/in-2004.mtx
     # "$path_validation"/Ga41As41H72.mtx
+    # "$path_validation"/eu-2005.mtx
     # "$path_validation"/wikipedia-20051105.mtx
-    # "$path_validation"/rajat31.mtx
     # "$path_validation"/ldoor.mtx
-    "$path_validation"/circuit5M.mtx
+    # "$path_validation"/circuit5M.mtx
     # "$path_validation"/bone010.mtx
     # "$path_validation"/cage15.mtx
 
@@ -187,8 +213,6 @@ else
     done
 fi
 
-echo "number of matrices: ${#prog_args[@]}"
-
 # prog_args=(
 
     # '28508159 28508159 5 1.6667 normal random 0.05 0 0.05 0.05 14'              # This bugs at 128 threads with mkl and mkl_sparse_set_mv_hint() for some reason.
@@ -216,12 +240,15 @@ for tuple in "${progs[@]}"; do
     # exec 1>>"$file_out"
     # exec 2>>"$file_err"
 
-    # > "${format_name}.out"
-    # exec 1>>"${format_name}.out"
-    # > "${format_name}.err"
-    # exec 2>>"${format_name}.err"
+    if ((output_to_files)); then
+        > "${format_name}.out"
+        exec 1>>"${format_name}.out"
+        > "${format_name}.err"
+        exec 2>>"${format_name}.err"
+    fi
 
     echo "program: $p"
+    echo "number of matrices: ${#prog_args[@]}"
 
     rep=1
     # rep=5

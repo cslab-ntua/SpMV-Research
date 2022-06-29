@@ -1,3 +1,13 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <omp.h>
+
+#include "debug.h"
+#include "io.h"
+#include "macros/macrolib.h"
+#include "macros/constants.h"
+
 #include "vector_gen.h"
 
 
@@ -51,7 +61,7 @@ vector_init(struct Vector * v, long bytes)
 		v->capacity = v->page_size;
 	v->max_size = v->capacity / sizeof(*(v->data));
 	v->size = 0;
-	v->data = safe_mmap_annon(v->capacity);
+	v->data = (typeof(v->data)) safe_mmap_annon(v->capacity);
 }
 
 
@@ -60,7 +70,7 @@ vector_init(struct Vector * v, long bytes)
 struct Vector *
 vector_new(long bytes)
 {
-	struct Vector * v = malloc(sizeof(*v));
+	struct Vector * v = (typeof(v)) malloc(sizeof(*v));
 	vector_init(v, bytes);
 	return v;
 }
@@ -96,8 +106,8 @@ vector_resize_base(struct Vector * v, long new_capacity)
 	new_capacity = v->page_size * ((new_capacity + v->page_size - 1) / v->page_size);
 	if (new_capacity == 0)
 		new_capacity = v->page_size;
-	buf = safe_mmap_annon(new_capacity);
-	v->data = safe_mremap_fixed(v->data, v->capacity, new_capacity, buf);
+	buf = (typeof(buf)) safe_mmap_annon(new_capacity);
+	v->data = (typeof(v->data)) safe_mremap_fixed(v->data, v->capacity, new_capacity, buf);
 	v->capacity = new_capacity;
 }
 

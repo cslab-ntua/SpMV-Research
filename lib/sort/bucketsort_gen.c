@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "bucketsort_gen.h"
 // #include "parallel_util.h"
 
@@ -92,8 +95,11 @@ typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
  * scan:
  *     - It doesn't seem to affect performance (compared to reimplementing the add-reduction here).
  *     - To num_buckets+1, so that offsets[num_buckets] = N.
- *     - start_from_zero=0 (start from the first element), to sub 1 after and end up with usable offsets to return.
+ *     - start_from_zero=0 (start from the first element), to sub 1 for each element after and end up with usable offsets to return.
  */
+
+
+/* TODO: efficient bucketsort for unique only values */
 
 // #undef  bucketsort_unique_serial
 // #define bucketsort_unique_serial  BUCKETSORT_GEN_EXPAND(bucketsort_unique_serial)

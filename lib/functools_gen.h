@@ -4,12 +4,7 @@
 	#error "FUNCTOOLS_GEN_SUFFIX not defined"
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <omp.h>
-
-#include "parallel_util.h"
-
+#include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
 
 

@@ -1,13 +1,10 @@
 #ifndef PAPI_BENCH_FUNCTIONS_H
 #define PAPI_BENCH_FUNCTIONS_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <papi.h>
 
-#include "macros/macrolib.h"
-#include "debug.h"
+#include "macros/cpp_defines.h"
+#include "macros/constants.h"
 #include "papi_functions.h"
 
 

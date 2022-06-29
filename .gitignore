@@ -18,6 +18,7 @@ build*/
 *.err
 *Plot_tries/
 *cnpy/
+*.exe
 
 benchmark_code/CPU/AMD/*.csv
 benchmark_code/CPU/ARM/*.csv

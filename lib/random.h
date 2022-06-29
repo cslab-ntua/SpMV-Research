@@ -11,6 +11,8 @@
 #endif
 #include <math.h>
 
+#include "macros/cpp_defines.h"
+
 
 #define RANDOM_MAX  0x7FFFFFFFL
 

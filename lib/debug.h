@@ -15,6 +15,8 @@
 	#include <execinfo.h>   // backtrace(), backtrace_symbols()
 #endif
 
+#include "macros/cpp_defines.h"
+
 
 /*
  * pid_t gettid(void);

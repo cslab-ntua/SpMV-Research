@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <string.h>
 
+#include "macros/cpp_defines.h"
 #include "debug.h"
 #include "macros/macrolib.h"
 #include "omp_functions.h"
@@ -156,7 +157,10 @@ str_search_term_init(struct str_Search_Term * search_term, const char * str, lon
 	long * pmt;
 	char * term;
 	term = (typeof(term)) malloc(N * sizeof(*term));
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wstringop-truncation"
 	strncpy(term, str, N);
+	#pragma GCC diagnostic pop
 	pmt = (typeof(pmt)) malloc((N+1) * sizeof(*pmt));     // +1, for backtracking in success, when looking for multiple occurrences.
 	pmt[0] = -1;
 	for (i=1,j=0;i<N+1;i++,j++)

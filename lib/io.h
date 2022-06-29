@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 
+#include "macros/cpp_defines.h"
 #include "debug.h"
 
 

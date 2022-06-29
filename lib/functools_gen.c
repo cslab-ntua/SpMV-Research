@@ -1,3 +1,10 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <omp.h>
+
+#include "macros/macrolib.h"
+#include "parallel_util.h"
+
 #include "functools_gen.h"
 
 

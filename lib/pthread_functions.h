@@ -10,7 +10,10 @@
 #include <string.h>
 #include <sched.h>
 #include <pthread.h>
+
+#include "macros/cpp_defines.h"
 #include "debug.h"
+
 
 /*
  * For the scheduling functions we need to put

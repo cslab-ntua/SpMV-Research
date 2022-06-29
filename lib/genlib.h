@@ -1,6 +1,10 @@
 #ifndef GENLIB_H
 #define GENLIB_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <assert.h>
 #include <complex.h>
 #ifdef __cplusplus
@@ -9,6 +13,7 @@
 #include <tgmath.h>
 #include <string.h>
 
+#include "macros/cpp_defines.h"
 #include "debug.h"
 #include "macros/macrolib.h"
 
@@ -336,10 +341,14 @@ __attribute__((unused)) static double gen_cld2d(void * x, long i) { return (doub
 		gen_rule_expand_storage_classes(complex float *,       gen_cf2d ),     \
 		gen_rule_expand_storage_classes(complex double *,      gen_cd2d ),     \
 		gen_rule_expand_storage_classes(complex long double *, gen_cld2d),     \
-		default:               NULL                                            \
+		default: NULL                                                          \
 	);                                                                             \
 })
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GENLIB_H */
 

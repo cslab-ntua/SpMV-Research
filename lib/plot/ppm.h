@@ -7,6 +7,7 @@
 #include <endian.h>
 #include <omp.h>
 
+#include "macros/cpp_defines.h"
 #include "debug.h"
 #include "io.h"
 #include "string_util.h"

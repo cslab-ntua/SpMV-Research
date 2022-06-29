@@ -3,6 +3,8 @@
 
 #include <unistd.h>
 
+#include "macros/cpp_defines.h"
+
 
 #ifndef NANO
 	#define NANO 1000000000LL
