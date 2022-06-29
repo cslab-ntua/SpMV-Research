@@ -1,0 +1,36 @@
+program: ./spmv_code_mkl-naive/spmv_csr_custom_vector_perfect_nnz_balance.exe
+number of matrices: 30
+File: /home/jim/Data/graphs/validation_matrices/scircuit.mtx
+max threads 1
+time read: 0.210364
+time coo to csr: 0.015061
+balance time = 6.71e-07
+max threads 2
+time read: 0.161535
+time coo to csr: 0.014497
+balance time = 1.232e-06
+max threads 4
+time read: 0.162245
+time coo to csr: 0.010217
+balance time = 1.874e-06
+max threads 8
+time read: 0.162382
+time coo to csr: 0.007908
+balance time = 3.446e-06
+max threads 16
+time read: 0.162513
+time coo to csr: 0.008691
+balance time = 5.921e-06
+File: /home/jim/Data/graphs/validation_matrices/mac_econ_fwd500.mtx
+max threads 1
+time read: 0.221014
+time coo to csr: 0.019947
+balance time = 1.022e-06
+max threads 2
+time read: 0.198239
+time coo to csr: 0.018646
+balance time = 1.002e-06
+max threads 4
+time read: 0.195140
+time coo to csr: 0.013165
+balance time = 1.773e-06

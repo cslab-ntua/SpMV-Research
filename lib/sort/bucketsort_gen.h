@@ -10,9 +10,7 @@
 	#error "BUCKETSORT_GEN_SUFFIX not defined"
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-
+#include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
 
 

@@ -1,3 +1,16 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <omp.h>
+
+#include "debug.h"
+#include "io.h"
+#include "string_util.h"
+
 #include "parallel_io.h"
 
 
@@ -44,7 +57,7 @@ file_to_atoms(struct File_Atoms * A, const char * filename, void string_delimite
 	if (!S_ISREG(sb.st_mode))
 		error("not a file\n");
 	fd = safe_open(filename, O_RDONLY);
-	mem = static_cast(char *,  safe_mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0));
+	mem = (char *) safe_mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	safe_close(fd);
 
 	N = sb.st_size+1;    // Will add a '\0' character.
@@ -138,7 +151,7 @@ write_string_to_file(const char * filename, char * str, long str_len)
 	fd = safe_open(filename, O_RDWR | O_TRUNC | O_CREAT);
 	lseek(fd, str_len-1, SEEK_SET);
 	safe_write(fd, "", 1);
-	mem = static_cast(char *,  safe_mmap(NULL, str_len, PROT_WRITE, MAP_SHARED, fd, 0));
+	mem = (char *) safe_mmap(NULL, str_len, PROT_WRITE, MAP_SHARED, fd, 0);
 	safe_close(fd);
 
 	#pragma omp parallel

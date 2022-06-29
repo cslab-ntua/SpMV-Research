@@ -1,5 +1,9 @@
+#include <stdlib.h>
+#include <stdio.h>
+
+#include "macros/macrolib.h"
+
 #include "quicksort_gen.h"
-// #include "random.h"
 
 
 #ifndef QUICKSORT_GEN_C

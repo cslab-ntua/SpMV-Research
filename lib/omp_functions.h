@@ -3,6 +3,8 @@
 
 #include <omp.h>
 
+#include "macros/cpp_defines.h"
+
 
 static inline
 int

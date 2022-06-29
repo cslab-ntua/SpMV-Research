@@ -1,7 +1,13 @@
-#include "samplesort_gen.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <omp.h>
+
+#include "macros/macrolib.h"
 #include "debug.h"
 #include "parallel_util.h"
 #include "omp_functions.h"
+
+#include "samplesort_gen.h"
 
 
 #ifndef SAMPLESORT_GEN_C

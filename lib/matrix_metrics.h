@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <omp.h>
 
+#include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
 #include "genlib.h"
 #include "omp_functions.h"

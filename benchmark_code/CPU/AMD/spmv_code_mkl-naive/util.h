@@ -29,6 +29,10 @@
 #include <iostream>
 
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 #include "debug.h"
 #include "io.h"
 #include "macros/cpp_defines.h"
@@ -36,6 +40,10 @@
 #include "artificial_matrix_generation.h"
 
 #include "aux/csr_converter.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #if DOUBLE == 0
@@ -52,11 +60,13 @@ do {                                     \
 } while (0) */
 
 
-typedef ValueType  Vector_Value_t  __attribute__((vector_size(32), aligned(1)));
-// typedef ValueType  Vector_Value_t  __attribute__((vector_size(32)));
+typedef ValueType  Vector2_Value_t  __attribute__((vector_size(16), aligned(1)));
+
+typedef ValueType  Vector4_Value_t  __attribute__((vector_size(32), aligned(1)));
+// typedef ValueType  Vector4_Value_t  __attribute__((vector_size(32)));
 
 // Number of elements for the vectorization function.
-#define VECTOR_ELEM_NUM  ((int) (sizeof(Vector_Value_t) / sizeof(ValueType)))
+#define VECTOR_ELEM_NUM  ((int) (sizeof(Vector4_Value_t) / sizeof(ValueType)))
 
 // typedef MKL_INT  Vector_Index_t  __attribute__((vector_size(VECTOR_ELEM_NUM*sizeof(MKL_INT)), aligned(1)));
 typedef MKL_INT  Vector_Index_t  __attribute__((vector_size(VECTOR_ELEM_NUM*sizeof(MKL_INT))));

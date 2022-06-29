@@ -1,6 +1,7 @@
 #ifndef PARALLEL_UTILS_H
 #define PARALLEL_UTILS_H
 
+#include "macros/cpp_defines.h"
 // #include <omp.h>
 #include "macros/macrolib.h"
 // #include "omp_functions.h"

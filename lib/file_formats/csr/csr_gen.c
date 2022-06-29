@@ -1,7 +1,13 @@
-#include "csr_gen.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <omp.h>
+#include <math.h>
 
+#include "macros/macrolib.h"
 #include "parallel_util.h"
 #include "omp_functions.h"
+
+#include "csr_gen.h"
 
 
 #ifndef CSR_GEN_C

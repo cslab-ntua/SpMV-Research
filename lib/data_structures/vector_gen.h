@@ -4,13 +4,7 @@
 	#error "VECTOR_GEN_SUFFIX not defined"
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <omp.h>
-
-#include "debug.h"
-#include "io.h"
+#include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
 #include "macros/constants.h"
 

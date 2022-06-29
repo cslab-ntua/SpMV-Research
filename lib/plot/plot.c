@@ -1,5 +1,21 @@
-#include "plot.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <complex.h>
+#ifdef __cplusplus
+	#define complex  _Complex
+#endif
+#include <math.h>
 
+#include "macros/macrolib.h"
+#include "debug.h"
+#include "io.h"
+#include "parallel_io.h"
+#include "genlib.h"
+#include "matrix_metrics.h"
+#include "plot/ppm.h"
+
+#include "plot.h"
 #include "legend.h"
 
 

@@ -6,6 +6,8 @@
 #include <time.h>
 #include <stdint.h>
 
+#include "macros/cpp_defines.h"
+
 
 static __attribute__ ((unused))
 uint64_t

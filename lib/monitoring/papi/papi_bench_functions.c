@@ -1,3 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <papi.h>
+
+#include "macros/macrolib.h"
+#include "macros/constants.h"
+#include "debug.h"
+#include "papi_functions.h"
+
 #include "papi_bench_functions.h"
 
 

@@ -1,9 +1,6 @@
 #ifndef CPP_DEFINES_H
 #define CPP_DEFINES_H
 
-#include <stdlib.h>
-#include <stdio.h>
-
 /*
  * Replace C idioms with equivalent of C++.
  *
@@ -33,12 +30,12 @@
 
 
 
-#undef alloc
+/* #undef alloc
 
 #define alloc(ptr, n)                                                      \
 do {                                                                       \
 	ptr = static_cast(typeof(ptr), malloc((n) * sizeof(*(ptr))));      \
-} while(0)
+} while(0) */
 
 
 
