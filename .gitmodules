@@ -7,3 +7,6 @@
 [submodule "benchmark_code/GPU/NVIDIA-CUDA/spmv_code_merge_cuda_11.x/merge-spmv"]
 	path = benchmark_code/GPU/NVIDIA-CUDA/spmv_code_merge_cuda_11.x/merge-spmv
 	url = git@github.com:dumerrill/merge-spmv.git
+[submodule "benchmark_code/GPU/NVIDIA-CUDA/spmv_code_sellcs_cuda_11.x/GHOST"]
+	path = benchmark_code/GPU/NVIDIA-CUDA/spmv_code_sellcs_cuda_11.x/GHOST
+	url = git@github.com:RRZE-HPC/GHOST.git
