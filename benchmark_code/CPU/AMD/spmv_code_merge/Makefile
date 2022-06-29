@@ -27,9 +27,9 @@ DOUBLE = 1
 
 CFLAGS  = -Wall -Wno-deprecated-declarations -fopenmp -O3 -march=native -D'DOUBLE=$(DOUBLE)'
 CFLAGS += -m64 -mavx2 
-CFLAGS += -I'../../lib' -I'$(AMG_PATH)' -I'$(AMG_PATH)/lib'
+CFLAGS += -I'../../../../lib' -I'$(AMG_PATH)' -I'$(AMG_PATH)/lib'
 
-LDFLAGS  = -lnuma -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl -lpapi
+LDFLAGS  = -lnuma -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl #-lpapi
 
 # Includes
 INC += -I$(CUB_DIR) -I$(CUB_DIR)test 

@@ -3,6 +3,21 @@
 source config.sh
 echo
 
+# if [[ "$(whoami)" == 'xexdgala' ]]; then
+    # path_other='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/other'
+    # path_athena='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/matrices_athena'
+    # path_openFoam='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/openFoam'
+    # path_selected='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/selected_matrices'
+    # path_selected_sorted='/zhome/academic/HLRS/xex/xexdgala/Data/graphs/selected_matrices_sorted'
+# else
+    # path_other='/home/jim/Data/graphs/other'
+    # path_athena='/home/jim/Data/graphs/matrices_athena'
+    # path_selected='/home/jim/Data/graphs/selected_matrices'
+    # path_openFoam='/home/jim/Data/graphs/matrices_openFoam'
+    # path_selected_sorted='/home/jim/Data/graphs/selected_matrices_sorted'
+# fi
+
+
 if [[ $hyperthreading == 1 ]]; then
     max_cores=$((2*max_cores))
     cores="$cores $max_cores"
@@ -29,6 +44,8 @@ export LD_LIBRARY_PATH="${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
 # export OMP_WAIT_POLICY='active'
 # Don't let the runtime deliver fewer threads than those we asked for.
 # export OMP_DYNAMIC='false'
+
+matrices_openFoam=("$path_openFoam"/*.mtx)
 
 matrices_validation=(
     "$path_validation"/scircuit.mtx
@@ -63,6 +80,17 @@ matrices_validation=(
     "$path_validation"/cage15.mtx
 )
 
+
+matrices_validation_loop=()
+for ((i=0;i<${#matrices_validation[@]};i++)); do
+    n=128
+    for ((j=0;j<n;j++)); do
+        matrices_validation_loop+=( "${matrices_validation_artificial_twins[i]}" )
+    done
+    matrices_validation_loop+=( "${matrices_validation[i]}" )
+done
+
+
 bench()
 {
     declare args=("$@")
@@ -83,14 +111,68 @@ bench()
                 "$prog" --param="${prog_args2[@]}"
             fi
         else
+            # "$prog" 4690000 4 1.6 normal random 1 14
+
+            # numactl -i all "$prog" "${prog_args[@]}"
             "$prog" "${prog_args[@]}"
         fi
-
     done
 }
 
+
 matrices=(
-    "${matrices_validation[@]}"
+    # "${matrices_openFoam[@]}"
+    # "${matrices_validation[@]}"
+
+    # "${matrices_validation_artificial_twins[@]}"
+    # "${matrices_validation_loop[@]}"
+
+    # "$path_other"/simple.mtx
+    # "$path_other"/simple_symmetric.mtx
+
+    # /home/jim/Documents/Synced_Documents/other/ASIC_680k.mtx
+
+    # "$path_openFoam"/100K.mtx
+    # "$path_openFoam"/600K.mtx
+
+    # "$path_validation"/shipsec1.mtx
+    # "$path_validation"/webbase-1M.mtx
+    # "$path_validation"/Chebyshev4.mtx
+    # "$path_validation"/TSOPF_RS_b2383.mtx
+    # "$path_validation"/in-2004.mtx
+    # "$path_validation"/Ga41As41H72.mtx
+    # "$path_validation"/wikipedia-20051105.mtx
+    # "$path_validation"/rajat31.mtx
+    # "$path_validation"/ldoor.mtx
+    "$path_validation"/circuit5M.mtx
+    # "$path_validation"/bone010.mtx
+    # "$path_validation"/cage15.mtx
+
+    # "$path_selected"/soc-LiveJournal1.mtx
+    # "$path_selected"/soc-LiveJournal1_sorted_1.mtx
+    # "$path_selected"/soc-LiveJournal1_sorted_2.mtx
+    # "$path_selected"/soc-LiveJournal1_sorted_3.mtx
+    # "$path_selected"/soc-LiveJournal1_sorted_4.mtx
+
+    # "$path_selected"/dielFilterV3real.mtx
+    # "$path_selected"/dielFilterV3real_sorted_1.mtx
+    # "$path_selected"/dielFilterV3real_sorted_2.mtx
+    # "$path_selected"/dielFilterV3real_sorted_3.mtx
+    # "$path_selected"/dielFilterV3real_sorted_4.mtx
+
+    # "$path_selected"/circuit5M.mtx
+    # "$path_selected"/circuit5M_sorted_1.mtx
+    # "$path_selected"/circuit5M_sorted_2.mtx
+    # "$path_selected"/circuit5M_sorted_3.mtx
+    # "$path_selected"/circuit5M_sorted_4.mtx
+
+    # "$path_selected"/wikipedia-20051105.mtx
+    # "$path_selected"/wikipedia-20051105_sorted_1.mtx
+    # "$path_selected"/wikipedia-20051105_sorted_2.mtx
+    # "$path_selected"/wikipedia-20051105_sorted_3.mtx
+    # "$path_selected"/wikipedia-20051105_sorted_4.mtx
+
+    # "$path_selected_sorted"/circuit5M.mtx
 )
 
 
@@ -103,10 +185,27 @@ else
         IFS=$'\n' read -d '' -a tmp < "$f"
         prog_args+=("${tmp[@]}")
     done
-    echo "number of matrices: ${#prog_args[@]}"
 fi
 
-for p in "${progs[@]}"; do
+echo "number of matrices: ${#prog_args[@]}"
+
+# prog_args=(
+
+    # '28508159 28508159 5 1.6667 normal random 0.05 0 0.05 0.05 14'              # This bugs at 128 threads with mkl and mkl_sparse_set_mv_hint() for some reason.
+
+    # '5154859 5154859 19.24389 5.73672 normal random 0.21196 1.44233 0.19755 1.03234 14'
+    # '952203 952203 48.85772782 11.94657153 normal random 0.2042067138 0.5760045224 1.79674 0.906047 14 ldoor'
+# )
+
+temp_labels=( $(printf "%s\n" /sys/class/hwmon/hwmon*/temp*_label | sort) )
+temp_inputs=( ${temp_labels[@]/label/input} )
+
+for tuple in "${progs[@]}"; do
+
+    tuple=($tuple)
+    p="${tuple[0]}"
+    format_name="${tuple[1]}"
+
     # declare base file_out file_err
     # base="${p/*\//}"
     # base="${base%%.*}"
@@ -116,15 +215,47 @@ for p in "${progs[@]}"; do
     # > "$file_err"
     # exec 1>>"$file_out"
     # exec 2>>"$file_err"
+
+    # > "${format_name}.out"
+    # exec 1>>"${format_name}.out"
+    # > "${format_name}.err"
+    # exec 2>>"${format_name}.err"
+
     echo "program: $p"
-    for a in "${prog_args[@]}"
-    do
-        if ((use_artificial_matrices)); then
-            echo "Matrix: $a"
-            bench $p $a
-        else
-            echo "File: $a"
-            bench $p "$a"
-        fi
+
+    rep=1
+    # rep=5
+    # rep=16
+    # rep=1024
+
+    for ((i=0;i<rep;i++)); do
+        for a in "${prog_args[@]}"
+        do
+
+            rep_in=1
+            # rep_in=10
+
+            for ((j=0;j<rep_in;j++)); do
+
+                printf "Temps: " >&2
+                for ((k=0;k<${#temp_labels[@]};k++)); do
+                    printf "%s %s " $(cat ${temp_labels[k]}) $(cat ${temp_inputs[k]}) >&2
+                done
+                echo >&2
+
+                echo "File: $a"
+                bench $p $a
+
+                # if ((use_artificial_matrices)); then
+                    # echo "File: $a"
+                    # bench $p $a
+                # else
+                    # echo "File: $a"
+                    # bench $p "$a"
+                # fi
+
+            done
+        done
     done
 done
+

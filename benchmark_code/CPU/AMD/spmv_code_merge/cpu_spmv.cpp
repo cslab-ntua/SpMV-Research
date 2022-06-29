@@ -531,28 +531,28 @@ void RunTests(
             csr = artificial_matrix_generation(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, seed, placement, bw, skew, avg_num_neighbours, cross_row_similarity);
         );
 
-        fprintf(stderr, "%s,", csr->distribution);
-        fprintf(stderr, "%s,", csr->placement);
-        fprintf(stderr, "%u,", csr->seed);
-        fprintf(stderr, "%u,", csr->nr_rows);
-        fprintf(stderr, "%u,", csr->nr_cols);
-        fprintf(stderr, "%u,", csr->nr_nzeros);
-        fprintf(stderr, "%lf,", csr->density);
-        fprintf(stderr, "%lf,", csr->mem_footprint);
-        fprintf(stderr, "%s,", csr->mem_range);
-        fprintf(stderr, "%lf,", csr->avg_nnz_per_row);
-        fprintf(stderr, "%lf,", csr->std_nnz_per_row);
-        fprintf(stderr, "%lf,", csr->avg_bw);
-        fprintf(stderr, "%lf,", csr->std_bw);
-        fprintf(stderr, "%lf,", csr->avg_bw_scaled);
-        fprintf(stderr, "%lf,", csr->std_bw_scaled);
-        fprintf(stderr, "%lf,", csr->avg_sc);
-        fprintf(stderr, "%lf,", csr->std_sc);
-        fprintf(stderr, "%lf,", csr->avg_sc_scaled);
-        fprintf(stderr, "%lf,", csr->std_sc_scaled);
-        fprintf(stderr, "%lf,", csr->skew);
-        fprintf(stderr, "%lf,", csr->avg_num_neighbours);
-        fprintf(stderr, "%lf,", csr->cross_row_similarity);
+        fprintf(stdout, "%s,", csr->distribution);
+        fprintf(stdout, "%s,", csr->placement);
+        fprintf(stdout, "%u,", csr->seed);
+        fprintf(stdout, "%u,", csr->nr_rows);
+        fprintf(stdout, "%u,", csr->nr_cols);
+        fprintf(stdout, "%u,", csr->nr_nzeros);
+        fprintf(stdout, "%lf,", csr->density);
+        fprintf(stdout, "%lf,", csr->mem_footprint);
+        fprintf(stdout, "%s,", csr->mem_range);
+        fprintf(stdout, "%lf,", csr->avg_nnz_per_row);
+        fprintf(stdout, "%lf,", csr->std_nnz_per_row);
+        fprintf(stdout, "%lf,", csr->avg_bw);
+        fprintf(stdout, "%lf,", csr->std_bw);
+        fprintf(stdout, "%lf,", csr->avg_bw_scaled);
+        fprintf(stdout, "%lf,", csr->std_bw_scaled);
+        fprintf(stdout, "%lf,", csr->avg_sc);
+        fprintf(stdout, "%lf,", csr->std_sc);
+        fprintf(stdout, "%lf,", csr->avg_sc_scaled);
+        fprintf(stdout, "%lf,", csr->std_sc_scaled);
+        fprintf(stdout, "%lf,", csr->skew);
+        fprintf(stdout, "%lf,", csr->avg_num_neighbours);
+        fprintf(stdout, "%lf\n", csr->cross_row_similarity);
 
         // convert csr representation of dgal to the merge-spmv CsrMatrix equivalent
         time_balance = time_it(1,

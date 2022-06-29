@@ -34,6 +34,7 @@
 #include "macros/cpp_defines.h"
 #include "parallel_util.h"
 #include "artificial_matrix_generation.h"
+#include "aux/csr_converter.h"
 
 
 #if DOUBLE == 0
@@ -272,9 +273,6 @@ struct CSRArrays
 };
 
 
-#include "csr_converter.h"
-
-
 /** See https://software.intel.com/fr-fr/node/520849#449CA855-CE5B-4061-B003-70D078CA5E05 */
 void COO_to_CSR(COOArrays * coo, CSRArrays * csr)
 {
@@ -310,7 +308,7 @@ void COO_to_CSR(COOArrays * coo, CSRArrays * csr)
 	for (int i=0;i<csr->m+1 + VECTOR_ELEM_NUM;i++)
 		csr->ia[i] = 0;
 
-	coo_to_csr_fully_sorted(coo->rowind, coo->colind, coo->val, coo->m, coo->n, coo->nnz, csr);
+	coo_to_csr(coo->rowind, coo->colind, coo->val, coo->m, coo->n, coo->nnz, csr->ia, csr->ja, csr->a, 1);
 
 	// #if DOUBLE == 0
 		// mkl_scsrcoo(job, &coo->m, csr->a, csr->ja, csr->ia, &nnz, coo->val, coo->rowind, coo->colind, &info);

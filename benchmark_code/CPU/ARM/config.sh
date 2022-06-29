@@ -24,8 +24,8 @@ conf_vars=(
 	['path_validation']='../../../validation_matrices/'
 
 	# Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-	['use_artificial_matrices']=0
-	# ['use_artificial_matrices']=1
+	# ['use_artificial_matrices']=0
+	['use_artificial_matrices']=1
 
 	########################################################################################################
 	# ARM ecosystem environment variables that have to be set
@@ -87,17 +87,18 @@ artificial_matrices_files=(
 	# "$path_artificial"/validation_friends/twins_random.txt
 
 	# Validation matrices artificial twins in a +-30% value space of each feature.
-	# "$path_artificial"/SpMV-Research/validation_matrices_10_samples_30_range_twins.txt
+	# "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
 
 	# The synthetic dataset studied in the paper.
 	"$path_artificial"/synthetic_matrices_small_dataset.txt
 	# "$path_artificial"/synthetic_matrices_small_dataset2.txt
+	# "$path_artificial"/synthetic_matrices_small_dataset3.txt
 )
 
 # SpMV kernels to benchmark.
 progs=(
-	./spmv_code/spmv_csr_naive.exe
-	./spmv_code/spmv_armpl.exe
+	# ./spmv_code/spmv_csr_naive.exe
+	# ./spmv_code/spmv_armpl.exe
 	./spmv_code_merge/spmv_merge.exe
 )
 
