@@ -29,7 +29,7 @@ export cnf_dtype_id=1
 
 # CHECKME: Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
 # ['use_artificial_matrices']=0
-use_artificial_matrices=1
+use_artificial_matrices=0
 
 # Path for the matrix generation parameters.
 path_artificial='../../../matrix_generation_parameters'
@@ -52,8 +52,8 @@ fi
 # =========================================================================================================================================
 
 # Path for the validation matrices.
-path_validation='../../../../validation_matrices'
-#path_validation='/various/pmpakos/SpMV-Research/validation_matrices'
+#path_validation='../../../../validation_matrices'
+path_validation='/various/pmpakos/SpMV-Research/validation_matrices/dcomex'
 
 if ((cnf_dtype_id)); then
 	dtype=D
