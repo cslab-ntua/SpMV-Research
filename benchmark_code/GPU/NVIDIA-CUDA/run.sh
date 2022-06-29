@@ -15,12 +15,12 @@ $cmake_command ./
 make -j
 cd -
 
-mkdir -p ./spmv_code_csr5_cuda_11.x_exp/${system}-build
-cp ./spmv_code_csr5_cuda_11.x_exp/integrated_csr5_wrap_operator/CMakeLists.txt ./spmv_code_csr5_cuda_11.x_exp/${system}-build/CMakeLists.txt
-cd ./spmv_code_csr5_cuda_11.x_exp/${system}-build
-$cmake_command ./
-make -j
-cd -
+#mkdir -p ./spmv_code_csr5_cuda_11.x_exp/${system}-build
+#cp ./spmv_code_csr5_cuda_11.x_exp/integrated_csr5_wrap_operator/CMakeLists.txt ./spmv_code_csr5_cuda_11.x_exp/${system}-build/CMakeLists.txt
+#cd ./spmv_code_csr5_cuda_11.x_exp/${system}-build
+#$cmake_command ./
+#make -j
+#cd -
 
 mkdir -p ./spmv_code_merge_cuda_11.x/${system}-build
 cp ./spmv_code_merge_cuda_11.x/CMakeLists.txt ./spmv_code_merge_cuda_11.x/${system}-build/CMakeLists.txt
@@ -81,6 +81,11 @@ matrices_validation=(
     "$path_validation"/circuit5M.mtx
     "$path_validation"/bone010.mtx
     "$path_validation"/cage15.mtx
+    # in valpath/dcomex subdir
+    "$path_validation"/Kff_2E5dofs.mtx
+    "$path_validation"/Kff_3.5E5dofs.mtx
+    "$path_validation"/Kff_3E3dofs.mtx
+    "$path_validation"/Kff_5E5dofs.mtx
 )
 
 
