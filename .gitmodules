@@ -4,3 +4,6 @@
 [submodule "benchmark_code/GPU/NVIDIA-CUDA/nvidia-energy-measure"]
 	path = benchmark_code/GPU/NVIDIA-CUDA/nvidia-energy-measure
 	url = git@github.com:p-anastas/nvidia-energy-measure.git
+[submodule "benchmark_code/GPU/NVIDIA-CUDA/spmv_code_merge_cuda_11.x/merge-spmv"]
+	path = benchmark_code/GPU/NVIDIA-CUDA/spmv_code_merge_cuda_11.x/merge-spmv
+	url = git@github.com:dumerrill/merge-spmv.git
