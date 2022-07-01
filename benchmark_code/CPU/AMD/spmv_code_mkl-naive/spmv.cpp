@@ -83,44 +83,6 @@ int isDirectoryExists(const char *path)
     return 0;
 }
 
-
-void
-rapl_open_files(long * n_out, int ** fds_out, long ** max_values_out)
-{
-	long buf_n = 1000;
-	char buf[buf_n];
-	long n = 0;
-	long i = 0;
-	int * fds;
-	int fd;
-	long * max_values;
-	while (1)
-	{
-		snprintf(buf, buf_n, "/sys/class/powercap/intel-rapl/intel-rapl:%ld/energy_uj", i);
-		if (access(buf, R_OK))
-			break;
-		i++;
-	}
-	n = i;
-	fds = (typeof(fds)) malloc(n * sizeof(*fds));
-	max_values = (typeof(max_values)) malloc(n * sizeof(*max_values));
-	for (i=0;i<n;i++)
-	{
-		snprintf(buf, buf_n, "/sys/class/powercap/intel-rapl/intel-rapl:%ld/energy_uj", i);
-		fds[i] = safe_open(buf, O_RDONLY);
-		snprintf(buf, buf_n, "/sys/class/powercap/intel-rapl/intel-rapl:%ld/max_energy_range_uj", i);
-		fd = safe_open(buf, O_RDONLY);
-		if (read(fd, buf, buf_n) < 0)
-			error("read");
-		max_values[i] = atol(buf);
-		safe_close(fd);
-	}
-	*n_out = n;
-	*fds_out = fds;
-	*max_values_out = max_values;
-}
-
-
 void
 spmv()
 {
@@ -429,14 +391,6 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 
 	// return;
 
-	long rapl_fds_n;
-	int * rapl_fds;
-	long * rapl_max_values;
-
-	rapl_open_files(&rapl_fds_n, &rapl_fds, &rapl_max_values);
-
-	long ujoule_s[rapl_fds_n] = {0}, ujoule_e[rapl_fds_n] = {0};
-
 	// warm up caches
 	time_warm_up = time_it(1,
 		spmv();
@@ -459,40 +413,44 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		raise(SIGSTOP);
 	#endif
 
+	/*****************************************************************************************/
+	struct RAPL_Register * regs;
+	long regs_n;
+	char * reg_ids;
 
-	for (i=0;i<rapl_fds_n;i++)
-	{
-		if (read(rapl_fds[i], buf, buf_n) < 0)
-			error("read");
-		lseek(rapl_fds[i], 0, SEEK_SET);
-		ujoule_s[i] = atol(buf);
-	}
+	reg_ids = NULL;
+	reg_ids = (char *) "0,1"; // For Xeon(Gold1), these two are for package-0 and package-1E
+	// reg_ids = (char *) "0:0";
+	// reg_ids = (char *) "0,0:0";
+
+	rapl_open(reg_ids, &regs, &regs_n);
+	/*****************************************************************************************/
 
 	time = time_it(1,
-		for(int idxLoop = 0 ; idxLoop < loop ; ++idxLoop)
+		for(int idxLoop = 0 ; idxLoop < loop ; ++idxLoop){
+			rapl_read_start(regs, regs_n);
+
 			spmv();
+
+			rapl_read_end(regs, regs_n);
+		}
 	);
 
-	for (i=0;i<rapl_fds_n;i++)
-	{
-		if (read(rapl_fds[i], buf, buf_n) < 0)
-			error("read");
-		lseek(rapl_fds[i], 0, SEEK_SET);
-		ujoule_e[i] = atol(buf);
+	/*****************************************************************************************/
+	double J_estimated = 0;
+	for (int i=0;i<regs_n;i++){
+		// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
+		J_estimated += ((double) regs[i].uj_accum) / 1e6;
 	}
-
-	for (i=0;i<rapl_fds_n;i++)
-	{
-		safe_close(rapl_fds[i]);
-	}
-	free(rapl_fds);
-	free(rapl_max_values);
-  
+	rapl_close(regs, regs_n);
+	free(regs);
+	double W_avg = J_estimated / time;
+	// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
+	/*****************************************************************************************/
 
 	//=============================================================================
 	//= Output section.
 	//=============================================================================
-
 
 	#if defined(PER_THREAD_STATS)
 		double iters_per_t[num_threads];
@@ -568,15 +526,6 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 	#endif
 
 	gflops = csr.nnz / time * loop * 2 * 1e-9;    // Use csr.nnz to be sure we have the initial nnz (there is no coo for artificial AM).
-
-	double J_estimated = 0;
-	double W_avg;
-	for (i=0;i<rapl_fds_n;i++)
-	{
-		long diff = (ujoule_e[i] - ujoule_s[i] + rapl_max_values[i] + 1) % (rapl_max_values[i] + 1);   // micro joules
-		J_estimated += ((double) diff) / 1000000.0;
-	}
-	W_avg = J_estimated / time;
 
 	std::stringstream stream;
 	if (AM == NULL)

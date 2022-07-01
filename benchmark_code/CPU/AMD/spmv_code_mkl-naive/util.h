@@ -41,6 +41,9 @@ extern "C"{
 
 #include "aux/csr_converter.h"
 
+#include "monitoring/power/rapl.h"
+
+
 #ifdef __cplusplus
 }
 #endif

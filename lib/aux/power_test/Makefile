@@ -8,10 +8,11 @@ MAKEFLAGS += --warn-undefined-variables
 
 # 'shell' merges all lines into one, but gcc -M ends each line with '\' (backslash), so we have to remove them.
 define Rule_Auto_Dependencies =
-    $(shell gcc -MT '$(1)' -MM '$(2)' | sed 's/\\$$//g')
+    $(shell gcc $(CFLAGS) -MT '$(1)' -MM '$(2)' | sed 's/\\$$//g')
 endef
 
-library = ${C_LIB_PATH}
+# library = ${C_LIB_PATH}
+library = ../../
 
 
 # CC = gcc
@@ -29,7 +30,7 @@ CFLAGS += -flto
 CFLAGS += -march=native
 
 
-CFLAGS += -I "$(library)"
+CFLAGS += -I '$(library)'
 
 
 LDFLAGS =
@@ -50,13 +51,18 @@ all: $(DIRS) $(EXE)
 %.exe: obj/%.o $(LIB_OBJ)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-
 $(call Rule_Auto_Dependencies,'obj/rapl_test.o','rapl_test.c')
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
 $(call Rule_Auto_Dependencies,'obj/rapl.o','$(library)/monitoring/power/rapl.c')
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# obj/rapl_test.o: rapl_test.c
+# 	$(CC) $(CFLAGS) -c $< -o $@
+
+# obj/rapl.o: $(library)/monitoring/power/rapl.c
+# 	$(CC) $(CFLAGS) -c $< -o $@
 
 
 $(DIRS): %:

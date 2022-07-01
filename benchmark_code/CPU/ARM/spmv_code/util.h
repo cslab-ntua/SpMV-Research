@@ -823,12 +823,15 @@ CheckAccuracy(COOArrays * coo, ValueType * x, ValueType * y)
 		y_gold[i] = 0;
 	}
 
-	for (MKL_INT curr_nnz = 0; curr_nnz < coo->nnz; ++curr_nnz)
+	printf("y_gold = [");
+	for (int curr_nnz = 0; curr_nnz < coo->nnz; ++curr_nnz)
 	{
 		i = coo->rowind[curr_nnz];
 		j = coo->colind[curr_nnz];
 
 		y_gold[i] += x[j] * coo->val[curr_nnz];
+		if(curr_nnz < 100)
+			printf("%lf, ", y_gold[i]);
 
 		// val = x[j] * coo->val[curr_nnz] - kahan[i];
 		// tmp = y_gold[i] + val;
@@ -836,6 +839,7 @@ CheckAccuracy(COOArrays * coo, ValueType * x, ValueType * y)
 		// y_gold[i] = tmp;
 
 	}
+	printf("]\n");
 
 	ValueType maxDiff = 0;
 	// int cnt=0;
@@ -845,7 +849,7 @@ CheckAccuracy(COOArrays * coo, ValueType * x, ValueType * y)
 		// std::cout << idx << ": " << y_gold[idx]-y[idx] << "\n";
 		if (y_gold[idx] != 0.0) {
 			// if (Abs((y_gold[idx]-y[idx])/y_gold[idx]) > epsilon)
-				// printf("Error: %g != %g , diff=%g , diff_frac=%g\n", y_gold[idx], y[idx], Abs(y_gold[idx]-y[idx]), Abs((y_gold[idx]-y[idx])/y_gold[idx]));
+			// 	printf("Error @ %d : %lf != %lf , diff=%lf , diff_frac=%lf\n", idx, y_gold[idx], y[idx], Abs(y_gold[idx]-y[idx]), Abs((y_gold[idx]-y[idx])/y_gold[idx]));
 			// maxDiff = Max(maxDiff, Abs((y_gold[idx]-y[idx])/y_gold[idx]));
 			maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
 		}
@@ -866,6 +870,8 @@ CheckAccuracy(COOArrays * coo, ValueType * x, ValueType * y)
 	// std::cout << "\n";
 	if(maxDiff>epsilon)
 		std::cout << "Test failed! (" << maxDiff << ")\n";
+	else
+		std::cout << "Check passed!\n";
 	delete[] y_gold;
 }
 

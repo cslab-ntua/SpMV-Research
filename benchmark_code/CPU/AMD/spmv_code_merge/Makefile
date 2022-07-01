@@ -14,6 +14,7 @@ all: cpu_spmv
 
 AMG_PATH = ../../../../artificial-matrix-generator
 CSRC_ART_MAT = $(AMG_PATH)/artificial_matrix_generation.c $(AMG_PATH)/ordered_set.c
+LIB_PATH = ../../../../lib
 
 #-------------------------------------------------------------------------------
 # Compiler and compilation platform
@@ -27,7 +28,7 @@ DOUBLE = 1
 
 CFLAGS  = -Wall -Wno-deprecated-declarations -fopenmp -O3 -march=native -D'DOUBLE=$(DOUBLE)'
 CFLAGS += -m64 -mavx2 
-CFLAGS += -I'../../../../lib' -I'$(AMG_PATH)' -I'$(AMG_PATH)/lib'
+CFLAGS += -I'$(AMG_PATH)' -I'$(LIB_PATH)'
 
 LDFLAGS  = -lnuma -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl #-lpapi
 
@@ -44,6 +45,7 @@ DEPS = 	$(call rwildcard, $(CUB_DIR),*.cuh) \
 		$(call rwildcard, $(CUB_DIR),*.h) \
         Makefile
 DEPS2 = $(CSRC_ART_MAT)
+DEPS2 += $(LIB_PATH)/monitoring/power/rapl.c
 
 #-------------------------------------------------------------------------------
 # make clean

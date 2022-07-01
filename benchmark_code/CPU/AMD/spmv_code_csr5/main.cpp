@@ -8,6 +8,8 @@
 #include "io.h"
 #include "artificial_matrix_generation.h"
 
+#include "monitoring/power/rapl.h"
+
 using namespace std;
 
 #ifndef VALUE_TYPE
@@ -19,44 +21,6 @@ using namespace std;
 #endif
 
 csr_matrix * AM = NULL;
-
-
-void
-rapl_open_files(long * n_out, int ** fds_out, long ** max_values_out)
-{
-	long buf_n = 1000;
-	char buf[buf_n];
-	long n = 0;
-	long i = 0;
-	int * fds;
-	int fd;
-	long * max_values;
-	while (1)
-	{
-		snprintf(buf, buf_n, "/sys/class/powercap/intel-rapl/intel-rapl:%ld/energy_uj", i);
-		if (access(buf, R_OK))
-			break;
-		i++;
-	}
-	n = i;
-	fds = (typeof(fds)) malloc(n * sizeof(*fds));
-	max_values = (typeof(max_values)) malloc(n * sizeof(*max_values));
-	for (i=0;i<n;i++)
-	{
-		snprintf(buf, buf_n, "/sys/class/powercap/intel-rapl/intel-rapl:%ld/energy_uj", i);
-		fds[i] = safe_open(buf, O_RDONLY);
-		snprintf(buf, buf_n, "/sys/class/powercap/intel-rapl/intel-rapl:%ld/max_energy_range_uj", i);
-		fd = safe_open(buf, O_RDONLY);
-		if (read(fd, buf, buf_n) < 0)
-			error("read");
-		max_values[i] = atol(buf);
-		safe_close(fd);
-	}
-	*n_out = n;
-	*fds_out = fds;
-	*max_values_out = max_values;
-}
-
 
 int call_anonymouslib(char  *filename, int m, int n, int nnzA,
 		int *csrRowPtrA, int *csrColIdxA, VALUE_TYPE *csrValA,
@@ -107,43 +71,46 @@ int call_anonymouslib(char  *filename, int m, int n, int nnzA,
 			err = A.spmv(alpha, y);
 		}
 
-		long buf_n = 1000;
-		char buf[buf_n];
 		long i;
-		long rapl_fds_n;
-		int * rapl_fds;
-		long * rapl_max_values;
 
-		rapl_open_files(&rapl_fds_n, &rapl_fds, &rapl_max_values);
+		/*****************************************************************************************/
+		struct RAPL_Register * regs;
+		long regs_n;
+		char * reg_ids;
 
-		long ujoule_s[rapl_fds_n] = {0}, ujoule_e[rapl_fds_n] = {0};
+		reg_ids = NULL;
+		reg_ids = (char *) "0,1"; // For Xeon(Gold1), these two are for package-0 and package-1E
+		// reg_ids = (char *) "0:0";
+		// reg_ids = (char *) "0,0:0";
 
-
-		for (i=0;i<rapl_fds_n;i++)
-		{
-			if (read(rapl_fds[i], buf, buf_n) < 0)
-				error("read");
-			lseek(rapl_fds[i], 0, SEEK_SET);
-			ujoule_s[i] = atol(buf);
-		}
+		rapl_open(reg_ids, &regs, &regs_n);
+		/*****************************************************************************************/
 
 		anonymouslib_timer CSR5Spmv_timer;
 		CSR5Spmv_timer.start();
-		for (int i = 0; i < NUM_RUN; i++) {
+		for (i = 0; i < NUM_RUN; i++) {
+			rapl_read_start(regs, regs_n);
+
 			err = A.spmv(alpha, y_bench);
+
+			rapl_read_end(regs, regs_n);
 		}
 		// double CSR5Spmv_time = CSR5Spmv_timer.stop() / (double)NUM_RUN;
 		double CSR5Spmv_time = CSR5Spmv_timer.stop();
-		CSR5Spmv_time /= 1000;    // msec to sec
+		CSR5Spmv_time /= 1000;	// msec to sec
 
-		for (i=0;i<rapl_fds_n;i++)
-		{
-			if (read(rapl_fds[i], buf, buf_n) < 0)
-				error("read");
-			lseek(rapl_fds[i], 0, SEEK_SET);
-			ujoule_e[i] = atol(buf);
+
+		/*****************************************************************************************/
+		double J_estimated = 0;
+		for (int i=0;i<regs_n;i++){
+			// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
+			J_estimated += ((double) regs[i].uj_accum) / 1e6;
 		}
-
+		rapl_close(regs, regs_n);
+		free(regs);
+		double W_avg = J_estimated / CSR5Spmv_time;
+		// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
+		/*****************************************************************************************/
 
 		double gflops = gflop / (1.0e+9 * CSR5Spmv_time) * NUM_RUN;
 		const double mem_footprint = nnzA*(sizeof(VALUE_TYPE)+sizeof(int)) + (m+1)*sizeof(int);
@@ -151,14 +118,6 @@ int call_anonymouslib(char  *filename, int m, int n, int nnzA,
 		// double bw = gb/(1.0e+9 * CSR5Spmv_time) * NUM_RUN;
 		// cout << "CSR5-based SpMV time = " << CSR5Spmv_time << " ms. Bandwidth = " << bw << " GB/s. GFlops = " << gflops  << " GFlops." << endl;
 
-		double J_estimated = 0;
-		double W_avg;
-		for (i=0;i<rapl_fds_n;i++)
-		{
-			long diff = (ujoule_e[i] - ujoule_s[i] + rapl_max_values[i] + 1) % (rapl_max_values[i] + 1);   // micro joules
-			J_estimated += ((double) diff) / 1000000.0;
-		}
-		W_avg = J_estimated / CSR5Spmv_time;
 
 		if (AM != NULL)
 		{
@@ -183,8 +142,6 @@ int call_anonymouslib(char  *filename, int m, int n, int nnzA,
 				<< "," << W_avg << "," << J_estimated
 				<< "\n";
 		}
-
-
 	}
 
 	free(y_bench);
@@ -256,7 +213,7 @@ int main(int argc, char ** argv)
 		}
 
 		if ( mm_is_pattern( matcode ) )  { isPattern = 1; /*cout << "type = Pattern" << endl;*/ }
-		if ( mm_is_real ( matcode) )     { isReal = 1; /*cout << "type = real" << endl;*/ }
+		if ( mm_is_real ( matcode) )	{ isReal = 1; /*cout << "type = real" << endl;*/ }
 		if ( mm_is_integer ( matcode ) ) { isInteger = 1; /*cout << "type = integer" << endl;*/ }
 
 		/* find out size of sparse matrix .... */
@@ -279,11 +236,11 @@ int main(int argc, char ** argv)
 
 		int *csrRowIdxA_tmp = (int *)malloc(nnzA_mtx_report * sizeof(int));
 		int *csrColIdxA_tmp = (int *)malloc(nnzA_mtx_report * sizeof(int));
-		VALUE_TYPE *csrValA_tmp    = (VALUE_TYPE *)malloc(nnzA_mtx_report * sizeof(VALUE_TYPE));
+		VALUE_TYPE *csrValA_tmp	= (VALUE_TYPE *)malloc(nnzA_mtx_report * sizeof(VALUE_TYPE));
 
 		/* NOTE: when reading in doubles, ANSI C requires the use of the "l"  */
 		/*   specifier as in "%lg", "%lf", "%le", otherwise errors will occur */
-		/*  (ANSI C X3.159-1989, Sec. 4.9.6.2, p. 136 lines 13-15)            */
+		/*  (ANSI C X3.159-1989, Sec. 4.9.6.2, p. 136 lines 13-15)		  */
 
 		for (int i = 0; i < nnzA_mtx_report; i++)
 		{
@@ -344,7 +301,7 @@ int main(int argc, char ** argv)
 		memset(csrRowPtrA_counter, 0, (m+1) * sizeof(int));
 
 		csrColIdxA = (int *)_mm_malloc(nnzA * sizeof(int), ANONYMOUSLIB_X86_CACHELINE);
-		csrValA    = (VALUE_TYPE *)_mm_malloc(nnzA * sizeof(VALUE_TYPE), ANONYMOUSLIB_X86_CACHELINE);
+		csrValA	= (VALUE_TYPE *)_mm_malloc(nnzA * sizeof(VALUE_TYPE), ANONYMOUSLIB_X86_CACHELINE);
 
 		if (isSymmetric)
 		{
@@ -507,14 +464,14 @@ int main(int argc, char ** argv)
 		if (abs(y_ref[i] - y[i]) > 0.01 * abs(y_ref[i]))
 		{
 			error_count++;
-			//            cout << "ROW [ " << i << " ], NNZ SPAN: "
-			//                 << csrRowPtrA[i] << " - "
-			//                 << csrRowPtrA[i+1]
-			//                 << "\t ref = " << y_ref[i]
-			//                 << ", \t csr5 = " << y[i]
-			//                 << ", \t error = " << y_ref[i] - y[i]
-			//                 << endl;
-			//            break;
+			//		  cout << "ROW [ " << i << " ], NNZ SPAN: "
+			//			  << csrRowPtrA[i] << " - "
+			//			  << csrRowPtrA[i+1]
+			//			  << "\t ref = " << y_ref[i]
+			//			  << ", \t csr5 = " << y[i]
+			//			  << ", \t error = " << y_ref[i] - y[i]
+			//			  << endl;
+			//		  break;
 		}
 
 	if (error_count == 0)

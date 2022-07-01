@@ -62,15 +62,13 @@
 #include "utils.h"
 
 ///////////////////////////////////////////
-// added these for dgal matrix generator
+// added these for dgal matrix generator and power monitoring
 #include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
 #include "time_it.h"
 #include "parallel_util.h"
 #include "matrix_util.h"
-
-// added these for power measurements
-// #include <pthread.h>
+#include "monitoring/power/rapl.h"
 ///////////////////////////////////////////
 
 //---------------------------------------------------------------------
@@ -374,7 +372,6 @@ float TestOmpMergeCsrmv(
     ValueT*                         reference_vector_y_out,
     ValueT*                         vector_y_out,
     int                             timing_iterations,
-    float                           &setup_ms,
     float                           &time_warmup,
     float                           &time_afterwarmup,
     double                          &J_estimated,
@@ -382,9 +379,6 @@ float TestOmpMergeCsrmv(
     )
 {
     CpuTimer timer;
-
-    setup_ms = 0.0;
-
     if (g_omp_threads == -1)
         g_omp_threads = omp_get_num_procs();
     int num_threads = g_omp_threads;
@@ -414,20 +408,48 @@ float TestOmpMergeCsrmv(
     timer.Stop();
     time_afterwarmup = timer.ElapsedMillis()/1000;
 
+    /*****************************************************************************************/
+    struct RAPL_Register * regs;
+    long regs_n;
+    char * reg_ids;
+
+    reg_ids = NULL;
+    reg_ids = (char *) "0,1"; // For Xeon(Gold1), these two are for package-0 and package-1E
+    // reg_ids = (char *) "0:0";
+    // reg_ids = (char *) "0,0:0";
+
+    rapl_open(reg_ids, &regs, &regs_n);
+    /*****************************************************************************************/
+
     // Timing
-    float elapsed_time = 0.0;
     timer.Start();
     for(int it = 0; it < timing_iterations; ++it)
     {
+        rapl_read_start(regs, regs_n);
+
         OmpMergeCsrmv(g_omp_threads, a, a.row_offsets + 1, a.column_indices, a.values, vector_x, vector_y_out);
+
+        rapl_read_end(regs, regs_n);
     }
     timer.Stop();
 
-    elapsed_time = timer.ElapsedMillis()/1000;
+    float elapsed_time = timer.ElapsedMillis()/1000;
 
+    /*****************************************************************************************/
+    J_estimated = 0;
+    for (int i=0;i<regs_n;i++){
+        // printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
+        J_estimated += ((double) regs[i].uj_accum) / 1e6;
+    }
+    rapl_close(regs, regs_n);
+    free(regs);
+    W_avg = J_estimated / elapsed_time;
+
+    // for ARM only
     W_avg = 250;
     J_estimated = W_avg * elapsed_time;
-    printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
+    // printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
+    /*****************************************************************************************/
 
     return elapsed_time / timing_iterations;
 }
@@ -441,7 +463,7 @@ float TestOmpMergeCsrmv(
  */
 template <typename ValueT, typename OffsetT>
 void DisplayPerf(
-    double                          setup_ms,
+    double                          setup_time,
     double                          avg_time,
     CsrMatrix<ValueT, OffsetT>&     csr_matr)
 {
@@ -452,9 +474,9 @@ void DisplayPerf(
     effective_bandwidth = double(total_bytes) / avg_time / 1.0e9;
 
     if (!g_quiet)
-        printf("fp%d: %.4f setup ms, %.4f avg s, %.5f gflops, %.3lf effective GB/s\n", int(sizeof(ValueT) * 8), setup_ms, avg_time, 2 * nz_throughput, effective_bandwidth);
+        printf("fp%d: %.4f setup ms, %.4f avg s, %.5f gflops, %.3lf effective GB/s\n", int(sizeof(ValueT) * 8), setup_time, avg_time, 2 * nz_throughput, effective_bandwidth);
     else
-        printf("%.5f, %.5f, %.6f, %.3lf, ", setup_ms, avg_time, 2 * nz_throughput, effective_bandwidth);
+        printf("%.5f, %.5f, %.6f, %.3lf, ", setup_time, avg_time, 2 * nz_throughput, effective_bandwidth);
     fflush(stdout);
 }
 
@@ -484,7 +506,9 @@ void RunTests(
     CsrMatrix<ValueT, OffsetT> csr_matr;
 
     double time_balance = 0;
+    CpuTimer timer;
 
+    timer.Start();
     if (!mtx_filename.empty())
     {        
         // Parse matrix market file
@@ -560,6 +584,8 @@ void RunTests(
         );
     }
     coo_matrix.Clear();
+    timer.Stop();
+    double setup_time = timer.ElapsedMillis()/1000;
 
     // Display matrix info
     csr_matr.Stats().Display(!g_quiet);
@@ -598,14 +624,14 @@ void RunTests(
     // Compute reference answer
     SpmvGold(csr_matr, vector_x, vector_y_in, reference_vector_y_out, alpha, beta);
 
-    float avg_time, setup_ms, time_warmup, time_afterwarmup;
+    float avg_time, time_warmup, time_afterwarmup;
 
     // Merge SpMV
     // if (!g_quiet) printf("\n\n");
     printf("Merge CsrMV, "); fflush(stdout);
     double J_estimated, W_avg;
-    avg_time = TestOmpMergeCsrmv(csr_matr, vector_x, reference_vector_y_out, vector_y_out, timing_iterations, setup_ms, time_warmup, time_afterwarmup, J_estimated, W_avg);
-    DisplayPerf(setup_ms, avg_time, csr_matr);
+    avg_time = TestOmpMergeCsrmv(csr_matr, vector_x, reference_vector_y_out, vector_y_out, timing_iterations, time_warmup, time_afterwarmup, J_estimated, W_avg);
+    DisplayPerf(setup_time, avg_time, csr_matr);
 
     double time = avg_time*timing_iterations;
     double mem_footprint = csr_matr.num_nonzeros*(sizeof(ValueT) + sizeof(OffsetT)) + (csr_matr.num_rows+1)*sizeof(OffsetT);
@@ -732,6 +758,5 @@ int main(int argc, char **argv)
     else
         RunTests<double, int>(alpha, beta, mtx_filename, parameters, grid2d, grid3d, wheel, dense, timing_iterations, args);
 
-    printf("\n");
     return 0;
 }

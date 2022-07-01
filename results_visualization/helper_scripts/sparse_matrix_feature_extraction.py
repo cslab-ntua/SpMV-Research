@@ -600,7 +600,7 @@ if __name__ == '__main__':
         # "/various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.real.mtx",
         # "/various/pmpakos/SpMV-Research/validation_matrices/mc2depi.real.mtx",
         # "/various/pmpakos/SpMV-Research/validation_matrices/rma10.sorted.mtx",
-        "/various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.sorted.mtx",
+        # "/various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.sorted.mtx",
         # "/various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.sorted.mtx",
         # "/various/pmpakos/SpMV-Research/validation_matrices/cant.sorted.mtx",
         # "/various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.sorted.mtx",
@@ -624,6 +624,10 @@ if __name__ == '__main__':
         # "/various/pmpakos/SpMV-Research/validation_matrices/circuit5M.sorted.mtx",
         # "/various/pmpakos/SpMV-Research/validation_matrices/bone010.sorted.mtx",
         # "/various/pmpakos/SpMV-Research/validation_matrices/cage15.sorted.mtx",
+        "/various/pmpakos/SpMV-Research/validation_matrices/dcomex/Kff_2E5dofs.mtx",
+        "/various/pmpakos/SpMV-Research/validation_matrices/dcomex/Kff_3.5E5dofs.mtx",
+        "/various/pmpakos/SpMV-Research/validation_matrices/dcomex/Kff_3E3dofs.mtx",
+        "/various/pmpakos/SpMV-Research/validation_matrices/dcomex/Kff_5E5dofs.mtx"
     ]
 
     stats_list = []
@@ -633,7 +637,8 @@ if __name__ == '__main__':
         line = stats_extraction(filename, plot_it)
         stats_list.append(line)
 
-    file = open("/various/pmpakos/SpMV-Research/Benchmarks/validation_matrices_features.txt","w")
+    # file = open("/various/pmpakos/SpMV-Research/Benchmarks/validation_matrices_features.txt","w")
+    file = open("/various/pmpakos/SpMV-Research/results_visualization/helper_scripts/dcomex_matrices_features.txt","w")
     # file.write("\t".join(["matrix","nr_rows","nr_cols","nr_nnzs","density","nnz-r-min","nnz-r-max","nnz-r-avg","nnz-r-std","nnz-c-min","nnz-c-max","nnz-c-avg","nnz-c-std","bw-min","bw-max","bw-avg","bw-std","sc-min","sc-max","sc-avg","sc-std","ng-min","ng-max","ng-avg","ng-std","dis-min","dis-max","dis-avg","dis-std","cl-min","cl-max","cl-avg","cl-std","neigh-min","neigh-max","neigh-avg","neigh-std","cross_row_sim-min","cross_row_sim-max","cross_row_sim-avg","cross_row_sim-std"])+"\n")
     file.write("\t".join(["matrix","nr_rows","nr_cols","nr_nnzs","density","nnz-r-min","nnz-r-max","nnz-r-avg","nnz-r-std","bw-min","bw-max","bw-avg","bw-std","neigh-min","neigh-max","neigh-avg","neigh-std","cross_row_sim-min","cross_row_sim-max","cross_row_sim-avg","cross_row_sim-std"])+"\n")
     for line in stats_list:

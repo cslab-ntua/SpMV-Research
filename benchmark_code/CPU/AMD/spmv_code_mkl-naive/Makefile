@@ -69,10 +69,10 @@ endif
 LDFLAGS =
 LDFLAGS += -lm
 LDFLAGS += -L'$(MKL_PATH)/lib/intel64'
-LDFLAGS += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl -lpapi
+LDFLAGS += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl #-lpapi
 
 
-LIB_SRC = artificial_matrix_generation.c ordered_set.c parallel_io.c string_util.c openfoam_matrix.c
+LIB_SRC = artificial_matrix_generation.c ordered_set.c parallel_io.c string_util.c openfoam_matrix.c rapl.c
 
 LIB_OBJ = $(patsubst %.c,obj/%.o,$(LIB_SRC))
 
@@ -146,6 +146,8 @@ $(call Rule_Auto_Dependencies,'obj/parallel_io.o','$(library)/parallel_io.c')
 $(call Rule_Auto_Dependencies,'obj/string_util.o','$(library)/string_util.c')
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,'obj/openfoam_matrix.o','$(library)/file_formats/openfoam/openfoam_matrix.c')
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,'obj/rapl.o','$(library)/monitoring/power/rapl.c')
 	$(CC) $(CFLAGS) -c $< -o $@
 
 

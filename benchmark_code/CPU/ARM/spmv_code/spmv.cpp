@@ -498,6 +498,19 @@ int main(int argc, char **argv)
 		num_threads = omp_get_max_threads();
 	}
 	printf("max threads %d\n", num_threads);
+	// printf("-------------------------------------------\naligned alloc try1\n");
+	// int *pinakas;
+	// int size = 65535;
+	// pinakas = (typeof(pinakas)) safe_aligned_alloc(64, size * sizeof(*pinakas));
+	// printf("-------------------------------------------\ntelos!\n");
+	// for (i=0; i<size; i++){
+	// 	pinakas[i] = i/10;
+	// }
+	// printf("pinakas = [ ");
+	// for (i=0; i<size; i++){
+	// 	printf("%d, ",pinakas[i]);
+	// }
+	// printf("]\n");
 
 	if (argc < 6)
 	{
