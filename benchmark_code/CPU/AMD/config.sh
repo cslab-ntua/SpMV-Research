@@ -142,13 +142,13 @@ progs=(
 
     # Custom naive
     # ['csr_naive_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_naive.exe"
-    # ['csr_custom_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom.exe"
-    # ['csr_custom_vector_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom_vector.exe"
-    ['csr_custom_vector_x86_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom_vector_x86.exe"
-    # ['csr_custom_x86_queues_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom_x86_queues.exe"
-    # ['csr_custom_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom_vector_perfect_nnz_balance.exe"
-    # ['csr_custom_prefetch_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom_prefetch.exe"
-    # ['csr_custom_simd_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom_simd.exe"
+    # ['csr_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr.exe"
+    # ['csr_vector_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_vector.exe"
+    ['csr_vector_x86_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_vector_x86.exe"
+    # ['csr_x86_queues_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_x86_queues.exe"
+    # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_vector_perfect_nnz_balance.exe"
+    # ['csr_prefetch_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_prefetch.exe"
+    # ['csr_simd_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_simd.exe"
 
     # CSR5
     # ['csr5_d']="${script_dir}/spmv_code_csr5/spmv_csr5.exe"
@@ -158,17 +158,18 @@ progs=(
 
     # ['ell_d']="${script_dir}/spmv_code_mkl-naive/spmv_ell.exe"
     # ['ldu_d']="${script_dir}/spmv_code_mkl-naive/spmv_ldu.exe"
-    # ['mkl_csr_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr.exe"
-    # ['mkl_dia_d']="${script_dir}/spmv_code_mkl-naive/spmv_dia.exe"
-    # ['dia_custom_d']="${script_dir}/spmv_code_mkl-naive/spmv_dia_custom.exe"
-    # ['mkl_bsr_2_d']="${script_dir}/spmv_code_mkl-naive/spmv_bsr_2.exe"
-    # ['mkl_bsr_4_d']="${script_dir}/spmv_code_mkl-naive/spmv_bsr_4.exe"
-    # ['mkl_bsr_8_d']="${script_dir}/spmv_code_mkl-naive/spmv_bsr_8.exe"
-    # ['mkl_bsr_16_d']="${script_dir}/spmv_code_mkl-naive/spmv_bsr_16.exe"
-    # ['mkl_bsr_32_d']="${script_dir}/spmv_code_mkl-naive/spmv_bsr_32.exe"
-    # ['mkl_bsr_64_d']="${script_dir}/spmv_code_mkl-naive/spmv_bsr_64.exe"
-    # ['mkl_coo_d']="${script_dir}/spmv_code_mkl-naive/spmv_coo.exe"
-    # ['mkl_csc_d']="${script_dir}/spmv_code_mkl-naive/spmv_csc.exe"
+    # ['mkl_csr_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_csr.exe"
+    # ['mkl_dia_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_dia.exe"
+    # ['dia_d']="${script_dir}/spmv_code_mkl-naive/spmv_dia.exe"
+    # ['mkl_bsr_2_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_bsr_2.exe"
+    # ['mkl_bsr_4_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_bsr_4.exe"
+    # ['mkl_bsr_8_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_bsr_8.exe"
+    # ['mkl_bsr_16_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_bsr_16.exe"
+    # ['mkl_bsr_32_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_bsr_32.exe"
+    # ['mkl_bsr_64_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_bsr_64.exe"
+    # ['mkl_coo_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_coo.exe"
+    # ['mkl_csc_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_csc.exe"
+
 )
 
 

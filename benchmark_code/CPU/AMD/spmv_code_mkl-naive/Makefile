@@ -82,23 +82,23 @@ LIB_OBJ = $(patsubst %.c,obj/%.o,$(LIB_SRC))
 
 
 EXE =
-# EXE += spmv_coo.exe
-# EXE += spmv_dia.exe
-# EXE += spmv_csc.exe
-# EXE += spmv_csr.exe
+EXE += spmv_mkl_coo.exe
+EXE += spmv_mkl_dia.exe
+EXE += spmv_mkl_csc.exe
+EXE += spmv_mkl_csr.exe
 EXE += spmv_mkl_ie.exe
-# EXE += spmv_bsr_2.exe spmv_bsr_4.exe spmv_bsr_8.exe spmv_bsr_16.exe spmv_bsr_32.exe spmv_bsr_64.exe
+EXE += spmv_mkl_bsr_2.exe spmv_mkl_bsr_4.exe spmv_mkl_bsr_8.exe spmv_mkl_bsr_16.exe spmv_mkl_bsr_32.exe spmv_mkl_bsr_64.exe
 
 EXE += spmv_csr_naive.exe
-EXE += spmv_csr_custom.exe
-EXE += spmv_csr_custom_vector.exe
-EXE += spmv_csr_custom_vector_x86.exe
-EXE += spmv_csr_custom_vector_perfect_nnz_balance.exe
-EXE += spmv_csr_custom_simd.exe
-EXE += spmv_csr_custom_prefetch.exe
-EXE += spmv_csr_custom_x86_queues.exe
+EXE += spmv_csr.exe
+EXE += spmv_csr_vector.exe
+EXE += spmv_csr_vector_x86.exe
+EXE += spmv_csr_vector_perfect_nnz_balance.exe
+EXE += spmv_csr_simd.exe
+EXE += spmv_csr_prefetch.exe
+EXE += spmv_csr_x86_queues.exe
 
-# EXE += spmv_dia_custom.exe
+EXE += spmv_dia.exe
 EXE += spmv_ldu.exe
 EXE += spmv_ell.exe
 
@@ -111,52 +111,52 @@ all: $(DIRS) $(EXE)
 # $(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_MKL)
 
 
-spmv_coo.exe: obj/spmv.o spmv_kernel_mkl_coo.c $(LIB_OBJ)
-	$(CPP) $(CFLAGS) -D'USE_MKL_COO' $^ -o $@ $(LDFLAGS_MKL)
-spmv_dia.exe: obj/spmv.o spmv_kernel_mkl_dia.c $(LIB_OBJ)
-	$(CPP) $(CFLAGS) -D'USE_MKL_DIA' $^ -o $@ $(LDFLAGS_MKL)
-spmv_csc.exe: obj/spmv.o spmv_kernel_mkl_csc.c $(LIB_OBJ)
-	$(CPP) $(CFLAGS) -D'USE_MKL_CSC' $^ -o $@ $(LDFLAGS_MKL)
-spmv_csr.exe: obj/spmv.o spmv_kernel_mkl_csr.c $(LIB_OBJ)
-	$(CPP) $(CFLAGS) -D'USE_MKL_CSR' $^ -o $@ $(LDFLAGS_MKL)
+spmv_mkl_coo.exe: obj/spmv.o spmv_kernel_mkl_coo.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_MKL)
+spmv_mkl_dia.exe: obj/spmv.o spmv_kernel_mkl_dia.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_MKL)
+spmv_mkl_csc.exe: obj/spmv.o spmv_kernel_mkl_csc.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_MKL)
+spmv_mkl_csr.exe: obj/spmv.o spmv_kernel_mkl_csr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_MKL)
 spmv_mkl_ie.exe: obj/spmv.o spmv_kernel_mkl_ie.c $(LIB_OBJ)
-	$(CPP) $(CFLAGS) -D'USE_MKL_IE' $^ -o $@ $(LDFLAGS_MKL)
-spmv_bsr_2.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
-	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=2' $^ -o $@ $(LDFLAGS_MKL)
-spmv_bsr_4.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
-	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=4' $^ -o $@ $(LDFLAGS_MKL)
-spmv_bsr_8.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
-	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=8' $^ -o $@ $(LDFLAGS_MKL)
-spmv_bsr_16.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
-	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=16' $^ -o $@ $(LDFLAGS_MKL)
-spmv_bsr_32.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
-	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=32' $^ -o $@ $(LDFLAGS_MKL)
-spmv_bsr_64.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
-	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=64' $^ -o $@ $(LDFLAGS_MKL)
+	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_MKL)
+spmv_mkl_bsr_2.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'BLOCK_SIZE=2' $^ -o $@ $(LDFLAGS_MKL)
+spmv_mkl_bsr_4.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'BLOCK_SIZE=4' $^ -o $@ $(LDFLAGS_MKL)
+spmv_mkl_bsr_8.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'BLOCK_SIZE=8' $^ -o $@ $(LDFLAGS_MKL)
+spmv_mkl_bsr_16.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'BLOCK_SIZE=16' $^ -o $@ $(LDFLAGS_MKL)
+spmv_mkl_bsr_32.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'BLOCK_SIZE=32' $^ -o $@ $(LDFLAGS_MKL)
+spmv_mkl_bsr_64.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'BLOCK_SIZE=64' $^ -o $@ $(LDFLAGS_MKL)
 
 spmv_csr_naive.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) -D'NAIVE' $^ -o $@ $(LDFLAGS)
-spmv_csr_custom.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+spmv_csr.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS)
-spmv_csr_custom_vector.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+spmv_csr_vector.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) -D'CUSTOM_VECTOR' $^ -o $@ $(LDFLAGS)
-spmv_csr_custom_vector_x86.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+spmv_csr_vector_x86.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) -D'CUSTOM_VECTOR_X86' $^ -o $@ $(LDFLAGS)
-spmv_csr_custom_vector_perfect_nnz_balance.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+spmv_csr_vector_perfect_nnz_balance.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
-spmv_csr_custom_simd.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+spmv_csr_simd.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) -D'CUSTOM_SIMD' $^ -o $@ $(LDFLAGS)
-spmv_csr_custom_prefetch.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+spmv_csr_prefetch.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) -D'CUSTOM_PREFETCH' $^ -o $@ $(LDFLAGS)
-spmv_csr_custom_x86_queues.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+spmv_csr_x86_queues.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) -D'CUSTOM_QUEUES' $^ -o $@ $(LDFLAGS)
 
-spmv_dia_custom.exe: obj/spmv.o spmv_kernel_dia.c $(LIB_OBJ)
+spmv_dia.exe: obj/spmv.o spmv_kernel_dia.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_MKL)
 spmv_ldu.exe: obj/spmv.o spmv_kernel_ldu.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 spmv_ell.exe: obj/spmv.o spmv_kernel_ell.c $(LIB_OBJ)
-	$(CPP) $(CFLAGS) -D'USE_ELL' $^ -o $@ $(LDFLAGS)
+	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 
 $(call Rule_Auto_Dependencies,'obj/spmv.o','spmv.cpp')
