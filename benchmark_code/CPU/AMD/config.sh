@@ -1,6 +1,9 @@
 #!/bin/bash
 
 
+script_dir="$(dirname "$(readlink -e "${BASH_SOURCE[0]}")")"
+
+
 find_valid_dir()
 {
     local args=("$@")
@@ -18,6 +21,10 @@ conf_vars=(
     ['output_to_files']=0
     # ['output_to_files']=1
 
+    # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
+    ['use_artificial_matrices']=0
+    # ['use_artificial_matrices']=1
+
     # Maximum number of the machine's cores.
     # ['max_cores']=128
     ['max_cores']=48
@@ -26,6 +33,7 @@ conf_vars=(
     # Cores / Threads to utilize. Use spaces to define a set of different thread numbers to benchmark.
     # ['cores']=1
     # ['cores']='1 2 4 8 16 32 64 128'
+    ['cores']=8
     # ['cores']=64
     # ['cores']=128
     # ['cores']='1 2 4 8 16 24 48'
@@ -33,7 +41,7 @@ conf_vars=(
     # ['cores']=24
     # ['cores']=48
     # ['cores']='1 2 4 8'
-    ['cores']=14
+    # ['cores']=14
     # ['cores']=6
 
     # Use hyperthreading.
@@ -53,7 +61,7 @@ conf_vars=(
     ['path_validation']="$( options=(
                         '/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices'
                         '/home/jim/Data/graphs/validation_matrices'
-                        # '../../../validation_matrices'
+                        # "${script_dir}/../../../validation_matrices"
                         '/various/pmpakos/SpMV-Research/validation_matrices'
                     )
                     find_valid_dir "${options[@]}"
@@ -67,14 +75,10 @@ conf_vars=(
                     )
                     find_valid_dir "${options[@]}"
                 )"
-
-    # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    # ['use_artificial_matrices']=0
-    ['use_artificial_matrices']=1
 )
 
 
-path_artificial='../../../matrix_generation_parameters'
+path_artificial="${script_dir}/../../../matrix_generation_parameters"
 
 
 # Artificial matrices to benchmark.
@@ -84,11 +88,11 @@ artificial_matrices_files=(
     # "$path_artificial"/validation_friends/twins_random.txt
 
     # Validation matrices artificial twins in a +-30% value space of each feature.
-    # "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
+    "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
 
     # The synthetic dataset studied in the paper.
     #"$path_artificial"/synthetic_matrices_small_dataset.txt
-    "$path_artificial"/synthetic_matrices_small_dataset5.txt
+    # "$path_artificial"/synthetic_matrices_small_dataset5.txt
 )
 
 
@@ -129,35 +133,42 @@ matrices_validation_artificial_twins=(
 )
 
 
+declare -A progs
+
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
     # MKL IE
-    # './spmv_code_mkl-naive/spmv_sparse_mv.exe                                       mkl_ie_opt_d'
+    ['mkl_ie_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_ie.exe"
 
     # Custom naive
-    # './spmv_code_mkl-naive/spmv_csr_naive.exe                                       csr_naive_d'
-    # './spmv_code_mkl-naive/spmv_csr_custom.exe                                      csr_custom_d'
-    # './spmv_code_mkl-naive/spmv_csr_custom_vector.exe                               csr_custom_vector_d'
-    # './spmv_code_mkl-naive/spmv_csr_custom_vector_perfect_nnz_balance.exe           csr_custom_vector_perfect_nnz_balance_d'
+    # ['csr_naive_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_naive.exe"
+    # ['csr_custom_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom.exe"
+    # ['csr_custom_vector_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom_vector.exe"
+    ['csr_custom_vector_x86_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom_vector_x86.exe"
+    # ['csr_custom_x86_queues_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom_x86_queues.exe"
+    # ['csr_custom_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom_vector_perfect_nnz_balance.exe"
+    # ['csr_custom_prefetch_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom_prefetch.exe"
+    # ['csr_custom_simd_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_custom_simd.exe"
 
     # CSR5
-    # './spmv_code_csr5/spmv_csr5.exe                                                 csr5_d'
+    # ['csr5_d']="${script_dir}/spmv_code_csr5/spmv_csr5.exe"
 
     # merge spmv
-    './spmv_code_merge/spmv_merge.exe' #                                               merge_d'
+    # ['merge_d']="${script_dir}/spmv_code_merge/spmv_merge.exe
 
-    # './spmv_code_mkl-naive/spmv_ell.exe                                             ell_d'
-    # './spmv_code_mkl-naive/spmv_ldu.exe                                             ldu_d'
-    # './spmv_code_mkl-naive/spmv_csr.exe                                             mkl_csr_d'
-    # './spmv_code_mkl-naive/spmv_dia.exe                                             dia_d'
-    # './spmv_code_mkl-naive/spmv_dia_custom.exe                                      dia_custom_d'
-    # './spmv_code_mkl-naive/spmv_bsr_2.exe                                           bsr_2_d'
-    # './spmv_code_mkl-naive/spmv_bsr_4.exe                                           bsr_4_d'
-    # './spmv_code_mkl-naive/spmv_bsr_8.exe                                           bsr_8_d'
-    # './spmv_code_mkl-naive/spmv_bsr_16.exe                                          bsr_16_d'
-    # './spmv_code_mkl-naive/spmv_bsr_32.exe                                          bsr_32_d'
-    # './spmv_code_mkl-naive/spmv_bsr_64.exe                                          bsr_64_d'
-    # './spmv_code_mkl-naive/spmv_coo.exe                                             coo_d'
+    # ['ell_d']="${script_dir}/spmv_code_mkl-naive/spmv_ell.exe"
+    # ['ldu_d']="${script_dir}/spmv_code_mkl-naive/spmv_ldu.exe"
+    # ['mkl_csr_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr.exe"
+    # ['mkl_dia_d']="${script_dir}/spmv_code_mkl-naive/spmv_dia.exe"
+    # ['dia_custom_d']="${script_dir}/spmv_code_mkl-naive/spmv_dia_custom.exe"
+    # ['mkl_bsr_2_d']="${script_dir}/spmv_code_mkl-naive/spmv_bsr_2.exe"
+    # ['mkl_bsr_4_d']="${script_dir}/spmv_code_mkl-naive/spmv_bsr_4.exe"
+    # ['mkl_bsr_8_d']="${script_dir}/spmv_code_mkl-naive/spmv_bsr_8.exe"
+    # ['mkl_bsr_16_d']="${script_dir}/spmv_code_mkl-naive/spmv_bsr_16.exe"
+    # ['mkl_bsr_32_d']="${script_dir}/spmv_code_mkl-naive/spmv_bsr_32.exe"
+    # ['mkl_bsr_64_d']="${script_dir}/spmv_code_mkl-naive/spmv_bsr_64.exe"
+    # ['mkl_coo_d']="${script_dir}/spmv_code_mkl-naive/spmv_coo.exe"
+    # ['mkl_csc_d']="${script_dir}/spmv_code_mkl-naive/spmv_csc.exe"
 )
 
 

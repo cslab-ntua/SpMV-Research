@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source config.sh
+script_dir="$(dirname "$(readlink -e "${BASH_SOURCE[0]}")")"
+source "$script_dir"/config.sh
 echo
 
 if [[ $hyperthreading == 1 ]]; then

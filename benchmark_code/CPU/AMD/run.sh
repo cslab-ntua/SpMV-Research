@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source config.sh
+script_dir="$(dirname "$(readlink -e "${BASH_SOURCE[0]}")")"
+source "$script_dir"/config.sh
 echo
 
 if [[ "$(whoami)" == 'xexdgala' ]]; then
@@ -109,7 +110,7 @@ bench()
         export OMP_NUM_THREADS="$t"
         # export MKL_NUM_THREADS="$t"
 
-        if [ $prog = "./spmv_code_merge/spmv_merge.exe" ]; then
+        if [ "$prog" = "./spmv_code_merge/spmv_merge.exe" ]; then
             if ((!use_artificial_matrices)); then
                 "$prog" --mtx="${prog_args[@]}"
             else
@@ -138,7 +139,7 @@ matrices=(
 
     # /home/jim/Documents/Synced_Documents/other/ASIC_680k.mtx
 
-    # "$path_openFoam"/100K.mtx
+    "$path_openFoam"/100K.mtx
     # "$path_openFoam"/600K.mtx
     # "$path_openFoam"/TestMatrices/HEXmats/5krows/processor0
     # "${matrices_openFoam_own_neigh[@]}"
@@ -151,7 +152,7 @@ matrices=(
     # "$path_validation"/mc2depi.mtx
     # "$path_validation"/rma10.mtx
     # "$path_validation"/cop20k_A.mtx
-    "$path_validation"/webbase-1M.mtx
+    # "$path_validation"/webbase-1M.mtx
     # "$path_validation"/cant.mtx
     # "$path_validation"/pdb1HYS.mtx
     # "$path_validation"/TSOPF_RS_b300_c3.mtx
@@ -224,27 +225,14 @@ fi
 temp_labels=( $(printf "%s\n" /sys/class/hwmon/hwmon*/temp*_label | sort) )
 temp_inputs=( ${temp_labels[@]/label/input} )
 
-for tuple in "${progs[@]}"; do
-
-    tuple=($tuple)
-    p="${tuple[0]}"
-    format_name="${tuple[1]}"
-
-    # declare base file_out file_err
-    # base="${p/*\//}"
-    # base="${base%%.*}"
-    # file_out="out_${base}.out"
-    # file_err="out_${base}.err"
-    # > "$file_out"
-    # > "$file_err"
-    # exec 1>>"$file_out"
-    # exec 2>>"$file_err"
+for format_name in "${!progs[@]}"; do
+    p="${progs["$format_name"]}"
 
     if ((output_to_files)); then
         > "${format_name}.out"
         exec 1>>"${format_name}.out"
-        > "${format_name}.err"
-        exec 2>>"${format_name}.err"
+        > "${format_name}.csv"
+        exec 2>>"${format_name}.csv"
     fi
 
     echo "program: $p"
@@ -271,7 +259,7 @@ for tuple in "${progs[@]}"; do
                 echo >&2
 
                 echo "File: $a"
-                bench $p $a
+                bench "$p" $a
 
                 # if ((use_artificial_matrices)); then
                     # echo "File: $a"

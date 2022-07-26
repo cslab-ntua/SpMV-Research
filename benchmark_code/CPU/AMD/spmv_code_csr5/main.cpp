@@ -86,17 +86,18 @@ int call_anonymouslib(char  *filename, int m, int n, int nnzA,
 		rapl_open(reg_ids, &regs, &regs_n);
 		/*****************************************************************************************/
 
+		double CSR5Spmv_time = 0;
 		anonymouslib_timer CSR5Spmv_timer;
-		CSR5Spmv_timer.start();
 		for (i = 0; i < NUM_RUN; i++) {
 			rapl_read_start(regs, regs_n);
 
+			CSR5Spmv_timer.start();
 			err = A.spmv(alpha, y_bench);
+			CSR5Spmv_time += CSR5Spmv_timer.stop();
 
 			rapl_read_end(regs, regs_n);
 		}
 		// double CSR5Spmv_time = CSR5Spmv_timer.stop() / (double)NUM_RUN;
-		double CSR5Spmv_time = CSR5Spmv_timer.stop();
 		CSR5Spmv_time /= 1000;	// msec to sec
 
 
@@ -456,7 +457,8 @@ int main(int argc, char ** argv)
 		<< " GB/s. GFlops = " << gflop/(1.0e+6 * ref_time)  << " GFlops." << endl << endl;
 
 	// launch compute
-	call_anonymouslib(filename, m, n, nnzA, csrRowPtrA, csrColIdxA, csrValA, x, y, alpha);
+	for (long i=0;i<128;i++)
+		call_anonymouslib(filename, m, n, nnzA, csrRowPtrA, csrColIdxA, csrValA, x, y, alpha);
 
 	// compare reference and anonymouslib results
 	int error_count = 0;

@@ -37,8 +37,10 @@ CPP = g++
 
 CFLAGS = -Wall -Wextra
 CFLAGS += -Wno-deprecated-declarations
+# CFLAGS += -Wno-unused-variable
 CFLAGS += -fopenmp
 
+CFLAGS += -g
 # CFLAGS += -g3 -fno-omit-frame-pointer
 # CFLAGS += -Og
 # CFLAGS += -O0
@@ -54,7 +56,7 @@ CFLAGS += -mavx2
 CFLAGS += -I'$(library)'
 CFLAGS += -I'$(AMG_PATH)'
 CFLAGS += -I'$(MKL_PATH)/include'
-# CFLAGS += -I'/usr/include/mkl'
+CFLAGS += -I'/usr/include/mkl'
 
 # DOUBLE := 0
 DOUBLE := 1
@@ -67,12 +69,14 @@ endif
 
 
 LDFLAGS =
-LDFLAGS += -lm
-LDFLAGS += -L'$(MKL_PATH)/lib/intel64'
-LDFLAGS += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl #-lpapi
+
+LDFLAGS_MKL =
+LDFLAGS_MKL += -lm
+LDFLAGS_MKL += -L'$(MKL_PATH)/lib/intel64'
+LDFLAGS_MKL += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl #-lpapi
 
 
-LIB_SRC = artificial_matrix_generation.c ordered_set.c parallel_io.c string_util.c openfoam_matrix.c rapl.c
+LIB_SRC = csr_converter.c artificial_matrix_generation.c ordered_set.c parallel_io.c string_util.c openfoam_matrix.c rapl.c
 
 LIB_OBJ = $(patsubst %.c,obj/%.o,$(LIB_SRC))
 
@@ -82,12 +86,18 @@ EXE =
 # EXE += spmv_dia.exe
 # EXE += spmv_csc.exe
 # EXE += spmv_csr.exe
-EXE += spmv_sparse_mv.exe
+EXE += spmv_mkl_ie.exe
 # EXE += spmv_bsr_2.exe spmv_bsr_4.exe spmv_bsr_8.exe spmv_bsr_16.exe spmv_bsr_32.exe spmv_bsr_64.exe
+
 EXE += spmv_csr_naive.exe
 EXE += spmv_csr_custom.exe
 EXE += spmv_csr_custom_vector.exe
+EXE += spmv_csr_custom_vector_x86.exe
 EXE += spmv_csr_custom_vector_perfect_nnz_balance.exe
+EXE += spmv_csr_custom_simd.exe
+EXE += spmv_csr_custom_prefetch.exe
+EXE += spmv_csr_custom_x86_queues.exe
+
 # EXE += spmv_dia_custom.exe
 EXE += spmv_ldu.exe
 EXE += spmv_ell.exe
@@ -97,45 +107,60 @@ DIRS = obj
 all: $(DIRS) $(EXE)
 
 
-%.exe: obj/%.o $(LIB_OBJ)
+# %.exe: obj/%.o $(LIB_OBJ)
+# $(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_MKL)
+
+
+spmv_coo.exe: obj/spmv.o spmv_kernel_mkl_coo.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'USE_MKL_COO' $^ -o $@ $(LDFLAGS_MKL)
+spmv_dia.exe: obj/spmv.o spmv_kernel_mkl_dia.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'USE_MKL_DIA' $^ -o $@ $(LDFLAGS_MKL)
+spmv_csc.exe: obj/spmv.o spmv_kernel_mkl_csc.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'USE_MKL_CSC' $^ -o $@ $(LDFLAGS_MKL)
+spmv_csr.exe: obj/spmv.o spmv_kernel_mkl_csr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'USE_MKL_CSR' $^ -o $@ $(LDFLAGS_MKL)
+spmv_mkl_ie.exe: obj/spmv.o spmv_kernel_mkl_ie.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'USE_MKL_IE' $^ -o $@ $(LDFLAGS_MKL)
+spmv_bsr_2.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=2' $^ -o $@ $(LDFLAGS_MKL)
+spmv_bsr_4.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=4' $^ -o $@ $(LDFLAGS_MKL)
+spmv_bsr_8.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=8' $^ -o $@ $(LDFLAGS_MKL)
+spmv_bsr_16.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=16' $^ -o $@ $(LDFLAGS_MKL)
+spmv_bsr_32.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=32' $^ -o $@ $(LDFLAGS_MKL)
+spmv_bsr_64.exe: obj/spmv.o spmv_kernel_mkl_bsr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=64' $^ -o $@ $(LDFLAGS_MKL)
+
+spmv_csr_naive.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'NAIVE' $^ -o $@ $(LDFLAGS)
+spmv_csr_custom.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+spmv_csr_custom_vector.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'CUSTOM_VECTOR' $^ -o $@ $(LDFLAGS)
+spmv_csr_custom_vector_x86.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'CUSTOM_VECTOR_X86' $^ -o $@ $(LDFLAGS)
+spmv_csr_custom_vector_perfect_nnz_balance.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
+spmv_csr_custom_simd.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'CUSTOM_SIMD' $^ -o $@ $(LDFLAGS)
+spmv_csr_custom_prefetch.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'CUSTOM_PREFETCH' $^ -o $@ $(LDFLAGS)
+spmv_csr_custom_x86_queues.exe: obj/spmv.o spmv_kernel_csr.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'CUSTOM_QUEUES' $^ -o $@ $(LDFLAGS)
+
+spmv_dia_custom.exe: obj/spmv.o spmv_kernel_dia.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_MKL)
+spmv_ldu.exe: obj/spmv.o spmv_kernel_ldu.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+spmv_ell.exe: obj/spmv.o spmv_kernel_ell.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) -D'USE_ELL' $^ -o $@ $(LDFLAGS)
 
 
-obj/spmv_coo.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_MKL_COO' -c $< -o $@
-obj/spmv_dia.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_MKL_DIA' -c $< -o $@
-obj/spmv_csc.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_MKL_CSC' -c $< -o $@
-obj/spmv_csr.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_MKL_CSR' -c $< -o $@
-obj/spmv_sparse_mv.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_MKL_IE' -c $< -o $@
-obj/spmv_bsr_2.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=2' -c $< -o $@
-obj/spmv_bsr_4.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=4' -c $< -o $@
-obj/spmv_bsr_8.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=8' -c $< -o $@
-obj/spmv_bsr_16.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=16' -c $< -o $@
-obj/spmv_bsr_32.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=32' -c $< -o $@
-obj/spmv_bsr_64.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_MKL_BSR' -D'BLOCK_SIZE=64' -c $< -o $@
-obj/spmv_csr_naive.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_CUSTOM_CSR' -D'NAIVE' -c $< -o $@
-obj/spmv_csr_custom.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_CUSTOM_CSR' -c $< -o $@
-obj/spmv_csr_custom_vector.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_CUSTOM_CSR' -D'CUSTOM_VECTOR' -c $< -o $@
-obj/spmv_csr_custom_vector_perfect_nnz_balance.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_CUSTOM_CSR' -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' -c $< -o $@
-obj/spmv_ldu.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_LDU' -c $< -o $@
-obj/spmv_ell.o: spmv.cpp
-	$(CPP) $(CFLAGS) -D'USE_ELL' -c $< -o $@
-
+$(call Rule_Auto_Dependencies,'obj/spmv.o','spmv.cpp')
+	$(CPP) $(CFLAGS) -c $< -o $@
 
 $(call Rule_Auto_Dependencies,'obj/artificial_matrix_generation.o','$(AMG_PATH)/artificial_matrix_generation.c')
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -148,6 +173,8 @@ $(call Rule_Auto_Dependencies,'obj/string_util.o','$(library)/string_util.c')
 $(call Rule_Auto_Dependencies,'obj/openfoam_matrix.o','$(library)/file_formats/openfoam/openfoam_matrix.c')
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,'obj/rapl.o','$(library)/monitoring/power/rapl.c')
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,'obj/csr_converter.o','$(library)/aux/csr_converter.c')
 	$(CC) $(CFLAGS) -c $< -o $@
 
 

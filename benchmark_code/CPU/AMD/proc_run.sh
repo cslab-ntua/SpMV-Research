@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source config.sh
+script_dir="$(dirname "$(readlink -e "${BASH_SOURCE[0]}")")"
+source "$script_dir"/config.sh
 echo
 
 if [[ "$(whoami)" == 'xexdgala' ]]; then
@@ -220,13 +221,6 @@ for tuple in "${progs[@]}"; do
     tuple=($tuple)
     p="${tuple[0]}"
     format_name="${tuple[1]}"
-
-    # declare base file_out
-    # base="${p/*\//}"
-    # base="${base%%.*}"
-    # file_out="out_${base}.out"
-    # > "$file_out"
-    # exec 1>>"$file_out"
 
     > "${format_name}.out"
     exec 1>>"${format_name}.out"
