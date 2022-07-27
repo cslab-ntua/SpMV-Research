@@ -57,6 +57,7 @@ CFLAGS += -I'$(library)'
 CFLAGS += -I'$(AMG_PATH)'
 CFLAGS += -I'$(MKL_PATH)/include'
 CFLAGS += -I'/usr/include/mkl'
+CFLAGS += -I'$(AOCL_PATH)/include' -I'$(AOCL_PATH)/../../library/src/include'
 
 # DOUBLE := 0
 DOUBLE := 1
@@ -75,6 +76,10 @@ LDFLAGS_MKL += -lm
 LDFLAGS_MKL += -L'$(MKL_PATH)/lib/intel64'
 LDFLAGS_MKL += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl #-lpapi
 
+LDFLAGS_AOCL =
+LDFLAGS_AOCL += -lm
+LDFLAGS_AOCL += -L'$(AOCL_PATH)/lib/'
+LDFLAGS_AOCL += -Wl,--no-as-needed  -laoclsparse -lgomp -lpthread -lm -ldl #-lpapi
 
 LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c parallel_io.c string_util.c openfoam_matrix.c rapl.c
 
@@ -103,6 +108,8 @@ EXE += spmv_csr_x86_queues.exe
 EXE += spmv_dia.exe
 EXE += spmv_ldu.exe
 EXE += spmv_ell.exe
+
+EXE += spmv_aocl_optmv.exe
 
 DIRS = obj
 
@@ -160,6 +167,8 @@ spmv_ldu.exe: obj/spmv.o spmv_kernel_ldu.c $(LIB_OBJ)
 spmv_ell.exe: obj/spmv.o spmv_kernel_ell.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
+spmv_aocl_optmv.exe: obj/spmv.o spmv_kernel_aocl_optmv.c $(LIB_OBJ)
+	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_AOCL)
 
 $(call Rule_Auto_Dependencies,'obj/spmv.o','spmv.cpp')
 	$(CPP) $(CFLAGS) -c $< -o $@
