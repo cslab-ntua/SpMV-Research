@@ -40,7 +40,7 @@ CFLAGS += -Wno-deprecated-declarations
 # CFLAGS += -Wno-unused-variable
 CFLAGS += -fopenmp
 
-# CFLAGS += -g
+CFLAGS += -g
 # CFLAGS += -g3 -fno-omit-frame-pointer
 # CFLAGS += -Og
 # CFLAGS += -O0
@@ -58,7 +58,6 @@ CFLAGS += -I'$(AMG_PATH)'
 CFLAGS += -I'$(MKL_PATH)/include'
 CFLAGS += -I'/usr/include/mkl'
 CFLAGS += -I'$(AOCL_PATH)/include'
-CFLAGS += -I'$(AOCL_PATH)/../../library/src/include'
 
 # DOUBLE := 0
 DOUBLE := 1
@@ -75,13 +74,12 @@ LDFLAGS =
 LDFLAGS_MKL =
 LDFLAGS_MKL += -lm
 LDFLAGS_MKL += -L'$(MKL_PATH)/lib/intel64'
-LDFLAGS_MKL += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl
+LDFLAGS_MKL += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl #-lpapi
 
 LDFLAGS_AOCL =
 LDFLAGS_AOCL += -lm
 LDFLAGS_AOCL += -L'$(AOCL_PATH)/lib/'
-LDFLAGS_AOCL += -Wl,--no-as-needed  -laoclsparse -lgomp -lpthread -lm -ldl
-
+LDFLAGS_AOCL += -Wl,--no-as-needed  -laoclsparse -lgomp -lpthread -lm -ldl #-lpapi
 
 LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c parallel_io.c string_util.c openfoam_matrix.c rapl.c
 
@@ -91,26 +89,25 @@ LIB_OBJ := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ))
 
 
 EXE =
+EXE += spmv_mkl_coo.exe
+EXE += spmv_mkl_dia.exe
+EXE += spmv_mkl_csc.exe
+EXE += spmv_mkl_csr.exe
+EXE += spmv_mkl_ie.exe
+EXE += spmv_mkl_bsr_2.exe spmv_mkl_bsr_4.exe spmv_mkl_bsr_8.exe spmv_mkl_bsr_16.exe spmv_mkl_bsr_32.exe spmv_mkl_bsr_64.exe
 
-# EXE += spmv_mkl_ie.exe
-# EXE += spmv_mkl_coo.exe
-# EXE += spmv_mkl_dia.exe
-# EXE += spmv_mkl_csc.exe
-# EXE += spmv_mkl_csr.exe
-# EXE += spmv_mkl_bsr_2.exe spmv_mkl_bsr_4.exe spmv_mkl_bsr_8.exe spmv_mkl_bsr_16.exe spmv_mkl_bsr_32.exe spmv_mkl_bsr_64.exe
+EXE += spmv_csr_naive.exe
+EXE += spmv_csr.exe
+EXE += spmv_csr_vector.exe
+EXE += spmv_csr_vector_x86.exe
+EXE += spmv_csr_vector_perfect_nnz_balance.exe
+EXE += spmv_csr_simd.exe
+EXE += spmv_csr_prefetch.exe
+EXE += spmv_csr_x86_queues.exe
 
-# EXE += spmv_csr_naive.exe
-# EXE += spmv_csr.exe
-# EXE += spmv_csr_vector.exe
-# EXE += spmv_csr_vector_x86.exe
-# EXE += spmv_csr_vector_perfect_nnz_balance.exe
-# EXE += spmv_csr_simd.exe
-# EXE += spmv_csr_prefetch.exe
-# EXE += spmv_csr_x86_queues.exe
-
-# EXE += spmv_dia.exe
-# EXE += spmv_ldu.exe
-# EXE += spmv_ell.exe
+EXE += spmv_dia.exe
+EXE += spmv_ldu.exe
+EXE += spmv_ell.exe
 
 EXE += spmv_aocl_optmv.exe
 
@@ -172,7 +169,6 @@ spmv_ell.exe: obj/spmv.o spmv_kernel_ell.c $(LIB_OBJ)
 
 spmv_aocl_optmv.exe: obj/spmv.o spmv_kernel_aocl_optmv.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_AOCL)
-
 
 $(call Rule_Auto_Dependencies,'obj/spmv.o','spmv.cpp')
 	$(CPP) $(CFLAGS) -c $< -o $@

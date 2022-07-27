@@ -57,6 +57,12 @@ conf_vars=(
                     find_valid_dir "${options[@]}"
                 )"
 
+    ['AOCL_PATH']="$( options=(
+                        '/various/pmpakos/spmv_paper/aocl-sparse/build/release'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+
     # Path for the validation matrices.
     ['path_validation']="$( options=(
                         '/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices'
