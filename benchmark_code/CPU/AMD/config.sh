@@ -138,7 +138,7 @@ declare -A progs
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
     # MKL IE
-    ['mkl_ie_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_ie.exe"
+    # ['mkl_ie_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_ie.exe"
 
     # Custom naive
     # ['csr_naive_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_naive.exe"

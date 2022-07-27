@@ -129,7 +129,7 @@ bench()
 
 matrices=(
     # "${matrices_openFoam[@]}"
-    # "${matrices_validation[@]}"
+    "${matrices_validation[@]}"
 
     # "${matrices_validation_artificial_twins[@]}"
     # "${matrices_validation_loop[@]}"
@@ -139,7 +139,7 @@ matrices=(
 
     # /home/jim/Documents/Synced_Documents/other/ASIC_680k.mtx
 
-    "$path_openFoam"/100K.mtx
+    # "$path_openFoam"/100K.mtx
     # "$path_openFoam"/600K.mtx
     # "$path_openFoam"/TestMatrices/HEXmats/5krows/processor0
     # "${matrices_openFoam_own_neigh[@]}"

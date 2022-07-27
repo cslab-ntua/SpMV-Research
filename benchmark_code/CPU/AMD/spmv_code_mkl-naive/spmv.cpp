@@ -44,18 +44,20 @@ extern "C"{
 #endif
 
 #ifndef BLOCK_SIZE
-	#define BLOCK_SIZE  8
+	#define BLOCK_SIZE  64
 #endif
 
 
-extern INT_T * thread_i_s;
-extern INT_T * thread_i_e;
+INT_T * thread_i_s = NULL;
+INT_T * thread_i_e = NULL;
 
-extern INT_T * thread_j_s;
-extern INT_T * thread_j_e;
+INT_T * thread_j_s = NULL;
+INT_T * thread_j_e = NULL;
 
-extern ValueType * thread_v_s;
-extern ValueType * thread_v_e;
+ValueType * thread_v_s = NULL;
+ValueType * thread_v_e = NULL;
+
+int prefetch_distance = 8;
 
 
 double * thread_time_compute, * thread_time_barrier;
@@ -96,14 +98,11 @@ void
 CheckAccuracy(ValueType * val, INT_T * rowind, INT_T * colind, INT_T m, INT_T nnz, ValueType * x, ValueType * y)
 {
 	#if DOUBLE == 0
-		// ValueType epsilon = 1e-5;
 		ValueType epsilon = 1e-7;
 	#elif DOUBLE == 1
-		// ValueType epsilon = 1e-8;
 		ValueType epsilon = 1e-10;
 	#endif
 	int i, j;
-
 	// ValueType val, tmp;
 	// ValueType* kahan = new ValueType[m * sizeof(*kahan)];
 	ValueType* y_gold = new ValueType[m * sizeof(*y_gold)];
@@ -112,48 +111,30 @@ CheckAccuracy(ValueType * val, INT_T * rowind, INT_T * colind, INT_T m, INT_T nn
 		// kahan[i] = 0;
 		y_gold[i] = 0;
 	}
-
 	for (INT_T curr_nnz = 0; curr_nnz < nnz; ++curr_nnz)
 	{
 		i = rowind[curr_nnz];
 		j = colind[curr_nnz];
-
 		y_gold[i] += x[j] * val[curr_nnz];
-
 		// val = x[j] * val[curr_nnz] - kahan[i];
 		// tmp = y_gold[i] + val;
 		// kahan[i] = (tmp - y_gold[i]) - val;
 		// y_gold[i] = tmp;
-
 	}
-
 	ValueType maxDiff = 0;
 	// int cnt=0;
-	for(int idx = 0 ; idx < m ; idx++) {
-
+	for(int idx = 0 ; idx < m ; idx++)
+	{
 		maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
 		// std::cout << idx << ": " << y_gold[idx]-y[idx] << "\n";
-		if (y_gold[idx] != 0.0) {
+		if (y_gold[idx] != 0.0)
+		{
 			// if (Abs((y_gold[idx]-y[idx])/y_gold[idx]) > epsilon)
 				// printf("Error: %g != %g , diff=%g , diff_frac=%g\n", y_gold[idx], y[idx], Abs(y_gold[idx]-y[idx]), Abs((y_gold[idx]-y[idx])/y_gold[idx]));
 			// maxDiff = Max(maxDiff, Abs((y_gold[idx]-y[idx])/y_gold[idx]));
 			maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
 		}
-
-		// if(maxDiff>epsilon)
-		// {
-		// cnt++;
-		// if(cnt<10)
-		// std::cout << "maxDiff = " << maxDiff << " at " << idx << " : " << y_gold[idx] << " vs " << y[idx] << "\n";
-		// }
-		// if(y_gold[idx] != 0.0){
-		// maxDiff = Max(maxDiff, Abs((y_gold[idx]-y[idx])/y_gold[idx]));
-		// cnt++;
-		// if(cnt<10)
-		// std::cout << "maxDiff = " << maxDiff << " vs " << Abs((y_gold[idx]-y[idx])/y_gold[idx]) << "\n";
-		// }
 	}
-	// std::cout << "\n";
 	if(maxDiff>epsilon)
 		std::cout << "Test failed! (" << maxDiff << ")\n";
 	delete[] y_gold;
@@ -170,63 +151,13 @@ int is_directory(const char *path)
     return 0;
 }
 
-/* void
-spmv()
-{
-	#if defined(USE_MKL_IE)
-		compute_sparse_mv(A, x, y, descr);
-	#elif defined(USE_MKL_CSR)
-		compute_csr(&csr, x, y);
-	#elif defined(USE_CUSTOM_CSR)
-		#if defined(CUSTOM_VECTOR_PERFECT_NNZ_BALANCE)
-			compute_csr_custom_perfect_nnz_balance(&csr, x, y);
-		#elif defined(CUSTOM_VECTOR)
-			compute_csr_custom_vector(&csr, x, y);
-		#elif defined(CUSTOM_VECTOR_X86)
-			compute_csr_custom_vector_x86(&csr, x, y);
-		#elif defined(CUSTOM_SIMD)
-			compute_csr_custom_omp_simd(&csr, x, y);
-		#elif defined(CUSTOM_PREFETCH)
-			compute_csr_custom_omp_prefetch(&csr, x, y);
-		#elif defined(CUSTOM_QUEUES)
-			compute_csr_custom_x86_queues(&csr, x, y);
-		#else
-			compute_csr_custom(&csr, x, y);
-		#endif
-	#elif defined(USE_MKL_BSR)
-		compute_bcsr(&bcsr, x, y);
-	#elif defined(USE_MKL_DIA)
-		compute_dia(&dia, x, y);
-	#elif defined(USE_CUSTOM_DIA)
-		compute_dia_custom(&dia, x, y);
-	#elif defined(USE_MKL_CSC)
-		compute_csc(&csc, x, y);
-	#elif defined(USE_MKL_COO)
-		compute_coo(&coo, x, y);
-	#elif defined(USE_LDU)
-		compute_ldu(&ldu, x, y);
-	#elif defined(USE_ELL)
-		// compute_ell(&ell, x, y);
-		// compute_ell_v(&ell, x, y);
-		// compute_ell_v_hor(&ell, x, y);
-		// compute_ell_unroll(&ell, x, y);
-		// compute_ell_v_hor_split(&ell, x, y);
-		// compute_ell_transposed(&ell, x, y);
-		compute_ell_transposed_v(&ell, x, y);
-	#endif
-} */
-
 
 void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop = 128)
 {
 	__attribute__((unused)) int num_threads = omp_get_max_threads();
 	int dimMultipleBlock, dimMultipleBlock_y;
-	// INT_T m, n, nnz;
-	// double mem_footprint;
 	double gflops;
 	__attribute__((unused)) double time, time_warm_up, time_after_warm_up;
-	// long buf_n = 1000;
-	// char buf[buf_n];
 
 	dimMultipleBlock = ((csr_m+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
 	dimMultipleBlock_y = ((csr_n+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
@@ -292,138 +223,6 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 				csr_ja[i] = i_s + (i % i_per_t);
 		}
 	#endif
-
-	/* #if defined(USE_MKL_IE)
-		format_name = (char *) "MKL_IE";
-		time = time_it(1,
-			#if DOUBLE == 0
-				mkl_sparse_s_create_csr(&A, SPARSE_INDEX_BASE_ZERO, csr_m, csr_n, csr_ia, csr_ia+1, csr_ja, csr_a);
-			#elif DOUBLE == 1
-				mkl_sparse_d_create_csr(&A, SPARSE_INDEX_BASE_ZERO, csr_m, csr_n, csr_ia, csr_ia+1, csr_ja, csr_a);
-			#endif
-			mkl_sparse_order(A);
-		);
-		printf("mkl mkl_sparse_s_create_csr + mkl_sparse_order time = %g\n", time);
-
-		descr.type = SPARSE_MATRIX_TYPE_GENERAL;
-		const sparse_operation_t operation = SPARSE_OPERATION_NON_TRANSPOSE;
-		const INT_T expected_calls = loop;
-
-		// Using SPARSE_MEMORY_AGGRESSIVE policy for some reason gives libgomp error 'out of memory' at 128 theads.
-		//     SPARSE_MEMORY_NONE
-		//         Routine can allocate memory only for auxiliary structures (such as for workload balancing); the amount of memory is proportional to vector size.
-		//     SPARSE_MEMORY_AGGRESSIVE
-		//         Default.
-		//         Routine can allocate memory up to the size of matrix A for converting into the appropriate sparse format.
-		// const sparse_memory_usage_t policy = SPARSE_MEMORY_AGGRESSIVE;
-		const sparse_memory_usage_t policy = SPARSE_MEMORY_NONE;
-
-		time_balance = time_it(1,
-			mkl_sparse_set_mv_hint(A, operation, descr, expected_calls);
-			mkl_sparse_set_memory_hint(A, policy);
-			mkl_sparse_optimize(A);
-		);
-		printf("mkl optimize time = %g\n", time_balance);
-
-		// Even with the 'optimize' it doesn't seem to sort the columns.
-		#if 0
-			for (i=0;i<csr_m;i++)
-			{
-				for (long j=csr_ia[i];j<csr_ia[i+1];j++)
-				{
-					if (j < csr_ia[i+1]-1 && csr_ja[j] >= csr_ja[j+1])
-						error("%ld: unsorted columns: %d >= %d", i, csr_ja[j], csr_ja[j+1]);
-				}
-			}
-		#endif
-
-		// _Pragma("omp parallel")
-		// {
-			// printf("max_threads=%d , num_threads=%d , tnum=%d\n", omp_get_max_threads(), omp_get_num_threads(), omp_get_thread_num());
-		// }
-		// printf("out\n");
-
-		m = csr_m;
-		n = csr_n;
-		nnz = csr_nnz;
-		mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
-	#elif defined(USE_MKL_CSR)
-		format_name = (char *) "MKL_CSR";
-		m = csr_m;
-		n = csr_n;
-		nnz = csr_nnz;
-		mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
-	#elif defined(USE_CUSTOM_CSR)
-		#ifdef NAIVE
-			format_name = (char *) "Naive_CSR_CPU";
-		#elif defined(CUSTOM_VECTOR_PERFECT_NNZ_BALANCE)
-			format_name = (char *) "Custom_CSR_PBV";
-		#else
-			#ifdef CUSTOM_VECTOR
-				format_name = (char *) "Custom_CSR_BV";
-			#else
-				format_name = (char *) "Custom_CSR_B";
-			#endif
-		#endif
-		m = csr_m;
-		n = csr_n;
-		nnz = csr_nnz;
-		mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
-	#elif defined(USE_MKL_BSR)
-		format_name = (char *) "MKL_BSR";
-		CSR_to_BCSR(&csr, &bcsr, BLOCK_SIZE);
-		m = bcsr.m;
-		n = bcsr.n;
-		nnz = bcsr.nnz;
-		mem_footprint = bcsr.nbBlocks*bcsr.lb*bcsr.lb*sizeof(ValueType) + (bcsr.nbBlockRows+1)*sizeof(INT_T) + bcsr.nbBlocks*sizeof(INT_T);
-	#elif defined(USE_MKL_DIA)
-		format_name = (char *) "MKL_DIA";
-		CSR_to_DIA(&csr, &dia);
-		m = dia.m;
-		n = dia.n;
-		nnz = dia.nnz;
-		mem_footprint = dia.ndiag*dia.lval*sizeof(ValueType) + dia.ndiag*sizeof(INT_T);
-	#elif defined(USE_CUSTOM_DIA)
-		format_name = (char *) "Custom_DIA";
-		CSR_to_DIA(&csr, &dia);
-		ValueType * t = transpose<ValueType>(dia.val, dia.ndiag, dia.lval);
-		free(dia.val);
-		dia.val = t;
-		m = dia.m;
-		n = dia.n;
-		nnz = dia.nnz;
-		mem_footprint = dia.ndiag*dia.lval*sizeof(ValueType) + dia.ndiag*sizeof(INT_T);
-	#elif defined(USE_MKL_CSC)
-		format_name = (char *) "MKL_CSC";
-		CSR_to_CSC(&csr, &csc);
-		m = csc.m;
-		n = csc.n;
-		nnz = csc.nnz;
-		mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (n+1) * sizeof(INT_T);
-	#elif defined(USE_MKL_COO)
-		format_name = (char *) "MKL_COO";
-		m = coo.m;
-		n = coo.n;
-		nnz = coo.nnz;
-		mem_footprint = nnz * (sizeof(ValueType) + 2 * sizeof(INT_T));
-	#elif defined(USE_LDU)
-		format_name = (char *) "LDU";
-		CSR_to_LDU(&csr, &ldu);
-		m = ldu.m;
-		n = ldu.n;
-		nnz = ldu.nnz;
-		mem_footprint = nnz * sizeof(ValueType) + ldu.upper_n * 2 * sizeof(INT_T);
-	#elif defined(USE_ELL)
-		format_name = (char *) "ELL";
-		CSR_to_ELL(&csr, &ell);
-		m = ell.m;
-		n = ell.n;
-		nnz = ell.nnz;
-		mem_footprint = m * ell.width * (sizeof(ValueType) + sizeof(INT_T));
-	#else
-		format_name = (char *) "OTHER";
-	#endif */
-
 
 	MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
 
@@ -522,8 +321,8 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 			// nnz_per_t[i] = &(csr_a[csr_ia[i_e]]) - &(csr_a[csr_ia[i_s]]);
 			nnz_per_t[i] = csr_ia[i_e] - csr_ia[i_s];
 			gflops_per_t[i] = nnz_per_t[i] / thread_time_compute[i] * loop * 2 * 1e-9;   // Calculate before making nnz_per_t a ratio.
-			iters_per_t[i] /= m;    // As a fraction of m.
-			nnz_per_t[i] /= nnz;    // As a fraction of nnz.
+			iters_per_t[i] /= csr_m;    // As a fraction of m.
+			nnz_per_t[i] /= csr_nnz;    // As a fraction of nnz.
 		}
 
 		matrix_min_max(iters_per_t, num_threads, &iters_per_t_min, &iters_per_t_max);
@@ -577,9 +376,10 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 	}
 	#endif
 
+	double csr_mem_footprint = csr_nnz * (sizeof(ValueType) + sizeof(INT_T)) + (csr_m+1) * sizeof(INT_T);
+	std::stringstream stream;
 	gflops = csr_nnz / time * loop * 2 * 1e-9;    // Use csr_nnz to be sure we have the initial nnz (there is no coo for artificial AM).
 
-	std::stringstream stream;
 	if (AM == NULL)
 	{
 		stream
@@ -588,9 +388,11 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		#else
 			<< matrix_filename << "," << omp_get_max_threads()
 		#endif
-			<< "," << MF->m << "," << MF->n << "," << MF->nnz
-			<< "," << time << "," << gflops << "," << MF->mem_footprint/(1024*1024)
+			<< "," << csr_m << "," << csr_n << "," << csr_nnz
+			<< "," << time << "," << gflops << "," << csr_mem_footprint / (1024*1024)
 			<< "," << W_avg << "," << J_estimated
+			<< "," << MF->format_name << "," << MF->m << "," << MF->n << "," << MF->nnz
+			<< "," << MF->mem_footprint/(1024*1024)
 			// << "," << time_warm_up << "," << time_after_warm_up
 		#ifdef PER_THREAD_STATS
 			<< "," << iters_per_t_avg << "," << iters_per_t_std << "," << iters_per_t_balance
