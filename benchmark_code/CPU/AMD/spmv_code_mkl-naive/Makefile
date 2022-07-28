@@ -57,12 +57,7 @@ CFLAGS += -I'$(library)'
 CFLAGS += -I'$(AMG_PATH)'
 CFLAGS += -I'$(MKL_PATH)/include'
 CFLAGS += -I'/usr/include/mkl'
-<<<<<<< HEAD
 CFLAGS += -I'$(AOCL_PATH)/include' -I'$(AOCL_PATH)/../../library/src/include'
-=======
-CFLAGS += -I'$(AOCL_PATH)/include'
-CFLAGS += -I'$(AOCL_PATH)/../../library/src/include'
->>>>>>> ff2b062cccaca2be7b6445af043b55b2667e1293
 
 # DOUBLE := 0
 DOUBLE := 1
@@ -119,8 +114,6 @@ EXE =
 # EXE += spmv_dia.exe
 # EXE += spmv_ldu.exe
 # EXE += spmv_ell.exe
-
-EXE += spmv_aocl_optmv.exe
 
 EXE += spmv_aocl_optmv.exe
 
