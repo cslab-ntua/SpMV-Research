@@ -37,7 +37,7 @@ else
 fi
 
 export MKL_DEBUG_CPU_TYPE=5
-export LD_LIBRARY_PATH="${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${AOCL_PATH}/lib:${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
 
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'
