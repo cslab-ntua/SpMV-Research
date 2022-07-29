@@ -1,17 +1,39 @@
+#include <iostream>
+#include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <unistd.h>
-// #include <pthread.h>
+#include <sys/stat.h>
+#include <pthread.h>
+#include <sstream>
 
-#include "util.h"
+#include "common.h"
+#include "read_mtx.h"
 
-#include "macros/cpp_defines.h"
-#include "macros/macrolib.h"
-#include "time_it.h"
-#include "parallel_util.h"
-// #include "pthread_functions.h"
-#include "matrix_util.h"
+#ifdef __cplusplus
+extern "C"{
+#endif
+	#include "macros/cpp_defines.h"
+	#include "macros/macrolib.h"
+	#include "time_it.h"
+	#include "parallel_util.h"
+	#include "pthread_functions.h"
+	#include "matrix_util.h"
+
+	#include "string_util.h"
+	#include "parallel_io.h"
+	#include "file_formats/openfoam/openfoam_matrix.h"
+	#include "aux/csr_converter.h"
+
+	#include "monitoring/power/rapl.h"
+
+	#include "artificial_matrix_generation.h"
+
+#ifdef __cplusplus
+}
+#endif
+
+#include "spmv_kernel.h"
 
 
 // #define VERBOSE
@@ -26,39 +48,129 @@
 #endif
 
 
-char * format_name;
+extern INT_T * thread_i_s;
+extern INT_T * thread_i_e;
 
-MKL_INT * thread_i_s;
-MKL_INT * thread_i_e;
+extern INT_T * thread_j_s;
+extern INT_T * thread_j_e;
+
+extern ValueType * thread_v_s;
+extern ValueType * thread_v_e;
+
 
 double * thread_time_compute, * thread_time_barrier;
-
 
 int num_procs;
 int process_custom_id;
 
+
+ValueType * mtx_val;
+INT_T * mtx_rowind;
+INT_T * mtx_colind;
+INT_T mtx_m;
+INT_T mtx_n;
+INT_T mtx_nnz;
+
+ValueType * csr_a; // values (of size NNZ)
+INT_T * csr_ia;    // rowptr (of size m+1)
+INT_T * csr_ja;    // colidx of each NNZ (of size nnz)
+INT_T csr_m;
+INT_T csr_n;
+INT_T csr_nnz;
+
+
 ValueType * x;
-ValueType* y;
-
-// matrix_descr descr;
-// sparse_matrix_t A;
-CSRArrays csr;
-// BCSRArrays bcsr;
-// DIAArrays dia;
-// CSCArrays csc;
-COOArrays coo;
-// LDUArrays ldu;
-// ELLArrays ell;
-
-ValueType * thread_partial_sums_s;
-ValueType * thread_partial_sums_e;
-MKL_INT * thread_partial_sums_row_s;
-MKL_INT * thread_partial_sums_row_e;
+ValueType * y;
 
 
-#include "spmv_kernels.h"
+struct Matrix_Format * MF;   // Real matrices.
 
+
+// Utils macro
+#define Min(x,y) ((x)<(y)?(x):(y))
+#define Max(x,y) ((x)>(y)?(x):(y))
+#define Abs(x) ((x)>(0)?(x):-(x))
+
+/** Simply return the max relative diff */
 void
+CheckAccuracy(ValueType * val, INT_T * rowind, INT_T * colind, INT_T m, INT_T nnz, ValueType * x, ValueType * y)
+{
+	#if DOUBLE == 0
+		// ValueType epsilon = 1e-5;
+		ValueType epsilon = 1e-7;
+	#elif DOUBLE == 1
+		// ValueType epsilon = 1e-8;
+		ValueType epsilon = 1e-10;
+	#endif
+	int i, j;
+
+	// ValueType val, tmp;
+	// ValueType* kahan = new ValueType[m * sizeof(*kahan)];
+	ValueType* y_gold = new ValueType[m * sizeof(*y_gold)];
+	for(i=0;i<m;i++)
+	{
+		// kahan[i] = 0;
+		y_gold[i] = 0;
+	}
+
+	for (INT_T curr_nnz = 0; curr_nnz < nnz; ++curr_nnz)
+	{
+		i = rowind[curr_nnz];
+		j = colind[curr_nnz];
+
+		y_gold[i] += x[j] * val[curr_nnz];
+
+		// val = x[j] * val[curr_nnz] - kahan[i];
+		// tmp = y_gold[i] + val;
+		// kahan[i] = (tmp - y_gold[i]) - val;
+		// y_gold[i] = tmp;
+
+	}
+
+	ValueType maxDiff = 0;
+	// int cnt=0;
+	for(int idx = 0 ; idx < m ; idx++) {
+
+		maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
+		// std::cout << idx << ": " << y_gold[idx]-y[idx] << "\n";
+		if (y_gold[idx] != 0.0) {
+			// if (Abs((y_gold[idx]-y[idx])/y_gold[idx]) > epsilon)
+				// printf("Error: %g != %g , diff=%g , diff_frac=%g\n", y_gold[idx], y[idx], Abs(y_gold[idx]-y[idx]), Abs((y_gold[idx]-y[idx])/y_gold[idx]));
+			// maxDiff = Max(maxDiff, Abs((y_gold[idx]-y[idx])/y_gold[idx]));
+			maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
+		}
+
+		// if(maxDiff>epsilon)
+		// {
+		// cnt++;
+		// if(cnt<10)
+		// std::cout << "maxDiff = " << maxDiff << " at " << idx << " : " << y_gold[idx] << " vs " << y[idx] << "\n";
+		// }
+		// if(y_gold[idx] != 0.0){
+		// maxDiff = Max(maxDiff, Abs((y_gold[idx]-y[idx])/y_gold[idx]));
+		// cnt++;
+		// if(cnt<10)
+		// std::cout << "maxDiff = " << maxDiff << " vs " << Abs((y_gold[idx]-y[idx])/y_gold[idx]) << "\n";
+		// }
+	}
+	// std::cout << "\n";
+	if(maxDiff>epsilon)
+		std::cout << "Test failed! (" << maxDiff << ")\n";
+	delete[] y_gold;
+}
+
+
+int is_directory(const char *path)
+{
+    struct stat stats;
+    stat(path, &stats);
+    // Check for file existence
+    if (S_ISDIR(stats.st_mode))
+        return 1;
+    return 0;
+}
+
+/* void
 spmv()
 {
 	#if defined(USE_MKL_IE)
@@ -66,7 +178,21 @@ spmv()
 	#elif defined(USE_MKL_CSR)
 		compute_csr(&csr, x, y);
 	#elif defined(USE_CUSTOM_CSR)
-		compute_csr_custom(&csr, x, y);
+		#if defined(CUSTOM_VECTOR_PERFECT_NNZ_BALANCE)
+			compute_csr_custom_perfect_nnz_balance(&csr, x, y);
+		#elif defined(CUSTOM_VECTOR)
+			compute_csr_custom_vector(&csr, x, y);
+		#elif defined(CUSTOM_VECTOR_X86)
+			compute_csr_custom_vector_x86(&csr, x, y);
+		#elif defined(CUSTOM_SIMD)
+			compute_csr_custom_omp_simd(&csr, x, y);
+		#elif defined(CUSTOM_PREFETCH)
+			compute_csr_custom_omp_prefetch(&csr, x, y);
+		#elif defined(CUSTOM_QUEUES)
+			compute_csr_custom_x86_queues(&csr, x, y);
+		#else
+			compute_csr_custom(&csr, x, y);
+		#endif
 	#elif defined(USE_MKL_BSR)
 		compute_bcsr(&bcsr, x, y);
 	#elif defined(USE_MKL_DIA)
@@ -82,43 +208,43 @@ spmv()
 	#elif defined(USE_ELL)
 		// compute_ell(&ell, x, y);
 		// compute_ell_v(&ell, x, y);
-		compute_ell_v_hor(&ell, x, y);
+		// compute_ell_v_hor(&ell, x, y);
+		// compute_ell_unroll(&ell, x, y);
+		// compute_ell_v_hor_split(&ell, x, y);
+		// compute_ell_transposed(&ell, x, y);
+		compute_ell_transposed_v(&ell, x, y);
 	#endif
-}
+} */
 
 
 void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop = 128)
 {
-	int num_threads = omp_get_max_threads();
+	__attribute__((unused)) int num_threads = omp_get_max_threads();
 	int dimMultipleBlock, dimMultipleBlock_y;
-	MKL_INT m, n, nnz;
-	double mem_footprint;
+	// INT_T m, n, nnz;
+	// double mem_footprint;
 	double gflops;
-	__attribute__((unused)) double time, time_balance, time_warm_up, time_after_warm_up;
-	long i;
+	__attribute__((unused)) double time, time_warm_up, time_after_warm_up;
+	// long buf_n = 1000;
+	// char buf[buf_n];
 
-	dimMultipleBlock = ((csr.m+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
-	dimMultipleBlock_y = ((csr.n+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
+	dimMultipleBlock = ((csr_m+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
+	dimMultipleBlock_y = ((csr_n+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
 
-	x = (ValueType *) malloc(dimMultipleBlock_y * sizeof(ValueType));
+	x = (ValueType *) aligned_alloc(64, dimMultipleBlock_y * sizeof(ValueType));
 	#pragma omp parallel for
 	for(int idx = 0 ; idx < dimMultipleBlock_y ; ++idx)
 		x[idx] = 1.0;
 
-	y = (ValueType *) malloc(dimMultipleBlock * sizeof(ValueType));
+	y = (ValueType *) aligned_alloc(64, dimMultipleBlock * sizeof(ValueType));
 	#pragma omp parallel for
 	for(long i=0;i<dimMultipleBlock;i++)
 		y[i] = 0.0;
 
-	thread_time_barrier = (double *) malloc(num_threads * sizeof(*thread_time_barrier));
-	thread_time_compute = (double *) malloc(num_threads * sizeof(*thread_time_compute));
-
-	thread_i_s = (MKL_INT *) malloc(num_threads * sizeof(*thread_i_s));
-	thread_i_e = (MKL_INT *) malloc(num_threads * sizeof(*thread_i_e));
-	thread_partial_sums_s = (ValueType *) malloc(num_threads * sizeof(*thread_partial_sums_s));
-	thread_partial_sums_e = (ValueType *) malloc(num_threads * sizeof(*thread_partial_sums_e));
-	thread_partial_sums_row_s = (MKL_INT *) malloc(num_threads * sizeof(*thread_partial_sums_row_s));
-	thread_partial_sums_row_e = (MKL_INT *) malloc(num_threads * sizeof(*thread_partial_sums_row_e));
+	#if defined(PER_THREAD_STATS)
+		thread_time_barrier = (double *) malloc(num_threads * sizeof(*thread_time_barrier));
+		thread_time_compute = (double *) malloc(num_threads * sizeof(*thread_time_compute));
+	#endif
 
 	// No operations.
 	#if 0
@@ -126,8 +252,8 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		{
 			long i;
 			_Pragma("omp parallel for")
-			for (i=0;i<csr.m+1;i++)
-				csr.ia[i] = 0;
+			for (i=0;i<csr_m+1;i++)
+				csr_ia[i] = 0;
 		}
 	#endif
 
@@ -137,8 +263,8 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		{
 			long i;
 			_Pragma("omp parallel for")
-			for (i=0;i<csr.nnz;i++)
-				csr.ja[i] = 0;
+			for (i=0;i<csr_nnz;i++)
+				csr_ja[i] = 0;
 		}
 	#endif
 
@@ -148,8 +274,8 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		{
 			long i;
 			_Pragma("omp parallel for")
-			for (i=0;i<csr.nnz;i++)
-				csr.ja[i] = i % csr.n;
+			for (i=0;i<csr_nnz;i++)
+				csr_ja[i] = i % csr_n;
 		}
 	#endif
 
@@ -159,24 +285,29 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		{
 			int tnum = omp_get_thread_num();
 			long i;
-			long i_per_t = csr.n / num_threads;
+			long i_per_t = csr_n / num_threads;
 			long i_s = tnum * i_per_t;
 			_Pragma("omp parallel for")
-			for (i=0;i<csr.nnz;i++)
-				csr.ja[i] = i_s + (i % i_per_t);
+			for (i=0;i<csr_nnz;i++)
+				csr_ja[i] = i_s + (i % i_per_t);
 		}
 	#endif
 
-	#if defined(USE_MKL_IE)
+	/* #if defined(USE_MKL_IE)
 		format_name = (char *) "MKL_IE";
-		#if DOUBLE == 0
-			mkl_sparse_s_create_csr(&A, SPARSE_INDEX_BASE_ZERO, csr.m, csr.n, csr.ia, csr.ia+1, csr.ja, csr.a);
-		#elif DOUBLE == 1
-			mkl_sparse_d_create_csr(&A, SPARSE_INDEX_BASE_ZERO, csr.m, csr.n, csr.ia, csr.ia+1, csr.ja, csr.a);
-		#endif
+		time = time_it(1,
+			#if DOUBLE == 0
+				mkl_sparse_s_create_csr(&A, SPARSE_INDEX_BASE_ZERO, csr_m, csr_n, csr_ia, csr_ia+1, csr_ja, csr_a);
+			#elif DOUBLE == 1
+				mkl_sparse_d_create_csr(&A, SPARSE_INDEX_BASE_ZERO, csr_m, csr_n, csr_ia, csr_ia+1, csr_ja, csr_a);
+			#endif
+			mkl_sparse_order(A);
+		);
+		printf("mkl mkl_sparse_s_create_csr + mkl_sparse_order time = %g\n", time);
+
 		descr.type = SPARSE_MATRIX_TYPE_GENERAL;
 		const sparse_operation_t operation = SPARSE_OPERATION_NON_TRANSPOSE;
-		const MKL_INT expected_calls = loop;
+		const INT_T expected_calls = loop;
 
 		// Using SPARSE_MEMORY_AGGRESSIVE policy for some reason gives libgomp error 'out of memory' at 128 theads.
 		//     SPARSE_MEMORY_NONE
@@ -184,6 +315,7 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		//     SPARSE_MEMORY_AGGRESSIVE
 		//         Default.
 		//         Routine can allocate memory up to the size of matrix A for converting into the appropriate sparse format.
+		// const sparse_memory_usage_t policy = SPARSE_MEMORY_AGGRESSIVE;
 		const sparse_memory_usage_t policy = SPARSE_MEMORY_NONE;
 
 		time_balance = time_it(1,
@@ -193,46 +325,64 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		);
 		printf("mkl optimize time = %g\n", time_balance);
 
+		// Even with the 'optimize' it doesn't seem to sort the columns.
+		#if 0
+			for (i=0;i<csr_m;i++)
+			{
+				for (long j=csr_ia[i];j<csr_ia[i+1];j++)
+				{
+					if (j < csr_ia[i+1]-1 && csr_ja[j] >= csr_ja[j+1])
+						error("%ld: unsorted columns: %d >= %d", i, csr_ja[j], csr_ja[j+1]);
+				}
+			}
+		#endif
+
 		// _Pragma("omp parallel")
 		// {
 			// printf("max_threads=%d , num_threads=%d , tnum=%d\n", omp_get_max_threads(), omp_get_num_threads(), omp_get_thread_num());
 		// }
 		// printf("out\n");
 
-		m = csr.m;
-		n = csr.n;
-		nnz = csr.nnz;
-		mem_footprint = nnz * (sizeof(ValueType) + sizeof(MKL_INT)) + (m+1) * sizeof(MKL_INT);
+		m = csr_m;
+		n = csr_n;
+		nnz = csr_nnz;
+		mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	#elif defined(USE_MKL_CSR)
 		format_name = (char *) "MKL_CSR";
-		m = csr.m;
-		n = csr.n;
-		nnz = csr.nnz;
-		mem_footprint = nnz * (sizeof(ValueType) + sizeof(MKL_INT)) + (m+1) * sizeof(MKL_INT);
+		m = csr_m;
+		n = csr_n;
+		nnz = csr_nnz;
+		mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	#elif defined(USE_CUSTOM_CSR)
 		#ifdef NAIVE
 			format_name = (char *) "Naive_CSR_CPU";
+		#elif defined(CUSTOM_VECTOR_PERFECT_NNZ_BALANCE)
+			format_name = (char *) "Custom_CSR_PBV";
 		#else
-			format_name = (char *) "Custom_CSR_Balanced";
+			#ifdef CUSTOM_VECTOR
+				format_name = (char *) "Custom_CSR_BV";
+			#else
+				format_name = (char *) "Custom_CSR_B";
+			#endif
 		#endif
-		m = csr.m;
-		n = csr.n;
-		nnz = csr.nnz;
-		mem_footprint = nnz * (sizeof(ValueType) + sizeof(MKL_INT)) + (m+1) * sizeof(MKL_INT);
+		m = csr_m;
+		n = csr_n;
+		nnz = csr_nnz;
+		mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	#elif defined(USE_MKL_BSR)
 		format_name = (char *) "MKL_BSR";
 		CSR_to_BCSR(&csr, &bcsr, BLOCK_SIZE);
 		m = bcsr.m;
 		n = bcsr.n;
 		nnz = bcsr.nnz;
-		mem_footprint = bcsr.nbBlocks*bcsr.lb*bcsr.lb*sizeof(ValueType) + (bcsr.nbBlockRows+1)*sizeof(MKL_INT) + bcsr.nbBlocks*sizeof(MKL_INT);
+		mem_footprint = bcsr.nbBlocks*bcsr.lb*bcsr.lb*sizeof(ValueType) + (bcsr.nbBlockRows+1)*sizeof(INT_T) + bcsr.nbBlocks*sizeof(INT_T);
 	#elif defined(USE_MKL_DIA)
 		format_name = (char *) "MKL_DIA";
 		CSR_to_DIA(&csr, &dia);
 		m = dia.m;
 		n = dia.n;
 		nnz = dia.nnz;
-		mem_footprint = dia.ndiag*dia.lval*sizeof(ValueType) + dia.ndiag*sizeof(MKL_INT);
+		mem_footprint = dia.ndiag*dia.lval*sizeof(ValueType) + dia.ndiag*sizeof(INT_T);
 	#elif defined(USE_CUSTOM_DIA)
 		format_name = (char *) "Custom_DIA";
 		CSR_to_DIA(&csr, &dia);
@@ -242,89 +392,117 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 		m = dia.m;
 		n = dia.n;
 		nnz = dia.nnz;
-		mem_footprint = dia.ndiag*dia.lval*sizeof(ValueType) + dia.ndiag*sizeof(MKL_INT);
+		mem_footprint = dia.ndiag*dia.lval*sizeof(ValueType) + dia.ndiag*sizeof(INT_T);
 	#elif defined(USE_MKL_CSC)
 		format_name = (char *) "MKL_CSC";
 		CSR_to_CSC(&csr, &csc);
 		m = csc.m;
 		n = csc.n;
 		nnz = csc.nnz;
-		mem_footprint = nnz * (sizeof(ValueType) + sizeof(MKL_INT)) + (n+1) * sizeof(MKL_INT);
+		mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (n+1) * sizeof(INT_T);
 	#elif defined(USE_MKL_COO)
 		format_name = (char *) "MKL_COO";
 		m = coo.m;
 		n = coo.n;
 		nnz = coo.nnz;
-		mem_footprint = nnz * (sizeof(ValueType) + 2 * sizeof(MKL_INT));
+		mem_footprint = nnz * (sizeof(ValueType) + 2 * sizeof(INT_T));
 	#elif defined(USE_LDU)
 		format_name = (char *) "LDU";
 		CSR_to_LDU(&csr, &ldu);
 		m = ldu.m;
 		n = ldu.n;
 		nnz = ldu.nnz;
-		mem_footprint = nnz * sizeof(ValueType) + ldu.upper_n * 2 * sizeof(MKL_INT);
+		mem_footprint = nnz * sizeof(ValueType) + ldu.upper_n * 2 * sizeof(INT_T);
 	#elif defined(USE_ELL)
 		format_name = (char *) "ELL";
 		CSR_to_ELL(&csr, &ell);
 		m = ell.m;
 		n = ell.n;
 		nnz = ell.nnz;
-		mem_footprint = m * ell.width * (sizeof(ValueType) + sizeof(MKL_INT));
+		mem_footprint = m * ell.width * (sizeof(ValueType) + sizeof(INT_T));
 	#else
 		format_name = (char *) "OTHER";
-	#endif
+	#endif */
 
-	#if defined(USE_CUSTOM_CSR)
-		time_balance = time_it(1,
-			_Pragma("omp parallel")
-			{
-				int tnum = omp_get_thread_num();
-				#if defined(NAIVE) || defined(PROC_BENCH)
-					loop_partitioner_balance_iterations(num_threads, tnum, 0, m, &thread_i_s[tnum], &thread_i_e[tnum]);
-				#else
-					loop_partitioner_balance_partial_sums(num_threads, tnum, csr.ia, csr.m, csr.nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
-					// loop_partitioner_balance(num_threads, tnum, 2, csr.ia, csr.m, csr.nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
-				#endif
-			}
-		);
-		printf("balance time = %g\n", time_balance);
-	#else
-		_Pragma("omp parallel")
+
+	MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
+
+	#if defined(PER_THREAD_STATS)
+		for (i=0;i<num_threads;i++)
 		{
-			int tnum = omp_get_thread_num();
-			loop_partitioner_balance_iterations(num_threads, tnum, 0, m, &thread_i_s[tnum], &thread_i_e[tnum]);
+			long rows, nnz;
+			INT_T i_s, i_e, j_s, j_e;
+			i_s = thread_i_s[i];
+			i_e = thread_i_e[i];
+			j_s = thread_j_s[i];
+			j_e = thread_j_e[i];
+			rows = i_e - i_s;
+			nnz = csr_ia[i_e] - csr_ia[i_s];
+			printf("%ld: rows=[%d(%d), %d(%d)]:%ld(%ld), nnz=[%d, %d]:%d\n", i, i_s, csr_ia[i_s], i_e, csr_ia[i_e], rows, nnz, j_s, j_e, j_e-j_s);
 		}
 	#endif
 
 	// warm up caches
 	time_warm_up = time_it(1,
-		spmv();
+		MF->spmv(x, y);
 	);
 
 	time_after_warm_up = time_it(1,
-		spmv();
+		MF->spmv(x, y);
 	);
 
-	// Clear times after warmup.
-	for (i=0;i<num_threads;i++)
-	{
-		thread_time_compute[i] = 0;
-		thread_time_barrier[i] = 0;
-	}
+	#if defined(PER_THREAD_STATS)
+		// Clear times after warmup.
+		for (i=0;i<num_threads;i++)
+		{
+			thread_time_compute[i] = 0;
+			thread_time_barrier[i] = 0;
+		}
+	#endif
 
 	#ifdef PROC_BENCH
 		raise(SIGSTOP);
 	#endif
 
-	time = time_it(1,
-		for(int idxLoop = 0 ; idxLoop < loop ; ++idxLoop)
-			spmv();
-	);
+	/*****************************************************************************************/
+	struct RAPL_Register * regs;
+	long regs_n;
+	char * reg_ids;
+
+	reg_ids = NULL;
+	reg_ids = (char *) "0,1"; // For Xeon(Gold1), these two are for package-0 and package-1E
+	// reg_ids = (char *) "0:0";
+	// reg_ids = (char *) "0,0:0";
+
+	rapl_open(reg_ids, &regs, &regs_n);
+	/*****************************************************************************************/
+
+	time = 0;
+	for(int idxLoop = 0 ; idxLoop < loop ; ++idxLoop){
+		rapl_read_start(regs, regs_n);
+
+		time += time_it(1,
+			MF->spmv(x, y);
+		);
+
+		rapl_read_end(regs, regs_n);
+	}
+
+	/*****************************************************************************************/
+	double J_estimated = 0;
+	for (int i=0;i<regs_n;i++){
+		// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
+		J_estimated += ((double) regs[i].uj_accum) / 1e6;
+	}
+	rapl_close(regs, regs_n);
+	free(regs);
+	double W_avg = J_estimated / time;
+	// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
+	/*****************************************************************************************/
 
 	//=============================================================================
 	//= Output section.
 	//=============================================================================
-
 
 	#if defined(PER_THREAD_STATS)
 		double iters_per_t[num_threads];
@@ -341,7 +519,8 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 			i_s = thread_i_s[i];
 			i_e = thread_i_e[i];
 			iters_per_t[i] = i_e - i_s;
-			nnz_per_t[i] = &(csr.a[csr.ia[i_e]]) - &(csr.a[csr.ia[i_s]]);
+			// nnz_per_t[i] = &(csr_a[csr_ia[i_e]]) - &(csr_a[csr_ia[i_s]]);
+			nnz_per_t[i] = csr_ia[i_e] - csr_ia[i_s];
 			gflops_per_t[i] = nnz_per_t[i] / thread_time_compute[i] * loop * 2 * 1e-9;   // Calculate before making nnz_per_t a ratio.
 			iters_per_t[i] /= m;    // As a fraction of m.
 			nnz_per_t[i] /= nnz;    // As a fraction of nnz.
@@ -398,23 +577,21 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 	}
 	#endif
 
-	gflops = nnz / time * loop * 2 * 1e-9;
+	gflops = csr_nnz / time * loop * 2 * 1e-9;    // Use csr_nnz to be sure we have the initial nnz (there is no coo for artificial AM).
 
-	double W_avg = 250;
-	double J_estimated = W_avg*time;
-
+	std::stringstream stream;
 	if (AM == NULL)
 	{
-		std::cerr
+		stream
 		#ifdef PROC_BENCH
 			<< "pnum_" << process_custom_id << "," << matrix_filename << "," << num_procs
 		#else
-			// << matrix_filename << "," << mkl_get_max_threads()
 			<< matrix_filename << "," << omp_get_max_threads()
 		#endif
-			<< "," << m << "," << n << "," << nnz
-			<< "," << time << "," << gflops << "," << mem_footprint/(1024*1024)
-			<< "," << time_balance << "," << time_warm_up << "," << time_after_warm_up
+			<< "," << MF->m << "," << MF->n << "," << MF->nnz
+			<< "," << time << "," << gflops << "," << MF->mem_footprint/(1024*1024)
+			<< "," << W_avg << "," << J_estimated
+			// << "," << time_warm_up << "," << time_after_warm_up
 		#ifdef PER_THREAD_STATS
 			<< "," << iters_per_t_avg << "," << iters_per_t_std << "," << iters_per_t_balance
 			<< "," << nnz_per_t_avg << "," << nnz_per_t_std << "," << nnz_per_t_balance
@@ -422,63 +599,40 @@ void compute(csr_matrix * AM, const std::string& matrix_filename, const int loop
 			<< "," << gflops_per_t_avg << "," << gflops_per_t_std << "," << gflops_per_t_balance
 		#endif
 			<< "\n";
+		std::cerr << stream.str();
 
-		CheckAccuracy(&coo, x, y);
+		CheckAccuracy(mtx_val, mtx_rowind, mtx_colind, mtx_m, mtx_nnz, x, y);
 	}
 	else
 	{
-		// std::cerr << "synthetic" << "," << AM->distribution << "," << AM->placement << "," << AM->seed
-		// 	<< "," << AM->nr_rows << "," << AM->nr_cols << "," << AM->nr_nzeros
-		// 	<< "," << AM->density << "," << AM->mem_footprint << "," << AM->mem_range
-		// 	<< "," << AM->avg_nnz_per_row << "," << AM->std_nnz_per_row
-		// 	<< "," << AM->avg_bw << "," << AM->std_bw
-		// 	<< "," << AM->avg_bw_scaled << "," << AM->std_bw_scaled
-		// 	<< "," << AM->avg_sc << "," << AM->std_sc
-		// 	<< "," << AM->avg_sc_scaled << "," << AM->std_sc_scaled
-		// 	<< "," << AM->skew
-		// 	<< "," << AM->avg_num_neighbours << "," << AM->cross_row_similarity
-		// 	<< "," << format_name <<  "," << time << "," << gflops << "," << W_avg << "," << J_estimated
-		// #ifdef PER_THREAD_STATS
-		// 	<< "," << iters_per_t_avg << "," << iters_per_t_std << "," << iters_per_t_balance
-		// 	<< "," << nnz_per_t_avg << "," << nnz_per_t_std << "," << nnz_per_t_balance
-		// 	<< "," << time_per_t_avg << "," << time_per_t_std << "," << time_per_t_balance
-		// 	<< "," << gflops_per_t_avg << "," << gflops_per_t_std << "," << gflops_per_t_balance
-		// #endif
-		// 	<< "\n";
-		fprintf(stderr, "synthetic,");
-		fprintf(stderr, "%s,", AM->distribution);
-		fprintf(stderr, "%s,", AM->placement);
-		fprintf(stderr, "%d,", AM->seed);
-		fprintf(stderr, "%u,", AM->nr_rows);
-		fprintf(stderr, "%u,", AM->nr_cols);
-		fprintf(stderr, "%u,", AM->nr_nzeros);
-		fprintf(stderr, "%lf,", AM->density);
-		fprintf(stderr, "%lf,", AM->mem_footprint);
-		fprintf(stderr, "%s,", AM->mem_range);
-		fprintf(stderr, "%lf,", AM->avg_nnz_per_row);
-		fprintf(stderr, "%lf,", AM->std_nnz_per_row);
-		fprintf(stderr, "%lf,", AM->avg_bw);
-		fprintf(stderr, "%lf,", AM->std_bw);
-		fprintf(stderr, "%lf,", AM->avg_bw_scaled);
-		fprintf(stderr, "%lf,", AM->std_bw_scaled);
-		fprintf(stderr, "%lf,", AM->avg_sc);
-		fprintf(stderr, "%lf,", AM->std_sc);
-		fprintf(stderr, "%lf,", AM->avg_sc_scaled);
-		fprintf(stderr, "%lf,", AM->std_sc_scaled);
-		fprintf(stderr, "%lf,", AM->skew);
-		fprintf(stderr, "%lf,", AM->avg_num_neighbours);
-		fprintf(stderr, "%lf,", AM->cross_row_similarity);
-		fprintf(stderr, "%s,",format_name);
-		fprintf(stderr, "%lf,",time);
-		fprintf(stderr, "%lf,", gflops); 
-		fprintf(stderr, "%lf,", W_avg);
-		fprintf(stderr, "%lf\n", J_estimated);
-
-
+		stream << "synthetic" << "," << AM->distribution << "," << AM->placement << "," << AM->seed
+			<< "," << AM->nr_rows << "," << AM->nr_cols << "," << AM->nr_nzeros
+			<< "," << AM->density << "," << AM->mem_footprint << "," << AM->mem_range
+			<< "," << AM->avg_nnz_per_row << "," << AM->std_nnz_per_row
+			<< "," << AM->avg_bw << "," << AM->std_bw
+			<< "," << AM->avg_bw_scaled << "," << AM->std_bw_scaled
+			<< "," << AM->avg_sc << "," << AM->std_sc
+			<< "," << AM->avg_sc_scaled << "," << AM->std_sc_scaled
+			<< "," << AM->skew
+			<< "," << AM->avg_num_neighbours << "," << AM->cross_row_similarity
+			<< "," << MF->format_name <<  "," << time << "," << gflops << "," << W_avg << "," << J_estimated
+		#ifdef PER_THREAD_STATS
+			<< "," << iters_per_t_avg << "," << iters_per_t_std << "," << iters_per_t_balance
+			<< "," << nnz_per_t_avg << "," << nnz_per_t_std << "," << nnz_per_t_balance
+			<< "," << time_per_t_avg << "," << time_per_t_std << "," << time_per_t_balance
+			<< "," << gflops_per_t_avg << "," << gflops_per_t_std << "," << gflops_per_t_balance
+		#endif
+			<< "\n";
+		std::cerr << stream.str();
 	}
 
 	free(x);
 	free(y);
+
+	#if defined(PER_THREAD_STATS)
+		free(thread_time_barrier);
+		free(thread_time_compute);
+	#endif
 }
 
 
@@ -498,19 +652,6 @@ int main(int argc, char **argv)
 		num_threads = omp_get_max_threads();
 	}
 	printf("max threads %d\n", num_threads);
-	// printf("-------------------------------------------\naligned alloc try1\n");
-	// int *pinakas;
-	// int size = 65535;
-	// pinakas = (typeof(pinakas)) safe_aligned_alloc(64, size * sizeof(*pinakas));
-	// printf("-------------------------------------------\ntelos!\n");
-	// for (i=0; i<size; i++){
-	// 	pinakas[i] = i/10;
-	// }
-	// printf("pinakas = [ ");
-	// for (i=0; i<size; i++){
-	// 	printf("%d, ",pinakas[i]);
-	// }
-	// printf("]\n");
 
 	if (argc < 6)
 	{
@@ -563,14 +704,56 @@ child_proc_label:
 
 		file_in = argv[i++];
 		time = time_it(1,
-			create_coo_matrix(file_in, &coo);
+			if (is_directory(file_in))
+			{
+				int nnz_non_diag, N;
+				int * rowind, * colind;
+				read_openfoam_matrix_dir(file_in, &rowind, &colind, &N, &nnz_non_diag);
+				mtx_m = N;
+				mtx_n = N;
+				mtx_nnz = N + nnz_non_diag;
+				mtx_rowind = (INT_T *) aligned_alloc(64, mtx_nnz * sizeof(INT_T));
+				mtx_colind = (INT_T *) aligned_alloc(64, mtx_nnz * sizeof(INT_T));
+				mtx_val = (ValueType *) aligned_alloc(64, mtx_nnz * sizeof(ValueType));
+				for (i=0;i<mtx_nnz;i++)
+				{
+					mtx_rowind[i] = rowind[i];
+					mtx_colind[i] = colind[i];
+					mtx_val[i] = 1.0;
+				}
+				free(rowind);
+				free(colind);
+			}
+			else
+				create_coo_matrix(file_in, &mtx_val, &mtx_rowind, &mtx_colind, &mtx_m, &mtx_n, &mtx_nnz);
 		);
 		printf("time read: %lf\n", time);
 		time = time_it(1,
-			COO_to_CSR(&coo, &csr);
+			csr_a = (ValueType *) aligned_alloc(64, (mtx_nnz + VECTOR_ELEM_NUM) * sizeof(ValueType));
+			csr_ja = (INT_T *) aligned_alloc(64, (mtx_nnz + VECTOR_ELEM_NUM) * sizeof(INT_T));
+			csr_ia = (INT_T *) aligned_alloc(64, (mtx_m+1 + VECTOR_ELEM_NUM) * sizeof(INT_T));
+			csr_m = mtx_m;
+			csr_n = mtx_n;
+			csr_nnz = mtx_nnz;
+			_Pragma("omp parallel for")
+			for (int i=0;i<mtx_nnz + VECTOR_ELEM_NUM;i++)
+			{
+				csr_a[i] = 0.0;
+				csr_ja[i] = 0;
+			}
+			_Pragma("omp parallel for")
+			for (int i=0;i<mtx_m+1 + VECTOR_ELEM_NUM;i++)
+				csr_ia[i] = 0;
+			coo_to_csr(mtx_rowind, mtx_colind, mtx_val, mtx_m, mtx_n, mtx_nnz, csr_ia, csr_ja, csr_a, 1);
 		);
 		printf("time coo to csr: %lf\n", time);
-		compute(NULL, file_in);
+		// for (prefetch_distance=1;prefetch_distance<=128;prefetch_distance++)
+		// for (i=0;i<128;i++)
+		{
+			// fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);
+			compute(NULL, file_in);
+			// compute(NULL, file_in, 128 * 10);
+		}
 	}
 	else
 	{
@@ -578,12 +761,6 @@ child_proc_label:
 		char buf[1000];
 
 		time = time_it(1,
-
-			// int start_of_matrix_generation_args = 1;
-			// int verbose = 1; // 0 : printf nothing
-			// AM = artificial_matrix_generation(argc, argv, start_of_matrix_generation_args, verbose);
-			// if (AM == NULL)
-				// error("Didn't make it with the given matrix features. Try again.\n");
 
 			long nr_rows, nr_cols, seed;
 			double avg_nnz_per_row, std_nnz_per_row, bw, skew;
@@ -610,34 +787,38 @@ child_proc_label:
 		);
 		printf("time generate artificial matrix: %lf\n", time);
 
-		csr.m = AM->nr_rows;
-		csr.n = AM->nr_cols;
-		csr.nnz = AM->nr_nzeros;
+		csr_m = AM->nr_rows;
+		csr_n = AM->nr_cols;
+		csr_nnz = AM->nr_nzeros;
 
-		csr.ia = (MKL_INT *) malloc((csr.m+1 + VECTOR_ELEM_NUM) * sizeof(MKL_INT));
+		csr_ia = (INT_T *) aligned_alloc(64, (csr_m+1 + VECTOR_ELEM_NUM) * sizeof(INT_T));
 		#pragma omp parallel for
-		for (long i=0;i<csr.m+1;i++)
-			csr.ia[i] = AM->row_ptr[i];
+		for (long i=0;i<csr_m+1;i++)
+			csr_ia[i] = AM->row_ptr[i];
 		free(AM->row_ptr);
 		AM->row_ptr = NULL;
 
-		csr.a = (ValueType *) malloc((csr.nnz + VECTOR_ELEM_NUM) * sizeof(ValueType));
+		csr_a = (ValueType *) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(ValueType));
+		csr_ja = (INT_T *) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(INT_T));
 		#pragma omp parallel for
-		for (long i=0;i<csr.nnz;i++)
-			csr.a[i] = AM->values[i];
+		for (long i=0;i<csr_nnz;i++)
+		{
+			csr_a[i] = AM->values[i];
+			csr_ja[i] = AM->col_ind[i];
+		}
 		free(AM->values);
 		AM->values = NULL;
-
-		csr.ja = (MKL_INT *) malloc((csr.nnz + VECTOR_ELEM_NUM) * sizeof(MKL_INT));
-		#pragma omp parallel for
-		for (long i=0;i<csr.nnz;i++)
-			csr.ja[i] = AM->col_ind[i];
 		free(AM->col_ind);
 		AM->col_ind = NULL;
 
 		snprintf(buf, sizeof(buf), "'%d_%d_%d_%g_%g_%g_%g'", AM->nr_rows, AM->nr_cols, AM->nr_nzeros, AM->avg_bw, AM->std_bw, AM->avg_sc, AM->std_sc);
 
 		compute(AM, buf);
+		// compute(AM, buf, 128 * 10);
+		// for (i=0;i<1024;i++)
+		// {
+			// compute(AM, buf);
+		// }
 
 		free_csr_matrix(AM);
 	}
