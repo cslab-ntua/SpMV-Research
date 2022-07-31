@@ -66,7 +66,7 @@ typedef FUNCTOOLS_GEN_TYPE_1  _TYPE;
 #define reduce_serial  FUNCTOOLS_GEN_EXPAND(reduce_serial)
 inline
 _TYPE
-reduce_serial(_TYPE * A, long N, _TYPE zero)
+reduce_serial(_TYPE * restrict A, long N, _TYPE zero)
 {
 	_TYPE total;
 	long i;
@@ -80,7 +80,7 @@ reduce_serial(_TYPE * A, long N, _TYPE zero)
 #undef  reduce
 #define reduce  FUNCTOOLS_GEN_EXPAND(reduce)
 _TYPE
-reduce(_TYPE * A, long N, _TYPE zero)
+reduce(_TYPE * restrict A, long N, _TYPE zero)
 {
 	int num_threads = safe_omp_get_num_threads_next_par_region();
 	_TYPE t_partial[num_threads];
@@ -116,12 +116,12 @@ reduce(_TYPE * A, long N, _TYPE zero)
 #undef  scan_serial
 #define scan_serial  FUNCTOOLS_GEN_EXPAND(scan_serial)
 _TYPE
-scan_serial(_TYPE * A, _TYPE * P, long N, _TYPE init, int start_from_zero)
+scan_serial(_TYPE * A, _TYPE * P, long N, _TYPE zero, const int start_from_zero)
 {
 	_TYPE partial;
 	_TYPE tmp;
 	long i;
-	set_value(&partial, init);
+	set_value(&partial, zero);
 	if (start_from_zero)
 		for (i=0;i<N;i++)
 		{
@@ -142,7 +142,7 @@ scan_serial(_TYPE * A, _TYPE * P, long N, _TYPE init, int start_from_zero)
 #undef  scan
 #define scan  FUNCTOOLS_GEN_EXPAND(scan)
 _TYPE
-scan(_TYPE * A, _TYPE * P, long N, _TYPE zero, int start_from_zero)
+scan(_TYPE * A, _TYPE * P, long N, _TYPE zero, const int start_from_zero)
 {
 	int num_threads = safe_omp_get_num_threads_next_par_region();
 	_TYPE t_base[num_threads];

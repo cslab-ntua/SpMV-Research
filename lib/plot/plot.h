@@ -102,9 +102,9 @@ struct Figure_Series * figure_add_series_base(struct Figure * fig, void * x, voi
 		);
 #define figure_add_series(fig, x, y, z, N, M, ... /* get_x_as_double(), get_y_as_double(), get_z_as_double() */ )    \
 	figure_add_series_base(fig, x, y, z, N, M,                                                                   \
-			DEFAULT_ARG_1(gen_basic_type_to_double_converter(x), ##__VA_ARGS__),                         \
-			DEFAULT_ARG_2(gen_basic_type_to_double_converter(y), ##__VA_ARGS__),                         \
-			DEFAULT_ARG_3(gen_basic_type_to_double_converter(z), ##__VA_ARGS__))
+			DEFAULT_ARG_1(gen_functor_basic_type_to_double(x), ##__VA_ARGS__),                           \
+			DEFAULT_ARG_2(gen_functor_basic_type_to_double(y), ##__VA_ARGS__),                           \
+			DEFAULT_ARG_3(gen_functor_basic_type_to_double(z), ##__VA_ARGS__))
 
 void figure_axes_flip_x(struct Figure * fig);
 void figure_axes_flip_y(struct Figure * fig);

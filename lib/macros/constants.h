@@ -30,8 +30,24 @@
  *     _SC_NPROCESSORS_ONLN
  *         The number of processors currently online (available).
  *
+ *     _SC_LEVEL1_ICACHE_SIZE,
+ *     _SC_LEVEL1_ICACHE_ASSOC,
+ *     _SC_LEVEL1_ICACHE_LINESIZE,
+ *     _SC_LEVEL1_DCACHE_SIZE,
+ *     _SC_LEVEL1_DCACHE_ASSOC,
+ *     _SC_LEVEL1_DCACHE_LINESIZE,
+ *     _SC_LEVEL2_CACHE_SIZE,
+ *     _SC_LEVEL2_CACHE_ASSOC,
+ *     _SC_LEVEL2_CACHE_LINESIZE,
+ *     _SC_LEVEL3_CACHE_SIZE,
+ *     _SC_LEVEL3_CACHE_ASSOC,
+ *     _SC_LEVEL3_CACHE_LINESIZE,
+ *     _SC_LEVEL4_CACHE_SIZE,
+ *     _SC_LEVEL4_CACHE_ASSOC,
+ *     _SC_LEVEL4_CACHE_LINESIZE,
  *
  * See all system configuration in the command line: "getconf -a".
+ * See all sysconf arguments in '/usr/include/bits/confname.h'.
  */
 
 #define GET_VIRTUAL_CORES()  (sysconf(_SC_NPROCESSORS_CONF))

@@ -124,6 +124,8 @@ struct Matrix_Format *
 csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
 {
 	struct CSRArrays * csr = new CSRArrays(row_ptr, col_ind, values, m, n, nnz);
+	// for (long i=0;i<10;i++)
+		// printf("%d\n", row_ptr[i]);
 	csr->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	#if defined(NAIVE)
 		csr->format_name = (char *) "Naive_CSR_CPU";
@@ -338,8 +340,6 @@ void compute_csr_custom_vector_x86_scalar(CSRArrays * restrict csr, ValueType * 
 		sum = 0;
 		for (j=j_s;j<j_e;j++)
 		{
-			__builtin_prefetch(&csr->ja[j + prefetch_distance], 0, 3);
-			__builtin_prefetch(&x[csr->ja[j + 2*prefetch_distance]], 0, 3);
 			sum += csr->a[j] * x[csr->ja[j]];
 		}
 		y[i] = sum;
@@ -436,12 +436,12 @@ void compute_csr_custom_vector_x86(CSRArrays * restrict csr, ValueType * restric
 		if (i_s != i_e)
 		{
 			density = ((double) csr->ia[i_e] - csr->ia[i_s]) / (i_e - i_s);
-			if (density < 6)
+			if (density < 4)
 			{
 				// printf("%d: scalar %lf\n", tnum, density);
 				compute_csr_custom_vector_x86_scalar(csr, x, y, i_s, i_e);
 			}
-			else if (density < 12)
+			else if (density < 8)
 			{
 				// printf("%d: 128 %lf\n", tnum, density);
 				compute_csr_custom_vector_x86_128d(csr, x, y, i_s, i_e);

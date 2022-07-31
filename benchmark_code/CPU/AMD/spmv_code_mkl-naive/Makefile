@@ -6,11 +6,24 @@ SHELL := bash
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
 
-# 'shell' merges all lines into one, but gcc -M ends each line with '\' (backslash), so we have to remove them.
-define Rule_Auto_Dependencies =
-    $(info Searching dependencies: $(2))
-    $(shell gcc $(CFLAGS) -MT '$(1)' -MM -MG '$(2)' | sed 's/\\$$//g')
+# Targets that don't generate dependency files.
+NODEPS = clean
+
+define Rule_Auto_Dependencies_base =
+    $(1:.o=.d): $(2)
+	@echo 'Generating dependencies file:  $(2)'
+	gcc $$(CFLAGS) -MT '$(1:.o=.d)' -MM -MG '$(2)' -MF '$(1:.o=.d)'
+    ifeq (0, $(words $(findstring $(MAKECMDGOALS),$(NODEPS))))
+        include $(1:.o=.d)
+    endif
+    $(1): $(1:.o=.d)
 endef
+
+define Rule_Auto_Dependencies =
+    $(eval $(call Rule_Auto_Dependencies_base,$(1),$(2)))
+    $(1): $(2)
+endef
+
 
 library = ../../../../lib
 
@@ -36,6 +49,7 @@ CPP = g++
 
 
 CFLAGS = -Wall -Wextra
+CFLAGS += -pipe  # Tells the compiler to use pipes instead of temporary files (faster compilation, but uses more memory).
 CFLAGS += -Wno-deprecated-declarations
 # CFLAGS += -Wno-unused-variable
 CFLAGS += -fopenmp
@@ -57,7 +71,8 @@ CFLAGS += -I'$(library)'
 CFLAGS += -I'$(AMG_PATH)'
 CFLAGS += -I'$(MKL_PATH)/include'
 CFLAGS += -I'/usr/include/mkl'
-CFLAGS += -I'$(AOCL_PATH)/include' -I'$(AOCL_PATH)/../../library/src/include'
+CFLAGS += -I'$(AOCL_PATH)/include'
+CFLAGS += -I'$(AOCL_PATH)/../../library/src/include'
 
 # DOUBLE := 0
 DOUBLE := 1
@@ -81,10 +96,6 @@ LDFLAGS_AOCL += -lm
 LDFLAGS_AOCL += -L'$(AOCL_PATH)/lib/'
 LDFLAGS_AOCL += -Wl,--no-as-needed  -laoclsparse -lgomp -lpthread -lm -ldl
 
-LDFLAGS_AOCL =
-LDFLAGS_AOCL += -lm
-LDFLAGS_AOCL += -L'$(AOCL_PATH)/lib/'
-LDFLAGS_AOCL += -Wl,--no-as-needed  -laoclsparse -lgomp -lpthread -lm -ldl #-lpapi
 
 LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c parallel_io.c string_util.c openfoam_matrix.c rapl.c
 
@@ -95,27 +106,27 @@ LIB_OBJ := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ))
 
 EXE =
 
-# EXE += spmv_mkl_ie.exe
+EXE += spmv_mkl_ie.exe
 # EXE += spmv_mkl_coo.exe
 # EXE += spmv_mkl_dia.exe
 # EXE += spmv_mkl_csc.exe
 # EXE += spmv_mkl_csr.exe
 # EXE += spmv_mkl_bsr_2.exe spmv_mkl_bsr_4.exe spmv_mkl_bsr_8.exe spmv_mkl_bsr_16.exe spmv_mkl_bsr_32.exe spmv_mkl_bsr_64.exe
 
-# EXE += spmv_csr_naive.exe
-# EXE += spmv_csr.exe
-# EXE += spmv_csr_vector.exe
-# EXE += spmv_csr_vector_x86.exe
-# EXE += spmv_csr_vector_perfect_nnz_balance.exe
-# EXE += spmv_csr_simd.exe
-# EXE += spmv_csr_prefetch.exe
-# EXE += spmv_csr_x86_queues.exe
+EXE += spmv_csr_naive.exe
+EXE += spmv_csr.exe
+EXE += spmv_csr_vector.exe
+EXE += spmv_csr_vector_x86.exe
+EXE += spmv_csr_vector_perfect_nnz_balance.exe
+EXE += spmv_csr_simd.exe
+EXE += spmv_csr_prefetch.exe
+EXE += spmv_csr_x86_queues.exe
 
 # EXE += spmv_dia.exe
 # EXE += spmv_ldu.exe
 # EXE += spmv_ell.exe
 
-EXE += spmv_aocl_optmv.exe
+# EXE += spmv_aocl_optmv.exe
 
 DIRS = obj
 
@@ -175,30 +186,27 @@ spmv_ell.exe: obj/spmv.o spmv_kernel_ell.c $(LIB_OBJ)
 
 spmv_aocl_optmv.exe: obj/spmv.o spmv_kernel_aocl_optmv.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_AOCL)
-<<<<<<< HEAD
-=======
 
->>>>>>> ff2b062cccaca2be7b6445af043b55b2667e1293
 
-$(call Rule_Auto_Dependencies,'obj/spmv.o','spmv.cpp')
+$(call Rule_Auto_Dependencies,obj/spmv.o,spmv.cpp)
 	$(CPP) $(CFLAGS) -c $< -o $@
 
-$(call Rule_Auto_Dependencies,'obj/read_mtx.o','read_mtx.cpp')
+$(call Rule_Auto_Dependencies,obj/read_mtx.o,read_mtx.cpp)
 	$(CPP) $(CFLAGS) -c $< -o $@
 
-$(call Rule_Auto_Dependencies,'obj/artificial_matrix_generation.o','$(AMG_PATH)/artificial_matrix_generation.c')
+$(call Rule_Auto_Dependencies,obj/artificial_matrix_generation.o,$(AMG_PATH)/artificial_matrix_generation.c)
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,'obj/ordered_set.o','$(AMG_PATH)/ordered_set.c')
+$(call Rule_Auto_Dependencies,obj/ordered_set.o,$(AMG_PATH)/ordered_set.c)
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,'obj/string_util.o','$(library)/string_util.c')
+$(call Rule_Auto_Dependencies,obj/string_util.o,$(library)/string_util.c)
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,'obj/parallel_io.o','$(library)/parallel_io.c')
+$(call Rule_Auto_Dependencies,obj/parallel_io.o,$(library)/parallel_io.c)
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,'obj/openfoam_matrix.o','$(library)/file_formats/openfoam/openfoam_matrix.c')
+$(call Rule_Auto_Dependencies,obj/openfoam_matrix.o,$(library)/file_formats/openfoam/openfoam_matrix.c)
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,'obj/rapl.o','$(library)/monitoring/power/rapl.c')
+$(call Rule_Auto_Dependencies,obj/rapl.o,$(library)/monitoring/power/rapl.c)
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,'obj/csr_converter.o','$(library)/aux/csr_converter.c')
+$(call Rule_Auto_Dependencies,obj/csr_converter.o,$(library)/aux/csr_converter.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
@@ -206,5 +214,5 @@ $(DIRS): %:
 	mkdir -p $@
 
 clean:
-	$(RM) obj/*.o *.o *.exe a.out
+	$(RM) obj/*.o obj/*.d *.o *.exe a.out
 

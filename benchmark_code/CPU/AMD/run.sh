@@ -129,7 +129,7 @@ bench()
 
 matrices=(
     # "${matrices_openFoam[@]}"
-    "${matrices_validation[@]}"
+    # "${matrices_validation[@]}"
 
     # "${matrices_validation_artificial_twins[@]}"
     # "${matrices_validation_loop[@]}"
@@ -144,7 +144,7 @@ matrices=(
     # "$path_openFoam"/TestMatrices/HEXmats/5krows/processor0
     # "${matrices_openFoam_own_neigh[@]}"
 
-    # "$path_validation"/scircuit.mtx
+    "$path_validation"/scircuit.mtx
     # "$path_validation"/mac_econ_fwd500.mtx
     # "$path_validation"/raefsky3.mtx
     # "$path_validation"/bbmat.mtx
@@ -234,6 +234,8 @@ for format_name in "${!progs[@]}"; do
         > "${format_name}.csv"
         exec 2>>"${format_name}.csv"
     fi
+
+    echo "$config_str"
 
     echo "program: $p"
     echo "number of matrices: ${#prog_args[@]}"

@@ -143,14 +143,17 @@ declare -A progs
 
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
+    # AOCL
+    # ['aocl_optmv_d']="${script_dir}/spmv_code_mkl-naive/spmv_aocl_optmv.exe"
+
     # MKL IE
     # ['mkl_ie_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_ie.exe"
 
     # Custom naive
-    # ['csr_naive_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_naive.exe"
+    ['csr_naive_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_naive.exe"
     # ['csr_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_vector.exe"
-    ['csr_vector_x86_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_vector_x86.exe"
+    # ['csr_vector_x86_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_vector_x86.exe"
     # ['csr_x86_queues_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_x86_queues.exe"
     # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_vector_perfect_nnz_balance.exe"
     # ['csr_prefetch_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_prefetch.exe"
@@ -180,8 +183,11 @@ progs=(
 
 
 # Export variables for make.
+config_str=''
 for index in "${!conf_vars[@]}"; do
     eval "$index='${conf_vars["$index"]}'"
-    printf "%s=%s;" "$index"  "${conf_vars["$index"]}"
+    config_str="${config_str}${index}=${conf_vars["$index"]};"
+    # printf "%s=%s;" "$index"  "${conf_vars["$index"]}"
 done
+printf "%s" "$config_str"
 
