@@ -85,6 +85,14 @@ bench()
                 # "$prog" --param="${prog_args2[@]}" 2>>arm_validation_30_friends_10_sample_merge_d.csv
                 "$prog" --param="${prog_args2[@]}" 2>>arm_synthetic_merge_iter${iter}_t${t}_d.csv
             fi
+        elif [ $prog = "./spmv_code_sparsex/spmv_sparsex.exe" ]; then
+            mt_conf=$(seq -s ',' 0 1 "$(($t-1))")    
+            if ((!use_artificial_matrices)); then
+                "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all
+            else
+                prog_args2="${prog_args[@]}"
+                "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all
+            fi
         else
             "$prog" "${prog_args[@]}"
         fi
@@ -110,8 +118,7 @@ else
 fi
 
 # iter=5
-# for i in 1 2 3 4 5; do
-for i in 2 3 4 5; do
+for i in 1 2 3 4 5; do
     for p in "${progs[@]}"; do
         # declare base file_out file_err
         # base="${p/*\//}"

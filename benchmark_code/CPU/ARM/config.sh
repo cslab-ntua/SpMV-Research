@@ -8,6 +8,9 @@ export ARMCLANG_ROOT_DIR=${ARM_ROOT_DIR}/arm-linux-compiler-22.0.1_Generic-AArch
 export GCC_ROOT_DIR=${ARM_ROOT_DIR}/gcc-11.2.0_Generic-AArch64_Ubuntu-20.04_aarch64-linux
 export ARMPL_ROOT_DIR=${ARM_ROOT_DIR}/armpl-22.0.1_AArch64_Ubuntu-20.04_arm-linux-compiler_aarch64-linux/
 
+export SPARSEX_LD_LIBRARY_PATH=/home/spmv/sparsex/boost_1_55_0/local/lib/:/usr/lib/llvm-12/lib/
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${SPARSEX_LD_LIBRARY_PATH}
+
 declare -A conf_vars
 conf_vars=(
 	# Cores / Threads to utilize. Use spaces to define a set of different thread numbers to benchmark.
@@ -99,7 +102,8 @@ artificial_matrices_files=(
 progs=(
 	# ./spmv_code/spmv_csr_naive.exe
 	# ./spmv_code/spmv_armpl.exe
-	./spmv_code_merge/spmv_merge.exe
+	# ./spmv_code_merge/spmv_merge.exe
+	./spmv_code_sparsex/spmv_sparsex.exe
 )
 
 # Export variables for make.
