@@ -24,6 +24,27 @@
 # This file is distributed under the BSD License. See LICENSE.txt for details.
 #
 
+.phony: all clean
+
+CPATH = 
+define NEWLINE
+
+
+endef
+
+shell_out := $(shell ../config.sh)
+shell_out := $(subst ;,$(NEWLINE),$(shell_out))
+$(eval $(shell_out))
+
+AMG_PATH = ../../../../artificial-matrix-generator
+LIB_PATH = ../../../../lib
+
+############################################################################################################
+############################################################################################################
+############################################################################################################
+############################################################################################################
+############################################################################################################
+############################################################################################################
 
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -125,37 +146,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/build_config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am_test_binary_p1_OBJECTS = BinaryTest_p1.$(OBJEXT)
-test_binary_p1_OBJECTS = $(am_test_binary_p1_OBJECTS)
-test_binary_p1_DEPENDENCIES = $(SPARSEXIMPL_LDADD)
-AM_V_lt = $(am__v_lt_$(V))
-am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
-am__v_lt_0 = --silent
-am__v_lt_1 = 
-test_binary_p1_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(AM_CXXFLAGS) $(CXXFLAGS) $(test_binary_p1_LDFLAGS) \
-	$(LDFLAGS) -o $@
-am_test_binary_p2_OBJECTS = BinaryTest_p2.$(OBJEXT)
-test_binary_p2_OBJECTS = $(am_test_binary_p2_OBJECTS)
-test_binary_p2_DEPENDENCIES = $(SPARSEXIMPL_LDADD)
-test_binary_p2_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(AM_CXXFLAGS) $(CXXFLAGS) $(test_binary_p2_LDFLAGS) \
-	$(LDFLAGS) -o $@
-am_test_dynarray_OBJECTS = DynamicArrayTest.$(OBJEXT)
-test_dynarray_OBJECTS = $(am_test_dynarray_OBJECTS)
-test_dynarray_DEPENDENCIES = $(SPARSEXIMPL_LDADD)
-test_dynarray_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(AM_CXXFLAGS) $(CXXFLAGS) $(test_dynarray_LDFLAGS) $(LDFLAGS) \
-	-o $@
-am_test_element_OBJECTS = ElementTest.$(OBJEXT)
-test_element_OBJECTS = $(am_test_element_OBJECTS)
-test_element_DEPENDENCIES = $(SPARSEXIMPL_LDADD)
-test_element_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(test_element_LDFLAGS) $(LDFLAGS) -o $@
+
 am_test_sparsex_OBJECTS = CsxCheck.$(OBJEXT) sparsex_test.$(OBJEXT)
 test_sparsex_OBJECTS = $(am_test_sparsex_OBJECTS)
 test_sparsex_DEPENDENCIES =  \
@@ -163,12 +154,7 @@ test_sparsex_DEPENDENCIES =  \
 test_sparsex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(test_sparsex_LDFLAGS) $(LDFLAGS) -o $@
-am_test_timer_OBJECTS = TimerTest.$(OBJEXT)
-test_timer_OBJECTS = $(am_test_timer_OBJECTS)
-test_timer_DEPENDENCIES = $(SPARSEXIMPL_LDADD)
-test_timer_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(test_timer_LDFLAGS) $(LDFLAGS) -o $@
+
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
 am__v_P_0 = false
@@ -256,39 +242,39 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/config/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} '/home/spmv/sparsex/config/missing' aclocal-1.16
+ACLOCAL = ${SHELL} '${SPARSEX_ROOT_DIR}/config/missing' aclocal-1.16
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
-AUTOCONF = ${SHELL} '/home/spmv/sparsex/config/missing' autoconf
-AUTOHEADER = ${SHELL} '/home/spmv/sparsex/config/missing' autoheader
-AUTOMAKE = ${SHELL} '/home/spmv/sparsex/config/missing' automake-1.16
+AUTOCONF = ${SHELL} '${SPARSEX_ROOT_DIR}/config/missing' autoconf
+AUTOHEADER = ${SHELL} '${SPARSEX_ROOT_DIR}/config/missing' autoheader
+AUTOMAKE = ${SHELL} '${SPARSEX_ROOT_DIR}/config/missing' automake-1.16
 AWK = mawk
 AX_CFLAGS =  -g -O3 -std=c99 -pedantic -fopenmp -Wall -Wno-unused-local-typedefs
-AX_CPPFLAGS = -I/home/spmv/sparsex/boost_1_55_0/local/include/ -I/home/spmv/sparsex/clang-llvm-4.0.0/include   -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG
+AX_CPPFLAGS = -I${BOOST_LIB_PATH}/../include/ -I${LLVM_LIB_PATH}/../include -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG
 AX_CXXFLAGS =  
-AX_LDFLAGS = -L/home/spmv/sparsex/boost_1_55_0/local/lib/ -L/home/spmv/sparsex/clang-llvm-4.0.0/lib  
+AX_LDFLAGS = -L${BOOST_LIB_PATH} -L${LLVM_LIB_PATH}
 AX_PACKAGE_VERSION_NUMBER = 100100
 AX_PKG_CPPFLAGS = -DNDEBUG
 AX_PKG_CXXFLAGS = 
 AX_PKG_LDFLAGS = 
 AX_TEST_LDFLAGS = 
 BOOST_ATOMIC_LIB = -lboost_atomic
-BOOST_ATOMIC_LIB_STATIC = /home/spmv/sparsex/boost_1_55_0/local/lib//libboost_atomic.a
-BOOST_CPPFLAGS = -I/home/spmv/sparsex/boost_1_55_0/local/include/
-BOOST_LDFLAGS = -L/home/spmv/sparsex/boost_1_55_0/local/lib/
+BOOST_ATOMIC_LIB_STATIC = ${BOOST_LIB_PATH}/libboost_atomic.a
+BOOST_CPPFLAGS = -I${BOOST_LIB_PATH}/../include/
+BOOST_LDFLAGS = -L${BOOST_LIB_PATH}
 BOOST_REGEX_LIB = -lboost_regex
-BOOST_REGEX_LIB_STATIC = /home/spmv/sparsex/boost_1_55_0/local/lib//libboost_regex.a
+BOOST_REGEX_LIB_STATIC = ${BOOST_LIB_PATH}/libboost_regex.a
 BOOST_SERIALIZATION_LIB = -lboost_serialization
-BOOST_SERIALIZATION_LIB_STATIC = /home/spmv/sparsex/boost_1_55_0/local/lib//libboost_serialization.a
+BOOST_SERIALIZATION_LIB_STATIC = ${BOOST_LIB_PATH}/libboost_serialization.a
 BOOST_SYSTEM_LIB = -lboost_system
-BOOST_SYSTEM_LIB_STATIC = /home/spmv/sparsex/boost_1_55_0/local/lib//libboost_system.a
+BOOST_SYSTEM_LIB_STATIC = ${BOOST_LIB_PATH}/libboost_system.a
 BOOST_THREAD_LIB = 
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = 
-CLANG = /home/spmv/sparsex/clang-llvm-4.0.0/bin/clang
-CLANG_INC_SEARCH_PATH = :/usr/local/include:/home/spmv/sparsex/clang-llvm-4.0.0/bin/../lib/clang/4.0.0/include:/usr/include/aarch64-linux-gnu:/usr/include
+CLANG = ${LLVM_LIB_PATH}/../bin/clang
+CLANG_INC_SEARCH_PATH = :/usr/local/include:${LLVM_LIB_PATH}/../bin/../lib/clang/4.0.0/include:/usr/include/aarch64-linux-gnu:/usr/include
 CLANG_LIBS = -lclangCodeGen -lclangAST -lclangASTMatchers -lclangAnalysis -lclangBasic -lclangDriver -lclangEdit -lclangFrontend -lclangFrontendTool -lclangLex -lclangParse -lclangSema -lclangEdit -lclangRewrite -lclangRewriteFrontend -lclangStaticAnalyzerFrontend -lclangStaticAnalyzerCheckers -lclangStaticAnalyzerCore -lclangSerialization -lclangToolingCore -lclangTooling -lclangFormat
 CPP = gcc -E
 CPPFLAGS = 
@@ -331,15 +317,15 @@ LIBOBJS =
 LIBS = -lnuma -lpthread 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
-LLVM_CPPFLAGS = -I/home/spmv/sparsex/clang-llvm-4.0.0/include   -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
-LLVM_LDFLAGS = -L/home/spmv/sparsex/clang-llvm-4.0.0/lib 
-LLVM_LIBDIR = /home/spmv/sparsex/clang-llvm-4.0.0/lib
+LLVM_CPPFLAGS = -I${LLVM_LIB_PATH}/../include -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
+LLVM_LDFLAGS = -L${LLVM_LIB_PATH} 
+LLVM_LIBDIR = ${LLVM_LIB_PATH}
 LLVM_LIBS = -lLLVMOption -lLLVMAArch64Disassembler -lLLVMMCDisassembler -lLLVMAArch64CodeGen -lLLVMGlobalISel -lLLVMSelectionDAG -lLLVMAsmPrinter -lLLVMDebugInfoCodeView -lLLVMDebugInfoMSF -lLLVMAArch64AsmParser -lLLVMAArch64Desc -lLLVMAArch64Info -lLLVMAArch64AsmPrinter -lLLVMAArch64Utils -lLLVMMCJIT -lLLVMExecutionEngine -lLLVMRuntimeDyld -lLLVMLTO -lLLVMPasses -lLLVMObjCARCOpts -lLLVMCodeGen -lLLVMTarget -lLLVMCoverage -lLLVMCoroutines -lLLVMipo -lLLVMInstrumentation -lLLVMVectorize -lLLVMScalarOpts -lLLVMLinker -lLLVMIRReader -lLLVMAsmParser -lLLVMInstCombine -lLLVMTransformUtils -lLLVMBitWriter -lLLVMAnalysis -lLLVMObject -lLLVMMCParser -lLLVMMC -lLLVMBitReader -lLLVMProfileData -lLLVMCore -lLLVMSupport -lLLVMDemangle
 LLVM_SYSTEM_LIBS = -lrt -ldl -ltinfo -lpthread -lz -lm
 LN_S = ln -s
 LTLIBOBJS = 
 LT_SYS_LIBRARY_PATH = 
-MAKEINFO = ${SHELL} '/home/spmv/sparsex/config/missing' makeinfo
+MAKEINFO = ${SHELL} '${SPARSEX_ROOT_DIR}/config/missing' makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /usr/bin/mkdir -p
 MKL_CPPFLAGS = 
@@ -372,10 +358,10 @@ SPX_USE_NUMA = 1
 SPX_VALUE_TYPE = double
 STRIP = strip
 VERSION = 1.1.0
-abs_builddir = /home/spmv/sparsex/test/src
-abs_srcdir = /home/spmv/sparsex/test/src
-abs_top_builddir = /home/spmv/sparsex
-abs_top_srcdir = /home/spmv/sparsex
+abs_builddir = ${SPARSEX_ROOT_DIR}/test/src
+abs_srcdir = ${SPARSEX_ROOT_DIR}/test/src
+abs_top_builddir = ${SPARSEX_ROOT_DIR}
+abs_top_srcdir = ${SPARSEX_ROOT_DIR}
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
@@ -410,7 +396,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/spmv/sparsex/config/install-sh
+install_sh = ${SHELL} ${SPARSEX_ROOT_DIR}/config/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -419,7 +405,7 @@ mandir = ${datarootdir}/man
 mkdir_p = $(MKDIR_P)
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /home/spmv/sparsex/build
+prefix = ${SPARSEX_ROOT_DIR}/build
 program_transform_name = s,x,x,
 psdir = ${docdir}
 runstatedir = ${localstatedir}/run
@@ -514,22 +500,6 @@ clean-checkPROGRAMS:
 	rm -f $$list
 	rm -f spmv_sparsex.exe
 
-test_binary_p1$(EXEEXT): $(test_binary_p1_OBJECTS) $(test_binary_p1_DEPENDENCIES) $(EXTRA_test_binary_p1_DEPENDENCIES) 
-	@rm -f test_binary_p1$(EXEEXT)
-	$(AM_V_CXXLD)$(test_binary_p1_LINK) $(test_binary_p1_OBJECTS) $(test_binary_p1_LDADD) $(LIBS)
-
-test_binary_p2$(EXEEXT): $(test_binary_p2_OBJECTS) $(test_binary_p2_DEPENDENCIES) $(EXTRA_test_binary_p2_DEPENDENCIES) 
-	@rm -f test_binary_p2$(EXEEXT)
-	$(AM_V_CXXLD)$(test_binary_p2_LINK) $(test_binary_p2_OBJECTS) $(test_binary_p2_LDADD) $(LIBS)
-
-test_dynarray$(EXEEXT): $(test_dynarray_OBJECTS) $(test_dynarray_DEPENDENCIES) $(EXTRA_test_dynarray_DEPENDENCIES) 
-	@rm -f test_dynarray$(EXEEXT)
-	$(AM_V_CXXLD)$(test_dynarray_LINK) $(test_dynarray_OBJECTS) $(test_dynarray_LDADD) $(LIBS)
-
-test_element$(EXEEXT): $(test_element_OBJECTS) $(test_element_DEPENDENCIES) $(EXTRA_test_element_DEPENDENCIES) 
-	@rm -f test_element$(EXEEXT)
-	$(AM_V_CXXLD)$(test_element_LINK) $(test_element_OBJECTS) $(test_element_LDADD) $(LIBS)
-
 # test_sparsex$(EXEEXT): $(test_sparsex_OBJECTS) $(test_sparsex_DEPENDENCIES) $(EXTRA_test_sparsex_DEPENDENCIES) 
 
 # $(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -537,12 +507,11 @@ test_element$(EXEEXT): $(test_element_OBJECTS) $(test_element_DEPENDENCIES) $(EX
 # @echo $(AM_V_CC)$(COMPILE)
 # @echo $(DEPDIR)
 
-AMG_PATH=/home/spmv/sparsex/artificial-matrix-generator
-AMG_CFLAGS=-D'DOUBLE=1'  -I'$(AMG_PATH)' -I'$(AMG_PATH)/lib'
+AMG_CFLAGS=-D'DOUBLE=1'  -I'$(AMG_PATH)' -I'${LIB_PATH}'
 AMG_LDFLAGS=-lnuma -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl -lpapi
 
-newCOMPILE=gcc -DHAVE_CONFIG_H -I. -I$(top_builddir) -I$(top_builddir)/include -I/home/spmv/sparsex/boost_1_55_0/local/include/ -I/home/spmv/sparsex/clang-llvm-4.0.0/include -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -g -O3 -pedantic -fopenmp -Wall -Wno-unused-local-typedefs
-newCXXCOMPILE=g++ -DHAVE_CONFIG_H -I. -I$(top_builddir) -I$(top_builddir)/include -I/home/spmv/sparsex/boost_1_55_0/local/include/ -I/home/spmv/sparsex/clang-llvm-4.0.0/include -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -g -O3 -pedantic -fopenmp -Wall -Wno-unused-local-typedefs
+newCOMPILE=gcc -DHAVE_CONFIG_H -I. -I$(top_builddir) -I$(top_builddir)/include ${BOOST_CPPFLAGS} ${LLVM_CPPFLAGS}  ${CXXFLAGS} #-g -O3 -pedantic -fopenmp -Wall -Wno-unused-local-typedefs
+newCXXCOMPILE=g++ -DHAVE_CONFIG_H -I. -I$(top_builddir) -I$(top_builddir)/include ${BOOST_CPPFLAGS} ${LLVM_CPPFLAGS} ${CXXFLAGS} #-g -O3 -pedantic -fopenmp -Wall -Wno-unused-local-typedefs
 
 test_sparsex$(EXEEXT): $(test_sparsex_DEPENDENCIES) $(EXTRA_test_sparsex_DEPENDENCIES) 
 	@rm -f test_sparsex$(EXEEXT)
@@ -571,7 +540,6 @@ test_sparsex$(EXEEXT): $(test_sparsex_DEPENDENCIES) $(EXTRA_test_sparsex_DEPENDE
 	@echo '------------------------------------------------'
 	$(AM_V_CC)$(newCOMPILE) -MT ordered_set.o -MD -MP -MF $(DEPDIR)/ordered_set.Tpo -c -o ordered_set.o $(AMG_PATH)/ordered_set.c $(AMG_CFLAGS)
 
-
 	@echo '------------------------------------------------'
 	$(AM_V_at)$(am__mv) $(DEPDIR)/CsxCheck.Tpo $(DEPDIR)/CsxCheck.Po
 	$(AM_V_at)$(am__mv) $(DEPDIR)/sparsex_test.Tpo $(DEPDIR)/sparsex_test.Po
@@ -587,7 +555,6 @@ test_sparsex$(EXEEXT): $(test_sparsex_DEPENDENCIES) $(EXTRA_test_sparsex_DEPENDE
 	@echo $(LIBS)
 	@echo '--------------------------------------------------------------------------------------'
 
-	# $(AM_V_CXXLD)$(test_sparsex_LINK) $(test_sparsex_OBJECTS)                                              $(test_sparsex_LDADD) $(LIBS)
 	$(AM_V_CXXLD)$(test_sparsex_LINK) CsxCheck.o sparsex_test.o artificial_matrix_generation.o ordered_set.o $(test_sparsex_LDADD) $(LIBS) $(AMG_LDFLAGS)
 	
 	@echo '--------------------------------------------------------------------------------------'
@@ -790,12 +757,7 @@ clean-am: clean-checkPROGRAMS clean-generic clean-libtool \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/BinaryTest_p1.Po
-	-rm -f ./$(DEPDIR)/BinaryTest_p2.Po
 	-rm -f ./$(DEPDIR)/CsxCheck.Po
-	-rm -f ./$(DEPDIR)/DynamicArrayTest.Po
-	-rm -f ./$(DEPDIR)/ElementTest.Po
-	-rm -f ./$(DEPDIR)/TimerTest.Po
 	-rm -f ./$(DEPDIR)/sparsex_test.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \

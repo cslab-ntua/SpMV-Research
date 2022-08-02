@@ -53,13 +53,10 @@ CFLAGS += -flto
 # CFLAGS += -march=native # for x86 CPUs
 CFLAGS += -mcpu=native
 
-CFLAGS += -armpl=lp64,parallel #-Rpass=.* -Rpass-analysis=.*
+CFLAGS += -armpl=lp64,parallel -Rpass=.* -Rpass-analysis=.* -fsave-optimization-record 
 
 CFLAGS += -I'$(library)'
 CFLAGS += -I'$(AMG_PATH)'
-# CFLAGS += -I'$(MKL_PATH)/include'
-# CFLAGS += -I'/usr/include/mkl'
-# CFLAGS += -I'$(AOCL_PATH)/include' -I'$(AOCL_PATH)/../../library/src/include'
 
 # DOUBLE := 0
 DOUBLE := 1
@@ -170,4 +167,5 @@ $(DIRS): %:
 
 clean:
 	$(RM) obj/*.o *.o *.exe a.out
+
 

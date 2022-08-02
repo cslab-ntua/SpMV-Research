@@ -33,35 +33,35 @@ fi
 
 matrices_validation=(
     "$path_validation"/scircuit.mtx
-    "$path_validation"/mac_econ_fwd500.mtx
-    "$path_validation"/raefsky3.mtx
-    "$path_validation"/bbmat.mtx
-    "$path_validation"/conf5_4-8x8-15.mtx
-    "$path_validation"/mc2depi.mtx
-    "$path_validation"/rma10.mtx
-    "$path_validation"/cop20k_A.mtx
-    "$path_validation"/webbase-1M.mtx
-    "$path_validation"/cant.mtx
-    "$path_validation"/pdb1HYS.mtx
-    "$path_validation"/TSOPF_RS_b300_c3.mtx
-    "$path_validation"/Chebyshev4.mtx
-    "$path_validation"/consph.mtx
-    "$path_validation"/shipsec1.mtx
-    "$path_validation"/PR02R.mtx
-    "$path_validation"/mip1.mtx
-    "$path_validation"/rail4284.mtx
-    "$path_validation"/pwtk.mtx
-    "$path_validation"/crankseg_2.mtx
-    "$path_validation"/Si41Ge41H72.mtx
-    "$path_validation"/TSOPF_RS_b2383.mtx
-    "$path_validation"/in-2004.mtx
-    "$path_validation"/Ga41As41H72.mtx
-    "$path_validation"/eu-2005.mtx
-    "$path_validation"/wikipedia-20051105.mtx
-    "$path_validation"/ldoor.mtx
-    "$path_validation"/circuit5M.mtx
-    "$path_validation"/bone010.mtx
-    "$path_validation"/cage15.mtx
+    # "$path_validation"/mac_econ_fwd500.mtx
+    # "$path_validation"/raefsky3.mtx
+    # "$path_validation"/bbmat.mtx
+    # "$path_validation"/conf5_4-8x8-15.mtx
+    # "$path_validation"/mc2depi.mtx
+    # "$path_validation"/rma10.mtx
+    # "$path_validation"/cop20k_A.mtx
+    # "$path_validation"/webbase-1M.mtx
+    # "$path_validation"/cant.mtx
+    # "$path_validation"/pdb1HYS.mtx
+    # "$path_validation"/TSOPF_RS_b300_c3.mtx
+    # "$path_validation"/Chebyshev4.mtx
+    # "$path_validation"/consph.mtx
+    # "$path_validation"/shipsec1.mtx
+    # "$path_validation"/PR02R.mtx
+    # "$path_validation"/mip1.mtx
+    # "$path_validation"/rail4284.mtx
+    # "$path_validation"/pwtk.mtx
+    # "$path_validation"/crankseg_2.mtx
+    # "$path_validation"/Si41Ge41H72.mtx
+    # "$path_validation"/TSOPF_RS_b2383.mtx
+    # "$path_validation"/in-2004.mtx
+    # "$path_validation"/Ga41As41H72.mtx
+    # "$path_validation"/eu-2005.mtx
+    # "$path_validation"/wikipedia-20051105.mtx
+    # "$path_validation"/ldoor.mtx
+    # "$path_validation"/circuit5M.mtx
+    # "$path_validation"/bone010.mtx
+    # "$path_validation"/cage15.mtx
 )
 
 bench()
@@ -75,7 +75,6 @@ bench()
     for t in $cores
     do
         export OMP_NUM_THREADS="$t"
-        # export MKL_NUM_THREADS="$t"
 
         if [ $prog = "./spmv_code_merge/spmv_merge.exe" ]; then
             if ((!use_artificial_matrices)); then
@@ -86,13 +85,17 @@ bench()
                 "$prog" --param="${prog_args2[@]}" 2>>arm_synthetic_merge_iter${iter}_t${t}_d.csv
             fi
         elif [ $prog = "./spmv_code_sparsex/spmv_sparsex.exe" ]; then
-            mt_conf=$(seq -s ',' 0 1 "$(($t-1))")    
+            # since affinity is set with the runtime variable, just reset it to "0" so no warnings are displayed, and reset it after execution of benchmark (for other benchmarks to run)
+            export GOMP_CPU_AFFINITY_backup=${GOMP_CPU_AFFINITY}
+            export GOMP_CPU_AFFINITY="0"
+            mt_conf=$(seq -s ',' 0 1 "$(($t-1))")
             if ((!use_artificial_matrices)); then
                 "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all
             else
                 prog_args2="${prog_args[@]}"
                 "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all
             fi
+            export GOMP_CPU_AFFINITY=${GOMP_CPU_AFFINITY_backup}
         else
             "$prog" "${prog_args[@]}"
         fi

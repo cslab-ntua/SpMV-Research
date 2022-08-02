@@ -8,8 +8,13 @@ export ARMCLANG_ROOT_DIR=${ARM_ROOT_DIR}/arm-linux-compiler-22.0.1_Generic-AArch
 export GCC_ROOT_DIR=${ARM_ROOT_DIR}/gcc-11.2.0_Generic-AArch64_Ubuntu-20.04_aarch64-linux
 export ARMPL_ROOT_DIR=${ARM_ROOT_DIR}/armpl-22.0.1_AArch64_Ubuntu-20.04_arm-linux-compiler_aarch64-linux/
 
-export SPARSEX_LD_LIBRARY_PATH=/home/spmv/sparsex/boost_1_55_0/local/lib/:/usr/lib/llvm-12/lib/
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${SPARSEX_LD_LIBRARY_PATH}
+# These are environment variables that have to be set for SparseX to work
+# Need to install specific library versions
+export SPARSEX_ROOT_DIR=/home/spmv/sparsex/
+export BOOST_LIB_PATH=${SPARSEX_ROOT_DIR}/boost_1_55_0/local/lib/
+export LLVM_LIB_PATH=${SPARSEX_ROOT_DIR}/clang-llvm-4.0.0/lib/
+
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}
 
 declare -A conf_vars
 conf_vars=(
@@ -27,8 +32,14 @@ conf_vars=(
 	['path_validation']='../../../validation_matrices/'
 
 	# Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-	# ['use_artificial_matrices']=0
-	['use_artificial_matrices']=1
+	['use_artificial_matrices']=0
+	# ['use_artificial_matrices']=1
+
+	########################################################################################################
+	# SparseX ecosystem environment variables that have to be set
+	['BOOST_LIB_PATH']=${BOOST_LIB_PATH}
+	['LLVM_LIB_PATH']=${LLVM_LIB_PATH}
+	['SPARSEX_ROOT_DIR']=${SPARSEX_ROOT_DIR}
 
 	########################################################################################################
 	# ARM ecosystem environment variables that have to be set
@@ -101,9 +112,9 @@ artificial_matrices_files=(
 # SpMV kernels to benchmark.
 progs=(
 	# ./spmv_code/spmv_csr_naive.exe
-	# ./spmv_code/spmv_armpl.exe
+	./spmv_code/spmv_armpl.exe
 	# ./spmv_code_merge/spmv_merge.exe
-	./spmv_code_sparsex/spmv_sparsex.exe
+	# ./spmv_code_sparsex/spmv_sparsex.exe
 )
 
 # Export variables for make.
