@@ -47,6 +47,10 @@ extern "C"{
 	#define BLOCK_SIZE  64
 #endif
 
+#ifndef RAPL_REGISTERS
+	#define RAPL_REGISTERS  ""
+#endif
+
 
 INT_T * thread_i_s = NULL;
 INT_T * thread_i_e = NULL;
@@ -201,9 +205,7 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 	char * reg_ids;
 
 	reg_ids = NULL;
-	reg_ids = (char *) "0,1"; // For Xeon(Gold1), these two are for package-0 and package-1E
-	// reg_ids = (char *) "0:0";
-	// reg_ids = (char *) "0,0:0";
+	reg_ids = (char *) RAPL_REGISTERS; // For Xeon(Gold1), these two are for package-0 and package-1E
 
 	rapl_open(reg_ids, &regs, &regs_n);
 	/*****************************************************************************************/

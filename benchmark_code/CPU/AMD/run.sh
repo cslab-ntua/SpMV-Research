@@ -118,9 +118,9 @@ bench()
                 # "$prog" --param="${prog_args2[@]}"
             # fi
         # elif [ $prog = "./spmv_code_sparsex/spmv_sparsex.exe" ]; then
-        if [ $prog = "./spmv_code_sparsex/spmv_sparsex.exe" ]; then
+        if [ "$prog" = "./spmv_code_sparsex/spmv_sparsex.exe" ]; then
             # since affinity is set with the runtime variable, just reset it to "0" so no warnings are displayed, and reset it after execution of benchmark (for other benchmarks to run)
-            export GOMP_CPU_AFFINITY_backup=${GOMP_CPU_AFFINITY}
+            export GOMP_CPU_AFFINITY_backup="${GOMP_CPU_AFFINITY}"
             export GOMP_CPU_AFFINITY="0"
             mt_conf=$(seq -s ',' 0 1 "$(($t-1))")
             if ((!use_artificial_matrices)); then
@@ -129,7 +129,7 @@ bench()
                 prog_args2="${prog_args[@]}"
                 "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all -v
             fi
-            export GOMP_CPU_AFFINITY=${GOMP_CPU_AFFINITY_backup}
+            export GOMP_CPU_AFFINITY="${GOMP_CPU_AFFINITY_backup}"
         else
             # "$prog" 4690000 4 1.6 normal random 1 14
 

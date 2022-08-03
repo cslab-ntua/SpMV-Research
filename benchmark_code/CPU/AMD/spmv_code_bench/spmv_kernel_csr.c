@@ -255,6 +255,106 @@ compute_csr_custom_omp_simd(CSRArrays * restrict csr, ValueType * restrict x, Va
 
 
 //==========================================================================================================================================
+//= CSR Custom Vector GCC
+//==========================================================================================================================================
+
+
+/* void compute_csr_custom_vector2(CSRArrays * csr, ValueType * x , ValueType * y)
+{
+	#pragma omp parallel
+	{
+		int tnum = omp_get_thread_num();
+		long i, i_s, i_e, j, j_s, j_e, k, j_e_vector;
+		const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
+		Vector4_Value_t zero = {0};
+		__attribute__((unused)) Vector4_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+		__attribute__((unused)) ValueType sum = 0;
+		i_s = thread_i_s[tnum];
+		i_e = thread_i_e[tnum];
+		for (i=i_s;i<i_e;i++)
+		{
+			v_sum = zero;
+			y[i] = 0;
+			j_s = csr->ia[i];
+			j_e = csr->ia[i+1];
+			if (j_s == j_e)
+				continue;
+			v_a = *(Vector4_Value_t *) &csr->a[0];
+			j = j_s;
+			j_e_vector = j_s + ((j_e - j_s) & mask);
+			for (j=j_s;j<j_e_vector;j+=VECTOR_ELEM_NUM)
+			{
+				v_a = *(Vector4_Value_t *) &csr->a[j];
+				PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+				PRAGMA(GCC ivdep)
+				for (k=0;k<VECTOR_ELEM_NUM;k++)
+				{
+					v_mul[k] = v_a[k] * x[csr->ja[j+k]];
+				}
+				v_sum += v_mul;
+			}
+			for (;j<j_e;j++)
+				v_sum[0] += csr->a[j] * x[csr->ja[j]];
+			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+			for (j=1;j<VECTOR_ELEM_NUM;j++)
+				v_sum[0] += v_sum[j];
+			y[i] = v_sum[0];
+		}
+	}
+} */
+
+
+void
+compute_csr_custom_vector(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
+{
+	#pragma omp parallel
+	{
+		int tnum = omp_get_thread_num();
+		long i, i_s, i_e, j, j_s, j_e, k, j_e_vector;
+		const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
+		// const long mask = ~(((long) 4) - 1); // Minimum number of elements for the vectorized code (power of 2).
+		Vector4_Value_t zero = {0};
+		__attribute__((unused)) Vector4_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+		ValueType sum = 0, sum_v = 0;
+		i_s = thread_i_s[tnum];
+		i_e = thread_i_e[tnum];
+		for (i=i_s;i<i_e;i++)
+		{
+			y[i] = 0;
+			j_s = csr->ia[i];
+			j_e = csr->ia[i+1];
+			if (j_s == j_e)
+				continue;
+			v_sum = zero;
+			sum = 0;
+			sum_v = 0;
+			j_e_vector = j_s + ((j_e - j_s) & mask);
+			if (j_s != j_e_vector)
+			{
+				for (j=j_s;j<j_e_vector;j+=VECTOR_ELEM_NUM)
+				{
+					v_a = *(Vector4_Value_t *) &csr->a[j];
+					PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+					PRAGMA(GCC ivdep)
+					for (k=0;k<VECTOR_ELEM_NUM;k++)
+					{
+						v_mul[k] = v_a[k] * x[csr->ja[j+k]];
+					}
+					v_sum += v_mul;
+				}
+				PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+				for (k=0;k<VECTOR_ELEM_NUM;k++)
+					sum_v += v_sum[k];
+			}
+			for (j=j_e_vector;j<j_e;j++)
+				sum += csr->a[j] * x[csr->ja[j]];
+			y[i] = sum + sum_v;
+		}
+	}
+}
+
+
+//==========================================================================================================================================
 //= CSR Custom Vector x86
 //==========================================================================================================================================
 
@@ -605,106 +705,6 @@ compute_csr_custom_x86_queues(CSRArrays * restrict csr, ValueType * restrict x, 
 					sum += csr->a[j] * x[csr->ja[j]];
 				y[i] += sum;
 			}
-		}
-	}
-}
-
-
-//==========================================================================================================================================
-//= CSR Custom Vector GCC
-//==========================================================================================================================================
-
-
-/* void compute_csr_custom_vector2(CSRArrays * csr, ValueType * x , ValueType * y)
-{
-	#pragma omp parallel
-	{
-		int tnum = omp_get_thread_num();
-		long i, i_s, i_e, j, j_s, j_e, k, j_e_vector;
-		const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-		Vector4_Value_t zero = {0};
-		__attribute__((unused)) Vector4_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
-		__attribute__((unused)) ValueType sum = 0;
-		i_s = thread_i_s[tnum];
-		i_e = thread_i_e[tnum];
-		for (i=i_s;i<i_e;i++)
-		{
-			v_sum = zero;
-			y[i] = 0;
-			j_s = csr->ia[i];
-			j_e = csr->ia[i+1];
-			if (j_s == j_e)
-				continue;
-			v_a = *(Vector4_Value_t *) &csr->a[0];
-			j = j_s;
-			j_e_vector = j_s + ((j_e - j_s) & mask);
-			for (j=j_s;j<j_e_vector;j+=VECTOR_ELEM_NUM)
-			{
-				v_a = *(Vector4_Value_t *) &csr->a[j];
-				PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-				PRAGMA(GCC ivdep)
-				for (k=0;k<VECTOR_ELEM_NUM;k++)
-				{
-					v_mul[k] = v_a[k] * x[csr->ja[j+k]];
-				}
-				v_sum += v_mul;
-			}
-			for (;j<j_e;j++)
-				v_sum[0] += csr->a[j] * x[csr->ja[j]];
-			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-			for (j=1;j<VECTOR_ELEM_NUM;j++)
-				v_sum[0] += v_sum[j];
-			y[i] = v_sum[0];
-		}
-	}
-} */
-
-
-void
-compute_csr_custom_vector(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
-{
-	#pragma omp parallel
-	{
-		int tnum = omp_get_thread_num();
-		long i, i_s, i_e, j, j_s, j_e, k, j_e_vector;
-		const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-		// const long mask = ~(((long) 4) - 1); // Minimum number of elements for the vectorized code (power of 2).
-		Vector4_Value_t zero = {0};
-		__attribute__((unused)) Vector4_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
-		ValueType sum = 0, sum_v = 0;
-		i_s = thread_i_s[tnum];
-		i_e = thread_i_e[tnum];
-		for (i=i_s;i<i_e;i++)
-		{
-			y[i] = 0;
-			j_s = csr->ia[i];
-			j_e = csr->ia[i+1];
-			if (j_s == j_e)
-				continue;
-			v_sum = zero;
-			sum = 0;
-			sum_v = 0;
-			j_e_vector = j_s + ((j_e - j_s) & mask);
-			if (j_s != j_e_vector)
-			{
-				for (j=j_s;j<j_e_vector;j+=VECTOR_ELEM_NUM)
-				{
-					v_a = *(Vector4_Value_t *) &csr->a[j];
-					PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-					PRAGMA(GCC ivdep)
-					for (k=0;k<VECTOR_ELEM_NUM;k++)
-					{
-						v_mul[k] = v_a[k] * x[csr->ja[j+k]];
-					}
-					v_sum += v_mul;
-				}
-				PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-				for (k=0;k<VECTOR_ELEM_NUM;k++)
-					sum_v += v_sum[k];
-			}
-			for (j=j_e_vector;j<j_e;j++)
-				sum += csr->a[j] * x[csr->ja[j]];
-			y[i] = sum + sum_v;
 		}
 	}
 }

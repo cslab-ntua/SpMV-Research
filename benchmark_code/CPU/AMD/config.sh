@@ -58,6 +58,10 @@ conf_vars=(
     ['hyperthreading']=0
     # ['hyperthreading']=1
 
+    # Rapl registers.
+    ['RAPL_REGISTERS']='0'         # 1 socket : Epyc1, Gold
+    # ['RAPL_REGISTERS']='0,1'       # 2 sockets: Epyc1, Gold
+
     # Path for the mkl library.
     # ['MKL_PATH']='/opt/intel/oneapi/mkl/latest'
     ['MKL_PATH']="$( options=(
@@ -80,8 +84,7 @@ conf_vars=(
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
-                        '/zhome/academic/HLRS/xex/xexdgala/Data/graphs/validation_matrices'
-                        '/home/jim/Data/graphs/validation_matrices'
+                        "$HOME/Data/graphs/validation_matrices"
                         # "${script_dir}/../../../validation_matrices"
                         '/various/pmpakos/SpMV-Research/validation_matrices'
                     )
@@ -162,14 +165,14 @@ progs=(
     # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
     # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector.exe"
-    # ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86.exe"
+    ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86.exe"
     # ['csr_x86_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_queues.exe"
     # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance.exe"
     # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch.exe"
     # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd.exe"
 
     # MKL IE
-    # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
+    ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
 
     # AOCL
     # ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv.exe"

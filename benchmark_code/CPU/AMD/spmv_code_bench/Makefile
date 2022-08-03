@@ -77,6 +77,8 @@ ifdef PROC_BENCH
     CFLAGS += -D'PROC_BENCH' 
 endif
 
+CFLAGS += -D'RAPL_REGISTERS="$(RAPL_REGISTERS)"'
+
 
 LDFLAGS =
 LDFLAGS += -lm
@@ -209,7 +211,7 @@ spmv_csr5.exe: obj/spmv_bench.o spmv_kernel_csr5.c $(LIB_OBJ)
 CFLAGS_MERGE = $(CFLAGS)
 CFLAGS_MERGE += -D'CUB_MKL'
 CFLAGS_MERGE += -m64 -mavx2
-CFLAGS_MERGE += -Wno-deprecated-declarations
+CFLAGS_MERGE += -Wno-deprecated-declarations -Wno-sign-compare
 
 LDFLAGS_MERGE = $(LDFLAGS)
 LDFLAGS_MERGE += -lnuma -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl
