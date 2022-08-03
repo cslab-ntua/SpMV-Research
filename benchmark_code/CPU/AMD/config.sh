@@ -205,7 +205,7 @@ progs=(
 # Export variables for make.
 config_str=''
 for index in "${!conf_vars[@]}"; do
-    eval "$index='${conf_vars["$index"]}'"
+    eval "export $index='${conf_vars["$index"]}'"
     config_str="${config_str}${index}=${conf_vars["$index"]};"
     # printf "%s=%s;" "$index"  "${conf_vars["$index"]}"
 done

@@ -77,8 +77,6 @@ ifdef PROC_BENCH
     CFLAGS += -D'PROC_BENCH' 
 endif
 
-CFLAGS += -D'RAPL_REGISTERS="$(RAPL_REGISTERS)"'
-
 
 LDFLAGS =
 LDFLAGS += -lm
