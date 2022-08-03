@@ -12,7 +12,7 @@ export ARMPL_ROOT_DIR=${ARM_ROOT_DIR}/armpl-22.0.1_AArch64_Ubuntu-20.04_arm-linu
 # Need to install specific library versions
 export SPARSEX_ROOT_DIR=/home/spmv/sparsex/
 export BOOST_LIB_PATH=${SPARSEX_ROOT_DIR}/boost_1_55_0/local/lib/
-export LLVM_LIB_PATH=${SPARSEX_ROOT_DIR}/clang-llvm-4.0.0/lib/
+export LLVM_LIB_PATH=${SPARSEX_ROOT_DIR}/llvm-6.0.0/build/lib/
 
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}
 

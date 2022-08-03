@@ -39,6 +39,13 @@ $(eval $(shell_out))
 AMG_PATH = ../../../../artificial-matrix-generator
 LIB_PATH = ../../../../lib
 
+# SPARSEX_ROOT_DIR=/home/spmv/sparsex/
+# BOOST_LIB_PATH=/home/spmv/sparsex/boost_1_55_0/local/lib/
+# LLVM_LIB_PATH=/home/spmv/sparsex/llvm-6.0.0/build/lib/
+
+# AMG_PATH = /various/pmpakos/SpMV-Research/artificial-matrix-generator
+# LIB_PATH = /various/pmpakos/SpMV-Research/lib
+
 ############################################################################################################
 ############################################################################################################
 ############################################################################################################
@@ -274,7 +281,7 @@ CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = 
 CLANG = ${LLVM_LIB_PATH}/../bin/clang
-CLANG_INC_SEARCH_PATH = :/usr/local/include:${LLVM_LIB_PATH}/clang/4.0.0/include:/usr/include/aarch64-linux-gnu:/usr/include
+CLANG_INC_SEARCH_PATH = :/usr/local/include:${LLVM_LIB_PATH}/clang/*.0.0/include:/usr/include/aarch64-linux-gnu:/usr/include
 CLANG_LIBS = -lclangCodeGen -lclangAST -lclangASTMatchers -lclangAnalysis -lclangBasic -lclangDriver -lclangEdit -lclangFrontend -lclangFrontendTool -lclangLex -lclangParse -lclangSema -lclangEdit -lclangRewrite -lclangRewriteFrontend -lclangStaticAnalyzerFrontend -lclangStaticAnalyzerCheckers -lclangStaticAnalyzerCore -lclangSerialization -lclangToolingCore -lclangTooling -lclangFormat
 CPP = gcc -E
 CPPFLAGS = 
@@ -456,7 +463,7 @@ test_binary_p1_LDADD = $(SPARSEXIMPL_LDADD)
 test_binary_p2_SOURCES = BinaryTest_p2.cpp
 test_binary_p2_LDFLAGS = -rpath $(LLVM_LIBDIR)
 test_binary_p2_LDADD = $(SPARSEXIMPL_LDADD)
-all: all-am test_sparsex
+all: all-am test_sparsex$(EXEEXT)
 
 .SUFFIXES:
 .SUFFIXES: .c .cpp .lo .o .obj
@@ -501,12 +508,6 @@ clean-checkPROGRAMS:
 	rm -rf spmv_sparsex.exe .deps
 
 # test_sparsex$(EXEEXT): $(test_sparsex_OBJECTS) $(test_sparsex_DEPENDENCIES) $(EXTRA_test_sparsex_DEPENDENCIES) 
-
-# $(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-# @echo $(AM_V_CC)$(CXXCOMPILE)
-# @echo $(AM_V_CC)$(COMPILE)
-# @echo $(DEPDIR)
-
 AMG_CFLAGS=-D'DOUBLE=1'  -I'$(AMG_PATH)' -I'${LIB_PATH}'
 AMG_LDFLAGS=-lnuma -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl -lpapi
 
@@ -559,10 +560,6 @@ test_sparsex$(EXEEXT): $(test_sparsex_DEPENDENCIES) $(EXTRA_test_sparsex_DEPENDE
 	
 	@echo '--------------------------------------------------------------------------------------'
 	mv test_sparsex$(EXEEXT) spmv_sparsex.exe
-
-test_timer$(EXEEXT): $(test_timer_OBJECTS) $(test_timer_DEPENDENCIES) $(EXTRA_test_timer_DEPENDENCIES) 
-	@rm -f test_timer$(EXEEXT)
-	$(AM_V_CXXLD)$(test_timer_LINK) $(test_timer_OBJECTS) $(test_timer_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
