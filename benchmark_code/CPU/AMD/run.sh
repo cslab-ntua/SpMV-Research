@@ -110,14 +110,15 @@ bench()
         export OMP_NUM_THREADS="$t"
         # export MKL_NUM_THREADS="$t"
 
-        if [ "$prog" = "./spmv_code_merge/spmv_merge.exe" ]; then
-            if ((!use_artificial_matrices)); then
-                "$prog" --mtx="${prog_args[@]}"
-            else
-                prog_args2="${prog_args[@]}"  # need to replace the original prog_args  spaces with \(space), in order to be read as a string between " " for --artif_args argument to work! (shit...)
-                "$prog" --param="${prog_args2[@]}"
-            fi
-        elif [ $prog = "./spmv_code_sparsex/spmv_sparsex.exe" ]; then
+        # if [ "$prog" = "./spmv_code_merge/spmv_merge.exe" ]; then
+            # if ((!use_artificial_matrices)); then
+                # "$prog" --mtx="${prog_args[@]}"
+            # else
+                # prog_args2="${prog_args[@]}"  # need to replace the original prog_args  spaces with \(space), in order to be read as a string between " " for --artif_args argument to work! (shit...)
+                # "$prog" --param="${prog_args2[@]}"
+            # fi
+        # elif [ $prog = "./spmv_code_sparsex/spmv_sparsex.exe" ]; then
+        if [ $prog = "./spmv_code_sparsex/spmv_sparsex.exe" ]; then
             # since affinity is set with the runtime variable, just reset it to "0" so no warnings are displayed, and reset it after execution of benchmark (for other benchmarks to run)
             export GOMP_CPU_AFFINITY_backup=${GOMP_CPU_AFFINITY}
             export GOMP_CPU_AFFINITY="0"
@@ -156,7 +157,9 @@ matrices=(
     # "$path_openFoam"/TestMatrices/HEXmats/5krows/processor0
     # "${matrices_openFoam_own_neigh[@]}"
 
-    "$path_validation"/scircuit.mtx
+    '/home/jim/Data/graphs/tamu/ML/thermomech_dK.mtx'
+
+    # "$path_validation"/scircuit.mtx
     # "$path_validation"/mac_econ_fwd500.mtx
     # "$path_validation"/raefsky3.mtx
     # "$path_validation"/bbmat.mtx
