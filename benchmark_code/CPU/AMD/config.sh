@@ -210,4 +210,3 @@ for index in "${!conf_vars[@]}"; do
     # printf "%s=%s;" "$index"  "${conf_vars["$index"]}"
 done
 printf "%s" "$config_str"
-

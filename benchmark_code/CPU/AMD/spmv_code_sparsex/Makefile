@@ -520,18 +520,14 @@ test_sparsex$(EXEEXT): $(test_sparsex_DEPENDENCIES) $(EXTRA_test_sparsex_DEPENDE
 	@echo '-----------COMPILE GENERAL-----------------------'
 	@echo $(COMPILE)
 	@echo $(CXXCOMPILE)
-	@echo '------------------------------------------------'
 
 	@echo '-----------AMG FLAGS----------------------------'
 	@echo $(AMG_CFLAGS)
 	@echo $(AMG_LDFLAGS)
-	@echo '------------------------------------------------'
 
-	# CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-	# COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+	@echo '------------------------------------------------'
 	$(AM_V_CC)$(newCXXCOMPILE) -MT CsxCheck.o -MD -MP -MF $(DEPDIR)/CsxCheck.Tpo -c -o CsxCheck.o CsxCheck.cpp $(AMG_CFLAGS)
 
-	# @echo '------------------------------------------------'
 	@echo '------------------------------------------------'	
 	$(AM_V_CC)$(newCOMPILE) -MT sparsex_test.o -MD -MP -MF $(DEPDIR)/sparsex_test.Tpo -c -o sparsex_test.o sparsex_test.c $(AMG_CFLAGS)
 
@@ -542,10 +538,14 @@ test_sparsex$(EXEEXT): $(test_sparsex_DEPENDENCIES) $(EXTRA_test_sparsex_DEPENDE
 	$(AM_V_CC)$(newCOMPILE) -MT ordered_set.o -MD -MP -MF $(DEPDIR)/ordered_set.Tpo -c -o ordered_set.o $(AMG_PATH)/ordered_set.c $(AMG_CFLAGS)
 
 	@echo '------------------------------------------------'
+	$(AM_V_CC)$(newCOMPILE) -MT rapl.o -MD -MP -MF $(DEPDIR)/rapl.Tpo -c -o rapl.o $(LIB_PATH)/monitoring/power/rapl.c $(AMG_CFLAGS)
+
+	@echo '------------------------------------------------'
 	$(AM_V_at)$(am__mv) $(DEPDIR)/CsxCheck.Tpo $(DEPDIR)/CsxCheck.Po
 	$(AM_V_at)$(am__mv) $(DEPDIR)/sparsex_test.Tpo $(DEPDIR)/sparsex_test.Po
 	$(AM_V_at)$(am__mv) $(DEPDIR)/artificial_matrix_generation.Tpo $(DEPDIR)/artificial_matrix_generation.Po
 	$(AM_V_at)$(am__mv) $(DEPDIR)/ordered_set.Tpo $(DEPDIR)/ordered_set.Po
+	$(AM_V_at)$(am__mv) $(DEPDIR)/rapl.Tpo $(DEPDIR)/rapl.Po
 	@echo '------------------------------------------------'
 
 	@echo '--------------------------------------------------------------------------------------'
@@ -556,7 +556,7 @@ test_sparsex$(EXEEXT): $(test_sparsex_DEPENDENCIES) $(EXTRA_test_sparsex_DEPENDE
 	@echo $(LIBS)
 	@echo '--------------------------------------------------------------------------------------'
 
-	$(AM_V_CXXLD)$(test_sparsex_LINK) CsxCheck.o sparsex_test.o artificial_matrix_generation.o ordered_set.o $(test_sparsex_LDADD) $(LIBS) $(AMG_LDFLAGS)
+	$(AM_V_CXXLD)$(test_sparsex_LINK) CsxCheck.o sparsex_test.o artificial_matrix_generation.o ordered_set.o rapl.o $(test_sparsex_LDADD) $(LIBS) $(AMG_LDFLAGS)
 	
 	@echo '--------------------------------------------------------------------------------------'
 	mv test_sparsex$(EXEEXT) spmv_sparsex.exe

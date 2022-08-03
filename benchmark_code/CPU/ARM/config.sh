@@ -35,6 +35,10 @@ conf_vars=(
 	['use_artificial_matrices']=0
 	# ['use_artificial_matrices']=1
 
+    # Rapl registers.
+    # ['RAPL_REGISTERS']='0'         # 1 socket : Epyc1, Gold
+    # ['RAPL_REGISTERS']='0,1'       # 2 sockets: Epyc1, Gold
+
 	########################################################################################################
 	# SparseX ecosystem environment variables that have to be set
 	['BOOST_LIB_PATH']=${BOOST_LIB_PATH}
@@ -112,13 +116,15 @@ artificial_matrices_files=(
 # SpMV kernels to benchmark.
 progs=(
 	# ./spmv_code/spmv_csr_naive.exe
-	./spmv_code/spmv_armpl.exe
+	# ./spmv_code/spmv_armpl.exe
 	# ./spmv_code_merge/spmv_merge.exe
-	# ./spmv_code_sparsex/spmv_sparsex.exe
+	./spmv_code_sparsex/spmv_sparsex.exe
 )
 
 # Export variables for make.
 for index in "${!conf_vars[@]}"; do
-	eval "$index='${conf_vars["$index"]}'"
-	printf "%s=%s;" "$index"  "${conf_vars["$index"]}"
+	eval "export $index='${conf_vars["$index"]}'"
+	config_str="${config_str}${index}=${conf_vars["$index"]};"
+	# printf "%s=%s;" "$index"  "${conf_vars["$index"]}"
 done
+printf "%s" "$config_str"

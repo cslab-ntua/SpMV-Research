@@ -35,6 +35,7 @@
 
 #include "debug.h"
 #include "time_it.h"
+#include "monitoring/power/rapl.h"
 
 static const char *program_name;
 
@@ -303,13 +304,28 @@ int main(int argc, char **argv)
 
 	/******************************************************************************/
 
+	/*****************************************************************************************/
+	// struct RAPL_Register * regs;
+	// long regs_n;
+	// char * reg_ids;
+
+	// reg_ids = NULL;
+	// reg_ids = (char *) getenv("RAPL_REGISTERS");
+
+	// rapl_open(reg_ids, &regs, &regs_n);
+	/*****************************************************************************************/
+
 	/* Run a matrix-vector multiplication: y <-- alpha*A*x */
 	spx_timer_t t;
 	spx_timer_clear(&t);
 	spx_timer_start(&t);
 
 	for (size_t i = 0; i < loops; i++) {
+		// rapl_read_start(regs, regs_n);
+
 		spx_matvec_mult(alpha, A, x, y);
+
+		// rapl_read_end(regs, regs_n);
 	}
 
 	spx_timer_pause(&t);
@@ -322,10 +338,23 @@ int main(int argc, char **argv)
 	double gflops = (double) (2*loops*nnz + m) / ((double) 1e9*time);
 	double mem_footprint = (double) (nnz*(sizeof(double) + sizeof(int)) + (m+1)*sizeof(int))/(1024*1024);
 
+	fprintf(stdout,"Preprocessing: %lf secs\n", time_balance);
 	fprintf(stdout,"SPMV time: %lf secs\n", time);
 	fprintf(stdout,"GFLOPS: %lf\n", gflops);
+	
+	/*****************************************************************************************/
 	double W_avg = 250;
 	double J_estimated = W_avg*time;
+	// double J_estimated = 0;
+	// for (int i=0;i<regs_n;i++){
+	// 	// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
+	// 	J_estimated += ((double) regs[i].uj_accum) / 1e6;
+	// }
+	// rapl_close(regs, regs_n);
+	// free(regs);
+	// double W_avg = J_estimated / time;
+	// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
+	/*****************************************************************************************/
 
 	if(artificial_flag == 0){
 		fprintf(stderr, "%s,", matrix_file);
