@@ -8,8 +8,11 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+.deps/
+.libs/
 *build/
 *.o
+*.Po
 */cuSP/
 */CSR5/
 build*/
