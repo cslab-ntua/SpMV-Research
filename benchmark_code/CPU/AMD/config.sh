@@ -15,6 +15,13 @@ find_valid_dir()
     done
 }
 
+# These are environment variables that have to be set for SparseX to work
+# Need to install specific library versions
+export SPARSEX_ROOT_DIR=/home/pmpakos/sparsex/
+export BOOST_LIB_PATH=${SPARSEX_ROOT_DIR}/boost_1_55_0/local/lib/
+export LLVM_LIB_PATH=${SPARSEX_ROOT_DIR}/llvm-6.0.0/build/lib/
+
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}
 
 declare -A conf_vars
 conf_vars=(
@@ -22,8 +29,8 @@ conf_vars=(
     # ['output_to_files']=1
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    ['use_artificial_matrices']=0
-    # ['use_artificial_matrices']=1
+    # ['use_artificial_matrices']=0
+    ['use_artificial_matrices']=1
 
     # Maximum number of the machine's cores.
     # ['max_cores']=128
@@ -33,12 +40,12 @@ conf_vars=(
     # Cores / Threads to utilize. Use spaces to define a set of different thread numbers to benchmark.
     # ['cores']=1
     # ['cores']='1 2 4 8 16 32 64 128'
-    ['cores']=8
+    # ['cores']=8
     # ['cores']=64
     # ['cores']=128
     # ['cores']='1 2 4 8 16 24 48'
     # ['cores']='24 48'
-    # ['cores']=24
+    ['cores']=24
     # ['cores']=48
     # ['cores']='1 2 4 8'
     # ['cores']=14
@@ -62,6 +69,11 @@ conf_vars=(
                     )
                     find_valid_dir "${options[@]}"
                 )"
+
+    # SparseX ecosystem environment variables that have to be set
+    ['BOOST_LIB_PATH']=${BOOST_LIB_PATH}
+    ['LLVM_LIB_PATH']=${LLVM_LIB_PATH}
+    ['SPARSEX_ROOT_DIR']=${SPARSEX_ROOT_DIR}
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
@@ -94,11 +106,11 @@ artificial_matrices_files=(
     # "$path_artificial"/validation_friends/twins_random.txt
 
     # Validation matrices artificial twins in a +-30% value space of each feature.
-    "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
+    # "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
 
     # The synthetic dataset studied in the paper.
     #"$path_artificial"/synthetic_matrices_small_dataset.txt
-    # "$path_artificial"/synthetic_matrices_small_dataset5.txt
+    "$path_artificial"/synthetic_matrices_small_dataset5.txt
 )
 
 
@@ -150,7 +162,7 @@ progs=(
     # ['mkl_ie_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_ie.exe"
 
     # Custom naive
-    ['csr_naive_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_naive.exe"
+    # ['csr_naive_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_naive.exe"
     # ['csr_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_vector.exe"
     # ['csr_vector_x86_d']="${script_dir}/spmv_code_mkl-naive/spmv_csr_vector_x86.exe"
@@ -178,6 +190,7 @@ progs=(
     # ['mkl_bsr_64_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_bsr_64.exe"
     # ['mkl_coo_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_coo.exe"
     # ['mkl_csc_d']="${script_dir}/spmv_code_mkl-naive/spmv_mkl_csc.exe"
+    ['sparsex_d']="./spmv_code_sparsex/spmv_sparsex.exe"
 
 )
 
