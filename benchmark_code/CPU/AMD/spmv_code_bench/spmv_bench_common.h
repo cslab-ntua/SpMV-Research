@@ -15,10 +15,16 @@
 #endif
 
 
-typedef ValueType  Vector2_Value_t  __attribute__((vector_size(16), aligned(1)));
+// #define VECTOR_SIZE  16
+#define VECTOR_SIZE  32
+// #define VECTOR_SIZE  64
 
+typedef ValueType  Vector2_Value_t  __attribute__((vector_size(16), aligned(1)));
 typedef ValueType  Vector4_Value_t  __attribute__((vector_size(32), aligned(1)));
 // typedef ValueType  Vector4_Value_t  __attribute__((vector_size(32)));
+typedef ValueType  Vector8_Value_t  __attribute__((vector_size(64), aligned(1)));
+
+typedef ValueType  Vector_Value_t  __attribute__((vector_size(VECTOR_SIZE), aligned(1)));
 
 // Number of elements for the vectorization function.
 #define VECTOR_ELEM_NUM  ((int) (sizeof(Vector4_Value_t) / sizeof(ValueType)))

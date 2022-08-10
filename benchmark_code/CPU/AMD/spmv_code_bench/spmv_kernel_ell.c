@@ -346,8 +346,8 @@ compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, i_vector, j, j_s, j_e, k;
 	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector4_Value_t zero = {0};
-	__attribute__((unused)) Vector4_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
 	i_vector = ell->m & mask;
 	for (i=0;i<i_vector;i+=VECTOR_ELEM_NUM)
@@ -376,7 +376,7 @@ compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 			// v_sum += v_a * v_x;
 
 		}
-		*((Vector4_Value_t *)&y[i]) = v_sum;
+		*((Vector_Value_t *)&y[i]) = v_sum;
 	}
 	for (i=i_vector;i<ell->m;i++)
 	{
@@ -395,8 +395,8 @@ compute_ell_v_hor(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, j, j_s, j_e, k, j_vector_width, j_e_vector;
 	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector4_Value_t zero = {0};
-	__attribute__((unused)) Vector4_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
 	j_vector_width = ell->width & mask;
 	for (i=0;i<ell->m;i++)
@@ -407,7 +407,7 @@ compute_ell_v_hor(ELLArrays * ell, ValueType * x , ValueType * y)
 		j_e_vector = j_s + j_vector_width;
 		for (j=j_s;j<j_e_vector;j+=VECTOR_ELEM_NUM)
 		{
-			v_a = *(Vector4_Value_t *) &ell->a[j];
+			v_a = *(Vector_Value_t *) &ell->a[j];
 			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
 			PRAGMA(GCC ivdep)
 			for (k=0;k<VECTOR_ELEM_NUM;k++)
@@ -431,8 +431,8 @@ compute_ell_v_hor_split(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, j, j_s, j_e, k, j_vector_width, j_e_vector;
 	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector4_Value_t zero = {0};
-	__attribute__((unused)) Vector4_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
 	j_vector_width = ell->width & mask;
 	for (i=0;i<ell->m;i++)
@@ -442,7 +442,7 @@ compute_ell_v_hor_split(ELLArrays * ell, ValueType * x , ValueType * y)
 		j_e_vector = j_s + j_vector_width;
 		for (j=j_s;j<j_e_vector;j+=VECTOR_ELEM_NUM)
 		{
-			v_a = *(Vector4_Value_t *) &ell->a[j];
+			v_a = *(Vector_Value_t *) &ell->a[j];
 			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
 			PRAGMA(GCC ivdep)
 			for (k=0;k<VECTOR_ELEM_NUM;k++)
@@ -486,8 +486,8 @@ compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, i_vector, j, j_s, j_e, k;
 	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector4_Value_t zero = {0};
-	__attribute__((unused)) Vector4_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
 	i_vector = ell->m & mask;
 	PRAGMA(GCC unroll VECTOR_ELEM_NUM)
@@ -508,7 +508,7 @@ compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 			}
 			v_sum += v_mul;
 
-			// v_a = *(Vector4_Value_t *) &ell->a[j];
+			// v_a = *(Vector_Value_t *) &ell->a[j];
 			// PRAGMA(GCC unroll VECTOR_ELEM_NUM)
 			// PRAGMA(GCC ivdep)
 			// for (k=0;k<VECTOR_ELEM_NUM;k++)
@@ -518,7 +518,7 @@ compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 			// v_sum += v_a * v_x;
 
 		}
-		*((Vector4_Value_t *)&y[i]) = v_sum;
+		*((Vector_Value_t *)&y[i]) = v_sum;
 	}
 	for (i=i_vector;i<ell->m;i++)
 	{

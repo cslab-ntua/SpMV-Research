@@ -48,6 +48,9 @@ CPP = g++
 # CPP = clang++
 
 
+ARCH = $(shell uname -m)
+
+
 CFLAGS = -Wall -Wextra
 CFLAGS += -pipe  # Tells the compiler to use pipes instead of temporary files (faster compilation, but uses more memory).
 # CFLAGS += -Wno-unused-variable
@@ -61,7 +64,11 @@ CFLAGS += -fopenmp
 CFLAGS += -O3
 
 CFLAGS += -flto
-CFLAGS += -march=native
+ifeq ($(ARCH), x86_64)
+    CFLAGS += -march=native
+else
+    CFLAGS += -mcpu=native
+endif
 
 CFLAGS += -I'$(library)'
 CFLAGS += -I'$(AMG_PATH)'
@@ -91,10 +98,10 @@ LIB_OBJ := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ))
 
 EXE =
 
-# EXE += spmv_csr_naive.exe
-# EXE += spmv_csr.exe
-# EXE += spmv_csr_vector.exe
-# EXE += spmv_csr_vector_x86.exe
+EXE += spmv_csr_naive.exe
+EXE += spmv_csr.exe
+EXE += spmv_csr_vector.exe
+EXE += spmv_csr_vector_x86.exe
 # EXE += spmv_csr_vector_perfect_nnz_balance.exe
 # EXE += spmv_csr_simd.exe
 # EXE += spmv_csr_prefetch.exe
@@ -115,7 +122,7 @@ EXE =
 
 # EXE += spmv_csr5.exe
 
-EXE += spmv_merge.exe
+# EXE += spmv_merge.exe
 
 
 DIRS = obj
@@ -127,8 +134,13 @@ all: $(DIRS) $(EXE)
 # $(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_MKL)
 
 
+# x86_64 aarch64 ppc64le
 CFLAGS_CUSTOM = $(CFLAGS)
-CFLAGS_CUSTOM += -mavx2
+ifeq ($(ARCH), x86_64)
+    CFLAGS_CUSTOM += -mavx2
+    # CFLAGS_CUSTOM += -mavx512f
+else ifeq ($(ARCH), aarch64)
+endif
 
 spmv_csr_naive.exe: obj/spmv_bench.o spmv_kernel_csr.c $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'NAIVE' $^ -o $@ $(LDFLAGS)

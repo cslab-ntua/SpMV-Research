@@ -1,8 +1,6 @@
 #!/bin/bash
 
-
 script_dir="$(dirname "$(readlink -e "${BASH_SOURCE[0]}")")"
-
 
 find_valid_dir()
 {
@@ -13,6 +11,23 @@ find_valid_dir()
             break
         fi
     done
+}
+
+calc_cpu_pinning()
+{
+    local cores="$1" max_cores="$2" cpu_pinning_step="$3" cpu_pinning_group_size="$4"
+    local affinity thread_groups cycle_len i j
+    affinity=''
+    thread_groups="$(( cores / cpu_pinning_group_size ))"
+    for ((i=0;i<thread_groups;i++)); do
+        cycle_len="$(( max_cores / cpu_pinning_step ))"
+        pos="$(( (i % cycle_len) * cpu_pinning_step + (i / cycle_len) % cpu_pinning_step ))"
+        for ((j=0;j<cpu_pinning_group_size;j++)); do
+            affinity="$affinity,$((pos + j))"
+        done
+    done
+    affinity="${affinity#,}"
+    printf "$affinity"
 }
 
 
@@ -30,33 +45,53 @@ conf_vars=(
     ['output_to_files']=0
     # ['output_to_files']=1
 
+    # ['COOLDOWN']=0
+    ['COOLDOWN']=1
+
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
     ['use_artificial_matrices']=0
     # ['use_artificial_matrices']=1
 
     # Maximum number of the machine's cores.
     # ['max_cores']=160
+    # ['max_cores']=256
     # ['max_cores']=128
-    ['max_cores']=48
+    ['max_cores']=64
+    # ['max_cores']=48
+    # ['max_cores']=16
     # ['max_cores']=8
 
     # Cores / Threads to utilize. Use spaces to define a set of different thread numbers to benchmark.
     # ['cores']=1
     # ['cores']='1 2 4 8 16 32 64 128'
-    ['cores']=8
-    # ['cores']=64
+    # ['cores']='64 128'
     # ['cores']=128
+    # ['cores']=64
+    # ['cores']=48
+    # ['cores']=32
+    # ['cores']=16
+    # ['cores']=8
+    ['cores']=4
     # ['cores']='1 2 4 8 16 24 48'
     # ['cores']='24 48'
-    # ['cores']=24
     # ['cores']=48
+    # ['cores']=24
     # ['cores']='1 2 4 8'
     # ['cores']=14
     # ['cores']=6
 
-    # Use hyperthreading.
-    ['hyperthreading']=0
-    # ['hyperthreading']=1
+    # Cpu pinning distance for contiguous thread ids, 1 means adjacent core numbers.
+    ['cpu_pinning_step']=1
+    # ['cpu_pinning_step']=4
+
+    # Group size of threads pinned adjacently (e.g. for when hyperthreaded cores have contiguous ids).
+    ['cpu_pinning_group_size']=1
+    # ['cpu_pinning_group_size']=2
+    # ['cpu_pinning_group_size']=3
+    # ['cpu_pinning_group_size']=4
+
+    # Thread pinning policy (auto-generated from the above).
+    ['cpu_affinity']=''
 
     # Rapl registers.
     ['RAPL_REGISTERS']='0'         # 1 socket : Epyc1, Gold
@@ -100,6 +135,8 @@ conf_vars=(
                     find_valid_dir "${options[@]}"
                 )"
 )
+
+conf_vars['cpu_affinity']="$(calc_cpu_pinning "${conf_vars["cores"]}" "${conf_vars["max_cores"]}" "${conf_vars["cpu_pinning_step"]}" "${conf_vars["cpu_pinning_group_size"]}")"
 
 
 path_artificial="${script_dir}/../../../matrix_generation_parameters"
@@ -172,7 +209,7 @@ progs=(
     # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd.exe"
 
     # MKL IE
-    ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
+    # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
 
     # AOCL
     # ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv.exe"
@@ -182,7 +219,7 @@ progs=(
 
     # merge spmv
     # ['merge_d']="${script_dir}/spmv_code_merge/spmv_merge.exe"
-    ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
+    # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
 
     # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell.exe"
     # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu.exe"
@@ -210,3 +247,4 @@ for index in "${!conf_vars[@]}"; do
     # printf "%s=%s;" "$index"  "${conf_vars["$index"]}"
 done
 printf "%s" "$config_str"
+

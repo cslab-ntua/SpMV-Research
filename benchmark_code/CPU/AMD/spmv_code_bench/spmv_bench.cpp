@@ -7,6 +7,8 @@
 #include <pthread.h>
 #include <sstream>
 
+#include <unistd.h>
+
 #include "spmv_bench_common.h"
 #include "read_mtx.h"
 
@@ -578,12 +580,19 @@ child_proc_label:
 
 	MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
 
-	// for (prefetch_distance=1;prefetch_distance<=128;prefetch_distance++)
-	// for (i=0;i<128;i++)
+	time = time_it(1,
+		for (prefetch_distance=1;prefetch_distance<=32;prefetch_distance++)
+		// for (i=0;i<128;i++)
+		{
+			// fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);
+			compute(matrix_name, MF, AM, x, y);
+			// compute(matrix_name, MF, AM, x, y, 128 * 10);
+		}
+	);
+	if (getenv("COOLDOWN")[0] == '1')
 	{
-		// fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);
-		compute(matrix_name, MF, AM, x, y);
-		// compute(matrix_name, MF, AM, x, y, 128 * 10);
+		printf("time total = %g, sleeping\n", time);
+		usleep((long) (time * 1000));
 	}
 
 	free_csr_matrix(AM);
