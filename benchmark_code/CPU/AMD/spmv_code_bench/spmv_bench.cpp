@@ -589,10 +589,10 @@ child_proc_label:
 			// compute(matrix_name, MF, AM, x, y, 128 * 10);
 		}
 	);
-	if (getenv("COOLDOWN")[0] == '1')
+	if (atoi(getenv("COOLDOWN")) == 1)
 	{
 		printf("time total = %g, sleeping\n", time);
-		usleep((long) (time * 1000));
+		usleep((long) (time * 1000000));
 	}
 
 	free_csr_matrix(AM);
