@@ -26,8 +26,8 @@ build*/
 
 benchmark_code/CPU/AMD/*.csv
 benchmark_code/CPU/ARM/*.csv
-benchmark_code/CPU/ARM/spmv_code/*.csv
-benchmark_code/CPU/ARM/spmv_code_merge/*.csv
+benchmark_code/CPU/ARM/spmv_code_bench/merge/*.csv
+benchmark_code/CPU/ARM/spmv_code_bench/*.csv
 
 benchmark_code/FPGA/HiSparse/
 benchmark_code/FPGA/HPCG_FPGA

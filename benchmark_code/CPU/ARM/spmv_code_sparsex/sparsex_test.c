@@ -37,6 +37,8 @@
 #include "time_it.h"
 #include "monitoring/power/rapl.h"
 
+int prefetch_distance = 8;
+
 static const char *program_name;
 
 static struct option long_options[] = {
@@ -74,9 +76,152 @@ static void set_option(const char *arg)
 	free(temp);
 }
 
+static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * A, spx_vector_t *x, spx_vector_t *y, 
+					int artificial_flag, double alpha, double time_balance, 
+					int enable_reordering, spx_perm_t *p, int loop, int iter)
+{
+	/* Warm up */
+	spx_timer_t t_w;
+	spx_timer_clear(&t_w);
+	spx_timer_start(&t_w);
+	spx_matvec_mult(alpha, A, x, y);
+	spx_timer_pause(&t_w);
+	double time_warm_up = spx_timer_get_secs(&t_w);
+
+	/* After warm up */
+	spx_timer_t t_aw;
+	spx_timer_clear(&t_aw);
+	spx_timer_start(&t_aw);
+	spx_matvec_mult(alpha, A, x, y);
+	spx_timer_pause(&t_aw);
+	double time_after_warm_up = spx_timer_get_secs(&t_aw);
+
+	/******************************************************************************/
+
+	/*****************************************************************************************/
+	struct RAPL_Register * regs;
+	long regs_n;
+	char * reg_ids;
+
+	reg_ids = NULL;
+	reg_ids = (char *) getenv("RAPL_REGISTERS");
+
+	rapl_open(reg_ids, &regs, &regs_n);
+	/*****************************************************************************************/
+
+	/* Run a matrix-vector multiplication: y <-- alpha*A*x */
+	spx_timer_t t;
+	spx_timer_clear(&t);
+	spx_timer_start(&t);
+
+	for (size_t i = 0; i < loop; i++) {
+		rapl_read_start(regs, regs_n);
+
+		spx_matvec_mult(alpha, A, x, y);
+
+		rapl_read_end(regs, regs_n);
+	}
+
+	spx_timer_pause(&t);
+	double time = spx_timer_get_secs(&t);
+
+	int m = spx_mat_get_nrows(A);
+	int n = spx_mat_get_ncols(A);
+	int nnz = spx_mat_get_nnz(A);
+
+	double gflops = (double) (2*loop*nnz + m) / ((double) 1e9*time);
+	double mem_footprint = (double) (nnz*(sizeof(double) + sizeof(int)) + (m+1)*sizeof(int))/(1024*1024);
+
+	if(iter==1){ // need to output it only at first iteration (of the many "prefetch_distance" iterations)
+		fprintf(stdout,"Preprocessing: %lf secs\n", time_balance);
+		fprintf(stdout,"SPMV time: %lf secs\n", time);
+		fprintf(stdout,"GFLOPS: %lf\n", gflops);
+	}
+
+	/*****************************************************************************************/
+	// double W_avg = 250;
+	// double J_estimated = W_avg*time;
+	double J_estimated = 0;
+	for (int i=0;i<regs_n;i++){
+		// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
+		J_estimated += ((double) regs[i].uj_accum) / 1e6;
+	}
+	rapl_close(regs, regs_n);
+	free(regs);
+	double W_avg = J_estimated / time;
+	// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
+	/*****************************************************************************************/
+	
+	if(artificial_flag == 0){
+		fprintf(stderr, "%s,", matrix_file);
+		fprintf(stderr, "%d,", omp_get_max_threads());
+		fprintf(stderr, "%u,", m);
+		fprintf(stderr, "%u,", n);
+		fprintf(stderr, "%u,", nnz);
+		fprintf(stderr, "%lf,", time);
+		fprintf(stderr, "%lf,", gflops);
+		fprintf(stderr, "%lf,", mem_footprint);
+		fprintf(stderr, "%lf,", W_avg);
+		fprintf(stderr, "%lf,", J_estimated);
+		fprintf(stderr, "Sparsex,");
+		fprintf(stderr, "%u,", m);
+		fprintf(stderr, "%u,", n);
+		fprintf(stderr, "%u,", nnz);
+		fprintf(stderr, "%lf\n", mem_footprint);
+		// fprintf(stderr, "%lf,", time_balance);
+		// fprintf(stderr, "%lf,", time_warm_up);
+		// fprintf(stderr, "%lf\n", time_after_warm_up);
+	}
+	else{
+		fprintf(stderr, "synthetic,");
+		fprintf(stderr, "%s,", csr->distribution);
+		fprintf(stderr, "%s,", csr->placement);
+		fprintf(stderr, "%d,", csr->seed);
+		fprintf(stderr, "%u,", csr->nr_rows);
+		fprintf(stderr, "%u,", csr->nr_cols);
+		fprintf(stderr, "%u,", csr->nr_nzeros);
+		fprintf(stderr, "%lf,", csr->density);
+		fprintf(stderr, "%lf,", csr->mem_footprint);
+		fprintf(stderr, "%s,", csr->mem_range);
+		fprintf(stderr, "%lf,", csr->avg_nnz_per_row);
+		fprintf(stderr, "%lf,", csr->std_nnz_per_row);
+		fprintf(stderr, "%lf,", csr->avg_bw);
+		fprintf(stderr, "%lf,", csr->std_bw);
+		fprintf(stderr, "%lf,", csr->avg_bw_scaled);
+		fprintf(stderr, "%lf,", csr->std_bw_scaled);
+		fprintf(stderr, "%lf,", csr->avg_sc);
+		fprintf(stderr, "%lf,", csr->std_sc);
+		fprintf(stderr, "%lf,", csr->avg_sc_scaled);
+		fprintf(stderr, "%lf,", csr->std_sc_scaled);
+		fprintf(stderr, "%lf,", csr->skew);
+		fprintf(stderr, "%lf,", csr->avg_num_neighbours);
+		fprintf(stderr, "%lf,", csr->cross_row_similarity);
+		fprintf(stderr, "SparseX,");
+		fprintf(stderr, "%lf,", time);
+		fprintf(stderr, "%lf,", gflops);
+		fprintf(stderr, "%lf,", W_avg);
+		fprintf(stderr, "%lf\n", J_estimated);
+
+		if(iter==32){ // perform this check only when it is finished
+			/* Restore original ordering of resulting vector */
+			if (enable_reordering) {
+				spx_vec_inv_reorder(y, p);
+				spx_vec_inv_reorder(x, p);
+			}
+
+			/* Check the result */
+			if(artificial_flag==0)
+				check_result(y, alpha, x, matrix_file);
+			// else
+			// 	check_result(y, alpha, x, csr->row_ptr, csr->col_ind, csr->values, csr->nr_rows, csr->nr_cols);
+		}
+
+	}
+}
+
 int main(int argc, char **argv)
 {
-	const size_t loops = 128;
+	const size_t loop = 128;
 
 	spx_init();
 	// spx_log_verbose_console();
@@ -286,134 +431,26 @@ int main(int argc, char **argv)
 	double time_balance = spx_timer_get_secs(&t_b);
 	/******************************************************************************/
 
-	/* Warm up */
-	spx_timer_t t_w;
-	spx_timer_clear(&t_w);
-	spx_timer_start(&t_w);
-	spx_matvec_mult(alpha, A, x, y);
-	spx_timer_pause(&t_w);
-	double time_warm_up = spx_timer_get_secs(&t_w);
+	spx_timer_t t_p;
+	spx_timer_clear(&t_p);
+	spx_timer_start(&t_p);		
+		for (prefetch_distance=1;prefetch_distance<=32;prefetch_distance++)
+		// for (i=0;i<128;i++)
+		{
+			// fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);
+			compute(matrix_file, csr, A, x, y, artificial_flag, alpha, time_balance, enable_reordering, p, loop, prefetch_distance);
+		}
+	spx_timer_pause(&t_p);
+	double time_p = spx_timer_get_secs(&t_p);
 
-	/* After warm up */
-	spx_timer_t t_aw;
-	spx_timer_clear(&t_aw);
-	spx_timer_start(&t_aw);
-	spx_matvec_mult(alpha, A, x, y);
-	spx_timer_pause(&t_aw);
-	double time_after_warm_up = spx_timer_get_secs(&t_aw);
+	if (atoi(getenv("COOLDOWN")) == 1)
+	{
+		printf("time total = %g, sleeping\n", time_p);
+		usleep((long) (time_p * 1000000));
+	}
 
 	/******************************************************************************/
 
-	/*****************************************************************************************/
-	// struct RAPL_Register * regs;
-	// long regs_n;
-	// char * reg_ids;
-
-	// reg_ids = NULL;
-	// reg_ids = (char *) getenv("RAPL_REGISTERS");
-
-	// rapl_open(reg_ids, &regs, &regs_n);
-	/*****************************************************************************************/
-
-	/* Run a matrix-vector multiplication: y <-- alpha*A*x */
-	spx_timer_t t;
-	spx_timer_clear(&t);
-	spx_timer_start(&t);
-
-	for (size_t i = 0; i < loops; i++) {
-		// rapl_read_start(regs, regs_n);
-
-		spx_matvec_mult(alpha, A, x, y);
-
-		// rapl_read_end(regs, regs_n);
-	}
-
-	spx_timer_pause(&t);
-	double time = spx_timer_get_secs(&t);
-
-	int m = spx_mat_get_nrows(A);
-	int n = spx_mat_get_ncols(A);
-	int nnz = spx_mat_get_nnz(A);
-
-	double gflops = (double) (2*loops*nnz + m) / ((double) 1e9*time);
-	double mem_footprint = (double) (nnz*(sizeof(double) + sizeof(int)) + (m+1)*sizeof(int))/(1024*1024);
-
-	fprintf(stdout,"Preprocessing: %lf secs\n", time_balance);
-	fprintf(stdout,"SPMV time: %lf secs\n", time);
-	fprintf(stdout,"GFLOPS: %lf\n", gflops);
-	
-	/*****************************************************************************************/
-	double W_avg = 250;
-	double J_estimated = W_avg*time;
-	// double J_estimated = 0;
-	// for (int i=0;i<regs_n;i++){
-	// 	// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
-	// 	J_estimated += ((double) regs[i].uj_accum) / 1e6;
-	// }
-	// rapl_close(regs, regs_n);
-	// free(regs);
-	// double W_avg = J_estimated / time;
-	// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
-	/*****************************************************************************************/
-
-	if(artificial_flag == 0){
-		fprintf(stderr, "%s,", matrix_file);
-		fprintf(stderr, "%d,", omp_get_max_threads());
-		fprintf(stderr, "%u,", m);
-		fprintf(stderr, "%u,", n);
-		fprintf(stderr, "%u,", nnz);
-		fprintf(stderr, "%lf,", time);
-		fprintf(stderr, "%lf,", gflops);
-		fprintf(stderr, "%lf,", mem_footprint);
-		fprintf(stderr, "%lf,", time_balance);
-		fprintf(stderr, "%lf,", time_warm_up);
-		fprintf(stderr, "%lf\n", time_after_warm_up);
-	}
-	else{
-		fprintf(stderr, "synthetic,");
-		fprintf(stderr, "%s,", csr->distribution);
-		fprintf(stderr, "%s,", csr->placement);
-		fprintf(stderr, "%d,", csr->seed);
-		fprintf(stderr, "%u,", csr->nr_rows);
-		fprintf(stderr, "%u,", csr->nr_cols);
-		fprintf(stderr, "%u,", csr->nr_nzeros);
-		fprintf(stderr, "%lf,", csr->density);
-		fprintf(stderr, "%lf,", csr->mem_footprint);
-		fprintf(stderr, "%s,", csr->mem_range);
-		fprintf(stderr, "%lf,", csr->avg_nnz_per_row);
-		fprintf(stderr, "%lf,", csr->std_nnz_per_row);
-		fprintf(stderr, "%lf,", csr->avg_bw);
-		fprintf(stderr, "%lf,", csr->std_bw);
-		fprintf(stderr, "%lf,", csr->avg_bw_scaled);
-		fprintf(stderr, "%lf,", csr->std_bw_scaled);
-		fprintf(stderr, "%lf,", csr->avg_sc);
-		fprintf(stderr, "%lf,", csr->std_sc);
-		fprintf(stderr, "%lf,", csr->avg_sc_scaled);
-		fprintf(stderr, "%lf,", csr->std_sc_scaled);
-		fprintf(stderr, "%lf,", csr->skew);
-		fprintf(stderr, "%lf,", csr->avg_num_neighbours);
-		fprintf(stderr, "%lf,", csr->cross_row_similarity);
-		fprintf(stderr, "SparseX,");
-		fprintf(stderr, "%lf,", time);
-		fprintf(stderr, "%lf,", gflops);
-		fprintf(stderr, "%lf,", W_avg);
-		fprintf(stderr, "%lf\n", J_estimated);
-	}
-	/******************************************************************************/
-
-
-	/* Restore original ordering of resulting vector */
-	if (enable_reordering) {
-		spx_vec_inv_reorder(y, p);
-		spx_vec_inv_reorder(x, p);
-	}
-
-	/* Check the result */
-	if(artificial_flag==0)
-		check_result(y, alpha, x, matrix_file);
-	// else
-	// 	check_result(y, alpha, x, csr->row_ptr, csr->col_ind, csr->values, csr->nr_rows, csr->nr_cols);
-	
 	/* Cleanup */
 	spx_input_destroy(input);
 	spx_mat_destroy(A);

@@ -1,4 +1,5 @@
 SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
+SPARSEX_ROOT_DIR=/various/pmpakos/spmv_paper/sparsex
 
 
 ---
@@ -34,7 +35,7 @@ In llvm-6.0.0 root directory, create two folders, build and objdir
 Change directory to objdir
 
 Run 
-    cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=${SPARSEX_ROOT_DIR}/llvm-6.0.0/build -DCMAKE_BUILD_TYPE=Release ${SPARSEX_ROOT_DIR}/llvm-6.0.0/\
+    cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=${SPARSEX_ROOT_DIR}/llvm-6.0.0/build -DCMAKE_BUILD_TYPE=Release ${SPARSEX_ROOT_DIR}/llvm-6.0.0/
     make -j20
     make install
 
@@ -74,6 +75,6 @@ After building successfully, ready to test it (test_sparsex.c). Simply run "make
 
 
 validation matrix example
-	export t=80; export OMP_NUM_THREADS=$t; export mt_conf=$(seq -s ',' 0 1 "$(($t-1))"); ./spmv_sparsex.exe scircuit.mtx -t -o spx.rt.nr_threads=$t spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all -v
+	export t=24; export OMP_NUM_THREADS=$t; export mt_conf=$(seq -s ',' 0 1 "$(($t-1))"); ./spmv_sparsex.exe scircuit.mtx -t -o spx.rt.nr_threads=$t spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all -v
 artificial matrix example
-	export t=80; export OMP_NUM_THREADS=$t; export mt_conf=$(seq -s ',' 0 1 "$(($t-1))"); ./spmv_sparsex.exe -p "65535 65535 5 1.6667 normal random 0.05 0 0.05 0.05 14" -t -o spx.rt.nr_threads=$t spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all -v
+	export t=24; export OMP_NUM_THREADS=$t; export mt_conf=$(seq -s ',' 0 1 "$(($t-1))"); ./spmv_sparsex.exe -p "65535 65535 5 1.6667 normal random 0.05 0 0.05 0.05 14" -t -o spx.rt.nr_threads=$t spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all -v

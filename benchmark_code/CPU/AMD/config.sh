@@ -49,8 +49,8 @@ conf_vars=(
     ['COOLDOWN']=1
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    ['use_artificial_matrices']=0
-    # ['use_artificial_matrices']=1
+    # ['use_artificial_matrices']=0
+    ['use_artificial_matrices']=1
 
     # Maximum number of the machine's cores.
     # ['max_cores']=160
@@ -202,7 +202,7 @@ progs=(
     # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
     # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector.exe"
-    ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86.exe"
+    # ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86.exe"
     # ['csr_x86_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_queues.exe"
     # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance.exe"
     # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch.exe"
@@ -234,7 +234,7 @@ progs=(
     # ['mkl_bsr_64_d']="${script_dir}/spmv_code_bench/spmv_mkl_bsr_64.exe"
     # ['mkl_coo_d']="${script_dir}/spmv_code_bench/spmv_mkl_coo.exe"
     # ['mkl_csc_d']="${script_dir}/spmv_code_bench/spmv_mkl_csc.exe"
-    # ['sparsex_d']="./spmv_code_sparsex/spmv_sparsex.exe"
+    ['sparsex_d']="./spmv_code_sparsex/spmv_sparsex.exe"
 
 )
 

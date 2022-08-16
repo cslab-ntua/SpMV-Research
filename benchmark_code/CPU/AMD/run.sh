@@ -123,10 +123,10 @@ bench()
             export GOMP_CPU_AFFINITY="0"
             mt_conf=$(seq -s ',' 0 1 "$(($t-1))")
             if ((!use_artificial_matrices)); then
-                "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all -v
+                "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v
             else
                 prog_args2="${prog_args[@]}"
-                "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all -v
+                "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v
             fi
             export GOMP_CPU_AFFINITY="${GOMP_CPU_AFFINITY_backup}"
         else
