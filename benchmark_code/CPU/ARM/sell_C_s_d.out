@@ -1,0 +1,7 @@
+program: ./spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe
+number of matrices: 1
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+Preprocessing: 0.897718 secs
+SPMV time: 0.013581 secs
+GFLOPS: 18.076188
+time total = 0.453388, sleeping

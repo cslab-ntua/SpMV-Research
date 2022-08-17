@@ -116,6 +116,13 @@ bench()
                 "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all
             fi
             export GOMP_CPU_AFFINITY="${GOMP_CPU_AFFINITY_backup}"
+        elif [ $prog = "./spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe" ]; then
+            if ((!use_artificial_matrices)); then
+                "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+            else
+                prog_args2="${prog_args[@]}"
+                "$prog" -c $OMP_NUM_THREADS --artif_args="${prog_args2[@]}" -f SELL-32-1
+            fi
         else
             "$prog" "${prog_args[@]}"
         fi

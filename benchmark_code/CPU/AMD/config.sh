@@ -37,6 +37,10 @@ export SPARSEX_ROOT_DIR='/home/pmpakos/sparsex'
 export BOOST_LIB_PATH="${SPARSEX_ROOT_DIR}/boost_1_55_0/local/lib"
 export LLVM_LIB_PATH="${SPARSEX_ROOT_DIR}/llvm-6.0.0/build/lib"
 
+# These are environment variables that have to be set for SELL-C-s to work
+export GHOST_ROOT_DIR=/home/pmpakos/ESSEX/
+export GHOST_APPS_ROOT_DIR=/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/
+
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}"
 
 
@@ -49,8 +53,8 @@ conf_vars=(
     ['COOLDOWN']=1
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    # ['use_artificial_matrices']=0
-    ['use_artificial_matrices']=1
+    ['use_artificial_matrices']=0
+    # ['use_artificial_matrices']=1
 
     # Maximum number of the machine's cores.
     # ['max_cores']=160
@@ -116,6 +120,10 @@ conf_vars=(
     ['BOOST_LIB_PATH']="${BOOST_LIB_PATH}"
     ['LLVM_LIB_PATH']="${LLVM_LIB_PATH}"
     ['SPARSEX_ROOT_DIR']="${SPARSEX_ROOT_DIR}"
+
+    # SELL-C-s ecosystem environment variables that have to be set
+    ['GHOST_ROOT_DIR']=${GHOST_ROOT_DIR}
+    ['GHOST_APPS_ROOT_DIR']=${GHOST_APPS_ROOT_DIR}
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
@@ -234,7 +242,8 @@ progs=(
     # ['mkl_bsr_64_d']="${script_dir}/spmv_code_bench/spmv_mkl_bsr_64.exe"
     # ['mkl_coo_d']="${script_dir}/spmv_code_bench/spmv_mkl_coo.exe"
     # ['mkl_csc_d']="${script_dir}/spmv_code_bench/spmv_mkl_csc.exe"
-    ['sparsex_d']="./spmv_code_sparsex/spmv_sparsex.exe"
+    # ['sparsex_d']="./spmv_code_sparsex/spmv_sparsex.exe"
+    ['sell_C_s_d']="./spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
 
 )
 
