@@ -87,7 +87,7 @@ static void compute(char * matrix_file, ghost_sparsemat *mat, struct csr_matrix 
     // double maddflops = 2;    
     // double gflops = (mat->context->gnnz/1.e9*vtraits.ncols*loop*maddflops)/time;
     double gflops = (double) (2*loop*mat->context->gnnz)/((double) (1e9*time));
-    double mem_footprint = (SPM_NNZ(mat) * (sizeof(double) + sizeof(int)) + (SPM_NROWS(mat)+1) * sizeof(int))/(1024*1024);
+    double mem_footprint = (SPM_NNZ(mat) * (sizeof(double) + sizeof(int)) + (SPM_NROWS(mat)+1) * sizeof(int))/(1024.0*1024);
     // printf("%lf Gflop/s\n",gflops);
 
     if(iter==1){ // need to output it only at first iteration (of the many "prefetch_distance" iterations)

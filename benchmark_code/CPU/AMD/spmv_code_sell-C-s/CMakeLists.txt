@@ -38,7 +38,7 @@ link_libraries(m)
 #     add_dependencies(cheb_dos essexamples)
 # endif()
 
-add_subdirectory(minimal)
+# add_subdirectory(minimal)
 # add_subdirectory(cg)
 # add_subdirectory(lanczos)
 add_subdirectory(spmvbench)

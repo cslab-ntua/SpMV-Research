@@ -53,15 +53,15 @@ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}
 
 declare -A conf_vars
 conf_vars=(
-	['output_to_files']=0
-	# ['output_to_files']=1
+	# ['output_to_files']=0
+	['output_to_files']=1
 
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    # ['use_artificial_matrices']=0
-    ['use_artificial_matrices']=1
+    ['use_artificial_matrices']=0
+    # ['use_artificial_matrices']=1
 
 	# Maximum number of the machine's cores.
 	['max_cores']=160
@@ -224,12 +224,12 @@ declare -A progs
 
 # SpMV kernels to benchmark.
 progs=(
-    # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
+    ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
     # ['armpl_d']="${script_dir}/spmv_code_bench/spmv_armpl.exe"
     # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
     # ['sparsex_d']="${script_dir}/spmv_code_sparsex/spmv_sparsex.exe"
     # ['sparsex_d']="./spmv_code_sparsex/spmv_sparsex.exe"
-    ['sell_C_s_d']="./spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
+    # ['sell_C_s_d']="./spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
 
 )
 

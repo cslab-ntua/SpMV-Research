@@ -1,5 +1,5 @@
 first of all, include cmake and hwloc in path (cmake is already installed in ARM machine...no need to include it)
-	export PATH=/home/spmv/ESSEX/hwloc-1.11.13/build/bin:$PATH
+	export PATH=/home/spmv/ESSEX/cmake-3.23.3/build/bin:/home/pmpakos/ESSEX/hwloc-1.11.13/build/bin:$PATH
 
 
 Had to compile cmake and hwloc for compilation of "ghost" repo
@@ -10,7 +10,7 @@ Had to compile cmake and hwloc for compilation of "ghost" repo
 
 ---
 ghost : cmake in "build" directory with command
-	cmake .. -DCMAKE_INSTALL_PREFIX=/home/spmv/ESSEX/ghost/build -DHWLOC_INCLUDE_DIR=/home/spmv/ESSEX/hwloc-1.11.13/build/include -DGHOST_USE_MPI=0
+	cmake .. -DCMAKE_INSTALL_PREFIX=/home/spmv/ESSEX/ghost/build -DHWLOC_INCLUDE_DIR=/home/spmv/ESSEX/hwloc-1.11.13/build/include -DGHOST_USE_MPI=0 -DCBLAS_INCLUDE_DIR=/home/spmv/arm/armpl-22.0.1_AArch64_Ubuntu-20.04_gcc_aarch64-linux/include_mp/
 
 	make -j80; make install
 
@@ -18,6 +18,7 @@ ghost : cmake in "build" directory with command
 	before running "make" (for ARM only, x86_64 no problem as it seems)
 		1) place "-D__FUJITSU" flag to "CMAKE_C_FLAGS" and "CMAKE_CXX_FLAGS"
 		2) place "-noansi" in comments
+		3) add CBLAS header directory (find it manually on your arm compiler installation)
 
 	during "make", fix following problems (for ARM only, x86_64 no problem as it seems)
 		1) remove "include immintrin.h" (for x86 platforms only) from "src/bench.c" (if __FUJITSU correctly set in previous step, no need to do it)
