@@ -10,7 +10,9 @@ Had to compile cmake and hwloc for compilation of "ghost" repo
 
 ---
 ghost : cmake in "build" directory with command
-	cmake .. -DCMAKE_INSTALL_PREFIX=/home/pmpakos/ESSEX/ghost/build -DHWLOC_INCLUDE_DIR=/home/pmpakos/ESSEX/hwloc-1.11.13/build/include -DGHOST_USE_MPI=0
+	cmake .. -DCMAKE_INSTALL_PREFIX=/home/pmpakos/ESSEX/ghost/build -DHWLOC_INCLUDE_DIR=/home/pmpakos/ESSEX/hwloc-1.11.13/build/include -DGHOST_USE_MPI=0 -DGHOST_USE_CUDA=0 
+
+	(optional : -DCBLAS_INCLUDE_DIR=/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl/include)
 
 	make -j80; make install
 

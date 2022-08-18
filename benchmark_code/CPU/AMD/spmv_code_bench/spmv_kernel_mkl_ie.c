@@ -61,7 +61,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 {
 	struct CSRArrays * csr = new CSRArrays(m, n, nnz);
 	double time, time_balance;
-	csr->format_name = (char *) "MKL_CSR";
+	csr->format_name = (char *) "MKL_IE";
 	csr->ia = row_ptr;
 	csr->ja = col_ind;
 	csr->a = values;

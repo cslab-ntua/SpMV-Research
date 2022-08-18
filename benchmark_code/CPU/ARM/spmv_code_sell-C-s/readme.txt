@@ -10,7 +10,7 @@ Had to compile cmake and hwloc for compilation of "ghost" repo
 
 ---
 ghost : cmake in "build" directory with command
-	cmake .. -DCMAKE_INSTALL_PREFIX=/home/spmv/ESSEX/ghost/build -DHWLOC_INCLUDE_DIR=/home/spmv/ESSEX/hwloc-1.11.13/build/include -DGHOST_USE_MPI=0 -DCBLAS_INCLUDE_DIR=/home/spmv/arm/armpl-22.0.1_AArch64_Ubuntu-20.04_gcc_aarch64-linux/include_mp/
+	cmake .. -DCMAKE_INSTALL_PREFIX=/home/spmv/ESSEX/ghost/build -DHWLOC_INCLUDE_DIR=/home/spmv/ESSEX/hwloc-1.11.13/build/include -DGHOST_USE_MPI=0 -DGHOST_USE_CUDA=0 -DCBLAS_INCLUDE_DIR=/home/spmv/arm/armpl-22.0.1_AArch64_Ubuntu-20.04_gcc_aarch64-linux/include_mp/
 
 	make -j80; make install
 

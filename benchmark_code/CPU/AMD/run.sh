@@ -139,7 +139,7 @@ bench()
 
 matrices=(
     # "${matrices_openFoam[@]}"
-    # "${matrices_validation[@]}"
+    "${matrices_validation[@]}"
 
     # "${matrices_validation_artificial_twins[@]}"
     # "${matrices_validation_loop[@]}"
@@ -162,7 +162,7 @@ matrices=(
     # "$path_validation"/bbmat.mtx
     # "$path_validation"/conf5_4-8x8-15.mtx
     # "$path_validation"/mc2depi.mtx
-    "$path_validation"/rma10.mtx
+    # "$path_validation"/rma10.mtx
     # "$path_validation"/cop20k_A.mtx
     # "$path_validation"/webbase-1M.mtx
     # "$path_validation"/cant.mtx
@@ -266,11 +266,11 @@ for format_name in "${!progs[@]}"; do
 
             for ((j=0;j<rep_in;j++)); do
 
-                printf "Temps: " >&2
+                printf "Temps: " >&1
                 for ((k=0;k<${#temp_labels[@]};k++)); do
-                    printf "%s %s " $(cat ${temp_labels[k]}) $(cat ${temp_inputs[k]}) >&2
+                    printf "%s %s " $(cat ${temp_labels[k]}) $(cat ${temp_inputs[k]}) >&1
                 done
-                echo >&2
+                echo >&1
 
                 echo "File: $a"
                 bench "$p" $a
