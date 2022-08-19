@@ -581,7 +581,7 @@ child_proc_label:
 	MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
 
 	time = time_it(1,
-		for (prefetch_distance=1;prefetch_distance<=32;prefetch_distance++)
+		for (prefetch_distance=1;prefetch_distance<=5;prefetch_distance++)
 		// for (i=0;i<128;i++)
 		{
 			// fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);

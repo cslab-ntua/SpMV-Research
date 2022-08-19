@@ -202,7 +202,7 @@ static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * 
 		fprintf(stderr, "%lf,", W_avg);
 		fprintf(stderr, "%lf\n", J_estimated);
 
-		if(iter==32){ // perform this check only when it is finished
+		if(iter==5){ // perform this check only when it is finished
 			/* Restore original ordering of resulting vector */
 			if (enable_reordering) {
 				spx_vec_inv_reorder(y, p);
@@ -434,7 +434,7 @@ int main(int argc, char **argv)
 	spx_timer_t t_p;
 	spx_timer_clear(&t_p);
 	spx_timer_start(&t_p);		
-		for (prefetch_distance=1;prefetch_distance<=32;prefetch_distance++)
+		for (prefetch_distance=1;prefetch_distance<=5;prefetch_distance++)
 		// for (i=0;i<128;i++)
 		{
 			// fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);

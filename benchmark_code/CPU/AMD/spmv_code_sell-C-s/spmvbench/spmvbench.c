@@ -245,7 +245,7 @@ static void *mainTask(void *arg)
     /*****************************************************/
 
     ghost_timing_wcmilli(&start);
-    for (int prefetch_distance=1;prefetch_distance<=32;prefetch_distance++)
+    for (int prefetch_distance=1;prefetch_distance<=5;prefetch_distance++)
     {
         // fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);
         compute(matstr, mat, csr, x, y, spmvtraits, vtraits, time_balance, loop, prefetch_distance);
