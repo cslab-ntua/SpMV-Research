@@ -129,7 +129,8 @@ static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * 
 	int n = spx_mat_get_ncols(A);
 	int nnz = spx_mat_get_nnz(A);
 
-	double gflops = (double) (2*loop*nnz + m) / ((double) 1e9*time);
+	// double gflops = (double) (2*loop*nnz + m) / ((double) 1e9*time);
+	double gflops = nnz / time * loop * 2 * 1e-9;    // Use csr_nnz to be sure we have the initial nnz (there is no coo for artificial AM).
 	double mem_footprint = (double) (nnz*(sizeof(double) + sizeof(int)) + (m+1)*sizeof(int))/(1024*1024);
 
 	if(iter==1){ // need to output it only at first iteration (of the many "prefetch_distance" iterations)
@@ -139,16 +140,16 @@ static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * 
 	}
 
 	/*****************************************************************************************/
-	// double W_avg = 250;
-	// double J_estimated = W_avg*time;
-	double J_estimated = 0;
-	for (int i=0;i<regs_n;i++){
-		// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
-		J_estimated += ((double) regs[i].uj_accum) / 1e6;
-	}
-	rapl_close(regs, regs_n);
-	free(regs);
-	double W_avg = J_estimated / time;
+	double W_avg = 250;
+	double J_estimated = W_avg*time;
+	// double J_estimated = 0;
+	// for (int i=0;i<regs_n;i++){
+	// 	// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
+	// 	J_estimated += ((double) regs[i].uj_accum) / 1e6;
+	// }
+	// rapl_close(regs, regs_n);
+	// free(regs);
+	// double W_avg = J_estimated / time;
 	// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
 	/*****************************************************************************************/
 	

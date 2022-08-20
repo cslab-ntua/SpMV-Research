@@ -129,7 +129,8 @@ static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * 
 	int n = spx_mat_get_ncols(A);
 	int nnz = spx_mat_get_nnz(A);
 
-	double gflops = (double) (2*loop*nnz + m) / ((double) 1e9*time);
+	// double gflops = (double) (2*loop*nnz + m) / ((double) 1e9*time);
+	double gflops = nnz / time * loop * 2 * 1e-9;    // Use csr_nnz to be sure we have the initial nnz (there is no coo for artificial AM).
 	double mem_footprint = (double) (nnz*(sizeof(double) + sizeof(int)) + (m+1)*sizeof(int))/(1024*1024);
 
 	if(iter==1){ // need to output it only at first iteration (of the many "prefetch_distance" iterations)
