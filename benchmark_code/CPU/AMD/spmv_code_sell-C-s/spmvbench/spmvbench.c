@@ -31,11 +31,33 @@ static void compute(char * matrix_file, ghost_sparsemat *mat, struct csr_matrix 
 {
     double start, end;
 
+    // Warm up cpu.
+    ghost_timing_wcmilli(&start);
+    int num_threads = omp_get_max_threads();
+    volatile double warmup_total;
+    long A_warmup_n = (1<<20) * num_threads;
+    double * A_warmup;
+    A_warmup = (double*) malloc(A_warmup_n * sizeof(double));
+    _Pragma("omp parallel for")
+    for (long i=0;i<A_warmup_n;i++)
+        A_warmup[i] = 0;
+    for (long j=0;j<16;j++)
+    {
+        _Pragma("omp parallel for")
+        for (long i=1;i<A_warmup_n;i++)
+        {
+            A_warmup[i] += A_warmup[i-1] * 7 + 3;
+        }
+    }
+    warmup_total = A_warmup[A_warmup_n];
+    free(A_warmup);
+    ghost_timing_wcmilli(&end);
+    double time_A_warmup = end-start;
+
     // WARM UP ITERATIONS
     ghost_timing_wcmilli(&start);
     ghost_spmv(y,mat,x,spmvtraits);
     ghost_timing_wcmilli(&end);
-
     double time_warm_up = end-start;
 
     ghost_timing_wcmilli(&start);
@@ -71,8 +93,6 @@ static void compute(char * matrix_file, ghost_sparsemat *mat, struct csr_matrix 
     double time = (end-start)/1000.0;
 
     /*****************************************************************************************/
-    // double W_avg = 250;
-    // double J_estimated = W_avg*time;
     double J_estimated = 0;
     for (int i=0;i<regs_n;i++){
         // printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
@@ -245,11 +265,8 @@ static void *mainTask(void *arg)
     /*****************************************************/
 
     ghost_timing_wcmilli(&start);
-    for (int prefetch_distance=1;prefetch_distance<=5;prefetch_distance++)
-    {
-        // fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);
-        compute(matstr, mat, csr, x, y, spmvtraits, vtraits, time_balance, loop, prefetch_distance);
-    }
+    int prefetch_distance = 1;
+    compute(matstr, mat, csr, x, y, spmvtraits, vtraits, time_balance, loop, prefetch_distance);
     ghost_timing_wcmilli(&end);
     double time_p = (end-start)/1000.0; // in seconds
 

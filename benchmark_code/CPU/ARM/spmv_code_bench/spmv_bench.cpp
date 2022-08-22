@@ -83,13 +83,6 @@ INT_T csr_n;
 INT_T csr_nnz;
 
 
-ValueType * x;
-ValueType * y;
-
-
-struct Matrix_Format * MF;   // Real matrices.
-
-
 // Utils macro
 #define Min(x,y) ((x)<(y)?(x):(y))
 #define Max(x,y) ((x)>(y)?(x):(y))
@@ -165,9 +158,6 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 	#if defined(PER_THREAD_STATS)
 		thread_time_barrier = (double *) malloc(num_threads * sizeof(*thread_time_barrier));
 		thread_time_compute = (double *) malloc(num_threads * sizeof(*thread_time_compute));
-	#endif
-
-	#if defined(PER_THREAD_STATS)
 		for (i=0;i<num_threads;i++)
 		{
 			long rows, nnz;
@@ -181,6 +171,28 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 			printf("%ld: rows=[%d(%d), %d(%d)]:%ld(%ld), nnz=[%d, %d]:%d\n", i, i_s, csr_ia[i_s], i_e, csr_ia[i_e], rows, nnz, j_s, j_e, j_e-j_s);
 		}
 	#endif
+
+	// Warm up cpu.
+	volatile double warmup_total;
+	long A_warmup_n = (1<<20) * num_threads;
+	double * A_warmup;
+	time_warm_up = time_it(1,
+		A_warmup = (typeof(A_warmup)) malloc(A_warmup_n * sizeof(*A_warmup));
+		_Pragma("omp parallel for")
+		for (long i=0;i<A_warmup_n;i++)
+			A_warmup[i] = 0;
+		for (long j=0;j<16;j++)
+		{
+			_Pragma("omp parallel for")
+			for (long i=1;i<A_warmup_n;i++)
+			{
+				A_warmup[i] += A_warmup[i-1] * 7 + 3;
+			}
+		}
+		warmup_total = A_warmup[A_warmup_n];
+		free(A_warmup);
+	);
+	// fprintf(stderr, "time warm up %lf , n = %ld, total = %lf\n", time_warm_up, A_warmup_n, warmup_total);
 
 	// warm up caches
 	time_warm_up = time_it(1,
@@ -228,6 +240,8 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 
 	/*****************************************************************************************/
 	double W_avg = 250;
+	if(num_threads>80)
+		W_avg = 500; // quick and dirty for ARM 2 sockets (1-socket TDP is 250W)
 	double J_estimated = W_avg*time;
 	// double J_estimated = 0;
 	// for (int i=0;i<regs_n;i++){
@@ -285,16 +299,11 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 		gflops_per_t_avg = matrix_mean(gflops_per_t, num_threads);
 		gflops_per_t_std = matrix_std_base(gflops_per_t, num_threads, gflops_per_t_avg);
 		gflops_per_t_balance = gflops_per_t_avg / gflops_per_t_max;
-	#endif
 
-	#ifdef VERBOSE
-	{
 		printf("i:%g,%g,%g,%g,%g\n", iters_per_t_min, iters_per_t_max, iters_per_t_avg, iters_per_t_std, iters_per_t_balance);
 		printf("nnz:%g,%g,%g,%g,%g\n", nnz_per_t_min, nnz_per_t_max, nnz_per_t_avg, nnz_per_t_std, nnz_per_t_balance);
-		#if defined(PER_THREAD_STATS)
-			printf("time:%g,%g,%g,%g,%g\n", time_per_t_min, time_per_t_max, time_per_t_avg, time_per_t_std, time_per_t_balance);
-			printf("gflops:%g,%g,%g,%g,%g\n", gflops_per_t_min, gflops_per_t_max, gflops_per_t_avg, gflops_per_t_std, gflops_per_t_balance);
-		#endif
+		printf("time:%g,%g,%g,%g,%g\n", time_per_t_min, time_per_t_max, time_per_t_avg, time_per_t_std, time_per_t_balance);
+		printf("gflops:%g,%g,%g,%g,%g\n", gflops_per_t_min, gflops_per_t_max, gflops_per_t_avg, gflops_per_t_std, gflops_per_t_balance);
 		printf("tnum i_s i_e num_rows_frac nnz_frac\n");
 		for (i=0;i<num_threads;i++)
 		{
@@ -302,19 +311,16 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 			i_e = thread_i_e[i];
 			printf("%ld %ld %ld %g %g\n", i, i_s, i_e, iters_per_t[i], nnz_per_t[i]);
 		}
-		#if defined(PER_THREAD_STATS)
-			printf("tnum gflops compute barrier total barrier/compute%%\n");
-			for (i=0;i<num_threads;i++)
-			{
-				double time_compute, time_barrier, time_total, percent;
-				time_compute = thread_time_compute[i];
-				time_barrier = thread_time_barrier[i];
-				time_total = time_compute + time_barrier;
-				percent = time_barrier / time_compute * 100;
-				printf("%ld %g %g %g %g %g\n", i, gflops_per_t[i], time_compute, time_barrier, time_total, percent);
-			}
-		#endif
-	}
+		printf("tnum gflops compute barrier total barrier/compute%%\n");
+		for (i=0;i<num_threads;i++)
+		{
+			double time_compute, time_barrier, time_total, percent;
+			time_compute = thread_time_compute[i];
+			time_barrier = thread_time_barrier[i];
+			time_total = time_compute + time_barrier;
+			percent = time_barrier / time_compute * 100;
+			printf("%ld %g %g %g %g %g\n", i, gflops_per_t[i], time_compute, time_barrier, time_total, percent);
+		}
 	#endif
 
 	double csr_mem_footprint = csr_nnz * (sizeof(ValueType) + sizeof(INT_T)) + (csr_m+1) * sizeof(INT_T);
@@ -589,13 +595,14 @@ child_proc_label:
 
 	MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
 
+	prefetch_distance = 1;
 	time = time_it(1,
-		for (prefetch_distance=1;prefetch_distance<=5;prefetch_distance++)
-		// for (i=0;i<128;i++)
+		// for (i=0;i<5;i++)
 		{
 			// fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);
 			compute(matrix_name, MF, AM, x, y);
 			// compute(matrix_name, MF, AM, x, y, 128 * 10);
+			prefetch_distance++;
 		}
 	);
 	if (atoi(getenv("COOLDOWN")) == 1)

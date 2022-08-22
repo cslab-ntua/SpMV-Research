@@ -53,11 +53,11 @@ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}
 
 declare -A conf_vars
 conf_vars=(
-	# ['output_to_files']=0
-	['output_to_files']=1
+	['output_to_files']=0
+	# ['output_to_files']=1
 
-    # ['COOLDOWN']=0
-    ['COOLDOWN']=1
+    ['COOLDOWN']=0
+    # ['COOLDOWN']=1
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
     # ['use_artificial_matrices']=0
@@ -68,6 +68,7 @@ conf_vars=(
 	
 	# Cores / Threads to utilize. Use spaces to define a set of different thread numbers to benchmark.
 	['cores']=80
+	# ['cores']=160
 	
     # Cpu pinning distance for contiguous thread ids, 1 means adjacent core numbers.
     ['cpu_pinning_step']=1
@@ -180,6 +181,7 @@ artificial_matrices_files=(
 	# "$path_artificial"/synthetic_matrices_small_dataset.txt
 	# "$path_artificial"/synthetic_matrices_small_dataset2.txt
 	# "$path_artificial"/synthetic_matrices_small_dataset3.txt
+	# "$path_artificial"/synthetic_matrices_small_dataset5.txt
 )
 
 
@@ -227,9 +229,8 @@ progs=(
     ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
     ['armpl_d']="${script_dir}/spmv_code_bench/spmv_armpl.exe"
     ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
-    # ['sparsex_d']="${script_dir}/spmv_code_sparsex/spmv_sparsex.exe"
-    # ['sparsex_d']="./spmv_code_sparsex/spmv_sparsex.exe"
-    # ['sell_C_s_d']="./spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
+    ['sparsex_d']="${script_dir}/spmv_code_sparsex/spmv_sparsex.exe"
+    ['sell_C_s_d']="${script_dir}/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
 
 )
 

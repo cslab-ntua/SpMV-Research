@@ -80,6 +80,31 @@ static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * 
 					int artificial_flag, double alpha, double time_balance, 
 					int enable_reordering, spx_perm_t *p, int loop, int iter)
 {
+    // Warm up cpu.
+    spx_timer_t t_Aw;
+	spx_timer_clear(&t_Aw);
+	spx_timer_start(&t_Aw);
+	int num_threads = omp_get_max_threads();
+    volatile double warmup_total;
+    long A_warmup_n = (1<<20) * num_threads;
+    double * A_warmup;
+    A_warmup = (typeof(A_warmup)) malloc(A_warmup_n * sizeof(*A_warmup));
+    _Pragma("omp parallel for")
+    for (long i=0;i<A_warmup_n;i++)
+        A_warmup[i] = 0;
+    for (long j=0;j<16;j++)
+    {
+        _Pragma("omp parallel for")
+        for (long i=1;i<A_warmup_n;i++)
+        {
+            A_warmup[i] += A_warmup[i-1] * 7 + 3;
+        }
+    }
+    warmup_total = A_warmup[A_warmup_n];
+    free(A_warmup);
+	spx_timer_pause(&t_Aw);
+	double time_A_warmup = spx_timer_get_secs(&t_Aw);
+
 	/* Warm up */
 	spx_timer_t t_w;
 	spx_timer_clear(&t_w);
@@ -141,6 +166,8 @@ static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * 
 
 	/*****************************************************************************************/
 	double W_avg = 250;
+	if(num_threads>80)
+		W_avg = 500; // quick and dirty for ARM 2 sockets (1-socket TDP is 250W)
 	double J_estimated = W_avg*time;
 	// double J_estimated = 0;
 	// for (int i=0;i<regs_n;i++){
@@ -203,7 +230,7 @@ static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * 
 		fprintf(stderr, "%lf,", W_avg);
 		fprintf(stderr, "%lf\n", J_estimated);
 
-		if(iter==5){ // perform this check only when it is finished
+		if(iter==1){ // perform this check only when it is finished
 			/* Restore original ordering of resulting vector */
 			if (enable_reordering) {
 				spx_vec_inv_reorder(y, p);
@@ -435,12 +462,8 @@ int main(int argc, char **argv)
 	spx_timer_t t_p;
 	spx_timer_clear(&t_p);
 	spx_timer_start(&t_p);		
-		for (prefetch_distance=1;prefetch_distance<=5;prefetch_distance++)
-		// for (i=0;i<128;i++)
-		{
-			// fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);
-			compute(matrix_file, csr, A, x, y, artificial_flag, alpha, time_balance, enable_reordering, p, loop, prefetch_distance);
-		}
+	prefetch_distance = 1;
+	compute(matrix_file, csr, A, x, y, artificial_flag, alpha, time_balance, enable_reordering, p, loop, prefetch_distance);
 	spx_timer_pause(&t_p);
 	double time_p = spx_timer_get_secs(&t_p);
 

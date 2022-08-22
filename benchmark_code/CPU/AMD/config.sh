@@ -53,8 +53,8 @@ conf_vars=(
     # ['COOLDOWN']=1
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    ['use_artificial_matrices']=0
-    # ['use_artificial_matrices']=1
+    # ['use_artificial_matrices']=0
+    ['use_artificial_matrices']=1
 
     # Maximum number of the machine's cores.
     # ['max_cores']=160
@@ -158,11 +158,11 @@ artificial_matrices_files=(
     # "$path_artificial"/validation_friends/twins_random.txt
 
     # Validation matrices artificial twins in a +-30% value space of each feature.
-    "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
+    # "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
 
     # The synthetic dataset studied in the paper.
     #"$path_artificial"/synthetic_matrices_small_dataset.txt
-    # "$path_artificial"/synthetic_matrices_small_dataset5.txt
+    "$path_artificial"/synthetic_matrices_small_dataset5.txt
 )
 
 
@@ -208,10 +208,10 @@ declare -A progs
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
     # Custom naive
-    # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
+    ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
     # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector.exe"
-    # ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86.exe"
+    ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86.exe"
     # ['csr_x86_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_queues.exe"
     # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance.exe"
     # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch.exe"
@@ -221,17 +221,20 @@ progs=(
     ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
 
     # AOCL
-    # ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv.exe"
+    ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv.exe"
 
     # CSR5
-    # ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5.exe"
+    ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5.exe"
 
     # merge spmv
-    # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
+    ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
 
     # sell C sigma
-    # ['sell_C_s_d']="./spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
-    # ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
+    # ['sell_C_s_d']="${script_dir}/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
+    ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
+
+    # sparsex
+    ['sparsex_d']="${script_dir}/spmv_code_sparsex/spmv_sparsex.exe"
 
     # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell.exe"
     # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu.exe"
@@ -246,7 +249,6 @@ progs=(
     # ['mkl_bsr_64_d']="${script_dir}/spmv_code_bench/spmv_mkl_bsr_64.exe"
     # ['mkl_coo_d']="${script_dir}/spmv_code_bench/spmv_mkl_coo.exe"
     # ['mkl_csc_d']="${script_dir}/spmv_code_bench/spmv_mkl_csc.exe"
-    # ['sparsex_d']="./spmv_code_sparsex/spmv_sparsex.exe"
 
 )
 

@@ -104,7 +104,7 @@ bench()
     do
         export OMP_NUM_THREADS="$t"
 
-        if [ $prog = "./spmv_code_sparsex/spmv_sparsex.exe" ]; then
+        if [[ "$prog" == *"spmv_sparsex.exe"* ]]; then
             # since affinity is set with the runtime variable, just reset it to "0" so no warnings are displayed, and reset it after execution of benchmark (for other benchmarks to run)
             export GOMP_CPU_AFFINITY_backup="${GOMP_CPU_AFFINITY}"
             export GOMP_CPU_AFFINITY="0"
@@ -116,7 +116,7 @@ bench()
                 "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all
             fi
             export GOMP_CPU_AFFINITY="${GOMP_CPU_AFFINITY_backup}"
-        elif [ $prog = "./spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe" ]; then
+        elif [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
             if ((!use_artificial_matrices)); then
                 "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
             else
