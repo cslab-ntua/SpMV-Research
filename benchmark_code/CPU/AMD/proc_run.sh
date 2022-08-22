@@ -232,13 +232,8 @@ for tuple in "${progs[@]}"; do
 
     for a in "${prog_args[@]}"
     do
-        if ((use_artificial_matrices)); then
-            echo "File: $a"
-            bench $p $a
-        else
-            echo "File: $a"
-            bench $p "$a"
-        fi
+        echo "File: $a"
+        bench "$p" $a
     done
 done
 

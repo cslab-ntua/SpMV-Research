@@ -49,8 +49,8 @@ conf_vars=(
     ['output_to_files']=0
     # ['output_to_files']=1
 
-    # ['COOLDOWN']=0
-    ['COOLDOWN']=1
+    ['COOLDOWN']=0
+    # ['COOLDOWN']=1
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
     ['use_artificial_matrices']=0
@@ -60,8 +60,8 @@ conf_vars=(
     # ['max_cores']=160
     # ['max_cores']=256
     # ['max_cores']=128
-    ['max_cores']=64
-    # ['max_cores']=48
+    # ['max_cores']=64
+    ['max_cores']=48
     # ['max_cores']=16
     # ['max_cores']=8
 
@@ -75,11 +75,11 @@ conf_vars=(
     # ['cores']=32
     # ['cores']=16
     # ['cores']=8
-    ['cores']=4
+    # ['cores']=4
     # ['cores']='1 2 4 8 16 24 48'
     # ['cores']='24 48'
     # ['cores']=48
-    # ['cores']=24
+    ['cores']=24
     # ['cores']='1 2 4 8'
     # ['cores']=14
     # ['cores']=6
@@ -111,6 +111,7 @@ conf_vars=(
                 )"
 
     ['AOCL_PATH']="$( options=(
+                        '/opt/aoclsparse'
                         '/various/pmpakos/spmv_paper/aocl-sparse/build/release'
                     )
                     find_valid_dir "${options[@]}"
@@ -217,7 +218,7 @@ progs=(
     # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd.exe"
 
     # MKL IE
-    # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
+    ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
 
     # AOCL
     # ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv.exe"
@@ -226,8 +227,11 @@ progs=(
     # ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5.exe"
 
     # merge spmv
-    # ['merge_d']="${script_dir}/spmv_code_merge/spmv_merge.exe"
     # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
+
+    # sell C sigma
+    # ['sell_C_s_d']="./spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
+    # ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
 
     # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell.exe"
     # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu.exe"
@@ -243,7 +247,6 @@ progs=(
     # ['mkl_coo_d']="${script_dir}/spmv_code_bench/spmv_mkl_coo.exe"
     # ['mkl_csc_d']="${script_dir}/spmv_code_bench/spmv_mkl_csc.exe"
     # ['sparsex_d']="./spmv_code_sparsex/spmv_sparsex.exe"
-    ['sell_C_s_d']="./spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
 
 )
 

@@ -99,8 +99,8 @@ LIB_OBJ := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ))
 EXE =
 
 EXE += spmv_csr_naive.exe
-EXE += spmv_csr.exe
-EXE += spmv_csr_vector.exe
+# EXE += spmv_csr.exe
+# EXE += spmv_csr_vector.exe
 EXE += spmv_csr_vector_x86.exe
 # EXE += spmv_csr_vector_perfect_nnz_balance.exe
 # EXE += spmv_csr_simd.exe
@@ -111,18 +111,18 @@ EXE += spmv_csr_vector_x86.exe
 # EXE += spmv_ldu.exe
 # EXE += spmv_ell.exe
 
-# EXE += spmv_mkl_ie.exe
+EXE += spmv_mkl_ie.exe
 # EXE += spmv_mkl_coo.exe
 # EXE += spmv_mkl_dia.exe
 # EXE += spmv_mkl_csc.exe
 # EXE += spmv_mkl_csr.exe
 # EXE += spmv_mkl_bsr_2.exe spmv_mkl_bsr_4.exe spmv_mkl_bsr_8.exe spmv_mkl_bsr_16.exe spmv_mkl_bsr_32.exe spmv_mkl_bsr_64.exe
 
-# EXE += spmv_aocl_optmv.exe
+EXE += spmv_aocl_optmv.exe
 
-# EXE += spmv_csr5.exe
+EXE += spmv_csr5.exe
 
-# EXE += spmv_merge.exe
+EXE += spmv_merge.exe
 
 
 DIRS = obj
