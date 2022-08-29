@@ -27,7 +27,8 @@ extern "C"{
 	#include "file_formats/openfoam/openfoam_matrix.h"
 	#include "aux/csr_converter.h"
 
-	#include "monitoring/power/rapl.h"
+	// #include "monitoring/power/rapl.h"
+	#include "monitoring/power/rapl_arm.h"
 
 	#include "artificial_matrix_generation.h"
 
@@ -228,30 +229,26 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 	/*****************************************************************************************/
 
 	time = 0;
+	rapl_read_start(regs, regs_n);
 	for(int idxLoop = 0 ; idxLoop < loop ; ++idxLoop){
-		rapl_read_start(regs, regs_n);
 
 		time += time_it(1,
 			MF->spmv(x, y);
 		);
 
-		rapl_read_end(regs, regs_n);
 	}
+	rapl_read_end(regs, regs_n);
 
 	/*****************************************************************************************/
-	double W_avg = 250;
-	if(num_threads>80)
-		W_avg = 500; // quick and dirty for ARM 2 sockets (1-socket TDP is 250W)
-	double J_estimated = W_avg*time;
-	// double J_estimated = 0;
-	// for (int i=0;i<regs_n;i++){
-	// 	// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
-	// 	J_estimated += ((double) regs[i].uj_accum) / 1e6;
-	// }
-	// rapl_close(regs, regs_n);
-	// free(regs);
-	// double W_avg = J_estimated / time;
-	// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
+	double J_estimated = 0;
+	for (int i=0;i<regs_n;i++){
+		// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
+		J_estimated += ((double) regs[i].uj_accum) / 1e6;
+	}
+	rapl_close(regs, regs_n);
+	free(regs);
+	double W_avg = J_estimated / time;
+	printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
 	/*****************************************************************************************/
 
 	//=============================================================================

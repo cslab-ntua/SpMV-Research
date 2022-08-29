@@ -115,7 +115,7 @@ CMakeFiles/spmvbench.dir/artificial_matrix_generation.o: ${AMG_PATH}/artificial_
 CMakeFiles/spmvbench.dir/ordered_set.o: ${AMG_PATH}/ordered_set.c
 	cd ${CMAKE_SOURCE_DIR}/build/spmvbench && /usr/bin/cc -o $@ -c $< ${AMG_CFLAGS}
 
-CMakeFiles/spmvbench.dir/rapl.o: $(LIB_PATH)/monitoring/power/rapl.c
+CMakeFiles/spmvbench.dir/rapl_arm.o: $(LIB_PATH)/monitoring/power/rapl_arm.c
 	cd ${CMAKE_SOURCE_DIR}/build/spmvbench && /usr/bin/cc -o $@ -c $< ${AMG_CFLAGS}
 ##################################################################################################################
 
@@ -142,7 +142,7 @@ spmvbench/spmvbench: spmvbench/CMakeFiles/spmvbench.dir/link.txt
 ##################################################################################################################
 spmvbench/spmvbench: CMakeFiles/spmvbench.dir/artificial_matrix_generation.o
 spmvbench/spmvbench: CMakeFiles/spmvbench.dir/ordered_set.o
-spmvbench/spmvbench: CMakeFiles/spmvbench.dir/rapl.o
+spmvbench/spmvbench: CMakeFiles/spmvbench.dir/rapl_arm.o
 ##################################################################################################################	
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=${CMAKE_SOURCE_DIR}/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable spmvbench"
 	cd ${CMAKE_SOURCE_DIR}/build/spmvbench && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/spmvbench.dir/link.txt --verbose=$(VERBOSE)

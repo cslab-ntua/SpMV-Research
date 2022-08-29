@@ -102,7 +102,7 @@ LDFLAGS += -Wl,--no-as-needed -lm #-lpapi
 LDFLAGS += -lgomp -lpthread -ldl 
 LDFLAGS += -larmpl_lp64_mp
 
-LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c parallel_io.c string_util.c openfoam_matrix.c rapl.c
+LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c parallel_io.c string_util.c openfoam_matrix.c rapl_arm.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%.o,$(LIB_OBJ))
@@ -197,7 +197,7 @@ $(call Rule_Auto_Dependencies,obj/parallel_io.o,$(library)/parallel_io.c)
 	$(CC) $(CFLAGS2) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/openfoam_matrix.o,$(library)/file_formats/openfoam/openfoam_matrix.c)
 	$(CC) $(CFLAGS2) -c $< -o $@
-$(call Rule_Auto_Dependencies,obj/rapl.o,$(library)/monitoring/power/rapl.c)
+$(call Rule_Auto_Dependencies,obj/rapl_arm.o,$(library)/monitoring/power/rapl_arm.c)
 	$(CC) $(CFLAGS2) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/csr_converter.o,$(library)/aux/csr_converter.c)
 	$(CC) $(CFLAGS2) -c $< -o $@

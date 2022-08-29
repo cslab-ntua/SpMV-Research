@@ -84,8 +84,11 @@ conf_vars=(
     ['cpu_affinity']=''
 
     # Rapl registers.
-    # ['RAPL_REGISTERS']='0'         # 1 socket : Epyc1, Gold
-    # ['RAPL_REGISTERS']='0,1'       # 2 sockets: Epyc1, Gold
+    # For ARM, they are not RAPL_REGISTERS, but directories hwmon1 and hwmon3 under /sys/class/hwmon directory.
+    # hwmon1 is for socket-1 and hwmon3 for socket-2
+    # from this kernel driver (https://github.com/AmpereComputing/ampere-lts-kernel/wiki/hwmon-drivers)
+    ['RAPL_REGISTERS']='1'         # 1 socket : Armor
+    # ['RAPL_REGISTERS']='1,3'       # 2 sockets: Armor 
 
 	# Path for the validation matrices.
 	# ['path_validation']='/various/pmpakos/SpMV-Research/validation_matrices/'
@@ -179,9 +182,6 @@ artificial_matrices_files=(
 
 	# The synthetic dataset studied in the paper.
 	# "$path_artificial"/synthetic_matrices_small_dataset.txt
-	# "$path_artificial"/synthetic_matrices_small_dataset2.txt
-	# "$path_artificial"/synthetic_matrices_small_dataset3.txt
-	# "$path_artificial"/synthetic_matrices_small_dataset5.txt
 )
 
 

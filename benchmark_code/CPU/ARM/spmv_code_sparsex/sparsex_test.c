@@ -35,7 +35,7 @@
 
 #include "debug.h"
 #include "time_it.h"
-#include "monitoring/power/rapl.h"
+#include "monitoring/power/rapl_arm.h"
 
 int prefetch_distance = 8;
 
@@ -139,13 +139,13 @@ static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * 
 	spx_timer_clear(&t);
 	spx_timer_start(&t);
 
+	rapl_read_start(regs, regs_n);
 	for (size_t i = 0; i < loop; i++) {
-		rapl_read_start(regs, regs_n);
 
 		spx_matvec_mult(alpha, A, x, y);
 
-		rapl_read_end(regs, regs_n);
 	}
+	rapl_read_end(regs, regs_n);
 
 	spx_timer_pause(&t);
 	double time = spx_timer_get_secs(&t);
@@ -165,19 +165,15 @@ static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * 
 	}
 
 	/*****************************************************************************************/
-	double W_avg = 250;
-	if(num_threads>80)
-		W_avg = 500; // quick and dirty for ARM 2 sockets (1-socket TDP is 250W)
-	double J_estimated = W_avg*time;
-	// double J_estimated = 0;
-	// for (int i=0;i<regs_n;i++){
-	// 	// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
-	// 	J_estimated += ((double) regs[i].uj_accum) / 1e6;
-	// }
-	// rapl_close(regs, regs_n);
-	// free(regs);
-	// double W_avg = J_estimated / time;
-	// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
+	double J_estimated = 0;
+	for (int i=0;i<regs_n;i++){
+		// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
+		J_estimated += ((double) regs[i].uj_accum) / 1e6;
+	}
+	rapl_close(regs, regs_n);
+	free(regs);
+	double W_avg = J_estimated / time;
+	printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
 	/*****************************************************************************************/
 	
 	if(artificial_flag == 0){
