@@ -27,7 +27,6 @@ extern "C"{
 	#include "file_formats/openfoam/openfoam_matrix.h"
 	#include "aux/csr_converter.h"
 
-	// #include "monitoring/power/rapl.h"
 	#include "monitoring/power/rapl_arm.h"
 
 	#include "artificial_matrix_generation.h"
