@@ -1,0 +1,122 @@
+program: /various/pmpakos/SpMV-Research/benchmark_code/CPU/ARM/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe
+number of matrices: 30
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+Preprocessing: 0.884647 secs
+SPMV time: 0.012985 secs
+GFLOPS: 18.905130
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+Preprocessing: 1.097009 secs
+SPMV time: 0.016547 secs
+GFLOPS: 19.700661
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+Preprocessing: 1.283237 secs
+SPMV time: 0.011156 secs
+GFLOPS: 34.164668
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+Preprocessing: 1.569094 secs
+SPMV time: 0.013530 secs
+GFLOPS: 33.523799
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+Preprocessing: 1.519826 secs
+SPMV time: 0.013155 secs
+GFLOPS: 37.303394
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+Preprocessing: 1.354493 secs
+SPMV time: 0.011520 secs
+GFLOPS: 46.673616
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+Preprocessing: 1.876625 secs
+SPMV time: 0.015802 secs
+GFLOPS: 38.460739
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+Preprocessing: 1.119595 secs
+SPMV time: 0.028722 secs
+GFLOPS: 23.391000
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+Preprocessing: 3.073434 secs
+SPMV time: 0.298037 secs
+GFLOPS: 2.667510
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+Preprocessing: 1.831048 secs
+SPMV time: 0.018715 secs
+GFLOPS: 54.817755
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+Preprocessing: 1.872023 secs
+SPMV time: 0.021541 secs
+GFLOPS: 51.635418
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+Preprocessing: 3.968172 secs
+SPMV time: 0.024818 secs
+GFLOPS: 45.525807
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+Preprocessing: 7.494622 secs
+SPMV time: 1.356257 secs
+GFLOPS: 1.015078
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+Preprocessing: 2.679757 secs
+SPMV time: 0.030003 secs
+GFLOPS: 51.284034
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+Preprocessing: 2.911124 secs
+SPMV time: 0.062509 secs
+GFLOPS: 31.999262
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+Preprocessing: 7.227741 secs
+SPMV time: 0.134360 secs
+GFLOPS: 15.595369
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+Preprocessing: 8.131183 secs
+SPMV time: 1.276219 secs
+GFLOPS: 2.263493
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+Preprocessing: 5.048650 secs
+SPMV time: 0.102409 secs
+GFLOPS: 29.083416
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+Preprocessing: 5.707843 secs
+SPMV time: 0.229833 secs
+GFLOPS: 15.759736
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+Preprocessing: 7.535692 secs
+SPMV time: 0.575669 secs
+GFLOPS: 6.675515
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+Preprocessing: 14.476856 secs
+SPMV time: 0.218509 secs
+GFLOPS: 18.945776
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+Preprocessing: 9.260720 secs
+SPMV time: 0.867194 secs
+GFLOPS: 5.457890
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+Preprocessing: 19.336277 secs
+SPMV time: 1.023251 secs
+GFLOPS: 11.639137
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+Preprocessing: 1467.904110 secs
+SPMV time: 23.673832 secs
+GFLOPS: 0.643674
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+Preprocessing: 26.270720 secs
+SPMV time: 1.408722 secs
+GFLOPS: 13.023565
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+Preprocessing: 74.052315 secs
+SPMV time: 2.293994 secs
+GFLOPS: 11.070250
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+Preprocessing: 5.232038 secs
+SPMV time: 0.407372 secs
+GFLOPS: 6.505905
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+Preprocessing: 12.694174 secs
+SPMV time: 0.905694 secs
+GFLOPS: 4.781712
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+Preprocessing: 12.951562 secs
+SPMV time: 0.796148 secs
+GFLOPS: 6.185029
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+Preprocessing: 15.552296 secs
+SPMV time: 4.206372 secs
+GFLOPS: 1.202173

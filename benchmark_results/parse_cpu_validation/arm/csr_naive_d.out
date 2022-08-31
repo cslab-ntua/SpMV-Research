@@ -1,0 +1,152 @@
+program: /various/pmpakos/SpMV-Research/benchmark_code/CPU/ARM/spmv_code_bench/spmv_csr_naive.exe
+number of matrices: 30
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 80
+time read: 0.038989
+time coo to csr: 0.018843
+balance time = 1.568e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 80
+time read: 0.033913
+time coo to csr: 0.024288
+balance time = 1.688e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 80
+time read: 0.056801
+time coo to csr: 0.028615
+balance time = 1.8721e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 80
+time read: 0.049064
+time coo to csr: 0.033777
+balance time = 1.948e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 80
+time read: 0.053043
+time coo to csr: 0.035487
+balance time = 1.852e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 80
+time read: 0.048193
+time coo to csr: 0.036990
+balance time = 1.784e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 80
+time read: 0.059685
+time coo to csr: 0.042922
+balance time = 1.792e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+max threads 80
+time read: 0.040160
+time coo to csr: 0.041540
+balance time = 1.768e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 80
+time read: 0.072505
+time coo to csr: 0.052865
+balance time = 1.796e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 80
+time read: 0.064953
+time coo to csr: 0.065243
+balance time = 1.776e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 80
+time read: 0.068083
+time coo to csr: 0.071080
+balance time = 1.744e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 80
+time read: 0.119139
+time coo to csr: 0.087656
+balance time = 2.004e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 80
+time read: 0.154038
+time coo to csr: 0.108603
+balance time = 2.1121e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+max threads 80
+time read: 0.093983
+time coo to csr: 0.095500
+balance time = 1.696e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 80
+time read: 0.112354
+time coo to csr: 0.120774
+balance time = 1.676e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 80
+time read: 0.218296
+time coo to csr: 0.153156
+balance time = 1.708e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 80
+time read: 0.122659
+time coo to csr: 0.185075
+balance time = 1.636e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+max threads 80
+time read: 0.219828
+time coo to csr: 0.216924
+balance time = 1.7e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 80
+time read: 0.180267
+time coo to csr: 0.201376
+balance time = 1.672e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 80
+time read: 0.195251
+time coo to csr: 0.244553
+balance time = 1.928e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 80
+time read: 0.243475
+time coo to csr: 0.261423
+balance time = 1.976e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 80
+time read: 0.425312
+time coo to csr: 0.290725
+balance time = 1.832e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+max threads 80
+time read: 0.308838
+time coo to csr: 0.313228
+balance time = 1.732e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 80
+time read: 0.296359
+time coo to csr: 0.324306
+balance time = 1.792e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+max threads 80
+time read: 0.340256
+time coo to csr: 0.352469
+balance time = 1.616e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+max threads 80
+time read: 0.347230
+time coo to csr: 0.359134
+balance time = 1.704e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 80
+time read: 0.838679
+time coo to csr: 0.830787
+balance time = 9.12e-06
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 80
+time read: 1.692566
+time coo to csr: 1.467557
+balance time = 9.72e-06
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 80
+time read: 0.949651
+time coo to csr: 1.296876
+balance time = 1.012e-05
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 80
+time read: 2.570334
+time coo to csr: 1.663134
+balance time = 1.112e-05

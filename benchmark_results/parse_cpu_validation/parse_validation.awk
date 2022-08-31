@@ -111,8 +111,16 @@ function find_mem_range(mem, str)
     time = tok[6]
     gflops = tok[7]
     mem_footprint = tok[8]
+    w_avg = tok[9]
+    j_estim = tok[10]
+    format = tok[11]
+    
     if (threads != THREADS)
         next
+    if(format != IMPLEMENTATION)
+        # printf("\t%s vs %s\n", format, IMPLEMENTATION)
+        next
+
     density = nnz / (m * n) * 100 
     mem_range = find_mem_range(mem_footprint)
 
@@ -152,7 +160,7 @@ function find_mem_range(mem, str)
     str = sprintf("%s,%g,%g", str, avg_num_neighbours, cross_row_similarity)
 
     # str = sprintf("%s,%s,%g,%g,0,0,HawkAmdRome", str, IMPLEMENTATION, time, gflops)
-    str = sprintf("%s,%s,%g,%g,0,0,%s", str, IMPLEMENTATION, time, gflops, DEVICE)
+    str = sprintf("%s,%s,%g,%g,%g,%g,%s", str, IMPLEMENTATION, time, gflops, w_avg, j_estim, DEVICE)
     printf("%s\n", str)
 }
 
