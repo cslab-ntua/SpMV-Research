@@ -155,7 +155,7 @@ To build with artificial matrix generator
 ---
 Example runs
 	artificial matrix
-		export OMP_NUM_THREADS=24; ./spmvbench -c $OMP_NUM_THREADS -f SELL-16-4 --artif_args="655350 655350 5 1.6667 normal random 0.05 0 0.05 0.05 14"
+		export OMP_NUM_THREADS=24; ./spmv_sell-C-s.exe -c $OMP_NUM_THREADS -f SELL-16-4 --artif_args="655350 655350 5 1.6667 normal random 0.05 0 0.05 0.05 14"
 
 	validation matrix
-		export OMP_NUM_THREADS=24; ./spmvbench -c $OMP_NUM_THREADS -f SELL-16-4 -m /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+		export OMP_NUM_THREADS=24; ./spmv_sell-C-s.exe -c $OMP_NUM_THREADS -f SELL-16-4 -m /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
