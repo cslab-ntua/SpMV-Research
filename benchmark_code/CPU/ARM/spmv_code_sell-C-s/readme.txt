@@ -147,6 +147,7 @@ To build with artificial matrix generator
 		ii) change definition of function
 			ghost_error ghost_sparsemat_init_crs(ghost_sparsemat *mat, ghost_gidx offs, ghost_lidx m, ghost_lidx n, ghost_lidx *col, double *val, ghost_lidx *rpt, ghost_mpi_comm mpicomm, double weight);
 		iv) In "ghost_sparsemat_rowfunc_crs" function, change "ghost_gidx *col" to "ghost_lidx *col"
+		v) In "ghost_sparsemat_rowfunc_crs_arg" typedef struct, change "ghost_gidx *col" to "ghost_lidx *col"
 
 
 ---
