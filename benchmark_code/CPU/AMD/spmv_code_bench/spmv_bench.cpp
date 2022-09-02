@@ -173,7 +173,7 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 	#endif
 
 	// Warm up cpu.
-	volatile double warmup_total;
+	__attribute__((unused)) volatile double warmup_total;
 	long A_warmup_n = (1<<20) * num_threads;
 	double * A_warmup;
 	time_warm_up = time_it(1,
