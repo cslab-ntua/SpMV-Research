@@ -15,19 +15,19 @@ data=(
     "./epyc1/t24/sell_C_s_d.csv        ./amd-epyc1_validation_matrices      SELL-32-1          Epyc1     24"
     "./epyc1/t24/sparsex_d.csv         ./amd-epyc1_validation_matrices      SparseX            Epyc1     24"
 
-    "./xeon-gold/csr5_d.csv            ./xeon-gold_validation_matrices      CSR5               XeonGold     14"
-    "./xeon-gold/csr_naive_d.csv       ./xeon-gold_validation_matrices      Naive_CSR_CPU      XeonGold     14"
-    "./xeon-gold/csr_vector_x86_d.csv  ./xeon-gold_validation_matrices      Custom_CSR_BV_x86  XeonGold     14"
-    "./xeon-gold/merge_d.csv           ./xeon-gold_validation_matrices      MERGE              XeonGold     14"
-    "./xeon-gold/mkl_ie_d.csv          ./xeon-gold_validation_matrices      MKL_IE             XeonGold     14"
-    "./xeon-gold/sell_C_s_d.csv        ./xeon-gold_validation_matrices      SELL-32-1          XeonGold     14"
-    "./xeon-gold/sparsex_d.csv         ./xeon-gold_validation_matrices      SparseX            XeonGold     14"
+    # "./xeon-gold/csr5_d.csv            ./xeon-gold_validation_matrices      CSR5               XeonGold     14"
+    # "./xeon-gold/csr_naive_d.csv       ./xeon-gold_validation_matrices      Naive_CSR_CPU      XeonGold     14"
+    # "./xeon-gold/csr_vector_x86_d.csv  ./xeon-gold_validation_matrices      Custom_CSR_BV_x86  XeonGold     14"
+    # "./xeon-gold/merge_d.csv           ./xeon-gold_validation_matrices      MERGE              XeonGold     14"
+    # "./xeon-gold/mkl_ie_d.csv          ./xeon-gold_validation_matrices      MKL_IE             XeonGold     14"
+    # "./xeon-gold/sell_C_s_d.csv        ./xeon-gold_validation_matrices      SELL-32-1          XeonGold     14"
+    # "./xeon-gold/sparsex_d.csv         ./xeon-gold_validation_matrices      SparseX            XeonGold     14"
 
-    "./arm/armpl_d.csv           ./arm_validation_matrices      ARMPL          ARM     80"
-    "./arm/csr_naive_d.csv       ./arm_validation_matrices      Naive_CSR_CPU  ARM     80"
-    "./arm/merge_d.csv           ./arm_validation_matrices      MERGE          ARM     80"
-    "./arm/sell_C_s_d.csv        ./arm_validation_matrices      SELL-32-1      ARM     80"
-    "./arm/sparsex_d.csv         ./arm_validation_matrices      SparseX        ARM     80"
+    # "./arm/armpl_d.csv           ./arm_validation_matrices      ARMPL          ARM     80"
+    # "./arm/csr_naive_d.csv       ./arm_validation_matrices      Naive_CSR_CPU  ARM     80"
+    # "./arm/merge_d.csv           ./arm_validation_matrices      MERGE          ARM     80"
+    # "./arm/sell_C_s_d.csv        ./arm_validation_matrices      SELL-32-1      ARM     80"
+    # "./arm/sparsex_d.csv         ./arm_validation_matrices      SparseX        ARM     80"
 
 )
 

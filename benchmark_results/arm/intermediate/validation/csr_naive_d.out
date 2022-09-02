@@ -2,151 +2,181 @@ program: /various/pmpakos/SpMV-Research/benchmark_code/CPU/ARM/spmv_code_bench/s
 number of matrices: 30
 File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
 max threads 80
-time read: 0.038989
-time coo to csr: 0.018843
-balance time = 1.568e-05
+time read: 0.018665
+time coo to csr: 0.016196
+balance time = 1.632e-05
+J_estimated = 0.542457	W_avg = 124.960234
 File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
 max threads 80
-time read: 0.033913
-time coo to csr: 0.024288
-balance time = 1.688e-05
+time read: 0.021282
+time coo to csr: 0.016057
+balance time = 1.648e-05
+J_estimated = 0.534825	W_avg = 133.392844
 File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
 max threads 80
-time read: 0.056801
-time coo to csr: 0.028615
-balance time = 1.8721e-05
+time read: 0.025710
+time coo to csr: 0.019707
+balance time = 1.74e-05
+J_estimated = 0.470314	W_avg = 134.183776
 File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
 max threads 80
-time read: 0.049064
-time coo to csr: 0.033777
-balance time = 1.948e-05
+time read: 0.027052
+time coo to csr: 0.020369
+balance time = 1.692e-05
+J_estimated = 0.580166	W_avg = 137.271975
 File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
 max threads 80
-time read: 0.053043
-time coo to csr: 0.035487
-balance time = 1.852e-05
+time read: 0.026381
+time coo to csr: 0.022187
+balance time = 1.648e-05
+J_estimated = 0.559337	W_avg = 130.084513
 File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
 max threads 80
-time read: 0.048193
-time coo to csr: 0.036990
-balance time = 1.784e-05
+time read: 0.024454
+time coo to csr: 0.021986
+balance time = 1.772e-05
+J_estimated = 0.882153	W_avg = 155.794745
 File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
 max threads 80
-time read: 0.059685
-time coo to csr: 0.042922
-balance time = 1.792e-05
+time read: 0.028668
+time coo to csr: 0.025743
+balance time = 1.696e-05
+J_estimated = 0.928645	W_avg = 151.432654
 File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
 max threads 80
-time read: 0.040160
-time coo to csr: 0.041540
-balance time = 1.768e-05
+time read: 0.025820
+time coo to csr: 0.027100
+balance time = 1.66e-05
+J_estimated = 2.147542	W_avg = 143.959208
 File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
 max threads 80
-time read: 0.072505
-time coo to csr: 0.052865
-balance time = 1.796e-05
+time read: 0.031359
+time coo to csr: 0.030626
+balance time = 4.212e-05
+J_estimated = 6.090177	W_avg = 130.018707
 File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
 max threads 80
-time read: 0.064953
-time coo to csr: 0.065243
-balance time = 1.776e-05
+time read: 0.035224
+time coo to csr: 0.036852
+balance time = 1.648e-05
+J_estimated = 1.111617	W_avg = 154.479733
 File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
 max threads 80
-time read: 0.068083
-time coo to csr: 0.071080
-balance time = 1.744e-05
+time read: 0.036168
+time coo to csr: 0.034018
+balance time = 1.86e-05
+J_estimated = 1.275683	W_avg = 153.187426
 File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
 max threads 80
-time read: 0.119139
-time coo to csr: 0.087656
-balance time = 2.004e-05
+time read: 0.047388
+time coo to csr: 0.044095
+balance time = 8.2119e-05
+J_estimated = 2.267820	W_avg = 168.509020
 File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
 max threads 80
-time read: 0.154038
-time coo to csr: 0.108603
-balance time = 2.1121e-05
+time read: 0.058991
+time coo to csr: 0.057304
+balance time = 1.676e-05
+J_estimated = 29.210558	W_avg = 125.766550
 File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
 max threads 80
-time read: 0.093983
-time coo to csr: 0.095500
-balance time = 1.696e-05
+time read: 0.044121
+time coo to csr: 0.043959
+balance time = 1.836e-05
+J_estimated = 1.804921	W_avg = 159.792089
 File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
 max threads 80
-time read: 0.112354
-time coo to csr: 0.120774
-balance time = 1.676e-05
+time read: 0.044780
+time coo to csr: 0.058342
+balance time = 1.648e-05
+J_estimated = 3.666237	W_avg = 147.811473
 File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
 max threads 80
-time read: 0.218296
-time coo to csr: 0.153156
-balance time = 1.708e-05
+time read: 0.071967
+time coo to csr: 0.073226
+balance time = 1.616e-05
+J_estimated = 4.083965	W_avg = 143.561655
 File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
 max threads 80
-time read: 0.122659
-time coo to csr: 0.185075
-balance time = 1.636e-05
+time read: 0.044841
+time coo to csr: 0.076390
+balance time = 1.724e-05
+J_estimated = 12.308303	W_avg = 138.311280
 File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
 max threads 80
-time read: 0.219828
-time coo to csr: 0.216924
-balance time = 1.7e-05
+time read: 0.053455
+time coo to csr: 0.125072
+balance time = 1.768e-05
+J_estimated = 46.450208	W_avg = 125.418410
 File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
 max threads 80
-time read: 0.180267
-time coo to csr: 0.201376
-balance time = 1.672e-05
+time read: 0.062485
+time coo to csr: 0.084367
+balance time = 1.628e-05
+J_estimated = 9.477076	W_avg = 108.553452
 File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
 max threads 80
-time read: 0.195251
-time coo to csr: 0.244553
-balance time = 1.928e-05
+time read: 0.062606
+time coo to csr: 0.106013
+balance time = 1.66e-05
+J_estimated = 16.040389	W_avg = 112.870918
 File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
 max threads 80
-time read: 0.243475
-time coo to csr: 0.261423
-balance time = 1.976e-05
+time read: 0.078888
+time coo to csr: 0.105537
+balance time = 1.616e-05
+J_estimated = 19.415225	W_avg = 115.496590
 File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
 max threads 80
-time read: 0.425312
-time coo to csr: 0.290725
-balance time = 1.832e-05
+time read: 0.129036
+time coo to csr: 0.136677
+balance time = 1.72e-05
+J_estimated = 27.247119	W_avg = 127.241692
 File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
 max threads 80
-time read: 0.308838
-time coo to csr: 0.313228
-balance time = 1.732e-05
+time read: 0.079422
+time coo to csr: 0.163410
+balance time = 1.796e-05
+J_estimated = 42.455700	W_avg = 118.833453
 File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
 max threads 80
-time read: 0.296359
-time coo to csr: 0.324306
-balance time = 1.792e-05
+time read: 0.091066
+time coo to csr: 0.158419
+balance time = 8.724e-05
+J_estimated = 26.374925	W_avg = 109.235054
 File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
 max threads 80
-time read: 0.340256
-time coo to csr: 0.352469
-balance time = 1.616e-05
+time read: 0.084787
+time coo to csr: 0.183679
+balance time = 1.796e-05
+J_estimated = 34.549294	W_avg = 110.585473
 File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
 max threads 80
-time read: 0.347230
-time coo to csr: 0.359134
-balance time = 1.704e-05
+time read: 0.087640
+time coo to csr: 0.190068
+balance time = 1.744e-05
+J_estimated = 104.744971	W_avg = 117.400595
 File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
 max threads 80
-time read: 0.838679
-time coo to csr: 0.830787
-balance time = 9.12e-06
+time read: 0.174477
+time coo to csr: 0.339598
+balance time = 1.68e-05
+J_estimated = 73.461243	W_avg = 91.918029
 File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
 max threads 80
-time read: 1.692566
-time coo to csr: 1.467557
-balance time = 9.72e-06
+time read: 0.465170
+time coo to csr: 0.451997
+balance time = 1.864e-05
+J_estimated = 370.688670	W_avg = 120.844374
 File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
 max threads 80
-time read: 0.949651
-time coo to csr: 1.296876
-balance time = 1.012e-05
+time read: 0.214649
+time coo to csr: 0.488439
+balance time = 1.5719e-05
+J_estimated = 105.215870	W_avg = 89.233722
 File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
 max threads 80
-time read: 2.570334
-time coo to csr: 1.663134
-balance time = 1.112e-05
+time read: 0.574043
+time coo to csr: 0.711867
+balance time = 8.28e-06
+J_estimated = 196.242619	W_avg = 94.764758
