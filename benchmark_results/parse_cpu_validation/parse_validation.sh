@@ -6,6 +6,15 @@ val_mat_dir='./'
 
 data=(
 
+    "./epyc1/t24/aocl_optmv_d.csv      ./amd-epyc1_validation_matrices      AOCL_OPTMV         Epyc1     24"
+    "./epyc1/t24/csr5_d.csv            ./amd-epyc1_validation_matrices      CSR5               Epyc1     24"
+    "./epyc1/t24/csr_naive_d.csv       ./amd-epyc1_validation_matrices      Naive_CSR_CPU      Epyc1     24"
+    "./epyc1/t24/csr_vector_x86_d.csv  ./amd-epyc1_validation_matrices      Custom_CSR_BV_x86  Epyc1     24"
+    "./epyc1/t24/merge_d.csv           ./amd-epyc1_validation_matrices      MERGE              Epyc1     24"
+    "./epyc1/t24/mkl_ie_d.csv          ./amd-epyc1_validation_matrices      MKL_IE             Epyc1     24"
+    "./epyc1/t24/sell_C_s_d.csv        ./amd-epyc1_validation_matrices      SELL-32-1          Epyc1     24"
+    "./epyc1/t24/sparsex_d.csv         ./amd-epyc1_validation_matrices      SparseX            Epyc1     24"
+
     "./xeon-gold/csr5_d.csv            ./xeon-gold_validation_matrices      CSR5               XeonGold     14"
     "./xeon-gold/csr_naive_d.csv       ./xeon-gold_validation_matrices      Naive_CSR_CPU      XeonGold     14"
     "./xeon-gold/csr_vector_x86_d.csv  ./xeon-gold_validation_matrices      Custom_CSR_BV_x86  XeonGold     14"

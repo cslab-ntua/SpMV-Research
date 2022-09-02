@@ -19,24 +19,13 @@ fi
 
 # GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
 # e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
-# affinity=''
-# for ((i=0;i<cores;i++)); do
-    # cycle_len="$(( max_cores / cpu_pinning_step ))"
-    # affinity="$affinity,$(( (i % cycle_len) * cpu_pinning_step + (i / cycle_len) % cpu_pinning_step ))"
-# done
-# affinity="${affinity#,}"
-# export GOMP_CPU_AFFINITY="$affinity"
-# printf "cpu affinities: %s\n" "$cpu_affinity"
-
-# GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
-# e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
 export GOMP_CPU_AFFINITY="$cpu_affinity"
 
-# printf "cpu affinities: %s\n" "$cpu_affinity"
-# exit
-
 export MKL_DEBUG_CPU_TYPE=5
+
 export LD_LIBRARY_PATH="${AOCL_PATH}/lib:${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}"
+
 
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'

@@ -31,19 +31,6 @@ calc_cpu_pinning()
 }
 
 
-# These are environment variables that have to be set for SparseX to work
-# Need to install specific library versions
-export SPARSEX_ROOT_DIR='/home/pmpakos/sparsex'
-export BOOST_LIB_PATH="${SPARSEX_ROOT_DIR}/boost_1_55_0/local/lib"
-export LLVM_LIB_PATH="${SPARSEX_ROOT_DIR}/llvm-6.0.0/build/lib"
-
-# These are environment variables that have to be set for SELL-C-s to work
-export GHOST_ROOT_DIR=/home/pmpakos/ESSEX/
-export GHOST_APPS_ROOT_DIR=/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/
-
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}"
-
-
 declare -A conf_vars
 conf_vars=(
     ['output_to_files']=0
@@ -118,13 +105,16 @@ conf_vars=(
                 )"
 
     # SparseX ecosystem environment variables that have to be set.
-    ['BOOST_LIB_PATH']="${BOOST_LIB_PATH}"
-    ['LLVM_LIB_PATH']="${LLVM_LIB_PATH}"
-    ['SPARSEX_ROOT_DIR']="${SPARSEX_ROOT_DIR}"
+    # These are environment variables that have to be set for SparseX to work
+    # Need to install specific library versions
+    ['SPARSEX_ROOT_DIR']='/home/pmpakos/sparsex'
+    ['BOOST_LIB_PATH']='/home/pmpakos/sparsex'
+    ['LLVM_LIB_PATH']='/home/pmpakos/sparsex/llvm-6.0.0/build/lib'
 
     # SELL-C-s ecosystem environment variables that have to be set
-    ['GHOST_ROOT_DIR']=${GHOST_ROOT_DIR}
-    ['GHOST_APPS_ROOT_DIR']=${GHOST_APPS_ROOT_DIR}
+    # These are environment variables that have to be set for SELL-C-s to work
+    ['GHOST_ROOT_DIR']='/home/pmpakos/ESSEX'
+    ['GHOST_APPS_ROOT_DIR']='/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s'
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
