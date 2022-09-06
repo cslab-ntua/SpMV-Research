@@ -7,6 +7,8 @@
 #include "spmv_bench_common.h"
 #include "spmv_kernel.h"
 
+#include <immintrin.h>
+
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -126,43 +128,6 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 }
 
 
-//==========================================================================================================================================
-//= CSR Vector x86
-//==========================================================================================================================================
-
-
-#include <immintrin.h>
-
-
-/*
-	__m256i start256i, stop256i, mask256i;
-	__m128i v_colind;
-	v_colind = _mm_loadu_si128((__m128i const*)&csr->ja[j]);
-	v_x = _mm256_set_pd(x[_mm_extract_epi32(v_colind,0)], x[_mm_extract_epi32(v_colind,1)], x[_mm_extract_epi32(v_colind,2)], x[_mm_extract_epi32(v_colind,3)]);
-						
-	v_sum2 = _mm256_setzero_pd();
-	for (j=j_e_vector,k=0;j<j_e;j++,k++)
-		v_sum_2[k] = csr->a[j] * x[csr->ja[j]];
-	__m256d temp = _mm256_hadd_pd(v_sum, v_sum_2);
-	__m128d sum_high = _mm256_extractf128_pd(temp, 1);
-	__m128d result = _mm_add_pd(sum_high, _mm256_castpd256_pd128(temp));
-	y[i] = hsum256_pd(v_sum);
-
-	x256d[0] = x[csr->ja[j_e_vector]];
-	x256d[1] = x[csr->ja[j_e_vector+1]];
-	x256d[2] = x[csr->ja[j_e_vector+2]];
-	x256d[3] = 0;
-	v_x = _mm256_load_pd(x256d);
-	start256i = _mm256_set1_epi64x(j_e_vector);
-	stop256i = _mm256_set1_epi64x(j_e);
-	start256i = _mm256_add_epi64(start256i, _mm256_set_epi64x(0, 1, 2, 3));
-	mask256i = _mm256_cmpgt_epi64(stop256i, start256i);
-	v_a = _mm256_maskload_pd(&csr->a[j], mask256i);
-	v_sum = _mm256_fmadd_pd(v_a, v_x, v_sum);
-	y[i] = hsum256_pd(v_sum);
-*/
-
-
 // Reduce add 2 double-precision numbers.
 __attribute__((const))
 inline
@@ -213,6 +178,40 @@ hsum512_pd(__m512d v_512d)
 	// return hsum256_pd(low);
 	return _mm512_reduce_add_pd(v_512d);
 }
+
+
+/*
+	__m256i start256i, stop256i, mask256i;
+	__m128i v_colind;
+	v_colind = _mm_loadu_si128((__m128i const*)&csr->ja[j]);
+	v_x = _mm256_set_pd(x[_mm_extract_epi32(v_colind,0)], x[_mm_extract_epi32(v_colind,1)], x[_mm_extract_epi32(v_colind,2)], x[_mm_extract_epi32(v_colind,3)]);
+						
+	v_sum2 = _mm256_setzero_pd();
+	for (j=j_e_vector,k=0;j<j_e;j++,k++)
+		v_sum_2[k] = csr->a[j] * x[csr->ja[j]];
+	__m256d temp = _mm256_hadd_pd(v_sum, v_sum_2);
+	__m128d sum_high = _mm256_extractf128_pd(temp, 1);
+	__m128d result = _mm_add_pd(sum_high, _mm256_castpd256_pd128(temp));
+	y[i] = hsum256_pd(v_sum);
+
+	x256d[0] = x[csr->ja[j_e_vector]];
+	x256d[1] = x[csr->ja[j_e_vector+1]];
+	x256d[2] = x[csr->ja[j_e_vector+2]];
+	x256d[3] = 0;
+	v_x = _mm256_load_pd(x256d);
+	start256i = _mm256_set1_epi64x(j_e_vector);
+	stop256i = _mm256_set1_epi64x(j_e);
+	start256i = _mm256_add_epi64(start256i, _mm256_set_epi64x(0, 1, 2, 3));
+	mask256i = _mm256_cmpgt_epi64(stop256i, start256i);
+	v_a = _mm256_maskload_pd(&csr->a[j], mask256i);
+	v_sum = _mm256_fmadd_pd(v_a, v_x, v_sum);
+	y[i] = hsum256_pd(v_sum);
+*/
+
+
+//==========================================================================================================================================
+//= CSR Vector x86
+//==========================================================================================================================================
 
 
 void
