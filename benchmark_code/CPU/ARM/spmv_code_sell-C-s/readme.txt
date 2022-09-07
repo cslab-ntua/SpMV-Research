@@ -147,12 +147,13 @@ To build with artificial matrix generator
 		ii) change definition of function
 			ghost_error ghost_sparsemat_init_crs(ghost_sparsemat *mat, ghost_gidx offs, ghost_lidx m, ghost_lidx n, ghost_lidx *col, double *val, ghost_lidx *rpt, ghost_mpi_comm mpicomm, double weight);
 		iv) In "ghost_sparsemat_rowfunc_crs" function, change "ghost_gidx *col" to "ghost_lidx *col"
+		v) In "ghost_sparsemat_rowfunc_crs_arg" typedef struct, change "ghost_gidx *col" to "ghost_lidx *col"
 
 
 ---
 Example runs
 	artificial matrix
-		export OMP_NUM_THREADS=80; ./spmvbench -c $OMP_NUM_THREADS -f SELL-16-4 --artif_args="655350 655350 5 1.6667 normal random 0.05 0 0.05 0.05 14"
+		export OMP_NUM_THREADS=80; ./spmv_sell-C-s.exe -c $OMP_NUM_THREADS -f SELL-16-4 --artif_args="655350 655350 5 1.6667 normal random 0.05 0 0.05 0.05 14"
 
 	validation matrix
-		export OMP_NUM_THREADS=80; ./spmvbench -c $OMP_NUM_THREADS -f SELL-16-4 -m /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+		export OMP_NUM_THREADS=80; ./spmv_sell-C-s.exe -c $OMP_NUM_THREADS -f SELL-16-4 -m /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx

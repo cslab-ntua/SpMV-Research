@@ -189,7 +189,7 @@ static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * 
 		fprintf(stderr, "%lf,", mem_footprint);
 		fprintf(stderr, "%lf,", W_avg);
 		fprintf(stderr, "%lf,", J_estimated);
-		fprintf(stderr, "Sparsex,");
+		fprintf(stderr, "SparseX,");
 		fprintf(stderr, "%u,", m);
 		fprintf(stderr, "%u,", n);
 		fprintf(stderr, "%u,", nnz);

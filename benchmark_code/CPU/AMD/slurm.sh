@@ -16,6 +16,8 @@ cd /m100/home/userexternal/dgalanop/Shared/benchmarks/SpMV/SpMV-Research/benchma
 > job.out
 > job.err
 
+module load xl
+module load essl
 
 cd spmv_code_bench
 make clean; make -j

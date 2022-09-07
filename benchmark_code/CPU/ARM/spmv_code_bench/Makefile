@@ -136,32 +136,32 @@ all: $(DIRS) $(EXE)
 # $(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_MKL)
 
 
-# spmv_csr_naive.exe: obj/spmv_bench.o spmv_kernel_csr.c $(LIB_OBJ)
+# spmv_csr_naive.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 # 	$(CPP) $(CFLAGS) -D'NAIVE' $^ -o $@ $(LDFLAGS)
-spmv_csr_naive.exe: obj/spmv_bench2.o spmv_kernel_csr.c $(LIB_OBJ)
+spmv_csr_naive.exe: obj/spmv_bench2.o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP2) $(CFLAGS2) -D'NAIVE' $^ -o $@ $(LDFLAGS)
 
-# spmv_csr.exe: obj/spmv_bench.o spmv_kernel_csr.c $(LIB_OBJ)
+# spmv_csr.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 # 	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS)
-# spmv_csr_vector.exe: obj/spmv_bench.o spmv_kernel_csr.c $(LIB_OBJ)
+# spmv_csr_vector.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 # 	$(CPP) $(CFLAGS) -D'CUSTOM_VECTOR' $^ -o $@ $(LDFLAGS)
-# spmv_csr_vector_x86.exe: obj/spmv_bench.o spmv_kernel_csr.c $(LIB_OBJ)
+# spmv_csr_vector_x86.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 # 	$(CPP) $(CFLAGS) -D'CUSTOM_VECTOR_X86' $^ -o $@ $(LDFLAGS)
-# spmv_csr_vector_perfect_nnz_balance.exe: obj/spmv_bench2.o spmv_kernel_csr.c $(LIB_OBJ)
+# spmv_csr_vector_perfect_nnz_balance.exe: obj/spmv_bench2.o spmv_kernel_csr.cpp $(LIB_OBJ)
 # 	$(CPP2) $(CFLAGS2) -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
-# spmv_csr_simd.exe: obj/spmv_bench.o spmv_kernel_csr.c $(LIB_OBJ)
+# spmv_csr_simd.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 # 	$(CPP) $(CFLAGS) -D'CUSTOM_SIMD' $^ -o $@ $(LDFLAGS)
-# spmv_csr_prefetch.exe: obj/spmv_bench.o spmv_kernel_csr.c $(LIB_OBJ)
+# spmv_csr_prefetch.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 # 	$(CPP) $(CFLAGS) -D'CUSTOM_PREFETCH' $^ -o $@ $(LDFLAGS)
-# spmv_csr_x86_queues.exe: obj/spmv_bench.o spmv_kernel_csr.c $(LIB_OBJ)
+# spmv_csr_x86_queues.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 # 	$(CPP) $(CFLAGS) -D'CUSTOM_QUEUES' $^ -o $@ $(LDFLAGS)
 
-spmv_ldu.exe: obj/spmv_bench2.o spmv_kernel_ldu.c $(LIB_OBJ)
+spmv_ldu.exe: obj/spmv_bench2.o spmv_kernel_ldu.cpp $(LIB_OBJ)
 	$(CPP2) $(CFLAGS2) $^ -o $@ $(LDFLAGS)
-spmv_ell.exe: obj/spmv_bench2.o spmv_kernel_ell.c $(LIB_OBJ)
+spmv_ell.exe: obj/spmv_bench2.o spmv_kernel_ell.cpp $(LIB_OBJ)
 	$(CPP2) $(CFLAGS2) $^ -o $@ $(LDFLAGS)
 
-spmv_armpl.exe: obj/spmv_bench.o spmv_kernel_armpl.c $(LIB_OBJ)
+spmv_armpl.exe: obj/spmv_bench.o spmv_kernel_armpl.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_AOCL)
 
 CFLAGS_MERGE = $(CFLAGS2)
@@ -172,7 +172,7 @@ CFLAGS_MERGE += -Wno-sign-compare
 LDFLAGS_MERGE = $(LDFLAGS)
 LDFLAGS_MERGE += -lnuma -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl
 
-spmv_merge.exe: obj/spmv_bench2.o spmv_kernel_merge.c $(LIB_OBJ)
+spmv_merge.exe: obj/spmv_bench2.o spmv_kernel_merge.cpp $(LIB_OBJ)
 	$(CPP2) $(CFLAGS_MERGE) $^ -o $@ $(LDFLAGS_MERGE)
 
 

@@ -31,19 +31,6 @@ calc_cpu_pinning()
 }
 
 
-# These are environment variables that have to be set for SparseX to work
-# Need to install specific library versions
-export SPARSEX_ROOT_DIR='/home/pmpakos/sparsex'
-export BOOST_LIB_PATH="${SPARSEX_ROOT_DIR}/boost_1_55_0/local/lib"
-export LLVM_LIB_PATH="${SPARSEX_ROOT_DIR}/llvm-6.0.0/build/lib"
-
-# These are environment variables that have to be set for SELL-C-s to work
-export GHOST_ROOT_DIR=/home/pmpakos/ESSEX/
-export GHOST_APPS_ROOT_DIR=/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/
-
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}"
-
-
 declare -A conf_vars
 conf_vars=(
     ['output_to_files']=0
@@ -53,8 +40,8 @@ conf_vars=(
     # ['COOLDOWN']=1
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    # ['use_artificial_matrices']=0
-    ['use_artificial_matrices']=1
+    ['use_artificial_matrices']=0
+    # ['use_artificial_matrices']=1
 
     # Maximum number of the machine's cores.
     # ['max_cores']=160
@@ -74,12 +61,12 @@ conf_vars=(
     # ['cores']=48
     # ['cores']=32
     # ['cores']=16
-    # ['cores']=8
+    ['cores']=8
     # ['cores']=4
     # ['cores']='1 2 4 8 16 24 48'
     # ['cores']='24 48'
     # ['cores']=48
-    ['cores']=24
+    # ['cores']=24
     # ['cores']='1 2 4 8'
     # ['cores']=14
     # ['cores']=6
@@ -118,13 +105,16 @@ conf_vars=(
                 )"
 
     # SparseX ecosystem environment variables that have to be set.
-    ['BOOST_LIB_PATH']="${BOOST_LIB_PATH}"
-    ['LLVM_LIB_PATH']="${LLVM_LIB_PATH}"
-    ['SPARSEX_ROOT_DIR']="${SPARSEX_ROOT_DIR}"
+    # These are environment variables that have to be set for SparseX to work
+    # Need to install specific library versions
+    ['SPARSEX_ROOT_DIR']='/home/pmpakos/sparsex'
+    ['BOOST_LIB_PATH']='/home/pmpakos/sparsex'
+    ['LLVM_LIB_PATH']='/home/pmpakos/sparsex/llvm-6.0.0/build/lib'
 
     # SELL-C-s ecosystem environment variables that have to be set
-    ['GHOST_ROOT_DIR']=${GHOST_ROOT_DIR}
-    ['GHOST_APPS_ROOT_DIR']=${GHOST_APPS_ROOT_DIR}
+    # These are environment variables that have to be set for SELL-C-s to work
+    ['GHOST_ROOT_DIR']='/home/pmpakos/ESSEX'
+    ['GHOST_APPS_ROOT_DIR']='/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s'
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
@@ -207,34 +197,36 @@ declare -A progs
 
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
-    # Custom naive
+    # Custom csr
     ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
-    # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
-    # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector.exe"
-    ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86.exe"
-    # ['csr_x86_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_queues.exe"
-    # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance.exe"
-    # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch.exe"
-    # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd.exe"
+    ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
+    ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch.exe"
+    ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd.exe"
+    ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector.exe"
+
+    # Custom csr x86
+    ['csr_x86_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector.exe"
+    ['csr_x86_vector_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_queues.exe"
+    ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
 
     # MKL IE
-    ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
+    # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
 
     # AOCL
-    ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv.exe"
+    # ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv.exe"
 
     # CSR5
-    ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5.exe"
+    # ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5.exe"
 
     # merge spmv
-    ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
+    # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
 
     # sell C sigma
     # ['sell_C_s_d']="${script_dir}/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
-    ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
+    # ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
 
     # sparsex
-    ['sparsex_d']="${script_dir}/spmv_code_sparsex/spmv_sparsex.exe"
+    # ['sparsex_d']="${script_dir}/spmv_code_sparsex/spmv_sparsex.exe"
 
     # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell.exe"
     # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu.exe"

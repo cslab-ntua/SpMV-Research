@@ -19,24 +19,13 @@ fi
 
 # GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
 # e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
-# affinity=''
-# for ((i=0;i<cores;i++)); do
-    # cycle_len="$(( max_cores / cpu_pinning_step ))"
-    # affinity="$affinity,$(( (i % cycle_len) * cpu_pinning_step + (i / cycle_len) % cpu_pinning_step ))"
-# done
-# affinity="${affinity#,}"
-# export GOMP_CPU_AFFINITY="$affinity"
-# printf "cpu affinities: %s\n" "$cpu_affinity"
-
-# GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
-# e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
 export GOMP_CPU_AFFINITY="$cpu_affinity"
 
-# printf "cpu affinities: %s\n" "$cpu_affinity"
-# exit
-
 export MKL_DEBUG_CPU_TYPE=5
+
 export LD_LIBRARY_PATH="${AOCL_PATH}/lib:${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}"
+
 
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'
@@ -49,35 +38,35 @@ matrices_openFoam_own_neigh=( "$path_openFoam"/TestMatrices/*/*/* )
 
 matrices_validation=(
     "$path_validation"/scircuit.mtx
-    "$path_validation"/mac_econ_fwd500.mtx
-    "$path_validation"/raefsky3.mtx
-    "$path_validation"/bbmat.mtx
-    "$path_validation"/conf5_4-8x8-15.mtx
-    "$path_validation"/mc2depi.mtx
-    "$path_validation"/rma10.mtx
-    "$path_validation"/cop20k_A.mtx
-    "$path_validation"/webbase-1M.mtx
-    "$path_validation"/cant.mtx
-    "$path_validation"/pdb1HYS.mtx
-    "$path_validation"/TSOPF_RS_b300_c3.mtx
-    "$path_validation"/Chebyshev4.mtx
-    "$path_validation"/consph.mtx
-    "$path_validation"/shipsec1.mtx
-    "$path_validation"/PR02R.mtx
-    "$path_validation"/mip1.mtx
-    "$path_validation"/rail4284.mtx
-    "$path_validation"/pwtk.mtx
-    "$path_validation"/crankseg_2.mtx
-    "$path_validation"/Si41Ge41H72.mtx
-    "$path_validation"/TSOPF_RS_b2383.mtx
-    "$path_validation"/in-2004.mtx
-    "$path_validation"/Ga41As41H72.mtx
-    "$path_validation"/eu-2005.mtx
-    "$path_validation"/wikipedia-20051105.mtx
-    "$path_validation"/ldoor.mtx
-    "$path_validation"/circuit5M.mtx
-    "$path_validation"/bone010.mtx
-    "$path_validation"/cage15.mtx
+    # "$path_validation"/mac_econ_fwd500.mtx
+    # "$path_validation"/raefsky3.mtx
+    # "$path_validation"/bbmat.mtx
+    # "$path_validation"/conf5_4-8x8-15.mtx
+    # "$path_validation"/mc2depi.mtx
+    # "$path_validation"/rma10.mtx
+    # "$path_validation"/cop20k_A.mtx
+    # "$path_validation"/webbase-1M.mtx
+    # "$path_validation"/cant.mtx
+    # "$path_validation"/pdb1HYS.mtx
+    # "$path_validation"/TSOPF_RS_b300_c3.mtx
+    # "$path_validation"/Chebyshev4.mtx
+    # "$path_validation"/consph.mtx
+    # "$path_validation"/shipsec1.mtx
+    # "$path_validation"/PR02R.mtx
+    # "$path_validation"/mip1.mtx
+    # "$path_validation"/rail4284.mtx
+    # "$path_validation"/pwtk.mtx
+    # "$path_validation"/crankseg_2.mtx
+    # "$path_validation"/Si41Ge41H72.mtx
+    # "$path_validation"/TSOPF_RS_b2383.mtx
+    # "$path_validation"/in-2004.mtx
+    # "$path_validation"/Ga41As41H72.mtx
+    # "$path_validation"/eu-2005.mtx
+    # "$path_validation"/wikipedia-20051105.mtx
+    # "$path_validation"/ldoor.mtx
+    # "$path_validation"/circuit5M.mtx
+    # "$path_validation"/bone010.mtx
+    # "$path_validation"/cage15.mtx
 )
 
 

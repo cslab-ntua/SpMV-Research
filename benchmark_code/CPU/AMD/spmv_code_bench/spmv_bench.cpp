@@ -122,13 +122,13 @@ CheckAccuracy(ValueType * val, INT_T * rowind, INT_T * colind, INT_T m, INT_T nn
 	{
 		maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
 		// std::cout << idx << ": " << y_gold[idx]-y[idx] << "\n";
-		if (y_gold[idx] != 0.0)
-		{
+		// if (y_gold[idx] != 0.0)
+		// {
 			// if (Abs((y_gold[idx]-y[idx])/y_gold[idx]) > epsilon)
 				// printf("Error: %g != %g , diff=%g , diff_frac=%g\n", y_gold[idx], y[idx], Abs(y_gold[idx]-y[idx]), Abs((y_gold[idx]-y[idx])/y_gold[idx]));
 			// maxDiff = Max(maxDiff, Abs((y_gold[idx]-y[idx])/y_gold[idx]));
-			maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
-		}
+			// maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
+		// }
 	}
 	if(maxDiff>epsilon)
 		std::cout << "Test failed! (" << maxDiff << ")\n";
@@ -173,7 +173,7 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 	#endif
 
 	// Warm up cpu.
-	volatile double warmup_total;
+	__attribute__((unused)) volatile double warmup_total;
 	long A_warmup_n = (1<<20) * num_threads;
 	double * A_warmup;
 	time_warm_up = time_it(1,
