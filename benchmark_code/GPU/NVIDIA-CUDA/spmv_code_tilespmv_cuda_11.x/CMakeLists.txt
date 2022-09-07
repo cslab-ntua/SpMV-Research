@@ -30,13 +30,13 @@ add_definitions(-DNR_ITER=128)
 #add_definitions(-DDDEBUG)
 
 ## 6) Define result testing flag
-#add_definitions(-DTEST)
+add_definitions(-DTEST)
 
 project (MakeSpMVGreatAgainTileSpmv11 CXX CUDA)
-set ( PROJECT_HEAD_DIR ${PROJECT_SOURCE_DIR}/../../../../../ )
-set ( PROJECT_INC_DIR ${PROJECT_SOURCE_DIR}/../inc )
-set ( PROJECT_TEST_DIR ${PROJECT_SOURCE_DIR}/../tests )
-set ( PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../src )
+set ( PROJECT_HEAD_DIR ${PROJECT_SOURCE_DIR}/../../../../ )
+set ( PROJECT_INC_DIR ${PROJECT_SOURCE_DIR}/inc )
+set ( PROJECT_TEST_DIR ${PROJECT_SOURCE_DIR}/tests )
+set ( PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src )
 message( "PROJECT_HEAD_DIR: " ${PROJECT_HEAD_DIR} )
 message( "PROJECT_INC_DIR: " ${PROJECT_INC_DIR} )
 message( "PROJECT_TEST_DIR: " ${PROJECT_TEST_DIR} )
@@ -57,7 +57,7 @@ set (CUDA_LD "${CUDA_TOOLKIT_ROOT_DIR}/lib64,${CUDA_TOOLKIT_ROOT_DIR}/lib")
 set (CUDA_LINK "-lcudart -lcublas -lcusparse") # -L${CUDA_LD} 
 message( "CUDA_LINK: " ${CUDA_LINK} )
 
-set(NVEMAPI_PREFIX "../../nvidia-energy-measure")
+set(NVEMAPI_PREFIX "../nvidia-energy-measure")
 set (NVEMAPI_INCLUDE_DIRS ${NVEMAPI_PREFIX}/include) # -L${CUDA_LD} 
 include_directories(${NVEMAPI_INCLUDE_DIRS} )
 message( "NVEMAPI_INCLUDE_DIRS: " ${NVEMAPI_INCLUDE_DIRS} )
@@ -69,9 +69,9 @@ message( "NVEMAPI_LINK: " ${NVEMAPI_LINK} )
 include_directories(${PROJECT_INC_DIR})
 message( "My header files: " ${PROJECT_INC_DIR} )
 
-# merge cuda header files
-include_directories( ${PROJECT_SOURCE_DIR}/../TileSpMV)
-message( "Merge header files: "  ${PROJECT_SOURCE_DIR}/../TileSpMV)
+# TileSpMV cuda header files
+include_directories( ${PROJECT_SOURCE_DIR}/../TileSpMV/src)
+message( "TileSpMV header files: "  ${PROJECT_SOURCE_DIR}/../TileSpMV/src)
 
 # Artificial matrix generator header files 
 set (AMG_PREFIX "${PROJECT_HEAD_DIR}/artificial-matrix-generator")
@@ -97,6 +97,7 @@ if (${DATATYPE} EQUAL 1)
 	add_definitions(-DVALUE_TYPE_AX=double)
 	add_definitions(-DVALUE_TYPE_Y=double)
 	add_definitions(-DVALUE_TYPE_COMP=double)
+	add_definitions(-DMAT_VAL_TYPE=double)
 
 	add_executable (CUDA_TILE_DSPMV_11_mtx ${PROJECT_TEST_DIR}/CudaTileSpMV_mtx.cu)
 	target_link_libraries(CUDA_TILE_DSPMV_11_mtx ${LINK_LIB} MyLib)
@@ -110,6 +111,7 @@ elseif(${DATATYPE} EQUAL 0)
 	add_definitions(-DVALUE_TYPE_AX=float)
 	add_definitions(-DVALUE_TYPE_Y=float)
 	add_definitions(-DVALUE_TYPE_COMP=float)
+	add_definitions(-DMAT_VAL_TYPE=float)
 
 	add_executable (CUDA_TILE_SSPMV_11_mtx ${PROJECT_TEST_DIR}/CudaTileSpMV_mtx.cu)
 	target_link_libraries(CUDA_TILE_DSPMV_11_mtx ${LINK_LIB} MyLib)

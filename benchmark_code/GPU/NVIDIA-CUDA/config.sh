@@ -4,10 +4,10 @@
 cmake_command=~/Lib_install/cmake-3.20/bin/cmake
 
 # CHECKME: A desired name for the GPU testbed to be used for your build-dirs and logfiles.
-system='silver1V100'
+system='epyc5A100'
 
 # CHECKME: Define cuda architecture 80") # (Tesla K40 = 35, GTX 1060/70 = 61,) P100 = 60, V100 = 70, A100 = 80
-export cnf_CUDA_arch=70
+export cnf_CUDA_arch=80
 
 # CHECKME: Flag ( 0 = no, 1 = yes) declaring if cuda-9 benchmarks should be included (compilation not supported in latest systems like A100)
 run_cuda_9=0
@@ -16,7 +16,7 @@ run_cuda_9=0
 if ((run_cuda_9)); then
 	export cnf_CUDA_TOOLKIT_9_DIR='/usr/local/cuda-9.2'
 fi
-export cnf_CUDA_TOOLKIT_11_DIR='/usr/local/cuda-11.6'
+export cnf_CUDA_TOOLKIT_11_DIR='/usr/local/cuda-11.4'
 
 # CHECKME: CUDA Library paths, in case the benchmark system (or modules) do not load them correctly, or (either) CUDA is installed locally and requires linking by hand.
 #if ((run_cuda_9)); then
@@ -53,7 +53,8 @@ fi
 
 # Path for the validation matrices.
 #path_validation='../../../../validation_matrices'
-path_validation='/various/pmpakos/SpMV-Research/validation_matrices/dcomex'
+#path_validation='/various/pmpakos/SpMV-Research/validation_matrices/dcomex'
+path_validation='/various/pmpakos/SpMV-Research/validation_matrices'
 
 if ((cnf_dtype_id)); then
 	dtype=D
