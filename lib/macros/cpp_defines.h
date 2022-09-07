@@ -15,7 +15,8 @@
 	#include <type_traits>
 
 	#define __auto_type  auto
-	#define typeof(t)  std::decay<decltype(t)>::type
+	// #define typeof(t)  std::decay<decltype(t)>::type
+	#define typeof(t)  decltype(t)
 
 	#define static_cast(type, expression)  static_cast<type>(expression)
 

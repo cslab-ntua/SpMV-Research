@@ -40,8 +40,8 @@ conf_vars=(
     # ['COOLDOWN']=1
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    ['use_artificial_matrices']=0
-    # ['use_artificial_matrices']=1
+    # ['use_artificial_matrices']=0
+    ['use_artificial_matrices']=1
 
     # Maximum number of the machine's cores.
     # ['max_cores']=160
@@ -148,11 +148,11 @@ artificial_matrices_files=(
     # "$path_artificial"/validation_friends/twins_random.txt
 
     # Validation matrices artificial twins in a +-30% value space of each feature.
-    # "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
+    "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
 
     # The synthetic dataset studied in the paper.
     #"$path_artificial"/synthetic_matrices_small_dataset.txt
-    "$path_artificial"/synthetic_matrices_small_dataset5.txt
+    # "$path_artificial"/synthetic_matrices_small_dataset5.txt
 )
 
 
@@ -198,16 +198,16 @@ declare -A progs
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
     # Custom csr
-    ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
-    ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
-    ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch.exe"
-    ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd.exe"
-    ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector.exe"
+    # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
+    # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
+    # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch.exe"
+    # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd.exe"
+    # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector.exe"
 
     # Custom csr x86
     ['csr_x86_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector.exe"
-    ['csr_x86_vector_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_queues.exe"
-    ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
+    # ['csr_x86_vector_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_queues.exe"
+    # ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
 
     # MKL IE
     # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"

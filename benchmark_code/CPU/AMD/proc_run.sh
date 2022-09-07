@@ -216,16 +216,15 @@ else
 fi
 
 
-for tuple in "${progs[@]}"; do
+for format_name in "${!progs[@]}"; do
+    p="${progs["$format_name"]}"
 
-    tuple=($tuple)
-    p="${tuple[0]}"
-    format_name="${tuple[1]}"
-
-    > "${format_name}.out"
-    exec 1>>"${format_name}.out"
-    > "${format_name}.err"
-    exec 2>>"${format_name}.err"
+    if ((output_to_files)); then
+        > "${format_name}.out"
+        exec 1>>"${format_name}.out"
+        > "${format_name}.csv"
+        exec 2>>"${format_name}.csv"
+    fi
 
     echo "program: $p"
     echo "number of matrices: ${#prog_args[@]}"

@@ -18,6 +18,8 @@ cd /m100/home/userexternal/dgalanop/Shared/benchmarks/SpMV/SpMV-Research/benchma
 
 module load xl
 module load essl
+module load gnu
+module load openblas
 
 cd spmv_code_bench
 make clean; make -j

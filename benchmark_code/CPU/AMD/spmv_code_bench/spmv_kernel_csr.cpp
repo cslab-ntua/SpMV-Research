@@ -249,6 +249,43 @@ compute_csr_omp_simd(CSRArrays * restrict csr, ValueType * restrict x, ValueType
 
 
 //==========================================================================================================================================
+//= Compressed-Matrix Storage Mode ESSL
+//==========================================================================================================================================
+
+
+/*
+ * m
+ *     is the number of rows in sparse matrix A and the number of elements in vector
+ *     y Specified as: an integer; m ≥ 0.
+ *     
+ * nz
+ *     is the maximum number of nonzero elements in each row of sparse matrix A.
+ *     Specified as: an integer; nz ≥ 0.
+ *     
+ * ac
+ *     is the m by n sparse matrix A, stored in compressed-matrix storage mode in an
+ *     array, referred to as AC. Specified as: an lda by (at least) nz array, containing
+ *     long-precision real numbers.
+ *     
+ * ka
+ *     is the array, referred to as KA, containing the column numbers of the matrix A
+ *     elements stored in the corresponding positions in array AC. Specified as: an lda
+ *     by (at least) nz array, containing integers, where 1 ≤ (elements of KA) ≤ n.
+ *     
+ * lda
+ *     is the size of the leading dimension of the arrays specified for ac and ka.
+ *     Specified as: an integer; lda > 0 and lda ≥ m.
+ */
+
+/* void
+compute_csr_essl(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
+{
+	// dsmmx (m, nz, ac, ka, lda, x, y);
+	dsmmx (csr->m, csr->nnz, ac, ka, lda, x, y);
+} */
+
+
+//==========================================================================================================================================
 //= CSR Custom Vector GCC
 //==========================================================================================================================================
 

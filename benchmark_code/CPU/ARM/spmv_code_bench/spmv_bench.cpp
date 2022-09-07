@@ -154,6 +154,9 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 	__attribute__((unused)) int num_threads = omp_get_max_threads();
 	double gflops;
 	__attribute__((unused)) double time, time_warm_up, time_after_warm_up;
+	long buf_n = 10000;
+	char buf[buf_n];
+	long i;
 
 	#if defined(PER_THREAD_STATS)
 		thread_time_barrier = (double *) malloc(num_threads * sizeof(*thread_time_barrier));
@@ -325,95 +328,88 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 
 	if (AM == NULL)
 	{
-		// stream
-		// #ifdef PROC_BENCH
-		// 	<< "pnum_" << process_custom_id << "," << matrix_name << "," << num_procs
-		// #else
-		// 	<< matrix_name << "," << omp_get_max_threads()
-		// #endif
-		// 	<< "," << csr_m << "," << csr_n << "," << csr_nnz
-		// 	<< "," << time << "," << gflops << "," << csr_mem_footprint / (1024*1024)
-		// 	<< "," << W_avg << "," << J_estimated
-		// 	<< "," << MF->format_name << "," << MF->m << "," << MF->n << "," << MF->nnz
-		// 	<< "," << MF->mem_footprint/(1024*1024)
-		// 	// << "," << time_warm_up << "," << time_after_warm_up
-		// #ifdef PER_THREAD_STATS
-		// 	<< "," << iters_per_t_avg << "," << iters_per_t_std << "," << iters_per_t_balance
-		// 	<< "," << nnz_per_t_avg << "," << nnz_per_t_std << "," << nnz_per_t_balance
-		// 	<< "," << time_per_t_avg << "," << time_per_t_std << "," << time_per_t_balance
-		// 	<< "," << gflops_per_t_avg << "," << gflops_per_t_std << "," << gflops_per_t_balance
-		// #endif
-		// 	<< "\n";
-		// std::cerr << stream.str();
-
-        fprintf(stderr, "%s,", matrix_name);
-        fprintf(stderr, "%d,", omp_get_max_threads());
-        fprintf(stderr, "%u,", csr_m);
-        fprintf(stderr, "%u,", csr_n);
-        fprintf(stderr, "%u,", csr_nnz);
-        fprintf(stderr, "%lf,", time);
-        fprintf(stderr, "%lf,", gflops);
-        fprintf(stderr, "%lf,", csr_mem_footprint / (1024*1024));
-        fprintf(stderr, "%lf,", W_avg);
-        fprintf(stderr, "%lf,", J_estimated);
-        fprintf(stderr, "%s,", MF->format_name);
-        fprintf(stderr, "%u,", MF->m);
-        fprintf(stderr, "%u,", MF->n);
-        fprintf(stderr, "%u,", MF->nnz);
-        fprintf(stderr, "%lf\n", MF->mem_footprint/(1024*1024));
+		i = 0;
+		i += snprintf(buf + i, buf_n - i, "%s", matrix_name);
+		i += snprintf(buf + i, buf_n - i, ",%d", omp_get_max_threads());
+		i += snprintf(buf + i, buf_n - i, ",%u", csr_m);
+		i += snprintf(buf + i, buf_n - i, ",%u", csr_n);
+		i += snprintf(buf + i, buf_n - i, ",%u", csr_nnz);
+		i += snprintf(buf + i, buf_n - i, ",%lf", time);
+		i += snprintf(buf + i, buf_n - i, ",%lf", gflops);
+		i += snprintf(buf + i, buf_n - i, ",%lf", csr_mem_footprint / (1024*1024));
+		i += snprintf(buf + i, buf_n - i, ",%lf", W_avg);
+		i += snprintf(buf + i, buf_n - i, ",%lf", J_estimated);
+		i += snprintf(buf + i, buf_n - i, ",%s", MF->format_name);
+		i += snprintf(buf + i, buf_n - i, ",%u", MF->m);
+		i += snprintf(buf + i, buf_n - i, ",%u", MF->n);
+		i += snprintf(buf + i, buf_n - i, ",%u", MF->nnz);
+		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint/(1024*1024));
+		#ifdef PER_THREAD_STATS
+			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_avg);
+			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_std);
+			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_balance);
+			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_avg);
+			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_std);
+			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_balance);
+			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_avg);
+			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_std);
+			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_balance);
+			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_avg);
+			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_std);
+			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_balance);
+		#endif
+		buf[i-1] = '\0';
+		fprintf(stderr, "%s\n", buf);
 
 		CheckAccuracy(mtx_val, mtx_rowind, mtx_colind, mtx_m, mtx_nnz, x, y);
 	}
 	else
 	{
-		// stream << "synthetic" << "," << AM->distribution << "," << AM->placement << "," << AM->seed
-		// 	<< "," << AM->nr_rows << "," << AM->nr_cols << "," << AM->nr_nzeros
-		// 	<< "," << AM->density << "," << AM->mem_footprint << "," << AM->mem_range
-		// 	<< "," << AM->avg_nnz_per_row << "," << AM->std_nnz_per_row
-		// 	<< "," << AM->avg_bw << "," << AM->std_bw
-		// 	<< "," << AM->avg_bw_scaled << "," << AM->std_bw_scaled
-		// 	<< "," << AM->avg_sc << "," << AM->std_sc
-		// 	<< "," << AM->avg_sc_scaled << "," << AM->std_sc_scaled
-		// 	<< "," << AM->skew
-		// 	<< "," << AM->avg_num_neighbours << "," << AM->cross_row_similarity
-		// 	<< "," << MF->format_name <<  "," << time << "," << gflops << "," << W_avg << "," << J_estimated
-		// #ifdef PER_THREAD_STATS
-		// 	<< "," << iters_per_t_avg << "," << iters_per_t_std << "," << iters_per_t_balance
-		// 	<< "," << nnz_per_t_avg << "," << nnz_per_t_std << "," << nnz_per_t_balance
-		// 	<< "," << time_per_t_avg << "," << time_per_t_std << "," << time_per_t_balance
-		// 	<< "," << gflops_per_t_avg << "," << gflops_per_t_std << "," << gflops_per_t_balance
-		// #endif
-		// 	<< "\n";
-		// std::cerr << stream.str();
-
-		fprintf(stderr, "synthetic,");
-        fprintf(stderr, "%s,", AM->distribution);
-        fprintf(stderr, "%s,", AM->placement);
-        fprintf(stderr, "%d,", AM->seed);
-        fprintf(stderr, "%u,", AM->nr_rows);
-        fprintf(stderr, "%u,", AM->nr_cols);
-        fprintf(stderr, "%u,", AM->nr_nzeros);
-        fprintf(stderr, "%lf,", AM->density);
-        fprintf(stderr, "%lf,", AM->mem_footprint);
-        fprintf(stderr, "%s,", AM->mem_range);
-        fprintf(stderr, "%lf,", AM->avg_nnz_per_row);
-        fprintf(stderr, "%lf,", AM->std_nnz_per_row);
-        fprintf(stderr, "%lf,", AM->avg_bw);
-        fprintf(stderr, "%lf,", AM->std_bw);
-        fprintf(stderr, "%lf,", AM->avg_bw_scaled);
-        fprintf(stderr, "%lf,", AM->std_bw_scaled);
-        fprintf(stderr, "%lf,", AM->avg_sc);
-        fprintf(stderr, "%lf,", AM->std_sc);
-        fprintf(stderr, "%lf,", AM->avg_sc_scaled);
-        fprintf(stderr, "%lf,", AM->std_sc_scaled);
-        fprintf(stderr, "%lf,", AM->skew);
-        fprintf(stderr, "%lf,", AM->avg_num_neighbours);
-        fprintf(stderr, "%lf,", AM->cross_row_similarity);
-        fprintf(stderr, "%s,", MF->format_name);
-        fprintf(stderr, "%lf,", time);
-        fprintf(stderr, "%lf,", gflops);
-        fprintf(stderr, "%lf,", W_avg);
-        fprintf(stderr, "%lf\n", J_estimated);
+		i = 0;
+		i += snprintf(buf + i, buf_n - i, "synthetic");
+		i += snprintf(buf + i, buf_n - i, ",%s" , AM->distribution);
+		i += snprintf(buf + i, buf_n - i, ",%s" , AM->placement);
+		i += snprintf(buf + i, buf_n - i, ",%d" , AM->seed);
+		i += snprintf(buf + i, buf_n - i, ",%u" , AM->nr_rows);
+		i += snprintf(buf + i, buf_n - i, ",%u" , AM->nr_cols);
+		i += snprintf(buf + i, buf_n - i, ",%u" , AM->nr_nzeros);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->density);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->mem_footprint);
+		i += snprintf(buf + i, buf_n - i, ",%s" , AM->mem_range);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->avg_nnz_per_row);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->std_nnz_per_row);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->avg_bw);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->std_bw);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->avg_bw_scaled);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->std_bw_scaled);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->avg_sc);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->std_sc);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->avg_sc_scaled);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->std_sc_scaled);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->skew);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->avg_num_neighbours);
+		i += snprintf(buf + i, buf_n - i, ",%lf", AM->cross_row_similarity);
+		i += snprintf(buf + i, buf_n - i, ",%s" , MF->format_name);
+		i += snprintf(buf + i, buf_n - i, ",%lf", time);
+		i += snprintf(buf + i, buf_n - i, ",%lf", gflops);
+		i += snprintf(buf + i, buf_n - i, ",%lf", W_avg);
+		i += snprintf(buf + i, buf_n - i, ",%lf", J_estimated);
+		#ifdef PER_THREAD_STATS
+			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_avg);
+			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_std);
+			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_balance);
+			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_avg);
+			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_std);
+			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_balance);
+			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_avg);
+			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_std);
+			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_balance);
+			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_avg);
+			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_std);
+			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_balance);
+		#endif
+		buf[i-1] = '\0';
+		fprintf(stderr, "%s\n", buf);
 	}
 
 	#if defined(PER_THREAD_STATS)

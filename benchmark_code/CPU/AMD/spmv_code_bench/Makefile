@@ -53,7 +53,8 @@ CPP = g++
 ARCH = $(shell uname -m)
 
 
-CFLAGS = -Wall -Wextra
+CFLAGS =
+CFLAGS += -Wall -Wextra
 CFLAGS += -pipe  # Tells the compiler to use pipes instead of temporary files (faster compilation, but uses more memory).
 # CFLAGS += -Wno-unused-variable
 CFLAGS += -fopenmp
@@ -86,8 +87,11 @@ ifdef PROC_BENCH
     CFLAGS += -D'PROC_BENCH' 
 endif
 
+
+CPPFLAGS =
+CPPFLAGS += $(CFLAGS)
 ifeq ($(CPP), xlc++)
-    CFLAGS += -std=c++11
+    CPPFLAGS += -std=c++11
 endif
 
 
@@ -106,10 +110,10 @@ EXE =
 
 EXE += spmv_csr_naive.exe
 EXE += spmv_csr.exe
-EXE += spmv_csr_prefetch.exe
-EXE += spmv_csr_simd.exe
+# EXE += spmv_csr_prefetch.exe
+# EXE += spmv_csr_simd.exe
 EXE += spmv_csr_vector.exe
-#
+
 EXE += spmv_csr_x86_vector.exe
 EXE += spmv_csr_x86_vector_queues.exe
 EXE += spmv_csr_x86_vector_perfect_nnz_balance.exe
@@ -118,7 +122,7 @@ EXE += spmv_csr_x86_vector_perfect_nnz_balance.exe
 # EXE += spmv_ldu.exe
 # EXE += spmv_ell.exe
 
-# EXE += spmv_mkl_ie.exe
+EXE += spmv_mkl_ie.exe
 # EXE += spmv_mkl_coo.exe
 # EXE += spmv_mkl_dia.exe
 # EXE += spmv_mkl_csc.exe
@@ -127,9 +131,9 @@ EXE += spmv_csr_x86_vector_perfect_nnz_balance.exe
 
 # EXE += spmv_aocl_optmv.exe
 
-# EXE += spmv_csr5.exe
+EXE += spmv_csr5.exe
 
-# EXE += spmv_merge.exe
+EXE += spmv_merge.exe
 
 
 DIRS = obj
@@ -137,12 +141,8 @@ DIRS = obj
 all: $(DIRS) $(EXE)
 
 
-# %.exe: obj/%.o $(LIB_OBJ)
-# $(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_MKL)
-
-
 # x86_64 aarch64 ppc64le
-CFLAGS_CUSTOM = $(CFLAGS)
+CFLAGS_CUSTOM = $(CPPFLAGS)
 ifeq ($(ARCH), x86_64)
     CFLAGS_CUSTOM += -mavx2
     # CFLAGS_CUSTOM += -mavx512f
@@ -175,7 +175,7 @@ spmv_dia.exe: obj/spmv_bench.o spmv_kernel_dia.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_MKL) $^ -o $@ $(LDFLAGS_MKL)
 
 
-CFLAGS_MKL = $(CFLAGS)
+CFLAGS_MKL = $(CPPFLAGS)
 CFLAGS_MKL += -I'$(MKL_PATH)/include' -I'/usr/include/mkl'
 CFLAGS_MKL += -Wno-deprecated-declarations -m64 -mavx2
 
@@ -207,7 +207,7 @@ spmv_mkl_bsr_64.exe: obj/spmv_bench.o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_MKL) -D'BLOCK_SIZE=64' $^ -o $@ $(LDFLAGS_MKL)
 
 
-CFLAGS_AOCL = $(CFLAGS)
+CFLAGS_AOCL = $(CPPFLAGS)
 CFLAGS_AOCL += -I'$(AOCL_PATH)/include' -I'$(AOCL_PATH)/../../library/src/include'
 CFLAGS_AOCL += -m64 -mavx2
 
@@ -219,14 +219,14 @@ spmv_aocl_optmv.exe: obj/spmv_bench.o spmv_kernel_aocl_optmv.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_AOCL) $^ -o $@ $(LDFLAGS_AOCL)
 
 
-CFLAGS_CSR5 = $(CFLAGS)
+CFLAGS_CSR5 = $(CPPFLAGS)
 CFLAGS_CSR5 += -Wno-deprecated-writable-strings -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-sign-compare -Wno-unknown-pragmas -Wno-write-strings -Wno-unused-result
 
 spmv_csr5.exe: obj/spmv_bench.o spmv_kernel_csr5.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CSR5) $^ -o $@ $(LDFLAGS)
 
 
-CFLAGS_MERGE = $(CFLAGS)
+CFLAGS_MERGE = $(CPPFLAGS)
 CFLAGS_MERGE += -D'CUB_MKL'
 CFLAGS_MERGE += -m64 -mavx2
 CFLAGS_MERGE += -Wno-deprecated-declarations -Wno-sign-compare
@@ -239,10 +239,10 @@ spmv_merge.exe: obj/spmv_bench.o spmv_kernel_merge.cpp $(LIB_OBJ)
 
 
 $(call Rule_Auto_Dependencies,obj/spmv_bench.o,spmv_bench.cpp)
-	$(CPP) $(CFLAGS) -c $< -o $@
+	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 $(call Rule_Auto_Dependencies,obj/read_mtx.o,read_mtx.cpp)
-	$(CPP) $(CFLAGS) -c $< -o $@
+	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 $(call Rule_Auto_Dependencies,obj/artificial_matrix_generation.o,$(AMG_PATH)/artificial_matrix_generation.c)
 	$(CC) $(CFLAGS) -c $< -o $@
