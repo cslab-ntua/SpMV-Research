@@ -227,7 +227,7 @@ spmv_csr5.exe: obj/spmv_bench.o spmv_kernel_csr5.cpp $(LIB_OBJ)
 
 
 CFLAGS_MERGE = $(CPPFLAGS)
-CFLAGS_MERGE += -D'CUB_MKL'
+# CFLAGS_MERGE += -D'CUB_MKL'
 CFLAGS_MERGE += -m64 -mavx2
 CFLAGS_MERGE += -Wno-deprecated-declarations -Wno-sign-compare
 

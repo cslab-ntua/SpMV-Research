@@ -165,7 +165,7 @@ spmv_armpl.exe: obj/spmv_bench.o spmv_kernel_armpl.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_AOCL)
 
 CFLAGS_MERGE = $(CFLAGS2)
-CFLAGS_MERGE += -D'CUB_MKL'
+# CFLAGS_MERGE += -D'CUB_MKL'
 # CFLAGS_MERGE += -m64 -mavx2
 CFLAGS_MERGE += -Wno-sign-compare
 

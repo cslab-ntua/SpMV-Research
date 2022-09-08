@@ -531,4 +531,3 @@ compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 	}
 }
 
-

@@ -46,7 +46,7 @@
 #include <stdio.h>
 
 #ifdef CUB_MKL
-    #include <numa.h>
+    // #include <numa.h>
     // #include <mkl.h>
 #endif
 
@@ -676,7 +676,7 @@ struct CsrMatrix
 		printf("done.");
 	fflush(stdout);
 
-        if (IsNumaMalloc())
+        /* if (IsNumaMalloc())
         {
             printf("NUMA MALLOC\n");
             numa_set_strict(1);
@@ -690,7 +690,7 @@ struct CsrMatrix
                 values          = (ValueT*) numa_alloc_onnode(sizeof(ValueT) * num_nonzeros, 0);
             // values          = (ValueT*) numa_alloc_onnode(sizeof(ValueT) * num_nonzeros, 0);
         }
-        else
+        else */
         {
             //
             //
@@ -754,7 +754,7 @@ struct CsrMatrix
         // std::stable_sort(coo_matrix.coo_tuples, coo_matrix.coo_tuples + num_nonzeros, CooComparator());
         // if (verbose) printf("done."); fflush(stdout);
 
-        if (IsNumaMalloc())
+        /* if (IsNumaMalloc())
         {
             numa_set_strict(1);
 
@@ -767,7 +767,7 @@ struct CsrMatrix
                 values          = (ValueT*) numa_alloc_onnode(sizeof(ValueT) * num_nonzeros, 0);
             // values          = (ValueT*) numa_alloc_onnode(sizeof(ValueT) * num_nonzeros, 0);
         }
-        else
+        else */
         {
             values          = (ValueT*) malloc(sizeof(ValueT) * num_nonzeros);
             row_offsets     = (OffsetT*) malloc(sizeof(OffsetT) * (num_rows + 1));
@@ -800,13 +800,13 @@ struct CsrMatrix
      */
     void Clear()
     {
-        if (IsNumaMalloc())
+        /* if (IsNumaMalloc())
         {
             numa_free(row_offsets, sizeof(OffsetT) * (num_rows + 1));
             numa_free(values, sizeof(ValueT) * num_nonzeros);
             numa_free(column_indices, sizeof(OffsetT) * num_nonzeros);
         }
-        else
+        else */
         {
             // if (row_offsets)    mkl_free(row_offsets);
             // if (column_indices) mkl_free(column_indices);
