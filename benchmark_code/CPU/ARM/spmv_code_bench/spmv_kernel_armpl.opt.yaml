@@ -1,62 +1,62 @@
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 129, Column: 10 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 129, Column: 10 }
 Function:        _Z17compute_sparse_mvP9CSRArraysPdS1_
 Args:
   - Callee:          armpl_spmv_exec_d
   - String:          ' will not be inlined into '
   - Caller:          _Z17compute_sparse_mvP9CSRArraysPdS1_
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 123, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 123, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 130, Column: 35 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 130, Column: 35 }
 Function:        _Z17compute_sparse_mvP9CSRArraysPdS1_
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z17compute_sparse_mvP9CSRArraysPdS1_
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 123, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 123, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 129, Column: 10 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 129, Column: 10 }
 Function:        _Z17compute_sparse_mvP9CSRArraysPdS1_
 Args:
   - Callee:          armpl_spmv_exec_d
   - String:          ' will not be inlined into '
   - Caller:          _Z17compute_sparse_mvP9CSRArraysPdS1_
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 123, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 123, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 130, Column: 35 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 130, Column: 35 }
 Function:        _Z17compute_sparse_mvP9CSRArraysPdS1_
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z17compute_sparse_mvP9CSRArraysPdS1_
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 123, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 123, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Passed
 Pass:            inline
 Name:            Inlined
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 53, Column: 2 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 53, Column: 2 }
 Function:        _ZN9CSRArrays4spmvEPdS0_
 Args:
   - Callee:          _Z17compute_sparse_mvP9CSRArraysPdS1_
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 123, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 123, Column: 0 }
   - String:          ' inlined into '
   - Caller:          _ZN9CSRArrays4spmvEPdS0_
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 52, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 52, Column: 0 }
   - String:          ' with '
   - String:          '(cost='
   - Cost:            '70'
@@ -74,14 +74,14 @@ Args:
 --- !Passed
 Pass:            inline
 Name:            Inlined
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 30, Column: 40 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 30, Column: 40 }
 Function:        _ZN9CSRArraysC2Elll
 Args:
   - Callee:          _ZN13Matrix_FormatC2Elll
     DebugLoc:        { File: './spmv_kernel.h', Line: 17, Column: 0 }
   - String:          ' inlined into '
   - Caller:          _ZN9CSRArraysC2Elll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 31, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 31, Column: 0 }
   - String:          ' with '
   - String:          '(cost='
   - Cost:            '-30'
@@ -99,446 +99,446 @@ Args:
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 60, Column: 27 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 60, Column: 27 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          _Znwm
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          clock_gettime
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          armpl_spmat_create_csr_d
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 60, Column: 27 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 60, Column: 27 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          _ZdlPv
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          clock_gettime
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 80, Column: 2 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 80, Column: 2 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          clock_gettime
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          armpl_spmat_hint
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          armpl_spmat_hint
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          armpl_spmat_hint
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          armpl_spmv_optimize
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          clock_gettime
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 98, Column: 2 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 98, Column: 2 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 60, Column: 27 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 60, Column: 27 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          _Znwm
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          clock_gettime
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          armpl_spmat_create_csr_d
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 60, Column: 27 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 60, Column: 27 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          _ZdlPv
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          clock_gettime
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 80, Column: 2 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 80, Column: 2 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          clock_gettime
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          armpl_spmat_hint
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          armpl_spmat_hint
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          armpl_spmat_hint
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          armpl_spmv_optimize
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          clock_gettime
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 98, Column: 2 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 98, Column: 2 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          printf
   - String:          ' will not be inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' because its definition is unavailable'
 ...
 --- !Passed
 Pass:            inline
 Name:            Inlined
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 60, Column: 31 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 60, Column: 31 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - Callee:          _ZN9CSRArraysC2Elll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 31, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 31, Column: 0 }
   - String:          ' inlined into '
   - Caller:          _Z13csr_to_formatPiS_Pdlll
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 59, Column: 0 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 59, Column: 0 }
   - String:          ' with '
   - String:          '(cost='
   - Cost:            '-25'
@@ -556,7 +556,7 @@ Args:
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -564,12 +564,12 @@ Args:
   - String:          ' not eliminated'
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -577,12 +577,12 @@ Args:
   - String:          ' not eliminated'
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -590,12 +590,12 @@ Args:
   - String:          ' not eliminated'
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -603,12 +603,12 @@ Args:
   - String:          ' not eliminated'
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -616,28 +616,12 @@ Args:
   - String:          ' not eliminated'
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.armpl_spmat_top_t*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -645,15 +629,15 @@ Args:
   - String:          ' not eliminated'
   - String:          ' in favor of '
   - OtherAccess:     load
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -661,15 +645,15 @@ Args:
   - String:          ' not eliminated'
   - String:          ' in favor of '
   - OtherAccess:     load
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -677,15 +661,15 @@ Args:
   - String:          ' not eliminated'
   - String:          ' in favor of '
   - OtherAccess:     load
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -693,15 +677,15 @@ Args:
   - String:          ' not eliminated'
   - String:          ' in favor of '
   - OtherAccess:     load
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -709,132 +693,15 @@ Args:
   - String:          ' not eliminated'
   - String:          ' in favor of '
   - OtherAccess:     load
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.armpl_spmat_top_t*'
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -842,95 +709,15 @@ Args:
   - String:          ' not eliminated'
   - String:          ' in favor of '
   - OtherAccess:     load
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.armpl_spmat_top_t*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.armpl_spmat_top_t*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.armpl_spmat_top_t*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.armpl_spmat_top_t*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-Function:        _Z13csr_to_formatPiS_Pdlll
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.armpl_spmat_top_t*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -938,12 +725,12 @@ Args:
   - String:          ' not eliminated'
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -951,12 +738,12 @@ Args:
   - String:          ' not eliminated'
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -964,12 +751,12 @@ Args:
   - String:          ' not eliminated'
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 ...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'load of type '
@@ -977,12 +764,225 @@ Args:
   - String:          ' not eliminated'
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
-    DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            '%struct.armpl_spmat_top_t*'
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            '%struct.armpl_spmat_top_t*'
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            '%struct.armpl_spmat_top_t*'
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            '%struct.armpl_spmat_top_t*'
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            '%struct.armpl_spmat_top_t*'
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            '%struct.armpl_spmat_top_t*'
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            '%struct.armpl_spmat_top_t*'
+  - String:          ' not eliminated'
+  - String:          ' in favor of '
+  - OtherAccess:     load
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+...
+--- !Missed
+Pass:            gvn
+Name:            LoadClobbered
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
+Function:        _Z13csr_to_formatPiS_Pdlll
+Args:
+  - String:          'load of type '
+  - Type:            i64
+  - String:          ' not eliminated'
+  - String:          ' because it is clobbered by '
+  - ClobberedBy:     call
+    DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 ...
 --- !Missed
 Pass:            slp-vectorizer
 Name:            NotPossible
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 82, Column: 17 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 82, Column: 17 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'Cannot SLP vectorize list: vectorization was impossible'
@@ -991,7 +991,7 @@ Args:
 --- !Missed
 Pass:            slp-vectorizer
 Name:            NotPossible
-DebugLoc:        { File: spmv_kernel_armpl.c, Line: 70, Column: 9 }
+DebugLoc:        { File: spmv_kernel_armpl.cpp, Line: 70, Column: 9 }
 Function:        _Z13csr_to_formatPiS_Pdlll
 Args:
   - String:          'Cannot SLP vectorize list: vectorization was impossible'

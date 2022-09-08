@@ -685,8 +685,8 @@ struct CsrMatrix
             else
                 values          = (ValueT*) numa_alloc_onnode(sizeof(ValueT) * num_nonzeros, 0);
             // values          = (ValueT*) numa_alloc_onnode(sizeof(ValueT) * num_nonzeros, 0);
-        } */
-        else
+        } 
+        else */
         {
             //
             //
@@ -762,8 +762,8 @@ struct CsrMatrix
             else
                 values          = (ValueT*) numa_alloc_onnode(sizeof(ValueT) * num_nonzeros, 0);
             // values          = (ValueT*) numa_alloc_onnode(sizeof(ValueT) * num_nonzeros, 0);
-        } */
-        else
+        }
+        else */
         {
             values          = (ValueT*) malloc(sizeof(ValueT) * num_nonzeros);
             row_offsets     = (OffsetT*) malloc(sizeof(OffsetT) * (num_rows + 1));
@@ -801,8 +801,8 @@ struct CsrMatrix
             numa_free(row_offsets, sizeof(OffsetT) * (num_rows + 1));
             numa_free(values, sizeof(ValueT) * num_nonzeros);
             numa_free(column_indices, sizeof(OffsetT) * num_nonzeros);
-        } */
-        else
+        }
+        else */
         {
             // if (row_offsets)    mkl_free(row_offsets);
             // if (column_indices) mkl_free(column_indices);
