@@ -55,7 +55,7 @@ rapl_open_filter(const struct dirent * file)
 	snprintf(buf, buf_n, "/sys/class/powercap/%s/energy_uj", file->d_name);
 	if (access(buf, R_OK))
 		return 0;
-	printf("%s\n", file->d_name);
+	// printf("%s\n", file->d_name);
 	return 1;
 }
 
@@ -77,7 +77,7 @@ rapl_open(char * register_ids, struct RAPL_Register ** regs_out, long * n_out)
 		struct dirent ** namelist;
 		n = scandir("/sys/class/powercap", &namelist, rapl_open_filter, alphasort);
 		if (n < 0)
-			error("scandir");
+			error("scandir()");
 		i = 0;
 
 		regs = (typeof(regs)) malloc(n * sizeof(*regs));
@@ -124,7 +124,7 @@ rapl_open(char * register_ids, struct RAPL_Register ** regs_out, long * n_out)
 		fd = safe_open(buf, O_RDONLY);
 		len = safe_read(fd, buf, buf_n);
 		if (len >= buf_n)
-			error("rapl_open: read overflow");
+			error("rapl_open(): read overflow");
 		buf[len] = '\0';
 		regs[i].max_uj = atol(buf);
 		safe_close(fd);
@@ -133,7 +133,7 @@ rapl_open(char * register_ids, struct RAPL_Register ** regs_out, long * n_out)
 		fd = safe_open(buf, O_RDONLY);
 		len = safe_read(fd, buf, buf_n);
 		if (len >= buf_n)
-			error("rapl_open: read overflow");
+			error("rapl_open(): read overflow");
 		if (len > 0 && buf[len-1] == '\n')
 			buf[len-1] = '\0';
 		buf[len] = '\0';
@@ -168,9 +168,9 @@ read_register(struct RAPL_Register * reg)
 	long len;
 	len = safe_read(reg->fd, buf, buf_n);
 	if (len >= buf_n)
-		error("read_register: read overflow");
+		error("read_register(): read overflow");
 	if (lseek(reg->fd, 0, SEEK_SET) < 0)
-		error("read_register: lseek");
+		error("read_register(): lseek()");
 	buf[len] = '\0';
 	reg->uj_prev = reg->uj;
 	reg->uj = atol(buf);

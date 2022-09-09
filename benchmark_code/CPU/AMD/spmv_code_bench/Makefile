@@ -90,8 +90,14 @@ endif
 
 CPPFLAGS =
 CPPFLAGS += $(CFLAGS)
+
+ifeq ($(CC), xlc)
+    CFLAGS += -Wno-typedef-redefinition
+    CFLAGS += -D'__XLC__'
+endif
 ifeq ($(CPP), xlc++)
     CPPFLAGS += -std=c++11
+    CPPFLAGS += -D'__XLC__'
 endif
 
 
@@ -228,11 +234,22 @@ spmv_csr5.exe: obj/spmv_bench.o spmv_kernel_csr5.cpp $(LIB_OBJ)
 
 CFLAGS_MERGE = $(CPPFLAGS)
 # CFLAGS_MERGE += -D'CUB_MKL'
-CFLAGS_MERGE += -m64 -mavx2
+CFLAGS_MERGE += -m64
+ifeq ($(ARCH), x86_64)
+    CFLAGS_MERGE += -mavx2
+    # CFLAGS_MERGE += -mavx512f
+else ifeq ($(ARCH), aarch64)
+endif
 CFLAGS_MERGE += -Wno-deprecated-declarations -Wno-sign-compare
+ifeq ($(CPP), xlc++)
+    CFLAGS_MERGE += -Wno-unknown-attributes
+    CFLAGS_MERGE += -Wno-unused-parameter
+    CFLAGS_MERGE += -Wno-unused-variable
+endif
 
 LDFLAGS_MERGE = $(LDFLAGS)
-LDFLAGS_MERGE += -lnuma -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl
+LDFLAGS_MERGE += -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl
+# LDFLAGS_MERGE += -lnuma
 
 spmv_merge.exe: obj/spmv_bench.o spmv_kernel_merge.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_MERGE) $^ -o $@ $(LDFLAGS_MERGE)

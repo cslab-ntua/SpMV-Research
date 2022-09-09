@@ -101,6 +101,10 @@ do {                                                                            
 
 #ifdef __cplusplus
 
+	#include <typeinfo>
+
+	#define gen_basic_type_name_to_string(var)  (typeid(typeof(var)).name())
+
 #else
 
 #define GENLIB_rule_type_string_storage_classes(type)    \
@@ -151,18 +155,25 @@ do {                                                                            
 
 #ifdef __cplusplus
 
-#include <iostream>
-#include <sstream>
+	#include <iostream>
+	#include <sstream>
 
-#define gen_numtostr(_str, N, val)              \
-({                                              \
-	std::stringstream _ss;                  \
-	std::string _s;                         \
-	_ss << val;                             \
-	_ss >> _s;                              \
-	snprintf(_str, N, "%s", _s.c_str());    \
-	_s.length();                            \
-})
+	/* #define gen_numtostr(_str, N, val)              \
+	({                                              \
+		std::stringstream _ss;                  \
+		std::string _s;                         \
+		_ss << val;                             \
+		_ss >> _s;                              \
+		snprintf(_str, N, "%s", _s.c_str());    \
+		_s.length();                            \
+	}) */
+
+	#define gen_numtostr(_str, N, val)               \
+	({                                               \
+		std::string _s = std::to_string(val);    \
+		snprintf(_str, N, "%s", _s.c_str());     \
+		_s.length();                             \
+	})
 
 #else
 
@@ -201,30 +212,6 @@ do {                                                                            
 //= String to Number
 //==========================================================================================================================================
 
-
-#ifdef __cplusplus
-
-	#if 0
-
-		#include <iostream>
-		#include <sstream>
-
-		#define gen_strtonum(_str, N, var_ptr, base...)                \
-		({                                                             \
-			__auto_type _var_ptr = var_ptr;                        \
-			typeof(*_var_ptr) _num;                                \
-			std::stringstream _ss((_str));                         \
-			std::string _rem;                                      \
-			_ss >> _num;                                           \
-			getline(_ss, _rem, '\0');                              \
-			*_var_ptr = _num;                                      \
-			/* std::cout << "'" << _rem << "'" << std::endl; */    \
-			(N-1) - _rem.length();                                 \
-		})
-
-	#endif
-
-#else
 
 static inline
 int
@@ -276,6 +263,70 @@ GENLIB_cpy(char * restrict src, char * restrict dst, int N)
 		dst[i] = src[i];
 }
 
+
+#ifdef __cplusplus
+
+	#include <iostream>
+	#include <sstream>
+	// #include <charconv>
+
+	#define gen_strtonum(__str, N, var_ptr, base...)                 \
+	({                                                               \
+		__auto_type _N = N;                                      \
+		__auto_type _var_ptr = var_ptr;                          \
+		int _ws_len, _len, _total_len;                           \
+		char * _str = (__str);                                   \
+		char * _ptr = _str;                                      \
+		auto _num = *_var_ptr;                                   \
+		_ptr += GENLIB_find_non_ws(_ptr, _N - (_ptr - _str));    \
+		_len = GENLIB_find_ws(_ptr, _N - (_ptr - _str));         \
+		_ws_len = _ptr - _str;                                   \
+		_total_len = _len + _ws_len;                             \
+		std::stringstream _ss(_ptr);                             \
+		if (_len > 0)                                            \
+		{                                                        \
+			if (_ptr[0] == '0')                              \
+			{                                                \
+				if ((_len > 1) && (_ptr[1] == 'x'))      \
+				{                                        \
+					_ss.seekp(_ws_len + 2);          \
+					_ss >> std::hex >> _num;         \
+				}                                        \
+				else                                     \
+					_ss >> std::oct >> _num;         \
+			}                                                \
+			else                                             \
+				_ss >> _num;                             \
+			*_var_ptr = _num;                                \
+		}                                                        \
+		_total_len;                                              \
+	})
+
+	/* #define gen_strtonum(__str, N, var_ptr, base...)    \
+	({                                                  \
+		auto _str = __str;                          \
+		auto _var_ptr = var_ptr;                    \
+		auto _num = *_var_ptr;                      \
+		std::stringstream _ss(_str);                \
+		std::string _rem;                           \
+		_ss >> _num;                                \
+		getline(_ss, _rem, '\0');                   \
+		*_var_ptr = _num;                           \
+		(N-1) - _rem.length();                      \
+	}) */
+
+	/* #define gen_strtonum(_str, N, var_ptr, base...)        \
+	({                                                     \
+		auto _str = __str;                             \
+		auto _var_ptr = var_ptr;                       \
+		auto _num = *_var_ptr;                         \
+		std::from_chars_result _ret;                   \
+		_ret = std::from_chars(_str, _str+N, _num);    \
+		*_var_ptr = _num;                              \
+		_ret.ptr - _str;                               \
+	}) */
+
+#else
 
 // In tgmath.h macros are defined with names like their 'double' counterparts of math.h or complex.h.
 // So we need to explicitly cast to 'double' or 'complex double' to avoid warnings when the type is different (e.g. float).
@@ -358,7 +409,7 @@ GENLIB_cpy(char * restrict src, char * restrict dst, int N)
 
 #ifdef __cplusplus
 
-#define gen_functor_basic_type_to_double(var_ptr)  ([](void * x, long i) -> double { return (double) (((typeof(var_ptr)) x)[i]); })
+	#define gen_functor_basic_type_to_double(var_ptr)  ([](void * x, long i) -> double { return (double) (((typeof(var_ptr)) x)[i]); })
 
 #else
 
@@ -383,9 +434,9 @@ __attribute__((unused)) static double gen_cld2d(void * x, long i) { return (doub
 #define gen_functor_basic_type_to_double(var_ptr)                                        \
 ({                                                                                       \
 	/* fail for non-simple array types */                                            \
-	gen_assert_ptr_basic_type(var_ptr,                                               \
+	gen_assert_ptr_basic_type((var_ptr),                                             \
 		"for non-simple array types a <get-and-cast-to-double> "                 \
-		"function must be provided, i.e.:  double get_val(void * a, int i)"      \
+		"function must be provided, of type:  double ()(void * a, int i)"        \
 	);                                                                               \
 	_Generic((var_ptr),                                                              \
 		GENLIB_rule_expand_storage_classes(char *,                gen_c2d  ),    \

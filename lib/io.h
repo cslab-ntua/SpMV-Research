@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 #include <string.h>
 #include <stdarg.h>
 #include <fcntl.h>
@@ -17,21 +18,100 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --------------------------------------------------------------------------------------------------------------------------------------------
+-                                                                Readlink                                                                  -
+--------------------------------------------------------------------------------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+
+/* ssize_t readlink(const char *path, char *buf, size_t bufsiz);
+ * Notes:
+ *     - readlink() does not append a null byte to buf!!!
+ *     - It will (silently) truncate the contents (to a length of bufsiz characters),
+ *       in case the buffer is too small to hold all of the contents.
+ */
+
+
+static inline
+int
+safe_readlink(const char *path, char *buf, size_t bufsiz)
+{
+	int ret;
+	ret = readlink(path, buf, bufsiz - 1);  // -1 for adding the null byte.
+	if (ret < 0)
+		error("readlink(): path=%s", (path != NULL ? path : ""));
+	if (buf != NULL)
+		buf[ret] = '\0';
+	return ret;
+}
+
+
+static inline
+int
+unsafe_fd_to_path(int fd, char * buf, long buf_n)
+{
+	long proc_path_n = 1000;
+	char proc_path[proc_path_n];
+	int ret;
+	snprintf(proc_path, proc_path_n, "/proc/self/fd/%d", fd);
+	ret = readlink(proc_path, buf, buf_n - 1);  // -1 for adding the null byte.
+	if (ret < 0)
+	{
+		if (buf != NULL && buf_n > 0)
+			buf[0] = '\0';
+	}
+	else
+	{
+		if (buf != NULL)
+			buf[ret] = '\0';
+	}
+	return ret;
+}
+
+
+static inline
+int
+unsafe_keep_errno_fd_to_path(int fd, char * buf, long buf_n)
+{
+	int errno_buf;
+	int ret;
+	errno_buf = errno;
+	ret = unsafe_fd_to_path(fd, buf, buf_n);
+	errno = errno_buf;
+	return ret;
+}
+
+
+static inline
+int
+safe_fd_to_path(int fd, char * buf, long buf_n)
+{
+	int ret;
+	ret = unsafe_fd_to_path(fd, buf, buf_n);
+	if (ret < 0)
+		error("readlink(): fd=%d", fd);
+	return ret;
+}
+
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------------------------------------------------------------------------------------------------------
 -                                                                  Stat                                                                    -
 --------------------------------------------------------------------------------------------------------------------------------------------
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 
-// S_ISREG(m)  is it a regular file?
-// S_ISDIR(m)  directory?
-// S_ISCHR(m)  character device?
-// S_ISBLK(m)  block device?
-// S_ISFIFO(m) FIFO (named pipe)?
-// S_ISLNK(m)  symbolic link?  (Not in POSIX.1-1996.)
-// S_ISSOCK(m) socket?  (Not in POSIX.1-1996.)
+/* int stat(const char *pathname, struct stat *statbuf);
+ * int fstat(int fd, struct stat *statbuf);
+ *
+ * S_ISREG(m)  is it a regular file?
+ * S_ISDIR(m)  directory?
+ * S_ISCHR(m)  character device?
+ * S_ISBLK(m)  block device?
+ * S_ISFIFO(m) FIFO (named pipe)?
+ * S_ISLNK(m)  symbolic link?  (Not in POSIX.1-1996.)
+ * S_ISSOCK(m) socket?  (Not in POSIX.1-1996.)
+ */
 
-
-// int stat(const char *pathname, struct stat *statbuf);
 
 static inline
 void
@@ -39,7 +119,7 @@ safe_stat(const char * pathname, struct stat *statbuf)
 {
 	int ret = stat(pathname, statbuf);
 	if (ret < 0)
-		error("stat");
+		error("stat(): path='%s'", (pathname != NULL ? pathname : ""));
 }
 
 
@@ -50,11 +130,9 @@ safe_stat_isreg(const char * pathname)
 	struct stat statbuf;
 	safe_stat(pathname, &statbuf);
 	if (!S_ISREG(statbuf.st_mode))
-		error("not a regular file\n");
+		error("not a regular file: path='%s'\n", (pathname != NULL ? pathname : ""));
 }
 
-
-// int fstat(int fd, struct stat *statbuf);
 
 static inline
 void
@@ -62,7 +140,7 @@ safe_fstat(int fd, struct stat *statbuf)
 {
 	int ret = fstat(fd, statbuf);
 	if (ret < 0)
-		error("fstat");
+		error("fstat(): fd=%d", fd);
 }
 
 
@@ -73,7 +151,7 @@ safe_fstat_isreg(int fd)
 	struct stat statbuf;
 	safe_fstat(fd, &statbuf);
 	if (!S_ISREG(statbuf.st_mode))
-		error("not a regular file\n");
+		error("not a regular file: fd=%d\n", fd);
 }
 
 
@@ -103,7 +181,7 @@ safe_open(const char * pathname, int flags, ...)
 	}
 	fd = open(pathname, flags, mode);
 	if (fd < 0)
-		error("open");
+		error("open(): path='%s'", (pathname != NULL ? pathname : ""));
 	return fd;
 } */
 
@@ -114,7 +192,7 @@ safe_open_base(const char * pathname, int flags, mode_t mode)
 {
 	int fd = open(pathname, flags, mode);
 	if (fd < 0)
-		error("open");
+		error("open(): path='%s'", (pathname != NULL ? pathname : ""));
 	return fd;
 }
 
@@ -130,14 +208,20 @@ safe_close(int fd)
 {
 	int ret = close(fd);
 	if (ret < 0)
-		error("close");
+	{
+		long error_fd_path_buf_n = 10000;
+		char error_fd_path_buf[error_fd_path_buf_n];
+		unsafe_keep_errno_fd_to_path(fd, error_fd_path_buf, error_fd_path_buf_n);
+		error("close(): fd=%d , path='%s'", fd, error_fd_path_buf);
+	}
 }
 
 
-// size_t : unsigned integer.
-// ssize_t: used to represent the sizes of blocks that can be read or 
-//          written in a single operation.
-//          It is similar to size_t, but must be a signed type.
+/* size_t : unsigned integer.
+ * ssize_t: used to represent the sizes of blocks that can be read or 
+ *          written in a single operation.
+ *          It is similar to size_t, but must be a signed type.
+ */
 static inline
 ssize_t
 safe_write(int fd, char *buf, size_t count)
@@ -148,7 +232,12 @@ safe_write(int fd, char *buf, size_t count)
 	do {
 		num = write(fd,  buf + total,  count - total);
 		if (num < 0)
-			error("write");
+		{
+			long error_fd_path_buf_n = 10000;
+			char error_fd_path_buf[error_fd_path_buf_n];
+			unsafe_keep_errno_fd_to_path(fd, error_fd_path_buf, error_fd_path_buf_n);
+			error("write(): fd=%d , path='%s'", fd, error_fd_path_buf);
+		}
 		if (num == 0)
 			break;
 		total += num;
@@ -165,13 +254,19 @@ safe_read(int fd, void * buf, size_t count)
 	ssize_t num;
 	num = read(fd,  buf,  count);
 	if (num < 0)
-		error("read");
+	{
+		long error_fd_path_buf_n = 10000;
+		char error_fd_path_buf[error_fd_path_buf_n];
+		unsafe_keep_errno_fd_to_path(fd, error_fd_path_buf, error_fd_path_buf_n);
+		error("read(): fd=%d , path='%s'", fd, error_fd_path_buf);
+	}
 	return num;
 }
 
 
-// 'read' returns 0 on EOF no matter how many times it's called,
-// but no EOF is signaled until the connection/pipe/file is closed.
+/* 'read' returns 0 on EOF no matter how many times it's called,
+ * but no EOF is signaled until the connection/pipe/file is closed.
+ */
 static inline
 ssize_t
 read_until_EOF(int fd, char **ret)
@@ -187,7 +282,12 @@ read_until_EOF(int fd, char **ret)
 		do {
 			num = read(fd,  buf + total,  len - total);
 			if (num < 0)
-				error("read");
+			{
+				long error_fd_path_buf_n = 10000;
+				char error_fd_path_buf[error_fd_path_buf_n];
+				unsafe_keep_errno_fd_to_path(fd, error_fd_path_buf, error_fd_path_buf_n);
+				error("read(): fd=%d , path='%s'", fd, error_fd_path_buf);
+			}
 			if (num == 0)
 			{
 				*ret = buf;
@@ -211,7 +311,11 @@ read_until_EOF(int fd, char **ret)
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-// int munmap(void *addr, size_t length);
+/* int munmap(void *addr, size_t length);
+ * void * mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
+ * void * mremap(void *old_address, size_t old_size, size_t new_size, int flags, ... void *new_address );
+ */
+
 
 static inline
 void
@@ -219,11 +323,9 @@ safe_munmap(void *addr, size_t length)
 {
 	int ret = munmap(addr, length);
 	if (ret < 0)
-		error("munmap");
+		error("munmap()");
 }
 
-
-// void * mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
 
 static inline
 void *
@@ -231,7 +333,7 @@ safe_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
 	void * ret = mmap(addr, length, prot, flags, fd, offset);
 	if (ret == MAP_FAILED)
-		error("mmap");
+		error("mmap()");
 	return ret;
 }
 
@@ -246,13 +348,12 @@ safe_mmap_annon(size_t bytes)
 
 #ifdef _GNU_SOURCE
 
-// void * mremap(void *old_address, size_t old_size, size_t new_size, int flags, ... /* void *new_address */);
 
 #define safe_mremap(old_address, old_size, new_size, flags, ... /* new_address */)      \
 ({                                                                                      \
 	void * _ret = mremap(old_address, old_size, new_size, flags, ##__VA_ARGS__);    \
 	if (_ret == MAP_FAILED)                                                         \
-		error("mremap");                                                        \
+		error("mremap()");                                                      \
 	_ret;                                                                           \
 })
 

@@ -37,6 +37,7 @@ ARRAY_METRICS_min_max_serial(void * A, long i_start, long i_end, double * min_ou
 		*max_out = max;
 }
 
+
 void
 ARRAY_METRICS_min_max(void * A, long i_start, long i_end, double * min_out, double * max_out, double (* get_val_as_double)(void * A, long i))
 {

@@ -66,9 +66,9 @@ struct CSRArrays : Matrix_Format
 			for (long i=0;i<num_threads;i++)
 			{
 				if (thread_j_s[i] < ia[thread_i_s[i]])
-					thread_i_s[i] -= 1;
+					thread_i_s[i] = thread_i_e[i-1];
 				if (thread_j_e[i] > ia[thread_i_e[i]])
-					thread_i_e[i] += 1;
+					thread_i_e[i] = thread_i_s[i+1];
 			}
 			#endif
 		);
