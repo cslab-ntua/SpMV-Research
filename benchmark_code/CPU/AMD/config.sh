@@ -108,7 +108,7 @@ conf_vars=(
     # These are environment variables that have to be set for SparseX to work
     # Need to install specific library versions
     ['SPARSEX_ROOT_DIR']='/home/pmpakos/sparsex'
-    ['BOOST_LIB_PATH']='/home/pmpakos/sparsex'
+    ['BOOST_LIB_PATH']='/home/pmpakos/sparsex/boost_1_55_0/local/lib/'
     ['LLVM_LIB_PATH']='/home/pmpakos/sparsex/llvm-6.0.0/build/lib'
 
     # SELL-C-s ecosystem environment variables that have to be set

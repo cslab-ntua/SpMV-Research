@@ -155,3 +155,628 @@ File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
 max threads 14
 time read: 2.852219
 time coo to csr: 1.698807
+program: /various/pmpakos/SPMV_BENCHMARKS/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_bench/spmv_merge.exe
+number of matrices: 30
+Temps: Core 8 44000  Core 9 44000  Core 10 43000  Core 11 42000  Core 12 42000  Core 13 44000  Core 14 43000  Package id 0 45000 Core 0 44000  Core 1 43000  Core 2 43000  Core 3 42000  Core 4 43000  Core 5 42000  Core 6 43000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 40000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 41000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 14
+time read: 0.098297
+time coo to csr: 0.010643
+Temps: Core 8 44000  Core 9 44000  Core 10 43000  Core 11 42000  Core 12 42000  Core 13 44000  Core 14 43000  Package id 0 45000 Core 0 44000  Core 1 43000  Core 2 43000  Core 3 42000  Core 4 43000  Core 5 42000  Core 6 43000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 40000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 41000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 14
+time read: 0.039659
+time coo to csr: 0.013798
+Temps: Core 8 44000  Core 9 44000  Core 10 43000  Core 11 42000  Core 12 42000  Core 13 44000  Core 14 43000  Package id 0 45000 Core 0 44000  Core 1 43000  Core 2 43000  Core 3 42000  Core 4 43000  Core 5 42000  Core 6 43000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 40000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 41000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 14
+time read: 0.054629
+time coo to csr: 0.020971
+Temps: Core 8 44000  Core 9 44000  Core 10 43000  Core 11 42000  Core 12 42000  Core 13 44000  Core 14 43000  Package id 0 45000 Core 0 44000  Core 1 43000  Core 2 43000  Core 3 42000  Core 4 43000  Core 5 42000  Core 6 43000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 40000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 41000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 14
+time read: 0.063657
+time coo to csr: 0.024863
+Temps: Core 8 46000  Core 9 45000  Core 10 46000  Core 11 44000  Core 12 44000  Core 13 45000  Core 14 45000  Package id 0 46000 Core 0 45000  Core 1 45000  Core 2 45000  Core 3 44000  Core 4 45000  Core 5 44000  Core 6 44000  Core 8 41000  Core 9 40000  Core 10 40000  Core 11 40000  Core 12 40000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 41000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 14
+time read: 0.059985
+time coo to csr: 0.025606
+Temps: Core 8 46000  Core 9 45000  Core 10 46000  Core 11 44000  Core 12 44000  Core 13 45000  Core 14 45000  Package id 0 46000 Core 0 45000  Core 1 45000  Core 2 45000  Core 3 44000  Core 4 45000  Core 5 44000  Core 6 44000  Core 8 41000  Core 9 40000  Core 10 40000  Core 11 40000  Core 12 40000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 41000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 14
+time read: 0.040154
+time coo to csr: 0.024184
+Temps: Core 8 46000  Core 9 45000  Core 10 46000  Core 11 44000  Core 12 44000  Core 13 45000  Core 14 45000  Package id 0 46000 Core 0 45000  Core 1 45000  Core 2 45000  Core 3 44000  Core 4 45000  Core 5 44000  Core 6 44000  Core 8 41000  Core 9 40000  Core 10 40000  Core 11 40000  Core 12 40000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 41000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 14
+time read: 0.072867
+time coo to csr: 0.032859
+Test failed! (2.77623e-10)
+Temps: Core 8 46000  Core 9 46000  Core 10 46000  Core 11 44000  Core 12 44000  Core 13 45000  Core 14 45000  Package id 0 46000 Core 0 46000  Core 1 45000  Core 2 45000  Core 3 44000  Core 4 45000  Core 5 44000  Core 6 44000  Core 8 42000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 40000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+max threads 14
+time read: 0.039959
+time coo to csr: 0.031640
+Temps: Core 8 46000  Core 9 46000  Core 10 46000  Core 11 44000  Core 12 44000  Core 13 45000  Core 14 45000  Package id 0 46000 Core 0 46000  Core 1 45000  Core 2 45000  Core 3 44000  Core 4 45000  Core 5 44000  Core 6 44000  Core 8 42000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 40000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 14
+time read: 0.084927
+time coo to csr: 0.041306
+Temps: Core 8 46000  Core 9 46000  Core 10 46000  Core 11 44000  Core 12 44000  Core 13 45000  Core 14 45000  Package id 0 46000 Core 0 46000  Core 1 45000  Core 2 45000  Core 3 44000  Core 4 45000  Core 5 44000  Core 6 44000  Core 8 42000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 40000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 14
+time read: 0.071367
+time coo to csr: 0.050905
+Temps: Core 8 47000  Core 9 46000  Core 10 46000  Core 11 44000  Core 12 45000  Core 13 46000  Core 14 45000  Package id 0 46000 Core 0 46000  Core 1 45000  Core 2 45000  Core 3 45000  Core 4 45000  Core 5 45000  Core 6 45000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 40000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 40000  Core 4 39000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 14
+time read: 0.069569
+time coo to csr: 0.057612
+Temps: Core 8 47000  Core 9 46000  Core 10 46000  Core 11 44000  Core 12 45000  Core 13 46000  Core 14 45000  Package id 0 46000 Core 0 46000  Core 1 45000  Core 2 45000  Core 3 45000  Core 4 45000  Core 5 45000  Core 6 45000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 40000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 40000  Core 4 39000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 14
+time read: 0.166742
+time coo to csr: 0.068708
+Temps: Core 8 47000  Core 9 46000  Core 10 46000  Core 11 44000  Core 12 45000  Core 13 46000  Core 14 45000  Package id 0 46000 Core 0 46000  Core 1 45000  Core 2 45000  Core 3 45000  Core 4 45000  Core 5 45000  Core 6 45000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 40000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 40000  Core 4 39000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 14
+time read: 0.214673
+time coo to csr: 0.083014
+Temps: Core 8 46000  Core 9 46000  Core 10 46000  Core 11 44000  Core 12 45000  Core 13 46000  Core 14 45000  Package id 0 46000 Core 0 46000  Core 1 45000  Core 2 46000  Core 3 45000  Core 4 45000  Core 5 45000  Core 6 45000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 40000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 39000  Core 3 40000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+max threads 14
+time read: 0.099971
+time coo to csr: 0.078149
+Temps: Core 8 46000  Core 9 46000  Core 10 46000  Core 11 44000  Core 12 45000  Core 13 46000  Core 14 45000  Package id 0 46000 Core 0 46000  Core 1 45000  Core 2 46000  Core 3 45000  Core 4 45000  Core 5 45000  Core 6 45000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 40000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 39000  Core 3 40000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 14
+time read: 0.100208
+time coo to csr: 0.102014
+Test failed! (0.00012207)
+Temps: Core 8 46000  Core 9 46000  Core 10 46000  Core 11 45000  Core 12 45000  Core 13 46000  Core 14 46000  Package id 0 47000 Core 0 46000  Core 1 45000  Core 2 46000  Core 3 45000  Core 4 46000  Core 5 45000  Core 6 45000  Core 8 41000  Core 9 40000  Core 10 40000  Core 11 40000  Core 12 40000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 41000  Core 3 41000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 14
+time read: 0.304432
+time coo to csr: 0.121105
+Temps: Core 8 46000  Core 9 46000  Core 10 46000  Core 11 45000  Core 12 45000  Core 13 46000  Core 14 46000  Package id 0 47000 Core 0 46000  Core 1 45000  Core 2 46000  Core 3 45000  Core 4 46000  Core 5 45000  Core 6 45000  Core 8 41000  Core 9 40000  Core 10 40000  Core 11 40000  Core 12 40000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 41000  Core 3 41000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 14
+time read: 0.085824
+time coo to csr: 0.156038
+Temps: Core 8 46000  Core 9 46000  Core 10 47000  Core 11 45000  Core 12 45000  Core 13 46000  Core 14 46000  Package id 0 47000 Core 0 46000  Core 1 46000  Core 2 46000  Core 3 45000  Core 4 46000  Core 5 45000  Core 6 46000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 42000  Core 1 40000  Core 2 40000  Core 3 41000  Core 4 40000  Core 5 39000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+max threads 14
+time read: 0.170527
+time coo to csr: 0.191896
+Temps: Core 8 46000  Core 9 46000  Core 10 47000  Core 11 45000  Core 12 45000  Core 13 46000  Core 14 46000  Package id 0 47000 Core 0 46000  Core 1 46000  Core 2 46000  Core 3 45000  Core 4 46000  Core 5 45000  Core 6 46000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 42000  Core 1 40000  Core 2 40000  Core 3 41000  Core 4 40000  Core 5 39000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 14
+time read: 0.192569
+time coo to csr: 0.160407
+Test failed! (1.16415e-10)
+Temps: Core 8 47000  Core 9 46000  Core 10 47000  Core 11 45000  Core 12 45000  Core 13 46000  Core 14 46000  Package id 0 47000 Core 0 47000  Core 1 46000  Core 2 46000  Core 3 45000  Core 4 46000  Core 5 45000  Core 6 46000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 41000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 14
+time read: 0.203444
+time coo to csr: 0.211033
+Test failed! (9.31323e-09)
+Temps: Core 8 47000  Core 9 46000  Core 10 47000  Core 11 45000  Core 12 45000  Core 13 46000  Core 14 46000  Package id 0 47000 Core 0 47000  Core 1 46000  Core 2 46000  Core 3 45000  Core 4 46000  Core 5 45000  Core 6 46000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 41000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 14
+time read: 0.282090
+time coo to csr: 0.220417
+Temps: Core 8 47000  Core 9 47000  Core 10 47000  Core 11 45000  Core 12 46000  Core 13 46000  Core 14 46000  Package id 0 47000 Core 0 47000  Core 1 46000  Core 2 46000  Core 3 46000  Core 4 46000  Core 5 46000  Core 6 46000  Core 8 41000  Core 9 40000  Core 10 40000  Core 11 39000  Core 12 40000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 41000  Core 4 40000  Core 5 39000  Core 6 42000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 14
+time read: 0.608936
+time coo to csr: 0.265497
+Temps: Core 8 46000  Core 9 47000  Core 10 47000  Core 11 45000  Core 12 45000  Core 13 46000  Core 14 46000  Package id 0 47000 Core 0 47000  Core 1 46000  Core 2 46000  Core 3 45000  Core 4 46000  Core 5 45000  Core 6 45000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 40000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 40000  Core 4 40000  Core 5 40000  Core 6 42000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+max threads 14
+time read: 0.295480
+time coo to csr: 0.247360
+Temps: Core 8 47000  Core 9 47000  Core 10 47000  Core 11 45000  Core 12 46000  Core 13 46000  Core 14 46000  Package id 0 47000 Core 0 47000  Core 1 46000  Core 2 47000  Core 3 45000  Core 4 46000  Core 5 46000  Core 6 46000  Core 8 41000  Core 9 41000  Core 10 40000  Core 11 40000  Core 12 40000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 40000  Core 4 40000  Core 5 39000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 14
+time read: 0.359862
+time coo to csr: 0.270001
+Temps: Core 8 47000  Core 9 47000  Core 10 47000  Core 11 45000  Core 12 45000  Core 13 46000  Core 14 46000  Package id 0 48000 Core 0 47000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 46000  Core 5 46000  Core 6 46000  Core 8 42000  Core 9 40000  Core 10 40000  Core 11 40000  Core 12 40000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 39000  Core 3 40000  Core 4 40000  Core 5 40000  Core 6 42000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+max threads 14
+time read: 0.320822
+time coo to csr: 0.274595
+Temps: Core 8 48000  Core 9 47000  Core 10 47000  Core 11 46000  Core 12 46000  Core 13 46000  Core 14 46000  Package id 0 47000 Core 0 47000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 46000  Core 6 46000  Core 8 41000  Core 9 41000  Core 10 40000  Core 11 40000  Core 12 40000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 40000  Core 4 40000  Core 5 40000  Core 6 42000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+max threads 14
+time read: 0.376893
+time coo to csr: 0.288773
+Temps: Core 8 47000  Core 9 47000  Core 10 47000  Core 11 45000  Core 12 46000  Core 13 46000  Core 14 46000  Package id 0 48000 Core 0 47000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 46000  Core 5 46000  Core 6 46000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 40000  Core 12 40000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 40000  Core 4 40000  Core 5 39000  Core 6 42000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 14
+time read: 0.735503
+time coo to csr: 0.653623
+Test failed! (2.32831e-10)
+Temps: Core 8 47000  Core 9 47000  Core 10 47000  Core 11 45000  Core 12 45000  Core 13 47000  Core 14 46000  Package id 0 48000 Core 0 48000  Core 1 46000  Core 2 47000  Core 3 45000  Core 4 46000  Core 5 45000  Core 6 46000  Core 8 42000  Core 9 41000  Core 10 40000  Core 11 40000  Core 12 40000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 40000  Core 4 40000  Core 5 40000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 14
+time read: 2.275029
+time coo to csr: 1.102062
+Temps: Core 8 47000  Core 9 47000  Core 10 47000  Core 11 45000  Core 12 45000  Core 13 47000  Core 14 46000  Package id 0 48000 Core 0 47000  Core 1 46000  Core 2 47000  Core 3 45000  Core 4 47000  Core 5 46000  Core 6 46000  Core 8 41000  Core 9 40000  Core 10 40000  Core 11 39000  Core 12 40000  Core 13 39000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 39000  Core 3 40000  Core 4 39000  Core 5 39000  Core 6 41000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 14
+time read: 0.893466
+time coo to csr: 1.043638
+Temps: Core 8 47000  Core 9 47000  Core 10 47000  Core 11 45000  Core 12 46000  Core 13 47000  Core 14 46000  Package id 0 48000 Core 0 47000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 46000  Core 6 46000  Core 8 41000  Core 9 40000  Core 10 40000  Core 11 40000  Core 12 40000  Core 13 40000  Core 14 41000  Package id 1 43000 Core 0 41000  Core 1 40000  Core 2 40000  Core 3 40000  Core 4 39000  Core 5 39000  Core 6 42000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 14
+time read: 2.807286
+time coo to csr: 1.387064
+GHOST_APPS_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/;RAPL_REGISTERS=0;COOLDOWN=0;cpu_pinning_step=1;BOOST_LIB_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/boost_1_55_0/local/lib;cores=14;MKL_PATH=/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl;path_validation=/various/pmpakos/SpMV-Research/validation_matrices;AOCL_PATH=/various/pmpakos/spmv_paper/aocl-sparse/build/release;cpu_affinity=0,1,2,3,4,5,6,7,8,9,10,11,12,13;GHOST_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/ESSEX/;LLVM_LIB_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/llvm-6.0.0/build/lib;cpu_pinning_group_size=1;path_openFoam=/various/dgal/graphs/matrices_openFoam;SPARSEX_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/sparsex;output_to_files=1;max_cores=28;use_artificial_matrices=0;
+program: /various/pmpakos/SPMV_BENCHMARKS/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_bench/spmv_merge.exe
+number of matrices: 30
+Temps: Core 8 48000  Core 9 47000  Core 10 47000  Core 11 46000  Core 12 46000  Core 13 47000  Core 14 47000  Package id 0 49000 Core 0 49000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 39000  Core 4 38000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 14
+time read: 0.035678
+time coo to csr: 0.011052
+Temps: Core 8 48000  Core 9 47000  Core 10 47000  Core 11 46000  Core 12 46000  Core 13 47000  Core 14 47000  Package id 0 49000 Core 0 49000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 39000  Core 4 38000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 14
+time read: 0.039976
+time coo to csr: 0.014350
+Temps: Core 8 48000  Core 9 47000  Core 10 47000  Core 11 46000  Core 12 46000  Core 13 47000  Core 14 47000  Package id 0 49000 Core 0 49000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 39000  Core 4 38000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 14
+time read: 0.054945
+time coo to csr: 0.021473
+Temps: Core 8 48000  Core 9 47000  Core 10 47000  Core 11 46000  Core 12 46000  Core 13 47000  Core 14 47000  Package id 0 49000 Core 0 49000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 39000  Core 4 38000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 14
+time read: 0.064293
+time coo to csr: 0.025436
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 47000  Core 6 48000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 39000  Core 12 38000  Core 13 39000  Core 14 39000  Package id 1 43000 Core 0 40000  Core 1 40000  Core 2 38000  Core 3 39000  Core 4 39000  Core 5 39000  Core 6 42000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 14
+time read: 0.063822
+time coo to csr: 0.026352
+Temps: Core 8 49000  Core 9 49000  Core 10 47000  Core 11 46000  Core 12 46000  Core 13 47000  Core 14 47000  Package id 0 48000 Core 0 47000  Core 1 47000  Core 2 46000  Core 3 46000  Core 4 47000  Core 5 46000  Core 6 46000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 41000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 40000  Core 4 39000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 14
+time read: 0.040419
+time coo to csr: 0.025094
+Temps: Core 8 49000  Core 9 49000  Core 10 47000  Core 11 46000  Core 12 46000  Core 13 47000  Core 14 47000  Package id 0 48000 Core 0 47000  Core 1 47000  Core 2 46000  Core 3 46000  Core 4 47000  Core 5 46000  Core 6 46000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 41000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 40000  Core 4 39000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 14
+time read: 0.073665
+time coo to csr: 0.033737
+Test failed! (2.77623e-10)
+Temps: Core 8 49000  Core 9 49000  Core 10 47000  Core 11 46000  Core 12 46000  Core 13 47000  Core 14 47000  Package id 0 48000 Core 0 47000  Core 1 47000  Core 2 46000  Core 3 46000  Core 4 47000  Core 5 46000  Core 6 46000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 41000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 40000  Core 4 39000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+max threads 14
+time read: 0.040042
+time coo to csr: 0.031947
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 47000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 41000  Core 14 40000  Package id 1 43000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 40000  Core 4 39000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 14
+time read: 0.085519
+time coo to csr: 0.042260
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 47000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 41000  Core 14 40000  Package id 1 43000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 40000  Core 4 39000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 14
+time read: 0.072006
+time coo to csr: 0.051934
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 47000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 39000  Core 11 39000  Core 12 39000  Core 13 41000  Core 14 40000  Package id 1 43000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 40000  Core 4 39000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 14
+time read: 0.070448
+time coo to csr: 0.058839
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 50000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 39000  Core 11 39000  Core 12 38000  Core 13 38000  Core 14 40000  Package id 1 43000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 14
+time read: 0.168597
+time coo to csr: 0.069961
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 50000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 39000  Core 11 39000  Core 12 38000  Core 13 38000  Core 14 40000  Package id 1 43000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 14
+time read: 0.216595
+time coo to csr: 0.084209
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 47000  Core 4 48000  Core 5 48000  Core 6 47000  Core 8 40000  Core 9 39000  Core 10 39000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+max threads 14
+time read: 0.101141
+time coo to csr: 0.079794
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 47000  Core 4 48000  Core 5 48000  Core 6 47000  Core 8 40000  Core 9 39000  Core 10 39000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 14
+time read: 0.101895
+time coo to csr: 0.103749
+Test failed! (0.00012207)
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 39000  Core 12 38000  Core 13 38000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 14
+time read: 0.307994
+time coo to csr: 0.123187
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 39000  Core 12 38000  Core 13 38000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 14
+time read: 0.087586
+time coo to csr: 0.158824
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 39000  Core 11 38000  Core 12 38000  Core 13 39000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+max threads 14
+time read: 0.173473
+time coo to csr: 0.195500
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 39000  Core 11 38000  Core 12 38000  Core 13 39000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 39000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 14
+time read: 0.195279
+time coo to csr: 0.163397
+Test failed! (1.16415e-10)
+Temps: Core 8 49000  Core 9 49000  Core 10 50000  Core 11 48000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 49000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 38000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 14
+time read: 0.206285
+time coo to csr: 0.215717
+Test failed! (9.31323e-09)
+Temps: Core 8 49000  Core 9 49000  Core 10 50000  Core 11 48000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 49000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 38000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 14
+time read: 0.287109
+time coo to csr: 0.224774
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 50000 Core 0 50000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 40000  Package id 1 43000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 14
+time read: 0.614414
+time coo to csr: 0.270468
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 39000  Core 12 39000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+max threads 14
+time read: 0.289443
+time coo to csr: 0.251582
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 47000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 14
+time read: 0.338339
+time coo to csr: 0.274753
+Temps: Core 8 49000  Core 9 48000  Core 10 49000  Core 11 47000  Core 12 47000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 49000  Core 5 47000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 39000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+max threads 14
+time read: 0.317793
+time coo to csr: 0.278650
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 47000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 39000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+max threads 14
+time read: 0.342445
+time coo to csr: 0.295422
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 40000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 14
+time read: 0.740625
+time coo to csr: 0.669272
+Test failed! (2.32831e-10)
+Temps: Core 8 48000  Core 9 48000  Core 10 48000  Core 11 47000  Core 12 47000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 47000  Core 2 48000  Core 3 47000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 39000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 39000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 14
+time read: 2.294939
+time coo to csr: 1.146161
+Temps: Core 8 48000  Core 9 48000  Core 10 48000  Core 11 46000  Core 12 47000  Core 13 48000  Core 14 47000  Package id 0 49000 Core 0 48000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 39000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 39000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 14
+time read: 0.900030
+time coo to csr: 1.054161
+Temps: Core 8 48000  Core 9 48000  Core 10 48000  Core 11 46000  Core 12 46000  Core 13 47000  Core 14 47000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 47000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 39000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 38000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 14
+time read: 2.819380
+time coo to csr: 1.406014
+Temps: Core 8 48000  Core 9 48000  Core 10 47000  Core 11 46000  Core 12 46000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 48000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 46000  Core 6 47000  Core 8 40000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 38000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 14
+time read: 0.035337
+time coo to csr: 0.010986
+Temps: Core 8 48000  Core 9 48000  Core 10 47000  Core 11 46000  Core 12 46000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 48000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 46000  Core 6 47000  Core 8 40000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 38000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 14
+time read: 0.039982
+time coo to csr: 0.014278
+Temps: Core 8 48000  Core 9 48000  Core 10 47000  Core 11 46000  Core 12 46000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 48000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 46000  Core 6 47000  Core 8 40000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 38000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 14
+time read: 0.055020
+time coo to csr: 0.021454
+Temps: Core 8 48000  Core 9 48000  Core 10 47000  Core 11 46000  Core 12 46000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 48000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 46000  Core 6 47000  Core 8 40000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 38000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 14
+time read: 0.064251
+time coo to csr: 0.025472
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 14
+time read: 0.060887
+time coo to csr: 0.026307
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 14
+time read: 0.040576
+time coo to csr: 0.025072
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 14
+time read: 0.073535
+time coo to csr: 0.033754
+Test failed! (2.77623e-10)
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+max threads 14
+time read: 0.040116
+time coo to csr: 0.031931
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 49000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 14
+time read: 0.085466
+time coo to csr: 0.042094
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 49000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 14
+time read: 0.072019
+time coo to csr: 0.051979
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 49000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 14
+time read: 0.070233
+time coo to csr: 0.058804
+Temps: Core 8 50000  Core 9 49000  Core 10 50000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 37000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 14
+time read: 0.201229
+time coo to csr: 0.072418
+Temps: Core 8 50000  Core 9 49000  Core 10 50000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 37000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 14
+time read: 0.216539
+time coo to csr: 0.084151
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 48000  Core 14 49000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 38000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+max threads 14
+time read: 0.101122
+time coo to csr: 0.079897
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 48000  Core 14 49000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 38000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 14
+time read: 0.101755
+time coo to csr: 0.103714
+Test failed! (0.00012207)
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 49000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 38000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 38000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 14
+time read: 0.317699
+time coo to csr: 0.123550
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 49000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 38000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 38000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 14
+time read: 0.087375
+time coo to csr: 0.158727
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 38000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+max threads 14
+time read: 0.173722
+time coo to csr: 0.196244
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 38000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 42000 Core 0 40000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 14
+time read: 0.195013
+time coo to csr: 0.163233
+Test failed! (1.16415e-10)
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 49000  Core 13 49000  Core 14 49000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 14
+time read: 0.205870
+time coo to csr: 0.218092
+Test failed! (9.31323e-09)
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 49000  Core 13 49000  Core 14 49000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 14
+time read: 0.286229
+time coo to csr: 0.225698
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 49000  Core 13 48000  Core 14 48000  Package id 0 50000 Core 0 50000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 38000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 14
+time read: 0.613129
+time coo to csr: 0.270484
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 39000  Core 4 37000  Core 5 37000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+max threads 14
+time read: 0.288809
+time coo to csr: 0.250704
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 47000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 47000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 38000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 38000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 14
+time read: 0.337390
+time coo to csr: 0.274695
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 48000  Core 14 49000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 38000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 38000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+max threads 14
+time read: 0.317992
+time coo to csr: 0.278639
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 47000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+max threads 14
+time read: 0.342201
+time coo to csr: 0.296641
+Temps: Core 8 49000  Core 9 49000  Core 10 48000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 47000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 38000  Core 11 37000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 38000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 14
+time read: 0.741581
+time coo to csr: 0.665704
+Test failed! (2.32831e-10)
+Temps: Core 8 48000  Core 9 48000  Core 10 48000  Core 11 47000  Core 12 47000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 47000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 47000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 38000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 37000  Core 3 38000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 14
+time read: 2.276125
+time coo to csr: 1.140015
+Temps: Core 8 48000  Core 9 48000  Core 10 48000  Core 11 47000  Core 12 47000  Core 13 48000  Core 14 47000  Package id 0 49000 Core 0 49000  Core 1 47000  Core 2 48000  Core 3 46000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 39000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 14
+time read: 0.900497
+time coo to csr: 1.211011
+Temps: Core 8 48000  Core 9 48000  Core 10 47000  Core 11 47000  Core 12 47000  Core 13 48000  Core 14 47000  Package id 0 49000 Core 0 49000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 38000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 38000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 14
+time read: 2.818338
+time coo to csr: 1.404376
+Temps: Core 8 48000  Core 9 48000  Core 10 47000  Core 11 47000  Core 12 47000  Core 13 47000  Core 14 47000  Package id 0 49000 Core 0 48000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 39000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 14
+time read: 0.035370
+time coo to csr: 0.011078
+Temps: Core 8 48000  Core 9 48000  Core 10 47000  Core 11 47000  Core 12 47000  Core 13 47000  Core 14 47000  Package id 0 49000 Core 0 48000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 39000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 14
+time read: 0.040025
+time coo to csr: 0.014427
+Temps: Core 8 48000  Core 9 48000  Core 10 47000  Core 11 47000  Core 12 47000  Core 13 47000  Core 14 47000  Package id 0 49000 Core 0 48000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 39000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 14
+time read: 0.054930
+time coo to csr: 0.021480
+Temps: Core 8 48000  Core 9 48000  Core 10 47000  Core 11 47000  Core 12 47000  Core 13 47000  Core 14 47000  Package id 0 49000 Core 0 48000  Core 1 47000  Core 2 47000  Core 3 46000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 39000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 14
+time read: 0.064333
+time coo to csr: 0.025568
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 49000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 49000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 14
+time read: 0.060777
+time coo to csr: 0.026240
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 49000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 49000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 14
+time read: 0.040937
+time coo to csr: 0.025155
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 49000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 49000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 14
+time read: 0.073679
+time coo to csr: 0.033645
+Test failed! (2.77623e-10)
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 38000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 37000  Core 3 38000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+max threads 14
+time read: 0.040074
+time coo to csr: 0.031895
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 38000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 37000  Core 3 38000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 14
+time read: 0.085481
+time coo to csr: 0.042203
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 38000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 37000  Core 3 38000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 14
+time read: 0.071927
+time coo to csr: 0.051749
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 49000  Core 13 49000  Core 14 49000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 49000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 14
+time read: 0.070263
+time coo to csr: 0.058859
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 49000  Core 13 49000  Core 14 49000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 49000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 14
+time read: 0.169111
+time coo to csr: 0.070189
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 49000  Core 13 49000  Core 14 49000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 49000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 14
+time read: 0.217224
+time coo to csr: 0.084333
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 49000  Core 13 49000  Core 14 48000  Package id 0 49000 Core 0 50000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 49000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 38000  Core 4 37000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+max threads 14
+time read: 0.101122
+time coo to csr: 0.079900
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 49000  Core 13 49000  Core 14 48000  Package id 0 49000 Core 0 50000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 49000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 42000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 38000  Core 4 37000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 14
+time read: 0.102144
+time coo to csr: 0.103759
+Test failed! (0.00012207)
+Temps: Core 8 50000  Core 9 49000  Core 10 50000  Core 11 48000  Core 12 49000  Core 13 49000  Core 14 49000  Package id 0 50000 Core 0 50000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 48000  Core 5 49000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 40000  Package id 1 41000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 14
+time read: 0.307726
+time coo to csr: 0.123399
+Temps: Core 8 50000  Core 9 49000  Core 10 50000  Core 11 48000  Core 12 49000  Core 13 49000  Core 14 49000  Package id 0 50000 Core 0 50000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 48000  Core 5 49000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 40000  Package id 1 41000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 14
+time read: 0.087498
+time coo to csr: 0.158860
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 49000  Core 14 48000  Package id 0 49000 Core 0 50000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 39000  Core 14 40000  Package id 1 42000 Core 0 39000  Core 1 38000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+max threads 14
+time read: 0.173655
+time coo to csr: 0.196223
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 49000  Core 14 48000  Package id 0 49000 Core 0 50000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 39000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 39000  Core 14 40000  Package id 1 42000 Core 0 39000  Core 1 38000  Core 2 38000  Core 3 39000  Core 4 38000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 14
+time read: 0.194907
+time coo to csr: 0.163222
+Test failed! (1.16415e-10)
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 49000  Core 14 49000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 14
+time read: 0.205477
+time coo to csr: 0.217470
+Test failed! (9.31323e-09)
+Temps: Core 8 50000  Core 9 49000  Core 10 49000  Core 11 48000  Core 12 48000  Core 13 49000  Core 14 49000  Package id 0 50000 Core 0 49000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 40000  Core 9 38000  Core 10 38000  Core 11 38000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 14
+time read: 0.285379
+time coo to csr: 0.225167
+Temps: Core 8 50000  Core 9 49000  Core 10 50000  Core 11 48000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 50000 Core 0 50000  Core 1 48000  Core 2 49000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 39000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 14
+time read: 0.613384
+time coo to csr: 0.269301
+Temps: Core 8 49000  Core 9 49000  Core 10 48000  Core 11 47000  Core 12 48000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 38000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+max threads 14
+time read: 0.289028
+time coo to csr: 0.251274
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 47000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 37000  Core 3 39000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 14
+time read: 0.337481
+time coo to csr: 0.275292
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 47000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 38000  Core 4 36000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+max threads 14
+time read: 0.317660
+time coo to csr: 0.279981
+Temps: Core 8 49000  Core 9 49000  Core 10 49000  Core 11 47000  Core 12 47000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 38000  Core 3 39000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+max threads 14
+time read: 0.342416
+time coo to csr: 0.293573
+Temps: Core 8 49000  Core 9 48000  Core 10 49000  Core 11 47000  Core 12 47000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 48000  Core 4 48000  Core 5 48000  Core 6 48000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 38000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 14
+time read: 0.743139
+time coo to csr: 0.668313
+Test failed! (2.32831e-10)
+Temps: Core 8 48000  Core 9 48000  Core 10 48000  Core 11 46000  Core 12 47000  Core 13 48000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 47000  Core 2 48000  Core 3 47000  Core 4 48000  Core 5 47000  Core 6 47000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 38000  Core 3 38000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 14
+time read: 2.279081
+time coo to csr: 1.151136
+Temps: Core 8 48000  Core 9 48000  Core 10 48000  Core 11 46000  Core 12 46000  Core 13 48000  Core 14 47000  Package id 0 49000 Core 0 49000  Core 1 48000  Core 2 48000  Core 3 47000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 39000  Core 1 38000  Core 2 37000  Core 3 38000  Core 4 37000  Core 5 37000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 14
+time read: 0.900757
+time coo to csr: 1.054109
+Temps: Core 8 48000  Core 9 48000  Core 10 48000  Core 11 46000  Core 12 46000  Core 13 47000  Core 14 48000  Package id 0 49000 Core 0 49000  Core 1 47000  Core 2 48000  Core 3 46000  Core 4 47000  Core 5 47000  Core 6 47000  Core 8 39000  Core 9 38000  Core 10 37000  Core 11 37000  Core 12 37000  Core 13 37000  Core 14 39000  Package id 1 41000 Core 0 40000  Core 1 38000  Core 2 37000  Core 3 38000  Core 4 37000  Core 5 38000  Core 6 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 14
+time read: 2.816803
+time coo to csr: 1.405987

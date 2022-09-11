@@ -66,6 +66,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	merge->ia = row_ptr;
 	merge->ja = col_ind;
 	merge->a = values;
+	merge->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 
 	return merge;
 }
