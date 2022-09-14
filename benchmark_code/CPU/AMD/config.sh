@@ -33,6 +33,9 @@ calc_cpu_pinning()
 
 declare -A conf_vars
 conf_vars=(
+    ['USE_PROCESSES']=0
+    # ['USE_PROCESSES']=1
+
     ['output_to_files']=0
     # ['output_to_files']=1
 
@@ -107,9 +110,48 @@ conf_vars=(
     # SparseX ecosystem environment variables that have to be set.
     # These are environment variables that have to be set for SparseX to work
     # Need to install specific library versions
-    ['SPARSEX_ROOT_DIR']='/home/pmpakos/sparsex'
-    ['BOOST_LIB_PATH']='/home/pmpakos/sparsex/boost_1_55_0/local/lib/'
-    ['LLVM_LIB_PATH']='/home/pmpakos/sparsex/llvm-6.0.0/build/lib'
+    ['BOOST_INC_PATH']="$( options=(
+                        "${HOME}/lib/boost_1_55_0/bin/include"
+                        '/home/pmpakos/sparsex/boost_1_55_0/local/include'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+    ['BOOST_LIB_PATH']="$( options=(
+                        "${HOME}/lib/boost_1_55_0/bin/lib"
+                        '/home/pmpakos/sparsex/local/lib'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+    ['LLVM_INC_PATH']="$( options=(
+                        "${HOME}/lib/llvm-6.0.0/build/include"
+                        '/home/pmpakos/sparsex/llvm-6.0.0/build/include'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+    ['LLVM_LIB_PATH']="$( options=(
+                        "${HOME}/lib/llvm-6.0.0/build/lib"
+                        '/home/pmpakos/sparsex/llvm-6.0.0/build/lib'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+    ['SPARSEX_CONF_PATH']="$( options=(
+                        "${HOME}/lib/sparsex/build/bin"
+                        '/home/pmpakos/sparsex/build/bin'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+    ['SPARSEX_INC_PATH']="$( options=(
+                        "${HOME}/lib/sparsex/build/include"
+                        '/home/pmpakos/sparsex/build/include'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+    ['SPARSEX_LIB_PATH']="$( options=(
+                        "${HOME}/lib/sparsex/build/lib"
+                        '/home/pmpakos/sparsex/build/lib'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
 
     # SELL-C-s ecosystem environment variables that have to be set
     # These are environment variables that have to be set for SELL-C-s to work
@@ -207,7 +249,7 @@ progs=(
     # Custom csr x86
     # ['csr_x86_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector.exe"
     # ['csr_x86_vector_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_queues.exe"
-    ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
+    # ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
 
     # MKL IE
     # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
@@ -226,7 +268,9 @@ progs=(
     # ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
 
     # sparsex
+    ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex.exe"
     # ['sparsex_d']="${script_dir}/spmv_code_sparsex/spmv_sparsex.exe"
+    # ['sparsex_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sparsex/spmv_sparsex.exe"
 
     # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell.exe"
     # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu.exe"

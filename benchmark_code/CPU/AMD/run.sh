@@ -25,7 +25,7 @@ export XLSMPOPTS="PROCS=$cpu_affinity"
 export MKL_DEBUG_CPU_TYPE=5
 
 export LD_LIBRARY_PATH="${AOCL_PATH}/lib:${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${SPARSEX_LIB_PATH}"
 
 
 # Encourages idle threads to spin rather than sleep.
@@ -33,12 +33,24 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}"
 # Don't let the runtime deliver fewer threads than those we asked for.
 # export OMP_DYNAMIC='false'
 
+
 matrices_openFoam=("$path_openFoam"/*.mtx)
 
-matrices_openFoam_own_neigh=( "$path_openFoam"/TestMatrices/*/*/* )
+# matrices_openFoam_own_neigh=( "$path_openFoam"/TestMatrices/*/*/* )
+
+cd "$path_openFoam"
+text="$(printf "%s\n" TestMatrices/*/*/*)"
+cd - &>/dev/null
+sorted_text="$(sort -t '/' -k2,2 -k3,3n -k4.10,4n <<<"${text}")"
+
+IFS_buf="$IFS"
+IFS=$'\n'
+matrices_openFoam_own_neigh=( $(printf "${path_openFoam}/%s\n" ${sorted_text}) )
+IFS="$IFS_buf"
+
 
 matrices_validation=(
-    "$path_validation"/scircuit.mtx
+    # "$path_validation"/scircuit.mtx
     # "$path_validation"/mac_econ_fwd500.mtx
     # "$path_validation"/raefsky3.mtx
     # "$path_validation"/bbmat.mtx
@@ -64,7 +76,7 @@ matrices_validation=(
     # "$path_validation"/Ga41As41H72.mtx
     # "$path_validation"/eu-2005.mtx
     # "$path_validation"/wikipedia-20051105.mtx
-    # "$path_validation"/ldoor.mtx
+    "$path_validation"/ldoor.mtx
     # "$path_validation"/circuit5M.mtx
     # "$path_validation"/bone010.mtx
     # "$path_validation"/cage15.mtx
@@ -98,19 +110,21 @@ bench()
     do
         export OMP_NUM_THREADS="$t"
 
-        if [[ "$prog" == *"spmv_sparsex.exe"* ]]; then
-            # since affinity is set with the runtime variable, just reset it to "0" so no warnings are displayed, and reset it after execution of benchmark (for other benchmarks to run)
-            export GOMP_CPU_AFFINITY_backup="${GOMP_CPU_AFFINITY}"
-            export GOMP_CPU_AFFINITY="0"
-            mt_conf=$(seq -s ',' 0 1 "$(($t-1))")
-            if ((!use_artificial_matrices)); then
-                "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v
-            else
-                prog_args2="${prog_args[@]}"
-                "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v
-            fi
-            export GOMP_CPU_AFFINITY="${GOMP_CPU_AFFINITY_backup}"
-        elif [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
+        # if [[ "$prog" == *"spmv_sparsex.exe"* ]]; then
+            # # since affinity is set with the runtime variable, just reset it to "0" so no warnings are displayed, and reset it after execution of benchmark (for other benchmarks to run)
+            # # mt_conf="${GOMP_CPU_AFFINITY}"
+            # export GOMP_CPU_AFFINITY_backup="${GOMP_CPU_AFFINITY}"
+            # export GOMP_CPU_AFFINITY="0"
+            # mt_conf=$(seq -s ',' 0 1 "$(($t-1))")
+            # if ((!use_artificial_matrices)); then
+                # "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v
+            # else
+                # prog_args2="${prog_args[@]}"
+                # "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v
+            # fi
+            # export GOMP_CPU_AFFINITY="${GOMP_CPU_AFFINITY_backup}"
+        # elif [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
+        if [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
             if ((!use_artificial_matrices)); then
                 "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
             else

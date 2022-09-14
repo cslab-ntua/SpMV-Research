@@ -82,11 +82,6 @@ CFLAGS += -D'INT_T=int32_t'
 DOUBLE := 1
 CFLAGS += -D'DOUBLE=$(DOUBLE)'
 
-# PROC_BENCH = 1
-ifdef PROC_BENCH
-    CFLAGS += -D'PROC_BENCH' 
-endif
-
 
 CPPFLAGS =
 CPPFLAGS += $(CFLAGS)
@@ -114,21 +109,21 @@ LIB_OBJ := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ))
 
 EXE =
 
-EXE += spmv_csr_naive.exe
-EXE += spmv_csr.exe
+# EXE += spmv_csr_naive.exe
+# EXE += spmv_csr.exe
 # EXE += spmv_csr_prefetch.exe
 # EXE += spmv_csr_simd.exe
-EXE += spmv_csr_vector.exe
+# EXE += spmv_csr_vector.exe
 
-EXE += spmv_csr_x86_vector.exe
-EXE += spmv_csr_x86_vector_queues.exe
-EXE += spmv_csr_x86_vector_perfect_nnz_balance.exe
+# EXE += spmv_csr_x86_vector.exe
+# EXE += spmv_csr_x86_vector_queues.exe
+# EXE += spmv_csr_x86_vector_perfect_nnz_balance.exe
 
 # EXE += spmv_dia.exe
 # EXE += spmv_ldu.exe
 # EXE += spmv_ell.exe
 
-EXE += spmv_mkl_ie.exe
+# EXE += spmv_mkl_ie.exe
 # EXE += spmv_mkl_coo.exe
 # EXE += spmv_mkl_dia.exe
 # EXE += spmv_mkl_csc.exe
@@ -137,9 +132,11 @@ EXE += spmv_mkl_ie.exe
 
 # EXE += spmv_aocl_optmv.exe
 
-EXE += spmv_csr5.exe
+# EXE += spmv_csr5.exe
 
-EXE += spmv_merge.exe
+# EXE += spmv_merge.exe
+
+EXE += spmv_sparsex.exe
 
 
 DIRS = obj
@@ -253,6 +250,45 @@ LDFLAGS_MERGE += -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl
 
 spmv_merge.exe: obj/spmv_bench.o spmv_kernel_merge.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_MERGE) $^ -o $@ $(LDFLAGS_MERGE)
+
+
+CPPFLAGS_SPARSEX = $(CPPFLAGS)
+CPPFLAGS_SPARSEX += -Wno-unused-variable
+CPPFLAGS_SPARSEX += -Wno-unused-but-set-variable
+CPPFLAGS_SPARSEX += -Wno-unused-parameter
+CPPFLAGS_SPARSEX += -Wno-sign-compare
+CPPFLAGS_SPARSEX += -Wno-unused-local-typedefs
+CPPFLAGS_SPARSEX += -Wno-deprecated-copy
+CPPFLAGS_SPARSEX += -Wno-placement-new
+CPPFLAGS_SPARSEX += -Wno-deprecated-declarations
+CPPFLAGS_SPARSEX += -Wno-parentheses
+CPPFLAGS_SPARSEX += -fopenmp
+CPPFLAGS_SPARSEX += -I'$(BOOST_INC_PATH)'
+CPPFLAGS_SPARSEX += -I'$(LLVM_INC_PATH)'
+CPPFLAGS_SPARSEX += -I$(SPARSEX_INC_PATH)
+CPPFLAGS_SPARSEX += $(shell ${SPARSEX_CONF_PATH}/sparsex-config --cppflags)
+
+LDFLAGS_SPARSEX = $(LDFLAGS)
+LDFLAGS_SPARSEX += $(shell ${SPARSEX_CONF_PATH}/sparsex-config --ldflags)
+LDFLAGS_SPARSEX += -L'$(BOOST_LIB_PATH)'
+LDFLAGS_SPARSEX += -L'$(LLVM_LIB_PATH)'
+LDFLAGS_SPARSEX += -L'$(SPARSEX_LIB_PATH)'
+LDFLAGS_SPARSEX += -lboost_regex
+LDFLAGS_SPARSEX += -lboost_serialization
+LDFLAGS_SPARSEX += -lboost_system
+LDFLAGS_SPARSEX += -lboost_atomic
+# LDFLAGS_SPARSEX += -lnuma
+# LDFLAGS_SPARSEX += -lz -ltinfo -lrt -lgomp -lpthread -ldl -lpapi -fopenmp
+
+# This needs to be put FIRST.
+LDFLAGS_SPARSEX := -Wl,--no-as-needed $(LDFLAGS_SPARSEX)
+
+spmv_sparsex.exe: obj/spmv_bench.o obj/spmv_kernel_sparsex.o $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS_SPARSEX) $^ -o $@ $(LDFLAGS_SPARSEX)
+
+obj/spmv_kernel_sparsex.o: spmv_kernel_sparsex.cpp
+	$(CPP) $(CPPFLAGS_SPARSEX) -c $< -o $@
+
 
 
 $(call Rule_Auto_Dependencies,obj/spmv_bench.o,spmv_bench.cpp)

@@ -52,12 +52,16 @@ struct CSRArrays : Matrix_Format
 			_Pragma("omp parallel")
 			{
 				int tnum = omp_get_thread_num();
-				#if defined(PROC_BENCH)
+				int use_processes = atoi(getenv("USE_PROCESSES"));
+				if (use_processes)
+				{
 					loop_partitioner_balance_iterations(num_threads, tnum, 0, m, &thread_i_s[tnum], &thread_i_e[tnum]);
-				#else
+				}
+				else
+				{
 					loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 					// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
-				#endif
+				}
 				#ifdef CUSTOM_X86_VECTOR_PERFECT_NNZ_BALANCE
 					loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
 				#endif

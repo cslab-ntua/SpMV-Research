@@ -17,16 +17,18 @@
  */
 
 #include <sparsex/sparsex.h>
-#include "CsxCheck.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
-#include <libgen.h>
 
 
 #include <math.h>
 #include <omp.h>
+
+#include <libgen.h>
+
+// #include "CsxCheck.hpp"
 
 #include "random.h"
 #include "ordered_set.h"
@@ -40,7 +42,7 @@
 
 int prefetch_distance = 8;
 
-static char * program_name;
+static const char *program_name;
 
 static struct option long_options[] = {
 	{"option",              required_argument,  0, 'o'},
@@ -68,7 +70,7 @@ static void print_usage()
 static void set_option(const char *arg)
 {
 	// copy arg first to work with strtok
-	char *temp = (char *) malloc(strlen(arg) + 1);
+	char *temp = malloc(strlen(arg) + 1);
 	temp = strncpy(temp, arg, strlen(arg) + 1);
 	// printf("\ttemp = %s\n", temp);
 	char *option = strtok(temp, "=");
@@ -78,31 +80,31 @@ static void set_option(const char *arg)
 }
 
 static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * A, spx_vector_t *x, spx_vector_t *y, 
-					int artificial_flag, double alpha, double time_balance, 
-					int enable_reordering, spx_perm_t *p, int loop, int iter)
+		int artificial_flag, double alpha, double time_balance, 
+		int enable_reordering, spx_perm_t *p, int loop, int iter)
 {
-    // Warm up cpu.
-    spx_timer_t t_Aw;
+	// Warm up cpu.
+	spx_timer_t t_Aw;
 	spx_timer_clear(&t_Aw);
 	spx_timer_start(&t_Aw);
 	int num_threads = omp_get_max_threads();
-    volatile double warmup_total;
-    long A_warmup_n = (1<<20) * num_threads;
-    double * A_warmup;
-    A_warmup = (typeof(A_warmup)) malloc(A_warmup_n * sizeof(*A_warmup));
-    _Pragma("omp parallel for")
-    for (long i=0;i<A_warmup_n;i++)
-        A_warmup[i] = 0;
-    for (long j=0;j<16;j++)
-    {
-        _Pragma("omp parallel for")
-        for (long i=1;i<A_warmup_n;i++)
-        {
-            A_warmup[i] += A_warmup[i-1] * 7 + 3;
-        }
-    }
-    warmup_total = A_warmup[A_warmup_n];
-    free(A_warmup);
+	volatile double warmup_total;
+	long A_warmup_n = (1<<20) * num_threads;
+	double * A_warmup;
+	A_warmup = (typeof(A_warmup)) malloc(A_warmup_n * sizeof(*A_warmup));
+	_Pragma("omp parallel for")
+		for (long i=0;i<A_warmup_n;i++)
+			A_warmup[i] = 0;
+	for (long j=0;j<16;j++)
+	{
+		_Pragma("omp parallel for")
+			for (long i=1;i<A_warmup_n;i++)
+			{
+				A_warmup[i] += A_warmup[i-1] * 7 + 3;
+			}
+	}
+	warmup_total = A_warmup[A_warmup_n];
+	free(A_warmup);
 	spx_timer_pause(&t_Aw);
 	double time_A_warmup = spx_timer_get_secs(&t_Aw);
 
@@ -178,7 +180,7 @@ static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * 
 	double W_avg = J_estimated / time;
 	// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
 	/*****************************************************************************************/
-	
+
 	if(artificial_flag == 0){
 		fprintf(stderr, "%s,", matrix_file);
 		fprintf(stderr, "%d,", omp_get_max_threads());
@@ -237,8 +239,8 @@ static void compute(char * matrix_file, struct csr_matrix * csr, spx_matrix_t * 
 			}
 
 			/* Check the result */
-			if(artificial_flag==0)
-				check_result(y, alpha, x, matrix_file);
+			// if(artificial_flag==0)
+			// check_result(y, alpha, x, matrix_file);
 			// else
 			// 	check_result(y, alpha, x, csr->row_ptr, csr->col_ind, csr->values, csr->nr_rows, csr->nr_cols);
 		}
@@ -276,22 +278,22 @@ int main(int argc, char **argv)
 	// }
 	// _Pragma("omp barrier")
 
-    // artificial matrix generation on the way!
-    struct csr_matrix * csr;
-    long nr_rows;
-    long nr_cols;
-    double avg_nnz_per_row, std_nnz_per_row;
-    unsigned int seed;
-    char * distribution;
-    char * placement;
-    double bw;
-    double skew;
-    double avg_num_neighbours;
-    double cross_row_similarity;
-    
-    int cnt = 0;
-    int artificial_flag = 0;
-    
+	// artificial matrix generation on the way!
+	struct csr_matrix * csr;
+	long nr_rows;
+	long nr_cols;
+	double avg_nnz_per_row, std_nnz_per_row;
+	unsigned int seed;
+	char * distribution;
+	char * placement;
+	double bw;
+	double skew;
+	double avg_num_neighbours;
+	double cross_row_similarity;
+
+	int cnt = 0;
+	int artificial_flag = 0;
+
 	program_name = argv[0];
 	while ((c = getopt_long(argc, argv, "o:p:rthv", long_options, &option_index)) != -1) {
 		// printf("c = %d\n", c);
@@ -311,46 +313,46 @@ int main(int argc, char **argv)
 				// printf("nr_rows = %ld\n", nr_rows);
 
 				pch = strtok (NULL, " ");
-			    nr_cols = atoi(pch);
-			    // printf("nr_cols = %ld\n", nr_cols);
+				nr_cols = atoi(pch);
+				// printf("nr_cols = %ld\n", nr_cols);
 
-			    pch = strtok (NULL, " ");
-			    avg_nnz_per_row = strtof(pch, NULL);
-			    // printf("avg_nnz_per_row = %lf\n", avg_nnz_per_row);
+				pch = strtok (NULL, " ");
+				avg_nnz_per_row = strtof(pch, NULL);
+				// printf("avg_nnz_per_row = %lf\n", avg_nnz_per_row);
 
-			    pch = strtok (NULL, " ");
-			    std_nnz_per_row = strtof(pch, NULL);
-			    // printf("std_nnz_per_row = %lf\n", std_nnz_per_row);
+				pch = strtok (NULL, " ");
+				std_nnz_per_row = strtof(pch, NULL);
+				// printf("std_nnz_per_row = %lf\n", std_nnz_per_row);
 
-			    pch = strtok (NULL, " ");
-			    distribution = (char*)pch;
-			    // printf("distribution = %s\n", distribution);
+				pch = strtok (NULL, " ");
+				distribution = (char*)pch;
+				// printf("distribution = %s\n", distribution);
 
-			    pch = strtok (NULL, " ");
-			    placement = (char*)pch;
-			    // printf("placement = %s\n", placement);
+				pch = strtok (NULL, " ");
+				placement = (char*)pch;
+				// printf("placement = %s\n", placement);
 
-			    pch = strtok (NULL, " ");
-			    bw = strtof(pch, NULL);
-			    // printf("bw = %lf\n", bw);
+				pch = strtok (NULL, " ");
+				bw = strtof(pch, NULL);
+				// printf("bw = %lf\n", bw);
 
-			    pch = strtok (NULL, " ");
-			    skew = strtof(pch, NULL);
-			    // printf("skew = %lf\n", skew);
+				pch = strtok (NULL, " ");
+				skew = strtof(pch, NULL);
+				// printf("skew = %lf\n", skew);
 
-			    pch = strtok (NULL, " ");
-			    avg_num_neighbours = strtof(pch, NULL);
-			    // printf("avg_num_neighbours = %lf\n", avg_num_neighbours);
+				pch = strtok (NULL, " ");
+				avg_num_neighbours = strtof(pch, NULL);
+				// printf("avg_num_neighbours = %lf\n", avg_num_neighbours);
 
-			    pch = strtok (NULL, " ");
-			    cross_row_similarity = strtof(pch, NULL);
-			    // printf("cross_row_similarity = %lf\n", cross_row_similarity);
+				pch = strtok (NULL, " ");
+				cross_row_similarity = strtof(pch, NULL);
+				// printf("cross_row_similarity = %lf\n", cross_row_similarity);
 
-			    pch = strtok (NULL, " ");
-			    seed = atoi(pch);
-			    // printf("seed = %ld\n", seed);
+				pch = strtok (NULL, " ");
+				seed = atoi(pch);
+				// printf("seed = %ld\n", seed);
 
-			    pch = strtok (NULL, " ");
+				pch = strtok (NULL, " ");
 				break;
 			case 'r':
 				enable_reordering = 1;
@@ -365,7 +367,7 @@ int main(int argc, char **argv)
 			case 'h':
 				print_usage();
 				exit(0);
-			// default:
+				// default:
 				// print_usage();
 				// exit(1);
 		}
@@ -392,13 +394,13 @@ int main(int argc, char **argv)
 		}
 	}
 	else{
-		
+
 		// printf("1\n");
 		csr = artificial_matrix_generation(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, seed, placement, bw, skew, avg_num_neighbours, cross_row_similarity);
 		// csr_matrix_print(csr);
 
 		input = spx_input_load_csr(csr->row_ptr, csr->col_ind, csr->values,
-								   csr->nr_rows, csr->nr_cols);
+				csr->nr_rows, csr->nr_cols);
 
 		if (input == SPX_INVALID_INPUT) {
 			SETERROR_0(SPX_ERR_INPUT_MAT);

@@ -148,10 +148,62 @@ is_directory(const char *path)
 }
 
 
+int
+get_affinity_from_GOMP_CPU_AFFINITY(int tnum)
+{
+	char * gomp_aff_str = getenv("GOMP_CPU_AFFINITY");
+	long len = strlen(gomp_aff_str);
+	long pos = 0;
+	int aff = -1;
+	int n1, n2;
+	long i;
+	for (i=0;i<len;)
+	{
+		n1 = atoi(&gomp_aff_str[i]);
+		if (pos == tnum)
+		{
+			aff = n1;
+			break;
+		}
+		while ((i < len) && (gomp_aff_str[i] != ',') && (gomp_aff_str[i] != '-'))
+			i++;
+		if (i+1 >= len)
+			break;
+		if (gomp_aff_str[i] == ',')
+		{
+			pos++;
+			i++;
+		}
+		else
+		{
+			i++;
+			n2 = atoi(&gomp_aff_str[i]);
+			if (n2 < n1)
+				error("Bad affinity string format.");
+			if (pos + n2 - n1 >= tnum)
+			{
+				aff = n1 + tnum - pos;
+				break;
+			}
+			pos += n2 - n1 + 1;
+			while ((i < len) && (gomp_aff_str[i] != ','))
+				i++;
+			i++;
+			if (i >= len)
+				break;
+		}
+	}
+	if (aff < 0)
+		error("Bad affinity string format.");
+	return aff;
+}
+
+
 void
 compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueType * x, ValueType * y, const int loop = 128)
 {
 	__attribute__((unused)) int num_threads = omp_get_max_threads();
+	int use_processes = atoi(getenv("USE_PROCESSES"));
 	double gflops;
 	__attribute__((unused)) double time, time_warm_up, time_after_warm_up;
 	long buf_n = 10000;
@@ -215,9 +267,8 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 		}
 	#endif
 
-	#ifdef PROC_BENCH
+	if (use_processes)
 		raise(SIGSTOP);
-	#endif
 
 	/*****************************************************************************************/
 	struct RAPL_Register * regs;
@@ -330,7 +381,10 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 	{
 		i = 0;
 		i += snprintf(buf + i, buf_n - i, "%s", matrix_name);
-		i += snprintf(buf + i, buf_n - i, ",%d", omp_get_max_threads());
+		if (use_processes)
+			i += snprintf(buf + i, buf_n - i, ",%d", num_procs);
+		else
+			i += snprintf(buf + i, buf_n - i, ",%d", omp_get_max_threads());
 		i += snprintf(buf + i, buf_n - i, ",%u", csr_m);
 		i += snprintf(buf + i, buf_n - i, ",%u", csr_n);
 		i += snprintf(buf + i, buf_n - i, ",%u", csr_nnz);
@@ -442,55 +496,48 @@ main(int argc, char **argv)
 	}
 	printf("max threads %d\n", num_threads);
 
+	int use_processes = atoi(getenv("USE_PROCESSES"));
+	if (use_processes)
+	{
+		num_procs = atoi(getenv("NUM_PROCESSES"));
+		pid_t pids[num_procs];
+		pid_t pid;
+		pthread_t tid;
+		int core;
+		long j;
+		for (j=0;j<num_procs;j++)
+		{
+			pid = fork();
+			if (pid == -1)
+				error("fork");
+			if (pid == 0)
+			{
+				process_custom_id = j;
+				core = get_affinity_from_GOMP_CPU_AFFINITY(j);
+				// printf("%ld: affinity=%d\n", j, core);
+				tid = pthread_self();
+				set_affinity(tid, core);
+				goto child_proc_label;
+			}
+			pids[j] = pid;
+		}
+		tid = pthread_self();
+		set_affinity(tid, 0);
+		for (j=0;j<num_procs;j++)
+			waitpid(-1, NULL, WUNTRACED);
+		for (j=0;j<num_procs;j++)
+			kill(pids[j], SIGCONT);
+		for (j=0;j<num_procs;j++)
+			waitpid(-1, NULL, WUNTRACED);
+		exit(0);
+	}
+
+child_proc_label:
+
 	if (argc < 6)
 	{
 		char * file_in;
 		i = 1;
-		#ifdef PROC_BENCH
-			num_procs = atoi(argv[i++]);
-
-			pid_t pids[num_procs];
-			pid_t pid;
-			pthread_t tid;
-			int core;
-			long j;
-
-			for (j=0;j<num_procs;j++)
-			{
-				pid = fork();
-				if (pid == -1)
-					error("fork");
-				if (pid == 0)
-				{
-					process_custom_id = j;
-
-					core = process_custom_id;
-					// int max_cores = 128;
-					// int cores_per_numa_node = 16;
-					// int num_numa_nodes = max_cores / cores_per_numa_node;
-					// core = (j*cores_per_numa_node + j/num_numa_nodes) % max_cores;    // cycle numa nodes
-					// printf("%d -> %d\n", process_custom_id, core);
-
-					tid = pthread_self();
-					set_affinity(tid, core);
-					goto child_proc_label;
-				}
-				pids[j] = pid;
-			}
-			tid = pthread_self();
-			set_affinity(tid, 0);
-			for (j=0;j<num_procs;j++)
-				waitpid(-1, NULL, WUNTRACED);
-			for (j=0;j<num_procs;j++)
-				kill(pids[j], SIGCONT);
-			for (j=0;j<num_procs;j++)
-				waitpid(-1, NULL, WUNTRACED);
-			exit(0);
-
-child_proc_label:
-
-		#endif
-
 		file_in = argv[i++];
 		snprintf(matrix_name, sizeof(matrix_name), "%s", file_in);
 

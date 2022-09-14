@@ -17,36 +17,37 @@ else
 fi
 
 
-if [[ $hyperthreading == 1 ]]; then
-    max_cores=$((2*max_cores))
-    cores="$cores $max_cores"
-fi
-
 # GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
 # e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
-if [[ $hyperthreading == 1 ]]; then
-    affinity=''
-    for ((i=0;i<max_cores/2;i++)); do
-        affinity="$affinity,$i,$((i,max_cores/2+i))"
-    done
-    affinity="${affinity:1}"
-    export GOMP_CPU_AFFINITY="$affinity"
-    printf "cpu affinities: %s\n" "$affinity"
-else
-    export GOMP_CPU_AFFINITY="0-$((max_cores-1))"
-fi
+export GOMP_CPU_AFFINITY="$cpu_affinity"
+export XLSMPOPTS="PROCS=$cpu_affinity"
 
 export MKL_DEBUG_CPU_TYPE=5
-export LD_LIBRARY_PATH="${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
+
+export LD_LIBRARY_PATH="${AOCL_PATH}/lib:${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}"
+
 
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'
 # Don't let the runtime deliver fewer threads than those we asked for.
 # export OMP_DYNAMIC='false'
 
+
 matrices_openFoam=("$path_openFoam"/*.mtx)
 
-matrices_openFoam_own_neigh=( "$path_openFoam"/TestMatrices/*/*/* )
+# matrices_openFoam_own_neigh=( "$path_openFoam"/TestMatrices/*/*/* )
+
+cd "$path_openFoam"
+text="$(printf "%s\n" TestMatrices/*/*/*)"
+cd - &>/dev/null
+sorted_text="$(sort -t '/' -k2,2 -k3,3n -k4.10,4n <<<"${text}")"
+
+IFS_buf="$IFS"
+IFS=$'\n'
+matrices_openFoam_own_neigh=( $(printf "${path_openFoam}/%s\n" ${sorted_text}) )
+IFS="$IFS_buf"
+
 
 matrices_validation=(
     "$path_validation"/scircuit.mtx
@@ -92,25 +93,36 @@ awk_cmd='
 BEGIN {
     num_procs = 0
     time_max = 0.0
+    Watt_max = 0.0
+    Joule_max = 0.0
 }
 
-/^pnum_/ {
+// {
     split($0, tok, ",")
-    file = tok[2]
-    num_procs = tok[3]
-    m = tok[4]
-    n = tok[5]
-    nnz = tok[6]
-    time = tok[7]
-    gflops = tok[8]
-    mem = tok[9]
+    i=1
+    file = tok[i++]
+    num_procs = tok[i++]
+    m = tok[i++]
+    n = tok[i++]
+    nnz = tok[i++]
+    time = tok[i++]
+    gflops = tok[i++]
+    mem = tok[i++]
+    Watt = tok[i++]
+    Joule = tok[i++]
 
     if (time > time_max)
         time_max = time
+    if (Watt > Watt_max)
+    {
+        Watt_max = Watt
+        Joule_max = Joule
+    }
 }
 
 END {
     gflops = (time_max > 0) ? (nnz * num_procs) / time_max * 128 * 2 * 1e-9 : 0
+    Watt = Watt / num_procs
 
     printf("%s", file)
     printf(",%d", num_procs)
@@ -120,6 +132,8 @@ END {
     printf(",%g", time_max)
     printf(",%g", gflops)
     printf(",%g", mem)
+    printf(",%g", Watt_max)
+    printf(",%g", Joule_max)
     printf("\n")
 }
 '
@@ -138,7 +152,9 @@ bench()
         count_procs=0
         > tmp.out
 
-        "$prog" "$t" "${prog_args[@]}" 2>> 'tmp.out'
+        export NUM_PROCESSES="$t"
+
+        "$prog" "${prog_args[@]}" 2>> 'tmp.out'
 
         cat tmp.out
         awk "${awk_cmd}" tmp.out 1>&2
@@ -164,6 +180,16 @@ matrices=(
     # "$path_openFoam"/600K.mtx
     # "$path_openFoam"/TestMatrices/HEXmats/5krows/processor0
     "${matrices_openFoam_own_neigh[@]}"
+
+    # AOCL crashes with these
+
+    # /various/dgal/graphs/matrices_openFoam/TestMatrices/SHMmats/5krows/processor7
+    # /various/dgal/graphs/matrices_openFoam/TestMatrices/SHMmats-RCM/5krows/processor14
+    # /various/dgal/graphs/matrices_openFoam/TestMatrices/SHMmats-RCM/5krows/processor42
+    # /various/dgal/graphs/matrices_openFoam/TestMatrices/SHMmats/5krows/processor7
+    # /various/dgal/graphs/matrices_openFoam/TestMatrices/SHMmats-RCM/5krows/processor14
+    # /various/dgal/graphs/matrices_openFoam/TestMatrices/SHMmats-RCM/5krows/processor42
+
 
     # "$path_selected"/thermomech_dK.mtx
     # "$path_selected"/ASIC_680k.mtx
