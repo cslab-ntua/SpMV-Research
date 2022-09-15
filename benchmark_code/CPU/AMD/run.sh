@@ -110,34 +110,47 @@ bench()
     do
         export OMP_NUM_THREADS="$t"
 
-        # if [[ "$prog" == *"spmv_sparsex.exe"* ]]; then
-            # # since affinity is set with the runtime variable, just reset it to "0" so no warnings are displayed, and reset it after execution of benchmark (for other benchmarks to run)
-            # # mt_conf="${GOMP_CPU_AFFINITY}"
-            # export GOMP_CPU_AFFINITY_backup="${GOMP_CPU_AFFINITY}"
-            # export GOMP_CPU_AFFINITY="0"
-            # mt_conf=$(seq -s ',' 0 1 "$(($t-1))")
-            # if ((!use_artificial_matrices)); then
-                # "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v
-            # else
-                # prog_args2="${prog_args[@]}"
-                # "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v
-            # fi
-            # export GOMP_CPU_AFFINITY="${GOMP_CPU_AFFINITY_backup}"
-        # elif [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
-        if [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
-            if ((!use_artificial_matrices)); then
-                "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+        while :; do
+            # if [[ "$prog" == *"spmv_sparsex.exe"* ]]; then
+                # # since affinity is set with the runtime variable, just reset it to "0" so no warnings are displayed, and reset it after execution of benchmark (for other benchmarks to run)
+                # # mt_conf="${GOMP_CPU_AFFINITY}"
+                # export GOMP_CPU_AFFINITY_backup="${GOMP_CPU_AFFINITY}"
+                # export GOMP_CPU_AFFINITY="0"
+                # mt_conf=$(seq -s ',' 0 1 "$(($t-1))")
+                # if ((!use_artificial_matrices)); then
+                    # "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v  2>'tmp.err'
+                # else
+                    # prog_args2="${prog_args[@]}"
+                    # "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v  2>'tmp.err'
+                # fi
+                # export GOMP_CPU_AFFINITY="${GOMP_CPU_AFFINITY_backup}"
+            # elif [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
+            if [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
+                if ((!use_artificial_matrices)); then
+                    "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1  2>'tmp.err'
+                    ret="$?"
+                else
+                    prog_args2="${prog_args[@]}"
+                    "$prog" -c $OMP_NUM_THREADS --artif_args="${prog_args2[@]}" -f SELL-32-1  2>'tmp.err'
+                    ret="$?"
+                fi
             else
-                prog_args2="${prog_args[@]}"
-                "$prog" -c $OMP_NUM_THREADS --artif_args="${prog_args2[@]}" -f SELL-32-1
-            fi
-        else
-            # "$prog" 4690000 4 1.6 normal random 1 14
+                # "$prog" 4690000 4 1.6 normal random 1 14  2>'tmp.err'
 
-            # numactl -i all "$prog" "${prog_args[@]}"
-            "$prog" "${prog_args[@]}"
-        fi
+                # numactl -i all "$prog" "${prog_args[@]}"  2>'tmp.err'
+                "$prog" "${prog_args[@]}"  2>'tmp.err'
+                ret="$?"
+            fi
+            cat 'tmp.err'
+            if ((!ret || !force_retry_on_error)); then      # If not retrying then print the error text to be able to notice it.
+                cat 'tmp.err' >&2
+                break
+            fi
+            echo "ERROR: Program exited with error [${ret}], retrying."
+        done
     done
+
+    rm 'tmp.err'
 }
 
 

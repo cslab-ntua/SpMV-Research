@@ -31,10 +31,18 @@ calc_cpu_pinning()
 }
 
 
+SPARSEX_ROOT_DIR="${HOME}/lib"
+# SPARSEX_ROOT_DIR=/various/dgal/epyc1
+# SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
+
+
 declare -A conf_vars
 conf_vars=(
-    ['USE_PROCESSES']=0
-    # ['USE_PROCESSES']=1
+    # ['USE_PROCESSES']=0
+    ['USE_PROCESSES']=1
+
+    # ['force_retry_on_error']=0
+    ['force_retry_on_error']=1
 
     ['output_to_files']=0
     # ['output_to_files']=1
@@ -64,12 +72,12 @@ conf_vars=(
     # ['cores']=48
     # ['cores']=32
     # ['cores']=16
-    ['cores']=8
+    # ['cores']=8
     # ['cores']=4
     # ['cores']='1 2 4 8 16 24 48'
     # ['cores']='24 48'
     # ['cores']=48
-    # ['cores']=24
+    ['cores']=24
     # ['cores']='1 2 4 8'
     # ['cores']=14
     # ['cores']=6
@@ -111,44 +119,42 @@ conf_vars=(
     # These are environment variables that have to be set for SparseX to work
     # Need to install specific library versions
     ['BOOST_INC_PATH']="$( options=(
-                        "${HOME}/lib/boost_1_55_0/bin/include"
-                        '/home/pmpakos/sparsex/boost_1_55_0/local/include'
+                        "${SPARSEX_ROOT_DIR}/boost_1_55_0/bin/include"
+                        "${SPARSEX_ROOT_DIR}/boost_1_55_0/local/include"
                     )
                     find_valid_dir "${options[@]}"
                 )"
     ['BOOST_LIB_PATH']="$( options=(
-                        "${HOME}/lib/boost_1_55_0/bin/lib"
-                        '/home/pmpakos/sparsex/local/lib'
+                        "${SPARSEX_ROOT_DIR}/boost_1_55_0/bin/lib"
+                        "${SPARSEX_ROOT_DIR}/boost_1_55_0/local/lib"
                     )
                     find_valid_dir "${options[@]}"
                 )"
     ['LLVM_INC_PATH']="$( options=(
-                        "${HOME}/lib/llvm-6.0.0/build/include"
-                        '/home/pmpakos/sparsex/llvm-6.0.0/build/include'
+                        "${SPARSEX_ROOT_DIR}/llvm-6.0.0/build/include"
                     )
                     find_valid_dir "${options[@]}"
                 )"
     ['LLVM_LIB_PATH']="$( options=(
-                        "${HOME}/lib/llvm-6.0.0/build/lib"
-                        '/home/pmpakos/sparsex/llvm-6.0.0/build/lib'
+                        "${SPARSEX_ROOT_DIR}/llvm-6.0.0/build/lib"
                     )
                     find_valid_dir "${options[@]}"
                 )"
     ['SPARSEX_CONF_PATH']="$( options=(
-                        "${HOME}/lib/sparsex/build/bin"
-                        '/home/pmpakos/sparsex/build/bin'
+                        "${SPARSEX_ROOT_DIR}/sparsex/build/bin"
+                        "${SPARSEX_ROOT_DIR}/build/bin"
                     )
                     find_valid_dir "${options[@]}"
                 )"
     ['SPARSEX_INC_PATH']="$( options=(
-                        "${HOME}/lib/sparsex/build/include"
-                        '/home/pmpakos/sparsex/build/include'
+                        "${SPARSEX_ROOT_DIR}/sparsex/build/include"
+                        "${SPARSEX_ROOT_DIR}/build/include"
                     )
                     find_valid_dir "${options[@]}"
                 )"
     ['SPARSEX_LIB_PATH']="$( options=(
-                        "${HOME}/lib/sparsex/build/lib"
-                        '/home/pmpakos/sparsex/build/lib'
+                        "${SPARSEX_ROOT_DIR}/sparsex/build/lib"
+                        "${SPARSEX_ROOT_DIR}/build/lib"
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -169,9 +175,10 @@ conf_vars=(
 
     # Path for the openFoam matrices.
     ['path_openFoam']="$( options=(
+                        '/m100_work/ExaF_prod22/wp2-matrices'
+                        "${HOME}/Data/graphs/matrices_openFoam"
                         '/zhome/academic/HLRS/xex/xexdgala/Data/graphs/openFoam'
                         '/various/dgal/graphs/matrices_openFoam'
-                        '/home/jim/Data/graphs/matrices_openFoam'
                     )
                     find_valid_dir "${options[@]}"
                 )"

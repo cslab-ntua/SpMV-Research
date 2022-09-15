@@ -26,5 +26,6 @@ make clean; make -j
 cd ../
 
 ./run.sh
+# ./proc_run.sh
 
 

@@ -121,8 +121,8 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	csx->format_name = (char *) "SparseX";
 
 	// "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v
-	printf("num_threads = %s\n", getenv("OMP_NUM_THREADS"));
-	printf("affinity = %s\n", getenv("GOMP_CPU_AFFINITY"));
+	// printf("num_threads = %s\n", getenv("OMP_NUM_THREADS"));
+	// printf("affinity = %s\n", getenv("GOMP_CPU_AFFINITY"));
 	spx_option_set("spx.rt.nr_threads", getenv("OMP_NUM_THREADS"));
 	spx_option_set("spx.rt.cpu_affinity", getenv("GOMP_CPU_AFFINITY"));
 	spx_option_set("spx.preproc.xform", "all");

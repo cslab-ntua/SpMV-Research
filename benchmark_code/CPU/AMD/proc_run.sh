@@ -25,7 +25,7 @@ export XLSMPOPTS="PROCS=$cpu_affinity"
 export MKL_DEBUG_CPU_TYPE=5
 
 export LD_LIBRARY_PATH="${AOCL_PATH}/lib:${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${SPARSEX_LIB_PATH}"
 
 
 # Encourages idle threads to spin rather than sleep.
@@ -50,36 +50,36 @@ IFS="$IFS_buf"
 
 
 matrices_validation=(
-    "$path_validation"/scircuit.mtx
-    "$path_validation"/mac_econ_fwd500.mtx
-    "$path_validation"/raefsky3.mtx
-    "$path_validation"/bbmat.mtx
-    "$path_validation"/conf5_4-8x8-15.mtx
-    "$path_validation"/mc2depi.mtx
-    "$path_validation"/rma10.mtx
-    "$path_validation"/cop20k_A.mtx
-    "$path_validation"/webbase-1M.mtx
-    "$path_validation"/cant.mtx
-    "$path_validation"/pdb1HYS.mtx
-    "$path_validation"/TSOPF_RS_b300_c3.mtx
-    "$path_validation"/Chebyshev4.mtx
-    "$path_validation"/consph.mtx
-    "$path_validation"/shipsec1.mtx
-    "$path_validation"/PR02R.mtx
-    "$path_validation"/mip1.mtx
-    "$path_validation"/rail4284.mtx
-    "$path_validation"/pwtk.mtx
-    "$path_validation"/crankseg_2.mtx
-    "$path_validation"/Si41Ge41H72.mtx
+    # "$path_validation"/scircuit.mtx
+    # "$path_validation"/mac_econ_fwd500.mtx
+    # "$path_validation"/raefsky3.mtx
+    # "$path_validation"/bbmat.mtx
+    # "$path_validation"/conf5_4-8x8-15.mtx
+    # "$path_validation"/mc2depi.mtx
+    # "$path_validation"/rma10.mtx
+    # "$path_validation"/cop20k_A.mtx
+    # "$path_validation"/webbase-1M.mtx
+    # "$path_validation"/cant.mtx
+    # "$path_validation"/pdb1HYS.mtx
+    # "$path_validation"/TSOPF_RS_b300_c3.mtx
+    # "$path_validation"/Chebyshev4.mtx
+    # "$path_validation"/consph.mtx
+    # "$path_validation"/shipsec1.mtx
+    # "$path_validation"/PR02R.mtx
+    # "$path_validation"/mip1.mtx
+    # "$path_validation"/rail4284.mtx
+    # "$path_validation"/pwtk.mtx
+    # "$path_validation"/crankseg_2.mtx
+    # "$path_validation"/Si41Ge41H72.mtx
     "$path_validation"/TSOPF_RS_b2383.mtx
-    "$path_validation"/in-2004.mtx
-    "$path_validation"/Ga41As41H72.mtx
-    "$path_validation"/eu-2005.mtx
-    "$path_validation"/wikipedia-20051105.mtx
-    "$path_validation"/ldoor.mtx
-    "$path_validation"/circuit5M.mtx
-    "$path_validation"/bone010.mtx
-    "$path_validation"/cage15.mtx
+    # "$path_validation"/in-2004.mtx
+    # "$path_validation"/Ga41As41H72.mtx
+    # "$path_validation"/eu-2005.mtx
+    # "$path_validation"/wikipedia-20051105.mtx
+    # "$path_validation"/ldoor.mtx
+    # "$path_validation"/circuit5M.mtx
+    # "$path_validation"/bone010.mtx
+    # "$path_validation"/cage15.mtx
 )
 
 
@@ -150,17 +150,22 @@ bench()
     do
         pids=()
         count_procs=0
-        > tmp.out
 
         export NUM_PROCESSES="$t"
 
-        "$prog" "${prog_args[@]}" 2>> 'tmp.out'
-
-        cat tmp.out
-        awk "${awk_cmd}" tmp.out 1>&2
-        # echo "num_processes $t"
-        # echo "$out"
+        while :; do
+            "$prog" "${prog_args[@]}"  2>'tmp.err'
+            ret="$?"
+            cat 'tmp.err'
+            if ((!ret || !force_retry_on_error)); then      # If not retrying then print the error text to be able to notice it.
+                awk "${awk_cmd}" 'tmp.err' >&2
+                break
+            fi
+            echo "ERROR: Program exited with error [${ret}], retrying."
+        done
     done
+
+    rm 'tmp.err'
 }
 
 
@@ -251,6 +256,8 @@ for format_name in "${!progs[@]}"; do
         > "${format_name}.csv"
         exec 2>>"${format_name}.csv"
     fi
+
+    echo "$config_str"
 
     echo "program: $p"
     echo "number of matrices: ${#prog_args[@]}"

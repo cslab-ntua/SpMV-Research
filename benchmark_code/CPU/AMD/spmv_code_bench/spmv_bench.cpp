@@ -149,27 +149,25 @@ is_directory(const char *path)
 
 
 int
-get_affinity_from_GOMP_CPU_AFFINITY(int tnum)
+get_pinning_position_from_affinity_string(const char * range_string, long len, int target_pos)
 {
-	char * gomp_aff_str = getenv("GOMP_CPU_AFFINITY");
-	long len = strlen(gomp_aff_str);
 	long pos = 0;
 	int aff = -1;
 	int n1, n2;
 	long i;
 	for (i=0;i<len;)
 	{
-		n1 = atoi(&gomp_aff_str[i]);
-		if (pos == tnum)
+		n1 = atoi(&range_string[i]);
+		if (pos == target_pos)
 		{
 			aff = n1;
 			break;
 		}
-		while ((i < len) && (gomp_aff_str[i] != ',') && (gomp_aff_str[i] != '-'))
+		while ((i < len) && (range_string[i] != ',') && (range_string[i] != '-'))
 			i++;
 		if (i+1 >= len)
 			break;
-		if (gomp_aff_str[i] == ',')
+		if (range_string[i] == ',')
 		{
 			pos++;
 			i++;
@@ -177,16 +175,16 @@ get_affinity_from_GOMP_CPU_AFFINITY(int tnum)
 		else
 		{
 			i++;
-			n2 = atoi(&gomp_aff_str[i]);
+			n2 = atoi(&range_string[i]);
 			if (n2 < n1)
 				error("Bad affinity string format.");
-			if (pos + n2 - n1 >= tnum)
+			if (pos + n2 - n1 >= target_pos)
 			{
-				aff = n1 + tnum - pos;
+				aff = n1 + target_pos - pos;
 				break;
 			}
 			pos += n2 - n1 + 1;
-			while ((i < len) && (gomp_aff_str[i] != ','))
+			while ((i < len) && (range_string[i] != ','))
 				i++;
 			i++;
 			if (i >= len)
@@ -512,11 +510,17 @@ main(int argc, char **argv)
 				error("fork");
 			if (pid == 0)
 			{
+				char * gomp_aff_str = getenv("GOMP_CPU_AFFINITY");
+				long len = strlen(gomp_aff_str);
+				long buf_n = 1000;
+				char buf[buf_n];
 				process_custom_id = j;
-				core = get_affinity_from_GOMP_CPU_AFFINITY(j);
-				// printf("%ld: affinity=%d\n", j, core);
+				core = get_pinning_position_from_affinity_string(gomp_aff_str, len, j);
 				tid = pthread_self();
 				set_affinity(tid, core);
+				snprintf(buf, buf_n, "%d", core);
+				setenv("GOMP_CPU_AFFINITY", buf, 1);  // Also set environment var for other libraries that might try to change affinity themselves.
+				// printf("%ld: affinity=%d\n", j, core);
 				goto child_proc_label;
 			}
 			pids[j] = pid;

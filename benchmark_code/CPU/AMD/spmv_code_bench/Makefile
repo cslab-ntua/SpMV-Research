@@ -69,6 +69,8 @@ CFLAGS += -O3
 CFLAGS += -flto
 ifeq ($(ARCH), x86_64)
     CFLAGS += -march=native
+else ifeq ($(ARCH), ppc64le)
+    CFLAGS += -mcpu=power9
 else
     CFLAGS += -mcpu=native
 endif
