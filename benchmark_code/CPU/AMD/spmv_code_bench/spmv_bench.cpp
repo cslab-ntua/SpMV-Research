@@ -519,7 +519,9 @@ main(int argc, char **argv)
 				tid = pthread_self();
 				set_affinity(tid, core);
 				snprintf(buf, buf_n, "%d", core);
-				setenv("GOMP_CPU_AFFINITY", buf, 1);  // Also set environment var for other libraries that might try to change affinity themselves.
+				setenv("GOMP_CPU_AFFINITY", buf, 1);  // Also set environment variables for other libraries that might try to change affinity themselves.
+				snprintf(buf, buf_n, "PROCS=%d", core);
+				setenv("XLSMPOPTS", buf, 1);
 				// printf("%ld: affinity=%d\n", j, core);
 				goto child_proc_label;
 			}

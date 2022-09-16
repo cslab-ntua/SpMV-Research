@@ -111,11 +111,13 @@ LIB_OBJ := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ))
 
 EXE =
 
-# EXE += spmv_csr_naive.exe
-# EXE += spmv_csr.exe
+EXE += spmv_csr_naive.exe
+EXE += spmv_csr.exe
+EXE += spmv_csr_balanced_distribute_early.exe
 # EXE += spmv_csr_prefetch.exe
 # EXE += spmv_csr_simd.exe
 # EXE += spmv_csr_vector.exe
+# EXE += spmv_csr_vector_perfect_nnz_balance.exe
 
 # EXE += spmv_csr_x86_vector.exe
 # EXE += spmv_csr_x86_vector_queues.exe
@@ -136,9 +138,9 @@ EXE =
 
 # EXE += spmv_csr5.exe
 
-# EXE += spmv_merge.exe
+EXE += spmv_merge.exe
 
-EXE += spmv_sparsex.exe
+# EXE += spmv_sparsex.exe
 
 
 DIRS = obj
@@ -164,6 +166,8 @@ spmv_csr_simd.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_SIMD' $^ -o $@ $(LDFLAGS)
 spmv_csr_vector.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_VECTOR' $^ -o $@ $(LDFLAGS)
+spmv_csr_balanced_distribute_early.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
+	$(CPP) $(CFLAGS_CUSTOM) -D'BALANCED_DISTRIBUTE_EARLY' $^ -o $@ $(LDFLAGS)
 
 spmv_csr_x86_vector.exe: obj/spmv_bench.o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR' $^ -o $@ $(LDFLAGS)

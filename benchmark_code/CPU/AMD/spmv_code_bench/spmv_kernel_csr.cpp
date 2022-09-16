@@ -75,6 +75,7 @@ struct CSRArrays : Matrix_Format
 					thread_i_s[i] -= 1;
 				if (thread_j_e[i] > ia[thread_i_e[i]])
 					thread_i_e[i] += 1;
+				printf("%d: i:[%d,%d] , j:[%d,%d]\n", i, thread_i_s[i], thread_i_e[i], thread_j_s[i], thread_j_e[i]);
 			}
 			#endif
 		);
@@ -99,7 +100,8 @@ struct CSRArrays : Matrix_Format
 
 
 void compute_csr(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
-void compute_csr_omp_prefetch(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
+void compute_csr_balanced_distribute_early(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
+void compute_csr_prefetch(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
 void compute_csr_omp_simd(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
 void compute_csr_vector(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
 void compute_csr_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
@@ -108,8 +110,10 @@ void compute_csr_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * restr
 void
 CSRArrays::spmv(ValueType * x, ValueType * y)
 {
-	#if defined(CUSTOM_PREFETCH)
-		compute_csr_omp_prefetch(this, x, y);
+	#if defined(BALANCED_DISTRIBUTE_EARLY)
+		compute_csr_balanced_distribute_early(this, x, y);
+	#elif defined(CUSTOM_PREFETCH)
+		compute_csr_prefetch(this, x, y);
 	#elif defined(CUSTOM_SIMD)
 		compute_csr_omp_simd(this, x, y);
 	#elif defined(CUSTOM_VECTOR)
@@ -131,6 +135,8 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	csr->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	#if defined(NAIVE)
 		csr->format_name = (char *) "Naive_CSR_CPU";
+	#elif defined(BALANCED_DISTRIBUTE_EARLY)
+		csr->format_name = (char *) "Naive_CSR_BDE";
 	#elif defined(CUSTOM_VECTOR_PERFECT_NNZ_BALANCE)
 		csr->format_name = (char *) "Custom_CSR_PBV";
 	#elif defined(CUSTOM_VECTOR)
@@ -188,6 +194,33 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 
 
 //==========================================================================================================================================
+//= CSR Custom Balanced Distribute Early
+//==========================================================================================================================================
+
+
+void
+compute_csr_balanced_distribute_early(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
+{
+	#pragma omp parallel
+	{
+		int tnum = omp_get_thread_num();
+		ValueType sum;
+		long i, i_s, i_e, j, j_s, j_e;
+		i_s = thread_i_s[tnum];
+		i_e = thread_i_e[tnum];
+		j = csr->ia[i_s];
+		for (i=i_s;i<i_e;i++)
+		{
+			sum = 0;
+			for (;j<csr->ia[i+1];j++)
+				sum += csr->a[j] * x[csr->ja[j]];
+			y[i] = sum;
+		}
+	}
+}
+
+
+//==========================================================================================================================================
 //= CSR Custom Vector Omp Prefetch
 //==========================================================================================================================================
 
@@ -195,7 +228,7 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 // prefetch distance for wikipedia-20051105.mtx on ryzen 3700x is optimized at 64 (!) with locality=3, for about +14% gflops.
 
 void
-compute_csr_omp_prefetch(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
+compute_csr_prefetch(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
 {
 	#pragma omp parallel
 	{

@@ -38,11 +38,11 @@ SPARSEX_ROOT_DIR="${HOME}/lib"
 
 declare -A conf_vars
 conf_vars=(
-    # ['USE_PROCESSES']=0
-    ['USE_PROCESSES']=1
+    ['USE_PROCESSES']=0
+    # ['USE_PROCESSES']=1
 
-    # ['force_retry_on_error']=0
-    ['force_retry_on_error']=1
+    ['force_retry_on_error']=0
+    # ['force_retry_on_error']=1
 
     ['output_to_files']=0
     # ['output_to_files']=1
@@ -72,12 +72,12 @@ conf_vars=(
     # ['cores']=48
     # ['cores']=32
     # ['cores']=16
-    # ['cores']=8
+    ['cores']=8
     # ['cores']=4
     # ['cores']='1 2 4 8 16 24 48'
     # ['cores']='24 48'
     # ['cores']=48
-    ['cores']=24
+    # ['cores']=24
     # ['cores']='1 2 4 8'
     # ['cores']=14
     # ['cores']=6
@@ -248,10 +248,11 @@ declare -A progs
 progs=(
     # Custom csr
     # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
-    # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
+    ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
     # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch.exe"
     # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector.exe"
+    ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_balanced_distribute_early.exe"
 
     # Custom csr x86
     # ['csr_x86_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector.exe"
@@ -268,14 +269,14 @@ progs=(
     # ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5.exe"
 
     # merge spmv
-    # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
+    ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
 
     # sell C sigma
     # ['sell_C_s_d']="${script_dir}/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
     # ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
 
     # sparsex
-    ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex.exe"
+    # ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex.exe"
     # ['sparsex_d']="${script_dir}/spmv_code_sparsex/spmv_sparsex.exe"
     # ['sparsex_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sparsex/spmv_sparsex.exe"
 

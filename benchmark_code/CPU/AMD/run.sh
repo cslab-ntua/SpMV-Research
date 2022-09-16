@@ -72,11 +72,11 @@ matrices_validation=(
     # "$path_validation"/crankseg_2.mtx
     # "$path_validation"/Si41Ge41H72.mtx
     # "$path_validation"/TSOPF_RS_b2383.mtx
-    # "$path_validation"/in-2004.mtx
+    "$path_validation"/in-2004.mtx
     # "$path_validation"/Ga41As41H72.mtx
     # "$path_validation"/eu-2005.mtx
     # "$path_validation"/wikipedia-20051105.mtx
-    "$path_validation"/ldoor.mtx
+    # "$path_validation"/ldoor.mtx
     # "$path_validation"/circuit5M.mtx
     # "$path_validation"/bone010.mtx
     # "$path_validation"/cage15.mtx
