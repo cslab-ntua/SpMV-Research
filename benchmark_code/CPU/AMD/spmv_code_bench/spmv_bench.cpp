@@ -518,10 +518,8 @@ main(int argc, char **argv)
 				core = get_pinning_position_from_affinity_string(gomp_aff_str, len, j);
 				tid = pthread_self();
 				set_affinity(tid, core);
-				snprintf(buf, buf_n, "%d", core);
-				setenv("GOMP_CPU_AFFINITY", buf, 1);  // Also set environment variables for other libraries that might try to change affinity themselves.
-				snprintf(buf, buf_n, "PROCS=%d", core);
-				setenv("XLSMPOPTS", buf, 1);
+				snprintf(buf, buf_n, "%d", core);             // Also set environment variables for other libraries that might try to change affinity themselves.
+				setenv("GOMP_CPU_AFFINITY", buf, 1);          // Setting 'XLSMPOPTS' has no effect after the program has started.
 				// printf("%ld: affinity=%d\n", j, core);
 				goto child_proc_label;
 			}

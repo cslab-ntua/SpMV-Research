@@ -20,7 +20,11 @@ fi
 # GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
 # e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
 export GOMP_CPU_AFFINITY="$cpu_affinity"
-export XLSMPOPTS="PROCS=$cpu_affinity"
+
+# This variable must be set BEFORE the program starts.
+# If we set it then all the processes will be pinned to the first processor given (i.e. 0).
+# As here we set the affinities by hand, there is no need to set it at all.
+# export XLSMPOPTS="PROCS=$cpu_affinity"
 
 export MKL_DEBUG_CPU_TYPE=5
 

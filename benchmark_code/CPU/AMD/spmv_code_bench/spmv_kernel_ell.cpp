@@ -81,13 +81,17 @@ void compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y);
 void
 ELLArrays::spmv(ValueType * x, ValueType * y)
 {
-	// compute_ell(this, x, y);
-	// compute_ell_v(this, x, y);
-	// compute_ell_v_hor(this, x, y);
-	// compute_ell_unroll(this, x, y);
-	// compute_ell_v_hor_split(this, x, y);
-	// compute_ell_transposed(this, x, y);
-	compute_ell_transposed_v(this, x, y);
+	#ifndef __XLC__
+		// compute_ell(this, x, y);
+		// compute_ell_v(this, x, y);
+		// compute_ell_v_hor(this, x, y);
+		// compute_ell_unroll(this, x, y);
+		// compute_ell_v_hor_split(this, x, y);
+		// compute_ell_transposed(this, x, y);
+		compute_ell_transposed_v(this, x, y);
+	#else
+		compute_ell(this, x, y);
+	#endif
 }
 
 
@@ -282,11 +286,12 @@ compute_ell_par(ELLArrays * ell, ValueType * x , ValueType * y)
 	{
 		ValueType sum;
 		long i, j, j_s, j_e;
+		const INT_T width = ell->width;
 		PRAGMA(omp for schedule(static))
 		for (i=0;i<ell->m;i++)
 		{
-			j_s = i * ell->width;
-			j_e = (i + 1) * ell->width;
+			j_s = i * width;
+			j_e = (i + 1) * width;
 			sum = 0;
 			for (j=j_s;j<j_e;j++)
 				sum += ell->a[j] * x[ell->ja[j]];
@@ -301,10 +306,11 @@ compute_ell(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	ValueType sum;
 	long i, j, j_s, j_e;
+	const INT_T width = ell->width;
 	for (i=0;i<ell->m;i++)
 	{
-		j_s = i * ell->width;
-		j_e = (i + 1) * ell->width;
+		j_s = i * width;
+		j_e = (i + 1) * width;
 		sum = 0;
 		for (j=j_s;j<j_e;j++)
 			sum += ell->a[j] * x[ell->ja[j]];
@@ -320,11 +326,12 @@ compute_ell_unroll(ELLArrays * ell, ValueType * x , ValueType * y)
 	long i, j, j_s, j_e, j_unroll, j_unroll_width;
 	long unroll = 4;
 	const long mask = ~(((long) unroll) - 1);      // unroll is a power of 2.
-	j_unroll_width = ell->width & mask;
+	const INT_T width = ell->width;
+	j_unroll_width = width & mask;
 	for (i=0;i<ell->m;i++)
 	{
-		j_s = i * ell->width;
-		j_e = (i + 1) * ell->width;
+		j_s = i * width;
+		j_e = (i + 1) * width;
 		j_unroll = j_s + j_unroll_width;
 		sum = 0;
 		for (j=j_s;j<j_unroll;j+=unroll)
@@ -342,6 +349,24 @@ compute_ell_unroll(ELLArrays * ell, ValueType * x , ValueType * y)
 
 
 void
+compute_ell_transposed(ELLArrays * ell, ValueType * x , ValueType * y)
+{
+	long i, j, row;
+	const INT_T width = ell->width;
+	for (i=0;i<ell->n;i++)
+		y[i] = 0;
+	for (i=0;i<ell->width;i++)
+	{
+		PRAGMA(GCC ivdep)
+		for (row=0,j=i*ell->m;j<(i + 1)*ell->m;row++,j++)
+			y[row] += ell->a[j] * x[ell->ja[j]];
+	}
+}
+
+
+#ifndef __XLC__
+
+void
 compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, i_vector, j, j_s, j_e, k;
@@ -349,12 +374,13 @@ compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 	Vector_Value_t zero = {0};
 	__attribute__((unused)) Vector_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
+	const INT_T width = ell->width;
 	i_vector = ell->m & mask;
 	for (i=0;i<i_vector;i+=VECTOR_ELEM_NUM)
 	{
 		v_sum = zero;
-		j_s = i * ell->width;
-		j_e = (i + 1) * ell->width;
+		j_s = i * width;
+		j_e = (i + 1) * width;
 		for (j=j_s;j<j_e;j++)
 		{
 
@@ -362,7 +388,7 @@ compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 			PRAGMA(GCC ivdep)
 			for (k=0;k<VECTOR_ELEM_NUM;k++)
 			{
-				v_mul[k] = ell->a[j+k*ell->width] * x[ell->ja[j+k*ell->width]];
+				v_mul[k] = ell->a[j+k*width] * x[ell->ja[j+k*width]];
 			}
 			v_sum += v_mul;
 
@@ -370,8 +396,8 @@ compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 			// PRAGMA(GCC ivdep)
 			// for (k=0;k<VECTOR_ELEM_NUM;k++)
 			// {
-				// v_a[k] = ell->a[j+k*ell->width] ;
-				// v_x[k] = x[ell->ja[j+k*ell->width]];
+				// v_a[k] = ell->a[j+k*width] ;
+				// v_x[k] = x[ell->ja[j+k*width]];
 			// }
 			// v_sum += v_a * v_x;
 
@@ -380,8 +406,8 @@ compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 	}
 	for (i=i_vector;i<ell->m;i++)
 	{
-		j_s = i * ell->width;
-		j_e = (i + 1) * ell->width;
+		j_s = i * width;
+		j_e = (i + 1) * width;
 		sum = 0;
 		for (j=j_s;j<j_e;j++)
 			sum += ell->a[j] * x[ell->ja[j]];
@@ -398,12 +424,13 @@ compute_ell_v_hor(ELLArrays * ell, ValueType * x , ValueType * y)
 	Vector_Value_t zero = {0};
 	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
-	j_vector_width = ell->width & mask;
+	const INT_T width = ell->width;
+	j_vector_width = width & mask;
 	for (i=0;i<ell->m;i++)
 	{
 		v_sum = zero;
-		j_s = i * ell->width;
-		j_e = (i + 1) * ell->width;
+		j_s = i * width;
+		j_e = (i + 1) * width;
 		j_e_vector = j_s + j_vector_width;
 		for (j=j_s;j<j_e_vector;j+=VECTOR_ELEM_NUM)
 		{
@@ -434,11 +461,12 @@ compute_ell_v_hor_split(ELLArrays * ell, ValueType * x , ValueType * y)
 	Vector_Value_t zero = {0};
 	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
-	j_vector_width = ell->width & mask;
+	const INT_T width = ell->width;
+	j_vector_width = width & mask;
 	for (i=0;i<ell->m;i++)
 	{
 		v_sum = zero;
-		j_s = i * ell->width;
+		j_s = i * width;
 		j_e_vector = j_s + j_vector_width;
 		for (j=j_s;j<j_e_vector;j+=VECTOR_ELEM_NUM)
 		{
@@ -457,26 +485,11 @@ compute_ell_v_hor_split(ELLArrays * ell, ValueType * x , ValueType * y)
 	}
 	for (i=0;i<ell->m;i++)
 	{
-		j_s = i * ell->width;
-		j_e = (i + 1) * ell->width;
+		j_s = i * width;
+		j_e = (i + 1) * width;
 		j_e_vector = j_s + j_vector_width;
 		for (j=j_e_vector;j<j_e;j++)
 			y[i] += ell->a[j] * x[ell->ja[j]];
-	}
-}
-
-
-void
-compute_ell_transposed(ELLArrays * ell, ValueType * x , ValueType * y)
-{
-	long i, j, row;
-	for (i=0;i<ell->n;i++)
-		y[i] = 0;
-	for (i=0;i<ell->width;i++)
-	{
-		PRAGMA(GCC ivdep)
-		for (row=0,j=i*ell->m;j<(i + 1)*ell->m;row++,j++)
-			y[row] += ell->a[j] * x[ell->ja[j]];
 	}
 }
 
@@ -489,6 +502,7 @@ compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 	Vector_Value_t zero = {0};
 	__attribute__((unused)) Vector_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
+	const INT_T width = ell->width;
 	i_vector = ell->m & mask;
 	PRAGMA(GCC unroll VECTOR_ELEM_NUM)
 	PRAGMA(GCC ivdep)
@@ -496,7 +510,7 @@ compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 	{
 		v_sum = zero;
 		j_s = i;
-		j_e = i + (ell->width) * ell->m;
+		j_e = i + (width) * ell->m;
 		for (j=j_s;j<j_e;j+=ell->m)
 		{
 
@@ -530,4 +544,7 @@ compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 		y[i] = sum;
 	}
 }
+
+
+#endif /* __XLC__ */
 
