@@ -111,17 +111,17 @@ LIB_OBJ := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ))
 
 EXE =
 
-EXE += spmv_csr_naive.exe
-EXE += spmv_csr.exe
-EXE += spmv_csr_balanced_distribute_early.exe
+# EXE += spmv_csr_naive.exe
+# EXE += spmv_csr.exe
+# EXE += spmv_csr_balanced_distribute_early.exe
 # EXE += spmv_csr_prefetch.exe
 # EXE += spmv_csr_simd.exe
 # EXE += spmv_csr_vector.exe
 # EXE += spmv_csr_vector_perfect_nnz_balance.exe
 
-# EXE += spmv_csr_x86_vector.exe
+EXE += spmv_csr_x86_vector.exe
 # EXE += spmv_csr_x86_vector_queues.exe
-# EXE += spmv_csr_x86_vector_perfect_nnz_balance.exe
+EXE += spmv_csr_x86_vector_perfect_nnz_balance.exe
 
 # EXE += spmv_dia.exe
 # EXE += spmv_ldu.exe

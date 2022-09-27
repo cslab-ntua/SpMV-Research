@@ -248,16 +248,16 @@ declare -A progs
 progs=(
     # Custom csr
     # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
-    ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
+    # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
     # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch.exe"
     # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector.exe"
-    ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_balanced_distribute_early.exe"
+    # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_balanced_distribute_early.exe"
 
     # Custom csr x86
     # ['csr_x86_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector.exe"
     # ['csr_x86_vector_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_queues.exe"
-    # ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
+    ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
 
     # MKL IE
     # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
@@ -269,7 +269,7 @@ progs=(
     # ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5.exe"
 
     # merge spmv
-    ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
+    # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
 
     # sell C sigma
     # ['sell_C_s_d']="${script_dir}/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
