@@ -253,11 +253,12 @@ progs=(
     # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_balanced_distribute_early.exe"
+    ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance.exe"
 
     # Custom csr x86
     # ['csr_x86_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector.exe"
     # ['csr_x86_vector_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_queues.exe"
-    ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
+    # ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
 
     # MKL IE
     # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"

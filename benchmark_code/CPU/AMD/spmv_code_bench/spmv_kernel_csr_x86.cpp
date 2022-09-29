@@ -59,15 +59,16 @@ struct CSRArrays : Matrix_Format
 				}
 				else
 				{
-					loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
-					// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+					#ifdef CUSTOM_X86_VECTOR_PERFECT_NNZ_BALANCE
+						loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
+						thread_i_s[tnum] = binary_search(ia, 0, m-1, thread_j_s[tnum], NULL, NULL);           // Index boundaries are inclusive.
+						thread_i_e[tnum] = binary_search(ia, 0, m-1, thread_j_e[tnum]-1, NULL, NULL) + 1;     // Index boundaries are inclusive.
+						// printf("%d: i_s=%d i_e=%d j_s=%d j_e=%d\n", tnum, thread_i_s[tnum], thread_i_e[tnum], thread_j_s[tnum], thread_j_e[tnum]);
+					#else
+						loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+						// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+					#endif
 				}
-				#ifdef CUSTOM_X86_VECTOR_PERFECT_NNZ_BALANCE
-					loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
-					thread_i_s[tnum] = binary_search(ia, 0, m-1, thread_j_s[tnum], NULL, NULL);           // Index boundaries are inclusive.
-					thread_i_e[tnum] = binary_search(ia, 0, m-1, thread_j_e[tnum]-1, NULL, NULL) + 1;     // Index boundaries are inclusive.
-					// printf("%d: i_s=%d i_e=%d j_s=%d j_e=%d\n", tnum, thread_i_s[tnum], thread_i_e[tnum], thread_j_s[tnum], thread_j_e[tnum]);
-				#endif
 			}
 		);
 		printf("balance time = %g\n", time_balance);
@@ -208,14 +209,14 @@ hsum512_pd(__m512d v_512d)
 
 
 //==========================================================================================================================================
-//= Subkernels Single Row CSR Vector x86
+//= Subkernels Single Row CSR x86
 //==========================================================================================================================================
 
 
 __attribute__((hot,pure))
 static inline
 double
-subkernel_row_csr_vector_x86_scalar(CSRArrays * restrict csr, ValueType * restrict x, long j_s, long j_e)
+subkernel_row_csr_scalar(CSRArrays * restrict csr, ValueType * restrict x, long j_s, long j_e)
 {
 	ValueType sum;
 	long j;
@@ -327,18 +328,18 @@ subkernel_row_csr_vector_x86(CSRArrays * restrict csr, ValueType * restrict x, l
 	#elif defined(__AVX__)
 	return subkernel_row_csr_vector_x86_128d(csr, x, j_s, j_e);
 	#else
-	return subkernel_row_csr_vector_x86_scalar(csr, x, j_s, j_e);
+	return subkernel_row_csr_scalar(csr, x, j_s, j_e);
 	#endif
 }
 
 
 //==========================================================================================================================================
-//= Subkernels CSR Vector x86
+//= Subkernels CSR x86
 //==========================================================================================================================================
 
 
 void
-subkernel_csr_vector_x86_scalar(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
+subkernel_csr_scalar(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
 {
 	ValueType sum;
 	long i, j, j_s, j_e;
@@ -375,7 +376,7 @@ subkernel_csr_vector_x86_128d(CSRArrays * restrict csr, ValueType * restrict x, 
 		y[i] = subkernel_row_csr_vector_x86_128d(csr, x, j_s, j_e);
 	}
 	#else
-	subkernel_csr_vector_x86_scalar(csr, x, y, i_s, i_e);
+	subkernel_csr_scalar(csr, x, y, i_s, i_e);
 	#endif
 }
 
@@ -398,7 +399,7 @@ subkernel_csr_vector_x86_256d(CSRArrays * restrict csr, ValueType * restrict x, 
 	#elif defined(__AVX__)
 	subkernel_csr_vector_x86_128d(csr, x, y, i_s, i_e);
 	#else
-	subkernel_csr_vector_x86_scalar(csr, x, y, i_s, i_e);
+	subkernel_csr_scalar(csr, x, y, i_s, i_e);
 	#endif
 }
 
@@ -423,13 +424,13 @@ subkernel_csr_vector_x86_512d(CSRArrays * restrict csr, ValueType * restrict x, 
 	#elif defined(__AVX__)
 	subkernel_csr_vector_x86_128d(csr, x, y, i_s, i_e);
 	#else
-	subkernel_csr_vector_x86_scalar(csr, x, y, i_s, i_e);
+	subkernel_csr_scalar(csr, x, y, i_s, i_e);
 	#endif
 }
 
 
 //==========================================================================================================================================
-//= CSR Vector x86
+//= CSR x86
 //==========================================================================================================================================
 
 
@@ -443,7 +444,7 @@ subkernel_csr_density(CSRArrays * restrict csr, ValueType * restrict x, ValueTyp
 	if (density < 4)
 	{
 		// printf("%d: scalar %lf\n", tnum, density);
-		subkernel_csr_vector_x86_scalar(csr, x, y, i_s, i_e);
+		subkernel_csr_scalar(csr, x, y, i_s, i_e);
 	}
 	else if (density < 8)
 	{
@@ -478,7 +479,7 @@ compute_csr_vector_x86(CSRArrays * restrict csr, ValueType * restrict x, ValueTy
 
 
 //==========================================================================================================================================
-//= CSR Queues
+//= CSR x86 Queues
 //==========================================================================================================================================
 
 
@@ -580,7 +581,7 @@ compute_csr_vector_x86_queues(CSRArrays * restrict csr, ValueType * restrict x, 
 
 
 //==========================================================================================================================================
-//= CSR Perfect NNZ Balance
+//= CSR x86 Perfect NNZ Balance
 //==========================================================================================================================================
 
 
