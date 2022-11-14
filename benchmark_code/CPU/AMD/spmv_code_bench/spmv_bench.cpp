@@ -689,6 +689,7 @@ child_proc_label:
 		{
 			// fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);
 			compute(matrix_name, MF, AM, x, y);
+			// compute(matrix_name, MF, AM, x, y, 1);
 			// compute(matrix_name, MF, AM, x, y, 128 * 10);
 			prefetch_distance++;
 		}

@@ -142,7 +142,7 @@ typedef CSR_GEN_TYPE_2  _TYPE_I;
 void
 csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz)
 {
-	int num_threads = safe_omp_get_num_threads_next_par_region();
+	int num_threads = safe_omp_get_num_threads_external();
 	_TYPE_I * permutation, * C;
 	_TYPE_V * V;
 	long thread_i_s[num_threads];
@@ -318,7 +318,7 @@ coo_to_csr_fully_sorted(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, __attribu
 		for (i=0;i<nnz;i++)
 			__atomic_fetch_add(&offsets[R[i]], 1, __ATOMIC_RELAXED);
 	}
-	scan(offsets, row_ptr, m+1, 0, 1);
+	scan_reduce(offsets, row_ptr, m+1, 0, 1);
 	#pragma omp parallel
 	{
 		long i;

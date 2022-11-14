@@ -92,7 +92,7 @@ typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
  *
  * Saving the bucket ids to an array doesn't seem to deteriorate performance.
  *
- * scan:
+ * scan_reduce:
  *     - It doesn't seem to affect performance (compared to reimplementing the add-reduction here).
  *     - To num_buckets+1, so that offsets[num_buckets] = N.
  *     - start_from_zero=0 (start from the first element), to sub 1 for each element after and end up with usable offsets to return.
@@ -120,7 +120,7 @@ typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
 		// offsets[b]++;
 		// permutation_out[i] = 0;
 	// }
-	// scan_serial(offsets, offsets, num_buckets+1, 0, 0);
+	// scan_reduce_serial(offsets, offsets, num_buckets+1, 0, 0);
 	// for (i=N-1;i>=0;i--)
 	// {
 		// b = A_bucket_id[i];
@@ -155,7 +155,7 @@ bucketsort_stable_serial(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buc
 		offsets[b]++;
 		permutation_out[i] = 0;
 	}
-	scan_serial(offsets, offsets, num_buckets+1, 0, 0);
+	scan_reduce_serial(offsets, offsets, num_buckets+1, 0, 0, 0);       // _TYPE scan_reduce_serial(_TYPE * A, _TYPE * P, long N, _TYPE zero, const int start_from_zero, const int backwards);
 	for (i=N-1;i>=0;i--)
 	{
 		b = A_bucket_id[i];
@@ -197,8 +197,8 @@ bucketsort(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD
 			permutation_out[i] = 0;
 		}
 	}
-	// scan_serial(offsets, offsets, num_buckets+1, 0, 0);
-	scan(offsets, offsets, num_buckets+1, 0, 0);
+	// scan_reduce_serial(offsets, offsets, num_buckets+1, 0, 0);
+	scan_reduce(offsets, offsets, num_buckets+1, 0, 0);
 	#pragma omp parallel
 	{
 		_TYPE_BUCKET_I b;
@@ -224,7 +224,7 @@ bucketsort(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD
 _TYPE_I *
 bucketsort2(_TYPE_V * A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data, _TYPE_I ** offsets_out)
 {
-	int num_threads = safe_omp_get_num_threads_next_par_region();
+	int num_threads = safe_omp_get_num_threads_external();
 	_TYPE_I * permutation;
 	_TYPE_I * offsets;
 	_TYPE_I t_base[num_threads];

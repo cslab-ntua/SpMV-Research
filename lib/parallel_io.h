@@ -24,7 +24,10 @@ void file_atoms_clean(struct File_Atoms * obj);
 void file_atoms_destroy(struct File_Atoms ** obj_ptr);
 
 void file_to_atoms(struct File_Atoms * A, const char * filename, void string_delimiter(char *, long), int keep_empty);
+void file_to_atoms_no_mmap(struct File_Atoms * A, const char * filename, void string_delimiter(char *, long), int keep_empty);
+
 void file_to_words(struct File_Atoms * A, const char * filename, int keep_empty);
+void file_csv_to_words(struct File_Atoms * A, const char * filename, int keep_empty);
 void file_to_lines(struct File_Atoms * A, const char * filename, int keep_empty);
 void file_to_string(struct File_Atoms * A, const char * filename);
 void file_to_raw_data(struct File_Atoms * A, const char * filename);

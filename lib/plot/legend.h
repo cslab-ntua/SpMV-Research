@@ -11,7 +11,7 @@ static
 void
 add_legend(struct Figure * fig, char * filename)
 {
-	char * title = fig->title;
+	char * title = fig->legend_conf.title;
 	char * cmd;
 	long cmd_n;
 	int ret;
@@ -86,7 +86,7 @@ add_legend(struct Figure * fig, char * filename)
 	int label_l_y = space_v;
 	double text_ld = fig->y_min;
 	double text_lu = fig->y_max;
-	char * percentage_sign_y = fig->y_in_percentages ? "%" : "";
+	char * percentage_sign_y = fig->legend_conf.y_in_percentages ? "%" : "";
 	if (fig->axes_flip_y)
 	{
 		text_ld = fig->y_max;
@@ -101,7 +101,7 @@ add_legend(struct Figure * fig, char * filename)
 	int label_d_y = space_v - pointsize_small - text_spacer;
 	double text_dl = fig->x_min;
 	double text_dr = fig->x_max;
-	char * percentage_sign_x = fig->x_in_percentages ? "%" : "";
+	char * percentage_sign_x = fig->legend_conf.x_in_percentages ? "%" : "";
 	i += snprintf(cmd+i, cmd_n-i, " -gravity southwest");
 	i += snprintf(cmd+i, cmd_n-i, " -draw \"text %d,%d '%g%s'\"", label_dl_x, label_d_y, text_dl, percentage_sign_x);
 	i += snprintf(cmd+i, cmd_n-i, " -gravity southeast");

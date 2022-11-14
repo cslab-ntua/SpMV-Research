@@ -26,9 +26,11 @@
 //==========================================================================================================================================
 
 
-#define str_assert_string_termination(str, N)          \
+#define str_assert_string_compliance(str, N)          \
 do {                                                   \
-	if (N <= 0)                                    \
+	if (str == NULL)                               \
+		error("NULL char pointer");            \
+	else if (N <= 0)                               \
 		error("empty string given");           \
 	else if (str[N-1] != 0)                        \
 		error("unterminated string given");    \
@@ -36,7 +38,7 @@ do {                                                   \
 
 
 //==========================================================================================================================================
-//= Characters Groups
+//= Character Groups
 //==========================================================================================================================================
 
 
@@ -58,6 +60,40 @@ str_char_is_ws(const char c)
 		default:
 			return 0;
 	}
+}
+
+
+//==========================================================================================================================================
+//= Character Conversions
+//==========================================================================================================================================
+
+
+// Returns the number of chars written.
+static inline
+long
+str_char_hex_to_bin_unsafe(const char c_hex, char * buf)
+{
+	switch (c_hex) {
+		case '0':           buf[0] = '0'; buf[1] = '0'; buf[2] = '0'; buf[3] = '0'; break;
+		case '1':           buf[0] = '0'; buf[1] = '0'; buf[2] = '0'; buf[3] = '1'; break;
+		case '2':           buf[0] = '0'; buf[1] = '0'; buf[2] = '1'; buf[3] = '0'; break;
+		case '3':           buf[0] = '0'; buf[1] = '0'; buf[2] = '1'; buf[3] = '1'; break;
+		case '4':           buf[0] = '0'; buf[1] = '1'; buf[2] = '0'; buf[3] = '0'; break;
+		case '5':           buf[0] = '0'; buf[1] = '1'; buf[2] = '0'; buf[3] = '1'; break;
+		case '6':           buf[0] = '0'; buf[1] = '1'; buf[2] = '1'; buf[3] = '0'; break;
+		case '7':           buf[0] = '0'; buf[1] = '1'; buf[2] = '1'; buf[3] = '1'; break;
+		case '8':           buf[0] = '1'; buf[1] = '0'; buf[2] = '0'; buf[3] = '0'; break;
+		case '9':           buf[0] = '1'; buf[1] = '0'; buf[2] = '0'; buf[3] = '1'; break;
+		case 'A': case 'a': buf[0] = '1'; buf[1] = '0'; buf[2] = '1'; buf[3] = '0'; break;
+		case 'B': case 'b': buf[0] = '1'; buf[1] = '0'; buf[2] = '1'; buf[3] = '1'; break;
+		case 'C': case 'c': buf[0] = '1'; buf[1] = '1'; buf[2] = '0'; buf[3] = '0'; break;
+		case 'D': case 'd': buf[0] = '1'; buf[1] = '1'; buf[2] = '0'; buf[3] = '1'; break;
+		case 'E': case 'e': buf[0] = '1'; buf[1] = '1'; buf[2] = '1'; buf[3] = '0'; break;
+		case 'F': case 'f': buf[0] = '1'; buf[1] = '1'; buf[2] = '1'; buf[3] = '1'; break;
+		default:
+			return 0;
+		}
+	return 4;
 }
 
 
@@ -157,15 +193,15 @@ str_search_term_init(struct str_Search_Term * search_term, const char * str, lon
 	long * pmt;
 	char * term;
 	term = (typeof(term)) malloc(N * sizeof(*term));
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wstringop-truncation"
+	// #pragma GCC diagnostic push
+	// #pragma GCC diagnostic ignored "-Wstringop-truncation"
 	strncpy(term, str, N);
-	#pragma GCC diagnostic pop
+	// #pragma GCC diagnostic pop
 	pmt = (typeof(pmt)) malloc((N+1) * sizeof(*pmt));     // +1, for backtracking in success, when looking for multiple occurrences.
 	pmt[0] = -1;
 	for (i=1,j=0;i<N+1;i++,j++)
 	{
-		if (term[i] == term[j])        // Same as next character after the current common prefix, so the common prefix grows.
+		if (term[i] == term[j])      // Same as next character after the current common prefix, so the common prefix grows.
 			pmt[i] = pmt[j];     // If we fail here we fail twice and backtrack again.
 		else
 		{
@@ -199,6 +235,8 @@ static inline
 void
 str_search_term_clean(struct str_Search_Term * search_term)
 {
+	if (search_term == NULL)
+		return;
 	free(search_term->pmt);
 	search_term->pmt = NULL;
 }
@@ -208,34 +246,11 @@ static inline
 void
 str_search_term_destroy(struct str_Search_Term ** st_ptr)
 {
+	if (st_ptr == NULL)
+		return;
 	str_search_term_clean(*st_ptr);
 	free(*st_ptr);
 	*st_ptr = NULL;
-}
-
-
-static inline
-long
-str_find_substr_simple(const char * str, long N, const char * substr, long M)
-{
-	char c_first;
-	long i = 0, j;
-	printf("lalala\n");
-	if (M <= 0 || M > N)
-		return N;
-	c_first = substr[0];
-	while (1)
-	{
-		i += str_find_char_from_start(str+i, N-i, c_first);
-		if (i + M > N)
-			return N;
-		for (j=0;j<M;j++)
-			if (str[i+j] != substr[j])
-				break;
-		if (j == M)
-			return i;
-		i++;
-	}
 }
 
 
@@ -276,13 +291,45 @@ str_find_substr_kmp(const char * str, long N, struct str_Search_Term * search_te
 }
 
 
-#define str_find_substr(str, N, search_term, ...)                                                                                            \
-({                                                                                                                                           \
-	_Generic((search_term),                                                                                                              \
-		struct str_Search_Term *:  str_find_substr_kmp(str, N, (struct str_Search_Term *) search_term),                              \
-		char *: str_find_substr_simple(str, N, (char *) search_term, DEFAULT_ARG_1(strlen((char *) search_term), ##__VA_ARGS__)),    \
-		default: NULL                                                                                                                \
-	);                                                                                                                                   \
+static inline
+long
+str_find_substr_simple(const char * str, long N, const char * substr, long M)
+{
+	char c_first;
+	long i = 0, j;
+	if (M <= 0 || M > N)
+		return N;
+	// char * ss = memmem(str, N, substr, M);         // GNU specific: #include _GNU_SOURCE
+	// if (ss == NULL)
+		// return N;
+	// else
+		// return ss - str;
+	c_first = substr[0];
+	while (1)
+	{
+		i += str_find_char_from_start(str+i, N-i, c_first);
+		if (i + M > N)
+			return N;
+		for (j=0;j<M;j++)
+			if (str[i+j] != substr[j])
+				break;
+		if (j == M)
+			return i;
+		i++;
+	}
+}
+
+
+#define str_find_substr(str, N, search_term, ...)                                                                                                           \
+({                                                                                                                                                          \
+	_Generic((search_term),                                                                                                                             \
+		struct str_Search_Term *:  str_find_substr_kmp(str, N, (struct str_Search_Term *) search_term),                                             \
+		char *:                str_find_substr_simple(str, N, (char *) search_term, DEFAULT_ARG_1(strlen((char *) search_term), ##__VA_ARGS__)),    \
+		const char *:          str_find_substr_simple(str, N, (char *) search_term, DEFAULT_ARG_1(strlen((char *) search_term), ##__VA_ARGS__)),    \
+		unsigned char *:       str_find_substr_simple(str, N, (char *) search_term, DEFAULT_ARG_1(strlen((char *) search_term), ##__VA_ARGS__)),    \
+		const unsigned char *: str_find_substr_simple(str, N, (char *) search_term, DEFAULT_ARG_1(strlen((char *) search_term), ##__VA_ARGS__)),    \
+		default: 0                                                                                                                                  \
+	);                                                                                                                                                  \
 })
 
 
@@ -296,7 +343,7 @@ char *
 str_path_strip_tail(char * str, long N)
 {
 	long i;
-	str_assert_string_termination(str, N);
+	str_assert_string_compliance(str, N);
 	i = str_find_char_from_end(str, N, '/');
 	if (i < 0)
 		return str + N - 1;
@@ -310,7 +357,7 @@ char *
 str_path_strip_ext(char * str, long N)
 {
 	long i;
-	str_assert_string_termination(str, N);
+	str_assert_string_compliance(str, N);
 	i = str_find_char_from_end(str, N, '.');
 	if (i <= 0 || str[i-1] == '/')      // If tail starts with '.' it is not an extension, it is a hidden file.
 		return str + N - 1;
@@ -324,9 +371,10 @@ str_path_strip_ext(char * str, long N)
 //==========================================================================================================================================
 
 
-void str_delimiter_word(char * str, long N);
-void str_delimiter_line(char * str, long N);
 void str_delimiter_eof(char * str, long N);
+void str_delimiter_line(char * str, long N);
+void str_delimiter_word(char * str, long N);
+void str_delimiter_csv(char * str, long N);
 
 void str_tokenize(char * str, long N, void string_delimiter(char *, long), int keep_empty, char *** tokens_out, long ** tokens_lengths_out, long * total_tokens_out);
 

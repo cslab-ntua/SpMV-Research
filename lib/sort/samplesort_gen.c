@@ -205,7 +205,7 @@ next_pow_of_2(_TYPE_I n)
 void
 samplesort(_TYPE_V * A, _TYPE_I N, _TYPE_AD * aux_data)
 {
-	int num_threads = safe_omp_get_num_threads_next_par_region();
+	int num_threads = safe_omp_get_num_threads_external();
 	// _TYPE_I num_splitters = 2 * next_pow_of_2(num_threads) - 1;
 	_TYPE_I num_splitters = 8 * next_pow_of_2(num_threads) - 1;
 	// _TYPE_I num_splitters = 16 * next_pow_of_2(num_threads) - 1;

@@ -61,10 +61,48 @@ struct CSRArrays : Matrix_Format
 					else
 					{
 						#ifdef CUSTOM_VECTOR_PERFECT_NNZ_BALANCE
+							long lower_boundary;
+							// long higher_boundary;
 							loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
-							thread_i_s[tnum] = binary_search(ia, 0, m-1, thread_j_s[tnum], NULL, NULL);           // Index boundaries are inclusive.
-							thread_i_e[tnum] = binary_search(ia, 0, m-1, thread_j_e[tnum]-1, NULL, NULL) + 1;     // Index boundaries are inclusive.
-							// printf("%d: i_s=%d i_e=%d j_s=%d j_e=%d\n", tnum, thread_i_s[tnum], thread_i_e[tnum], thread_j_s[tnum], thread_j_e[tnum]);
+							binary_search(ia, 0, m, thread_j_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
+							thread_i_s[tnum] = lower_boundary;
+							// binary_search(ia, 0, m, thread_j_e[tnum] - 1, NULL, &higher_boundary);     // Index boundaries are inclusive.
+							// thread_i_e[tnum] = higher_boundary;
+							_Pragma("omp barrier")
+							if (tnum == num_threads - 1)   // If we calculate each thread's boundaries individually some empty rows might be unassigned.
+								thread_i_e[tnum] = m;
+							else
+								thread_i_e[tnum] = thread_i_s[tnum+1] + 1;
+							// _Pragma("omp single")
+							// {
+								// this->ia = (INT_T *) aligned_alloc(64, (m+1 + VECTOR_ELEM_NUM) * sizeof(INT_T));
+							// }
+							// _Pragma("omp barrier")
+							// for (long i=thread_i_s[tnum];i<thread_i_e[tnum];i++)
+								// this->ia[i] = ia[i];
+							// if (tnum == num_threads - 1)
+								// this->ia[m] = ia[m];
+							#if 0
+								_Pragma("omp barrier")
+								_Pragma("omp single")
+								{
+									int i_s, i_e, j_s, j_e, t;
+									for (t=0;t<num_threads;t++)
+									{
+										i_s = thread_i_s[t];
+										i_e = thread_i_e[t];
+										j_s = thread_j_s[t];
+										j_e = thread_j_e[t];
+										printf("%3d:  i=[%7d,%7d]  |  j=[%7d,%7d] (%7d)  ,  ia[i]=[%7d,%7d] (%7d)  ,  ia[i+1]=[%7d,%7d]\n",
+											t,
+											i_s, i_e,
+											j_s, j_e, (j_e - j_s),
+											ia[i_s], ia[i_e], (ia[i_e] - ia[i_s]),
+											ia[i_s+1], ia[i_e+1]
+										);
+									}
+								}
+							#endif
 						#else
 							loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 							// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
@@ -205,20 +243,40 @@ subkernel_row_csr_vector(CSRArrays * restrict csr, ValueType * restrict x, INT_T
 //==========================================================================================================================================
 
 
+// void
+// subkernel_csr_scalar(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
+// {
+	// ValueType sum;
+	// long i, j, j_s, j_e;
+	// j_e = csr->ia[i_s];
+	// for (i=i_s;i<i_e;i++)
+	// {
+		// y[i] = 0;
+		// j_s = j_e;
+		// j_e = csr->ia[i+1];
+		// if (j_s == j_e)
+			// continue;
+		// sum = 0;
+		// for (j=j_s;j<j_e;j++)
+		// {
+			// sum += csr->a[j] * x[csr->ja[j]];
+		// }
+		// y[i] = sum;
+	// }
+// }
+
+
 void
 subkernel_csr_scalar(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
 {
 	ValueType sum;
-	long i, j, j_s, j_e;
-	j_e = csr->ia[i_s];
+	long i, j, j_e;
+	j = csr->ia[i_s];
 	for (i=i_s;i<i_e;i++)
 	{
-		j_s = j_e;
 		j_e = csr->ia[i+1];
-		if (j_s == j_e)
-			continue;
 		sum = 0;
-		for (j=j_s;j<j_e;j++)
+		for (;j<j_e;j++)
 		{
 			sum += csr->a[j] * x[csr->ja[j]];
 		}
@@ -528,6 +586,8 @@ compute_csr_vector_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * res
 			y[i] = 0;
 			j_s = csr->ia[i];
 			j_e = csr->ia[i+1];
+			if (thread_j_s[tnum] > j_s)
+				j_s = thread_j_s[tnum];
 			if (thread_j_e[tnum] < j_e)
 				j_e = thread_j_e[tnum];
 			if (j_s < j_e)

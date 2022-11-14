@@ -200,9 +200,12 @@ void safe_PAPI_cleanup_eventset(int EventSet)
 
 
 static inline
-void safe_PAPI_destroy_eventset(int *EventSet)
+void safe_PAPI_destroy_eventset(int * EventSet)
 {
-	int ret = PAPI_destroy_eventset(EventSet);
+	int ret;
+	if (EventSet == NULL)
+		return;
+	ret = PAPI_destroy_eventset(EventSet);
 	if (ret != PAPI_OK)
 		error("PAPI_ERROR in PAPI_destroy_eventset: %s\n", PAPI_strerror(ret));
 }

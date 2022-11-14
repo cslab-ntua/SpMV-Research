@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "string_util.h"
 
 #include "debug.h"
@@ -16,37 +17,45 @@
 
 
 void
-str_delimiter_word(char * str, long N)
+str_delimiter_eof(__attribute__((unused)) char * str, __attribute__((unused)) long N)
 {
-	long num = 0;
-	long i;
-	for (i=0;i<N;i++)
-		if (str_char_is_ws(str[i]))
-		{
-			str[i] = 0;
-			num++;
-		}
+	return;
 }
 
 
 void
 str_delimiter_line(char * str, long N)
 {
-	long num = 0;
 	long i;
 	for (i=0;i<N;i++)
 		if (str[i] == '\n' || str[i] == '\0')
 		{
 			str[i] = 0;
-			num++;
 		}
 }
 
 
 void
-str_delimiter_eof(__attribute__((unused)) char * str, __attribute__((unused)) long N)
+str_delimiter_word(char * str, long N)
 {
-	return;
+	long i;
+	for (i=0;i<N;i++)
+		if (str_char_is_ws(str[i]))
+		{
+			str[i] = 0;
+		}
+}
+
+
+void
+str_delimiter_csv(char * str, long N)
+{
+	long i;
+	for (i=0;i<N;i++)
+		if (str_char_is_ws(str[i]) || str[i] == ',')
+		{
+			str[i] = 0;
+		}
 }
 
 
@@ -60,7 +69,7 @@ str_delimiter_eof(__attribute__((unused)) char * str, __attribute__((unused)) lo
  * N:
  *     The size of the string (including the terminating NULL character).
  * string_delimiter:
- *     A function that finds and sets the delimiters in a string given to '\0', and returns the number of delimiters found.
+ *     A function that finds and sets the delimiters in a string given to '\0'.
  * keep_empty:
  *     Keep tokens of zero length.
  * tokens_out:
@@ -72,7 +81,7 @@ void
 str_tokenize(char * str, long N, void string_delimiter(char *, long), int keep_empty,
 		char *** tokens_out, long ** tokens_lengths_out, long * total_tokens_out)
 {
-	int num_threads = safe_omp_get_num_threads_next_par_region();
+	int num_threads = safe_omp_get_num_threads_external();
 	char ** tokens;
 	long * tokens_lengths;
 

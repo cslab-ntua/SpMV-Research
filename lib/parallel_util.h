@@ -41,6 +41,7 @@ loop_partitioner_base(long num_workers, long worker_pos, long start, long end,
 
 
 // Generic interface for the integer pointers and optional arguments.
+// End is exclusive.
 
 #define loop_partitioner_balance_iterations(num_workers, worker_pos, start, end, local_start_ptr, local_end_ptr, ... /* num_iterations_ptr, sign_ptr */)    \
 do {                                                                                                                                                        \
@@ -66,7 +67,7 @@ do {                                                                            
 
 #define loop_partitioner_balance_partial_sums(num_workers, worker_pos, Sums, N, total_sum, local_start_indexes, local_end_indexes, ... /* order_decreasing */)    \
 do {                                                                                                                                                              \
-	long _num_threads = safe_omp_get_num_threads_next_par_region();                                                                                           \
+	long _num_threads = safe_omp_get_num_threads_external();                                                                                                  \
 	long _tnum = omp_get_thread_num();                                                                                                                        \
 	long _order_decreasing = DEFAULT_ARG_1(0, ##__VA_ARGS__);                                                                                                 \
 	long _i_s, _i_e;                                                                                                                                          \

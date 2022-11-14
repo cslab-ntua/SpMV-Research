@@ -1,7 +1,11 @@
+#ifndef _GNU_SOURCE
+	#define _GNU_SOURCE
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -24,6 +28,8 @@
 void
 file_atoms_clean(struct File_Atoms * obj)
 {
+	if (obj == NULL)
+		return;
 	free(obj->atom_len);
 	obj->atom_len = NULL;
 	free(obj->atoms);
@@ -38,14 +44,17 @@ file_atoms_clean(struct File_Atoms * obj)
 void
 file_atoms_destroy(struct File_Atoms ** obj_ptr)
 {
+	if (obj_ptr == NULL)
+		return;
 	file_atoms_clean(*obj_ptr);
 	free(*obj_ptr);
 	*obj_ptr = NULL;
 }
 
 
+static
 void
-file_to_atoms(struct File_Atoms * A, const char * filename, void string_delimiter(char *, long), int keep_empty)
+file_to_atoms_base(struct File_Atoms * A, const char * filename, void string_delimiter(char *, long), int keep_empty, int use_mmap)
 {
 	struct stat sb;
 	char * mem;
@@ -55,25 +64,48 @@ file_to_atoms(struct File_Atoms * A, const char * filename, void string_delimite
 
 	safe_stat(filename, &sb);
 	if (!S_ISREG(sb.st_mode))
-		error("not a file\n");
+		error("not a file");
 	fd = safe_open(filename, O_RDONLY);
-	mem = (char *) safe_mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	safe_close(fd);
 
-	N = sb.st_size+1;    // Will add a '\0' character.
-	str = (typeof(str)) malloc(N * sizeof(*str));
-	str[N-1] = 0;
-	_Pragma("omp parallel")
+	if (use_mmap)
 	{
-		long i;
-		_Pragma("omp for schedule(static)")
-		for (i=0;i<sb.st_size;i++)
+		mem = (char *) mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+		if (mem == MAP_FAILED)
 		{
-			str[i] = mem[i];
+			// Some files cannot be mapped, e.g. sysfs files.
+			// If 'mmap()' fails with ENODEV, try simple 'read()'.
+			//     ENODEV: The underlying filesystem of the specified file does not support memory mapping.
+			if (errno == ENODEV)
+				use_mmap = 0;
+			else
+				error("mmap()");
 		}
 	}
 
-	safe_munmap(mem, sb.st_size);
+	if (use_mmap)
+	{
+		safe_close(fd);
+
+		N = sb.st_size+1;    // Will add a '\0' character.
+		str = (typeof(str)) malloc(N * sizeof(*str));
+		str[N-1] = 0;
+		_Pragma("omp parallel")
+		{
+			long i;
+			_Pragma("omp for schedule(static)")
+			for (i=0;i<sb.st_size;i++)
+			{
+				str[i] = mem[i];
+			}
+		}
+
+		safe_munmap(mem, sb.st_size);
+	}
+	else
+	{
+		N = read_until_EOF(fd, &str);
+		safe_close(fd);
+	}
 
 	A->string = str;
 	A->len = N;
@@ -90,11 +122,33 @@ file_to_atoms(struct File_Atoms * A, const char * filename, void string_delimite
 }
 
 
+void
+file_to_atoms(struct File_Atoms * A, const char * filename, void string_delimiter(char *, long), int keep_empty)
+{
+	file_to_atoms_base(A, filename, string_delimiter, keep_empty, 1);
+}
+
+
+void
+file_to_atoms_no_mmap(struct File_Atoms * A, const char * filename, void string_delimiter(char *, long), int keep_empty)
+{
+	file_to_atoms_base(A, filename, string_delimiter, keep_empty, 0);
+}
+
+
 // File to space-separated words.
 void
 file_to_words(struct File_Atoms * A, const char * filename, int keep_empty)
 {
 	file_to_atoms(A, filename, str_delimiter_word, keep_empty);
+}
+
+
+// CSV file to space-separated words.
+void
+file_csv_to_words(struct File_Atoms * A, const char * filename, int keep_empty)
+{
+	file_to_atoms(A, filename, str_delimiter_csv, keep_empty);
 }
 
 
@@ -146,7 +200,7 @@ write_string_to_file(const char * filename, char * str, long str_len)
 	// struct stat sb;
 	// safe_stat(filename, &sb);
 	// if (!S_ISREG(sb.st_mode))
-		// error("not a file\n");
+		// error("not a file");
 
 	fd = safe_open(filename, O_RDWR | O_TRUNC | O_CREAT);
 	lseek(fd, str_len-1, SEEK_SET);

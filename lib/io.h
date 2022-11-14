@@ -70,7 +70,7 @@ unsafe_fd_to_path(int fd, char * buf, long buf_n)
 
 static inline
 int
-unsafe_keep_errno_fd_to_path(int fd, char * buf, long buf_n)
+unsafe_fd_to_path_preserve_errno(int fd, char * buf, long buf_n)
 {
 	int errno_buf;
 	int ret;
@@ -102,6 +102,10 @@ safe_fd_to_path(int fd, char * buf, long buf_n)
 
 /* int stat(const char *pathname, struct stat *statbuf);
  * int fstat(int fd, struct stat *statbuf);
+ * int lstat(const char *pathname, struct stat *statbuf);
+ *
+ * lstat() is identical to stat(), except that if pathname is a symbolic link,
+ * then it returns information about the link itself, not the file that the link refers to.
  *
  * S_ISREG(m)  is it a regular file?
  * S_ISDIR(m)  directory?
@@ -125,12 +129,11 @@ safe_stat(const char * pathname, struct stat *statbuf)
 
 static inline
 void
-safe_stat_isreg(const char * pathname)
+safe_lstat(const char * pathname, struct stat *statbuf)
 {
-	struct stat statbuf;
-	safe_stat(pathname, &statbuf);
-	if (!S_ISREG(statbuf.st_mode))
-		error("not a regular file: path='%s'\n", (pathname != NULL ? pathname : ""));
+	int ret = lstat(pathname, statbuf);
+	if (ret < 0)
+		error("lstat(): path='%s'", (pathname != NULL ? pathname : ""));
 }
 
 
@@ -144,15 +147,74 @@ safe_fstat(int fd, struct stat *statbuf)
 }
 
 
-static inline
-void
-safe_fstat_isreg(int fd)
-{
-	struct stat statbuf;
-	safe_fstat(fd, &statbuf);
-	if (!S_ISREG(statbuf.st_mode))
-		error("not a regular file: fd=%d\n", fd);
-}
+/* Tests for inode types.
+ *
+ *     long   stat_is{reg,dir,chr,blk,fifo,lnk,sock}         (const char * pathname);
+ *     void   stat_is{reg,dir,chr,blk,fifo,lnk,sock}_assert  (const char * pathname);
+ *
+ *     long  lstat_is{reg,dir,chr,blk,fifo,lnk,sock}         (const char * pathname);
+ *     void  lstat_is{reg,dir,chr,blk,fifo,lnk,sock}_assert  (const char * pathname);
+ *
+ *     long  fstat_is{reg,dir,chr,blk,fifo,lnk,sock}         (int fd);
+ *     void  fstat_is{reg,dir,chr,blk,fifo,lnk,sock}_assert  (int fd);
+ */
+
+#define decl_stat_is(suffix, test, err_str)                                                   \
+static inline                                                                                 \
+long                                                                                          \
+stat_is ## suffix(const char * pathname)                                                      \
+{                                                                                             \
+	struct stat statbuf;                                                                  \
+	long ret = stat(pathname, &statbuf);                                                  \
+	return (ret >= 0) && test(statbuf.st_mode);                                           \
+}                                                                                             \
+static inline                                                                                 \
+void                                                                                          \
+stat_is ## suffix ## _assert(const char * pathname)                                           \
+{                                                                                             \
+	if (! stat_is ## suffix(pathname))                                                    \
+		error("not a " err_str ": path='%s'", (pathname != NULL ? pathname : ""));    \
+}                                                                                             \
+static inline                                                                                 \
+long                                                                                          \
+lstat_is ## suffix(const char * pathname)                                                     \
+{                                                                                             \
+	struct stat statbuf;                                                                  \
+	long ret = lstat(pathname, &statbuf);                                                 \
+	return (ret >= 0) && test(statbuf.st_mode);                                           \
+}                                                                                             \
+static inline                                                                                 \
+void                                                                                          \
+lstat_is ## suffix ## _assert(const char * pathname)                                          \
+{                                                                                             \
+	if (! lstat_is ## suffix(pathname))                                                   \
+		error("not a " err_str ": path='%s'", (pathname != NULL ? pathname : ""));    \
+}                                                                                             \
+static inline                                                                                 \
+long                                                                                          \
+fstat_is ## suffix(int fd)                                                                    \
+{                                                                                             \
+	struct stat statbuf;                                                                  \
+	long ret = fstat(fd, &statbuf);                                                       \
+	return (ret >= 0) && test(statbuf.st_mode);                                           \
+}                                                                                             \
+static inline                                                                                 \
+void                                                                                          \
+fstat_is ## suffix ## _assert(int fd)                                                         \
+{                                                                                             \
+	if (! fstat_is ## suffix(fd))                                                         \
+		error("not a " err_str ": fd='%d'", fd);                                      \
+}                                                                                             \
+
+decl_stat_is(reg , S_ISREG , "regular file")
+decl_stat_is(dir , S_ISDIR , "directory")
+decl_stat_is(chr , S_ISCHR , "character device")
+decl_stat_is(blk , S_ISBLK , "block device")
+decl_stat_is(fifo, S_ISFIFO, "FIFO (named pipe)")
+decl_stat_is(lnk , S_ISLNK , "symbolic link")
+decl_stat_is(sock, S_ISSOCK, "socket")
+
+#undef decl_stat_is
 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -160,30 +222,6 @@ safe_fstat_isreg(int fd)
 -                                                              Read - Write                                                                -
 --------------------------------------------------------------------------------------------------------------------------------------------
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-
-/* static inline
-int
-safe_open(const char * pathname, int flags, ...)
-{
-	mode_t mode = 0;
-	va_list arg;
-	int fd;
-	if ((flags & O_CREAT) != 0
-			#ifdef _GNU_SOURCE
-				|| (flags & O_TMPFILE) != 0
-			#endif
-	   )
-	{
-		va_start(arg, flags);
-		mode = va_arg(arg, int);
-		va_end(arg);
-	}
-	fd = open(pathname, flags, mode);
-	if (fd < 0)
-		error("open(): path='%s'", (pathname != NULL ? pathname : ""));
-	return fd;
-} */
 
 
 static inline
@@ -211,7 +249,7 @@ safe_close(int fd)
 	{
 		long error_fd_path_buf_n = 10000;
 		char error_fd_path_buf[error_fd_path_buf_n];
-		unsafe_keep_errno_fd_to_path(fd, error_fd_path_buf, error_fd_path_buf_n);
+		unsafe_fd_to_path_preserve_errno(fd, error_fd_path_buf, error_fd_path_buf_n);
 		error("close(): fd=%d , path='%s'", fd, error_fd_path_buf);
 	}
 }
@@ -235,7 +273,7 @@ safe_write(int fd, char *buf, size_t count)
 		{
 			long error_fd_path_buf_n = 10000;
 			char error_fd_path_buf[error_fd_path_buf_n];
-			unsafe_keep_errno_fd_to_path(fd, error_fd_path_buf, error_fd_path_buf_n);
+			unsafe_fd_to_path_preserve_errno(fd, error_fd_path_buf, error_fd_path_buf_n);
 			error("write(): fd=%d , path='%s'", fd, error_fd_path_buf);
 		}
 		if (num == 0)
@@ -257,7 +295,7 @@ safe_read(int fd, void * buf, size_t count)
 	{
 		long error_fd_path_buf_n = 10000;
 		char error_fd_path_buf[error_fd_path_buf_n];
-		unsafe_keep_errno_fd_to_path(fd, error_fd_path_buf, error_fd_path_buf_n);
+		unsafe_fd_to_path_preserve_errno(fd, error_fd_path_buf, error_fd_path_buf_n);
 		error("read(): fd=%d , path='%s'", fd, error_fd_path_buf);
 	}
 	return num;
@@ -269,38 +307,78 @@ safe_read(int fd, void * buf, size_t count)
  */
 static inline
 ssize_t
-read_until_EOF(int fd, char **ret)
+read_until_EOF_base(int fd, char **ret, int strict_size_test)
 {
+	struct stat sb;
 	size_t total = 0;
 	ssize_t num;
-	size_t len = 1;
-	char * buf, * tmp;
+	size_t file_size;
+	char * buf;
 
-	buf = (typeof(buf)) malloc(len);
+	safe_fstat(fd, &sb);
+	if (!S_ISREG(sb.st_mode))
+		error("not a regular file: fd=%d", fd);
+	file_size = sb.st_size + 1;
+	buf = (typeof(buf)) malloc(file_size + 1);     // Add a NULL byte at the end for extra safety and so that it can be used as a string.
 	while (1)
 	{
 		do {
-			num = read(fd,  buf + total,  len - total);
+			num = read(fd,  buf + total,  file_size - total);
 			if (num < 0)
 			{
 				long error_fd_path_buf_n = 10000;
 				char error_fd_path_buf[error_fd_path_buf_n];
-				unsafe_keep_errno_fd_to_path(fd, error_fd_path_buf, error_fd_path_buf_n);
+				unsafe_fd_to_path_preserve_errno(fd, error_fd_path_buf, error_fd_path_buf_n);
 				error("read(): fd=%d , path='%s'", fd, error_fd_path_buf);
 			}
 			if (num == 0)
 			{
+				// Some files report false size, e.g. sysfs files are always of size 'PAGE_SIZE', but 'read()' returns the actual size and always with one call.
+				if (strict_size_test && (total != file_size))
+					error("read(): EOF before reading the whole file (based on size returned by 'fstat') file size = %d, bytes read = %d", file_size, total);
+				buf[total] = '\0';
 				*ret = buf;
 				return (ssize_t) total;
 			}
 			total += num;
-		} while (total < len);
-		len *= 2;
-		tmp = buf;
-		buf = (typeof(buf)) malloc(len);
-		memcpy(buf, tmp, total);
-		free(tmp);
+		} while (total < file_size);
+		error("read(): no EOF after reading the whole file (based on size returned by 'fstat')");
 	}
+}
+
+
+static inline
+ssize_t
+read_until_EOF_strict_size(int fd, char **ret)
+{
+	return read_until_EOF_base(fd, ret, 1);
+}
+
+
+static inline
+ssize_t
+read_until_EOF(int fd, char **ret)
+{
+	return read_until_EOF_base(fd, ret, 0);
+}
+
+
+/* sysfs files are always read with one call to 'read()', next calls always return 0.
+ */
+static inline
+ssize_t
+read_sysfs_file(const char * filename, char ** buf_out)
+{
+	long buf_n = sysconf(_SC_PAGESIZE) + 1;
+	char buf[buf_n];
+	int fd;
+	ssize_t len;
+	fd = safe_open(filename, O_RDONLY);
+	len = safe_read(fd, buf, buf_n - 1);
+	buf[len] = 0;
+	safe_close(fd);
+	*buf_out = strdup(buf);
+	return len;
 }
 
 

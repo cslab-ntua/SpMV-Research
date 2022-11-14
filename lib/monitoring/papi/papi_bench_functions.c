@@ -134,7 +134,7 @@ struct Papi_Bench_Thread_Private_Data * PAPI_BENCH_TPD;
 void
 papi_bench_template_init(int argc, char **argv)
 {
-	int threads = safe_omp_get_num_threads_next_par_region();
+	int threads = safe_omp_get_num_threads_external();
 	int i;
 	PAPI_BENCH_TPD = (typeof(PAPI_BENCH_TPD)) malloc(threads * sizeof(*PAPI_BENCH_TPD));
 	papi_bench_init_with_cli_args(argc, argv);
@@ -199,7 +199,7 @@ papi_bench_template_get_vals_string(int tnum)
 char *
 papi_bench_template_get_total_vals_string()
 {
-	int threads = safe_omp_get_num_threads_next_par_region();
+	int threads = safe_omp_get_num_threads_external();
 	long long total_papi_vals[PAPI_BENCH_NUM_EVENTS];
 	char buf[200];
 	int len = 0;

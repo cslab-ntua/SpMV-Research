@@ -64,28 +64,34 @@ typedef FUNCTOOLS_GEN_TYPE_1  _TYPE;
 
 #undef  reduce_serial
 #define reduce_serial  FUNCTOOLS_GEN_EXPAND(reduce_serial)
-inline
 _TYPE
-reduce_serial(_TYPE * restrict A, long N, _TYPE zero)
+reduce_serial(_TYPE * restrict A, long N, _TYPE zero, const int backwards)
 {
 	_TYPE total;
 	long i;
 	set_value(&total, zero);
-	for (i=0;i<N;i++)
-		reduce_fun(&total, &(A[i]));
+	if (backwards)
+		for (i=N-1;i>=0;i--)
+			reduce_fun(&total, &(A[i]));
+	else
+		for (i=0;i<N;i++)
+			reduce_fun(&total, &(A[i]));
 	return total;
 }
 
 
+// Parallel reduction can only be valid with commutative reduce operations (forward == backward direction).
 #undef  reduce
 #define reduce  FUNCTOOLS_GEN_EXPAND(reduce)
 _TYPE
 reduce(_TYPE * restrict A, long N, _TYPE zero)
 {
-	int num_threads = safe_omp_get_num_threads_next_par_region();
+	int num_threads = safe_omp_get_num_threads_external();
 	_TYPE t_partial[num_threads];
 	_TYPE total;
 	long i;
+	if (omp_get_level() > 0)
+		return reduce_serial(A, N, zero, 0);
 	#pragma omp parallel
 	{
 		int tnum = omp_get_thread_num();
@@ -99,7 +105,7 @@ reduce(_TYPE * restrict A, long N, _TYPE zero)
 	}
 	__atomic_thread_fence(__ATOMIC_SEQ_CST);
 	set_value(&total, zero);
-	// total = reduce_serial(t_partial, num_threads, zero);
+	// total = reduce_serial(t_partial, num_threads, zero, 0);
 	for (i=0;i<num_threads;i++)
 		reduce_fun(&total, &t_partial[i]);
 	return total;
@@ -113,41 +119,65 @@ reduce(_TYPE * restrict A, long N, _TYPE zero)
  *     - P could also be A, so we should save/use A[i] before setting P[i].
  */
 
-#undef  scan_serial
-#define scan_serial  FUNCTOOLS_GEN_EXPAND(scan_serial)
+#undef  scan_reduce_serial
+#define scan_reduce_serial  FUNCTOOLS_GEN_EXPAND(scan_reduce_serial)
 _TYPE
-scan_serial(_TYPE * A, _TYPE * P, long N, _TYPE zero, const int start_from_zero)
+scan_reduce_serial(_TYPE * A, _TYPE * P, long N, _TYPE zero, const int start_from_zero, const int backwards)
 {
 	_TYPE partial;
 	_TYPE tmp;
 	long i;
+	if (N == 0)
+		return zero;
 	set_value(&partial, zero);
-	if (start_from_zero)
-		for (i=0;i<N;i++)
+	if (backwards)
+		for (i=N-1;i>=0;i--)
 		{
-			set_value(&tmp, A[i]);
-			set_value(&(P[i]), partial);
-			reduce_fun(&partial, &tmp);
+			if (start_from_zero)
+			{
+				set_value(&tmp, partial);
+				reduce_fun(&partial, &A[i]);
+				set_value(&(P[i]), tmp);
+			}
+			else
+			{
+				reduce_fun(&partial, &A[i]);
+				set_value(&(P[i]), partial);
+			}
 		}
 	else
 		for (i=0;i<N;i++)
 		{
-			reduce_fun(&partial, &(A[i]));
-			set_value(&(P[i]), partial);
+			if (start_from_zero)
+			{
+				set_value(&tmp, partial);
+				reduce_fun(&partial, &A[i]);
+				set_value(&(P[i]), tmp);
+			}
+			else
+			{
+				reduce_fun(&partial, &A[i]);
+				set_value(&(P[i]), partial);
+			}
 		}
 	return partial;
 }
 
 
-#undef  scan
-#define scan  FUNCTOOLS_GEN_EXPAND(scan)
+// Parallel reduction can only be valid with commutative reduce operations (forward == backward direction).
+#undef  scan_reduce
+#define scan_reduce  FUNCTOOLS_GEN_EXPAND(scan_reduce)
 _TYPE
-scan(_TYPE * A, _TYPE * P, long N, _TYPE zero, const int start_from_zero)
+scan_reduce(_TYPE * A, _TYPE * P, long N, _TYPE zero, const int start_from_zero)
 {
-	int num_threads = safe_omp_get_num_threads_next_par_region();
+	int num_threads = safe_omp_get_num_threads_external();
 	_TYPE t_base[num_threads];
 	_TYPE total;
 
+	if (N == 0)
+		return zero;
+	if (omp_get_level() > 0)
+		return scan_reduce_serial(A, P, N, zero, start_from_zero, 0);
 	#pragma omp parallel
 	{
 		int tnum = omp_get_thread_num();
@@ -182,7 +212,7 @@ scan(_TYPE * A, _TYPE * P, long N, _TYPE zero, const int start_from_zero)
 		#pragma omp barrier
 		__atomic_thread_fence(__ATOMIC_SEQ_CST);
 
-		scan_serial(&A[i_s], &P[i_s], i_e-i_s, t_base[tnum], start_from_zero);
+		scan_reduce_serial(&A[i_s], &P[i_s], i_e-i_s, t_base[tnum], start_from_zero, 0);
 	}
 
 	return total;

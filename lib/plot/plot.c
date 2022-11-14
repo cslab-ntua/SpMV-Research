@@ -1,3 +1,6 @@
+#ifndef _GNU_SOURCE
+	#define _GNU_SOURCE
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -84,8 +87,8 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 	f_ppm = strdup(buf);
 	snprintf(buf, buf_n, "%s.%s", base, ext);
 	f_conv = strdup(buf);
-	if (fig->title == NULL)
-		fig->title = strdup(f_conv);       // Better to immediately understand that it's just the file name, than try to extract a possibly non-existent meaning from it, so keep extension.
+	if (fig->legend_conf.title == NULL)
+		fig->legend_conf.title = strdup(f_conv);       // Better to immediately understand that it's just the file name, than try to extract a possibly non-existent meaning from it, so keep extension.
 
 	fd = safe_open(f_ppm, O_WRONLY | O_TRUNC | O_CREAT);
 	save_pbm_image(pa, fd);
@@ -95,7 +98,7 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 		goto out;
 
 	// Adding the legend in ppm format, before converting, is MUCH faster than working on an e.g. png file.
-	if (fig->legend_enabled)
+	if (fig->legend_conf.legend_enabled)
 		add_legend(fig, f_ppm);
 
 	if (!strcmp(ext, "ppm"))
@@ -207,16 +210,16 @@ void
 figure_init(struct Figure * fig, int x_num_pixels, int y_num_pixels)
 {
 	fig->num_series = 0;
-	fig->size = 4;
-	fig->series = malloc(fig->size * sizeof(*fig->series));
+	fig->max_num_series = 4;
+	fig->series = malloc(fig->max_num_series * sizeof(*fig->series));
 	fig->x_num_pixels = x_num_pixels <= 0 ? 1920 : x_num_pixels;
 	fig->y_num_pixels = y_num_pixels <= 0 ? 1920 : y_num_pixels;
 	fig->axes_flip_x = 0;
 	fig->axes_flip_y = 0;
 	fig->custom_bounds_x = 0;
 	fig->custom_bounds_y = 0;
-	fig->legend_enabled = 0;
-	fig->title = NULL;
+	fig->legend_conf.legend_enabled = 0;
+	fig->legend_conf.title = NULL;
 }
 
 
@@ -228,8 +231,8 @@ figure_clean(struct Figure * fig)
 		figure_series_clean(&(fig->series[i]));
 	free(fig->series);
 	fig->series = NULL;
-	free(fig->title);
-	fig->title = NULL;
+	free(fig->legend_conf.title);
+	fig->legend_conf.title = NULL;
 }
 
 
@@ -250,16 +253,16 @@ figure_add_series_base(struct Figure * fig, void * x, void * y, void * z, long N
 		)
 {
 	struct Figure_Series * s;
-	long i, size;
+	long i, max_num_series;
 
-	if (fig->num_series == fig->size)
+	if (fig->num_series == fig->max_num_series)
 	{
-		size = 2 * fig->size;
-		s = malloc(size * sizeof(*s));
-		for (i=0;i<fig->size;i++)
+		max_num_series = 2 * fig->max_num_series;
+		s = malloc(max_num_series * sizeof(*s));
+		for (i=0;i<fig->max_num_series;i++)
 			s[i] = fig->series[i];
 		free(fig->series);
-		fig->size = size;
+		fig->max_num_series = max_num_series;
 		fig->series = s;
 	}
 	fig->num_series++;
@@ -331,15 +334,15 @@ figure_series_set_dot_size_pixels(struct Figure_Series * s, int size)
 void
 figure_enable_legend(struct Figure * fig)
 {
-	fig->legend_enabled = 1;
+	fig->legend_conf.legend_enabled = 1;
 }
 
 
 void
 figure_set_title(struct Figure * fig, char * title)
 {
-	free(fig->title);
-	fig->title = strdup(title);
+	free(fig->legend_conf.title);
+	fig->legend_conf.title = strdup(title);
 }
 
 
@@ -888,15 +891,15 @@ calc_figure_bounds(struct Figure * fig)
 		}
 	}
 
-	fig->x_in_percentages = 1;
-	fig->y_in_percentages = 1;
+	fig->legend_conf.x_in_percentages = 1;
+	fig->legend_conf.y_in_percentages = 1;
 	for (i=0;i<fig->num_series;i++)
 	{
 		s = &fig->series[i];
 
 		// The labels will have a percentage sign, if all series are in percentages.
-		fig->x_in_percentages &= s->x_in_percentages;
-		fig->y_in_percentages &= s->y_in_percentages;
+		fig->legend_conf.x_in_percentages &= s->x_in_percentages;
+		fig->legend_conf.y_in_percentages &= s->y_in_percentages;
 
 		if (s->type_barplot)
 		{
