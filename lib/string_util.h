@@ -37,6 +37,18 @@ do {                                                   \
 } while (0)
 
 
+static inline
+long
+str_check_mem_overlap(const char * s1, long s1_n, const char * s2, long s2_n)
+{
+	if ((s1 == s2)
+		|| (s1 < s2 && s1 + s1_n > s2)
+		|| (s2 < s1 && s2 + s2_n > s1))
+		return 1;
+	return 0;
+}
+
+
 //==========================================================================================================================================
 //= Character Groups
 //==========================================================================================================================================
@@ -193,9 +205,11 @@ str_search_term_init(struct str_Search_Term * search_term, const char * str, lon
 	long * pmt;
 	char * term;
 	term = (typeof(term)) malloc(N * sizeof(*term));
+	// warning: 'strncpy' output truncated before terminating nul copying 4 bytes from a string of the same length [-Wstringop-truncation]
 	// #pragma GCC diagnostic push
 	// #pragma GCC diagnostic ignored "-Wstringop-truncation"
-	strncpy(term, str, N);
+	// strncpy(term, str, N);
+	memcpy(term, str, N);
 	// #pragma GCC diagnostic pop
 	pmt = (typeof(pmt)) malloc((N+1) * sizeof(*pmt));     // +1, for backtracking in success, when looking for multiple occurrences.
 	pmt[0] = -1;
@@ -338,6 +352,135 @@ str_find_substr_simple(const char * str, long N, const char * substr, long M)
 //==========================================================================================================================================
 
 
+// Split head (the directory part) and tail (filename / last directory).
+// 'head/tail' convention is taken from the python os.path.split documentation.
+//
+// 'path' argument is unchanged.
+// 'head' (the directory part) is without a terminating '/' character, unless it is root
+//        (so that an e.g. ls on the tail shows the root dir and not the current dir).
+static inline
+void
+str_path_split_path(const char * path, long N, char * buf_dst, long buf_dst_n, char ** head_ptr_out, char ** tail_ptr_out)
+{
+	long buf_n = N + 3;
+	char * buf = (typeof(buf)) malloc(buf_n * sizeof(*buf));
+	char * head, * tail;
+	long i, pos, head_n, tail_n;
+	if (buf_dst_n < N + 3)
+		error("'buf_dst_n' must be >= N + 3");
+	str_assert_string_compliance(path, N);
+	while (N > 2 && path[N-2] == '/')       // Ignore all trailing '/', but stop before the first character, as root dir is handled specially.
+		N--;
+	pos = str_find_char_from_end(path, N-1, '/');
+	if (N <= 1)
+	{
+		head_n = 2;
+		tail_n = 1;
+		head = (char *) memcpy(buf, ".", 2);
+		tail = (char *) memcpy(buf + head_n, "", tail_n);
+	}
+	else if (pos < 0)   // in current dir
+	{
+		head_n = 2;
+		tail_n = N;
+		head = (char *) memcpy(buf, ".", 2);
+		if (tail_n == 2 && path[0] == '.')
+			tail = (char *) memcpy(buf + head_n, "", 1);
+		else
+			tail = (char *) memcpy(buf + head_n, path, tail_n);
+	}
+	else if (pos == 0)  // in root dir
+	{
+		head_n = 2;
+		tail_n = N - 1;
+		head = (char *) memcpy(buf, "/", 2);
+		tail = (char *) memcpy(buf + head_n, path + 1, tail_n);
+	}
+	else
+	{
+		head_n = pos + 1;
+		tail_n = N - head_n;
+		head = (char *) memcpy(buf, path, head_n);
+		tail = (char *) memcpy(buf + head_n, path + head_n, tail_n);
+	}
+	while (head_n > 2 && path[head_n-2] == '/')      // Remove all trailing '/', unless it is root.
+		head_n--;
+
+	if (head_n + tail_n > buf_n)
+		error("buffer overflow");
+	head[head_n - 1] = '\0';
+	tail[tail_n - 1] = '\0';
+	for (i=0;i<head_n;i++)
+		buf_dst[i] = head[i];
+	for (i=0;i<tail_n;i++)
+		buf_dst[head_n + i] = tail[i];
+	head = buf_dst;
+	tail = buf_dst + head_n;
+	if (head_ptr_out != NULL)
+		*head_ptr_out = head;
+	if (tail_ptr_out != NULL)
+		*tail_ptr_out = tail;
+	free(buf);
+}
+
+
+// Split the extension and the base (the path part without the extension and the dot).
+//
+// 'path' and 'buf_dst' buffers can safely overlap.
+// 'path' argument is unchanged, unless it overlaps with 'buf_dst'.
+//
+// 'ext_ptr_out' (the extension part) is returned without the leading dot '.'.
+static inline
+void
+str_path_split_ext(char * path, long N, char * buf_dst, long buf_dst_n, char ** base_ptr_out, char ** ext_ptr_out)
+{
+	long buf_n = N + 3;
+	char * buf = (typeof(buf)) malloc(buf_n * sizeof(*buf));
+	char * base, * ext;
+	long i, pos, base_n, ext_n;
+	if (buf_dst_n < N + 3)
+		error("'buf_dst_n' must be >= N + 3");
+	str_assert_string_compliance(path, N);
+	while (N > 2 && path[N-2] == '/')     // Ignore all trailing '/', but stop before the first character, as root dir is handled specially.
+		N--;
+	pos = str_find_char_from_end(path, N, '.');
+	// If a name starts with '.' it is not an extension, it is a hidden dir/file.
+	if ((pos <= 0)                        // /dir/file , .file
+		|| (pos == N-1)               // /dir/. , /dir/..
+		|| (path[pos+1] == '/')       // /dir/./file , /dir/../file
+		|| (path[pos-1] == '/')       // /dir/.file
+		)
+	{
+		base_n = N;
+		ext_n = 1;
+		base = (char *) memcpy(buf, path, base_n);
+		ext = (char *) memcpy(buf + base_n, "", 1);
+	}
+	else
+	{
+		base_n = pos + 1;
+		ext_n = N - base_n;
+		base = (char *) memcpy(buf, path, base_n);
+		ext = (char *) memcpy(buf + base_n, path + base_n, ext_n);
+	}
+	if (base_n + ext_n > buf_n)
+		error("buffer overflow");
+	base[base_n - 1] = '\0';
+	ext[ext_n - 1] = '\0';
+	for (i=0;i<base_n;i++)
+		buf_dst[i] = base[i];
+	for (i=0;i<ext_n;i++)
+		buf_dst[base_n + i] = ext[i];
+	base = buf_dst;
+	ext = buf_dst + base_n;
+	if (base_ptr_out != NULL)
+		*base_ptr_out = base;
+	if (ext_ptr_out != NULL)
+		*ext_ptr_out = ext;
+	free(buf);
+}
+
+
 static inline
 char *
 str_path_strip_tail(char * str, long N)
@@ -359,7 +502,7 @@ str_path_strip_ext(char * str, long N)
 	long i;
 	str_assert_string_compliance(str, N);
 	i = str_find_char_from_end(str, N, '.');
-	if (i <= 0 || str[i-1] == '/')      // If tail starts with '.' it is not an extension, it is a hidden file.
+	if (i <= 0 || str[i-1] == '/')      // If path starts with '.' it is not an extension, it is a hidden file.
 		return str + N - 1;
 	str[i] = 0;
 	return str + i + 1;

@@ -50,7 +50,3 @@ typedef SAMPLESORT_GEN_TYPE_4  _TYPE_AD;
 #define samplesort  SAMPLESORT_GEN_EXPAND(samplesort)
 void samplesort(_TYPE_V * A, _TYPE_I N, _TYPE_AD * aux_data);
 
-// #undef  bitonic_sort
-// #define bitonic_sort  SAMPLESORT_GEN_EXPAND(bitonic_sort)
-// void bitonic_sort(_TYPE_V * A, _TYPE_I N);
-

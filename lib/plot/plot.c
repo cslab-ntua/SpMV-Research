@@ -612,10 +612,12 @@ color_pixels(struct Figure * fig, struct Pixel_Array * pa, long x_pix, long y_pi
 	p->b = b;
 
 	// barplot
-	if (s->type_barplot && s->barplot_bar_width > 0)
+	if (s->type_barplot)
 	{
 		long bar_width_pix;
 		bar_width_pix = (long) floor(s->barplot_bar_width / fig->x_step + 0.5);
+		if (bar_width_pix <= 0)
+			bar_width_pix = 1;
 		x_pix_left = x_pix - bar_width_pix/2;
 		x_pix_right = x_pix + bar_width_pix/2;
 		if (x_pix_left < 0)
@@ -904,12 +906,10 @@ calc_figure_bounds(struct Figure * fig)
 		if (s->type_barplot)
 		{
 			double min_dist = closest_pair_distance(s->x, s->N, s->get_x_as_double);
-			// printf("min dist = %lf\n", min_dist);
-			// printf("barplot_max_bar_width = %lf\n", s->barplot_max_bar_width);
+			// No need to check for sane values, if pixels width is <= 0 it will be corrected to = 1.
 			if (s->barplot_max_bar_width > 0 && s->barplot_max_bar_width < min_dist)
 				min_dist = s->barplot_max_bar_width;
 			s->barplot_bar_width = s->barplot_bar_width_fraction * min_dist;
-			// printf("barplot_bar_width = %lf\n", s->barplot_bar_width);
 		}
 	}
 }

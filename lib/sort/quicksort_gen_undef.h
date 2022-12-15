@@ -7,6 +7,7 @@
 #undef  _TYPE_I
 #undef  _TYPE_AD
 
+#undef  insertionsort
 #undef  quicksort_no_malloc
 #undef  quicksort
 

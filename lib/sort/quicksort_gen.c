@@ -98,6 +98,23 @@ partition(_TYPE_V * A, _TYPE_I s, _TYPE_I e, _TYPE_AD * aux_data)
 }
 
 
+#undef  insertionsort
+#define insertionsort  QUICKSORT_GEN_EXPAND(insertionsort)
+void
+insertionsort(_TYPE_V * A, _TYPE_I N, _TYPE_AD * aux_data)
+{
+	long i, i_e;
+	for (i_e=N-1;i_e>0;i_e--)
+	{
+		for (i=0;i<i_e;i++)
+		{
+			if (quicksort_cmp(A[i], A[i+1], aux_data) > 0)
+				SWAP(A[i], A[i+1]);
+		}
+	}
+}
+
+
 #undef  quicksort_no_malloc
 #define quicksort_no_malloc  QUICKSORT_GEN_EXPAND(quicksort_no_malloc)
 void

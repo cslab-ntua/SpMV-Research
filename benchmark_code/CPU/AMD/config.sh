@@ -248,14 +248,14 @@ declare -A progs
 progs=(
     # Custom csr
     # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
-    ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
+    # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
     # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch.exe"
     # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_balanced_distribute_early.exe"
     # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance.exe"
 
-    ['spmv_csr_vc']="${script_dir}/spmv_code_bench/spmv_csr_vc.exe"
+    ['csr_vc']="${script_dir}/spmv_code_bench/spmv_csr_vc.exe"
 
     # Custom csr x86
     # ['csr_x86_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector.exe"

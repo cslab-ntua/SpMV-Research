@@ -33,6 +33,11 @@ typedef CSR_GEN_TYPE_1  _TYPE_V;
 typedef CSR_GEN_TYPE_2  _TYPE_I;
 
 
+#undef  csr_sort_columns
+#define csr_sort_columns  CSR_GEN_EXPAND(csr_sort_columns)
+void csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz);
+
+
 #undef  coo_to_csr
 #define coo_to_csr  CSR_GEN_EXPAND(coo_to_csr)
 void coo_to_csr(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, long n, long nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int sort_columns);

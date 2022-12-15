@@ -35,21 +35,22 @@ static _TYPE_BUCKET_I bucketsort_find_bucket(_TYPE_V a, _TYPE_AD * aux_data);
 
 #include "functools_gen_undef.h"
 #define FUNCTOOLS_GEN_TYPE_1  BUCKETSORT_GEN_TYPE_2
+#define FUNCTOOLS_GEN_TYPE_2  BUCKETSORT_GEN_TYPE_2
 #define FUNCTOOLS_GEN_SUFFIX  CONCAT(_BUCKETSORT_GEN, BUCKETSORT_GEN_SUFFIX)
 #include "functools_gen.c"
 
 static inline
-void
-functools_reduce_fun(BUCKETSORT_GEN_TYPE_2 * partial, BUCKETSORT_GEN_TYPE_2 * x)
+BUCKETSORT_GEN_TYPE_2
+functools_map_fun(BUCKETSORT_GEN_TYPE_2 * A, long i)
 {
-	*partial += *x;
+	return A[i];
 }
 
 static inline
-void
-functools_set_value(BUCKETSORT_GEN_TYPE_2 * x, BUCKETSORT_GEN_TYPE_2 val)
+BUCKETSORT_GEN_TYPE_2
+functools_reduce_fun(BUCKETSORT_GEN_TYPE_2 a, BUCKETSORT_GEN_TYPE_2 b)
 {
-	*x = val;
+	return a + b;
 }
 
 
@@ -86,7 +87,7 @@ typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
  *     A[i] -> A[permutation[i]]
  *     i.e. to sort the array: A[permutation[i]] = A[i];
  *
- * A serial bucketsort seems to be faster than the parallel version on a consumer system (Ryzen 3700X)
+ * A serial bucketsort is sometimes faster than the parallel version on a consumer system (Ryzen 3700X)
  * for simple access patterns (e.g. direct access to the array and not through indirection from an array of indexes),
  * most likely because it is absolutely memory bound, and atomics become too expensive.
  *
@@ -120,7 +121,7 @@ typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
 		// offsets[b]++;
 		// permutation_out[i] = 0;
 	// }
-	// scan_reduce_serial(offsets, offsets, num_buckets+1, 0, 0);
+	// scan_reduce_serial(offsets, offsets, num_buckets+1, 0, 0, 0);
 	// for (i=N-1;i>=0;i--)
 	// {
 		// b = A_bucket_id[i];
@@ -153,10 +154,9 @@ bucketsort_stable_serial(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buc
 		b = bucketsort_find_bucket(A[i], aux_data);
 		A_bucket_id[i] = b;
 		offsets[b]++;
-		permutation_out[i] = 0;
 	}
-	scan_reduce_serial(offsets, offsets, num_buckets+1, 0, 0, 0);       // _TYPE scan_reduce_serial(_TYPE * A, _TYPE * P, long N, _TYPE zero, const int start_from_zero, const int backwards);
-	for (i=N-1;i>=0;i--)
+	scan_reduce_serial(offsets, offsets, num_buckets+1, 0, 0, 0);       // scan_reduce_serial(_TYPE_IN * A, _TYPE_OUT * P, long N, _TYPE_OUT zero, const int start_from_zero, const int backwards);
+	for (i=N-1;i>=0;i--)     // In reverse order because we put them from the end of each bucket.
 	{
 		b = A_bucket_id[i];
 		offsets[b]--;
@@ -177,41 +177,123 @@ bucketsort(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD
 {
 	_TYPE_I * offsets;
 	_TYPE_BUCKET_I * A_bucket_id;
-	A_bucket_id = (typeof(A_bucket_id)) malloc(N * sizeof(*A_bucket_id));
 	offsets = (offsets_out != NULL) ? offsets_out : (typeof(offsets)) malloc((num_buckets+1) * sizeof(*offsets));
-	A_bucket_id = (A_bucket_id_out != NULL) ? A_bucket_id_out : (typeof(A_bucket_id)) malloc((N) * sizeof(*A_bucket_id));
+	A_bucket_id = (A_bucket_id_out != NULL) ? A_bucket_id_out : (typeof(A_bucket_id)) malloc(N * sizeof(*A_bucket_id));
 	#pragma omp parallel
 	{
 		_TYPE_BUCKET_I b;
-		_TYPE_I i;
-		#pragma omp for schedule(static)
+		_TYPE_I i, pos;
+		#pragma omp for
 		for (i=0;i<num_buckets+1;i++)
 			offsets[i] = 0;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<N;i++)
 		{
 			b = bucketsort_find_bucket(A[i], aux_data);
 			A_bucket_id[i] = b;
 			__atomic_fetch_add(&offsets[b], 1, __ATOMIC_RELAXED);
 			// offsets[b]++;
-			permutation_out[i] = 0;
 		}
-	}
-	// scan_reduce_serial(offsets, offsets, num_buckets+1, 0, 0);
-	scan_reduce(offsets, offsets, num_buckets+1, 0, 0);
-	#pragma omp parallel
-	{
-		_TYPE_BUCKET_I b;
-		_TYPE_I pos, i;
-		#pragma omp for schedule(static)
+		scan_reduce_parallel(offsets, offsets, num_buckets+1, 0, 0, 0);
+		#pragma omp for
 		for (i=0;i<N;i++)
 		{
 			b = A_bucket_id[i];
+			// b = bucketsort_find_bucket(A[i], aux_data);
 			pos = __atomic_sub_fetch(&offsets[b], 1, __ATOMIC_RELAXED);
 			// pos = --offsets[b];
 			permutation_out[i] = pos;
 		}
 	}
+	if (offsets_out == NULL)
+		free(offsets);
+	if (A_bucket_id_out == NULL)
+		free(A_bucket_id);
+}
+
+
+#undef  sort_bucket
+#define sort_bucket  BUCKETSORT_GEN_EXPAND(sort_bucket)
+static inline
+void
+sort_bucket(_TYPE_I * restrict permutation, _TYPE_I N, int num_threads, unsigned short * owner)
+{
+	_TYPE_I * buf;
+	_TYPE_I offsets[num_threads + 1];
+	_TYPE_BUCKET_I b;
+	_TYPE_I i;
+	buf = (typeof(buf)) malloc(N * sizeof(*buf));
+	for (i=0;i<num_threads+1;i++)
+		offsets[i] = 0;
+	for (i=0;i<N;i++)
+	{
+		buf[i] = permutation[i];
+		b = owner[i];
+		offsets[b]++;
+	}
+	scan_reduce_serial(offsets, offsets, num_threads+1, 0, 0, 0);
+	for (i=0;i<N;i++)     // Per thread elements are in reverse order, so we need to reverse again, unlike bucketsort_stable_serial().
+	{
+		b = owner[i];
+		offsets[b]--;
+		permutation[offsets[b]] = buf[i];
+	}
+	free(buf);
+}
+
+#undef  bucketsort_stable
+#define bucketsort_stable  BUCKETSORT_GEN_EXPAND(bucketsort_stable)
+void
+bucketsort_stable(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * restrict aux_data,
+		_TYPE_I * restrict permutation_out, _TYPE_I * restrict offsets_out, _TYPE_BUCKET_I * restrict A_bucket_id_out)
+{
+	_TYPE_I * permutation_reverse;
+	_TYPE_I * offsets;
+	_TYPE_BUCKET_I * A_bucket_id;
+	unsigned short * owner_tnum;
+	permutation_reverse = (typeof(permutation_reverse)) malloc(N * sizeof(*permutation_reverse));
+	offsets = (offsets_out != NULL) ? offsets_out : (typeof(offsets)) malloc((num_buckets+1) * sizeof(*offsets));
+	A_bucket_id = (A_bucket_id_out != NULL) ? A_bucket_id_out : (typeof(A_bucket_id)) malloc(N * sizeof(*A_bucket_id));
+	owner_tnum = (typeof(owner_tnum)) malloc(N * sizeof(*owner_tnum));
+	#pragma omp parallel
+	{
+		int num_threads = omp_get_max_threads();
+		int tnum = omp_get_thread_num();
+		_TYPE_BUCKET_I b, b_n;
+		_TYPE_I i, i_s, i_e, pos;
+		#pragma omp for
+		for (i=0;i<num_buckets+1;i++)
+			offsets[i] = 0;
+		#pragma omp for
+		for (i=0;i<N;i++)
+		{
+			b = bucketsort_find_bucket(A[i], aux_data);
+			A_bucket_id[i] = b;
+			__atomic_fetch_add(&offsets[b], 1, __ATOMIC_RELAXED);
+		}
+		scan_reduce_parallel(offsets, offsets, num_buckets+1, 0, 0, 0);
+		#pragma omp for
+		for (i=0;i<N;i++)
+		{
+			b = A_bucket_id[i];
+			pos = __atomic_sub_fetch(&offsets[b], 1, __ATOMIC_RELAXED);
+			permutation_out[i] = pos;
+			permutation_reverse[pos] = i;
+			owner_tnum[pos] = tnum;
+		}
+		loop_partitioner_balance_partial_sums(num_threads, tnum, offsets, num_buckets, N, &i_s, &i_e);
+		for (i=i_s;i<i_e;i++)
+		{
+			b_n = offsets[i+1] - offsets[i];
+			pos = offsets[i];
+			sort_bucket(&permutation_reverse[pos], b_n, num_threads, &owner_tnum[pos]);
+		}
+		#pragma omp barrier
+		#pragma omp for
+		for (i=0;i<N;i++)
+			permutation_out[permutation_reverse[i]] = i;
+	}
+	free(permutation_reverse);
 	if (offsets_out == NULL)
 		free(offsets);
 	if (A_bucket_id_out == NULL)

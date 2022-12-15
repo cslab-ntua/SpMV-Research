@@ -2,6 +2,8 @@
 #define MACROLIB_H
 
 #include "macros/cpp_defines.h"
+#include "macros/count_macro_arguments.h"
+#include "macros/recursion.h"
 #include "debug.h"
 
 
@@ -21,6 +23,11 @@
 #define CONCAT(a, b)  _CONCAT(a, b)
 
 
+// This is usefull for the _Pragma operator, which expects a single string literal, when we want to parameterize the string.
+// We pass the argument unstringized, like in a #pragma directive.
+#define PRAGMA(...)  _Pragma(STRING(__VA_ARGS__))
+
+
 // __VA_OPT__ replacement (almost, can't use the comma ',' with it).
 #define _OPT_ID(...)  __VA_ARGS__
 #define _OPT_SINK(...)
@@ -29,22 +36,37 @@
 #define OPT_NEG(optional, ...)  _OPT_EXPAND(optional, _OPT_SINK, ##__VA_ARGS__ ()_OPT_ID)
 
 
-// #define DEFAULT(def, ...)  OPT(__VA_ARGS__, ##__VA_ARGS__)  OPT_NEG(def, ##__VA_ARGS__)
+//==========================================================================================================================================
+//= Default Argument Values
+//==========================================================================================================================================
 
-#define _DEFAULT_ARG_5(a1, a2, a3, a4, a5, ...)  a5
-#define DEFAULT_ARG_5(def, ...)  _DEFAULT_ARG_5(__VA_ARGS__, def, def, def, def)
 
-#define _DEFAULT_ARG_4(a1, a2, a3, a4, ...)  a4
-#define DEFAULT_ARG_4(def, ...)  _DEFAULT_ARG_4(__VA_ARGS__, def, def, def)
+// Default function argument mechanism.
+#define _DEF_ARG_1(def, arg)  arg
+#define _DEF_ARG_0(def, arg)  def
+#define _DEF_ARG(num, def, arg)  _DEF_ARG_ ## num (def, arg)
+#define _DEF_ARG_EXPAND(num, def, arg)  _DEF_ARG(num, def, arg)
+#define _DEFAULT_ARG_TEST_EMPTY(def, arg)  _DEF_ARG_EXPAND(COUNT_ARGS(arg), def, arg)
 
-#define _DEFAULT_ARG_3(a1, a2, a3, ...)  a3
-#define DEFAULT_ARG_3(def, ...)  _DEFAULT_ARG_3(__VA_ARGS__, def, def)
+#define _DEFAULT_ARG_5(def, a1, a2, a3, a4, a5, ...)  _DEFAULT_ARG_TEST_EMPTY(def, a5)
+#define DEFAULT_ARG_5(def, ...)  _DEFAULT_ARG_5(def, __VA_ARGS__, def, def, def, def)
 
-#define _DEFAULT_ARG_2(a1, a2, ...)  a2
-#define DEFAULT_ARG_2(def, ...)  _DEFAULT_ARG_2(__VA_ARGS__, def)
+#define _DEFAULT_ARG_4(def, a1, a2, a3, a4, ...)  _DEFAULT_ARG_TEST_EMPTY(def, a4)
+#define DEFAULT_ARG_4(def, ...)  _DEFAULT_ARG_4(def, __VA_ARGS__, def, def, def)
 
-#define _DEFAULT_ARG_1(empty, a1, ...)  a1
-#define DEFAULT_ARG_1(def, ...)  _DEFAULT_ARG_1(/* empty */, ##__VA_ARGS__, def)
+#define _DEFAULT_ARG_3(def, a1, a2, a3, ...)  _DEFAULT_ARG_TEST_EMPTY(def, a3)
+#define DEFAULT_ARG_3(def, ...)  _DEFAULT_ARG_3(def, __VA_ARGS__, def, def)
+
+#define _DEFAULT_ARG_2(def, a1, a2, ...)  _DEFAULT_ARG_TEST_EMPTY(def, a2)
+#define DEFAULT_ARG_2(def, ...)  _DEFAULT_ARG_2(def, __VA_ARGS__, def)
+
+#define _DEFAULT_ARG_1(def, a1, ...)  _DEFAULT_ARG_TEST_EMPTY(def, a1)
+#define DEFAULT_ARG_1(def, ...)  _DEFAULT_ARG_1(def, __VA_ARGS__, def)
+
+
+//==========================================================================================================================================
+//= Tupples Packing / Unpacking
+//==========================================================================================================================================
 
 
 // Pack args in a tuple. 
@@ -63,19 +85,11 @@
 #define UNPACK(tuple)  _UNPACK_EXPAND_ARGS(tuple, _UNPACK_TEST_IF_TUPLE tuple)
 
 
-// This is usefull for the _Pragma operator, which expects a single string literal, when we want to parameterize the string.
-// We pass the argument unstringized, like in a #pragma directive.
-#define PRAGMA(...)  _Pragma(STRING(__VA_ARGS__))
-
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
---------------------------------------------------------------------------------------------------------------------------------------------
--                                                             Macro Functions                                                              -
---------------------------------------------------------------------------------------------------------------------------------------------
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-
-#include "recursion.h"
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                           Macro Functions                                                              -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 //==========================================================================================================================================
@@ -85,11 +99,85 @@
 
 #define _FOREACH_EXPAND(fun, ...)  fun(__VA_ARGS__)
 
-#define _FOREACH_0(code, fun)            code
-#define _FOREACH_REC(code, fun, a, ...)  code _FOREACH_EXPAND(fun, UNPACK(a));, fun, ##__VA_ARGS__
+#define _FOREACH_0(resulting_code, fun)            resulting_code
+#define _FOREACH_REC(resulting_code, fun, a, ...)  resulting_code _FOREACH_EXPAND(fun, UNPACK(a));, fun, ##__VA_ARGS__
 
 #define FOREACH_UNGUARDED(fun, ...)  RECURSION_FORM_ITER(__VA_ARGS__)(_FOREACH_REC, _FOREACH_0, (, fun, __VA_ARGS__))
 #define FOREACH(fun, ...)            do { FOREACH_UNGUARDED(fun, ##__VA_ARGS__); } while (0)
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Foreach Macro Argument With Iterator
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+
+#define _FOREACH_ITER_EXPAND(fun, ...)  fun(__VA_ARGS__)
+
+#define _FOREACH_ITER_0(resulting_code, i, fun)            resulting_code
+#define _FOREACH_ITER_REC(resulting_code, i, fun, a, ...)  resulting_code _FOREACH_ITER_EXPAND(fun, i, UNPACK(a));, i+1, fun, ##__VA_ARGS__
+
+#define FOREACH_ITER_UNGUARDED(fun, ...)  RECURSION_FORM_ITER(__VA_ARGS__)(_FOREACH_ITER_REC, _FOREACH_ITER_0, (, 0, fun, __VA_ARGS__))
+#define FOREACH_ITER(fun, ...)            do { FOREACH_ITER_UNGUARDED(fun, ##__VA_ARGS__); } while (0)
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Foreach Macro Argument In Tupple With Extra Static Prefix/Suffix Arguments
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+
+#define _FOREACH_PACKED_EXPAND(fun, ...)  fun(__VA_ARGS__)
+
+#define _FOREACH_PACKED_0_0_0(resulting_code, fun)                            resulting_code
+#define _FOREACH_PACKED_0_0_REC(resulting_code, fun, a, ...)                  resulting_code _FOREACH_PACKED_EXPAND(fun, UNPACK(a));, fun, ##__VA_ARGS__
+#define _FOREACH_PACKED_UNGUARDED_0_0(fun, prefix, arg, suffix)               RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_0_0_REC, _FOREACH_PACKED_0_0_0, (, fun, UNPACK(arg)))
+
+#define _FOREACH_PACKED_0_1_0(resulting_code, fun, suffix)                    resulting_code
+#define _FOREACH_PACKED_0_1_REC(resulting_code, fun, suffix, a, ...)          resulting_code _FOREACH_PACKED_EXPAND(fun, UNPACK(a), UNPACK(suffix));, fun, suffix, ##__VA_ARGS__
+#define _FOREACH_PACKED_UNGUARDED_0_1(fun, prefix, arg, suffix)               RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_0_1_REC, _FOREACH_PACKED_0_1_0, (, fun, suffix, UNPACK(arg)))
+
+#define _FOREACH_PACKED_1_0_0(resulting_code, fun, prefix)                    resulting_code
+#define _FOREACH_PACKED_1_0_REC(resulting_code, fun, prefix, a, ...)          resulting_code _FOREACH_PACKED_EXPAND(fun, UNPACK(prefix), UNPACK(a));, fun, prefix, ##__VA_ARGS__
+#define _FOREACH_PACKED_UNGUARDED_1_0(fun, prefix, arg, suffix)               RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_1_0_REC, _FOREACH_PACKED_1_0_0, (, fun, prefix, UNPACK(arg)))
+
+#define _FOREACH_PACKED_1_1_0(resulting_code, fun, prefix, suffix)            resulting_code
+#define _FOREACH_PACKED_1_1_REC(resulting_code, fun, prefix, suffix, a, ...)  resulting_code _FOREACH_PACKED_EXPAND(fun, UNPACK(prefix), UNPACK(a), UNPACK(suffix));, fun, prefix, suffix, ##__VA_ARGS__
+#define _FOREACH_PACKED_UNGUARDED_1_1(fun, prefix, arg, suffix)               RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_1_1_REC, _FOREACH_PACKED_1_1_0, (, fun, prefix, suffix, UNPACK(arg)))
+
+#define __FOREACH_PACKED_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)  _FOREACH_PACKED_UNGUARDED_ ## prefix_num ## _ ## suffix_num(fun, prefix, arg, suffix)  
+#define _FOREACH_PACKED_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)   __FOREACH_PACKED_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)
+
+#define FOREACH_PACKED_UNGUARDED(fun, prefix, arg, suffix)  _FOREACH_PACKED_UNGUARDED(COUNT_ARGS(prefix), COUNT_ARGS(suffix), fun, prefix, arg, suffix)
+#define FOREACH_PACKED(fun, prefix, arg, suffix)            do { FOREACH_PACKED_UNGUARDED(fun, prefix, arg, suffix); } while (0)
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Foreach Macro Argument In Tupple With Extra Static Prefix/Suffix Arguments And Iterator
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+
+#define _FOREACH_PACKED_ITER_EXPAND(fun, ...)  fun(__VA_ARGS__)
+
+#define _FOREACH_PACKED_ITER_0_0_0(resulting_code, i, fun)                            resulting_code
+#define _FOREACH_PACKED_ITER_0_0_REC(resulting_code, i, fun, a, ...)                  resulting_code _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(a));, i+1, fun, ##__VA_ARGS__
+#define _FOREACH_PACKED_ITER_UNGUARDED_0_0(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_0_0_REC, _FOREACH_PACKED_ITER_0_0_0, (, 0, fun, UNPACK(arg)))
+
+#define _FOREACH_PACKED_ITER_0_1_0(resulting_code, i, fun, suffix)                    resulting_code
+#define _FOREACH_PACKED_ITER_0_1_REC(resulting_code, i, fun, suffix, a, ...)          resulting_code _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(a), UNPACK(suffix));, i+1, fun, suffix, ##__VA_ARGS__
+#define _FOREACH_PACKED_ITER_UNGUARDED_0_1(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_0_1_REC, _FOREACH_PACKED_ITER_0_1_0, (, 0, fun, suffix, UNPACK(arg)))
+
+#define _FOREACH_PACKED_ITER_1_0_0(resulting_code, i, fun, prefix)                    resulting_code
+#define _FOREACH_PACKED_ITER_1_0_REC(resulting_code, i, fun, prefix, a, ...)          resulting_code _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(prefix), UNPACK(a));, i+1, fun, prefix, ##__VA_ARGS__
+#define _FOREACH_PACKED_ITER_UNGUARDED_1_0(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_1_0_REC, _FOREACH_PACKED_ITER_1_0_0, (, 0, fun, prefix, UNPACK(arg)))
+
+#define _FOREACH_PACKED_ITER_1_1_0(resulting_code, i, fun, prefix, suffix)            resulting_code
+#define _FOREACH_PACKED_ITER_1_1_REC(resulting_code, i, fun, prefix, suffix, a, ...)  resulting_code _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(prefix), UNPACK(a), UNPACK(suffix));, i+1, fun, prefix, suffix, ##__VA_ARGS__
+#define _FOREACH_PACKED_ITER_UNGUARDED_1_1(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_1_1_REC, _FOREACH_PACKED_ITER_1_1_0, (, 0, fun, prefix, suffix, UNPACK(arg)))
+
+#define __FOREACH_PACKED_ITER_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)  _FOREACH_PACKED_ITER_UNGUARDED_ ## prefix_num ## _ ## suffix_num(fun, prefix, arg, suffix)  
+#define _FOREACH_PACKED_ITER_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)   __FOREACH_PACKED_ITER_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)
+
+#define FOREACH_PACKED_ITER_UNGUARDED(fun, prefix, arg, suffix)  _FOREACH_PACKED_ITER_UNGUARDED(COUNT_ARGS(prefix), COUNT_ARGS(suffix), fun, prefix, arg, suffix)
+#define FOREACH_PACKED_ITER(fun, prefix, arg, suffix)            do { FOREACH_PACKED_ITER_UNGUARDED(fun, prefix, arg, suffix); } while (0)
 
 
 //==========================================================================================================================================
@@ -97,14 +185,18 @@
 //==========================================================================================================================================
 
 
-// Rename macro arguments to avoid names clashing with macro variables.
-// Optionally pass type.
+/* RENAME( list of tupples : (name_initial, name_final, [type]) )
+ *     Rename macro arguments to avoid names clashing with macro variables.
+ *     Optionally pass the type.
+ */
+
 #define __RENAME_PREFIX __eb320f0c2b6a25b48ca861a120eea902__     // MD5 of "macro" (no reason)
 #define RENAME_1(a, b, ...)  DEFAULT_ARG_1(__auto_type, ##__VA_ARGS__) __MACRO_EXCLUSIVE_PREFIX##b = (a);
-#define RENAME_2(a, b, ...)  DEFAULT_ARG_1(__auto_type, ##__VA_ARGS__) b = __MACRO_EXCLUSIVE_PREFIX##b;
+// DON'T reuse possible given type for RENAME_2, the intermediate variables are already the correct type (the given type might be in a 'typeof(var)' format, and the name of 'var' could be shadowed).
+#define RENAME_2(a, b, ...)  __auto_type b = __MACRO_EXCLUSIVE_PREFIX##b;
 
-#define RENAME(...)                                             \
-	FOREACH_UNGUARDED(RENAME_1, ##__VA_ARGS__);             \
+#define RENAME(...)                                    \
+	FOREACH_UNGUARDED(RENAME_1, ##__VA_ARGS__);    \
 	FOREACH_UNGUARDED(RENAME_2, ##__VA_ARGS__);
 
 
@@ -113,17 +205,46 @@
 //==========================================================================================================================================
 
 
-#undef arg_return
+/* THIS IS VERY DANGEROUS! (e.g. int * _ptr, long _val)
+ *
+ * We can't just dereference, because if 'ptr' is NULL (not just equal, but actually the token NULL,
+ * like when NULL is passed as an argument of a macro) we will be dereferencing a void *.
+ * Therefor, we need to explicitly copy the memory region.
+ */
+/* #undef  arg_return
+#define arg_return(_ptr, _val)                                   \
+do {                                                             \
+	RENAME((_ptr, ptr), (_val, val));                        \
+	unsigned char * mem = (unsigned char *) ptr;             \
+	const long N = sizeof(val);                              \
+	long i;                                                  \
+	if (mem != NULL)                                         \
+		for (i=0;i<N;i++)                                \
+			mem[i] = ((unsigned char *) &val)[i];    \
+} while (0) */
 
-#define arg_return(ptr, val)     \
-do {                             \
-	if (ptr != NULL)         \
-		*ptr = (val);    \
+/* It is very dangerous to attempt to guess the type of the pointer '_ptr' from the type of '_val' (e.g. _ptr: int * , _val: long).
+ * If '_ptr' ends up of type void * (e.g. with NULL as argument to a macro), then fix your macro by
+ * enforcing the appropriate type for the pointer.
+ */
+#undef  arg_return
+#define arg_return(_ptr, _val)                                                                                         \
+do {                                                                                                                   \
+	RENAME((_ptr, ptr), (_val, val));                                                                              \
+	_Static_assert(                                                                                                \
+		_Generic((ptr),                                                                                        \
+			void * : 0,                                                                                    \
+			default: 1                                                                                     \
+		),                                                                                                     \
+		"Pointer passed to macro <arg_return()> is of type <void *>, possibly by passing NULL as argument."    \
+		" Enforce the appropriate type for the pointer before passing it."                                     \
+	);                                                                                                             \
+	if (ptr != NULL)                                                                                               \
+		*ptr = (val);                                                                                          \
 } while (0)
 
 
-#undef arg_return_or_free
-
+#undef  arg_return_or_free
 #define arg_return_or_free(ptr, val)    \
 do {                                    \
 	if (ptr != NULL)                \

@@ -66,6 +66,8 @@ CFLAGS += -fopenmp
 # CFLAGS += -O2
 CFLAGS += -O3
 
+# CFLAGS += -ffast-math
+
 CFLAGS += -flto
 ifeq ($(ARCH), x86_64)
     CFLAGS += -march=native
@@ -107,7 +109,7 @@ LDFLAGS =
 LDFLAGS += -lm
 
 
-LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c pthread_functions.c omp_functions.c string_util.c parallel_io.c openfoam_matrix.c rapl.c
+LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c pthread_functions.c omp_functions.c array_metrics.c string_util.c parallel_io.c openfoam_matrix.c rapl.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%.o,$(LIB_OBJ))
@@ -320,6 +322,8 @@ $(call Rule_Auto_Dependencies,obj/ordered_set.o,$(AMG_PATH)/ordered_set.c)
 $(call Rule_Auto_Dependencies,obj/pthread_functions.o,$(library)/pthread_functions.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/omp_functions.o,$(library)/omp_functions.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/array_metrics.o,$(library)/array_metrics.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/string_util.o,$(library)/string_util.c)
 	$(CC) $(CFLAGS) -c $< -o $@

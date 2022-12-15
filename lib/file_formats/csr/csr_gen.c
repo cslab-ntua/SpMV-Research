@@ -4,6 +4,7 @@
 #include <math.h>
 
 #include "macros/macrolib.h"
+#include "time_it.h"
 #include "parallel_util.h"
 #include "omp_functions.h"
 
@@ -94,21 +95,22 @@ samplesort_cmp(CSR_GEN_TYPE_2 a, CSR_GEN_TYPE_2 b, CSR_GEN_TYPE_2 ** sorting_key
 
 #include "functools_gen_undef.h"
 #define FUNCTOOLS_GEN_TYPE_1  CSR_GEN_TYPE_2
+#define FUNCTOOLS_GEN_TYPE_2  CSR_GEN_TYPE_2
 #define FUNCTOOLS_GEN_SUFFIX  CONCAT(_FT_i_CSR_GEN, CSR_GEN_SUFFIX)
 #include "functools_gen.c"
 
 static inline
-void
-functools_reduce_fun(CSR_GEN_TYPE_2 * partial, CSR_GEN_TYPE_2 * x)
+CSR_GEN_TYPE_2
+functools_map_fun(CSR_GEN_TYPE_2 * A, long i)
 {
-	*partial += *x;
+	return A[i];
 }
 
 static inline
-void
-functools_set_value(CSR_GEN_TYPE_2 * x, CSR_GEN_TYPE_2 val)
+CSR_GEN_TYPE_2
+functools_reduce_fun(CSR_GEN_TYPE_2 a, CSR_GEN_TYPE_2 b)
 {
-	*x = val;
+	return a + b;
 }
 
 
@@ -126,6 +128,8 @@ typedef CSR_GEN_TYPE_1  _TYPE_V;
 typedef CSR_GEN_TYPE_2  _TYPE_I;
 
 
+#undef  insertionsort
+#define insertionsort  CONCAT(insertionsort_QS_CSR_GEN, CSR_GEN_SUFFIX)
 #undef  quicksort
 #define quicksort  CONCAT(quicksort_QS_CSR_GEN, CSR_GEN_SUFFIX)
 #undef  quicksort_no_malloc
@@ -161,17 +165,12 @@ csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, lo
 		_TYPE_I * buf_bucket_ids   = (typeof(buf_bucket_ids)) malloc((n+1)*sizeof(*buf_offsets));
 		_TYPE_I * qsort_partitions = (typeof(qsort_partitions)) malloc(m * sizeof(*qsort_partitions));
 
-		// long k, l;
-		// char * flags = (typeof(flags)) calloc(n, sizeof(*flags));
-		// long flags64_n = n/(8*sizeof(long)) + 1;
-		// long * flags64 = (typeof(flags64)) calloc(flags64_n, sizeof(*flags64));
-
 		loop_partitioner_balance_partial_sums(num_threads, tnum, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 		i_s = thread_i_s[tnum];
 		i_e = thread_i_e[tnum];
 
 		_TYPE_I pos;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<nnz;i++)
 		{
 			permutation[i] = i;
@@ -186,10 +185,8 @@ csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, lo
 			if (degree == 0)
 				continue;
 
-			// if (0)
 			if (degree > n/5)
 			{
-
 				bucketsort_stable_serial(&col_idx[row_ptr[i]], degree, n, NULL, buf_permutation, buf_offsets, buf_bucket_ids);
 				for (j=row_ptr[i];j<row_ptr[i+1];j++)
 				{
@@ -198,40 +195,6 @@ csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, lo
 					if (val != NULL)
 						val[pos] = V[j];
 				}
-
-				// for (j=row_ptr[i];j<row_ptr[i+1];j++)
-					// flags[col_idx[j]] = 1;
-				// k = row_ptr[i];
-				// for (j=0;j<n;j++)
-				// {
-					// if (flags[j])
-					// {
-						// flags[j] = 0;
-						// col_idx[k] = j;
-						// k++;
-					// }
-				// }
-
-				// for (j=row_ptr[i];j<row_ptr[i+1];j++)
-					// flags64[col_idx[j] >> 6] |= (1LL << (col_idx[j] & 63));
-				// k = row_ptr[i];
-				// for (j=0;j<flags64_n;j++)
-				// {
-					// if (flags64[j] == 0)
-						// continue;
-					// PRAGMA(GCC unroll 64)
-					// for (l=0;l<64;l++)
-					// {
-						// if (flags64[j] & 1LL<<l)
-						// {
-							// pos = (j << 6) | l;
-							// col_idx[k] = pos;
-							// k++;
-						// }
-					// }
-					// flags64[j] = 0;
-				// }
-
 			}
 			else
 			{
@@ -265,24 +228,48 @@ void
 coo_to_csr(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, long n, long nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int sort_columns)
 {
 	_TYPE_I * permutation = (typeof(permutation)) malloc(nnz * sizeof(*permutation));
-	// bucketsort(R, nnz, m, NULL, permutation, row_ptr, NULL);
-	bucketsort_stable_serial(R, nnz, m, NULL, permutation, row_ptr, NULL);
+
+	// bucketsort_stable_serial(R, nnz, m, NULL, permutation, row_ptr, NULL);
+	bucketsort(R, nnz, m, NULL, permutation, row_ptr, NULL);
+
+	// _TYPE_I * permutation_base = (typeof(permutation_base)) malloc(nnz * sizeof(*permutation_base));
+	// bucketsort(C, nnz, n, NULL, permutation_base, NULL, NULL);
+	// _TYPE_I * r_buf = (typeof(r_buf)) malloc(nnz * sizeof(*r_buf));
+	// #pragma omp parallel
+	// {
+		// long i;
+		// _TYPE_I pos;
+		// #pragma omp for
+		// for (i=0;i<nnz;i++)
+		// {
+			// pos = permutation_base[i];
+			// r_buf[pos] = R[i];
+		// }
+	// }
+	// bucketsort_stable(r_buf, nnz, m, NULL, permutation, row_ptr, NULL);
+
 	#pragma omp parallel
 	{
 		long i;
 		_TYPE_I pos;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<nnz;i++)
 		{
 			pos = permutation[i];
+			// pos = permutation[permutation_base[i]];
 			col_idx[pos] = C[i];
 			if (V != NULL)
 				val[pos] = V[i];
 		}
 	}
 	free(permutation);
+
+	// free(r_buf);
+	// free(permutation_base);
+
 	if (sort_columns)
 		csr_sort_columns(row_ptr, col_idx, val, m, n, nnz);
+
 }
 
 
@@ -297,7 +284,7 @@ coo_to_csr_fully_sorted(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, __attribu
 	#pragma omp parallel
 	{
 		long i;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<nnz;i++)
 		{
 			permutation[i] = i;
@@ -311,19 +298,15 @@ coo_to_csr_fully_sorted(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, __attribu
 	#pragma omp parallel
 	{
 		long i;
-		#pragma omp for schedule(static)
+		_TYPE_I pos;
+		#pragma omp for
 		for (i=0;i<m;i++)
 			offsets[i] = 0;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<nnz;i++)
 			__atomic_fetch_add(&offsets[R[i]], 1, __ATOMIC_RELAXED);
-	}
-	scan_reduce(offsets, row_ptr, m+1, 0, 1);
-	#pragma omp parallel
-	{
-		long i;
-		_TYPE_I pos;
-		#pragma omp for schedule(static)
+		scan_reduce_parallel(offsets, row_ptr, m+1, 0, 1, 0);
+		#pragma omp for
 		for (i=0;i<nnz;i++)
 		{
 			pos = permutation[i];

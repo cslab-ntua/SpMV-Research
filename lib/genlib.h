@@ -44,6 +44,15 @@
 
 #else
 
+#define gen_type_equals(var, T)    \
+(                                  \
+	_Generic((var),            \
+		typeof(T): 1,      \
+		default: 0         \
+	)                          \
+)
+
+
 #define gen_type_is_basic(var)                                                 \
 (                                                                              \
 	_Generic((var),                                                        \
@@ -64,7 +73,6 @@
 )
 
 
-
 #define gen_ptr_type_is_basic(var)        \
 (                                         \
 	_Generic((var),                   \
@@ -78,7 +86,7 @@
 do {                                                                                                    \
 	_Static_assert(                                                                                 \
 		gen_type_is_basic(var),                                                                 \
-		"type of <" STRING(var) "> is not a basic type" OPT(": ", ##__VA_ARGS__) __VA_ARGS__    \
+		"Type of <" STRING(var) "> is not a basic type" OPT(": ", ##__VA_ARGS__) __VA_ARGS__    \
 	);                                                                                              \
 } while (0)
 
@@ -87,8 +95,17 @@ do {                                                                            
 do {                                                                                                               \
 	_Static_assert(                                                                                            \
 		gen_ptr_type_is_basic(var),                                                                        \
-		"type referenced by <" STRING(var) "> is not a basic type" OPT(": ", ##__VA_ARGS__) __VA_ARGS__    \
+		"Type referenced by <" STRING(var) "> is not a basic type" OPT(": ", ##__VA_ARGS__) __VA_ARGS__    \
 	);                                                                                                         \
+} while (0)
+
+
+#define gen_assert_type(var, type, var_name)                                \
+do {                                                                        \
+	_Static_assert(                                                     \
+		gen_type_equals(var, type),                                 \
+		"Type of <" STRING(var_name) "> should be " STRING(type)    \
+	);                                                                  \
 } while (0)
 
 #endif /* __cplusplus */
@@ -402,6 +419,13 @@ GENLIB_cpy(char * restrict src, char * restrict dst, int N)
 #endif /* __cplusplus */
 
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                       Generics Over Doubles                                                            -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 //==========================================================================================================================================
 //= Basic Type to Double Converter Functions
 //==========================================================================================================================================
@@ -413,23 +437,23 @@ GENLIB_cpy(char * restrict src, char * restrict dst, int N)
 
 #else
 
-__attribute__((unused)) static double gen_c2d  (void * x, long i) { return (double)      (((char *)                x)[i]); }
-__attribute__((unused)) static double gen_sc2d (void * x, long i) { return (double)      (((signed char *)         x)[i]); }
-__attribute__((unused)) static double gen_uc2d (void * x, long i) { return (double)      (((unsigned char *)       x)[i]); }
-__attribute__((unused)) static double gen_s2d  (void * x, long i) { return (double)      (((short *)               x)[i]); }
-__attribute__((unused)) static double gen_us2d (void * x, long i) { return (double)      (((unsigned short *)      x)[i]); }
-__attribute__((unused)) static double gen_i2d  (void * x, long i) { return (double)      (((int *)                 x)[i]); }
-__attribute__((unused)) static double gen_ui2d (void * x, long i) { return (double)      (((unsigned int *)        x)[i]); }
-__attribute__((unused)) static double gen_l2d  (void * x, long i) { return (double)      (((long *)                x)[i]); }
-__attribute__((unused)) static double gen_ul2d (void * x, long i) { return (double)      (((unsigned long *)       x)[i]); }
-__attribute__((unused)) static double gen_ll2d (void * x, long i) { return (double)      (((long long *)           x)[i]); }
-__attribute__((unused)) static double gen_ull2d(void * x, long i) { return (double)      (((unsigned long long *)  x)[i]); }
-__attribute__((unused)) static double gen_f2d  (void * x, long i) { return (double)      (((float *)               x)[i]); }
-__attribute__((unused)) static double gen_d2d  (void * x, long i) { return (double)      (((double *)              x)[i]); }
-__attribute__((unused)) static double gen_ld2d (void * x, long i) { return (double)      (((long double *)         x)[i]); }
-__attribute__((unused)) static double gen_cf2d (void * x, long i) { return (double) cabsf(((complex float *)       x)[i]); }
-__attribute__((unused)) static double gen_cd2d (void * x, long i) { return (double) cabs (((complex double *)      x)[i]); }
-__attribute__((unused)) static double gen_cld2d(void * x, long i) { return (double) cabsl(((complex long double *) x)[i]); }
+static inline double gen_c2d  (void * x, long i) { return (double)      (((char *)                x)[i]); }
+static inline double gen_sc2d (void * x, long i) { return (double)      (((signed char *)         x)[i]); }
+static inline double gen_uc2d (void * x, long i) { return (double)      (((unsigned char *)       x)[i]); }
+static inline double gen_s2d  (void * x, long i) { return (double)      (((short *)               x)[i]); }
+static inline double gen_us2d (void * x, long i) { return (double)      (((unsigned short *)      x)[i]); }
+static inline double gen_i2d  (void * x, long i) { return (double)      (((int *)                 x)[i]); }
+static inline double gen_ui2d (void * x, long i) { return (double)      (((unsigned int *)        x)[i]); }
+static inline double gen_l2d  (void * x, long i) { return (double)      (((long *)                x)[i]); }
+static inline double gen_ul2d (void * x, long i) { return (double)      (((unsigned long *)       x)[i]); }
+static inline double gen_ll2d (void * x, long i) { return (double)      (((long long *)           x)[i]); }
+static inline double gen_ull2d(void * x, long i) { return (double)      (((unsigned long long *)  x)[i]); }
+static inline double gen_f2d  (void * x, long i) { return (double)      (((float *)               x)[i]); }
+static inline double gen_d2d  (void * x, long i) { return (double)      (((double *)              x)[i]); }
+static inline double gen_ld2d (void * x, long i) { return (double)      (((long double *)         x)[i]); }
+static inline double gen_cf2d (void * x, long i) { return (double) cabsf(((complex float *)       x)[i]); }
+static inline double gen_cd2d (void * x, long i) { return (double) cabs (((complex double *)      x)[i]); }
+static inline double gen_cld2d(void * x, long i) { return (double) cabsl(((complex long double *) x)[i]); }
 
 #define gen_functor_basic_type_to_double(var_ptr)                                        \
 ({                                                                                       \
