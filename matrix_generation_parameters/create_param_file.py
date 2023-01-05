@@ -15,6 +15,8 @@ def create_param_file(param_file, mem_range_list, matrices_per_mem_range, avg_nn
         size_range = size_high - size_low
         step = int(size_range / (matrices_per_mem_range)) # obtain specific matrices per mem_range
         sizes = [i-1 for i in range(size_low+1, size_high, step)][:matrices_per_mem_range]
+        # if('new' in param_file):
+        #     sizes = [sizes[0], sizes[2], sizes[4]]
         for size in sizes:
             print(size,"MB")
             for avg_nnz_per_row in avg_nnz_per_row_list:
@@ -55,10 +57,11 @@ if __name__ == '__main__':
     avg_bw_list = [0.05, 0.3, 0.6]
     distribution = "normal"
     placement = "random"
-    skew_coeff_list = [0, 100, 1000, 10000]
+    skew_coeff_list = [0, 100, 1000, 10000, 100000]
+
     avg_num_neighbours_list = [0.05, 0.5, 0.95, 1.4, 1.9]
 
-    cross_row_similarity_list = [0.05, 0.5, 0.95]
+    cross_row_similarity_list = [0.05, 0.25, 0.5, 0.75, 0.95]
     seed = 14
 
     param_file_small = "synthetic_matrices_small_dataset"

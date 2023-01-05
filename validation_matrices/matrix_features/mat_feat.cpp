@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 	);
 	printf("time plot = %lf\n", time);
 
-	// csr_matrix_features(title, csr.ia, csr.ja, csr.m, csr.n, csr.nnz);
+	csr_matrix_features(argv[1], row_ptr, col_idx, m, n, nnz);
 	// free(buf);
 
 	return 0;

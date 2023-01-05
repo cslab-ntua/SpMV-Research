@@ -6,14 +6,14 @@ val_mat_dir='./'
 
 data=(
 
-    # "./epyc1/aocl_optmv_d.csv      ./amd-epyc1_validation_matrices      AOCL_OPTMV         Epyc1     24"
-    # "./epyc1/csr5_d.csv            ./amd-epyc1_validation_matrices      CSR5               Epyc1     24"
-    # "./epyc1/csr_naive_d.csv       ./amd-epyc1_validation_matrices      Naive_CSR_CPU      Epyc1     24"
-    # "./epyc1/csr_vector_x86_d.csv  ./amd-epyc1_validation_matrices      Custom_CSR_BV_x86  Epyc1     24"
-    # "./epyc1/merge_d.csv           ./amd-epyc1_validation_matrices      MERGE              Epyc1     24"
-    # "./epyc1/mkl_ie_d.csv          ./amd-epyc1_validation_matrices      MKL_IE             Epyc1     24"
-    # "./epyc1/sell_C_s_d.csv        ./amd-epyc1_validation_matrices      SELL-32-1          Epyc1     24"
-    # "./epyc1/sparsex_d.csv         ./amd-epyc1_validation_matrices      SparseX            Epyc1     24"
+    "./epyc1/aocl_optmv_d.csv      ./amd-epyc1_validation_matrices      AOCL_OPTMV         Epyc1     24"
+    "./epyc1/csr5_d.csv            ./amd-epyc1_validation_matrices      CSR5               Epyc1     24"
+    "./epyc1/csr_naive_d.csv       ./amd-epyc1_validation_matrices      Naive_CSR_CPU      Epyc1     24"
+    "./epyc1/csr_x86_vector_d.csv  ./amd-epyc1_validation_matrices      Custom_CSR_BV_x86  Epyc1     24"
+    "./epyc1/merge_d.csv           ./amd-epyc1_validation_matrices      MERGE              Epyc1     24"
+    "./epyc1/mkl_ie_d.csv          ./amd-epyc1_validation_matrices      MKL_IE             Epyc1     24"
+    "./epyc1/sell_C_s_d.csv        ./amd-epyc1_validation_matrices      SELL-32-1          Epyc1     24"
+    "./epyc1/sparsex_d.csv         ./amd-epyc1_validation_matrices      SparseX            Epyc1     24"
 
     # "./intel-gold2/csr5_d.csv            ./intel-gold2_validation_matrices      CSR5               XeonGold     14"
     # "./intel-gold2/csr_naive_d.csv       ./intel-gold2_validation_matrices      Naive_CSR_CPU      XeonGold     14"
@@ -32,8 +32,8 @@ data=(
     # "./power9/1/csr_d.csv             ./power9-m100_validation_matrices      Custom_CSR_B       Power9     32"
     # "./power9/1/csr_naive_d.csv       ./power9-m100_validation_matrices      Naive_CSR_CPU      Power9     32"
 
-    "./power9/xlc_csr_d.csv             ./power9-m100_validation_matrices      Custom_CSR_B       Power9     32"
-    "./power9/xlc_csr_naive_d.csv       ./power9-m100_validation_matrices      Naive_CSR_CPU      Power9     32"
+    # "./power9/xlc_csr_d.csv             ./power9-m100_validation_matrices      Custom_CSR_B       Power9     32"
+    # "./power9/xlc_csr_naive_d.csv       ./power9-m100_validation_matrices      Naive_CSR_CPU      Power9     32"
 
     # "./power9/1/csr_vector_d.csv      ./power9-m100_validation_matrices      Custom_CSR_BV      Power9     32"
     # "./power9/1/merge_d.csv           ./power9-m100_validation_matrices      MERGE              Power9     32"

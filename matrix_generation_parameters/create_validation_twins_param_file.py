@@ -2,10 +2,13 @@ import numpy as np
 import pandas as pd
 
 def create_validation_twins_param_file(param_file, num_samples, percentage, distribution, placement, seed, scaling_list):
-    vm_features = pd.read_csv("../benchmark_results/validation_matrices_features.csv", sep="\t")
-    
+    # vm_features = pd.read_csv("../benchmark_results/validation_matrices_features.csv", sep="\t")
+    vm_features = pd.read_csv("../results_visualization/helper_scripts/features_histogram_NEW_DATASET.csv", sep="\t")
+
     mtx_names = list(vm_features["matrix"])
-    vm_features = vm_features[['matrix','nr_rows','nr_cols', 'nnz-r-avg', 'nnz-r-std', 'bw-avg', 'skew_coeff', 'neigh-avg', 'cross_row_sim-avg']]
+
+    # vm_features = vm_features[['matrix','nr_rows','nr_cols', 'nnz-r-avg', 'nnz-r-std', 'bw-avg', 'skew_coeff', 'neigh-avg', 'cross_row_sim-avg']]
+    vm_features = vm_features[['matrix','nr_rows','nr_cols','nr_nzeros','density','nnz-r-min','nnz-r-max','nnz-r-avg','nnz-r-std','nnz-c-min','nnz-c-max','nnz-c-avg','nnz-c-std','skew_coeff','bw-min','bw-max','bw-avg','bw-std','bw-scaled-min','bw-scaled-max','bw-scaled-avg','bw-scaled-std','sc-min','sc-max','sc-avg','sc-std','sc-scaled-min','sc-scaled-max','sc-scaled-avg','sc-scaled-std','nr_groups-r-min','nr_groups-r-max','nr_groups-r-avg','nr_groups-r-std','num-neigh-avg','cross_row_sim-avg','mem_footprint']]
     # print(vm_features)
 
     cnt = 0
@@ -20,7 +23,8 @@ def create_validation_twins_param_file(param_file, num_samples, percentage, dist
             std_nnz_per_row = np.round(curr['nnz-r-std'],5)
             avg_bw = np.round(curr['bw-avg'],5)
             skew_coeff = np.round(curr['skew_coeff'],5)
-            avg_num_neighbours = np.round(curr['neigh-avg'],5)
+            # avg_num_neighbours = np.round(curr['neigh-avg'],5)
+            avg_num_neighbours = np.round(curr['num-neigh-avg'],5)
             cross_row_similarity = np.round(curr['cross_row_sim-avg'],5)
 
             nr_rows_list = [int(nr_rows * x) for x in scaling_list]
@@ -117,6 +121,7 @@ if __name__ == '__main__':
     # prefix = "../../matrix_generation_parameters/"
     prefix = ""
     param_file = prefix+'validation_matrices_'+str(num_samples)+'_samples_'+str(percentage)+'_range_twins.txt'
+    param_file = prefix+'NEW_validation_matrices_'+str(num_samples)+'_samples_'+str(percentage)+'_range_twins.txt'
     scaling_start = 1 - percentage*0.01
     scaling_stop = 1 + percentage*0.01
     scaling_list = np.linspace(scaling_start, scaling_stop, num = num_samples)
