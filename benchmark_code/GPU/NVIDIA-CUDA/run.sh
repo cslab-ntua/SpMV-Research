@@ -8,9 +8,16 @@ cd $path_generator
 make -j
 cd -
 
-mkdir -p ./spmv_code_cusparse-11.x/${system}-build
-cp ./spmv_code_cusparse-11.x/CMakeLists.txt ./spmv_code_cusparse-11.x/${system}-build/CMakeLists.txt
-cd ./spmv_code_cusparse-11.x/${system}-build
+# mkdir -p ./spmv_code_cusparse-11.x/${system}-build
+# cp ./spmv_code_cusparse-11.x/CMakeLists.txt ./spmv_code_cusparse-11.x/${system}-build/CMakeLists.txt
+# cd ./spmv_code_cusparse-11.x/${system}-build
+# $cmake_command ./
+# make -j
+# cd -
+
+mkdir -p ./spmv_code_tilespmv_cuda_11.x/${system}-build
+cp ./spmv_code_tilespmv_cuda_11.x/CMakeLists.txt ./spmv_code_tilespmv_cuda_11.x/${system}-build/CMakeLists.txt
+cd ./spmv_code_tilespmv_cuda_11.x/${system}-build
 $cmake_command ./
 make -j
 cd -
@@ -22,28 +29,28 @@ cd -
 #make -j
 #cd -
 
-mkdir -p ./spmv_code_merge_cuda_11.x/${system}-build
-cp ./spmv_code_merge_cuda_11.x/CMakeLists.txt ./spmv_code_merge_cuda_11.x/${system}-build/CMakeLists.txt
-cd ./spmv_code_merge_cuda_11.x/${system}-build
-$cmake_command ./
-make -j
-cd -
+# mkdir -p ./spmv_code_merge_cuda_11.x/${system}-build
+# cp ./spmv_code_merge_cuda_11.x/CMakeLists.txt ./spmv_code_merge_cuda_11.x/${system}-build/CMakeLists.txt
+# cd ./spmv_code_merge_cuda_11.x/${system}-build
+# $cmake_command ./
+# make -j
+# cd -
 
-if ((run_cuda_9)); then
-	mkdir -p ./spmv_code_cusparse-9.x/${system}-build
-	cp ./spmv_code_cusparse-9.x/CMakeLists.txt ./spmv_code_cusparse-9.x/${system}-build/CMakeLists.txt
-	cd ./spmv_code_cusparse-9.x/${system}-build
-	$cmake_command ./
-	make -j
-	cd -
+# if ((run_cuda_9)); then
+# 	mkdir -p ./spmv_code_cusparse-9.x/${system}-build
+# 	cp ./spmv_code_cusparse-9.x/CMakeLists.txt ./spmv_code_cusparse-9.x/${system}-build/CMakeLists.txt
+# 	cd ./spmv_code_cusparse-9.x/${system}-build
+# 	$cmake_command ./
+# 	make -j
+# 	cd -
 	
-	mkdir -p ./spmv_code_csr5_cuda/${system}-build
-	cp ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/CMakeLists.txt ./spmv_code_csr5_cuda/${system}-build/CMakeLists.txt
-	cd ./spmv_code_csr5_cuda/${system}-build
-	$cmake_command ./
-	make -j
-	cd -
-fi
+# 	mkdir -p ./spmv_code_csr5_cuda/${system}-build
+# 	cp ./spmv_code_csr5_cuda/integrated_csr5_wrap_operator/CMakeLists.txt ./spmv_code_csr5_cuda/${system}-build/CMakeLists.txt
+# 	cd ./spmv_code_csr5_cuda/${system}-build
+# 	$cmake_command ./
+# 	make -j
+# 	cd -
+# fi
 
 
 # Artificial matrix generator .so file used in Cmake requires linking. 
@@ -76,16 +83,16 @@ matrices_validation=(
     "$path_validation"/Ga41As41H72.mtx
     "$path_validation"/eu-2005.mtx
     "$path_validation"/wikipedia-20051105.mtx
-    "$path_validation"/rajat31.mtx
+    # "$path_validation"/rajat31.mtx
     "$path_validation"/ldoor.mtx
     "$path_validation"/circuit5M.mtx
     "$path_validation"/bone010.mtx
     "$path_validation"/cage15.mtx
     # in valpath/dcomex subdir
-    "$path_validation"/Kff_2E5dofs.mtx
-    "$path_validation"/Kff_3.5E5dofs.mtx
-    "$path_validation"/Kff_3E3dofs.mtx
-    "$path_validation"/Kff_5E5dofs.mtx
+    # "$path_validation"/Kff_2E5dofs.mtx
+    # "$path_validation"/Kff_3.5E5dofs.mtx
+    # "$path_validation"/Kff_3E3dofs.mtx
+    # "$path_validation"/Kff_5E5dofs.mtx
 )
 
 
@@ -130,31 +137,31 @@ mkdir -p $store_log_dir
 echo "Runing Dir:"
 pwd
 
-for p in "${progs[@]}"; do
-    # declare base file_out file_err
-    # base="${p/*\//}"
-    # base="${base%%.*}"
-    # file_out="out_${base}.out"
-    # file_err="out_${base}.err"
-    # > "$file_out"
-    # > "$file_err"
-    # exec 1>>"$file_out"
-    # exec 2>>"$file_err"
-    echo "program: $p"
-    for a in "${prog_args[@]}"
-    do
-        if ((use_artificial_matrices)); then
-            echo "Matrix: $a"
-            for reps in 1 2 3 4 5
-            do
-            	bench $p $a
-            done
-        else
-            echo "File: $a"
-            for reps in 1 2 3 4 5
-            do
-            	bench $p "$a"
-           	done
-        fi
-    done
-done
+ for p in "${progs[@]}"; do
+     # declare base file_out file_err
+     # base="${p/*\//}"
+     # base="${base%%.*}"
+     # file_out="out_${base}.out"
+     # file_err="out_${base}.err"
+     # > "$file_out"
+     # > "$file_err"
+     # exec 1>>"$file_out"
+     # exec 2>>"$file_err"
+     echo "program: $p"
+     for a in "${prog_args[@]}"
+     do
+         if ((use_artificial_matrices)); then
+             echo "Matrix: $a"
+             for reps in 1 2 3 4 5
+             do
+             	bench $p $a
+             done
+         else
+             echo "File: $a"
+             for reps in 1 2 3 4 5
+             do
+             	bench $p "$a"
+            	done
+         fi
+     done
+ done

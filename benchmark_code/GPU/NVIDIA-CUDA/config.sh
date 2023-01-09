@@ -4,7 +4,7 @@
 cmake_command=~/Lib_install/cmake-3.20/bin/cmake
 
 # CHECKME: A desired name for the GPU testbed to be used for your build-dirs and logfiles.
-system='epyc5A100'
+system='epyc5-A100'
 
 # CHECKME: Define cuda architecture 80") # (Tesla K40 = 35, GTX 1060/70 = 61,) P100 = 60, V100 = 70, A100 = 80
 export cnf_CUDA_arch=80
@@ -29,7 +29,7 @@ export cnf_dtype_id=1
 
 # CHECKME: Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
 # ['use_artificial_matrices']=0
-use_artificial_matrices=0
+use_artificial_matrices=1
 
 # Path for the matrix generation parameters.
 path_artificial='../../../matrix_generation_parameters'
@@ -95,16 +95,19 @@ if ((run_cuda_9)); then
 else
 	progs=(
 		# cuSPARSE 11 coo
-		"../spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}coomv_11_${progtype_string}"
+		# "../spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}coomv_11_${progtype_string}"
 		
 		# cuSPARSE 11 csr
-		"../spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}csrmv_11_${progtype_string}"
+		# "../spmv_code_cusparse-11.x/${system}-build/cuSPARSE${dtype}csrmv_11_${progtype_string}"
 		
 		# CSR5 cuda 11
 		#"../spmv_code_csr5_cuda_11.x_exp/${system}-build/CSR5_CUDA_${dtype}SPMV_11_${progtype_string}"
 		
 		# Merge 11
-		"../spmv_code_merge_cuda_11.x/${system}-build/CUDA_MERGE_${dtype}SPMV_11_${progtype_string}"
+		# "../spmv_code_merge_cuda_11.x/${system}-build/CUDA_MERGE_${dtype}SPMV_11_${progtype_string}"
+  
+  		# Tile 11
+		"../spmv_code_tilespmv_cuda_11.x/${system}-build/CUDA_TILE_${dtype}SPMV_11_${progtype_string}"
   
 	)
 fi

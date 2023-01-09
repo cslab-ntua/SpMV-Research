@@ -30,13 +30,13 @@ add_definitions(-DNR_ITER=128)
 #add_definitions(-DDDEBUG)
 
 ## 6) Define result testing flag
-add_definitions(-DTEST)
+#add_definitions(-DTEST)
 
 project (MakeSpMVGreatAgainTileSpmv11 CXX CUDA)
-set ( PROJECT_HEAD_DIR ${PROJECT_SOURCE_DIR}/../../../../ )
-set ( PROJECT_INC_DIR ${PROJECT_SOURCE_DIR}/inc )
-set ( PROJECT_TEST_DIR ${PROJECT_SOURCE_DIR}/tests )
-set ( PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src )
+set ( PROJECT_HEAD_DIR ${PROJECT_SOURCE_DIR}/../../../../../ )
+set ( PROJECT_INC_DIR ${PROJECT_SOURCE_DIR}/../inc )
+set ( PROJECT_TEST_DIR ${PROJECT_SOURCE_DIR}/../tests )
+set ( PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../src )
 message( "PROJECT_HEAD_DIR: " ${PROJECT_HEAD_DIR} )
 message( "PROJECT_INC_DIR: " ${PROJECT_INC_DIR} )
 message( "PROJECT_TEST_DIR: " ${PROJECT_TEST_DIR} )
@@ -57,7 +57,7 @@ set (CUDA_LD "${CUDA_TOOLKIT_ROOT_DIR}/lib64,${CUDA_TOOLKIT_ROOT_DIR}/lib")
 set (CUDA_LINK "-lcudart -lcublas -lcusparse") # -L${CUDA_LD} 
 message( "CUDA_LINK: " ${CUDA_LINK} )
 
-set(NVEMAPI_PREFIX "../nvidia-energy-measure")
+set(NVEMAPI_PREFIX "../../nvidia-energy-measure")
 set (NVEMAPI_INCLUDE_DIRS ${NVEMAPI_PREFIX}/include) # -L${CUDA_LD} 
 include_directories(${NVEMAPI_INCLUDE_DIRS} )
 message( "NVEMAPI_INCLUDE_DIRS: " ${NVEMAPI_INCLUDE_DIRS} )
