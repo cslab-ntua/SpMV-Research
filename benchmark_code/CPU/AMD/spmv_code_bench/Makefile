@@ -66,6 +66,8 @@ CFLAGS += -fopenmp
 # CFLAGS += -O2
 CFLAGS += -O3
 
+# CFLAGS += -ffast-math
+
 CFLAGS += -flto
 ifeq ($(ARCH), x86_64)
     CFLAGS += -march=native
@@ -97,12 +99,17 @@ ifeq ($(CPP), xlc++)
     CPPFLAGS += -D'__XLC__'
 endif
 
+CFLAGS += -D'LEVEL1_DCACHE_LINESIZE=$(shell getconf LEVEL1_DCACHE_LINESIZE)'
+CFLAGS += -D'LEVEL1_DCACHE_SIZE=$(shell getconf LEVEL1_DCACHE_SIZE)'
+CFLAGS += -D'LEVEL2_CACHE_SIZE=$(shell getconf LEVEL2_CACHE_SIZE)'
+CFLAGS += -D'LEVEL3_CACHE_SIZE=$(shell getconf LEVEL3_CACHE_SIZE)'
+
 
 LDFLAGS =
 LDFLAGS += -lm
 
 
-LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c parallel_io.c string_util.c openfoam_matrix.c rapl.c
+LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c pthread_functions.c omp_functions.c array_metrics.c string_util.c parallel_io.c openfoam_matrix.c rapl.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%.o,$(LIB_OBJ))
@@ -113,21 +120,22 @@ EXE =
 
 EXE += spmv_csr_naive.exe
 EXE += spmv_csr.exe
-EXE += spmv_csr_balanced_distribute_early.exe
 # EXE += spmv_csr_prefetch.exe
 # EXE += spmv_csr_simd.exe
 # EXE += spmv_csr_vector.exe
-# EXE += spmv_csr_vector_perfect_nnz_balance.exe
+EXE += spmv_csr_vector_perfect_nnz_balance.exe
 
-# EXE += spmv_csr_x86_vector.exe
+EXE += spmv_csr_vc.exe
+
+EXE += spmv_csr_x86_vector.exe
 # EXE += spmv_csr_x86_vector_queues.exe
-# EXE += spmv_csr_x86_vector_perfect_nnz_balance.exe
+EXE += spmv_csr_x86_vector_perfect_nnz_balance.exe
 
 # EXE += spmv_dia.exe
 # EXE += spmv_ldu.exe
 # EXE += spmv_ell.exe
 
-# EXE += spmv_mkl_ie.exe
+EXE += spmv_mkl_ie.exe
 # EXE += spmv_mkl_coo.exe
 # EXE += spmv_mkl_dia.exe
 # EXE += spmv_mkl_csc.exe
@@ -136,11 +144,11 @@ EXE += spmv_csr_balanced_distribute_early.exe
 
 # EXE += spmv_aocl_optmv.exe
 
-# EXE += spmv_csr5.exe
+EXE += spmv_csr5.exe
 
 EXE += spmv_merge.exe
 
-# EXE += spmv_sparsex.exe
+EXE += spmv_sparsex.exe
 
 
 DIRS = obj
@@ -166,8 +174,11 @@ spmv_csr_simd.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_SIMD' $^ -o $@ $(LDFLAGS)
 spmv_csr_vector.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_VECTOR' $^ -o $@ $(LDFLAGS)
-spmv_csr_balanced_distribute_early.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
-	$(CPP) $(CFLAGS_CUSTOM) -D'BALANCED_DISTRIBUTE_EARLY' $^ -o $@ $(LDFLAGS)
+spmv_csr_vector_perfect_nnz_balance.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
+	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
+
+spmv_csr_vc.exe: obj/spmv_bench.o spmv_kernel_csr_vc.cpp $(LIB_OBJ)
+	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
 
 spmv_csr_x86_vector.exe: obj/spmv_bench.o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR' $^ -o $@ $(LDFLAGS)
@@ -306,6 +317,13 @@ $(call Rule_Auto_Dependencies,obj/read_mtx.o,read_mtx.cpp)
 $(call Rule_Auto_Dependencies,obj/artificial_matrix_generation.o,$(AMG_PATH)/artificial_matrix_generation.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/ordered_set.o,$(AMG_PATH)/ordered_set.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(call Rule_Auto_Dependencies,obj/pthread_functions.o,$(library)/pthread_functions.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/omp_functions.o,$(library)/omp_functions.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/array_metrics.o,$(library)/array_metrics.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/string_util.o,$(library)/string_util.c)
 	$(CC) $(CFLAGS) -c $< -o $@

@@ -41,6 +41,7 @@ loop_partitioner_base(long num_workers, long worker_pos, long start, long end,
 
 
 // Generic interface for the integer pointers and optional arguments.
+// End is exclusive.
 
 #define loop_partitioner_balance_iterations(num_workers, worker_pos, start, end, local_start_ptr, local_end_ptr, ... /* num_iterations_ptr, sign_ptr */)    \
 do {                                                                                                                                                        \
@@ -66,7 +67,7 @@ do {                                                                            
 
 #define loop_partitioner_balance_partial_sums(num_workers, worker_pos, Sums, N, total_sum, local_start_indexes, local_end_indexes, ... /* order_decreasing */)    \
 do {                                                                                                                                                              \
-	long _num_threads = safe_omp_get_num_threads_next_par_region();                                                                                           \
+	long _num_threads = safe_omp_get_num_threads_external();                                                                                                  \
 	long _tnum = omp_get_thread_num();                                                                                                                        \
 	long _order_decreasing = DEFAULT_ARG_1(0, ##__VA_ARGS__);                                                                                                 \
 	long _i_s, _i_e;                                                                                                                                          \
@@ -110,6 +111,8 @@ do {                                                                            
  *   The indexes returned are always: start <= end.
  * - 'num_workers' and 'worker_pos' are always integers, so we transform them to 'long',
  *   to avoid overflows in the multiplication if 'total_sum' is 'int' or smaller.
+ *
+ * Note: Maybe rename to 'prefix_sums'?
  */
 
 #define loop_partitioner_balance_partial_sums(num_workers, worker_pos, Sums, N, total_sum, local_start_ptr, local_end_ptr, ... /* order_decreasing */)    \
@@ -148,28 +151,28 @@ do {                                                                            
 	ABS(target - A[i] - _loop_partitioner_balance_i_vs_work * i);    \
 })
 
-#define loop_partitioner_balance(num_workers, worker_pos, i_vs_work, Sums, N, total_sum, local_start_ptr, local_end_ptr, ... /* order_decreasing */)    \
-do {                                                                                                                                                    \
-	long __attribute__((unused)) _order_decreasing = DEFAULT_ARG_1(0, ##__VA_ARGS__);                                                               \
-	long _i_s, _i_e;                                                                                                                                \
-	__auto_type _target = total_sum;                                                                                                                \
-	__auto_type _target_next = total_sum;                                                                                                           \
-	double _loop_partitioner_balance_i_vs_work = i_vs_work;                                                                                         \
-	_target = ((total_sum + _loop_partitioner_balance_i_vs_work * N) * ((long) worker_pos)) / ((long) num_workers);                                 \
-	_target_next = ((total_sum + _loop_partitioner_balance_i_vs_work * N) * ((long) worker_pos+1)) / ((long) num_workers);                          \
-                                                                                                                                                        \
-	if (worker_pos == 0)                                                                                                                            \
-		_i_s = 0;                                                                                                                               \
-	else                                                                                                                                            \
-		_i_s = binary_search(Sums, 0, N-1, _target, NULL, NULL, _loop_partitioner_balance_cmp, _loop_partitioner_balance_dist);                 \
-                                                                                                                                                        \
-	if (worker_pos == num_workers - 1)                                                                                                              \
-		_i_e = N;                                                                                                                               \
-	else                                                                                                                                            \
-		_i_e = binary_search(Sums, 0, N-1, _target_next, NULL, NULL, _loop_partitioner_balance_cmp, _loop_partitioner_balance_dist);            \
-                                                                                                                                                        \
-	*local_start_ptr = _i_s;                                                                                                                        \
-	*local_end_ptr = _i_e;                                                                                                                          \
+#define loop_partitioner_balance(num_workers, worker_pos, iter_vs_work, Sums, N, total_sum, local_start_ptr, local_end_ptr, ... /* order_decreasing */)    \
+do {                                                                                                                                                       \
+	long __attribute__((unused)) _order_decreasing = DEFAULT_ARG_1(0, ##__VA_ARGS__);                                                                  \
+	long _i_s, _i_e;                                                                                                                                   \
+	__auto_type _target = total_sum;                                                                                                                   \
+	__auto_type _target_next = total_sum;                                                                                                              \
+	double _loop_partitioner_balance_i_vs_work = iter_vs_work;                                                                                         \
+	_target = ((total_sum + _loop_partitioner_balance_i_vs_work * N) * ((long) worker_pos)) / ((long) num_workers);                                    \
+	_target_next = ((total_sum + _loop_partitioner_balance_i_vs_work * N) * ((long) worker_pos+1)) / ((long) num_workers);                             \
+                                                                                                                                                           \
+	if (worker_pos == 0)                                                                                                                               \
+		_i_s = 0;                                                                                                                                  \
+	else                                                                                                                                               \
+		_i_s = binary_search(Sums, 0, N-1, _target, NULL, NULL, _loop_partitioner_balance_cmp, _loop_partitioner_balance_dist);                    \
+                                                                                                                                                           \
+	if (worker_pos == num_workers - 1)                                                                                                                 \
+		_i_e = N;                                                                                                                                  \
+	else                                                                                                                                               \
+		_i_e = binary_search(Sums, 0, N-1, _target_next, NULL, NULL, _loop_partitioner_balance_cmp, _loop_partitioner_balance_dist);               \
+                                                                                                                                                           \
+	*local_start_ptr = _i_s;                                                                                                                           \
+	*local_end_ptr = _i_e;                                                                                                                             \
 } while (0)
 
 

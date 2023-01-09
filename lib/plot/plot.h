@@ -9,6 +9,14 @@
 #include "genlib.h"
 
 
+struct Figure_Legend_Conf {
+	int x_in_percentages;
+	int y_in_percentages;
+
+	int legend_enabled;
+	char * title;
+};
+
 /*
  * N - columns (x axis)
  * M - lines   (y axis)
@@ -29,6 +37,7 @@ struct Figure_Series {
 	double z_min;
 	double z_max;
 
+	// The labels will have a percentage sign, if all series are in percentages.
 	int x_in_percentages;
 	int y_in_percentages;
 
@@ -61,7 +70,7 @@ struct Figure_Series {
 
 
 struct Figure {
-	int size;
+	int max_num_series;
 	int num_series;
 	struct Figure_Series * series;
 	int x_num_pixels;
@@ -81,11 +90,7 @@ struct Figure {
 	double y_step;
 	double z_step;
 
-	int x_in_percentages;
-	int y_in_percentages;
-
-	int legend_enabled;
-	char * title;
+	struct Figure_Legend_Conf legend_conf;
 };
 
 

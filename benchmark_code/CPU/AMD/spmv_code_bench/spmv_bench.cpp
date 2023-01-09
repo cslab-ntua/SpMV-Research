@@ -21,6 +21,7 @@ extern "C"{
 	#include "parallel_util.h"
 	#include "pthread_functions.h"
 	#include "matrix_util.h"
+	#include "array_metrics.h"
 
 	#include "string_util.h"
 	#include "parallel_io.h"
@@ -116,11 +117,20 @@ CheckAccuracy(ValueType * val, INT_T * rowind, INT_T * colind, INT_T m, INT_T nn
 		// kahan[i] = (tmp - y_gold[i]) - val;
 		// y_gold[i] = tmp;
 	}
-	ValueType maxDiff = 0;
+	ValueType maxDiff = 0, diff;
 	// int cnt=0;
 	for(int idx = 0 ; idx < m ; idx++)
 	{
-		maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
+		diff = Abs(y_gold[idx]-y[idx]);
+		// maxDiff = Max(maxDiff, diff);
+		if (y_gold[idx] > epsilon)
+		{
+			diff = diff / abs(y_gold[idx]);
+			maxDiff = Max(maxDiff, diff);
+			// printf("error: i=%d/%d , a=%g f=%g , error=%g , max_error=%g\n", idx, m, y_gold[idx], y[idx], diff, maxDiff);
+		}
+		// if (diff > epsilon)
+			// printf("error: i=%d/%d , a=%g f=%g\n", idx, m, y_gold[idx], y[idx]);
 		// std::cout << idx << ": " << y_gold[idx]-y[idx] << "\n";
 		// if (y_gold[idx] != 0.0)
 		// {
@@ -130,8 +140,19 @@ CheckAccuracy(ValueType * val, INT_T * rowind, INT_T * colind, INT_T m, INT_T nn
 			// maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
 		// }
 	}
-	if(maxDiff>epsilon)
+	if(maxDiff > epsilon)
 		std::cout << "Test failed! (" << maxDiff << ")\n";
+	#pragma omp parallel
+	{
+		double mae, max_ae, mse, mape, smape;
+		mae = array_mae_parallel(y_gold, y, m);
+		max_ae = array_max_ae_parallel(y_gold, y, m);
+		mse = array_mse_parallel(y_gold, y, m);
+		mape = array_mape_parallel(y_gold, y, m);
+		smape = array_smape_parallel(y_gold, y, m);
+		#pragma omp single
+		printf("errors spmv: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g\n", mae, max_ae, mse, mape, smape);
+	}
 	delete[] y_gold;
 }
 
@@ -472,7 +493,7 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 
 
 //==========================================================================================================================================
-//= main
+//= Main
 //==========================================================================================================================================
 
 int
@@ -518,10 +539,8 @@ main(int argc, char **argv)
 				core = get_pinning_position_from_affinity_string(gomp_aff_str, len, j);
 				tid = pthread_self();
 				set_affinity(tid, core);
-				snprintf(buf, buf_n, "%d", core);
-				setenv("GOMP_CPU_AFFINITY", buf, 1);  // Also set environment variables for other libraries that might try to change affinity themselves.
-				snprintf(buf, buf_n, "PROCS=%d", core);
-				setenv("XLSMPOPTS", buf, 1);
+				snprintf(buf, buf_n, "%d", core);             // Also set environment variables for other libraries that might try to change affinity themselves.
+				setenv("GOMP_CPU_AFFINITY", buf, 1);          // Setting 'XLSMPOPTS' has no effect after the program has started.
 				// printf("%ld: affinity=%d\n", j, core);
 				goto child_proc_label;
 			}
@@ -691,6 +710,7 @@ child_proc_label:
 		{
 			// fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);
 			compute(matrix_name, MF, AM, x, y);
+			// compute(matrix_name, MF, AM, x, y, 1);
 			// compute(matrix_name, MF, AM, x, y, 128 * 10);
 			prefetch_distance++;
 		}

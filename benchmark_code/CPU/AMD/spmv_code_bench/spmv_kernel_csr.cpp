@@ -60,24 +60,56 @@ struct CSRArrays : Matrix_Format
 					}
 					else
 					{
-						loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
-						// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+						#ifdef CUSTOM_VECTOR_PERFECT_NNZ_BALANCE
+							long lower_boundary;
+							// long higher_boundary;
+							loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
+							binary_search(ia, 0, m, thread_j_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
+							thread_i_s[tnum] = lower_boundary;
+							// binary_search(ia, 0, m, thread_j_e[tnum] - 1, NULL, &higher_boundary);     // Index boundaries are inclusive.
+							// thread_i_e[tnum] = higher_boundary;
+							_Pragma("omp barrier")
+							if (tnum == num_threads - 1)   // If we calculate each thread's boundaries individually some empty rows might be unassigned.
+								thread_i_e[tnum] = m;
+							else
+								thread_i_e[tnum] = thread_i_s[tnum+1] + 1;
+							// _Pragma("omp single")
+							// {
+								// this->ia = (INT_T *) aligned_alloc(64, (m+1 + VECTOR_ELEM_NUM) * sizeof(INT_T));
+							// }
+							// _Pragma("omp barrier")
+							// for (long i=thread_i_s[tnum];i<thread_i_e[tnum];i++)
+								// this->ia[i] = ia[i];
+							// if (tnum == num_threads - 1)
+								// this->ia[m] = ia[m];
+							#if 0
+								_Pragma("omp barrier")
+								_Pragma("omp single")
+								{
+									int i_s, i_e, j_s, j_e, t;
+									for (t=0;t<num_threads;t++)
+									{
+										i_s = thread_i_s[t];
+										i_e = thread_i_e[t];
+										j_s = thread_j_s[t];
+										j_e = thread_j_e[t];
+										printf("%3d:  i=[%7d,%7d]  |  j=[%7d,%7d] (%7d)  ,  ia[i]=[%7d,%7d] (%7d)  ,  ia[i+1]=[%7d,%7d]\n",
+											t,
+											i_s, i_e,
+											j_s, j_e, (j_e - j_s),
+											ia[i_s], ia[i_e], (ia[i_e] - ia[i_s]),
+											ia[i_s+1], ia[i_e+1]
+										);
+									}
+								}
+							#endif
+						#else
+							loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+							// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+						#endif
 					}
 				#endif
-				#ifdef CUSTOM_VECTOR_PERFECT_NNZ_BALANCE
-					loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
-				#endif
 			}
-			#ifdef CUSTOM_VECTOR_PERFECT_NNZ_BALANCE
-			for (long i=0;i<num_threads;i++)
-			{
-				if (thread_j_s[i] < ia[thread_i_s[i]])
-					thread_i_s[i] -= 1;
-				if (thread_j_e[i] > ia[thread_i_e[i]])
-					thread_i_e[i] += 1;
-				printf("%d: i:[%d,%d] , j:[%d,%d]\n", i, thread_i_s[i], thread_i_e[i], thread_j_s[i], thread_j_e[i]);
-			}
-			#endif
 		);
 		printf("balance time = %g\n", time_balance);
 	}
@@ -100,26 +132,23 @@ struct CSRArrays : Matrix_Format
 
 
 void compute_csr(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
-void compute_csr_balanced_distribute_early(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
 void compute_csr_prefetch(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
 void compute_csr_omp_simd(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
 void compute_csr_vector(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
-void compute_csr_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
+void compute_csr_vector_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
 
 
 void
 CSRArrays::spmv(ValueType * x, ValueType * y)
 {
-	#if defined(BALANCED_DISTRIBUTE_EARLY)
-		compute_csr_balanced_distribute_early(this, x, y);
-	#elif defined(CUSTOM_PREFETCH)
+	#if defined(CUSTOM_PREFETCH)
 		compute_csr_prefetch(this, x, y);
 	#elif defined(CUSTOM_SIMD)
 		compute_csr_omp_simd(this, x, y);
 	#elif defined(CUSTOM_VECTOR)
 		compute_csr_vector(this, x, y);
 	#elif defined(CUSTOM_VECTOR_PERFECT_NNZ_BALANCE)
-		compute_csr_perfect_nnz_balance(this, x, y);
+		compute_csr_vector_perfect_nnz_balance(this, x, y);
 	#else
 		compute_csr(this, x, y);
 	#endif
@@ -135,8 +164,6 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	csr->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	#if defined(NAIVE)
 		csr->format_name = (char *) "Naive_CSR_CPU";
-	#elif defined(BALANCED_DISTRIBUTE_EARLY)
-		csr->format_name = (char *) "Naive_CSR_BDE";
 	#elif defined(CUSTOM_VECTOR_PERFECT_NNZ_BALANCE)
 		csr->format_name = (char *) "Custom_CSR_PBV";
 	#elif defined(CUSTOM_VECTOR)
@@ -145,6 +172,116 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 		csr->format_name = (char *) "Custom_CSR_B";
 	#endif
 	return csr;
+}
+
+
+//==========================================================================================================================================
+//= Subkernels Single Row CSR
+//==========================================================================================================================================
+
+
+__attribute__((hot,pure))
+static inline
+double
+subkernel_row_csr_scalar(CSRArrays * restrict csr, ValueType * restrict x, long j_s, long j_e)
+{
+	ValueType sum;
+	long j;
+	sum = 0;
+	for (j=j_s;j<j_e;j++)
+	{
+		sum += csr->a[j] * x[csr->ja[j]];
+	}
+	return sum;
+}
+
+
+#ifndef __XLC__
+__attribute__((hot,pure))
+static inline
+double
+subkernel_row_csr_vector(CSRArrays * restrict csr, ValueType * restrict x, INT_T j_s, INT_T j_e)
+{
+	long j, k, j_rem, rows;
+	Vector_Value_t zero = {0};
+	__attribute__((unused)) Vector_Value_t v_a, v_x, v_mul, v_sum;
+	ValueType sum = 0;
+
+	rows = j_e - j_s;
+	if (rows <= 0)
+		return 0;
+	sum = 0;
+	j_rem = j_s + rows % VECTOR_ELEM_NUM;
+	for (j=j_s;j<j_rem;j++)
+		sum += csr->a[j] * x[csr->ja[j]];
+	if (rows >= VECTOR_ELEM_NUM)
+	{
+		v_sum = zero;
+		v_mul = zero;
+		for (j=j_rem;j<j_e;j+=VECTOR_ELEM_NUM)
+		{
+			v_a = *(Vector_Value_t *) &csr->a[j];
+			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+			PRAGMA(GCC ivdep)
+			for (k=0;k<VECTOR_ELEM_NUM;k++)
+			{
+				v_mul[k] = v_a[k] * x[csr->ja[j+k]];
+			}
+			v_sum += v_mul;
+		}
+		PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+		for (j=0;j<VECTOR_ELEM_NUM;j++)
+			sum += v_sum[j];
+	}
+	return sum;
+}
+#endif /* __XLC__ */
+
+
+//==========================================================================================================================================
+//= Subkernels CSR
+//==========================================================================================================================================
+
+
+// void
+// subkernel_csr_scalar(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
+// {
+	// ValueType sum;
+	// long i, j, j_s, j_e;
+	// j_e = csr->ia[i_s];
+	// for (i=i_s;i<i_e;i++)
+	// {
+		// y[i] = 0;
+		// j_s = j_e;
+		// j_e = csr->ia[i+1];
+		// if (j_s == j_e)
+			// continue;
+		// sum = 0;
+		// for (j=j_s;j<j_e;j++)
+		// {
+			// sum += csr->a[j] * x[csr->ja[j]];
+		// }
+		// y[i] = sum;
+	// }
+// }
+
+
+void
+subkernel_csr_scalar(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
+{
+	ValueType sum;
+	long i, j, j_e;
+	j = csr->ia[i_s];
+	for (i=i_s;i<i_e;i++)
+	{
+		j_e = csr->ia[i+1];
+		sum = 0;
+		for (;j<j_e;j++)
+		{
+			sum += csr->a[j] * x[csr->ja[j]];
+		}
+		y[i] = sum;
+	}
 }
 
 
@@ -159,28 +296,14 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 	#pragma omp parallel
 	{
 		int tnum = omp_get_thread_num();
-		ValueType sum;
-		long i, i_s, i_e, j, j_s, j_e;
+		long i_s, i_e;
 		i_s = thread_i_s[tnum];
 		i_e = thread_i_e[tnum];
-
 		#ifdef TIME_BARRIER
 		double time;
 		time = time_it(1,
 		#endif
-
-			for (i=i_s;i<i_e;i++)
-			{
-				j_s = csr->ia[i];
-				j_e = csr->ia[i+1];
-				if (j_s == j_e)
-					continue;
-				sum = 0;
-				for (j=j_s;j<j_e;j++)
-					sum += csr->a[j] * x[csr->ja[j]];
-				y[i] = sum;
-			}
-
+			subkernel_csr_scalar(csr, x, y, i_s, i_e);
 		#ifdef TIME_BARRIER
 		);
 		thread_time_compute[tnum] += time;
@@ -189,33 +312,6 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		);
 		thread_time_barrier[tnum] += time;
 		#endif
-	}
-}
-
-
-//==========================================================================================================================================
-//= CSR Custom Balanced Distribute Early
-//==========================================================================================================================================
-
-
-void
-compute_csr_balanced_distribute_early(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
-{
-	#pragma omp parallel
-	{
-		int tnum = omp_get_thread_num();
-		ValueType sum;
-		long i, i_s, i_e, j, j_s, j_e;
-		i_s = thread_i_s[tnum];
-		i_e = thread_i_e[tnum];
-		j = csr->ia[i_s];
-		for (i=i_s;i<i_e;i++)
-		{
-			sum = 0;
-			for (;j<csr->ia[i+1];j++)
-				sum += csr->a[j] * x[csr->ja[j]];
-			y[i] = sum;
-		}
 	}
 }
 
@@ -388,77 +484,15 @@ compute_csr_vector(CSRArrays * restrict csr, ValueType * restrict x, ValueType *
 }
 
 
+#endif /* __XLC__ */
+
+
 //==========================================================================================================================================
 //= CSR Custom Perfect NNZ Balance
 //==========================================================================================================================================
 
 
-__attribute__((hot,pure))
-static inline
-double
-compute_csr_line_vector(CSRArrays * restrict csr, ValueType * restrict x, INT_T j_s, INT_T j_e)
-{
-	long j, k, j_rem, rows;
-	Vector_Value_t zero = {0};
-	__attribute__((unused)) Vector_Value_t v_a, v_x, v_mul, v_sum;
-	ValueType sum = 0;
-
-	rows = j_e - j_s;
-	if (rows <= 0)
-		return 0;
-	sum = 0;
-	j_rem = j_s + rows % VECTOR_ELEM_NUM;
-	for (j=j_s;j<j_rem;j++)
-		sum += csr->a[j] * x[csr->ja[j]];
-	if (rows >= VECTOR_ELEM_NUM)
-	{
-		v_sum = zero;
-		v_mul = zero;
-		for (j=j_rem;j<j_e;j+=VECTOR_ELEM_NUM)
-		{
-			v_a = *(Vector_Value_t *) &csr->a[j];
-			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-			PRAGMA(GCC ivdep)
-			for (k=0;k<VECTOR_ELEM_NUM;k++)
-			{
-				v_mul[k] = v_a[k] * x[csr->ja[j+k]];
-			}
-			v_sum += v_mul;
-		}
-		PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-		for (j=0;j<VECTOR_ELEM_NUM;j++)
-			sum += v_sum[j];
-	}
-	return sum;
-}
-
-
-// __attribute__((hot,pure))
-// static inline
-// double
-// compute_csr_8(CSRArrays * csr, ValueType * x, INT_T j)
-// {
-	// Vector_Value_t * v_a = (Vector_Value_t *) &csr->a[j];
-	// INT_T * ja = &csr->ja[j];
-	// Vector_Value_t v_x1, v_x2;
-	// Vector_Value_t v_sum;
-	// Vector_Value_t tmp1, tmp2;
-	// v_x1[0] = x[ja[0]];
-	// v_x1[1] = x[ja[1]];
-	// v_x1[2] = x[ja[2]];
-	// v_x1[3] = x[ja[3]];
-	// tmp1 = v_a[0] * v_x1;
-	// v_x2[0] = x[ja[4]];
-	// v_x2[1] = x[ja[5]];
-	// v_x2[2] = x[ja[6]];
-	// v_x2[3] = x[ja[7]];
-	// tmp2 = v_a[1] * v_x2;
-	// v_sum = tmp1 + tmp2;
-	// return v_sum[0] + v_sum[1] + v_sum[2] + v_sum[3];
-// }
-
-
-__attribute__((hot,pure))
+/* __attribute__((hot,pure))
 static inline
 double
 compute_csr_line_case(CSRArrays * restrict csr, ValueType * restrict x, INT_T j_s, INT_T j_e)
@@ -485,7 +519,7 @@ compute_csr_line_case(CSRArrays * restrict csr, ValueType * restrict x, INT_T j_
 	degree_rem = j_e - j_e_vector;
 
 	if (j_s != j_e_vector)
-		sum_v = compute_csr_line_vector(csr, x, j_s, j_e_vector);
+		sum_v = subkernel_row_csr_vector(csr, x, j_s, j_e_vector);
 
 	for (j=j_e_vector;j<j_e;j++)
 		sum += csr->a[j] * x[csr->ja[j]];
@@ -512,12 +546,12 @@ double
 compute_csr_line(CSRArrays * csr, ValueType * x, INT_T j_s, INT_T j_e)
 {
 	// return compute_csr_line_case(csr, x, j_s, j_e);
-	return compute_csr_line_vector(csr, x, j_s, j_e);
-}
+	return subkernel_row_csr_vector(csr, x, j_s, j_e);
+} */
 
 
 void
-compute_csr_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
+compute_csr_vector_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
 {
 	int num_threads = omp_get_max_threads();
 	long t;
@@ -532,48 +566,39 @@ compute_csr_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * restrict x
 		i_e = thread_i_e[tnum];
 
 		i = i_s;
+		y[i] = 0;
 		j_s = csr->ia[i];
 		j_e = csr->ia[i+1];
 		if (thread_j_s[tnum] > j_s)
 			j_s = thread_j_s[tnum];
 		if (thread_j_e[tnum] < j_e)
 			j_e = thread_j_e[tnum];
-		y[i] = 0;
 		if (j_s < j_e)
 		{
-			thread_v_s[tnum] = compute_csr_line(csr, x, j_s, j_e);
+			thread_v_s[tnum] = subkernel_row_csr_scalar(csr, x, j_s, j_e);
 		}
 
-		PRAGMA(GCC ivdep)
-		for (i=i_s+1;i<i_e-1;i++)
-		{
-			j_s = csr->ia[i];
-			j_e = csr->ia[i+1];
-			if (j_s == j_e)
-				continue;
-			y[i] = compute_csr_line(csr, x, j_s, j_e);
-		}
+		subkernel_csr_scalar(csr, x, y, i_s+1, i_e-1);
 
 		i = i_e-1;
 		if (i > i_s)
 		{
+			y[i] = 0;
 			j_s = csr->ia[i];
 			j_e = csr->ia[i+1];
+			if (thread_j_s[tnum] > j_s)
+				j_s = thread_j_s[tnum];
 			if (thread_j_e[tnum] < j_e)
 				j_e = thread_j_e[tnum];
-			y[i] = 0;
 			if (j_s < j_e)
-				thread_v_e[tnum] = compute_csr_line(csr, x, j_s, j_e);
+				thread_v_e[tnum] = subkernel_row_csr_scalar(csr, x, j_s, j_e);
 		}
 	}
 	for (t=0;t<num_threads;t++)
 	{
 		y[thread_i_s[t]] += thread_v_s[t];
-		if (thread_i_e[t] - 1 > 0)
+		if (thread_i_e[t] - 1 > thread_i_s[t])
 			y[thread_i_e[t] - 1] += thread_v_e[t];
 	}
 }
-
-
-#endif /* __XLC__ */
 

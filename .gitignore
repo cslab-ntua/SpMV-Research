@@ -29,11 +29,20 @@ benchmark_code/CPU/ARM/*.csv
 benchmark_code/CPU/ARM/spmv_code_bench/merge/*.csv
 benchmark_code/CPU/ARM/spmv_code_bench/*.csv
 
+benchmark_code/CPU/AMD/*.out
+benchmark_code/CPU/ARM/*.out
+benchmark_code/CPU/ARM/spmv_code_bench/merge/*.out
+benchmark_code/CPU/ARM/spmv_code_bench/*.out
+
 benchmark_code/FPGA/HiSparse/
 benchmark_code/FPGA/HPCG_FPGA
 benchmark_code/FPGA/old_artificial_matrix_generation
 
+benchmark_results/amd-epyc1/amd-epyc1_synthetic_t24_d.csv
+benchmark_results/intel-gold2/intel-gold2_synthetic_t14_d.csv
+benchmark_results/arm/arm_synthetic_t80_d.csv
 benchmark_results/experimental/arm/arm_petama
+*_modified_features.csv
 
 matrix_generation_parameters/progress*
 matrix_generation_parameters/*part*
@@ -62,5 +71,8 @@ validation_matrices/trash
 validation_matrices/v2_dgal
 validation_matrices/digital_twins
 validation_matrices/features
+validation_matrices/matrix_features/figures
+validation_matrices/dcomex
 validation_matrices/images
+validation_matrices/new_matrices/
 validation_matrices/*.mtx
