@@ -122,7 +122,7 @@ do {                                                                            
 			(_local_result_ptr_ret, local_result_ptr_ret), (_total_result_ptr_ret, total_result_ptr_ret));                    \
 	typeof(reduce_fun(zero, zero)) T;                                                                                                 \
 	void omp_thread_reduce_global(typeof(T) (*reduce_fun)(typeof(T), typeof(T)), typeof(T) partial, typeof(T) zero, int backwards,    \
-			typeof(&T) local_result_ptr_ret, typeof(&T) total_result_ptr_ret)                                                 \
+			typeof(T) * local_result_ptr_ret, typeof(T) * total_result_ptr_ret)                                               \
 	{                                                                                                                                 \
 		static int t_num_threads = 0;                                                                                             \
 		static typeof(T) * t_partial = NULL;                                                                                      \
@@ -141,7 +141,7 @@ do {                                                                            
 			{                                                                                                                 \
 				t_num_threads = num_threads;                                                                              \
 				free(t_partial);                                                                                          \
-				t_partial = (typeof(t_partial)) malloc(num_threads * sizeof(t_partial));                                  \
+				t_partial = (typeof(t_partial)) malloc(num_threads * sizeof(*t_partial));                                 \
 			}                                                                                                                 \
 		}                                                                                                                         \
 		_Pragma("omp barrier")                                                                                                    \
@@ -149,10 +149,10 @@ do {                                                                            
 		/* __atomic_thread_fence(__ATOMIC_SEQ_CST); */                                                                            \
 		_Pragma("omp barrier")                                                                                                    \
 		local = zero;                                                                                                             \
-		total = zero;                                                                                                             \
 		if (backwards)                                                                                                            \
 		{                                                                                                                         \
-			for (i=num_threads-1;i>=0;i--)                                                                                    \
+			total = t_partial[num_threads-1];                                                                                 \
+			for (i=num_threads-2;i>=0;i--)                                                                                    \
 			{                                                                                                                 \
 				if (i == tnum)                                                                                            \
 					local = total;                                                                                    \
@@ -161,7 +161,8 @@ do {                                                                            
 		}                                                                                                                         \
 		else                                                                                                                      \
 		{                                                                                                                         \
-			for (i=0;i<num_threads;i++)                                                                                       \
+			total = t_partial[0];                                                                                             \
+			for (i=1;i<num_threads;i++)                                                                                       \
 			{                                                                                                                 \
 				if (i == tnum)                                                                                            \
 					local = total;                                                                                    \

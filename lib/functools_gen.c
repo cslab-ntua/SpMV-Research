@@ -5,7 +5,8 @@
 #include "macros/macrolib.h"
 #include "omp_functions.h"
 #include "parallel_util.h"
-#include "time_it_tsc.h"
+#include "time_it.h"
+// #include "time_it_tsc.h"
 
 #include "functools_gen.h"
 
@@ -311,63 +312,63 @@ scan_reduce_segment_parallel(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_e
 	assert_omp_nesting_level(1);
 	if (__builtin_expect(map_is_mem_bound < 0, 0))
 	{
-		static uint64_t * t_cycles_mem, * t_cycles_map;
+		static double * t_time_mem, * t_time_map;
 		int num_threads = safe_omp_get_num_threads();
 		int tnum = omp_get_thread_num();
 		__attribute__((unused)) volatile _TYPE_OUT tmp;
-		uint64_t cycles=0;
-		// uint64_t overhead=~0;
-		uint64_t min_cycles_mem=~0, min_cycles_map=~0;
+		double time=0;
+		// double overhead=HUGE_VAL;
+		double min_time_mem=HUGE_VAL, min_time_map=HUGE_VAL;
 		long i, j;
 		const long n_i = 10, n_j = (1000 < N) ? 1000 : N;
 		#pragma omp barrier
 		#pragma omp single nowait
 		{
-			t_cycles_mem = (typeof(t_cycles_mem)) malloc(num_threads * sizeof(*t_cycles_mem));
-			t_cycles_map = (typeof(t_cycles_map)) malloc(num_threads * sizeof(*t_cycles_map));
+			t_time_mem = (typeof(t_time_mem)) malloc(num_threads * sizeof(*t_time_mem));
+			t_time_map = (typeof(t_time_map)) malloc(num_threads * sizeof(*t_time_map));
 		}
 		#pragma omp barrier
 		for (i=0;i<n_i;i++)
 		{
-			// cycles = time_it_tsc(1);
-			// if (cycles < overhead)
-				// overhead = cycles;
-			cycles = time_it_tsc(1,
+			// time = time_it(1);
+			// if (time < overhead)
+				// overhead = time;
+			time = time_it(1,
 				tmp = zero;
 				for (j=0;j<n_j;j++)
 					tmp = functools_reduce_fun(tmp, tmp);
 			);
-			if (cycles < min_cycles_mem)
-				min_cycles_mem = cycles;
-			cycles = time_it_tsc(1,
+			if (time < min_time_mem)
+				min_time_mem = time;
+			time = time_it(1,
 				tmp = zero;
 				for (j=0;j<n_j;j++)
 					tmp = functools_reduce_fun(tmp, functools_map_fun(A, j));
 			);
-			if (cycles < min_cycles_map)
-				min_cycles_map = cycles;
+			if (time < min_time_map)
+				min_time_map = time;
 		}
-		// t_cycles_mem[tnum] = (overhead < min_cycles_mem) ? min_cycles_mem - overhead : 1;
-		// t_cycles_map[tnum] = (overhead < min_cycles_map) ? min_cycles_map - overhead : 1;
-		t_cycles_mem[tnum] = min_cycles_mem;
-		t_cycles_map[tnum] = min_cycles_map;
+		// t_time_mem[tnum] = (overhead < min_time_mem) ? min_time_mem - overhead : 1;
+		// t_time_map[tnum] = (overhead < min_time_map) ? min_time_map - overhead : 1;
+		t_time_mem[tnum] = min_time_mem;
+		t_time_map[tnum] = min_time_map;
 		#pragma omp barrier
 		#pragma omp single nowait
 		{
-			min_cycles_mem = t_cycles_mem[0];
-			min_cycles_map = t_cycles_map[0];
+			min_time_mem = t_time_mem[0];
+			min_time_map = t_time_map[0];
 			for (i=1;i<num_threads;i++)
 			{
-				if (t_cycles_mem[i] < min_cycles_mem)
-					min_cycles_mem = t_cycles_mem[i];
-				if (t_cycles_map[i] < min_cycles_map)
-					min_cycles_map = t_cycles_map[i];
+				if (t_time_mem[i] < min_time_mem)
+					min_time_mem = t_time_mem[i];
+				if (t_time_map[i] < min_time_map)
+					min_time_map = t_time_map[i];
 			}
-			free(t_cycles_mem);
-			free(t_cycles_map);
-			map_is_mem_bound = (min_cycles_map / min_cycles_mem < 10) ? 1 : 0;
-			// printf("map_is_mem_bound = %ld, ratio = %ld, overhead = %ld , cycles mem = %ld , cycles map = %ld\n", map_is_mem_bound, min_cycles_map / min_cycles_mem, overhead, min_cycles_mem, min_cycles_map);
-			// printf("cycles mem bound = %ld , cycles compute bound = %ld\n", 2*min_cycles_map, min_cycles_mem + min_cycles_map);
+			free(t_time_mem);
+			free(t_time_map);
+			map_is_mem_bound = (min_time_map / min_time_mem < 10) ? 1 : 0;
+			// printf("map_is_mem_bound = %ld, ratio = %lf, overhead = %lf , time mem = %lf , time map = %lf\n", map_is_mem_bound, min_time_map / min_time_mem, overhead, min_time_mem, min_time_map);
+			// printf("time mem bound = %lf , time compute bound = %lf\n", 2*min_time_map, min_time_mem + min_time_map);
 		}
 		#pragma omp barrier
 	}

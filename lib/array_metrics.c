@@ -33,141 +33,196 @@
  */
 
 
-static
+struct ARRAY_METRICS_ivp
+ARRAY_METRICS_thread_reduce_ivp(struct ARRAY_METRICS_ivp (*reduce_fun)(struct ARRAY_METRICS_ivp, struct ARRAY_METRICS_ivp), struct ARRAY_METRICS_ivp partial, struct ARRAY_METRICS_ivp zero)
+{
+	struct ARRAY_METRICS_ivp total;
+	omp_thread_reduce_global(reduce_fun, partial, zero, 0, NULL, &total);
+	return total;
+}
+
+struct ARRAY_METRICS_2ivp
+ARRAY_METRICS_thread_reduce_2ivp(struct ARRAY_METRICS_2ivp (*reduce_fun)(struct ARRAY_METRICS_2ivp, struct ARRAY_METRICS_2ivp), struct ARRAY_METRICS_2ivp partial, struct ARRAY_METRICS_2ivp zero)
+{
+	struct ARRAY_METRICS_2ivp total;
+	omp_thread_reduce_global(reduce_fun, partial, zero, 0, NULL, &total);
+	return total;
+}
+
+// Zero is NOT always 0.0 (e.g. if reduction is multiplication then zero == 1.0).
 double
-thread_reduce_global_add(double partial)
+ARRAY_METRICS_thread_reduce_double(double (*reduce_fun)(double, double), double partial, double zero)
 {
-	double ret;
-	inline double add(double a, double b) { return a + b; }
-	omp_thread_reduce_global(add, partial, 0.0, 0, NULL, &ret);
-	return ret;
+	double total;
+	omp_thread_reduce_global(reduce_fun, partial, zero, 0, NULL, &total);
+	return total;
 }
 
-// static
-// double
-// thread_reduce_global_multiply(double partial)
-// {
-	// double ret;
-	// inline double multiply(double a, double b) { return a * b; }
-	// omp_thread_reduce_global(multiply, partial, 0.0, 0, NULL, &ret);
-	// return ret;
-// }
 
-// static
-// double
-// thread_reduce_global_min(double partial)
-// {
-	// double ret;
-	// inline double min(double a, double b) { return (a < b) ? a : b; }
-	// omp_thread_reduce_global(min, partial, 0.0, 0, NULL, &ret);
-	// return ret;
-// }
+//==========================================================================================================================================
+//= Template Macros
+//==========================================================================================================================================
 
-static
-double
-thread_reduce_global_max(double partial)
-{
-	double ret;
-	inline double max(double a, double b) { return (a > b) ? a : b; }
-	omp_thread_reduce_global(max, partial, 0.0, 0, NULL, &ret);
-	return ret;
+
+#define metric_functions_template(_name, _type_internal, _type_output, _tupple_decl_args, _tupple_call_args)                        \
+_type_output                                                                                                                        \
+ARRAY_METRICS_ ## _name ## _serial(UNPACK(_tupple_decl_args))                                                                       \
+{                                                                                                                                   \
+	_type_internal _agg = ARRAY_METRICS_ ## _name ## _zero;                                                                     \
+	long _i;                                                                                                                    \
+	for (_i=i_start;_i<i_end;_i++)                                                                                              \
+		_agg = ARRAY_METRICS_ ## _name ## _reduce(_agg, ARRAY_METRICS_ ## _name ## _map(_i, UNPACK(_tupple_call_args)));    \
+	return ARRAY_METRICS_ ## _name ## _output(_agg, UNPACK(_tupple_call_args));                                                 \
+}                                                                                                                                   \
+_type_output                                                                                                                        \
+ARRAY_METRICS_ ## _name ## _parallel(UNPACK(_tupple_decl_args))                                                                     \
+{                                                                                                                                   \
+	int _num_threads = safe_omp_get_num_threads();                                                                              \
+	int _tnum = omp_get_thread_num();                                                                                           \
+	_type_internal _agg = ARRAY_METRICS_ ## _name ## _zero;                                                                     \
+	long _i, _i_s, _i_e;                                                                                                        \
+	assert_omp_nesting_level(1);                                                                                                \
+	loop_partitioner_balance_iterations(_num_threads, _tnum, i_start, i_end, &_i_s, &_i_e);                                     \
+	for (_i=_i_s;_i<_i_e;_i++)                                                                                                  \
+		_agg = ARRAY_METRICS_ ## _name ## _reduce(_agg, ARRAY_METRICS_ ## _name ## _map(_i, UNPACK(_tupple_call_args)));    \
+	_agg = array_metrics_thread_reduce(ARRAY_METRICS_ ## _name ## _reduce, _agg, ARRAY_METRICS_ ## _name ## _zero);             \
+	return ARRAY_METRICS_ ## _name ## _output(_agg, UNPACK(_tupple_call_args));                                                 \
+}                                                                                                                                   \
+_type_output                                                                                                                        \
+ARRAY_METRICS_ ## _name(UNPACK(_tupple_decl_args))                                                                                  \
+{                                                                                                                                   \
+	_type_output _ret;                                                                                                          \
+	if (omp_get_level() > 0)                                                                                                    \
+		return ARRAY_METRICS_ ## _name ## _serial(UNPACK(_tupple_call_args));                                               \
+	_Pragma("omp parallel")                                                                                                     \
+	{                                                                                                                           \
+		_type_output agg = ARRAY_METRICS_ ## _name ## _parallel(UNPACK(_tupple_call_args));                                 \
+		_Pragma("omp single nowait")                                                                                        \
+		_ret = agg;                                                                                                         \
+	}                                                                                                                           \
+	return _ret;                                                                                                                \
 }
 
-static
-long
-thread_reduce_global_min_idx(void * A, long idx, double (* get_val_as_double)(void * A, long i))
-{
-	long ret;
-	inline long min_idx(long idx1, long idx2)
-	{
-		double a, b;
-		a = get_val_as_double(A, idx1);
-		b = get_val_as_double(A, idx2);
-		return (a < b) ? idx1 : idx2;
-	}
-	omp_thread_reduce_global(min_idx, idx, 0, 0, NULL, &ret);
-	return ret;
-}
 
-static
-long
-thread_reduce_global_max_idx(void * A, long idx, double (* get_val_as_double)(void * A, long i))
-{
-	long ret;
-	inline long max_idx(long idx1, long idx2)
-	{
-		double a, b;
-		a = get_val_as_double(A, idx1);
-		b = get_val_as_double(A, idx2);
-		return (a > b) ? idx1 : idx2;
-	}
-	omp_thread_reduce_global(max_idx, idx, 0, 0, NULL, &ret);
-	return ret;
-}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                               Norms                                                                    -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 //==========================================================================================================================================
 //= P-Norm
 //==========================================================================================================================================
 
-
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-pnorm_reduction(void * A, long i_start, long i_end, double p, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_pnorm_map(long i, void * A, long i_start, long i_end, double p, double (* get_val_as_double)(void * A, long i))
 {
-	double sum = 0;
-	long i;
 	if (p < 1)
 		error("invalid p = %g, valid values: p >= 1", p);
-	for (i=i_start;i<i_end;i++)
-		sum += pow(fabs(get_val_as_double(A, i)), p);
-	return sum;
+	return pow(fabs(get_val_as_double(A, i)), p);
 }
 
-static inline
+inline
 double
-pnorm_output(double agg, double p)
+ARRAY_METRICS_pnorm_reduce(double sum, double val)
+{
+	return sum + val;
+}
+
+inline
+double
+ARRAY_METRICS_pnorm_output(double agg, void * A, long i_start, long i_end, double p, double (* get_val_as_double)(void * A, long i))
 {
 	if (p < 1)
 		error("invalid p = %g, valid values: p >= 1", p);
 	return pow(agg, 1/p);
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_pnorm_serial(void * A, long i_start, long i_end, double p, double (* get_val_as_double)(void * A, long i))
+metric_functions_template(pnorm, double, double,
+	(void * A, long i_start, long i_end, double p, double (* get_val_as_double)(void * A, long i)),
+	(A, i_start, i_end, p, get_val_as_double)
+)
+
+
+//==========================================================================================================================================
+//= Min
+//==========================================================================================================================================
+
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
+struct ARRAY_METRICS_ivp
+ARRAY_METRICS_min_map(long i, void * A, long i_start, long i_end, long * min_idx_out, double (* get_val_as_double)(void * A, long i))
 {
-	double agg = pnorm_reduction(A, i_start, i_end, p, get_val_as_double);
-	return pnorm_output(agg, p);
+	struct ARRAY_METRICS_ivp pair = {.i=i, .val=get_val_as_double(A, i)};
+	return pair;
 }
 
-double
-ARRAY_METRICS_pnorm_parallel(void * A, long i_start, long i_end, double p, double (* get_val_as_double)(void * A, long i))
+inline
+struct ARRAY_METRICS_ivp
+ARRAY_METRICS_min_reduce(struct ARRAY_METRICS_ivp agg, struct ARRAY_METRICS_ivp val)
 {
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = pnorm_reduction(A, i_s, i_e, p, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return pnorm_output(agg, p);
+	return val.val < agg.val ? val : agg;
 }
 
+inline
 double
-ARRAY_METRICS_pnorm(void * A, long i_start, long i_end, double p, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_min_output(struct ARRAY_METRICS_ivp agg, void * A, long i_start, long i_end, long * min_idx_out, double (* get_val_as_double)(void * A, long i))
 {
-	double ret = 0;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_pnorm_serial(A, i_start, i_end, p, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_pnorm_parallel(A, i_start, i_end, p, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
+	if (min_idx_out != NULL)
+		*min_idx_out = agg.i;
+	return agg.val;
 }
+#pragma GCC diagnostic pop
+
+metric_functions_template(min, struct ARRAY_METRICS_ivp, double,
+	(void * A, long i_start, long i_end, long * min_idx_out, double (* get_val_as_double)(void * A, long i)),
+	(A, i_start, i_end, min_idx_out, get_val_as_double)
+)
+
+
+//==========================================================================================================================================
+//= Max
+//==========================================================================================================================================
+
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
+struct ARRAY_METRICS_ivp
+ARRAY_METRICS_max_map(long i, void * A, long i_start, long i_end, long * max_idx_out, double (* get_val_as_double)(void * A, long i))
+{
+	struct ARRAY_METRICS_ivp pair = {.i=i, .val=get_val_as_double(A, i)};
+	return pair;
+}
+
+inline
+struct ARRAY_METRICS_ivp
+ARRAY_METRICS_max_reduce(struct ARRAY_METRICS_ivp agg, struct ARRAY_METRICS_ivp val)
+{
+	return val.val > agg.val ? val : agg;
+}
+
+inline
+double
+ARRAY_METRICS_max_output(struct ARRAY_METRICS_ivp agg, void * A, long i_start, long i_end, long * max_idx_out, double (* get_val_as_double)(void * A, long i))
+{
+	if (max_idx_out != NULL)
+		*max_idx_out = agg.i;
+	return agg.val;
+}
+#pragma GCC diagnostic pop
+
+metric_functions_template(max, struct ARRAY_METRICS_ivp, double,
+	(void * A, long i_start, long i_end, long * max_idx_out, double (* get_val_as_double)(void * A, long i)),
+	(A, i_start, i_end, max_idx_out, get_val_as_double)
+)
 
 
 //==========================================================================================================================================
@@ -175,95 +230,53 @@ ARRAY_METRICS_pnorm(void * A, long i_start, long i_end, double p, double (* get_
 //==========================================================================================================================================
 
 
-void
-ARRAY_METRICS_min_max_idx_serial(void * A, long i_start, long i_end, long * min_idx_out, long * max_idx_out, double (* get_val_as_double)(void * A, long i))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
+struct ARRAY_METRICS_2ivp
+ARRAY_METRICS_min_max_map(long i, void * A, long i_start, long i_end, double * min_out, long * min_idx_out, double * max_out, long * max_idx_out, double (* get_val_as_double)(void * A, long i))
 {
-	long min_idx, max_idx;
-	double min, max;
-	long i;
-	double agg;
-	min_idx = max_idx = 0;
-	min = max = get_val_as_double(A, 0);
-	for (i=i_start;i<i_end;i++)
+	struct ARRAY_METRICS_2ivp pairs = {.i_1=i, .val_1=get_val_as_double(A, i), .i_2=i, .val_2=get_val_as_double(A, i)};
+	return pairs;
+}
+
+inline
+struct ARRAY_METRICS_2ivp
+ARRAY_METRICS_min_max_reduce(struct ARRAY_METRICS_2ivp agg, struct ARRAY_METRICS_2ivp val)
+{
+	if (val.val_1 < agg.val_1)
 	{
-		agg = get_val_as_double(A, i);
-		if (agg < min)
-		{
-			min_idx = i;
-			min = agg;
-		}
-		if (agg > max)
-		{
-			max_idx = i;
-			max = agg;
-		}
+		agg.i_1 = val.i_1;
+		agg.val_1 = val.val_1;
 	}
-	arg_return(min_idx_out, min_idx);
-	arg_return(max_idx_out, max_idx);
-}
-
-void
-ARRAY_METRICS_min_max_idx_parallel(void * A, long i_start, long i_end, long * min_idx_out, long * max_idx_out, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	long min_idx, max_idx;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	ARRAY_METRICS_min_max_idx_serial(A, i_s, i_e, &min_idx, &max_idx, get_val_as_double);
-	min_idx = thread_reduce_global_min_idx(A, min_idx, get_val_as_double);
-	max_idx = thread_reduce_global_max_idx(A, max_idx, get_val_as_double);
-	arg_return(min_idx_out, min_idx);
-	arg_return(max_idx_out, max_idx);
-}
-
-void
-ARRAY_METRICS_min_max_idx(void * A, long i_start, long i_end, long * min_idx_out, long * max_idx_out, double (* get_val_as_double)(void * A, long i))
-{
-	if (omp_get_level() > 0)
+	if (val.val_2 > agg.val_2)
 	{
-		ARRAY_METRICS_min_max_idx_serial(A, i_start, i_end, min_idx_out, max_idx_out, get_val_as_double);
-		return;
+		agg.i_2 = val.i_2;
+		agg.val_2 = val.val_2;
 	}
-	#pragma omp parallel
-	{
-		long t_min_idx, t_max_idx;
-		ARRAY_METRICS_min_max_idx_parallel(A, i_start, i_end, &t_min_idx, &t_max_idx, get_val_as_double);
-		#pragma omp single nowait
-		{
-			arg_return(min_idx_out, t_min_idx);
-			arg_return(max_idx_out, t_max_idx);
-		}
-	}
+	return agg;
 }
 
-void
-ARRAY_METRICS_min_max_serial(void * A, long i_start, long i_end, double * min_out, double * max_out, double (* get_val_as_double)(void * A, long i))
+inline
+struct ARRAY_METRICS_2ivp
+ARRAY_METRICS_min_max_output(struct ARRAY_METRICS_2ivp agg, void * A, long i_start, long i_end, double * min_out, long * min_idx_out, double * max_out, long * max_idx_out, double (* get_val_as_double)(void * A, long i))
 {
-	long min_idx, max_idx;
-	ARRAY_METRICS_min_max_idx_serial(A, i_start, i_end, &min_idx, &max_idx, get_val_as_double);
-	arg_return(min_out, get_val_as_double(A, min_idx));
-	arg_return(max_out, get_val_as_double(A, max_idx));
+	if (min_out != NULL)
+		*min_out = agg.val_1;
+	if (max_out != NULL)
+		*max_out = agg.val_2;
+	if (min_idx_out != NULL)
+		*min_idx_out = agg.i_1;
+	if (max_idx_out != NULL)
+		*max_idx_out = agg.i_2;
+	return agg;
 }
+#pragma GCC diagnostic pop
 
-void
-ARRAY_METRICS_min_max_parallel(void * A, long i_start, long i_end, double * min_out, double * max_out, double (* get_val_as_double)(void * A, long i))
-{
-	long min_idx, max_idx;
-	ARRAY_METRICS_min_max_idx_parallel(A, i_start, i_end, &min_idx, &max_idx, get_val_as_double);
-	arg_return(min_out, get_val_as_double(A, min_idx));
-	arg_return(max_out, get_val_as_double(A, max_idx));
-}
-
-void
-ARRAY_METRICS_min_max(void * A, long i_start, long i_end, double * min_out, double * max_out, double (* get_val_as_double)(void * A, long i))
-{
-	long min_idx, max_idx;
-	ARRAY_METRICS_min_max_idx(A, i_start, i_end, &min_idx, &max_idx, get_val_as_double);
-	arg_return(min_out, get_val_as_double(A, min_idx));
-	arg_return(max_out, get_val_as_double(A, max_idx));
-}
+metric_functions_template(min_max, struct ARRAY_METRICS_2ivp, struct ARRAY_METRICS_2ivp,
+	(void * A, long i_start, long i_end, double * min_out, long * min_idx_out, double * max_out, long * max_idx_out, double (* get_val_as_double)(void * A, long i)),
+	(A, i_start, i_end, min_out, min_idx_out, max_out, max_idx_out, get_val_as_double)
+)
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -278,59 +291,35 @@ ARRAY_METRICS_min_max(void * A, long i_start, long i_end, double * min_out, doub
 //==========================================================================================================================================
 
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-mean_reduction(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_mean_map(long i, void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	double sum = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-		sum += get_val_as_double(A, i);
-	return sum;
+	return get_val_as_double(A, i);
 }
 
-static inline
+inline
 double
-mean_output(double agg, long N)
+ARRAY_METRICS_mean_reduce(double sum, double val)
 {
+	return sum + val;
+}
+
+inline
+double
+ARRAY_METRICS_mean_output(double agg, void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
 	return agg / N;
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_mean_serial(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double agg = mean_reduction(A, i_start, i_end, get_val_as_double);
-	return mean_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_mean_parallel(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = mean_reduction(A, i_s, i_e, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return mean_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_mean(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double ret = 0;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_mean_serial(A, i_start, i_end, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_mean_parallel(A, i_start, i_end, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
-}
+metric_functions_template(mean, double, double,
+	(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, i_start, i_end, get_val_as_double)
+)
 
 
 //==========================================================================================================================================
@@ -338,59 +327,35 @@ ARRAY_METRICS_mean(void * A, long i_start, long i_end, double (* get_val_as_doub
 //==========================================================================================================================================
 
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-gmean_reduction(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_gmean_map(long i, void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	double sum = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-		sum += log(get_val_as_double(A, i));   // 'log()' is slower but a lot more stable than multiplication.
-	return sum;
+	return log(get_val_as_double(A, i));
 }
 
-static inline
+inline
 double
-gmean_output(double agg, long N)
+ARRAY_METRICS_gmean_reduce(double sum, double val)
 {
+	return sum + val;
+}
+
+inline
+double
+ARRAY_METRICS_gmean_output(double agg, void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
 	return exp(agg / N);
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_gmean_serial(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double agg = gmean_reduction(A, i_start, i_end, get_val_as_double);
-	return gmean_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_gmean_parallel(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = gmean_reduction(A, i_s, i_e, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return gmean_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_gmean(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double ret = 0;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_gmean_serial(A, i_start, i_end, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_gmean_parallel(A, i_start, i_end, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
-}
+metric_functions_template(gmean, double, double,
+	(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, i_start, i_end, get_val_as_double)
+)
 
 
 //==========================================================================================================================================
@@ -398,59 +363,35 @@ ARRAY_METRICS_gmean(void * A, long i_start, long i_end, double (* get_val_as_dou
 //==========================================================================================================================================
 
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-hmean_reduction(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_hmean_map(long i, void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	double sum = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-		sum += 1 / get_val_as_double(A, i);
-	return sum;
+	return 1 / get_val_as_double(A, i);
 }
 
-static inline
+inline
 double
-hmean_output(double agg, long N)
+ARRAY_METRICS_hmean_reduce(double sum, double val)
 {
+	return sum + val;
+}
+
+inline
+double
+ARRAY_METRICS_hmean_output(double agg, void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
 	return 1 / (agg / N);
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_hmean_serial(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double agg = hmean_reduction(A, i_start, i_end, get_val_as_double);
-	return hmean_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_hmean_parallel(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = hmean_reduction(A, i_s, i_e, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return hmean_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_hmean(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double ret = 0;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_hmean_serial(A, i_start, i_end, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_hmean_parallel(A, i_start, i_end, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
-}
+metric_functions_template(hmean, double, double,
+	(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, i_start, i_end, get_val_as_double)
+)
 
 
 //==========================================================================================================================================
@@ -458,62 +399,36 @@ ARRAY_METRICS_hmean(void * A, long i_start, long i_end, double (* get_val_as_dou
 //==========================================================================================================================================
 
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-rms_reduction(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_rms_map(long i, void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	double agg, sum = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-	{
-		agg = get_val_as_double(A, i);
-		sum += agg * agg;
-	}
-	return sum;
+	double val = get_val_as_double(A, i);
+	return val * val;
 }
 
-static inline
+inline
 double
-rms_output(double agg, long N)
+ARRAY_METRICS_rms_reduce(double sum, double val)
 {
+	return sum + val;
+}
+
+inline
+double
+ARRAY_METRICS_rms_output(double agg, void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
 	return sqrt(agg / N);
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_rms_serial(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double agg = rms_reduction(A, i_start, i_end, get_val_as_double);
-	return rms_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_rms_parallel(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = rms_reduction(A, i_s, i_e, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return rms_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_rms(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double ret = 0;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_rms_serial(A, i_start, i_end, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_rms_parallel(A, i_start, i_end, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
-}
+metric_functions_template(rms, double, double,
+	(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, i_start, i_end, get_val_as_double)
+)
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -528,59 +443,35 @@ ARRAY_METRICS_rms(void * A, long i_start, long i_end, double (* get_val_as_doubl
 //==========================================================================================================================================
 
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-mad_reduction(void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_mad_map(long i, void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
 {
-	double sum = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-		sum += fabs(get_val_as_double(A, i) - mean);
-	return sum;
+	return fabs(get_val_as_double(A, i) - mean);
 }
 
-static inline
+inline
 double
-mad_output(double agg, long N)
+ARRAY_METRICS_mad_reduce(double sum, double val)
 {
+	return sum + val;
+}
+
+inline
+double
+ARRAY_METRICS_mad_output(double agg, void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
 	return agg / N;
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_mad_serial(void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
-{
-	double agg = mad_reduction(A, i_start, i_end, mean, get_val_as_double);
-	return mad_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_mad_parallel(void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = mad_reduction(A, i_s, i_e, mean, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return mad_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_mad(void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
-{
-	double ret = 0;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_mad_serial(A, i_start, i_end, mean, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_mad_parallel(A, i_start, i_end, mean, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
-}
+metric_functions_template(mad, double, double,
+	(void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i)),
+	(A, i_start, i_end, mean, get_val_as_double)
+)
 
 
 //==========================================================================================================================================
@@ -588,62 +479,57 @@ ARRAY_METRICS_mad(void * A, long i_start, long i_end, double mean, double (* get
 //==========================================================================================================================================
 
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-var_reduction(void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_var_map(long i, void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
 {
-	double agg, sum = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-	{
-		agg = get_val_as_double(A, i) - mean;
-		sum += agg * agg;
-	}
-	return sum;
+	double val = get_val_as_double(A, i) - mean;
+	return val * val;
 }
 
-static inline
+inline
 double
-var_output(double agg, long N)
+ARRAY_METRICS_var_reduce(double sum, double val)
 {
+	return sum + val;
+}
+
+inline
+double
+ARRAY_METRICS_var_output(double agg, void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
 	return agg / N;
 }
 
+inline
 double
-ARRAY_METRICS_var_serial(void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_std_map(long i, void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
 {
-	double agg = var_reduction(A, i_start, i_end, mean, get_val_as_double);
-	return var_output(agg, i_end - i_start);
+	return ARRAY_METRICS_var_map(i, A, i_start, i_end, mean, get_val_as_double);
 }
 
+inline
 double
-ARRAY_METRICS_var_parallel(void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_std_reduce(double sum, double val)
 {
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = var_reduction(A, i_s, i_e, mean, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return var_output(agg, i_end - i_start);
+	return ARRAY_METRICS_var_reduce(sum, val);
 }
 
+inline
 double
-ARRAY_METRICS_var(void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_std_output(double agg, void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i))
 {
-	double ret = 0;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_var_serial(A, i_start, i_end, mean, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_var_parallel(A, i_start, i_end, mean, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
+	return sqrt(ARRAY_METRICS_var_output(agg, A, i_start, i_end, mean, get_val_as_double));
 }
+#pragma GCC diagnostic pop
+
+metric_functions_template(var, double, double,
+	(void * A, long i_start, long i_end, double mean, double (* get_val_as_double)(void * A, long i)),
+	(A, i_start, i_end, mean, get_val_as_double)
+)
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -664,122 +550,70 @@ ARRAY_METRICS_var(void * A, long i_start, long i_end, double mean, double (* get
 //==========================================================================================================================================
 
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-mae_reduction(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_mae_map(long i, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	double sum = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-		sum += fabs(get_val_as_double(A, i) - get_val_as_double(F, i));
-	return sum;
+	return fabs(get_val_as_double(A, i) - get_val_as_double(F, i));
 }
 
-static inline
+inline
 double
-mae_output(double agg, long N)
+ARRAY_METRICS_mae_reduce(double sum, double val)
 {
+	return sum + val;
+}
+
+inline
+double
+ARRAY_METRICS_mae_output(double agg, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
 	return agg / N;
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_mae_serial(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double agg = mae_reduction(A, F, i_start, i_end, get_val_as_double);
-	return mae_output(agg, i_end - i_start);
-}
+metric_functions_template(mae, double, double,
+	(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, F, i_start, i_end, get_val_as_double)
+)
 
-double
-ARRAY_METRICS_mae_parallel(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = mae_reduction(A, F, i_s, i_e, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return mae_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_mae(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double ret;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_mae_serial(A, F, i_start, i_end, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_mae_parallel(A, F, i_start, i_end, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
-}
 
 //==========================================================================================================================================
 //= Max Absolute Error
 //==========================================================================================================================================
 
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-max_ae_reduction(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_max_ae_map(long i, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	double agg, max = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-	{
-		agg = fabs(get_val_as_double(A, i) - get_val_as_double(F, i));
-		if (agg > max)
-			max = agg;
-	}
-	return max;
+	return fabs(get_val_as_double(A, i) - get_val_as_double(F, i));
 }
 
-static inline
+inline
 double
-max_ae_output(double agg)
+ARRAY_METRICS_max_ae_reduce(double sum, double val)
+{
+	return (val > sum) ? val : sum;
+}
+
+inline
+double
+ARRAY_METRICS_max_ae_output(double agg, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
 	return agg;
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_max_ae_serial(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double agg = max_ae_reduction(A, F, i_start, i_end, get_val_as_double);
-	return max_ae_output(agg);
-}
-
-double
-ARRAY_METRICS_max_ae_parallel(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = max_ae_reduction(A, F, i_s, i_e, get_val_as_double);
-	agg = thread_reduce_global_max(agg);
-	return max_ae_output(agg);
-}
-
-double
-ARRAY_METRICS_max_ae(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double ret;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_max_ae_serial(A, F, i_start, i_end, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_max_ae_parallel(A, F, i_start, i_end, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
-}
+metric_functions_template(max_ae, double, double,
+	(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, F, i_start, i_end, get_val_as_double)
+)
 
 
 //==========================================================================================================================================
@@ -787,63 +621,36 @@ ARRAY_METRICS_max_ae(void * A, void * F, long i_start, long i_end, double (* get
 //==========================================================================================================================================
 
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-mse_reduction(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_mse_map(long i, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	double a, f, sum = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-	{
-		a = get_val_as_double(A, i);
-		f = get_val_as_double(F, i);
-		sum += (a - f) * (a - f);
-	}
-	return sum;
+	double val = get_val_as_double(A, i) - get_val_as_double(F, i);
+	return val * val;
 }
 
-static inline
+inline
 double
-mse_output(double agg, long N)
+ARRAY_METRICS_mse_reduce(double sum, double val)
 {
-	return 100.0 * agg / N;
+	return val + sum;
 }
 
+inline
 double
-ARRAY_METRICS_mse_serial(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_mse_output(double agg, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	double agg = mse_reduction(A, F, i_start, i_end, get_val_as_double);
-	return mse_output(agg, i_end - i_start);
+	long N = i_end - i_start;
+	return 100 * agg / N;
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_mse_parallel(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = mse_reduction(A, F, i_s, i_e, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return mse_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_mse(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double ret;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_mse_serial(A, F, i_start, i_end, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_mse_parallel(A, F, i_start, i_end, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
-}
+metric_functions_template(mse, double, double,
+	(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, F, i_start, i_end, get_val_as_double)
+)
 
 
 //==========================================================================================================================================
@@ -851,66 +658,41 @@ ARRAY_METRICS_mse(void * A, void * F, long i_start, long i_end, double (* get_va
 //==========================================================================================================================================
 
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-mare_reduction(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_mare_map(long i, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	double a, f, ae, sum = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-	{
-		a = get_val_as_double(A, i);
-		f = get_val_as_double(F, i);
-		ae = fabs(a - f);
-		if (ae <= 2 * DBL_EPSILON)
-			continue;
-		sum += ae / fabs(a);
-	}
-	return sum;
+	double a, f, ae;
+	a = get_val_as_double(A, i);
+	f = get_val_as_double(F, i);
+	ae = fabs(a - f);
+	if (ae <= 2 * DBL_EPSILON)
+		return 0.0;
+	return ae / fabs(a);
 }
 
-static inline
+inline
 double
-mare_output(double agg, long N)
+ARRAY_METRICS_mare_reduce(double sum, double val)
 {
+	return val + sum;
+}
+
+inline
+double
+ARRAY_METRICS_mare_output(double agg, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
 	return agg / N;
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_mare_serial(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double agg = mare_reduction(A, F, i_start, i_end, get_val_as_double);
-	return mare_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_mare_parallel(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = mare_reduction(A, F, i_s, i_e, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return mare_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_mare(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double ret;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_mare_serial(A, F, i_start, i_end, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_mare_parallel(A, F, i_start, i_end, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
-}
+metric_functions_template(mare, double, double,
+	(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, F, i_start, i_end, get_val_as_double)
+)
 
 
 //==========================================================================================================================================
@@ -918,23 +700,34 @@ ARRAY_METRICS_mare(void * A, void * F, long i_start, long i_end, double (* get_v
 //==========================================================================================================================================
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-ARRAY_METRICS_mape_serial(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_mape_map(long i, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	return 100 * ARRAY_METRICS_mare_serial(A, F, i_start, i_end, get_val_as_double);
+	return ARRAY_METRICS_mare_map(i, A, F, i_start, i_end, get_val_as_double);
 }
 
+inline
 double
-ARRAY_METRICS_mape_parallel(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_mape_reduce(double sum, double val)
 {
-	return 100 * ARRAY_METRICS_mare_parallel(A, F, i_start, i_end, get_val_as_double);
+	return ARRAY_METRICS_mare_reduce(sum, val);
 }
 
+inline
 double
-ARRAY_METRICS_mape(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_mape_output(double agg, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	return 100 * ARRAY_METRICS_mare(A, F, i_start, i_end, get_val_as_double);
+	return 100 * ARRAY_METRICS_mare_output(agg, A, F, i_start, i_end, get_val_as_double);
 }
+#pragma GCC diagnostic pop
+
+metric_functions_template(mape, double, double,
+	(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, F, i_start, i_end, get_val_as_double)
+)
 
 
 //==========================================================================================================================================
@@ -942,70 +735,44 @@ ARRAY_METRICS_mape(void * A, void * F, long i_start, long i_end, double (* get_v
 //==========================================================================================================================================
 
 
-/* 
- * 0 <= smare <= 1
+/* 0 <= smare <= 1
  */
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-smare_reduction(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_smare_map(long i, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	double a, f, ae, sum = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-	{
-		a = get_val_as_double(A, i);
-		f = get_val_as_double(F, i);
-		ae = fabs(a - f);
-		if (ae <= 2 * DBL_EPSILON)
-			continue;
-		sum += ae / (fabs(a) + fabs(f));
-	}
-	return sum;
+	double a, f, ae;
+	a = get_val_as_double(A, i);
+	f = get_val_as_double(F, i);
+	ae = fabs(a - f);
+	if (ae <= 2 * DBL_EPSILON)
+		return 0.0;
+	return ae / (fabs(a) + fabs(f));
 }
 
-static inline
+inline
 double
-smare_output(double agg, long N)
+ARRAY_METRICS_smare_reduce(double sum, double val)
 {
+	return val + sum;
+}
+
+inline
+double
+ARRAY_METRICS_smare_output(double agg, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
 	return agg / N;
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_smare_serial(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double agg = smare_reduction(A, F, i_start, i_end, get_val_as_double);
-	return smare_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_smare_parallel(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = smare_reduction(A, F, i_s, i_e, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return smare_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_smare(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double ret;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_smare_serial(A, F, i_start, i_end, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_smare_parallel(A, F, i_start, i_end, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
-}
+metric_functions_template(smare, double, double,
+	(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, F, i_start, i_end, get_val_as_double)
+)
 
 
 //==========================================================================================================================================
@@ -1016,23 +783,34 @@ ARRAY_METRICS_smare(void * A, void * F, long i_start, long i_end, double (* get_
 /* 0 <= smape <= 100
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-ARRAY_METRICS_smape_serial(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_smape_map(long i, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	return 100 * ARRAY_METRICS_smare_serial(A, F, i_start, i_end, get_val_as_double);
+	return ARRAY_METRICS_smare_map(i, A, F, i_start, i_end, get_val_as_double);
 }
 
+inline
 double
-ARRAY_METRICS_smape_parallel(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_smape_reduce(double sum, double val)
 {
-	return 100 * ARRAY_METRICS_smare_parallel(A, F, i_start, i_end, get_val_as_double);
+	return ARRAY_METRICS_smare_reduce(sum, val);
 }
 
+inline
 double
-ARRAY_METRICS_smape(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_smape_output(double agg, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	return 100 * ARRAY_METRICS_smare(A, F, i_start, i_end, get_val_as_double);
+	return 100 * ARRAY_METRICS_smare_output(agg, A, F, i_start, i_end, get_val_as_double);
 }
+#pragma GCC diagnostic pop
+
+metric_functions_template(smape, double, double,
+	(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, F, i_start, i_end, get_val_as_double)
+)
 
 
 //==========================================================================================================================================
@@ -1040,63 +818,38 @@ ARRAY_METRICS_smape(void * A, void * F, long i_start, long i_end, double (* get_
 //==========================================================================================================================================
 
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-Q_error_reduction(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_Q_error_map(long i, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	double a, f, sum = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-	{
-		a = get_val_as_double(A, i);
-		f = get_val_as_double(F, i);
-		sum += f / a;
-	}
-	return sum;
+	double a, f;
+	a = get_val_as_double(A, i);
+	f = get_val_as_double(F, i);
+	return f / a;
 }
 
-static inline
+inline
 double
-Q_error_output(double agg, long N)
+ARRAY_METRICS_Q_error_reduce(double sum, double val)
 {
+	return val + sum;
+}
+
+inline
+double
+ARRAY_METRICS_Q_error_output(double agg, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
 	return agg / N;
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_Q_error_serial(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double agg = Q_error_reduction(A, F, i_start, i_end, get_val_as_double);
-	return Q_error_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_Q_error_parallel(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = Q_error_reduction(A, F, i_s, i_e, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return Q_error_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_Q_error(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double ret;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_Q_error_serial(A, F, i_start, i_end, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_Q_error_parallel(A, F, i_start, i_end, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
-}
+metric_functions_template(Q_error, double, double,
+	(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, F, i_start, i_end, get_val_as_double)
+)
 
 
 //==========================================================================================================================================
@@ -1104,63 +857,38 @@ ARRAY_METRICS_Q_error(void * A, void * F, long i_start, long i_end, double (* ge
 //==========================================================================================================================================
 
 
-static inline
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
 double
-lnQ_error_reduction(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_lnQ_error_map(long i, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
 {
-	double a, f, sum = 0;
-	long i;
-	for (i=i_start;i<i_end;i++)
-	{
-		a = get_val_as_double(A, i);
-		f = get_val_as_double(F, i);
-		sum += log(f) - log(a);
-	}
-	return sum;
+	double a, f;
+	a = get_val_as_double(A, i);
+	f = get_val_as_double(F, i);
+	return log(f) - log(a);
 }
 
-static inline
+inline
 double
-lnQ_error_output(double agg, long N)
+ARRAY_METRICS_lnQ_error_reduce(double sum, double val)
 {
+	return val + sum;
+}
+
+inline
+double
+ARRAY_METRICS_lnQ_error_output(double agg, void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
 	return agg / N;
 }
+#pragma GCC diagnostic pop
 
-double
-ARRAY_METRICS_lnQ_error_serial(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double agg = lnQ_error_reduction(A, F, i_start, i_end, get_val_as_double);
-	return lnQ_error_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_lnQ_error_parallel(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	double agg;
-	long i_s, i_e;
-	assert_omp_nesting_level(1);
-	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	agg = lnQ_error_reduction(A, F, i_s, i_e, get_val_as_double);
-	agg = thread_reduce_global_add(agg);
-	return lnQ_error_output(agg, i_end - i_start);
-}
-
-double
-ARRAY_METRICS_lnQ_error(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
-{
-	double ret;
-	if (omp_get_level() > 0)
-		return ARRAY_METRICS_lnQ_error_serial(A, F, i_start, i_end, get_val_as_double);
-	#pragma omp parallel
-	{
-		double agg = ARRAY_METRICS_lnQ_error_parallel(A, F, i_start, i_end, get_val_as_double);
-		#pragma omp single nowait
-		ret = agg;
-	}
-	return ret;
-}
+metric_functions_template(lnQ_error, double, double,
+	(void * A, void * F, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, F, i_start, i_end, get_val_as_double)
+)
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1212,8 +940,9 @@ ARRAY_METRICS_closest_pair_idx_serial(void * A, long i_start, long i_end, long *
 		*idx1_out = P[pos].idx;
 	if (idx2_out != NULL)
 		*idx2_out = P[pos+1].idx;
+	dist = fabs(P[pos].idx - P[pos+1].idx);
 	free(P);
-	return fabs(P[pos].idx - P[pos+1].idx);
+	return dist;
 }
 
 

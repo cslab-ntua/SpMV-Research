@@ -120,6 +120,7 @@ EXE =
 
 EXE += spmv_csr_naive.exe
 EXE += spmv_csr.exe
+EXE += spmv_csr_kahan.exe
 # EXE += spmv_csr_prefetch.exe
 # EXE += spmv_csr_simd.exe
 # EXE += spmv_csr_vector.exe
@@ -168,6 +169,8 @@ spmv_csr_naive.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'NAIVE' $^ -o $@ $(LDFLAGS)
 spmv_csr.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+spmv_csr_kahan.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
+	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_KAHAN' $^ -o $@ $(LDFLAGS)
 spmv_csr_prefetch.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_PREFETCH' $^ -o $@ $(LDFLAGS)
 spmv_csr_simd.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)

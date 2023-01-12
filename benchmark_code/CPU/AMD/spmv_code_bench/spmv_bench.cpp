@@ -392,7 +392,6 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 		}
 	#endif
 
-	double csr_mem_footprint = csr_nnz * (sizeof(ValueType) + sizeof(INT_T)) + (csr_m+1) * sizeof(INT_T);
 	std::stringstream stream;
 	gflops = csr_nnz / time * loop * 2 * 1e-9;    // Use csr_nnz to be sure we have the initial nnz (there is no coo for artificial AM).
 
@@ -409,14 +408,15 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 		i += snprintf(buf + i, buf_n - i, ",%u", csr_nnz);
 		i += snprintf(buf + i, buf_n - i, ",%lf", time);
 		i += snprintf(buf + i, buf_n - i, ",%lf", gflops);
-		i += snprintf(buf + i, buf_n - i, ",%lf", csr_mem_footprint / (1024*1024));
+		i += snprintf(buf + i, buf_n - i, ",%lf", MF->csr_mem_footprint / (1024*1024));
 		i += snprintf(buf + i, buf_n - i, ",%lf", W_avg);
 		i += snprintf(buf + i, buf_n - i, ",%lf", J_estimated);
 		i += snprintf(buf + i, buf_n - i, ",%s", MF->format_name);
 		i += snprintf(buf + i, buf_n - i, ",%u", MF->m);
 		i += snprintf(buf + i, buf_n - i, ",%u", MF->n);
 		i += snprintf(buf + i, buf_n - i, ",%u", MF->nnz);
-		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint/(1024*1024));
+		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / (1024*1024));
+		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / MF->csr_mem_footprint);
 		#ifdef PER_THREAD_STATS
 			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_avg);
 			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_std);

@@ -99,8 +99,8 @@
 
 #define _FOREACH_EXPAND(fun, ...)  fun(__VA_ARGS__)
 
-#define _FOREACH_0(resulting_code, fun)            resulting_code
-#define _FOREACH_REC(resulting_code, fun, a, ...)  resulting_code _FOREACH_EXPAND(fun, UNPACK(a));, fun, ##__VA_ARGS__
+#define _FOREACH_0(i, resulting_code, fun)            UNPACK(resulting_code)
+#define _FOREACH_REC(i, resulting_code, fun, a, ...)  (UNPACK(resulting_code) _FOREACH_EXPAND(fun, UNPACK(a));), fun, ##__VA_ARGS__
 
 #define FOREACH_UNGUARDED(fun, ...)  RECURSION_FORM_ITER(__VA_ARGS__)(_FOREACH_REC, _FOREACH_0, (, fun, __VA_ARGS__))
 #define FOREACH(fun, ...)            do { FOREACH_UNGUARDED(fun, ##__VA_ARGS__); } while (0)
@@ -113,10 +113,10 @@
 
 #define _FOREACH_ITER_EXPAND(fun, ...)  fun(__VA_ARGS__)
 
-#define _FOREACH_ITER_0(resulting_code, i, fun)            resulting_code
-#define _FOREACH_ITER_REC(resulting_code, i, fun, a, ...)  resulting_code _FOREACH_ITER_EXPAND(fun, i, UNPACK(a));, i+1, fun, ##__VA_ARGS__
+#define _FOREACH_ITER_0(i, resulting_code, fun)            UNPACK(resulting_code)
+#define _FOREACH_ITER_REC(i, resulting_code, fun, a, ...)  (UNPACK(resulting_code) _FOREACH_ITER_EXPAND(fun, i, UNPACK(a));), fun, ##__VA_ARGS__
 
-#define FOREACH_ITER_UNGUARDED(fun, ...)  RECURSION_FORM_ITER(__VA_ARGS__)(_FOREACH_ITER_REC, _FOREACH_ITER_0, (, 0, fun, __VA_ARGS__))
+#define FOREACH_ITER_UNGUARDED(fun, ...)  RECURSION_FORM_ITER(__VA_ARGS__)(_FOREACH_ITER_REC, _FOREACH_ITER_0, (, fun, __VA_ARGS__))
 #define FOREACH_ITER(fun, ...)            do { FOREACH_ITER_UNGUARDED(fun, ##__VA_ARGS__); } while (0)
 
 
@@ -127,20 +127,20 @@
 
 #define _FOREACH_PACKED_EXPAND(fun, ...)  fun(__VA_ARGS__)
 
-#define _FOREACH_PACKED_0_0_0(resulting_code, fun)                            resulting_code
-#define _FOREACH_PACKED_0_0_REC(resulting_code, fun, a, ...)                  resulting_code _FOREACH_PACKED_EXPAND(fun, UNPACK(a));, fun, ##__VA_ARGS__
+#define _FOREACH_PACKED_0_0_0(i, resulting_code, fun)                            UNPACK(resulting_code)
+#define _FOREACH_PACKED_0_0_REC(i, resulting_code, fun, a, ...)                  (UNPACK(resulting_code) _FOREACH_PACKED_EXPAND(fun, UNPACK(a));), fun, ##__VA_ARGS__
 #define _FOREACH_PACKED_UNGUARDED_0_0(fun, prefix, arg, suffix)               RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_0_0_REC, _FOREACH_PACKED_0_0_0, (, fun, UNPACK(arg)))
 
-#define _FOREACH_PACKED_0_1_0(resulting_code, fun, suffix)                    resulting_code
-#define _FOREACH_PACKED_0_1_REC(resulting_code, fun, suffix, a, ...)          resulting_code _FOREACH_PACKED_EXPAND(fun, UNPACK(a), UNPACK(suffix));, fun, suffix, ##__VA_ARGS__
+#define _FOREACH_PACKED_0_1_0(i, resulting_code, fun, suffix)                    UNPACK(resulting_code)
+#define _FOREACH_PACKED_0_1_REC(i, resulting_code, fun, suffix, a, ...)          (UNPACK(resulting_code) _FOREACH_PACKED_EXPAND(fun, UNPACK(a), UNPACK(suffix));), fun, suffix, ##__VA_ARGS__
 #define _FOREACH_PACKED_UNGUARDED_0_1(fun, prefix, arg, suffix)               RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_0_1_REC, _FOREACH_PACKED_0_1_0, (, fun, suffix, UNPACK(arg)))
 
-#define _FOREACH_PACKED_1_0_0(resulting_code, fun, prefix)                    resulting_code
-#define _FOREACH_PACKED_1_0_REC(resulting_code, fun, prefix, a, ...)          resulting_code _FOREACH_PACKED_EXPAND(fun, UNPACK(prefix), UNPACK(a));, fun, prefix, ##__VA_ARGS__
+#define _FOREACH_PACKED_1_0_0(i, resulting_code, fun, prefix)                    UNPACK(resulting_code)
+#define _FOREACH_PACKED_1_0_REC(i, resulting_code, fun, prefix, a, ...)          (UNPACK(resulting_code) _FOREACH_PACKED_EXPAND(fun, UNPACK(prefix), UNPACK(a));), fun, prefix, ##__VA_ARGS__
 #define _FOREACH_PACKED_UNGUARDED_1_0(fun, prefix, arg, suffix)               RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_1_0_REC, _FOREACH_PACKED_1_0_0, (, fun, prefix, UNPACK(arg)))
 
-#define _FOREACH_PACKED_1_1_0(resulting_code, fun, prefix, suffix)            resulting_code
-#define _FOREACH_PACKED_1_1_REC(resulting_code, fun, prefix, suffix, a, ...)  resulting_code _FOREACH_PACKED_EXPAND(fun, UNPACK(prefix), UNPACK(a), UNPACK(suffix));, fun, prefix, suffix, ##__VA_ARGS__
+#define _FOREACH_PACKED_1_1_0(i, resulting_code, fun, prefix, suffix)            UNPACK(resulting_code)
+#define _FOREACH_PACKED_1_1_REC(i, resulting_code, fun, prefix, suffix, a, ...)  (UNPACK(resulting_code) _FOREACH_PACKED_EXPAND(fun, UNPACK(prefix), UNPACK(a), UNPACK(suffix));), fun, prefix, suffix, ##__VA_ARGS__
 #define _FOREACH_PACKED_UNGUARDED_1_1(fun, prefix, arg, suffix)               RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_1_1_REC, _FOREACH_PACKED_1_1_0, (, fun, prefix, suffix, UNPACK(arg)))
 
 #define __FOREACH_PACKED_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)  _FOREACH_PACKED_UNGUARDED_ ## prefix_num ## _ ## suffix_num(fun, prefix, arg, suffix)  
@@ -157,27 +157,57 @@
 
 #define _FOREACH_PACKED_ITER_EXPAND(fun, ...)  fun(__VA_ARGS__)
 
-#define _FOREACH_PACKED_ITER_0_0_0(resulting_code, i, fun)                            resulting_code
-#define _FOREACH_PACKED_ITER_0_0_REC(resulting_code, i, fun, a, ...)                  resulting_code _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(a));, i+1, fun, ##__VA_ARGS__
-#define _FOREACH_PACKED_ITER_UNGUARDED_0_0(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_0_0_REC, _FOREACH_PACKED_ITER_0_0_0, (, 0, fun, UNPACK(arg)))
+#define _FOREACH_PACKED_ITER_0_0_0(i, resulting_code, fun)                            UNPACK(resulting_code)
+#define _FOREACH_PACKED_ITER_0_0_REC(i, resulting_code, fun, a, ...)                  (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(a));), fun, ##__VA_ARGS__
+#define _FOREACH_PACKED_ITER_UNGUARDED_0_0(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_0_0_REC, _FOREACH_PACKED_ITER_0_0_0, (, fun, UNPACK(arg)))
 
-#define _FOREACH_PACKED_ITER_0_1_0(resulting_code, i, fun, suffix)                    resulting_code
-#define _FOREACH_PACKED_ITER_0_1_REC(resulting_code, i, fun, suffix, a, ...)          resulting_code _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(a), UNPACK(suffix));, i+1, fun, suffix, ##__VA_ARGS__
-#define _FOREACH_PACKED_ITER_UNGUARDED_0_1(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_0_1_REC, _FOREACH_PACKED_ITER_0_1_0, (, 0, fun, suffix, UNPACK(arg)))
+#define _FOREACH_PACKED_ITER_0_1_0(i, resulting_code, fun, suffix)                    UNPACK(resulting_code)
+#define _FOREACH_PACKED_ITER_0_1_REC(i, resulting_code, fun, suffix, a, ...)          (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(a), UNPACK(suffix));), fun, suffix, ##__VA_ARGS__
+#define _FOREACH_PACKED_ITER_UNGUARDED_0_1(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_0_1_REC, _FOREACH_PACKED_ITER_0_1_0, (, fun, suffix, UNPACK(arg)))
 
-#define _FOREACH_PACKED_ITER_1_0_0(resulting_code, i, fun, prefix)                    resulting_code
-#define _FOREACH_PACKED_ITER_1_0_REC(resulting_code, i, fun, prefix, a, ...)          resulting_code _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(prefix), UNPACK(a));, i+1, fun, prefix, ##__VA_ARGS__
-#define _FOREACH_PACKED_ITER_UNGUARDED_1_0(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_1_0_REC, _FOREACH_PACKED_ITER_1_0_0, (, 0, fun, prefix, UNPACK(arg)))
+#define _FOREACH_PACKED_ITER_1_0_0(i, resulting_code, fun, prefix)                    UNPACK(resulting_code)
+#define _FOREACH_PACKED_ITER_1_0_REC(i, resulting_code, fun, prefix, a, ...)          (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(prefix), UNPACK(a));), fun, prefix, ##__VA_ARGS__
+#define _FOREACH_PACKED_ITER_UNGUARDED_1_0(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_1_0_REC, _FOREACH_PACKED_ITER_1_0_0, (, fun, prefix, UNPACK(arg)))
 
-#define _FOREACH_PACKED_ITER_1_1_0(resulting_code, i, fun, prefix, suffix)            resulting_code
-#define _FOREACH_PACKED_ITER_1_1_REC(resulting_code, i, fun, prefix, suffix, a, ...)  resulting_code _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(prefix), UNPACK(a), UNPACK(suffix));, i+1, fun, prefix, suffix, ##__VA_ARGS__
-#define _FOREACH_PACKED_ITER_UNGUARDED_1_1(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_1_1_REC, _FOREACH_PACKED_ITER_1_1_0, (, 0, fun, prefix, suffix, UNPACK(arg)))
+#define _FOREACH_PACKED_ITER_1_1_0(i, resulting_code, fun, prefix, suffix)            UNPACK(resulting_code)
+#define _FOREACH_PACKED_ITER_1_1_REC(i, resulting_code, fun, prefix, suffix, a, ...)  (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(prefix), UNPACK(a), UNPACK(suffix));), fun, prefix, suffix, ##__VA_ARGS__
+#define _FOREACH_PACKED_ITER_UNGUARDED_1_1(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_1_1_REC, _FOREACH_PACKED_ITER_1_1_0, (, fun, prefix, suffix, UNPACK(arg)))
 
 #define __FOREACH_PACKED_ITER_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)  _FOREACH_PACKED_ITER_UNGUARDED_ ## prefix_num ## _ ## suffix_num(fun, prefix, arg, suffix)  
 #define _FOREACH_PACKED_ITER_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)   __FOREACH_PACKED_ITER_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)
 
 #define FOREACH_PACKED_ITER_UNGUARDED(fun, prefix, arg, suffix)  _FOREACH_PACKED_ITER_UNGUARDED(COUNT_ARGS(prefix), COUNT_ARGS(suffix), fun, prefix, arg, suffix)
 #define FOREACH_PACKED_ITER(fun, prefix, arg, suffix)            do { FOREACH_PACKED_ITER_UNGUARDED(fun, prefix, arg, suffix); } while (0)
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Expression Foreach Macro Argument In Tupple With Extra Static Prefix/Suffix Arguments And Iterator
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+
+#define _FOREACH_PACKED_ITER_EXPRESSION_EXPAND(fun, ...)  fun(__VA_ARGS__)
+
+#define _FOREACH_PACKED_ITER_EXPRESSION_0_0_0(i, resulting_code, fun)                            UNPACK(resulting_code)
+#define _FOREACH_PACKED_ITER_EXPRESSION_0_0_REC(i, resulting_code, fun, a, ...)                  (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPRESSION_EXPAND(fun, i, UNPACK(a))), fun, ##__VA_ARGS__
+#define _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED_0_0(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_EXPRESSION_0_0_REC, _FOREACH_PACKED_ITER_EXPRESSION_0_0_0, (, fun, UNPACK(arg)))
+
+#define _FOREACH_PACKED_ITER_EXPRESSION_0_1_0(i, resulting_code, fun, suffix)                    UNPACK(resulting_code)
+#define _FOREACH_PACKED_ITER_EXPRESSION_0_1_REC(i, resulting_code, fun, suffix, a, ...)          (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPRESSION_EXPAND(fun, i, UNPACK(a), UNPACK(suffix))), fun, suffix, ##__VA_ARGS__
+#define _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED_0_1(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_EXPRESSION_0_1_REC, _FOREACH_PACKED_ITER_EXPRESSION_0_1_0, (, fun, suffix, UNPACK(arg)))
+
+#define _FOREACH_PACKED_ITER_EXPRESSION_1_0_0(i, resulting_code, fun, prefix)                    UNPACK(resulting_code)
+#define _FOREACH_PACKED_ITER_EXPRESSION_1_0_REC(i, resulting_code, fun, prefix, a, ...)          (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPRESSION_EXPAND(fun, i, UNPACK(prefix), UNPACK(a))), fun, prefix, ##__VA_ARGS__
+#define _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED_1_0(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_EXPRESSION_1_0_REC, _FOREACH_PACKED_ITER_EXPRESSION_1_0_0, (, fun, prefix, UNPACK(arg)))
+
+#define _FOREACH_PACKED_ITER_EXPRESSION_1_1_0(i, resulting_code, fun, prefix, suffix)            UNPACK(resulting_code)
+#define _FOREACH_PACKED_ITER_EXPRESSION_1_1_REC(i, resulting_code, fun, prefix, suffix, a, ...)  (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPRESSION_EXPAND(fun, i, UNPACK(prefix), UNPACK(a), UNPACK(suffix))), fun, prefix, suffix, ##__VA_ARGS__
+#define _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED_1_1(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_EXPRESSION_1_1_REC, _FOREACH_PACKED_ITER_EXPRESSION_1_1_0, (, fun, prefix, suffix, UNPACK(arg)))
+
+#define __FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)  _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED_ ## prefix_num ## _ ## suffix_num(fun, prefix, arg, suffix)  
+#define _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)   __FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)
+
+#define FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED(fun, prefix, arg, suffix)  _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED(COUNT_ARGS(prefix), COUNT_ARGS(suffix), fun, prefix, arg, suffix)
+#define FOREACH_PACKED_ITER_EXPRESSION(fun, prefix, arg, suffix)            ({ FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED(fun, prefix, arg, suffix) })
 
 
 //==========================================================================================================================================

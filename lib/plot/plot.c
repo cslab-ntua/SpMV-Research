@@ -389,7 +389,7 @@ convert_to_histogram(struct Figure_Series * s, long num_bins, int plot_percentag
 		get_value_as_double = s->get_z_as_double;
 	}
 
-	array_min_max(values, values_n, &min, &max, get_value_as_double);
+	array_min_max(values, values_n, &min, NULL, &max, NULL, get_value_as_double);
 
 	quantum_size = (max - min) / (num_bins);
 
@@ -760,7 +760,7 @@ series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pi
 		}
 	}
 
-	array_min_max(counts, counts_n, &min, &max, gen_i2d);
+	array_min_max(counts, counts_n, &min, NULL, &max, NULL, gen_i2d);
 
 	#pragma omp parallel
 	{
@@ -826,14 +826,14 @@ void
 calc_series_bounds(struct Figure_Series * s)
 {
 	if (s->x != NULL)
-		array_min_max(s->x, s->N, &s->x_min, &s->x_max, s->get_x_as_double);
+		array_min_max(s->x, s->N, &s->x_min, NULL, &s->x_max, NULL, s->get_x_as_double);
 	else
 	{
 		s->x_min = 0;
 		s->x_max = s->N - 1;
 	}
 	if (s->y != NULL)
-		array_min_max(s->y, s->M, &s->y_min, &s->y_max, s->get_y_as_double);
+		array_min_max(s->y, s->M, &s->y_min, NULL, &s->y_max, NULL, s->get_y_as_double);
 	else
 	{
 		s->y_min = 0;
@@ -842,7 +842,7 @@ calc_series_bounds(struct Figure_Series * s)
 	if (s->z != NULL && !s->type_density_map)
 	{
 		long n = s->cart_prod ? s->M * s->N : s->N;
-		array_min_max(s->z, n, &s->z_min, &s->z_max, s->get_z_as_double);
+		array_min_max(s->z, n, &s->z_min, NULL, &s->z_max, NULL, s->get_z_as_double);
 	}
 }
 

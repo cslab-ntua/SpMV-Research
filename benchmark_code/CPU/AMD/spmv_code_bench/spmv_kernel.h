@@ -13,10 +13,14 @@ struct Matrix_Format
 	INT_T n;                         // num columns
 	INT_T nnz;                       // num non-zeros
 	double mem_footprint;
+	double csr_mem_footprint;
 
 	virtual void spmv(ValueType * x, ValueType * y) = 0;
 
-	Matrix_Format(long m, long n, long nnz) : m(m), n(n), nnz(nnz) {}
+	Matrix_Format(long m, long n, long nnz) : m(m), n(n), nnz(nnz)
+	{
+		csr_mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
+	}
 };
 
 

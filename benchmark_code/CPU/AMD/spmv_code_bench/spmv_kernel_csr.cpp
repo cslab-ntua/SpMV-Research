@@ -132,6 +132,7 @@ struct CSRArrays : Matrix_Format
 
 
 void compute_csr(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
+void compute_csr_kahan(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y);
 void compute_csr_prefetch(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
 void compute_csr_omp_simd(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
 void compute_csr_vector(CSRArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
@@ -149,6 +150,8 @@ CSRArrays::spmv(ValueType * x, ValueType * y)
 		compute_csr_vector(this, x, y);
 	#elif defined(CUSTOM_VECTOR_PERFECT_NNZ_BALANCE)
 		compute_csr_vector_perfect_nnz_balance(this, x, y);
+	#elif defined(CUSTOM_KAHAN)
+		compute_csr_kahan(this, x, y);
 	#else
 		compute_csr(this, x, y);
 	#endif
@@ -285,6 +288,29 @@ subkernel_csr_scalar(CSRArrays * restrict csr, ValueType * restrict x, ValueType
 }
 
 
+void
+subkernel_csr_scalar_kahan(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
+{
+	ValueType sum, val, tmp, compensation = 0;
+	long i, j, j_e;
+	j = csr->ia[i_s];
+	for (i=i_s;i<i_e;i++)
+	{
+		j_e = csr->ia[i+1];
+		sum = 0;
+		compensation = 0;
+		for (;j<j_e;j++)
+		{
+			val = csr->a[j] * x[csr->ja[j]] - compensation;
+			tmp = sum + val;
+			compensation = (tmp - sum) - val;
+			sum = tmp;
+		}
+		y[i] = sum;
+	}
+}
+
+
 //==========================================================================================================================================
 //= CSR Custom
 //==========================================================================================================================================
@@ -312,6 +338,25 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		);
 		thread_time_barrier[tnum] += time;
 		#endif
+	}
+}
+
+
+//==========================================================================================================================================
+//= CSR Kahan
+//==========================================================================================================================================
+
+
+void
+compute_csr_kahan(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
+{
+	#pragma omp parallel
+	{
+		int tnum = omp_get_thread_num();
+		long i_s, i_e;
+		i_s = thread_i_s[tnum];
+		i_e = thread_i_e[tnum];
+		subkernel_csr_scalar_kahan(csr, x, y, i_s, i_e);
 	}
 }
 

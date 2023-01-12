@@ -44,11 +44,6 @@ void csr_degrees_bandwidths_scatters(_TYPE_I * row_ptr, _TYPE_I * col_idx, long 
 #define csr_groups_per_row  CSR_UTIL_GEN_EXPAND(csr_groups_per_row)
 void csr_groups_per_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long max_gap_size, long ** groups_per_row_out);
 
-// #undef  csr_cluster_sizes_frequencies
-// #define csr_cluster_sizes_frequencies  CSR_UTIL_GEN_EXPAND(csr_cluster_sizes_frequencies)
-// void csr_cluster_sizes_frequencies(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long max_gap_size,
-		// double ** frequencies_percentages_out, long * total_groups_out);
-
 
 #undef  csr_row_neighbours
 #define csr_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_row_neighbours)
@@ -57,10 +52,6 @@ double * csr_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n
 #undef  csr_avg_row_neighbours
 #define csr_avg_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_avg_row_neighbours)
 double csr_avg_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size);
-
-// #undef  csr_neighbours_distances_frequencies
-// #define csr_neighbours_distances_frequencies  CSR_UTIL_GEN_EXPAND(csr_neighbours_distances_frequencies)
-// double * csr_neighbours_distances_frequencies(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, int ignore_big_rows);
 
 
 #undef  csr_cross_row_similarity

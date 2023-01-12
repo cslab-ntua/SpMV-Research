@@ -20,22 +20,32 @@
  *     - We assume that the matrix is FULLY sorted, i.e. both rows and columns.
  */
 
+/*
+ * features_all = ['A_mem_footprint',
+ *              'avg_nz_row',
+ *              'skew_coeff',
+ *              'avg_num_neighbours',
+ *              'avg_cross_row_similarity',
+ *
+ *              'm','n','nz',
+ *              'density',
+ *              'min_nz_row', 'max_nz_row', 'std_nz_row',
+ *              'min_nz_col', 'max_nz_col', 'avg_nz_col', 'std_nz_col',
+ *              'min_bandwidth', 'max_bandwidth', 'avg_bandwidth', 'std_bandwidth',
+ *              'min_scattering', 'max_scattering', 'avg_scattering', 'std_scattering',
+ *              'min_ngroups', 'max_ngroups', 'avg_ngroups', 'std_ngroups',
+ *              'min_dis', 'max_dis', 'avg_dis', 'std_dis',
+ *              'min_clustering', 'max_clustering', 'avg_clustering', 'std_clustering',
+ *              'min_num_neighbours','max_num_neighbours', 'std_num_neighbours',
+ *              'min_cross_row_similarity', 'max_cross_row_similarity', 'std_cross_row_similarity'
+ *         ]
+ */
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                              Templates                                                                 -
 //------------------------------------------------------------------------------------------------------------------------------------------
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-//==========================================================================================================================================
-//= User Functions Declarations
-//==========================================================================================================================================
-
-
-//==========================================================================================================================================
-//= Includes
-//==========================================================================================================================================
 
 
 //==========================================================================================================================================
@@ -63,19 +73,25 @@ void
 csr_degrees_bandwidths_scatters(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, __attribute__((unused)) long nnz,
 		long ** degrees_rows_out, long ** degrees_cols_out, double ** bandwidths_out, double ** scatters_out)
 {
+	int num_threads = safe_omp_get_num_threads_external();
+	long thread_i_s[num_threads];
+	long thread_i_e[num_threads];
 	long * degrees_rows = (typeof(degrees_rows)) malloc(m * sizeof(*degrees_rows));
 	long * degrees_cols = (typeof(degrees_cols)) malloc(n * sizeof(*degrees_cols));
 	double * bandwidths = (typeof(bandwidths)) malloc(m * sizeof(*bandwidths));
 	double * scatters = (typeof(scatters)) malloc(m * sizeof(*scatters));
 	#pragma omp parallel
 	{
-		long i, j, j_s, j_e, degree;
+		int tnum = omp_get_thread_num();
+		long i, i_s, i_e, j, j_s, j_e, degree;
 		double b, s;
-		#pragma omp for schedule(static)
+		loop_partitioner_balance_partial_sums(num_threads, tnum, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+		i_s = thread_i_s[tnum];
+		i_e = thread_i_e[tnum];
+		#pragma omp for
 		for (j=0;j<n;j++)
 			degrees_cols[j] = 0;
-		#pragma omp for schedule(static)
-		for (i=0;i<m;i++)
+		for (i=i_s;i<i_e;i++)
 		{
 			j_s = row_ptr[i];
 			j_e = row_ptr[i+1];
@@ -113,7 +129,7 @@ csr_groups_per_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((
 	{
 		long i, j, k, degree;
 		long num_groups;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<m;i++)
 		{
 			groups_per_row[i] = 0;
@@ -149,7 +165,7 @@ csr_nnz_grouping(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((un
 	{
 		long i, j, k, degree;
 		long num_groups;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<m;i++)
 		{
 			groups_per_row[i] = 0;
@@ -174,52 +190,6 @@ csr_nnz_grouping(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((un
 }
 
 
-// #undef  csr_cluster_sizes_frequencies
-// #define csr_cluster_sizes_frequencies  CSR_UTIL_GEN_EXPAND(csr_cluster_sizes_frequencies)
-// void
-// csr_cluster_sizes_frequencies(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, __attribute__((unused)) long nnz, long max_gap_size,
-		// double ** frequencies_percentages_out, long * total_groups_out)
-// {
-	// long * frequencies = (typeof(frequencies)) malloc((n+1) * sizeof(*frequencies));
-	// double * frequencies_percentages = (typeof(frequencies_percentages)) malloc((n+1) * sizeof(*frequencies_percentages));
-	// long total_groups = 0;
-	// #pragma omp parallel
-	// {
-		// long i, j, k, degree, cluster_size;
-		// long num_groups = 0;
-		// #pragma omp for schedule(static)
-		// for (i=0;i<n+1;i++)
-			// frequencies[i] = 0;
-		// #pragma omp for schedule(static)
-		// for (i=0;i<m;i++)
-		// {
-			// degree = row_ptr[i+1] - row_ptr[i];
-			// if (degree <= 0)
-				// continue;
-			// j = row_ptr[i];
-			// while (j < row_ptr[i+1])
-			// {
-				// k = j + 1;
-				// while ((k < row_ptr[i+1]) && (col_idx[k] - col_idx[k-1] <= max_gap_size + 1))   // distance 1 means gap 0
-					// k++;
-				// cluster_size = k - j;
-				// __atomic_fetch_add(&frequencies[cluster_size], 1, __ATOMIC_RELAXED);
-				// num_groups++;
-				// j = k;
-			// }
-		// }
-		// __atomic_fetch_add(&total_groups, num_groups, __ATOMIC_RELAXED);
-		// #pragma omp barrier
-		// #pragma omp for schedule(static)
-		// for (i=0;i<n+1;i++)
-			// frequencies_percentages[i] = ((double) 100 * frequencies[i]) / total_groups;
-	// }
-	// free(frequencies);
-	// *frequencies_percentages_out = frequencies_percentages;
-	// *total_groups_out = total_groups;
-// }
-
-
 /* Notes: 
  *     - 'window_size': Distance from left and right.
  */
@@ -228,15 +198,21 @@ csr_nnz_grouping(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((un
 double *
 csr_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, long nnz, long window_size)
 {
+	int num_threads = safe_omp_get_num_threads_external();
+	long thread_i_s[num_threads];
+	long thread_i_e[num_threads];
 	double * num_neigh = (typeof(num_neigh)) malloc(nnz * sizeof(*num_neigh));
 	#pragma omp parallel
 	{
-		long i, j, k;
-		#pragma omp for schedule(static)
+		int tnum = omp_get_thread_num();
+		long i, i_s, i_e, j, k;
+		loop_partitioner_balance_partial_sums(num_threads, tnum, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+		i_s = thread_i_s[tnum];
+		i_e = thread_i_e[tnum];
+		#pragma omp for
 		for (i=0;i<nnz;i++)
 			num_neigh[i] = 0;
-		#pragma omp for schedule(static)
-		for (i=0;i<m;i++)
+		for (i=i_s;i<i_e;i++)
 		{
 			for (j=row_ptr[i];j<row_ptr[i+1];j++)
 			{
@@ -267,7 +243,7 @@ csr_avg_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute
 	{
 		long i, j, k;
 		long num_neigh = 0;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<m;i++)
 		{
 			for (j=row_ptr[i];j<row_ptr[i+1];j++)
@@ -286,100 +262,6 @@ csr_avg_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute
 }
 
 
-// #undef  csr_neighbours_distances_frequencies
-// #define csr_neighbours_distances_frequencies  CSR_UTIL_GEN_EXPAND(csr_neighbours_distances_frequencies)
-// double *
-// csr_neighbours_distances_frequencies(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, int ignore_big_rows)
-// {
-	// long * frequencies = (typeof(frequencies)) malloc(n * sizeof(*frequencies));
-	// double * frequencies_percentages = (typeof(frequencies_percentages)) malloc(n * sizeof(*frequencies_percentages));
-	// double nnz_per_row_avg = (double) nnz / (double) m;
-	// #pragma omp parallel
-	// {
-		// long i, j;
-		// long degree;
-		// #pragma omp for schedule(static)
-		// for (i=0;i<n;i++)
-			// frequencies[i] = 0;
-		// #pragma omp for schedule(static)
-		// for (i=0;i<m;i++)
-		// {
-			// degree = row_ptr[i+1] - row_ptr[i];
-			// if (degree <= 0)
-				// continue;
-			// if (ignore_big_rows && (degree > 100 * nnz_per_row_avg))            // Filter out big rows.
-			// {
-				// __atomic_fetch_add(&frequencies[0], degree, __ATOMIC_RELAXED);
-				// continue;
-			// }
-			// for (j=row_ptr[i];j<row_ptr[i+1]-1;j++)
-			// {
-				// __atomic_fetch_add(&frequencies[col_idx[j+1] - col_idx[j]], 1, __ATOMIC_RELAXED);
-			// }
-			// __atomic_fetch_add(&frequencies[0], 1, __ATOMIC_RELAXED);     // Add the last element of the row to the 'no-neighbour' (zero) frequency.
-		// }
-		// #pragma omp for schedule(static)
-		// for (i=0;i<n;i++)
-			// frequencies_percentages[i] = ((double) 100 * frequencies[i]) / nnz;
-	// }
-	// free(frequencies);
-	// return frequencies_percentages;
-// }
-
-
-// #undef  csr_cross_row_similarity
-// #define csr_cross_row_similarity  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity)
-// double
-// csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, long window_size)
-// {
-	// double cross_row_similarity_avg;
-	// long total_num_similarities = 0;
-	// #pragma omp parallel
-	// {
-		// long i, j, j_s, j_e, k, k_s, k_e, l;
-		// long degree, num_similarities, column_diff;
-		// num_similarities = 0;
-		// #pragma omp for schedule(static)
-		// for (i=0;i<m-1;i++)
-		// {
-			// degree = row_ptr[i+1] - row_ptr[i];
-			// if (degree <= 0)
-				// continue;
-			// for (l=i+1;l<m;l++)       // Find next non-empty row.
-				// if (row_ptr[l+1] - row_ptr[l] > 0)
-					// break;
-			// if (l >= m)
-				// continue;
-			// j_s = row_ptr[i];
-			// j_e = row_ptr[i+1];
-			// k_s = row_ptr[l];
-			// k_e = row_ptr[l+1];
-			// j = j_s;
-			// k = k_s;
-			// while (1)
-			// {
-				// if ((j >= j_e) || (k >= k_e))
-					// break;
-				// column_diff = col_idx[k] - col_idx[j];
-				// if (labs(column_diff) <= window_size)
-				// {
-					// num_similarities++;
-					// j++;
-					// continue;
-				// }
-				// if (column_diff <= 0)
-					// k++;
-				// else
-					// j++;
-			// }
-		// }
-		// __atomic_fetch_add(&total_num_similarities, num_similarities, __ATOMIC_RELAXED);
-	// }
-	// cross_row_similarity_avg = ((double) total_num_similarities) / nnz;
-	// return cross_row_similarity_avg;
-// }
-
-
 #undef  csr_cross_row_similarity
 #define csr_cross_row_similarity  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity)
 double
@@ -396,7 +278,7 @@ csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 		long degree, num_similarities, column_diff;
 		double row_similarity = 0;
 		long num_non_empty_rows = 0;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<m;i++)
 		{
 			degree = row_ptr[i+1] - row_ptr[i];
@@ -454,10 +336,10 @@ csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 	{
 		long i, j, k, k_s, k_e, l;
 		long degree, curr_neigh, column_diff;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<m;i++)
 			num_neigh[i] = 0;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<m;i++)
 		{
 			degree = row_ptr[i+1] - row_ptr[i];
@@ -532,19 +414,19 @@ csr_matrix_features(__attribute__((unused)) char * title_base, _TYPE_I * row_ptr
 	);
 	printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
 
-	array_min_max(degrees_rows, m, &nnz_per_row_min, &nnz_per_row_max);
+	array_min_max(degrees_rows, m, &nnz_per_row_min, NULL, &nnz_per_row_max, NULL);
 	nnz_per_row_mean = ((double) nnz) / m;
 	nnz_per_row_std = array_std(degrees_rows, m, nnz_per_row_mean);
 
-	array_min_max(degrees_cols, n, &min_degree_col, &max_degree_col);
+	array_min_max(degrees_cols, n, &min_degree_col, NULL, &max_degree_col, NULL);
 	nnz_per_col_mean = ((double) nnz) / n;
 	nnz_per_col_std = array_std(degrees_cols, n, nnz_per_col_mean);
 
-	array_min_max(bandwidths, m, &bw_min, &bw_max);
+	array_min_max(bandwidths, m, &bw_min, NULL, &bw_max, NULL);
 	bw_mean = array_mean(bandwidths, m);
 	bw_std = array_std(bandwidths, m, bw_mean);
 
-	array_min_max(scatters, m, &sc_min, &sc_max);
+	array_min_max(scatters, m, &sc_min, NULL, &sc_max, NULL);
 	sc_mean = array_mean(scatters, m);
 	sc_std = array_std(scatters, m, sc_mean);
 
@@ -577,54 +459,56 @@ csr_matrix_features(__attribute__((unused)) char * title_base, _TYPE_I * row_ptr
 		csr_groups_per_row(row_ptr, col_idx, m, n, nnz, max_gap_size, &groups_per_row);
 	);
 	printf("time csr_groups_per_row = %lf\n", time);
-	array_min_max(groups_per_row, m, &groups_per_row_min, &groups_per_row_max);
+	array_min_max(groups_per_row, m, &groups_per_row_min, NULL, &groups_per_row_max, NULL);
 	groups_per_row_mean = array_mean(groups_per_row, m);
 	groups_per_row_std = array_std(groups_per_row, m, groups_per_row_mean);
 
 	// clustering  = np.asarray([(ngroups[i]/nnz_per_row[i]) if (nnz_per_row[i]>0) else 0 for i in range(len(ngroups))])
 
-	struct {
-		unsigned char type;
-		char * name;
-		union {
-			char * s;
-			long i;
-			double f;
-		} val;
-	} features[] = {
-		{'s', "matrix", .val.s=title_base},
-		{'i', "nr_rows", .val.i=m}, {'i', "nr_cols", .val.i=n}, {'i', "nr_nzeros", .val.i=nnz}, {'f', "density", .val.f = nnz / ((double) m*n)},
+	#if 0
+		struct {
+			unsigned char type;
+			char * name;
+			union {
+				char * s;
+				long i;
+				double f;
+			} val;
+		} features[] = {
+			{'s', "matrix", .val.s=title_base},
+			{'i', "nr_rows", .val.i=m}, {'i', "nr_cols", .val.i=n}, {'i', "nr_nzeros", .val.i=nnz}, {'f', "density", .val.f = nnz / ((double) m*n)},
 
-		{'f', "nnz-r-min", .val.f=nnz_per_row_min}, {'f', "nnz-r-max", .val.f=nnz_per_row_max}, {'f', "nnz-r-avg", .val.f=nnz_per_row_mean}, {'f', "nnz-r-std", .val.f=nnz_per_row_std},
-		{'f', "nnz-c-min", .val.f=min_degree_col}, {'f', "nnz-c-max", .val.f=max_degree_col}, {'f', "nnz-c-avg", .val.f=nnz_per_col_mean}, {'f', "nnz-c-std", .val.f=nnz_per_col_std},
+			{'f', "nnz-r-min", .val.f=nnz_per_row_min}, {'f', "nnz-r-max", .val.f=nnz_per_row_max}, {'f', "nnz-r-avg", .val.f=nnz_per_row_mean}, {'f', "nnz-r-std", .val.f=nnz_per_row_std},
+			{'f', "nnz-c-min", .val.f=min_degree_col}, {'f', "nnz-c-max", .val.f=max_degree_col}, {'f', "nnz-c-avg", .val.f=nnz_per_col_mean}, {'f', "nnz-c-std", .val.f=nnz_per_col_std},
 
-		{'f', "skew_coeff", .val.f = (nnz_per_row_max - nnz_per_row_mean) / nnz_per_row_mean},
+			{'f', "skew_coeff", .val.f = (nnz_per_row_max - nnz_per_row_mean) / nnz_per_row_mean},
 
-		{'f', "bw-min", .val.f=bw_min}, {'f', "bw-max", .val.f=bw_max}, {'f', "bw-avg", .val.f=bw_mean}, {'f', "bw-std", .val.f=bw_std},
-		{'f', "bw-scaled-min", .val.f = bw_min / n}, {'f', "bw-scaled-max", .val.f = bw_max / n}, {'f', "bw-scaled-avg", .val.f = bw_mean / n}, {'f', "bw-scaled-std", .val.f = bw_std / n},
-		{'f', "sc-min", .val.f = sc_min}, {'f', "sc-max", .val.f = sc_max}, {'f', "sc-avg", .val.f = sc_mean}, {'f', "sc-std", .val.f = sc_std},
-		{'f', "sc-scaled-min", .val.f = sc_min * n}, {'f', "sc-scaled-max", .val.f = sc_max * n}, {'f', "sc-scaled-avg", .val.f = sc_mean * n}, {'f', "sc-scaled-std", .val.f = sc_std * n},
+			{'f', "bw-min", .val.f=bw_min}, {'f', "bw-max", .val.f=bw_max}, {'f', "bw-avg", .val.f=bw_mean}, {'f', "bw-std", .val.f=bw_std},
+			{'f', "bw-scaled-min", .val.f = bw_min / n}, {'f', "bw-scaled-max", .val.f = bw_max / n}, {'f', "bw-scaled-avg", .val.f = bw_mean / n}, {'f', "bw-scaled-std", .val.f = bw_std / n},
+			{'f', "sc-min", .val.f = sc_min}, {'f', "sc-max", .val.f = sc_max}, {'f', "sc-avg", .val.f = sc_mean}, {'f', "sc-std", .val.f = sc_std},
+			{'f', "sc-scaled-min", .val.f = sc_min * n}, {'f', "sc-scaled-max", .val.f = sc_max * n}, {'f', "sc-scaled-avg", .val.f = sc_mean * n}, {'f', "sc-scaled-std", .val.f = sc_std * n},
 
-		{'f', "nr_groups-r-min", .val.f = groups_per_row_min}, {'f', "nr_groups-r-max", .val.f = groups_per_row_max}, {'f', "nr_groups-r-avg", .val.f = groups_per_row_mean}, {'f', "nr_groups-r-std", .val.f = groups_per_row_std},
+			{'f', "nr_groups-r-min", .val.f = groups_per_row_min}, {'f', "nr_groups-r-max", .val.f = groups_per_row_max}, {'f', "nr_groups-r-avg", .val.f = groups_per_row_mean}, {'f', "nr_groups-r-std", .val.f = groups_per_row_std},
 
-		// {'i', "num_groups", },
-		// {'f', "nnz_per_cluster-avg", },
+			// {'i', "num_groups", },
+			// {'f', "nnz_per_cluster-avg", },
 
-		{'f', "num-neigh-avg", .val.f = num_neigh_mean},
-		{'f', "cross_row_sim-avg", .val.f = cross_row_similarity_avg},
-	};
-	long num_features = sizeof(features) / sizeof(*features);
+			{'f', "num-neigh-avg", .val.f = num_neigh_mean},
+			{'f', "cross_row_sim-avg", .val.f = cross_row_similarity_avg},
+		};
+		long num_features = sizeof(features) / sizeof(*features);
 
-	for (i=0;i<num_features;i++)
-	{
-		printf("%s = ", features[i].name);
-		switch (features[i].type) {
-			case 's': printf("%s", features[i].val.s); break;
-			case 'i': printf("%ld", features[i].val.i); break;
-			case 'f': printf("%lf", features[i].val.f); break;
+		for (i=0;i<num_features;i++)
+		{
+			printf("%s = ", features[i].name);
+			switch (features[i].type) {
+				case 's': printf("%s", features[i].val.s); break;
+				case 'i': printf("%ld", features[i].val.i); break;
+				case 'f': printf("%lf", features[i].val.f); break;
+			}
+			printf("\n");
 		}
-		printf("\n");
-	}
+	#endif
 
 	// for (i=0;i<num_features;i++)
 		// printf("%s\t", features[i].name);
@@ -661,7 +545,34 @@ csr_matrix_features(__attribute__((unused)) char * title_base, _TYPE_I * row_ptr
 	// printf("%lf\t", ((double) nnz) / total_groups);
 	// printf("\n");
 
+	/* Matrix features for artificial twins.
+	 * Also print the csr mem footprint for easier sorting.
+	 */
+	#if 1
+		double csr_mem_footprint = nnz * (sizeof(double) + sizeof(int)) + (m+1) * sizeof(int);
+		fprintf(stderr, "%-15.5lf ", csr_mem_footprint / (1024*1024));
+		fprintf(stderr, "['%s']='", title_base);
+		fprintf(stderr, "%ld ", m);
+		fprintf(stderr, "%ld ", n);
+		fprintf(stderr, "%.10lf ", nnz_per_row_mean);
+		fprintf(stderr, "%.10lf ", nnz_per_row_std);
+		fprintf(stderr, "normal ");
+		fprintf(stderr, "random ");
+		fprintf(stderr, "%.10lf ", bw_mean / n);
+		fprintf(stderr, "%.10lf ", (nnz_per_row_max - nnz_per_row_mean) / nnz_per_row_mean);
+		fprintf(stderr, "%.10lf ", num_neigh_mean);
+		fprintf(stderr, "%.10lf ", cross_row_similarity_avg);
+		fprintf(stderr, "14 ");
+		fprintf(stderr, "%s", title_base);
+		fprintf(stderr, "'\n");
+	#endif
+
 }
+
+
+//==========================================================================================================================================
+//= Ploting
+//==========================================================================================================================================
 
 
 #undef  csr_plot
@@ -734,7 +645,7 @@ csr_plot(_TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V *
 	{
 		double min_degree, max_degree;
 		long num_bins;
-		array_min_max(row_ptr, m, &min_degree, &max_degree, get_degree);
+		array_min_max(row_ptr, m, &min_degree, NULL, &max_degree, NULL, get_degree);
 		printf("min degree = %g , max degree = %g\n", min_degree, max_degree);
 		// num_bins = 10000;
 		num_bins = max_degree - min_degree + 1;
