@@ -1,0 +1,331 @@
+GHOST_APPS_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/;RAPL_REGISTERS=0;COOLDOWN=0;cpu_pinning_step=1;SPARSEX_LIB_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/build/lib;BOOST_LIB_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/boost_1_55_0/local/lib;cores=14;MKL_PATH=/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl;path_validation=/various/pmpakos/SpMV-Research/validation_matrices;AOCL_PATH=/various/pmpakos/spmv_paper/aocl-sparse/build/release;cpu_affinity=0,1,2,3,4,5,6,7,8,9,10,11,12,13;force_retry_on_error=0;GHOST_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/ESSEX/;LLVM_LIB_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/llvm-6.0.0/build/lib;LLVM_INC_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/llvm-6.0.0/build/include;USE_PROCESSES=0;cpu_pinning_group_size=1;SPARSEX_CONF_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/build/bin;path_openFoam=/various/dgal/graphs/matrices_openFoam;SPARSEX_INC_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/build/include;output_to_files=1;BOOST_INC_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/boost_1_55_0/local/include;max_cores=28;use_artificial_matrices=0;path_validation_new=/various/pmpakos/SpMV-Research/validation_matrices/new_matrices;
+program: /various/pmpakos/SPMV_BENCHMARKS/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe
+number of matrices: 22
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rgg_n_2_17_s0.mtx
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/appu.mtx
+schedule 1
+Preprocessing: 2.407806 secs
+SPMV time: 0.037861 secs
+GFLOPS: 12.529807
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/thermomech_dK.mtx
+schedule 1
+Preprocessing: 3.871126 secs
+SPMV time: 0.063507 secs
+GFLOPS: 11.473311
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/ASIC_680k.mtx
+schedule 1
+Preprocessing: 119.360260 secs
+SPMV time: 1.754039 secs
+GFLOPS: 0.565081
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rajat30.mtx
+schedule 1
+Preprocessing: 132.962888 secs
+SPMV time: 2.685510 secs
+GFLOPS: 0.588676
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/radiation.mtx
+schedule 1
+Preprocessing: 8.651637 secs
+SPMV time: 0.233916 secs
+GFLOPS: 8.358749
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/CurlCurl_2.mtx
+schedule 1
+Preprocessing: 6.928706 secs
+SPMV time: 0.258677 secs
+GFLOPS: 8.829470
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kron_g500-logn18.mtx
+schedule 1
+Preprocessing: 22.986000 secs
+SPMV time: 9.517880 secs
+GFLOPS: 0.569294
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/human_gene1.mtx
+schedule 1
+Preprocessing: 19.207003 secs
+SPMV time: 2.462187 secs
+GFLOPS: 2.564967
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/GL7d20.mtx
+schedule 1
+Preprocessing: 26.737051 secs
+SPMV time: 1.738198 secs
+GFLOPS: 4.402623
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/sx-stackoverflow.mtx
+schedule 1
+Preprocessing: 91.438329 secs
+SPMV time: 35.348000 secs
+GFLOPS: 0.262413
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dgreen.mtx
+schedule 1
+Preprocessing: 43.027081 secs
+SPMV time: 1.520451 secs
+GFLOPS: 6.441856
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dielFilterV2real.mtx
+schedule 1
+Preprocessing: 39.202082 secs
+SPMV time: 2.168692 secs
+GFLOPS: 5.729708
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/audikw_1.mtx
+schedule 1
+Preprocessing: 58.101781 secs
+SPMV time: 3.315698 secs
+GFLOPS: 5.995380
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/appu.mtx
+schedule 1
+Preprocessing: 2.409294 secs
+SPMV time: 0.038146 secs
+GFLOPS: 12.436173
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/thermomech_dK.mtx
+schedule 1
+Preprocessing: 3.873788 secs
+SPMV time: 0.064255 secs
+GFLOPS: 11.339701
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/ASIC_680k.mtx
+schedule 1
+Preprocessing: 119.867105 secs
+SPMV time: 1.769389 secs
+GFLOPS: 0.560179
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rajat30.mtx
+schedule 1
+Preprocessing: 134.365201 secs
+SPMV time: 2.739505 secs
+GFLOPS: 0.577074
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/radiation.mtx
+schedule 1
+Preprocessing: 8.627565 secs
+SPMV time: 0.236491 secs
+GFLOPS: 8.267760
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/CurlCurl_2.mtx
+schedule 1
+Preprocessing: 6.912298 secs
+SPMV time: 0.259827 secs
+GFLOPS: 8.790395
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kron_g500-logn18.mtx
+schedule 1
+Preprocessing: 23.230751 secs
+SPMV time: 9.892232 secs
+GFLOPS: 0.547750
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/human_gene1.mtx
+schedule 1
+Preprocessing: 19.501411 secs
+SPMV time: 2.382440 secs
+GFLOPS: 2.650824
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/GL7d20.mtx
+schedule 1
+Preprocessing: 26.528237 secs
+SPMV time: 1.753573 secs
+GFLOPS: 4.364020
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/sx-stackoverflow.mtx
+schedule 1
+Preprocessing: 91.518177 secs
+SPMV time: 36.854614 secs
+GFLOPS: 0.251685
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dgreen.mtx
+schedule 1
+Preprocessing: 43.280541 secs
+SPMV time: 1.561840 secs
+GFLOPS: 6.271145
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/audikw_1.mtx
+schedule 1
+Preprocessing: 58.287319 secs
+SPMV time: 3.497064 secs
+GFLOPS: 5.684447
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/appu.mtx
+schedule 1
+Preprocessing: 2.410529 secs
+SPMV time: 0.038896 secs
+GFLOPS: 12.196501
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/thermomech_dK.mtx
+schedule 1
+Preprocessing: 3.879093 secs
+SPMV time: 0.063759 secs
+GFLOPS: 11.427918
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/ASIC_680k.mtx
+schedule 1
+Preprocessing: 119.802843 secs
+SPMV time: 1.751384 secs
+GFLOPS: 0.565938
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rajat30.mtx
+schedule 1
+Preprocessing: 133.479872 secs
+SPMV time: 2.731569 secs
+GFLOPS: 0.578750
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/radiation.mtx
+schedule 1
+Preprocessing: 8.621242 secs
+SPMV time: 0.236799 secs
+GFLOPS: 8.256995
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/CurlCurl_2.mtx
+schedule 1
+Preprocessing: 6.895540 secs
+SPMV time: 0.259853 secs
+GFLOPS: 8.789514
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kron_g500-logn18.mtx
+schedule 1
+Preprocessing: 23.239632 secs
+SPMV time: 10.003360 secs
+GFLOPS: 0.541665
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/human_gene1.mtx
+schedule 1
+9
+Preprocessing: 19.295052 secs
+SPMV time: 2.533850 secs
+GFLOPS: 2.492424
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/GL7d20.mtx
+schedule 1
+Preprocessing: 26.523968 secs
+SPMV time: 1.767440 secs
+GFLOPS: 4.329781
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/sx-stackoverflow.mtx
+schedule 1
+^[[
+Preprocessing: 91.248456 secs
+SPMV time: 36.313855 secs
+GFLOPS: 0.255433
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dgreen.mtx
+schedule 1
+Preprocessing: 42.917439 secs
+SPMV time: 1.534390 secs
+GFLOPS: 6.383337
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/audikw_1.mtx
+schedule 1
+Preprocessing: 58.100423 secs
+SPMV time: 3.376759 secs
+GFLOPS: 5.886968
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/appu.mtx
+schedule 1
+Preprocessing: 2.409127 secs
+SPMV time: 0.038208 secs
+GFLOPS: 12.416165
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/thermomech_dK.mtx
+schedule 1
+Preprocessing: 3.878213 secs
+SPMV time: 0.063883 secs
+GFLOPS: 11.405751
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/ASIC_680k.mtx
+schedule 1
+Preprocessing: 119.757078 secs
+SPMV time: 1.768299 secs
+GFLOPS: 0.560524
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rajat30.mtx
+schedule 1
+Preprocessing: 133.564973 secs
+SPMV time: 2.709526 secs
+GFLOPS: 0.583459
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/radiation.mtx
+schedule 1
+Preprocessing: 8.617839 secs
+SPMV time: 0.236636 secs
+GFLOPS: 8.262677
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/CurlCurl_2.mtx
+schedule 1
+Preprocessing: 6.888872 secs
+SPMV time: 0.259877 secs
+GFLOPS: 8.788694
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kron_g500-logn18.mtx
+schedule 1
+Preprocessing: 24.101730 secs
+SPMV time: 9.245440 secs
+GFLOPS: 0.586070
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/human_gene1.mtx
+schedule 1
+Preprocessing: 19.176832 secs
+SPMV time: 2.382671 secs
+GFLOPS: 2.650567
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/GL7d20.mtx
+schedule 1
+Preprocessing: 26.546079 secs
+SPMV time: 1.754156 secs
+GFLOPS: 4.362570
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/sx-stackoverflow.mtx
+schedule 1
+Preprocessing: 91.128412 secs
+SPMV time: 36.061830 secs
+GFLOPS: 0.257218
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dgreen.mtx
+schedule 1
+Preprocessing: 43.061074 secs
+SPMV time: 1.539293 secs
+GFLOPS: 6.363004
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/audikw_1.mtx
+schedule 1
+Preprocessing: 58.019758 secs
+SPMV time: 3.319842 secs
+GFLOPS: 5.987898
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/appu.mtx
+schedule 1
+Preprocessing: 2.409847 secs
+SPMV time: 0.038051 secs
+GFLOPS: 12.467352
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/thermomech_dK.mtx
+schedule 1
+Preprocessing: 3.881016 secs
+SPMV time: 0.064310 secs
+GFLOPS: 11.330077
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/ASIC_680k.mtx
+schedule 1
+Preprocessing: 119.498245 secs
+SPMV time: 1.737512 secs
+GFLOPS: 0.570456
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rajat30.mtx
+schedule 1
+Preprocessing: 133.441825 secs
+SPMV time: 2.708607 secs
+GFLOPS: 0.583657
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/radiation.mtx
+schedule 1
+Preprocessing: 8.619771 secs
+SPMV time: 0.235825 secs
+GFLOPS: 8.291112
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/CurlCurl_2.mtx
+schedule 1
+Preprocessing: 6.931946 secs
+SPMV time: 0.259341 secs
+GFLOPS: 8.806863
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kron_g500-logn18.mtx
+schedule 1
+Preprocessing: 24.208772 secs
+SPMV time: 9.028436 secs
+GFLOPS: 0.600156
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/human_gene1.mtx
+schedule 1
+Preprocessing: 19.296426 secs
+SPMV time: 2.547434 secs
+GFLOPS: 2.479133
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/GL7d20.mtx
+schedule 1
+Preprocessing: 26.538903 secs
+SPMV time: 1.732965 secs
+GFLOPS: 4.415918
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/sx-stackoverflow.mtx
+schedule 1
+Preprocessing: 91.079964 secs
+SPMV time: 36.222020 secs
+GFLOPS: 0.256081
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dgreen.mtx
+schedule 1
+Preprocessing: 43.000549 secs
+SPMV time: 1.533054 secs
+GFLOPS: 6.388901
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/audikw_1.mtx
+schedule 1
+Preprocessing: 57.971414 secs
+SPMV time: 3.308501 secs
+GFLOPS: 6.008424
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dielFilterV2real.mtx
+schedule 1
+Preprocessing: 39.320213 secs
+SPMV time: 2.183708 secs
+GFLOPS: 5.690308
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dielFilterV2real.mtx
+schedule 1
+Preprocessing: 39.351577 secs
+SPMV time: 2.175899 secs
+GFLOPS: 5.710731
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dielFilterV2real.mtx
+schedule 1
+Preprocessing: 39.372807 secs
+SPMV time: 2.260756 secs
+GFLOPS: 5.496379
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dielFilterV2real.mtx
+schedule 1
+Preprocessing: 39.738501 secs
+SPMV time: 2.227659 secs
+GFLOPS: 5.578040

@@ -1,0 +1,1143 @@
+GHOST_APPS_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/;RAPL_REGISTERS=0;COOLDOWN=0;cpu_pinning_step=1;SPARSEX_LIB_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/build/lib;BOOST_LIB_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/boost_1_55_0/local/lib;cores=14;MKL_PATH=/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl;path_validation=/various/pmpakos/SpMV-Research/validation_matrices;AOCL_PATH=/various/pmpakos/spmv_paper/aocl-sparse/build/release;cpu_affinity=0,1,2,3,4,5,6,7,8,9,10,11,12,13;force_retry_on_error=0;GHOST_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/ESSEX/;LLVM_LIB_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/llvm-6.0.0/build/lib;LLVM_INC_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/llvm-6.0.0/build/include;USE_PROCESSES=0;cpu_pinning_group_size=1;SPARSEX_CONF_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/build/bin;path_openFoam=/various/dgal/graphs/matrices_openFoam;SPARSEX_INC_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/build/include;output_to_files=1;BOOST_INC_PATH=/various/pmpakos/SPMV_BENCHMARKS/sparsex/boost_1_55_0/local/include;max_cores=28;use_artificial_matrices=0;path_validation_new=/various/pmpakos/SpMV-Research/validation_matrices/new_matrices;
+program: /various/pmpakos/SPMV_BENCHMARKS/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_bench/spmv_csr5.exe
+number of matrices: 22
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rgg_n_2_17_s0.mtx
+max threads 14
+time read: 0.016953
+time coo to csr: 0.011863
+omega = 4, sigma = 16. #partition = 22774
+CSR->CSR5 malloc time = 0.245000 ms
+CSR->CSR5 tile_ptr time = 0.259000 ms
+CSR->CSR5 tile_desc time = 1.973000 ms
+CSR->CSR5 transpose time = 1.597000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/appu.mtx
+max threads 14
+time read: 0.082761
+time coo to csr: 0.013260
+omega = 4, sigma = 16. #partition = 28955
+CSR->CSR5 malloc time = 0.316000 ms
+CSR->CSR5 tile_ptr time = 0.197000 ms
+CSR->CSR5 tile_desc time = 1.564000 ms
+CSR->CSR5 transpose time = 1.503000 ms
+errors spmv: mae=3.95715e-15, max_ae=4.26326e-14, mse=3.20942e-27, mape=2.60964e-14, smape=1.30482e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/thermomech_dK.mtx
+max threads 14
+time read: 0.121543
+time coo to csr: 0.016991
+omega = 4, sigma = 16. #partition = 44473
+CSR->CSR5 malloc time = 0.522000 ms
+CSR->CSR5 tile_ptr time = 0.430000 ms
+CSR->CSR5 tile_desc time = 4.730000 ms
+CSR->CSR5 transpose time = 3.755000 ms
+Test failed! (31)
+errors spmv: mae=1.32494e-05, max_ae=0.000202179, mse=5.43485e-08, mape=inf, smape=1.60895
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/ASIC_680k.mtx
+max threads 14
+time read: 0.152787
+time coo to csr: 0.033473
+omega = 4, sigma = 16. #partition = 60497
+CSR->CSR5 malloc time = 0.733000 ms
+CSR->CSR5 tile_ptr time = 0.704000 ms
+CSR->CSR5 tile_desc time = 6.882000 ms
+CSR->CSR5 transpose time = 5.058000 ms
+Test failed! (4.40538e-07)
+errors spmv: mae=1.33537e-14, max_ae=9.10131e-09, mse=1.21304e-20, mape=1.29027e-10, smape=6.45137e-11
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/roadNet-TX.mtx
+max threads 14
+time read: 0.038186
+time coo to csr: 0.029372
+omega = 4, sigma = 16. #partition = 60052
+CSR->CSR5 malloc time = 0.716000 ms
+CSR->CSR5 tile_ptr time = 0.823000 ms
+CSR->CSR5 tile_desc time = 7.733000 ms
+CSR->CSR5 transpose time = 6.964000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/com-Youtube.mtx
+max threads 14
+time read: 0.078167
+time coo to csr: 0.078763
+omega = 4, sigma = 16. #partition = 93364
+CSR->CSR5 malloc time = 1.135000 ms
+CSR->CSR5 tile_ptr time = 1.336000 ms
+CSR->CSR5 tile_desc time = 10.467000 ms
+CSR->CSR5 transpose time = 7.419000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rajat30.mtx
+max threads 14
+time read: 0.234285
+time coo to csr: 0.046178
+omega = 4, sigma = 16. #partition = 96491
+CSR->CSR5 malloc time = 1.150000 ms
+CSR->CSR5 tile_ptr time = 1.057000 ms
+CSR->CSR5 tile_desc time = 11.323000 ms
+CSR->CSR5 transpose time = 10.468000 ms
+Test failed! (0.816523)
+errors spmv: mae=8.51783e-14, max_ae=5.35261e-08, mse=4.44983e-19, mape=inf, smape=0.0322373
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/radiation.mtx
+max threads 14
+time read: 0.240297
+time coo to csr: 0.052150
+omega = 4, sigma = 16. #partition = 119339
+CSR->CSR5 malloc time = 1.424000 ms
+CSR->CSR5 tile_ptr time = 1.048000 ms
+CSR->CSR5 tile_desc time = 10.642000 ms
+CSR->CSR5 transpose time = 12.393000 ms
+Test failed! (60297.5)
+errors spmv: mae=1.43817e-05, max_ae=0.220007, mse=0.00010785, mape=59.4409, smape=0.150445
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/Stanford_Berkeley.mtx
+max threads 14
+time read: 0.136567
+time coo to csr: 0.057301
+omega = 4, sigma = 16. #partition = 118491
+CSR->CSR5 malloc time = 1.432000 ms
+CSR->CSR5 tile_ptr time = 1.126000 ms
+CSR->CSR5 tile_desc time = 9.568000 ms
+CSR->CSR5 transpose time = 5.931000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/CurlCurl_2.mtx
+max threads 14
+time read: 0.177541
+time coo to csr: 0.063960
+omega = 4, sigma = 16. #partition = 139403
+CSR->CSR5 malloc time = 1.691000 ms
+CSR->CSR5 tile_ptr time = 1.393000 ms
+CSR->CSR5 tile_desc time = 12.656000 ms
+CSR->CSR5 transpose time = 15.550000 ms
+Test failed! (17)
+errors spmv: mae=2.01955e-07, max_ae=7.62939e-06, mse=4.31314e-11, mape=inf, smape=2.71797
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/gupta3.mtx
+max threads 14
+time read: 0.086220
+time coo to csr: 0.119745
+omega = 4, sigma = 16. #partition = 145679
+CSR->CSR5 malloc time = 1.735000 ms
+CSR->CSR5 tile_ptr time = 0.725000 ms
+CSR->CSR5 tile_desc time = 3.698000 ms
+CSR->CSR5 transpose time = 2.273000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kron_g500-logn18.mtx
+max threads 14
+time read: 0.192349
+time coo to csr: 0.355586
+omega = 4, sigma = 16. #partition = 330718
+CSR->CSR5 malloc time = 3.997000 ms
+CSR->CSR5 tile_ptr time = 1.931000 ms
+CSR->CSR5 tile_desc time = 13.260000 ms
+CSR->CSR5 transpose time = 9.423000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/human_gene1.mtx
+max threads 14
+time read: 0.437824
+time coo to csr: 0.326662
+omega = 4, sigma = 16. #partition = 385464
+CSR->CSR5 malloc time = 4.639000 ms
+CSR->CSR5 tile_ptr time = 1.408000 ms
+CSR->CSR5 tile_desc time = 7.431000 ms
+CSR->CSR5 transpose time = 2.380000 ms
+errors spmv: mae=5.40909e-14, max_ae=2.27374e-12, mse=2.08729e-24, mape=6.0572e-14, smape=3.0286e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/delaunay_n22.mtx
+max threads 14
+time read: 0.264098
+time coo to csr: 0.187365
+omega = 4, sigma = 16. #partition = 393215
+CSR->CSR5 malloc time = 4.877000 ms
+CSR->CSR5 tile_ptr time = 4.662000 ms
+CSR->CSR5 tile_desc time = 37.807000 ms
+CSR->CSR5 transpose time = 42.855000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/GL7d20.mtx
+max threads 14
+time read: 0.591587
+time coo to csr: 0.201672
+omega = 4, sigma = 16. #partition = 467080
+CSR->CSR5 malloc time = 5.689000 ms
+CSR->CSR5 tile_ptr time = 4.581000 ms
+CSR->CSR5 tile_desc time = 41.638000 ms
+CSR->CSR5 transpose time = 35.156000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/sx-stackoverflow.mtx
+max threads 14
+time read: 0.653354
+time coo to csr: 0.271758
+omega = 4, sigma = 16. #partition = 566148
+CSR->CSR5 malloc time = 6.960000 ms
+CSR->CSR5 tile_ptr time = 6.517000 ms
+CSR->CSR5 tile_desc time = 72.766000 ms
+CSR->CSR5 transpose time = 30.255000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dgreen.mtx
+max threads 14
+time read: 1.187836
+time coo to csr: 0.271646
+omega = 4, sigma = 16. #partition = 597811
+CSR->CSR5 malloc time = 7.607000 ms
+CSR->CSR5 tile_ptr time = 5.880000 ms
+CSR->CSR5 tile_desc time = 53.099000 ms
+CSR->CSR5 transpose time = 43.095000 ms
+Test failed! (46392.7)
+errors spmv: mae=0.000768903, max_ae=32.0001, mse=0.251632, mape=6.77194, smape=0.0516481
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/mawi_201512012345.mtx
+max threads 14
+time read: 0.379383
+time coo to csr: 1.297719
+omega = 4, sigma = 16. #partition = 594380
+CSR->CSR5 malloc time = 7.110000 ms
+CSR->CSR5 tile_ptr time = 13.786000 ms
+CSR->CSR5 tile_desc time = 64.795000 ms
+CSR->CSR5 transpose time = 29.212000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dielFilterV2real.mtx
+max threads 14
+time read: 1.028092
+time coo to csr: 0.396911
+omega = 4, sigma = 16. #partition = 758422
+CSR->CSR5 malloc time = 9.209000 ms
+CSR->CSR5 tile_ptr time = 6.894000 ms
+CSR->CSR5 tile_desc time = 58.529000 ms
+CSR->CSR5 transpose time = 78.035000 ms
+Test failed! (6.78628e-10)
+errors spmv: mae=4.74025e-16, max_ae=4.26326e-14, mse=2.00277e-28, mape=3.56343e-14, smape=1.78172e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/soc-LiveJournal1.mtx
+max threads 14
+time read: 1.291211
+time coo to csr: 0.507755
+omega = 4, sigma = 16. #partition = 1078028
+CSR->CSR5 malloc time = 12.887000 ms
+CSR->CSR5 tile_ptr time = 13.529000 ms
+CSR->CSR5 tile_desc time = 172.436000 ms
+CSR->CSR5 transpose time = 107.294000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/audikw_1.mtx
+max threads 14
+time read: 1.453992
+time coo to csr: 0.705560
+omega = 4, sigma = 16. #partition = 1213311
+CSR->CSR5 malloc time = 14.468000 ms
+CSR->CSR5 tile_ptr time = 10.450000 ms
+CSR->CSR5 tile_desc time = 87.501000 ms
+CSR->CSR5 transpose time = 60.842000 ms
+Test failed! (5.25955e-06)
+errors spmv: mae=4.14559e-10, max_ae=2.38419e-06, mse=2.73777e-15, mape=3.32511e-09, smape=1.66256e-09
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kmer_V2a.mtx
+max threads 14
+time read: 1.298698
+time coo to csr: 1.273905
+omega = 4, sigma = 16. #partition = 1831525
+CSR->CSR5 malloc time = 21.849000 ms
+CSR->CSR5 tile_ptr time = 28.276000 ms
+CSR->CSR5 tile_desc time = 196.794000 ms
+CSR->CSR5 transpose time = 120.792000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rgg_n_2_17_s0.mtx
+max threads 14
+time read: 0.014771
+time coo to csr: 0.010446
+omega = 4, sigma = 16. #partition = 22774
+CSR->CSR5 malloc time = 0.250000 ms
+CSR->CSR5 tile_ptr time = 0.246000 ms
+CSR->CSR5 tile_desc time = 1.919000 ms
+CSR->CSR5 transpose time = 1.542000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/appu.mtx
+max threads 14
+time read: 0.063677
+time coo to csr: 0.012094
+omega = 4, sigma = 16. #partition = 28955
+CSR->CSR5 malloc time = 0.318000 ms
+CSR->CSR5 tile_ptr time = 0.198000 ms
+CSR->CSR5 tile_desc time = 1.555000 ms
+CSR->CSR5 transpose time = 1.709000 ms
+errors spmv: mae=3.95715e-15, max_ae=4.26326e-14, mse=3.20942e-27, mape=2.60964e-14, smape=1.30482e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/thermomech_dK.mtx
+max threads 14
+time read: 0.103399
+time coo to csr: 0.017024
+omega = 4, sigma = 16. #partition = 44473
+CSR->CSR5 malloc time = 0.523000 ms
+CSR->CSR5 tile_ptr time = 0.436000 ms
+CSR->CSR5 tile_desc time = 4.940000 ms
+CSR->CSR5 transpose time = 3.236000 ms
+Test failed! (31)
+errors spmv: mae=1.32494e-05, max_ae=0.000202179, mse=5.43485e-08, mape=inf, smape=1.60895
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/ASIC_680k.mtx
+max threads 14
+time read: 0.152661
+time coo to csr: 0.034608
+omega = 4, sigma = 16. #partition = 60497
+CSR->CSR5 malloc time = 0.738000 ms
+CSR->CSR5 tile_ptr time = 0.721000 ms
+CSR->CSR5 tile_desc time = 6.796000 ms
+CSR->CSR5 transpose time = 5.045000 ms
+Test failed! (4.40538e-07)
+errors spmv: mae=1.33537e-14, max_ae=9.10131e-09, mse=1.21304e-20, mape=1.29027e-10, smape=6.45137e-11
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/roadNet-TX.mtx
+max threads 14
+time read: 0.038247
+time coo to csr: 0.029109
+omega = 4, sigma = 16. #partition = 60052
+CSR->CSR5 malloc time = 0.726000 ms
+CSR->CSR5 tile_ptr time = 0.809000 ms
+CSR->CSR5 tile_desc time = 7.832000 ms
+CSR->CSR5 transpose time = 7.137000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/com-Youtube.mtx
+max threads 14
+time read: 0.062748
+time coo to csr: 0.078497
+omega = 4, sigma = 16. #partition = 93364
+CSR->CSR5 malloc time = 1.128000 ms
+CSR->CSR5 tile_ptr time = 1.347000 ms
+CSR->CSR5 tile_desc time = 10.212000 ms
+CSR->CSR5 transpose time = 7.807000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rajat30.mtx
+max threads 14
+time read: 0.228250
+time coo to csr: 0.046385
+omega = 4, sigma = 16. #partition = 96491
+CSR->CSR5 malloc time = 1.158000 ms
+CSR->CSR5 tile_ptr time = 1.059000 ms
+CSR->CSR5 tile_desc time = 11.095000 ms
+CSR->CSR5 transpose time = 10.798000 ms
+Test failed! (0.816523)
+errors spmv: mae=8.51783e-14, max_ae=5.35261e-08, mse=4.44983e-19, mape=inf, smape=0.0322373
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/radiation.mtx
+max threads 14
+time read: 0.240123
+time coo to csr: 0.052129
+omega = 4, sigma = 16. #partition = 119339
+CSR->CSR5 malloc time = 1.428000 ms
+CSR->CSR5 tile_ptr time = 1.044000 ms
+CSR->CSR5 tile_desc time = 10.599000 ms
+CSR->CSR5 transpose time = 13.367000 ms
+Test failed! (60297.5)
+errors spmv: mae=1.43817e-05, max_ae=0.220007, mse=0.00010785, mape=59.4409, smape=0.150445
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/Stanford_Berkeley.mtx
+max threads 14
+time read: 0.141708
+time coo to csr: 0.058223
+omega = 4, sigma = 16. #partition = 118491
+CSR->CSR5 malloc time = 1.448000 ms
+CSR->CSR5 tile_ptr time = 1.132000 ms
+CSR->CSR5 tile_desc time = 9.203000 ms
+CSR->CSR5 transpose time = 6.018000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/CurlCurl_2.mtx
+max threads 14
+time read: 0.177659
+time coo to csr: 0.063989
+omega = 4, sigma = 16. #partition = 139403
+CSR->CSR5 malloc time = 1.697000 ms
+CSR->CSR5 tile_ptr time = 1.407000 ms
+CSR->CSR5 tile_desc time = 12.382000 ms
+CSR->CSR5 transpose time = 14.065000 ms
+Test failed! (17)
+errors spmv: mae=2.01955e-07, max_ae=7.62939e-06, mse=4.31314e-11, mape=inf, smape=2.71797
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/gupta3.mtx
+max threads 14
+time read: 0.081715
+time coo to csr: 0.120151
+omega = 4, sigma = 16. #partition = 145679
+CSR->CSR5 malloc time = 1.729000 ms
+CSR->CSR5 tile_ptr time = 0.729000 ms
+CSR->CSR5 tile_desc time = 3.738000 ms
+CSR->CSR5 transpose time = 2.286000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kron_g500-logn18.mtx
+max threads 14
+time read: 0.190922
+time coo to csr: 0.357450
+omega = 4, sigma = 16. #partition = 330718
+CSR->CSR5 malloc time = 3.993000 ms
+CSR->CSR5 tile_ptr time = 2.116000 ms
+CSR->CSR5 tile_desc time = 13.003000 ms
+CSR->CSR5 transpose time = 9.303000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/human_gene1.mtx
+max threads 14
+time read: 0.434839
+time coo to csr: 0.327824
+omega = 4, sigma = 16. #partition = 385464
+CSR->CSR5 malloc time = 4.655000 ms
+CSR->CSR5 tile_ptr time = 1.405000 ms
+CSR->CSR5 tile_desc time = 7.209000 ms
+CSR->CSR5 transpose time = 2.433000 ms
+errors spmv: mae=5.40909e-14, max_ae=2.27374e-12, mse=2.08729e-24, mape=6.0572e-14, smape=3.0286e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/delaunay_n22.mtx
+max threads 14
+time read: 0.322852
+time coo to csr: 0.186504
+omega = 4, sigma = 16. #partition = 393215
+CSR->CSR5 malloc time = 4.874000 ms
+CSR->CSR5 tile_ptr time = 4.662000 ms
+CSR->CSR5 tile_desc time = 38.452000 ms
+CSR->CSR5 transpose time = 40.716000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/GL7d20.mtx
+max threads 14
+time read: 0.591660
+time coo to csr: 0.202954
+omega = 4, sigma = 16. #partition = 467080
+CSR->CSR5 malloc time = 5.688000 ms
+CSR->CSR5 tile_ptr time = 4.577000 ms
+CSR->CSR5 tile_desc time = 41.067000 ms
+CSR->CSR5 transpose time = 35.833000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/sx-stackoverflow.mtx
+max threads 14
+time read: 0.652433
+time coo to csr: 0.271221
+omega = 4, sigma = 16. #partition = 566148
+CSR->CSR5 malloc time = 6.974000 ms
+CSR->CSR5 tile_ptr time = 6.527000 ms
+CSR->CSR5 tile_desc time = 73.907000 ms
+CSR->CSR5 transpose time = 29.081000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dgreen.mtx
+max threads 14
+time read: 1.188186
+time coo to csr: 0.270055
+omega = 4, sigma = 16. #partition = 597811
+CSR->CSR5 malloc time = 7.252000 ms
+CSR->CSR5 tile_ptr time = 8.774000 ms
+CSR->CSR5 tile_desc time = 51.851000 ms
+CSR->CSR5 transpose time = 42.574000 ms
+Test failed! (46392.7)
+errors spmv: mae=0.000768903, max_ae=32.0001, mse=0.251632, mape=6.77194, smape=0.0516481
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/mawi_201512012345.mtx
+max threads 14
+time read: 0.378949
+time coo to csr: 1.278085
+omega = 4, sigma = 16. #partition = 594380
+CSR->CSR5 malloc time = 7.146000 ms
+CSR->CSR5 tile_ptr time = 10.354000 ms
+CSR->CSR5 tile_desc time = 64.586000 ms
+CSR->CSR5 transpose time = 27.568000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dielFilterV2real.mtx
+max threads 14
+time read: 1.027484
+time coo to csr: 0.395322
+omega = 4, sigma = 16. #partition = 758422
+CSR->CSR5 malloc time = 9.247000 ms
+CSR->CSR5 tile_ptr time = 6.887000 ms
+CSR->CSR5 tile_desc time = 59.298000 ms
+CSR->CSR5 transpose time = 76.068000 ms
+Test failed! (6.78628e-10)
+errors spmv: mae=4.74025e-16, max_ae=4.26326e-14, mse=2.00277e-28, mape=3.56343e-14, smape=1.78172e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/soc-LiveJournal1.mtx
+max threads 14
+time read: 1.291393
+time coo to csr: 0.508235
+omega = 4, sigma = 16. #partition = 1078028
+CSR->CSR5 malloc time = 12.904000 ms
+CSR->CSR5 tile_ptr time = 13.513000 ms
+CSR->CSR5 tile_desc time = 177.081000 ms
+CSR->CSR5 transpose time = 103.350000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/audikw_1.mtx
+max threads 14
+time read: 1.451153
+time coo to csr: 0.713542
+omega = 4, sigma = 16. #partition = 1213311
+CSR->CSR5 malloc time = 14.467000 ms
+CSR->CSR5 tile_ptr time = 10.505000 ms
+CSR->CSR5 tile_desc time = 86.776000 ms
+CSR->CSR5 transpose time = 69.596000 ms
+Test failed! (5.25955e-06)
+errors spmv: mae=4.14559e-10, max_ae=2.38419e-06, mse=2.73777e-15, mape=3.32511e-09, smape=1.66256e-09
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kmer_V2a.mtx
+max threads 14
+time read: 1.307800
+time coo to csr: 1.216491
+omega = 4, sigma = 16. #partition = 1831525
+CSR->CSR5 malloc time = 22.097000 ms
+CSR->CSR5 tile_ptr time = 28.275000 ms
+CSR->CSR5 tile_desc time = 194.280000 ms
+CSR->CSR5 transpose time = 121.259000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rgg_n_2_17_s0.mtx
+max threads 14
+time read: 0.014214
+time coo to csr: 0.010528
+omega = 4, sigma = 16. #partition = 22774
+CSR->CSR5 malloc time = 0.245000 ms
+CSR->CSR5 tile_ptr time = 0.237000 ms
+CSR->CSR5 tile_desc time = 1.956000 ms
+CSR->CSR5 transpose time = 1.578000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/appu.mtx
+max threads 14
+time read: 0.068016
+time coo to csr: 0.012117
+omega = 4, sigma = 16. #partition = 28955
+CSR->CSR5 malloc time = 0.315000 ms
+CSR->CSR5 tile_ptr time = 0.195000 ms
+CSR->CSR5 tile_desc time = 1.514000 ms
+CSR->CSR5 transpose time = 1.433000 ms
+errors spmv: mae=3.95715e-15, max_ae=4.26326e-14, mse=3.20942e-27, mape=2.60964e-14, smape=1.30482e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/thermomech_dK.mtx
+max threads 14
+time read: 0.103242
+time coo to csr: 0.017010
+omega = 4, sigma = 16. #partition = 44473
+CSR->CSR5 malloc time = 0.522000 ms
+CSR->CSR5 tile_ptr time = 0.436000 ms
+CSR->CSR5 tile_desc time = 4.972000 ms
+CSR->CSR5 transpose time = 3.090000 ms
+Test failed! (31)
+errors spmv: mae=1.32494e-05, max_ae=0.000202179, mse=5.43485e-08, mape=inf, smape=1.60895
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/ASIC_680k.mtx
+max threads 14
+time read: 0.160167
+time coo to csr: 0.033826
+omega = 4, sigma = 16. #partition = 60497
+CSR->CSR5 malloc time = 0.733000 ms
+CSR->CSR5 tile_ptr time = 0.705000 ms
+CSR->CSR5 tile_desc time = 7.014000 ms
+CSR->CSR5 transpose time = 5.575000 ms
+Test failed! (4.40538e-07)
+errors spmv: mae=1.33537e-14, max_ae=9.10131e-09, mse=1.21304e-20, mape=1.29027e-10, smape=6.45137e-11
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/roadNet-TX.mtx
+max threads 14
+time read: 0.039774
+time coo to csr: 0.029760
+omega = 4, sigma = 16. #partition = 60052
+CSR->CSR5 malloc time = 0.722000 ms
+CSR->CSR5 tile_ptr time = 0.819000 ms
+CSR->CSR5 tile_desc time = 7.577000 ms
+CSR->CSR5 transpose time = 7.028000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/com-Youtube.mtx
+max threads 14
+time read: 0.059537
+time coo to csr: 0.078784
+omega = 4, sigma = 16. #partition = 93364
+CSR->CSR5 malloc time = 1.120000 ms
+CSR->CSR5 tile_ptr time = 1.333000 ms
+CSR->CSR5 tile_desc time = 10.214000 ms
+CSR->CSR5 transpose time = 8.027000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rajat30.mtx
+max threads 14
+time read: 0.228249
+time coo to csr: 0.046336
+omega = 4, sigma = 16. #partition = 96491
+CSR->CSR5 malloc time = 1.153000 ms
+CSR->CSR5 tile_ptr time = 1.051000 ms
+CSR->CSR5 tile_desc time = 10.818000 ms
+CSR->CSR5 transpose time = 11.070000 ms
+Test failed! (0.816523)
+errors spmv: mae=8.51783e-14, max_ae=5.35261e-08, mse=4.44983e-19, mape=inf, smape=0.0322373
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/radiation.mtx
+max threads 14
+time read: 0.242199
+time coo to csr: 0.052254
+omega = 4, sigma = 16. #partition = 119339
+CSR->CSR5 malloc time = 1.413000 ms
+CSR->CSR5 tile_ptr time = 1.050000 ms
+CSR->CSR5 tile_desc time = 10.716000 ms
+CSR->CSR5 transpose time = 12.682000 ms
+Test failed! (60297.5)
+errors spmv: mae=1.43817e-05, max_ae=0.220007, mse=0.00010785, mape=59.4409, smape=0.150445
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/Stanford_Berkeley.mtx
+max threads 14
+time read: 0.145108
+time coo to csr: 0.057234
+omega = 4, sigma = 16. #partition = 118491
+CSR->CSR5 malloc time = 1.440000 ms
+CSR->CSR5 tile_ptr time = 1.126000 ms
+CSR->CSR5 tile_desc time = 9.177000 ms
+CSR->CSR5 transpose time = 5.788000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/CurlCurl_2.mtx
+max threads 14
+time read: 0.177717
+time coo to csr: 0.063769
+omega = 4, sigma = 16. #partition = 139403
+CSR->CSR5 malloc time = 1.678000 ms
+CSR->CSR5 tile_ptr time = 1.405000 ms
+CSR->CSR5 tile_desc time = 12.429000 ms
+CSR->CSR5 transpose time = 14.115000 ms
+Test failed! (17)
+errors spmv: mae=2.01955e-07, max_ae=7.62939e-06, mse=4.31314e-11, mape=inf, smape=2.71797
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/gupta3.mtx
+max threads 14
+time read: 0.085186
+time coo to csr: 0.119887
+omega = 4, sigma = 16. #partition = 145679
+CSR->CSR5 malloc time = 1.740000 ms
+CSR->CSR5 tile_ptr time = 0.724000 ms
+CSR->CSR5 tile_desc time = 3.663000 ms
+CSR->CSR5 transpose time = 2.493000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kron_g500-logn18.mtx
+max threads 14
+time read: 0.197133
+time coo to csr: 0.357499
+omega = 4, sigma = 16. #partition = 330718
+CSR->CSR5 malloc time = 3.999000 ms
+CSR->CSR5 tile_ptr time = 1.926000 ms
+CSR->CSR5 tile_desc time = 13.034000 ms
+CSR->CSR5 transpose time = 8.814000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/human_gene1.mtx
+max threads 14
+time read: 0.434777
+time coo to csr: 0.326800
+omega = 4, sigma = 16. #partition = 385464
+CSR->CSR5 malloc time = 4.643000 ms
+CSR->CSR5 tile_ptr time = 1.408000 ms
+CSR->CSR5 tile_desc time = 7.288000 ms
+CSR->CSR5 transpose time = 2.471000 ms
+errors spmv: mae=5.40909e-14, max_ae=2.27374e-12, mse=2.08729e-24, mape=6.0572e-14, smape=3.0286e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/delaunay_n22.mtx
+max threads 14
+time read: 0.263397
+time coo to csr: 0.186910
+omega = 4, sigma = 16. #partition = 393215
+CSR->CSR5 malloc time = 4.879000 ms
+CSR->CSR5 tile_ptr time = 4.659000 ms
+CSR->CSR5 tile_desc time = 38.529000 ms
+CSR->CSR5 transpose time = 40.457000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/GL7d20.mtx
+max threads 14
+time read: 0.591140
+time coo to csr: 0.199622
+omega = 4, sigma = 16. #partition = 467080
+CSR->CSR5 malloc time = 5.674000 ms
+CSR->CSR5 tile_ptr time = 4.551000 ms
+CSR->CSR5 tile_desc time = 42.595000 ms
+CSR->CSR5 transpose time = 33.654000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/sx-stackoverflow.mtx
+max threads 14
+time read: 0.653109
+time coo to csr: 0.271825
+omega = 4, sigma = 16. #partition = 566148
+CSR->CSR5 malloc time = 7.028000 ms
+CSR->CSR5 tile_ptr time = 6.493000 ms
+CSR->CSR5 tile_desc time = 71.863000 ms
+CSR->CSR5 transpose time = 30.300000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dgreen.mtx
+max threads 14
+time read: 1.190429
+time coo to csr: 0.274378
+omega = 4, sigma = 16. #partition = 597811
+CSR->CSR5 malloc time = 7.256000 ms
+CSR->CSR5 tile_ptr time = 5.861000 ms
+CSR->CSR5 tile_desc time = 52.963000 ms
+CSR->CSR5 transpose time = 44.291000 ms
+Test failed! (46392.7)
+errors spmv: mae=0.000768903, max_ae=32.0001, mse=0.251632, mape=6.77194, smape=0.0516481
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/mawi_201512012345.mtx
+max threads 14
+time read: 0.390826
+time coo to csr: 1.293165
+omega = 4, sigma = 16. #partition = 594380
+CSR->CSR5 malloc time = 10.924000 ms
+CSR->CSR5 tile_ptr time = 13.752000 ms
+CSR->CSR5 tile_desc time = 62.923000 ms
+CSR->CSR5 transpose time = 29.724000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dielFilterV2real.mtx
+max threads 14
+time read: 1.053946
+time coo to csr: 0.393715
+omega = 4, sigma = 16. #partition = 758422
+CSR->CSR5 malloc time = 9.280000 ms
+CSR->CSR5 tile_ptr time = 6.898000 ms
+CSR->CSR5 tile_desc time = 58.756000 ms
+CSR->CSR5 transpose time = 73.767000 ms
+Test failed! (6.78628e-10)
+errors spmv: mae=4.74025e-16, max_ae=4.26326e-14, mse=2.00277e-28, mape=3.56343e-14, smape=1.78172e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/soc-LiveJournal1.mtx
+max threads 14
+time read: 1.291592
+time coo to csr: 0.507936
+omega = 4, sigma = 16. #partition = 1078028
+CSR->CSR5 malloc time = 12.887000 ms
+CSR->CSR5 tile_ptr time = 13.347000 ms
+CSR->CSR5 tile_desc time = 177.744000 ms
+CSR->CSR5 transpose time = 103.600000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/audikw_1.mtx
+max threads 14
+time read: 1.460598
+time coo to csr: 0.671445
+omega = 4, sigma = 16. #partition = 1213311
+CSR->CSR5 malloc time = 18.490000 ms
+CSR->CSR5 tile_ptr time = 10.488000 ms
+CSR->CSR5 tile_desc time = 87.119000 ms
+CSR->CSR5 transpose time = 75.007000 ms
+Test failed! (5.25955e-06)
+errors spmv: mae=4.14559e-10, max_ae=2.38419e-06, mse=2.73777e-15, mape=3.32511e-09, smape=1.66256e-09
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kmer_V2a.mtx
+max threads 14
+time read: 1.295562
+time coo to csr: 1.272503
+omega = 4, sigma = 16. #partition = 1831525
+CSR->CSR5 malloc time = 21.763000 ms
+CSR->CSR5 tile_ptr time = 28.469000 ms
+CSR->CSR5 tile_desc time = 201.038000 ms
+CSR->CSR5 transpose time = 122.333000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rgg_n_2_17_s0.mtx
+max threads 14
+time read: 0.179620
+time coo to csr: 0.010613
+omega = 4, sigma = 16. #partition = 22774
+CSR->CSR5 malloc time = 0.246000 ms
+CSR->CSR5 tile_ptr time = 0.242000 ms
+CSR->CSR5 tile_desc time = 1.996000 ms
+CSR->CSR5 transpose time = 1.536000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/appu.mtx
+max threads 14
+time read: 0.165909
+time coo to csr: 0.012143
+omega = 4, sigma = 16. #partition = 28955
+CSR->CSR5 malloc time = 0.315000 ms
+CSR->CSR5 tile_ptr time = 0.195000 ms
+CSR->CSR5 tile_desc time = 1.485000 ms
+CSR->CSR5 transpose time = 1.550000 ms
+errors spmv: mae=3.95715e-15, max_ae=4.26326e-14, mse=3.20942e-27, mape=2.60964e-14, smape=1.30482e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/thermomech_dK.mtx
+max threads 14
+time read: 0.103520
+time coo to csr: 0.017078
+omega = 4, sigma = 16. #partition = 44473
+CSR->CSR5 malloc time = 0.513000 ms
+CSR->CSR5 tile_ptr time = 0.426000 ms
+CSR->CSR5 tile_desc time = 4.714000 ms
+CSR->CSR5 transpose time = 3.381000 ms
+Test failed! (31)
+errors spmv: mae=1.32494e-05, max_ae=0.000202179, mse=5.43485e-08, mape=inf, smape=1.60895
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/ASIC_680k.mtx
+max threads 14
+time read: 0.156312
+time coo to csr: 0.029249
+omega = 4, sigma = 16. #partition = 60497
+CSR->CSR5 malloc time = 0.164000 ms
+CSR->CSR5 tile_ptr time = 0.714000 ms
+CSR->CSR5 tile_desc time = 6.992000 ms
+CSR->CSR5 transpose time = 4.965000 ms
+Test failed! (4.40538e-07)
+errors spmv: mae=1.33537e-14, max_ae=9.10131e-09, mse=1.21304e-20, mape=1.29027e-10, smape=6.45137e-11
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/roadNet-TX.mtx
+max threads 14
+time read: 0.043304
+time coo to csr: 0.029272
+omega = 4, sigma = 16. #partition = 60052
+CSR->CSR5 malloc time = 0.720000 ms
+CSR->CSR5 tile_ptr time = 0.804000 ms
+CSR->CSR5 tile_desc time = 7.459000 ms
+CSR->CSR5 transpose time = 6.513000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/com-Youtube.mtx
+max threads 14
+time read: 0.059447
+time coo to csr: 0.078756
+omega = 4, sigma = 16. #partition = 93364
+CSR->CSR5 malloc time = 1.129000 ms
+CSR->CSR5 tile_ptr time = 1.332000 ms
+CSR->CSR5 tile_desc time = 10.290000 ms
+CSR->CSR5 transpose time = 7.998000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rajat30.mtx
+max threads 14
+time read: 0.228078
+time coo to csr: 0.046238
+omega = 4, sigma = 16. #partition = 96491
+CSR->CSR5 malloc time = 1.169000 ms
+CSR->CSR5 tile_ptr time = 1.058000 ms
+CSR->CSR5 tile_desc time = 11.129000 ms
+CSR->CSR5 transpose time = 10.755000 ms
+Test failed! (0.816523)
+errors spmv: mae=8.51783e-14, max_ae=5.35261e-08, mse=4.44983e-19, mape=inf, smape=0.0322373
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/radiation.mtx
+max threads 14
+time read: 0.240210
+time coo to csr: 0.052297
+omega = 4, sigma = 16. #partition = 119339
+CSR->CSR5 malloc time = 1.416000 ms
+CSR->CSR5 tile_ptr time = 1.041000 ms
+CSR->CSR5 tile_desc time = 10.778000 ms
+CSR->CSR5 transpose time = 13.121000 ms
+Test failed! (60297.5)
+errors spmv: mae=1.43817e-05, max_ae=0.220007, mse=0.00010785, mape=59.4409, smape=0.150445
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/Stanford_Berkeley.mtx
+max threads 14
+time read: 0.136753
+time coo to csr: 0.057160
+omega = 4, sigma = 16. #partition = 118491
+CSR->CSR5 malloc time = 1.434000 ms
+CSR->CSR5 tile_ptr time = 1.130000 ms
+CSR->CSR5 tile_desc time = 9.485000 ms
+CSR->CSR5 transpose time = 5.988000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/CurlCurl_2.mtx
+max threads 14
+time read: 0.177759
+time coo to csr: 0.064087
+omega = 4, sigma = 16. #partition = 139403
+CSR->CSR5 malloc time = 1.683000 ms
+CSR->CSR5 tile_ptr time = 1.403000 ms
+CSR->CSR5 tile_desc time = 12.928000 ms
+CSR->CSR5 transpose time = 15.348000 ms
+Test failed! (17)
+errors spmv: mae=2.01955e-07, max_ae=7.62939e-06, mse=4.31314e-11, mape=inf, smape=2.71797
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/gupta3.mtx
+max threads 14
+time read: 0.128036
+time coo to csr: 0.120403
+omega = 4, sigma = 16. #partition = 145679
+CSR->CSR5 malloc time = 1.749000 ms
+CSR->CSR5 tile_ptr time = 0.729000 ms
+CSR->CSR5 tile_desc time = 3.868000 ms
+CSR->CSR5 transpose time = 2.399000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kron_g500-logn18.mtx
+max threads 14
+time read: 0.192822
+time coo to csr: 0.356755
+omega = 4, sigma = 16. #partition = 330718
+CSR->CSR5 malloc time = 3.995000 ms
+CSR->CSR5 tile_ptr time = 1.932000 ms
+CSR->CSR5 tile_desc time = 13.294000 ms
+CSR->CSR5 transpose time = 9.063000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/human_gene1.mtx
+max threads 14
+time read: 0.435308
+time coo to csr: 0.327617
+omega = 4, sigma = 16. #partition = 385464
+CSR->CSR5 malloc time = 4.653000 ms
+CSR->CSR5 tile_ptr time = 1.406000 ms
+CSR->CSR5 tile_desc time = 7.437000 ms
+CSR->CSR5 transpose time = 2.521000 ms
+errors spmv: mae=5.40909e-14, max_ae=2.27374e-12, mse=2.08729e-24, mape=6.0572e-14, smape=3.0286e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/delaunay_n22.mtx
+max threads 14
+time read: 0.264155
+time coo to csr: 0.186284
+omega = 4, sigma = 16. #partition = 393215
+CSR->CSR5 malloc time = 4.880000 ms
+CSR->CSR5 tile_ptr time = 4.678000 ms
+CSR->CSR5 tile_desc time = 38.308000 ms
+CSR->CSR5 transpose time = 36.366000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/GL7d20.mtx
+max threads 14
+time read: 0.591460
+time coo to csr: 0.199127
+omega = 4, sigma = 16. #partition = 467080
+CSR->CSR5 malloc time = 5.687000 ms
+CSR->CSR5 tile_ptr time = 4.584000 ms
+CSR->CSR5 tile_desc time = 39.005000 ms
+CSR->CSR5 transpose time = 27.685000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/sx-stackoverflow.mtx
+max threads 14
+time read: 0.660680
+time coo to csr: 0.271641
+omega = 4, sigma = 16. #partition = 566148
+CSR->CSR5 malloc time = 7.013000 ms
+CSR->CSR5 tile_ptr time = 6.500000 ms
+CSR->CSR5 tile_desc time = 71.771000 ms
+CSR->CSR5 transpose time = 32.566000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dgreen.mtx
+max threads 14
+time read: 1.316617
+time coo to csr: 0.279056
+omega = 4, sigma = 16. #partition = 597811
+CSR->CSR5 malloc time = 8.100000 ms
+CSR->CSR5 tile_ptr time = 5.841000 ms
+CSR->CSR5 tile_desc time = 51.315000 ms
+CSR->CSR5 transpose time = 44.994000 ms
+Test failed! (46392.7)
+errors spmv: mae=0.000768903, max_ae=32.0001, mse=0.251632, mape=6.77194, smape=0.0516481
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/mawi_201512012345.mtx
+max threads 14
+time read: 0.471605
+time coo to csr: 1.318161
+omega = 4, sigma = 16. #partition = 594380
+CSR->CSR5 malloc time = 7.119000 ms
+CSR->CSR5 tile_ptr time = 13.797000 ms
+CSR->CSR5 tile_desc time = 63.615000 ms
+CSR->CSR5 transpose time = 29.674000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dielFilterV2real.mtx
+max threads 14
+time read: 1.026898
+time coo to csr: 0.396470
+omega = 4, sigma = 16. #partition = 758422
+CSR->CSR5 malloc time = 9.245000 ms
+CSR->CSR5 tile_ptr time = 6.943000 ms
+CSR->CSR5 tile_desc time = 59.267000 ms
+CSR->CSR5 transpose time = 78.872000 ms
+Test failed! (6.78628e-10)
+errors spmv: mae=4.74025e-16, max_ae=4.26326e-14, mse=2.00277e-28, mape=3.56343e-14, smape=1.78172e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/soc-LiveJournal1.mtx
+max threads 14
+time read: 1.296437
+time coo to csr: 0.507965
+omega = 4, sigma = 16. #partition = 1078028
+CSR->CSR5 malloc time = 12.930000 ms
+CSR->CSR5 tile_ptr time = 13.276000 ms
+CSR->CSR5 tile_desc time = 175.019000 ms
+CSR->CSR5 transpose time = 102.445000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/audikw_1.mtx
+max threads 14
+time read: 1.463260
+time coo to csr: 0.664222
+omega = 4, sigma = 16. #partition = 1213311
+CSR->CSR5 malloc time = 14.465000 ms
+CSR->CSR5 tile_ptr time = 13.313000 ms
+CSR->CSR5 tile_desc time = 91.894000 ms
+CSR->CSR5 transpose time = 75.771000 ms
+Test failed! (5.25955e-06)
+errors spmv: mae=4.14559e-10, max_ae=2.38419e-06, mse=2.73777e-15, mape=3.32511e-09, smape=1.66256e-09
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kmer_V2a.mtx
+max threads 14
+time read: 1.308098
+time coo to csr: 1.210427
+omega = 4, sigma = 16. #partition = 1831525
+CSR->CSR5 malloc time = 21.786000 ms
+CSR->CSR5 tile_ptr time = 28.476000 ms
+CSR->CSR5 tile_desc time = 198.180000 ms
+CSR->CSR5 transpose time = 125.898000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rgg_n_2_17_s0.mtx
+max threads 14
+time read: 0.014430
+time coo to csr: 0.010469
+omega = 4, sigma = 16. #partition = 22774
+CSR->CSR5 malloc time = 0.248000 ms
+CSR->CSR5 tile_ptr time = 0.236000 ms
+CSR->CSR5 tile_desc time = 1.987000 ms
+CSR->CSR5 transpose time = 1.699000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/appu.mtx
+max threads 14
+time read: 0.062884
+time coo to csr: 0.012118
+omega = 4, sigma = 16. #partition = 28955
+CSR->CSR5 malloc time = 0.317000 ms
+CSR->CSR5 tile_ptr time = 0.200000 ms
+CSR->CSR5 tile_desc time = 1.509000 ms
+CSR->CSR5 transpose time = 1.741000 ms
+errors spmv: mae=3.95715e-15, max_ae=4.26326e-14, mse=3.20942e-27, mape=2.60964e-14, smape=1.30482e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/thermomech_dK.mtx
+max threads 14
+time read: 0.103606
+time coo to csr: 0.016950
+omega = 4, sigma = 16. #partition = 44473
+CSR->CSR5 malloc time = 0.530000 ms
+CSR->CSR5 tile_ptr time = 0.428000 ms
+CSR->CSR5 tile_desc time = 4.858000 ms
+CSR->CSR5 transpose time = 4.051000 ms
+Test failed! (31)
+errors spmv: mae=1.32494e-05, max_ae=0.000202179, mse=5.43485e-08, mape=inf, smape=1.60895
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/ASIC_680k.mtx
+max threads 14
+time read: 0.152622
+time coo to csr: 0.034363
+omega = 4, sigma = 16. #partition = 60497
+CSR->CSR5 malloc time = 0.732000 ms
+CSR->CSR5 tile_ptr time = 0.720000 ms
+CSR->CSR5 tile_desc time = 6.628000 ms
+CSR->CSR5 transpose time = 5.001000 ms
+Test failed! (4.40538e-07)
+errors spmv: mae=1.33537e-14, max_ae=9.10131e-09, mse=1.21304e-20, mape=1.29027e-10, smape=6.45137e-11
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/roadNet-TX.mtx
+max threads 14
+time read: 0.038523
+time coo to csr: 0.030374
+omega = 4, sigma = 16. #partition = 60052
+CSR->CSR5 malloc time = 0.861000 ms
+CSR->CSR5 tile_ptr time = 0.909000 ms
+CSR->CSR5 tile_desc time = 7.756000 ms
+CSR->CSR5 transpose time = 7.239000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/com-Youtube.mtx
+max threads 14
+time read: 0.059468
+time coo to csr: 0.079179
+omega = 4, sigma = 16. #partition = 93364
+CSR->CSR5 malloc time = 1.132000 ms
+CSR->CSR5 tile_ptr time = 1.333000 ms
+CSR->CSR5 tile_desc time = 10.249000 ms
+CSR->CSR5 transpose time = 7.879000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/rajat30.mtx
+max threads 14
+time read: 0.228141
+time coo to csr: 0.046303
+omega = 4, sigma = 16. #partition = 96491
+CSR->CSR5 malloc time = 1.153000 ms
+CSR->CSR5 tile_ptr time = 1.062000 ms
+CSR->CSR5 tile_desc time = 11.436000 ms
+CSR->CSR5 transpose time = 10.539000 ms
+Test failed! (0.816523)
+errors spmv: mae=8.51783e-14, max_ae=5.35261e-08, mse=4.44983e-19, mape=inf, smape=0.0322373
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/radiation.mtx
+max threads 14
+time read: 0.240290
+time coo to csr: 0.053728
+omega = 4, sigma = 16. #partition = 119339
+CSR->CSR5 malloc time = 1.681000 ms
+CSR->CSR5 tile_ptr time = 1.154000 ms
+CSR->CSR5 tile_desc time = 10.727000 ms
+CSR->CSR5 transpose time = 13.141000 ms
+Test failed! (60297.5)
+errors spmv: mae=1.43817e-05, max_ae=0.220007, mse=0.00010785, mape=59.4409, smape=0.150445
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/Stanford_Berkeley.mtx
+max threads 14
+time read: 0.136497
+time coo to csr: 0.056987
+omega = 4, sigma = 16. #partition = 118491
+CSR->CSR5 malloc time = 1.439000 ms
+CSR->CSR5 tile_ptr time = 1.134000 ms
+CSR->CSR5 tile_desc time = 9.589000 ms
+CSR->CSR5 transpose time = 6.166000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/CurlCurl_2.mtx
+max threads 14
+time read: 0.177489
+time coo to csr: 0.064275
+omega = 4, sigma = 16. #partition = 139403
+CSR->CSR5 malloc time = 1.692000 ms
+CSR->CSR5 tile_ptr time = 1.422000 ms
+CSR->CSR5 tile_desc time = 11.948000 ms
+CSR->CSR5 transpose time = 14.297000 ms
+Test failed! (17)
+errors spmv: mae=2.01955e-07, max_ae=7.62939e-06, mse=4.31314e-11, mape=inf, smape=2.71797
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/gupta3.mtx
+max threads 14
+time read: 0.082091
+time coo to csr: 0.119812
+omega = 4, sigma = 16. #partition = 145679
+CSR->CSR5 malloc time = 1.735000 ms
+CSR->CSR5 tile_ptr time = 0.731000 ms
+CSR->CSR5 tile_desc time = 3.628000 ms
+CSR->CSR5 transpose time = 2.573000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kron_g500-logn18.mtx
+max threads 14
+time read: 0.190792
+time coo to csr: 0.356014
+omega = 4, sigma = 16. #partition = 330718
+CSR->CSR5 malloc time = 3.993000 ms
+CSR->CSR5 tile_ptr time = 1.932000 ms
+CSR->CSR5 tile_desc time = 13.072000 ms
+CSR->CSR5 transpose time = 9.343000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/human_gene1.mtx
+max threads 14
+time read: 0.434749
+time coo to csr: 0.328624
+omega = 4, sigma = 16. #partition = 385464
+CSR->CSR5 malloc time = 4.634000 ms
+CSR->CSR5 tile_ptr time = 1.411000 ms
+CSR->CSR5 tile_desc time = 7.546000 ms
+CSR->CSR5 transpose time = 2.445000 ms
+errors spmv: mae=5.40909e-14, max_ae=2.27374e-12, mse=2.08729e-24, mape=6.0572e-14, smape=3.0286e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/delaunay_n22.mtx
+max threads 14
+time read: 0.264593
+time coo to csr: 0.187370
+omega = 4, sigma = 16. #partition = 393215
+CSR->CSR5 malloc time = 4.869000 ms
+CSR->CSR5 tile_ptr time = 4.671000 ms
+CSR->CSR5 tile_desc time = 38.529000 ms
+CSR->CSR5 transpose time = 36.902000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/GL7d20.mtx
+max threads 14
+time read: 0.591724
+time coo to csr: 0.199756
+omega = 4, sigma = 16. #partition = 467080
+CSR->CSR5 malloc time = 5.691000 ms
+CSR->CSR5 tile_ptr time = 4.551000 ms
+CSR->CSR5 tile_desc time = 41.687000 ms
+CSR->CSR5 transpose time = 34.007000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/sx-stackoverflow.mtx
+max threads 14
+time read: 0.652894
+time coo to csr: 0.273509
+omega = 4, sigma = 16. #partition = 566148
+CSR->CSR5 malloc time = 6.987000 ms
+CSR->CSR5 tile_ptr time = 6.531000 ms
+CSR->CSR5 tile_desc time = 71.817000 ms
+CSR->CSR5 transpose time = 29.814000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dgreen.mtx
+max threads 14
+time read: 1.191644
+time coo to csr: 0.268593
+omega = 4, sigma = 16. #partition = 597811
+CSR->CSR5 malloc time = 9.962000 ms
+CSR->CSR5 tile_ptr time = 5.854000 ms
+CSR->CSR5 tile_desc time = 50.843000 ms
+CSR->CSR5 transpose time = 42.187000 ms
+Test failed! (46392.7)
+errors spmv: mae=0.000768903, max_ae=32.0001, mse=0.251632, mape=6.77194, smape=0.0516481
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/mawi_201512012345.mtx
+max threads 14
+time read: 0.403519
+time coo to csr: 1.281698
+omega = 4, sigma = 16. #partition = 594380
+CSR->CSR5 malloc time = 7.135000 ms
+CSR->CSR5 tile_ptr time = 10.232000 ms
+CSR->CSR5 tile_desc time = 63.406000 ms
+CSR->CSR5 transpose time = 27.205000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/dielFilterV2real.mtx
+max threads 14
+time read: 1.027062
+time coo to csr: 0.394964
+omega = 4, sigma = 16. #partition = 758422
+CSR->CSR5 malloc time = 9.237000 ms
+CSR->CSR5 tile_ptr time = 6.890000 ms
+CSR->CSR5 tile_desc time = 58.495000 ms
+CSR->CSR5 transpose time = 83.548000 ms
+Test failed! (6.78628e-10)
+errors spmv: mae=4.74025e-16, max_ae=4.26326e-14, mse=2.00277e-28, mape=3.56343e-14, smape=1.78172e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/soc-LiveJournal1.mtx
+max threads 14
+time read: 1.289325
+time coo to csr: 0.509592
+omega = 4, sigma = 16. #partition = 1078028
+CSR->CSR5 malloc time = 12.937000 ms
+CSR->CSR5 tile_ptr time = 13.315000 ms
+CSR->CSR5 tile_desc time = 173.428000 ms
+CSR->CSR5 transpose time = 107.950000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/audikw_1.mtx
+max threads 14
+time read: 1.461536
+time coo to csr: 0.695975
+omega = 4, sigma = 16. #partition = 1213311
+CSR->CSR5 malloc time = 14.596000 ms
+CSR->CSR5 tile_ptr time = 10.501000 ms
+CSR->CSR5 tile_desc time = 87.404000 ms
+CSR->CSR5 transpose time = 60.526000 ms
+Test failed! (5.25955e-06)
+errors spmv: mae=4.14559e-10, max_ae=2.38419e-06, mse=2.73777e-15, mape=3.32511e-09, smape=1.66256e-09
+File: /various/pmpakos/SpMV-Research/validation_matrices/new_matrices/kmer_V2a.mtx
+max threads 14
+time read: 1.297147
+time coo to csr: 1.264374
+omega = 4, sigma = 16. #partition = 1831525
+CSR->CSR5 malloc time = 21.786000 ms
+CSR->CSR5 tile_ptr time = 28.486000 ms
+CSR->CSR5 tile_desc time = 198.765000 ms
+CSR->CSR5 transpose time = 118.203000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
