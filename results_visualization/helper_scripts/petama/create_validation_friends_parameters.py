@@ -252,7 +252,7 @@ if __name__ == '__main__':
     cross_row_similarity_list = [0.05, 0.5, 0.95]
     seed = 14
 
-    param_file_small = "synthetic_matrices_small_dataset"
+    param_file_small = "synthetic_matrices_medium_dataset"
     create_param_file(param_file_small, mem_range_list, matrices_per_mem_range, avg_nnz_per_row_list, avg_bw_list, distribution, placement, skew_coeff_list, avg_num_neighbours_list, cross_row_similarity_list, seed)
 
     # num_samples = 10
