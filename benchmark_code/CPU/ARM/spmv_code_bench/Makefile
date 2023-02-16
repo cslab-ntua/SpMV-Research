@@ -91,6 +91,9 @@ CFLAGS += -D'DOUBLE=$(DOUBLE)'
 
 CFLAGS2 = -Wall -Wno-deprecated-declarations -march=native -fopenmp -O3 -D'DOUBLE=$(DOUBLE)' -D'INT_T=int32_t' -I'$(AMG_PATH)' -I'$(library)' 
 
+CPPFLAGS =
+CPPFLAGS += $(CFLAGS2)
+
 # PROC_BENCH = 1
 ifdef PROC_BENCH
     CFLAGS += -D'PROC_BENCH' 
@@ -100,9 +103,10 @@ endif
 LDFLAGS =
 LDFLAGS += -Wl,--no-as-needed -lm #-lpapi
 LDFLAGS += -lgomp -lpthread -ldl 
-LDFLAGS += -larmpl_lp64_mp
+# LDFLAGS += -larmpl_lp64_mp
 
-LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c parallel_io.c string_util.c openfoam_matrix.c rapl_arm.c
+# LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c parallel_io.c string_util.c openfoam_matrix.c rapl_arm.c
+LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c pthread_functions.c omp_functions.c array_metrics.c string_util.c parallel_io.c openfoam_matrix.c rapl_arm.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%.o,$(LIB_OBJ))
@@ -126,6 +130,8 @@ EXE += spmv_csr_naive.exe
 EXE += spmv_armpl.exe
 
 EXE += spmv_merge.exe
+
+EXE += spmv_sparsex.exe
 
 DIRS = obj
 
@@ -162,7 +168,7 @@ spmv_ell.exe: obj/spmv_bench2.o spmv_kernel_ell.cpp $(LIB_OBJ)
 	$(CPP2) $(CFLAGS2) $^ -o $@ $(LDFLAGS)
 
 spmv_armpl.exe: obj/spmv_bench.o spmv_kernel_armpl.cpp $(LIB_OBJ)
-	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS_AOCL)
+	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS) -larmpl_lp64_mp
 
 CFLAGS_MERGE = $(CFLAGS2)
 # CFLAGS_MERGE += -D'CUB_MKL'
@@ -174,6 +180,43 @@ LDFLAGS_MERGE += -lnuma -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl
 
 spmv_merge.exe: obj/spmv_bench2.o spmv_kernel_merge.cpp $(LIB_OBJ)
 	$(CPP2) $(CFLAGS_MERGE) $^ -o $@ $(LDFLAGS_MERGE)
+
+CFLAGS_SPARSEX = $(CFLAGS2)
+CFLAGS_SPARSEX += -Wno-unused-variable
+CFLAGS_SPARSEX += -Wno-unused-but-set-variable
+CFLAGS_SPARSEX += -Wno-unused-parameter
+CFLAGS_SPARSEX += -Wno-sign-compare
+CFLAGS_SPARSEX += -Wno-unused-local-typedefs
+CFLAGS_SPARSEX += -Wno-deprecated-copy
+CFLAGS_SPARSEX += -Wno-placement-new
+CFLAGS_SPARSEX += -Wno-deprecated-declarations
+CFLAGS_SPARSEX += -Wno-parentheses
+CFLAGS_SPARSEX += -fopenmp
+CFLAGS_SPARSEX += -I'$(BOOST_INC_PATH)'
+CFLAGS_SPARSEX += -I'$(LLVM_INC_PATH)'
+CFLAGS_SPARSEX += -I$(SPARSEX_INC_PATH)
+CFLAGS_SPARSEX += $(shell ${SPARSEX_CONF_PATH}/sparsex-config --cppflags)
+
+LDFLAGS_SPARSEX = $(LDFLAGS)
+LDFLAGS_SPARSEX += $(shell ${SPARSEX_CONF_PATH}/sparsex-config --ldflags)
+LDFLAGS_SPARSEX += -L'$(BOOST_LIB_PATH)'
+LDFLAGS_SPARSEX += -L'$(LLVM_LIB_PATH)'
+LDFLAGS_SPARSEX += -L'$(SPARSEX_LIB_PATH)'
+LDFLAGS_SPARSEX += -lboost_regex
+LDFLAGS_SPARSEX += -lboost_serialization
+LDFLAGS_SPARSEX += -lboost_system
+LDFLAGS_SPARSEX += -lboost_atomic
+# LDFLAGS_SPARSEX += -lnuma
+# LDFLAGS_SPARSEX += -lgomp -lpthread -lm -ldl -fopenmp
+
+# This needs to be put FIRST.
+# LDFLAGS_SPARSEX := -Wl,--no-as-needed $(LDFLAGS_SPARSEX)
+
+spmv_sparsex.exe: obj/spmv_bench2.o obj/spmv_kernel_sparsex.o $(LIB_OBJ)
+	$(CPP2) $(CFLAGS_SPARSEX) $^ -o $@ $(LDFLAGS_SPARSEX)
+
+obj/spmv_kernel_sparsex.o: spmv_kernel_sparsex.cpp
+	$(CPP2) $(CFLAGS_SPARSEX) -c $< -o $@
 
 
 $(call Rule_Auto_Dependencies,obj/spmv_bench.o,spmv_bench.cpp)
@@ -190,6 +233,13 @@ $(call Rule_Auto_Dependencies,obj/read_mtx.o,read_mtx.cpp)
 $(call Rule_Auto_Dependencies,obj/artificial_matrix_generation.o,$(AMG_PATH)/artificial_matrix_generation.c)
 	$(CC) $(CFLAGS2) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/ordered_set.o,$(AMG_PATH)/ordered_set.c)
+	$(CC) $(CFLAGS2) -c $< -o $@
+
+$(call Rule_Auto_Dependencies,obj/pthread_functions.o,$(library)/pthread_functions.c)
+	$(CC) $(CFLAGS2) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/omp_functions.o,$(library)/omp_functions.c)
+	$(CC) $(CFLAGS2) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/array_metrics.o,$(library)/array_metrics.c)
 	$(CC) $(CFLAGS2) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/string_util.o,$(library)/string_util.c)
 	$(CC) $(CFLAGS2) -c $< -o $@

@@ -31,8 +31,8 @@ calc_cpu_pinning()
 }
 
 
-SPARSEX_ROOT_DIR="${HOME}/lib"
-# SPARSEX_ROOT_DIR=/various/dgal/epyc1
+# SPARSEX_ROOT_DIR="${HOME}/lib"
+SPARSEX_ROOT_DIR=/various/dgal/epyc1
 # SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
 
 
@@ -44,15 +44,15 @@ conf_vars=(
     ['force_retry_on_error']=0
     # ['force_retry_on_error']=1
 
-    ['output_to_files']=0
-    # ['output_to_files']=1
+    # ['output_to_files']=0
+    ['output_to_files']=1
 
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    ['use_artificial_matrices']=0
-    # ['use_artificial_matrices']=1
+    # ['use_artificial_matrices']=0
+    ['use_artificial_matrices']=1
 
     # Maximum number of the machine's cores.
     # ['max_cores']=160
@@ -72,12 +72,12 @@ conf_vars=(
     # ['cores']=48
     # ['cores']=32
     # ['cores']=16
-    ['cores']=8
+    # ['cores']=8
     # ['cores']=4
     # ['cores']='1 2 4 8 16 24 48'
     # ['cores']='24 48'
     # ['cores']=48
-    # ['cores']=24
+    ['cores']=24
     # ['cores']='1 2 4 8'
     # ['cores']=14
     # ['cores']=6
@@ -200,8 +200,8 @@ artificial_matrices_files=(
     # "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
 
     # The synthetic dataset studied in the paper.
-    "$path_artificial"/synthetic_matrices_small_dataset.txt
-    # "$path_artificial"/synthetic_matrices_small_dataset5.txt
+    "$path_artificial"/synthetic_matrices_medium_dataset.txt
+    # "$path_artificial"/synthetic_matrices_medium_dataset5.txt
 )
 
 
@@ -303,9 +303,8 @@ declare -A progs
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
     # Custom csr
-    # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
+    ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
     # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr.exe"
-    # ['csr_kahan_d']="${script_dir}/spmv_code_bench/spmv_csr_kahan.exe"
     # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch.exe"
     # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector.exe"
@@ -315,28 +314,28 @@ progs=(
     # ['csr_vc']="${script_dir}/spmv_code_bench/spmv_csr_vc.exe"
 
     # Custom csr x86
-    ['csr_x86_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector.exe"
+    # ['csr_x86_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector.exe"
     # ['csr_x86_vector_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_queues.exe"
     # ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
 
     # MKL IE
-    # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
+    ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
 
     # AOCL
-    # ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv.exe"
+    ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv.exe"
 
     # CSR5
-    # ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5.exe"
+    ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5.exe"
 
     # merge spmv
-    # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
+    ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
 
     # sell C sigma
     # ['sell_C_s_d']="${script_dir}/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
-    # ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
+    ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
 
     # sparsex
-    # ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex.exe"
+    ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex.exe"
     # ['sparsex_d']="${script_dir}/spmv_code_sparsex/spmv_sparsex.exe"
     # ['sparsex_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sparsex/spmv_sparsex.exe"
 

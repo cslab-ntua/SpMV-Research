@@ -39,7 +39,7 @@ benchmark_code/FPGA/HPCG_FPGA
 benchmark_code/FPGA/old_artificial_matrix_generation
 
 benchmark_results/amd-epyc1/amd-epyc1_synthetic_t24_d.csv
-benchmark_results/amd-epyc1/amd-epyc1_synthetic_t24_d_new.csv
+benchmark_results/amd-epyc1/amd-epyc1_synthetic_t24_d_large-dataset.csv
 benchmark_results/intel-gold2/intel-gold2_synthetic_t14_d.csv
 benchmark_results/arm/arm_synthetic_t80_d.csv
 benchmark_results/experimental/arm/arm_petama

@@ -46,7 +46,7 @@ This triggers a set of python scripts to convert real matrices stored in .mtx fi
 
 ```
     python3 ../csr_to_vitis_converter/gen_signature_synthetic.py --partition \
-            --mtx_param_list ../../../matrix_generation_parameters/synthetic_matrices_small_dataset.txt \
+            --mtx_param_list ../../../matrix_generation_parameters/synthetic_matrices_medium_dataset.txt \
             --sig_path ./sig_dat --vec_path ./vec_dat
 ```
 This triggers a set of python scripts to generate every artificial matrix, whose parameters are described in the txt file. The same partitioning strategy is followed, as described for real matrices.

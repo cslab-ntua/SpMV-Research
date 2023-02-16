@@ -24,11 +24,14 @@ Contains code to run SpMV benchmarks on each platform (CPU, GPU, FPGA) separatel
 #### benchmark_results
 Contains results (in csv format) of SpMV benchmark runs.
 
+#### lib
+Contains several utility functions used in the benchmarks.
+
 #### matrix_generation_parameters
-Contains collection of artificial matrix parameters, that are used to create the dataset for the performance analysis of SpMV. The main focus should be on the [synthetic_matrices_small_dataset_simple.txt](https://github.com/p-anastas/SpMV-Research/blob/main/matrix_generation_parameters/synthetic_matrices_small_dataset_simple.txt). Python scripts are provided to generate the artificial matrix parameters files. Files titled "twins" contain artificial matrices that have similar structure to real matrices and are used for validation of the proposed methodology.
+Contains collection of artificial matrix parameters, that are used to create the dataset for the performance analysis of SpMV. The main focus should be on the [synthetic_matrices_medium_dataset.txt](./matrix_generation_parameters/synthetic_matrices_medium_dataset.txt). Python scripts are provided to generate the artificial matrix parameters files. Files titled "twins" contain artificial matrices that have similar structure to real matrices and are used for validation of the proposed methodology.
 
 #### results_visualization
 Contains Jupyter notebooks that parse, combine and produce plots of the benchmark results, separately for validation and artificial matrices. All paper plots were produced with these notebooks, with results from the `benchmark_results` directory.
 
 #### validation_matrices
-Contains the real matrices that were used for validation of the proposed methodology. The [bash script](https://github.com/p-anastas/SpMV-Research/blob/main/validation_matrices/get_validation_matrices.sh) in this directory downloads all required matrices in .mtx format. After downloading them, they are sorted (by row and column value) by a simple C program, as some SpMV benchmarks could run on sorted matrices only.
+Contains the real matrices that were used for validation of the proposed methodology. The [bash script](./validation_matrices/get_validation_matrices.sh) in this directory downloads all required matrices in .mtx format. After downloading them, they are sorted (by row and column value) by a simple C program, as some SpMV benchmarks could run on sorted matrices only.

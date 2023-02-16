@@ -1,0 +1,414 @@
+--->  appu  <---
+nnzVal_0.dat	4.13 MB
+nnzVal_1.dat	4.14 MB
+nnzVal_2.dat	4.14 MB
+nnzVal_3.dat	4.14 MB
+nnzVal_4.dat	4.14 MB
+nnzVal_5.dat	4.14 MB
+nnzVal_6.dat	4.14 MB
+nnzVal_7.dat	4.13 MB
+nnzVal_8.dat	4.14 MB
+nnzVal_9.dat	4.14 MB
+nnzVal_10.dat	4.14 MB
+nnzVal_11.dat	4.14 MB
+nnzVal_12.dat	4.14 MB
+nnzVal_13.dat	4.14 MB
+nnzVal_14.dat	4.14 MB
+nnzVal_15.dat	3.97 MB
+parParam.dat	0.00394 MB
+rbParam.dat	0.00101 MB
+inVec.dat	0.107 MB
+refVec.dat	0.107 MB
+DATA_CSV:,appu,14000,14000,1853104,14000,14000,8084416,336,128,0.0785,0.614,6.04,26.3,66
+INFO: Test pass!
+
+real	0m7.769s
+user	0m0.266s
+sys	0m0.431s
+--->  ASIC_680k  <---
+nnzVal_0.dat	23.8 MB
+nnzVal_1.dat	19.8 MB
+nnzVal_2.dat	19.4 MB
+nnzVal_3.dat	19.2 MB
+nnzVal_4.dat	19.1 MB
+nnzVal_5.dat	19.1 MB
+nnzVal_6.dat	19 MB
+nnzVal_7.dat	19 MB
+nnzVal_8.dat	18.9 MB
+nnzVal_9.dat	18.9 MB
+nnzVal_10.dat	18.9 MB
+nnzVal_11.dat	18.9 MB
+nnzVal_12.dat	18.6 MB
+nnzVal_13.dat	18.5 MB
+nnzVal_14.dat	18.3 MB
+nnzVal_15.dat	17.1 MB
+parParam.dat	0.611 MB
+rbParam.dat	0.0408 MB
+inVec.dat	5.21 MB
+refVec.dat	5.21 MB
+DATA_CSV:,ASIC_680k,682862,682862,2638997,682862,682864,37455808,1.32e+03,128,1.26,9.82,0.537,7.63,307
+INFO: Test pass!
+
+real	0m2.832s
+user	0m0.514s
+sys	0m0.698s
+--->  audikw_1  <---
+nnzVal_0.dat	97.9 MB
+nnzVal_1.dat	98 MB
+nnzVal_2.dat	98 MB
+nnzVal_3.dat	98 MB
+nnzVal_4.dat	98 MB
+nnzVal_5.dat	98 MB
+nnzVal_6.dat	98 MB
+nnzVal_7.dat	98 MB
+nnzVal_8.dat	98 MB
+nnzVal_9.dat	97.8 MB
+nnzVal_10.dat	97.7 MB
+nnzVal_11.dat	97.5 MB
+nnzVal_12.dat	97.1 MB
+nnzVal_13.dat	96.4 MB
+nnzVal_14.dat	94.5 MB
+nnzVal_15.dat	77.1 MB
+parParam.dat	2.29 MB
+rbParam.dat	0.0564 MB
+inVec.dat	7.2 MB
+refVec.dat	7.2 MB
+DATA_CSV:,audikw_1,943695,943695,77651847,943695,943696,188166272,142,128,3.18,24.8,6.26,15.2,1.54e+03
+INFO: Test pass!
+
+real	0m8.332s
+user	0m1.863s
+sys	0m2.657s
+--->  com-Youtube  <---
+nnzVal_0.dat	69.6 MB
+nnzVal_1.dat	68.8 MB
+nnzVal_2.dat	67.8 MB
+nnzVal_3.dat	66.8 MB
+nnzVal_4.dat	65.9 MB
+nnzVal_5.dat	64.9 MB
+nnzVal_6.dat	64 MB
+nnzVal_7.dat	63.1 MB
+nnzVal_8.dat	62 MB
+nnzVal_9.dat	60.2 MB
+nnzVal_10.dat	58.5 MB
+nnzVal_11.dat	56.5 MB
+nnzVal_12.dat	54.1 MB
+nnzVal_13.dat	50.9 MB
+nnzVal_14.dat	45.8 MB
+nnzVal_15.dat	32.1 MB
+parParam.dat	15.4 MB
+rbParam.dat	0.0679 MB
+inVec.dat	8.66 MB
+refVec.dat	8.66 MB
+DATA_CSV:,com-Youtube,1134890,1134890,5975248,1134890,1134892,113827360,1.8e+03,128,30.2,236,0.0506,0.965,966
+INFO: Test pass!
+
+real	0m53.300s
+user	0m1.170s
+sys	0m2.088s
+--->  CurlCurl_2  <---
+nnzVal_0.dat	27.6 MB
+nnzVal_1.dat	27.5 MB
+nnzVal_2.dat	27.5 MB
+nnzVal_3.dat	27.5 MB
+nnzVal_4.dat	27.5 MB
+nnzVal_5.dat	27.5 MB
+nnzVal_6.dat	27.5 MB
+nnzVal_7.dat	27.5 MB
+nnzVal_8.dat	27.5 MB
+nnzVal_9.dat	27.5 MB
+nnzVal_10.dat	27.5 MB
+nnzVal_11.dat	27.5 MB
+nnzVal_12.dat	27.5 MB
+nnzVal_13.dat	27.5 MB
+nnzVal_14.dat	27.5 MB
+nnzVal_15.dat	26 MB
+parParam.dat	0.261 MB
+rbParam.dat	0.0481 MB
+inVec.dat	6.15 MB
+refVec.dat	6.15 MB
+DATA_CSV:,CurlCurl_2,806529,806529,8921789,806529,806532,53630304,501,128,0.509,3.98,4.49,27,439
+INFO: Test pass!
+
+real	0m10.555s
+user	0m0.692s
+sys	0m0.991s
+--->  delaunay_n22  <---
+nnzVal_0.dat	147 MB
+nnzVal_1.dat	147 MB
+nnzVal_2.dat	147 MB
+nnzVal_3.dat	147 MB
+nnzVal_4.dat	147 MB
+nnzVal_5.dat	146 MB
+nnzVal_6.dat	146 MB
+nnzVal_7.dat	146 MB
+nnzVal_8.dat	146 MB
+nnzVal_9.dat	146 MB
+nnzVal_10.dat	146 MB
+nnzVal_11.dat	145 MB
+nnzVal_12.dat	145 MB
+nnzVal_13.dat	144 MB
+nnzVal_14.dat	142 MB
+nnzVal_15.dat	126 MB
+parParam.dat	4.47 MB
+rbParam.dat	0.25 MB
+inVec.dat	32 MB
+refVec.dat	32 MB
+DATA_CSV:,delaunay_n22,4194304,4194304,25165738,4194304,4194304,282560384,1.02e+03,128,6.32,49.4,1.02,11.4,2.32e+03
+INFO: Test pass!
+
+real	0m54.312s
+user	0m2.883s
+sys	0m4.589s
+--->  dgreen  <---
+nnzVal_0.dat	151 MB
+nnzVal_1.dat	151 MB
+nnzVal_2.dat	151 MB
+nnzVal_3.dat	151 MB
+nnzVal_4.dat	151 MB
+nnzVal_5.dat	151 MB
+nnzVal_6.dat	151 MB
+nnzVal_7.dat	151 MB
+nnzVal_8.dat	151 MB
+nnzVal_9.dat	151 MB
+nnzVal_10.dat	151 MB
+nnzVal_11.dat	150 MB
+nnzVal_12.dat	150 MB
+nnzVal_13.dat	150 MB
+nnzVal_14.dat	150 MB
+nnzVal_15.dat	142 MB
+parParam.dat	1.67 MB
+rbParam.dat	0.0718 MB
+inVec.dat	9.16 MB
+refVec.dat	9.16 MB
+DATA_CSV:,dgreen,1200611,1200611,26606169,1200611,1200612,293917024,1e+03,128,4.62,36.1,1.47,16.3,2.4e+03
+INFO: Test pass!
+
+real	1m11.623s
+user	0m3.091s
+sys	0m4.433s
+--->  dielFilterV2real  <---
+nnzVal_0.dat	112 MB
+nnzVal_1.dat	112 MB
+nnzVal_2.dat	112 MB
+nnzVal_3.dat	112 MB
+nnzVal_4.dat	112 MB
+nnzVal_5.dat	112 MB
+nnzVal_6.dat	112 MB
+nnzVal_7.dat	112 MB
+nnzVal_8.dat	112 MB
+nnzVal_9.dat	112 MB
+nnzVal_10.dat	112 MB
+nnzVal_11.dat	112 MB
+nnzVal_12.dat	112 MB
+nnzVal_13.dat	112 MB
+nnzVal_14.dat	112 MB
+nnzVal_15.dat	105 MB
+parParam.dat	0.632 MB
+rbParam.dat	0.0691 MB
+inVec.dat	8.83 MB
+refVec.dat	8.83 MB
+DATA_CSV:,dielFilterV2real,1157456,1157456,48538952,1157456,1157456,218788544,351,128,2.54,19.9,4.89,22,1.79e+03
+INFO: Test pass!
+
+real	0m44.067s
+user	0m2.224s
+sys	0m3.249s
+--->  gupta3  <---
+nnzVal_0.dat	5.9 MB
+nnzVal_1.dat	5.85 MB
+nnzVal_2.dat	5.87 MB
+nnzVal_3.dat	5.89 MB
+nnzVal_4.dat	5.89 MB
+nnzVal_5.dat	5.88 MB
+nnzVal_6.dat	5.91 MB
+nnzVal_7.dat	5.9 MB
+nnzVal_8.dat	5.88 MB
+nnzVal_9.dat	5.87 MB
+nnzVal_10.dat	5.86 MB
+nnzVal_11.dat	5.89 MB
+nnzVal_12.dat	5.92 MB
+nnzVal_13.dat	5.91 MB
+nnzVal_14.dat	5.93 MB
+nnzVal_15.dat	4.8 MB
+parParam.dat	0.00467 MB
+rbParam.dat	0.00125 MB
+inVec.dat	0.128 MB
+refVec.dat	0.128 MB
+DATA_CSV:,gupta3,16783,16783,9323427,16783,16784,11407104,22.3,128,0.107,0.833,22.4,27.4,93.2
+INFO: Test pass!
+
+real	0m4.218s
+user	0m0.305s
+sys	0m0.412s
+--->  human_gene1  <---
+nnzVal_0.dat	37.6 MB
+nnzVal_1.dat	37.7 MB
+nnzVal_2.dat	37.7 MB
+nnzVal_3.dat	37.6 MB
+nnzVal_4.dat	37.7 MB
+nnzVal_5.dat	37.7 MB
+nnzVal_6.dat	37.7 MB
+nnzVal_7.dat	37.6 MB
+nnzVal_8.dat	37.7 MB
+nnzVal_9.dat	37.7 MB
+nnzVal_10.dat	37.6 MB
+nnzVal_11.dat	37.6 MB
+nnzVal_12.dat	37.6 MB
+nnzVal_13.dat	37.7 MB
+nnzVal_14.dat	37.7 MB
+nnzVal_15.dat	34.6 MB
+parParam.dat	0.00882 MB
+rbParam.dat	0.0015 MB
+inVec.dat	0.17 MB
+refVec.dat	0.17 MB
+DATA_CSV:,human_gene1,22283,22283,24669643,22283,22284,73413024,198,128,0.651,5.09,9.7,28.9,600
+INFO: Test pass!
+
+real	0m14.945s
+user	0m0.849s
+sys	0m1.156s
+--->  kron_g500-logn18  <---
+nnzVal_0.dat	92.2 MB
+nnzVal_1.dat	92.3 MB
+nnzVal_2.dat	92.2 MB
+nnzVal_3.dat	92.8 MB
+nnzVal_4.dat	92.3 MB
+nnzVal_5.dat	93 MB
+nnzVal_6.dat	92.2 MB
+nnzVal_7.dat	92.1 MB
+nnzVal_8.dat	92.5 MB
+nnzVal_9.dat	92.5 MB
+nnzVal_10.dat	92.2 MB
+nnzVal_11.dat	92.3 MB
+nnzVal_12.dat	92.2 MB
+nnzVal_13.dat	92 MB
+nnzVal_14.dat	92 MB
+nnzVal_15.dat	67.9 MB
+parParam.dat	1 MB
+rbParam.dat	0.0157 MB
+inVec.dat	2 MB
+refVec.dat	2 MB
+DATA_CSV:,kron_g500-logn18,262144,262144,21165908,262144,262144,177734752,740,128,3.61,28.2,1.5,12.6,1.45e+03
+INFO: Test pass!
+
+real	0m39.031s
+user	0m1.796s
+sys	0m2.790s
+--->  radiation  <---
+nnzVal_0.dat	20.3 MB
+nnzVal_1.dat	20.3 MB
+nnzVal_2.dat	20.3 MB
+nnzVal_3.dat	20.3 MB
+nnzVal_4.dat	20.3 MB
+nnzVal_5.dat	20.3 MB
+nnzVal_6.dat	20.3 MB
+nnzVal_7.dat	20.3 MB
+nnzVal_8.dat	20.3 MB
+nnzVal_9.dat	20.3 MB
+nnzVal_10.dat	20.3 MB
+nnzVal_11.dat	20.3 MB
+nnzVal_12.dat	20.2 MB
+nnzVal_13.dat	20.2 MB
+nnzVal_14.dat	20.2 MB
+nnzVal_15.dat	19.3 MB
+parParam.dat	0.123 MB
+rbParam.dat	0.0135 MB
+inVec.dat	1.7 MB
+refVec.dat	1.7 MB
+DATA_CSV:,radiation,223104,223104,5526637,223104,223104,39553824,616,128,0.474,3.7,2.99,21.4,323
+INFO: Test pass!
+
+real	0m8.369s
+user	0m0.570s
+sys	0m0.712s
+--->  rajat30  <---
+nnzVal_0.dat	31 MB
+nnzVal_1.dat	32 MB
+nnzVal_2.dat	29.8 MB
+nnzVal_3.dat	27.2 MB
+nnzVal_4.dat	27.1 MB
+nnzVal_5.dat	27.1 MB
+nnzVal_6.dat	27.1 MB
+nnzVal_7.dat	27 MB
+nnzVal_8.dat	27 MB
+nnzVal_9.dat	27 MB
+nnzVal_10.dat	27 MB
+nnzVal_11.dat	26.9 MB
+nnzVal_12.dat	26.9 MB
+nnzVal_13.dat	26.8 MB
+nnzVal_14.dat	26.6 MB
+nnzVal_15.dat	25.1 MB
+parParam.dat	0.442 MB
+rbParam.dat	0.0386 MB
+inVec.dat	4.91 MB
+refVec.dat	4.91 MB
+DATA_CSV:,rajat30,643994,643994,6175244,643994,643996,54017888,775,128,0.871,6.81,1.81,15.9,442
+INFO: Test pass!
+
+real	0m13.487s
+user	0m0.735s
+sys	0m0.963s
+--->  rgg_n_2_17_s0  <---
+terminate called after throwing an instance of 'std::invalid_argument'
+  what():  stoi
+timeout: the monitored command dumped core
+run_em2.sh: line 17: 45554 Aborted                 timeout 420 ${BUILD_PATH}/host.exe ${BUILD_PATH}/spmv.xclbin ${NEW_PREFIX2}/sig_dat ${NEW_PREFIX2}/vec_dat $MATRIX 128 1
+
+real	0m1.361s
+user	0m0.005s
+sys	0m0.002s
+--->  roadNet-TX  <---
+nnzVal_0.dat	28.2 MB
+nnzVal_1.dat	28.1 MB
+nnzVal_2.dat	28 MB
+nnzVal_3.dat	28 MB
+nnzVal_4.dat	28 MB
+nnzVal_5.dat	28 MB
+nnzVal_6.dat	27.9 MB
+nnzVal_7.dat	27.9 MB
+nnzVal_8.dat	27.9 MB
+nnzVal_9.dat	27.9 MB
+nnzVal_10.dat	27.8 MB
+nnzVal_11.dat	27.8 MB
+nnzVal_12.dat	27.7 MB
+nnzVal_13.dat	27.6 MB
+nnzVal_14.dat	27.4 MB
+nnzVal_15.dat	24.6 MB
+parParam.dat	0.804 MB
+rbParam.dat	0.0833 MB
+inVec.dat	10.6 MB
+refVec.dat	10.6 MB
+DATA_CSV:,roadNet-TX,1393383,1393383,3843320,1393383,1393384,54095040,1.31e+03,128,1.2,9.35,0.822,11.6,444
+INFO: Test pass!
+
+real	0m13.530s
+user	0m0.773s
+sys	0m1.000s
+--->  Stanford_Berkeley  <---
+nnzVal_0.dat	20.6 MB
+nnzVal_1.dat	18 MB
+nnzVal_2.dat	17.4 MB
+nnzVal_3.dat	17.1 MB
+nnzVal_4.dat	16.2 MB
+nnzVal_5.dat	16.1 MB
+nnzVal_6.dat	16.1 MB
+nnzVal_7.dat	16.1 MB
+nnzVal_8.dat	16.1 MB
+nnzVal_9.dat	15.8 MB
+nnzVal_10.dat	15.7 MB
+nnzVal_11.dat	15.6 MB
+nnzVal_12.dat	15.5 MB
+nnzVal_13.dat	15.1 MB
+nnzVal_14.dat	14.8 MB
+nnzVal_15.dat	11.9 MB
+parParam.dat	0.873 MB
+rbParam.dat	0.0406 MB
+inVec.dat	5.21 MB
+refVec.dat	5.21 MB
+DATA_CSV:,Stanford_Berkeley,683446,683446,7583376,683446,683448,31540352,316,128,1.24,9.67,1.57,6.52,259
+INFO: Test pass!
+
+real	0m9.602s
+user	0m0.543s
+sys	0m0.589s

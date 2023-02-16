@@ -309,11 +309,11 @@ for format_name in "${!progs[@]}"; do
 
             for ((j=0;j<rep_in;j++)); do
 
-                printf "Temps: " >&1
-                for ((k=0;k<${#temp_labels[@]};k++)); do
-                    printf "%s %s " $(cat ${temp_labels[k]}) $(cat ${temp_inputs[k]}) >&1
-                done
-                echo >&1
+                # printf "Temps: " >&1
+                # for ((k=0;k<${#temp_labels[@]};k++)); do
+                #     printf "%s %s " $(cat ${temp_labels[k]}) $(cat ${temp_inputs[k]}) >&1
+                # done
+                # echo >&1
 
                 echo "File: $a"
                 bench "$p" $a
