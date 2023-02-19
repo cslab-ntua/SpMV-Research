@@ -64,10 +64,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = ${GHOST_ROOT_DIR}/cmake-3.23.3/build/bin/cmake
+CMAKE_COMMAND = <<CMAKE_DIR>>/bin/cmake
 
 # The command to remove a file.
-RM = ${GHOST_ROOT_DIR}/cmake-3.23.3/build/bin/cmake -E rm -f
+RM = <<CMAKE_DIR>>/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =

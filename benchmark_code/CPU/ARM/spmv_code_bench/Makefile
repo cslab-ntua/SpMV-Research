@@ -257,6 +257,6 @@ $(DIRS): %:
 	mkdir -p $@
 
 clean:
-	$(RM) obj/*.o obj/*.d *.o *.exe a.out
+	$(RM) obj/*.o obj/*.d *.o *.exe a.out *.yaml 
 
 

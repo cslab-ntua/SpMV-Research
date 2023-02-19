@@ -3946,30 +3946,6 @@ Args:
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 230, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          rapl_open
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          rapl_read_start
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
 DebugLoc:        { File: spmv_bench.cpp, Line: 182, Column: 17 }
 Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
 Args:
@@ -3982,70 +3958,34 @@ Args:
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          rapl_read_end
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          clock_gettime
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          clock_gettime
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 250, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          rapl_close
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 251, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          free
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
 DebugLoc:        { File: spmv_bench.cpp, Line: 253, Column: 2 }
 Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
 Args:
   - Callee:          printf
+  - String:          ' will not be inlined into '
+  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
+    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+--- !Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
+Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
+Args:
+  - Callee:          clock_gettime
+  - String:          ' will not be inlined into '
+  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
+    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+--- !Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
+Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
+Args:
+  - Callee:          clock_gettime
   - String:          ' will not be inlined into '
   - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
     DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
@@ -4726,30 +4666,6 @@ Args:
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 230, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          rapl_open
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          rapl_read_start
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
 DebugLoc:        { File: spmv_bench.cpp, Line: 182, Column: 17 }
 Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
 Args:
@@ -4762,70 +4678,34 @@ Args:
 --- !Missed
 Pass:            inline
 Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          rapl_read_end
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          clock_gettime
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          clock_gettime
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 250, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          rapl_close
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
-DebugLoc:        { File: spmv_bench.cpp, Line: 251, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - Callee:          free
-  - String:          ' will not be inlined into '
-  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
-  - String:          ' because its definition is unavailable'
-...
---- !Missed
-Pass:            inline
-Name:            NoDefinition
 DebugLoc:        { File: spmv_bench.cpp, Line: 253, Column: 2 }
 Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
 Args:
   - Callee:          printf
+  - String:          ' will not be inlined into '
+  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
+    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+--- !Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
+Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
+Args:
+  - Callee:          clock_gettime
+  - String:          ' will not be inlined into '
+  - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
+    DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
+  - String:          ' because its definition is unavailable'
+...
+--- !Missed
+Pass:            inline
+Name:            NoDefinition
+DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
+Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
+Args:
+  - Callee:          clock_gettime
   - String:          ' will not be inlined into '
   - Caller:          _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
     DebugLoc:        { File: spmv_bench.cpp, Line: 153, Column: 0 }
@@ -5594,26 +5474,6 @@ Args:
   - String:          failed to move load with loop-invariant address because the loop may invalidate its value
 ...
 --- !Passed
-Pass:            licm
-Name:            Hoisted
-DebugLoc:        { File: spmv_bench.cpp, Line: 246, Column: 17 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'hoisting '
-  - Inst:            load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 246, Column: 17 }
-...
---- !Passed
-Pass:            licm
-Name:            Hoisted
-DebugLoc:        { File: spmv_bench.cpp, Line: 248, Column: 28 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'hoisting '
-  - Inst:            load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 248, Column: 28 }
-...
---- !Passed
 Pass:            loop-unroll
 Name:            FullyUnrolled
 DebugLoc:        { File: spmv_bench.cpp, Line: 182, Column: 17 }
@@ -5627,14 +5487,6 @@ Args:
 Pass:            loop-unroll
 Name:            MissedDetails
 DebugLoc:        { File: spmv_bench.cpp, Line: 235, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          loop not unrolled
-...
---- !Missed
-Pass:            loop-unroll
-Name:            MissedDetails
-DebugLoc:        { File: spmv_bench.cpp, Line: 246, Column: 2 }
 Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
 Args:
   - String:          loop not unrolled
@@ -5755,32 +5607,6 @@ Args:
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 18 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 230, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 24 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 230, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
 DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
 Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
 Args:
@@ -5858,125 +5684,6 @@ Args:
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
     DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 16 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 18 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 16 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 18 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 22 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 24 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 22 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 24 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 22 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 16 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 2 }
-...
---- !Passed
-Pass:            gvn
-Name:            LoadElim
-DebugLoc:        { File: spmv_bench.cpp, Line: 250, Column: 13 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' eliminated'
-  - String:          ' in favor of '
-  - InfavorOfValue:  load
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 251, Column: 7 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            'i8*'
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 250, Column: 2 }
 ...
 --- !Missed
 Pass:            gvn
@@ -6681,32 +6388,6 @@ Args:
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 18 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 230, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 24 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 230, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
 DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
 Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
 Args:
@@ -6784,113 +6465,6 @@ Args:
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
     DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 16 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 18 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 16 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 18 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 22 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 24 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 22 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 24 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 22 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 16 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 251, Column: 7 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            'i8*'
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 250, Column: 2 }
 ...
 --- !Missed
 Pass:            gvn
@@ -8156,9 +7730,9 @@ Args:
     DebugLoc:        { File: '/usr/lib/gcc/aarch64-linux-gnu/11/../../../../include/c++/11/bits/basic_string.tcc', 
                        Line: 215, Column: 12 }
   - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
+  - ClobberedBy:     store
     DebugLoc:        { File: '/usr/lib/gcc/aarch64-linux-gnu/11/../../../../include/c++/11/bits/char_traits.h', 
-                       Line: 437, Column: 33 }
+                       Line: 357, Column: 14 }
 ...
 --- !Missed
 Pass:            gvn
@@ -8175,9 +7749,9 @@ Args:
     DebugLoc:        { File: '/usr/lib/gcc/aarch64-linux-gnu/11/../../../../include/c++/11/bits/basic_string.tcc', 
                        Line: 215, Column: 12 }
   - String:          ' because it is clobbered by '
-  - ClobberedBy:     store
+  - ClobberedBy:     call
     DebugLoc:        { File: '/usr/lib/gcc/aarch64-linux-gnu/11/../../../../include/c++/11/bits/char_traits.h', 
-                       Line: 357, Column: 14 }
+                       Line: 437, Column: 33 }
 ...
 --- !Missed
 Pass:            gvn
@@ -11107,7 +10681,7 @@ Args:
     DebugLoc:        { File: spmv_bench.cpp, Line: 428, Column: 0 }
   - String:          ' because too costly to inline '
   - String:          '(cost='
-  - Cost:            '755'
+  - Cost:            '800'
   - String:          ', threshold='
   - Threshold:       '750'
   - String:          ')'
@@ -13209,9 +12783,9 @@ Args:
     DebugLoc:        { File: '/usr/lib/gcc/aarch64-linux-gnu/11/../../../../include/c++/11/bits/basic_string.tcc', 
                        Line: 215, Column: 12 }
   - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
+  - ClobberedBy:     store
     DebugLoc:        { File: '/usr/lib/gcc/aarch64-linux-gnu/11/../../../../include/c++/11/bits/char_traits.h', 
-                       Line: 437, Column: 33 }
+                       Line: 357, Column: 14 }
 ...
 --- !Missed
 Pass:            gvn
@@ -13228,9 +12802,9 @@ Args:
     DebugLoc:        { File: '/usr/lib/gcc/aarch64-linux-gnu/11/../../../../include/c++/11/bits/basic_string.tcc', 
                        Line: 215, Column: 12 }
   - String:          ' because it is clobbered by '
-  - ClobberedBy:     store
+  - ClobberedBy:     call
     DebugLoc:        { File: '/usr/lib/gcc/aarch64-linux-gnu/11/../../../../include/c++/11/bits/char_traits.h', 
-                       Line: 357, Column: 14 }
+                       Line: 437, Column: 33 }
 ...
 --- !Missed
 Pass:            gvn
@@ -14284,22 +13858,6 @@ Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
 Args:
   - String:          loop not vectorized
 ...
---- !AnalysisFPCommute
-Pass:            loop-vectorize
-Name:            CantReorderFPOps
-DebugLoc:        { File: spmv_bench.cpp, Line: 248, Column: 15 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'loop not vectorized: cannot prove it is safe to reorder floating-point operations'
-...
---- !Missed
-Pass:            loop-vectorize
-Name:            MissedDetails
-DebugLoc:        { File: spmv_bench.cpp, Line: 246, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          loop not vectorized
-...
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
@@ -14416,32 +13974,6 @@ Args:
 --- !Missed
 Pass:            gvn
 Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 18 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 230, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 24 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 230, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
 DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
 Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
 Args:
@@ -14519,113 +14051,6 @@ Args:
   - String:          ' because it is clobbered by '
   - ClobberedBy:     call
     DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 16 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 18 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 16 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 18 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 22 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 24 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 22 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 234, Column: 24 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 237, Column: 11 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            i64
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 22 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            '%struct.RAPL_Register*'
-  - String:          ' not eliminated'
-  - String:          ' in favor of '
-  - OtherAccess:     load
-    DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 16 }
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 242, Column: 2 }
-...
---- !Missed
-Pass:            gvn
-Name:            LoadClobbered
-DebugLoc:        { File: spmv_bench.cpp, Line: 251, Column: 7 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          'load of type '
-  - Type:            'i8*'
-  - String:          ' not eliminated'
-  - String:          ' because it is clobbered by '
-  - ClobberedBy:     call
-    DebugLoc:        { File: spmv_bench.cpp, Line: 250, Column: 2 }
 ...
 --- !Missed
 Pass:            gvn
@@ -15236,14 +14661,6 @@ Args:
 Pass:            loop-unroll
 Name:            MissedDetails
 DebugLoc:        { File: spmv_bench.cpp, Line: 235, Column: 2 }
-Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
-Args:
-  - String:          loop not unrolled
-...
---- !Missed
-Pass:            loop-unroll
-Name:            MissedDetails
-DebugLoc:        { File: spmv_bench.cpp, Line: 246, Column: 2 }
 Function:        _Z7computePcP13Matrix_FormatP10csr_matrixPdS4_i
 Args:
   - String:          loop not unrolled

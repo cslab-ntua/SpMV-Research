@@ -4,7 +4,7 @@
 set -e
 
 # Change the install root directory for the libraries to what you prefer.
-export ROOT_DIR="${HOME}/lib"
+export ROOT_DIR="<<Insert ROOT_DIR>>"
 
 
 export BOOST_ROOT_DIR="${ROOT_DIR}/boost_1_55_0"
@@ -31,28 +31,6 @@ cd ${BOOST_ROOT_DIR}
 
 # Then run to create the "b2" executable (only specified libraries are needed - found in configure of sparsex library)
 ./bootstrap.sh --with-libraries=atomic,regex,serialization,system,thread --prefix=${BOOST_ROOT_DIR}/bin
-
-# Output:
-#
-# Building Boost.Build engine with toolset gcc... tools/build/v2/engine/bin.linuxx86_64/b2
-# Unicode/ICU support for Boost.Regex?... /usr
-# Generating Boost.Build configuration in project-config.jam...
-# 
-# Bootstrapping is done. To build, run:
-# 
-#     ./b2
-# 
-# To adjust configuration, edit 'project-config.jam'.
-# Further information:
-# 
-#    - Command line help:
-#      ./b2 --help
-# 
-#    - Getting started guide:
-#      http://www.boost.org/more/getting_started/unix-variants.html
-# 
-#    - Boost.Build documentation:
-#      http://www.boost.org/boost-build2/doc/html/index.html
 
 # Then, run "b2" with install option too
 # This will install it under --prefix that was specified in "bootstrap.sh"

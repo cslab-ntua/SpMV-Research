@@ -227,11 +227,11 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 	reg_ids = NULL;
 	reg_ids = (char *) getenv("RAPL_REGISTERS"); // For Xeon(Gold1), these two are for package-0 and package-1E
 
-	rapl_open(reg_ids, &regs, &regs_n);
+	// rapl_open(reg_ids, &regs, &regs_n);
 	/*****************************************************************************************/
 
 	time = 0;
-	rapl_read_start(regs, regs_n);
+	// rapl_read_start(regs, regs_n);
 	for(int idxLoop = 0 ; idxLoop < loop ; ++idxLoop){
 
 		time += time_it(1,
@@ -239,16 +239,16 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 		);
 
 	}
-	rapl_read_end(regs, regs_n);
+	// rapl_read_end(regs, regs_n);
 
 	/*****************************************************************************************/
 	double J_estimated = 0;
-	for (int i=0;i<regs_n;i++){
-		// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
-		J_estimated += ((double) regs[i].uj_accum) / 1e6;
-	}
-	rapl_close(regs, regs_n);
-	free(regs);
+	// for (int i=0;i<regs_n;i++){
+	// 	// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
+	// 	J_estimated += ((double) regs[i].uj_accum) / 1e6;
+	// }
+	// rapl_close(regs, regs_n);
+	// free(regs);
 	double W_avg = J_estimated / time;
 	printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
 	/*****************************************************************************************/

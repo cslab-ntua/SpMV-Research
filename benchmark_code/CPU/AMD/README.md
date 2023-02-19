@@ -16,11 +16,14 @@ SpMV targeting x86-64 CPUs
 * [SparseX](https://github.com/cslab-ntua/sparsex)
 * ghost, physics, ghost-apps from [ESSEX-GHOST](https://bitbucket.org/essex/) project
 
+### Test different formats
+To test different formats/implementations, you can use the class template provided [here](./spmv_code_bench/spmv_kernel_template.cpp). The new class inherits properties from the `Matrix_Format` class defined [here](./spmv_code_bench/spmv_kernel.h). A conversion function (`csr_to_format`) and an execution function (`spmv`) have to be defined for the new format.
+
 ### How to compile
 
-To compile this benchmark, you need to first edit the `config.sh` file with the appropriate benchmark configurations that you want (number of threads, desired matrices, spmv kernels ...). Additionally, paths for MKL, AOCL-Sparse, SparseX and SELL-C-σ libraries have to set properly. Then you run `make` in any `spmv_code_*` directory.
+To compile this benchmark, you need to first edit the `config.sh` file with the appropriate benchmark configurations that you want (number of threads, desired matrices, spmv kernels ...). Additionally, paths for MKL, AOCL-Sparse, SparseX and SELL-C-σ libraries have to be set properly. Then you run `make` in any `spmv_code_*` directory.
 
-(The SparseX and SELL-C-σ projects have to be compiled beforehand. The `readme_sparsex.sh` bash script builds SparseX automatically. For SELL-C-σ, instructions are provided in the subdirectory.)
+(The SparseX and SELL-C-σ projects have to be built beforehand. The `install_sparsex.sh` and `install_sell_C_s.sh` bash scripts build SparseX and SELL-C-σ respectively. In these scripts, you have to specify the location of the `ROOT_DIR`, where the libraries, along with their dependencies, will be built/installed.)
 
 ### How to run
 

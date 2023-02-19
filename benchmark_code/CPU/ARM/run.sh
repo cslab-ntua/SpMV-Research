@@ -35,9 +35,7 @@ export GOMP_CPU_AFFINITY="$cpu_affinity"
 # printf "cpu affinities: %s\n" "$cpu_affinity"
 # exit
 
-# export MKL_DEBUG_CPU_TYPE=5
-# export LD_LIBRARY_PATH="${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${SPARSEX_LIB_PATH}
 
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'
@@ -46,58 +44,58 @@ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}
 
 matrices_validation=(
     "$path_validation"/scircuit.mtx
-    "$path_validation"/mac_econ_fwd500.mtx
-    "$path_validation"/raefsky3.mtx
-    "$path_validation"/rgg_n_2_17_s0.mtx
-    "$path_validation"/bbmat.mtx
-    "$path_validation"/appu.mtx
-    "$path_validation"/conf5_4-8x8-15.mtx
-    "$path_validation"/mc2depi.mtx
-    "$path_validation"/rma10.mtx
-    "$path_validation"/cop20k_A.mtx
-    "$path_validation"/thermomech_dK.mtx
-    "$path_validation"/webbase-1M.mtx
-    "$path_validation"/cant.mtx
-    "$path_validation"/ASIC_680k.mtx
-    "$path_validation"/pdb1HYS.mtx
-    "$path_validation"/roadNet-TX.mtx
-    "$path_validation"/TSOPF_RS_b300_c3.mtx
-    "$path_validation"/Chebyshev4.mtx
-    "$path_validation"/consph.mtx
-    "$path_validation"/com-Youtube.mtx
-    "$path_validation"/rajat30.mtx
-    "$path_validation"/radiation.mtx
-    "$path_validation"/Stanford_Berkeley.mtx
-    "$path_validation"/shipsec1.mtx
-    "$path_validation"/PR02R.mtx
-    "$path_validation"/CurlCurl_2.mtx
-    "$path_validation"/gupta3.mtx
-    "$path_validation"/mip1.mtx
-    "$path_validation"/rail4284.mtx
-    "$path_validation"/pwtk.mtx
-    "$path_validation"/crankseg_2.mtx
-    "$path_validation"/Si41Ge41H72.mtx
-    "$path_validation"/TSOPF_RS_b2383.mtx
-    "$path_validation"/in-2004.mtx
-    "$path_validation"/Ga41As41H72.mtx
-    "$path_validation"/eu-2005.mtx
-    "$path_validation"/wikipedia-20051105.mtx
-    "$path_validation"/kron_g500-logn18.mtx
-    "$path_validation"/rajat31.mtx
-    "$path_validation"/human_gene1.mtx
-    "$path_validation"/delaunay_n22.mtx
-    "$path_validation"/GL7d20.mtx
-    "$path_validation"/sx-stackoverflow.mtx
-    "$path_validation"/dgreen.mtx
-    "$path_validation"/mawi_201512012345.mtx
-    "$path_validation"/ldoor.mtx
-    "$path_validation"/dielFilterV2real.mtx
-    "$path_validation"/circuit5M.mtx
-    "$path_validation"/soc-LiveJournal1.mtx
-    "$path_validation"/bone010.mtx
-    "$path_validation"/audikw_1.mtx
-    "$path_validation"/cage15.mtx
-    "$path_validation"/kmer_V2a.mtx
+    # "$path_validation"/mac_econ_fwd500.mtx
+    # "$path_validation"/raefsky3.mtx
+    # "$path_validation"/rgg_n_2_17_s0.mtx
+    # "$path_validation"/bbmat.mtx
+    # "$path_validation"/appu.mtx
+    # "$path_validation"/conf5_4-8x8-15.mtx
+    # "$path_validation"/mc2depi.mtx
+    # "$path_validation"/rma10.mtx
+    # "$path_validation"/cop20k_A.mtx
+    # "$path_validation"/thermomech_dK.mtx
+    # "$path_validation"/webbase-1M.mtx
+    # "$path_validation"/cant.mtx
+    # "$path_validation"/ASIC_680k.mtx
+    # "$path_validation"/pdb1HYS.mtx
+    # "$path_validation"/roadNet-TX.mtx
+    # "$path_validation"/TSOPF_RS_b300_c3.mtx
+    # "$path_validation"/Chebyshev4.mtx
+    # "$path_validation"/consph.mtx
+    # "$path_validation"/com-Youtube.mtx
+    # "$path_validation"/rajat30.mtx
+    # "$path_validation"/radiation.mtx
+    # "$path_validation"/Stanford_Berkeley.mtx
+    # "$path_validation"/shipsec1.mtx
+    # "$path_validation"/PR02R.mtx
+    # "$path_validation"/CurlCurl_2.mtx
+    # "$path_validation"/gupta3.mtx
+    # "$path_validation"/mip1.mtx
+    # "$path_validation"/rail4284.mtx
+    # "$path_validation"/pwtk.mtx
+    # "$path_validation"/crankseg_2.mtx
+    # "$path_validation"/Si41Ge41H72.mtx
+    # "$path_validation"/TSOPF_RS_b2383.mtx
+    # "$path_validation"/in-2004.mtx
+    # "$path_validation"/Ga41As41H72.mtx
+    # "$path_validation"/eu-2005.mtx
+    # "$path_validation"/wikipedia-20051105.mtx
+    # "$path_validation"/kron_g500-logn18.mtx
+    # "$path_validation"/rajat31.mtx
+    # "$path_validation"/human_gene1.mtx
+    # "$path_validation"/delaunay_n22.mtx
+    # "$path_validation"/GL7d20.mtx
+    # "$path_validation"/sx-stackoverflow.mtx
+    # "$path_validation"/dgreen.mtx
+    # "$path_validation"/mawi_201512012345.mtx
+    # "$path_validation"/ldoor.mtx
+    # "$path_validation"/dielFilterV2real.mtx
+    # "$path_validation"/circuit5M.mtx
+    # "$path_validation"/soc-LiveJournal1.mtx
+    # "$path_validation"/bone010.mtx
+    # "$path_validation"/audikw_1.mtx
+    # "$path_validation"/cage15.mtx
+    # "$path_validation"/kmer_V2a.mtx
 )
 
 
