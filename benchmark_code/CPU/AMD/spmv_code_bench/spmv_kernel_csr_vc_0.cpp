@@ -1,0 +1,574 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <omp.h>
+
+#include "macros/cpp_defines.h"
+
+#include "spmv_bench_common.h"
+#include "spmv_kernel.h"
+
+#include <immintrin.h>
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+	#include "macros/macrolib.h"
+	#include "topology.h"
+	#include "time_it.h"
+	#include "parallel_util.h"
+	#include "array_metrics.h"
+#ifdef __cplusplus
+}
+#endif
+
+#include "spmv_kernel_csr_vc_compression_kernels.h"
+
+
+// Account for a fraction of the cache to leave space for indeces, etc.
+static inline
+long
+get_num_uncompressed_packet_vals()
+{
+	// return LEVEL3_CACHE_SIZE / sizeof(ValueType) / omp_get_max_threads() / 4;
+	// return LEVEL3_CACHE_SIZE / sizeof(ValueType) / omp_get_max_threads() / 64;
+	// return LEVEL3_CACHE_SIZE / sizeof(ValueType) / omp_get_max_threads() / 128;
+	// return LEVEL2_CACHE_SIZE / sizeof(ValueType) / omp_get_max_threads() / 4;
+	// return LEVEL1_DCACHE_SIZE / sizeof(ValueType) / omp_get_max_threads() / 4;
+	// return 512;
+	return atol(getenv("CSRVC_NUM_PACKET_VALS"));
+}
+
+
+extern INT_T * thread_i_s;
+extern INT_T * thread_i_e;
+
+extern INT_T * thread_j_s;
+extern INT_T * thread_j_e;
+
+extern ValueType * thread_v_s;
+extern ValueType * thread_v_e;
+
+extern int prefetch_distance;
+
+enum thread_type_t {
+	EXECUTE_THREAD,
+	PREFETCH_THREAD,
+	GENERIC_THREAD
+};
+__thread thread_type_t thread_type = GENERIC_THREAD;
+
+
+//==========================================================================================================================================
+//= Spinlock
+//==========================================================================================================================================
+
+
+static inline
+void cpu_relax()
+{
+	// __asm("pause");
+	// __asm volatile ("" : : : "memory");
+	// __asm volatile ("pause" : : : "memory");
+	__asm volatile ("rep; pause" : : : "memory");
+	// __asm volatile ("rep; nop" : : : "memory");
+}
+
+
+// Spins while *flag == val.
+static inline
+int do_spin(long * flag, long val)
+{
+	uint64_t i, count;
+	count = 1024;
+	for (i = 0; i < count; i++)
+		if (__builtin_expect(__atomic_load_n(flag, __ATOMIC_RELAXED) != val, 0))
+			return 0;
+		else
+			cpu_relax();
+	return 1;
+}
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                                SpMV                                                                    -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+static
+long
+compress(ValueType * vals, unsigned char * buf, const long num_vals)
+{
+	// return compress_kernel_id(vals, buf, num_vals);
+	// return compress_kernel_float(vals, buf, num_vals);
+	return compress_kernel_fpc(vals, buf, num_vals);
+}
+
+
+static
+long
+decompress(ValueType * vals, unsigned char * buf, long * num_vals_out)
+{
+	// return decompress_kernel_id(vals, buf, num_vals_out);
+	// return decompress_kernel_float(vals, buf, num_vals_out);
+	return decompress_kernel_fpc(vals, buf, num_vals_out);
+}
+
+
+struct CSRVCArrays : Matrix_Format
+{
+	INT_T * ia;                     // the usual rowptr (of size m+1)
+	INT_T * ja;                     // the colidx of each NNZ (of size nnz)
+	long * t_compr_data_size;       // size of the compressed data
+	unsigned char ** t_compr_data;  // the compressed values
+	long * t_num_packets;           // number of compressed data packets
+	INT_T ** t_packet_i_s;
+	INT_T ** t_packet_i_e;
+
+	double error_matrix;
+
+	long * pipeline_sem;
+
+	void validate_grouping_method(ValueType * a);
+	void calculate_matrix_compression_error(ValueType * a);
+
+	CSRVCArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja)
+	{
+		int num_threads = omp_get_max_threads();
+		double time_balance, time_compress;
+		long compr_data_size, i;
+		thread_i_s = (INT_T *) malloc(num_threads * sizeof(*thread_i_s));
+		thread_i_e = (INT_T *) malloc(num_threads * sizeof(*thread_i_e));
+		time_balance = time_it(1,
+			_Pragma("omp parallel")
+			{
+				int tnum = omp_get_thread_num();
+				loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+				// long i_s=thread_i_s[tnum], i_e=thread_i_e[tnum], t_nnz=ia[i_e]-ia[i_s];
+				// printf("%d: i=[%ld, %ld] (%ld) , nnz=%ld\n", tnum, i_s, i_e, i_e - i_s, t_nnz);
+			}
+		);
+		printf("balance time = %g\n", time_balance);
+		t_compr_data_size = (typeof(t_compr_data_size)) aligned_alloc(64, num_threads * sizeof(*t_compr_data_size));
+		t_compr_data = (typeof(t_compr_data)) aligned_alloc(64, num_threads * sizeof(*t_compr_data));
+		t_num_packets = (typeof(t_num_packets)) aligned_alloc(64, num_threads * sizeof(*t_num_packets));
+		t_packet_i_s = (typeof(t_packet_i_s)) aligned_alloc(64, num_threads * sizeof(*t_packet_i_s));
+		t_packet_i_e = (typeof(t_packet_i_e)) aligned_alloc(64, num_threads * sizeof(*t_packet_i_e));
+		time_compress = time_it(1,
+			_Pragma("omp parallel")
+			{
+				int tnum = omp_get_thread_num();
+				unsigned char * data;
+				INT_T * packet_i_s, * packet_i_e;
+				long t_nnz, max_data_size;
+				long p, i, i_s, i_e, j, j_s, j_e;
+				long num_packet_vals, num_vals;
+				long num_packets;
+				long pos;
+				long upper_boundary;
+
+				i_s = thread_i_s[tnum];
+				i_e = thread_i_e[tnum];
+				j_s = ia[i_s];
+				j_e = ia[i_e];
+
+				num_packet_vals = get_num_uncompressed_packet_vals();
+				_Pragma("omp single")
+				{
+					printf("Number of packet vals = %ld\n", num_packet_vals);
+				}
+
+				t_nnz = j_e - j_s;
+				num_packets = (t_nnz + num_packet_vals - 1) / num_packet_vals;
+				// long leftover = t_nnz % num_packet_vals;
+
+				max_data_size = 2 * t_nnz  * sizeof(ValueType);    // We assume worst case scenario:  compr_data = 2 * data
+				data = (typeof(data)) aligned_alloc(64, max_data_size);
+
+				packet_i_s = (typeof(packet_i_s)) aligned_alloc(64, num_packets * sizeof(*packet_i_s));
+				packet_i_e = (typeof(packet_i_e)) aligned_alloc(64, num_packets * sizeof(*packet_i_e));
+
+				pos = 0;
+				for (p=0,j=j_s;j<j_e;p++,j+=num_packet_vals)
+				{
+					num_vals = (j + num_packet_vals <= j_e) ? num_packet_vals : j_e - j;
+					pos += compress(&a[j], &data[pos], num_vals);
+					if (p == 0)
+						packet_i_s[p] = i_s;
+					else
+					{
+						i = packet_i_e[p-1];
+						packet_i_s[p] = j < ia[i] ? i-1 : i;  // Test for partial row.
+					}
+					if (p == num_packets - 1)
+						packet_i_e[p] = i_e;
+					else
+					{
+						// Index boundaries are inclusive. 'upper_boundary' is certainly the first row after the rows belonging to the packet (last packet row can be partial).
+						binary_search(ia, i_s, i_e, j+num_vals, NULL, &upper_boundary);
+						packet_i_e[p] = upper_boundary;
+					}
+					// if (tnum == 0)
+						// printf("%d: i=[%ld,%ld] , j=%ld[%ld,%ld] , p=%ld , num_vals=%ld , packet_i=[%d, %d] (%d) , t_nnz=%ld\n", tnum, i_s, i_e, j, j_s, j_e, p, num_vals, packet_i_s[p], packet_i_e[p], packet_i_e[p] - packet_i_s[p], t_nnz);
+				}
+				t_compr_data_size[tnum] = pos;
+				t_compr_data[tnum] = data;
+				t_num_packets[tnum] = num_packets;
+				t_packet_i_s[tnum] = packet_i_s;
+				t_packet_i_e[tnum] = packet_i_e;
+			}
+		);
+		printf("compression time = %g\n", time_compress);
+
+		compr_data_size = 0;
+		for (i=0;i<num_threads;i++)
+			compr_data_size += t_compr_data_size[i];
+		mem_footprint = compr_data_size + nnz * sizeof(INT_T) + (m+1) * sizeof(INT_T);
+
+		long max_cores = topo_get_num_cores_physical();
+		long thread_flags[max_cores];
+		pipeline_sem = (typeof(pipeline_sem)) malloc(max_cores * sizeof(*pipeline_sem));
+		for (i=0;i<max_cores;i++)
+		{
+			thread_flags[i] = 0;
+			__atomic_store_n(&pipeline_sem[i], 0, __ATOMIC_RELAXED);
+		}
+		_Pragma("omp parallel")
+		{
+			int tnum = omp_get_thread_num();
+			long core_num = topo_get_core_num_physical();
+			long res;
+			res = __atomic_fetch_add(&thread_flags[core_num], 1, __ATOMIC_RELAXED);
+			thread_type = (!res) ? EXECUTE_THREAD : PREFETCH_THREAD;
+			_Pragma("omp barrier")
+			if (__atomic_load_n(&thread_flags[core_num], __ATOMIC_RELAXED) == 1)
+				thread_type = GENERIC_THREAD;
+			printf("%d: max_cores=%ld, core_num=%ld, type_exec=%d\n", tnum, max_cores, core_num, thread_type);
+		}
+
+		calculate_matrix_compression_error(a);
+		// validate_grouping_method(a);
+	}
+
+	~CSRVCArrays()
+	{
+		int num_threads = omp_get_max_threads();
+		long i;
+		for (i=0;i<num_threads;i++)
+		{
+			free(t_compr_data[i]);
+			free(t_packet_i_s[i]);
+			free(t_packet_i_e[i]);
+		}
+		free(t_compr_data);
+		free(t_packet_i_s);
+		free(t_packet_i_e);
+		free(ia);
+		free(ja);
+		free(thread_i_s);
+		free(thread_i_e);
+	}
+
+	void spmv(ValueType * x, ValueType * y);
+};
+
+
+struct Matrix_Format *
+csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
+{
+	struct CSRVCArrays * csr = new CSRVCArrays(row_ptr, col_ind, values, m, n, nnz);
+	csr->format_name = (char *) "CSR_VC";
+	return csr;
+}
+
+
+//==========================================================================================================================================
+//= Method Validation - Errors
+//==========================================================================================================================================
+
+
+void
+CSRVCArrays::validate_grouping_method(ValueType * a)
+{
+	ValueType * a_new;
+	a_new = (typeof(a_new)) aligned_alloc(64, nnz * sizeof(*a_new));
+	#pragma omp parallel
+	{
+		int tnum = omp_get_thread_num();
+		long num_packet_vals = get_num_uncompressed_packet_vals();
+		long num_vals;
+		long num_packets = t_num_packets[tnum];
+		unsigned char * data = t_compr_data[tnum];
+		INT_T * packet_i_s = t_packet_i_s[tnum];
+		INT_T * packet_i_e = t_packet_i_e[tnum];
+		long pos, p, i, i_s, i_e, j, j_e, j_packet_e, k;
+		ValueType * vals;
+		vals = (typeof(vals)) aligned_alloc(64, num_packet_vals * sizeof(*vals));
+		i_s = thread_i_s[tnum];
+		i_e = thread_i_e[tnum];
+		j = ia[i_s];
+		pos = 0;
+		for (p=0;p<num_packets;p++)
+		{
+			pos += decompress(vals, &(data[pos]), &num_vals);
+			// printf("%d: p=%ld , num_vals=%ld , packet_i=[%d, %d] (%d) , data_pos=%ld (%ld nnz)\n", tnum, p, num_vals, packet_i_s[p], packet_i_e[p], packet_i_e[p] - packet_i_s[p], pos, (pos-sizeof(int)*num_packets)/sizeof(ValueType));
+			i_s = packet_i_s[p];
+			i_e = packet_i_e[p];
+			if (i_s == i_e)
+				continue;
+			k = 0;
+			i = i_s;
+			j_packet_e = j + num_vals;
+			if (j > ia[i_s])   // Partial first row.
+			{
+				j_e = ia[i+1];
+				if (j_e > j_packet_e)
+					j_e = j_packet_e;
+				a_new[j] = vals[k];
+				// if (vals[k] != a[j]) printf("%d: a=%g != a_new=%g , at pos=%ld : row=%ld  col=%d\n", tnum, a[j], vals[k], j, i, ja[j]);
+				i++;
+			}
+			for (;i<i_e-1;i++)  // Except last row.
+			{
+				j_e = ia[i+1];
+				a_new[j] = vals[k];
+				// if (vals[k] != a[j]) printf("%d: a=%g != a_new=%g , at pos=%ld : row=%ld  col=%d\n", tnum, a[j], vals[k], j, i, ja[j]);
+			}
+			// Last row might be partial.
+			for (;j<j_packet_e;j++,k++)
+			{
+				a_new[j] = vals[k];
+				// if (vals[k] != a[j]) printf("%d: a=%g != a_new=%g , at pos=%ld : row=%ld  col=%d\n", tnum, a[j], vals[k], j, i, ja[j]);
+			}
+		}
+		#pragma omp barrier
+		#pragma omp for
+		for (j=0;j<nnz;j++)
+			if (a[j] != a_new[j])
+				printf("%d: a=%g != a_new=%g , at pos=%ld : col=%d\n", tnum, a[j], a_new[j], j, ja[j]);
+		free(vals);
+	}
+	free(a_new);
+}
+
+
+void
+CSRVCArrays::calculate_matrix_compression_error(ValueType * a)
+{
+	ValueType * a_new;
+	a_new = (typeof(a_new)) aligned_alloc(64, nnz * sizeof(*a_new));
+	#pragma omp parallel
+	{
+		int tnum = omp_get_thread_num();
+		long num_vals;
+		long num_packets = t_num_packets[tnum];
+		unsigned char * data = t_compr_data[tnum];
+		long pos, p, i_s, j;
+		double mae, max_ae, mse, mape, smape;
+		i_s = thread_i_s[tnum];
+		j = ia[i_s];
+		pos = 0;
+		for (p=0;p<num_packets;p++)
+		{
+			pos += decompress(&a_new[j], &(data[pos]), &num_vals);
+			j += num_vals;
+		}
+		#pragma omp barrier
+		// #pragma omp for
+		// for (j=0;j<nnz;j++)
+			// if (a[j] != a_new[j])
+				// printf("%d: a=%g != a_new=%g , at pos=%ld : col=%d\n", tnum, a[j], a_new[j], j, ja[j]);
+		mae = array_mae_parallel(a, a_new, nnz, val_to_double);
+		max_ae = array_max_ae_parallel(a, a_new, nnz, val_to_double);
+		mse = array_mse_parallel(a, a_new, nnz, val_to_double);
+		mape = array_mape_parallel(a, a_new, nnz, val_to_double);
+		smape = array_smape_parallel(a, a_new, nnz, val_to_double);
+		#pragma omp single
+		{
+			printf("errors matrix: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g\n", mae, max_ae, mse, mape, smape);
+		}
+	}
+	free(a_new);
+}
+
+
+//==========================================================================================================================================
+//= Subkernels Single Row CSR
+//==========================================================================================================================================
+
+
+static inline
+ValueType
+subkernel_row_csr_scalar(ValueType * vals, CSRVCArrays * restrict csr, ValueType * restrict x, INT_T j_s, INT_T j_e)
+{
+	ValueType sum;
+	long j, k;
+	sum = 0;
+	for (j=j_s,k=0;j<j_e;j++,k++)
+		sum += vals[k] * x[csr->ja[j]];
+	return sum;
+}
+
+
+static inline
+ValueType
+subkernel_row_csr_scalar_kahan(ValueType * vals, CSRVCArrays * restrict csr, ValueType * restrict x, INT_T j_s, INT_T j_e)
+{
+	ValueType sum, val, tmp, compensation = 0;
+	long j, k;
+	sum = 0;
+	for (j=j_s,k=0;j<j_e;j++,k++)
+	{
+		val = vals[k] * x[csr->ja[j]] - compensation;
+		tmp = sum + val;
+		compensation = (tmp - sum) - val;
+		sum = tmp;
+	}
+	return sum;
+}
+
+
+// Reduce add 4 double-precision numbers.
+__attribute__((const))
+static inline
+double
+hsum256_pd(__m256d v_256d)
+{
+	__m128d low_128d  = _mm256_castpd256_pd128(v_256d);   // Cast vector of type __m256d to type __m128d. This intrinsic is only used for compilation and does not generate any instructions, thus it has zero latency.
+	__m128d high_128d = _mm256_extractf128_pd(v_256d, 1); // High 128: Extract 128 bits (composed of 2 packed double-precision (64-bit) floating-point elements) from a, selected with imm8, and store the result in dst.
+	low_128d  = _mm_add_pd(low_128d, high_128d);          // Add low 128 and high 128.
+	__m128d high64 = _mm_unpackhi_pd(low_128d, low_128d); // High 64: Unpack and interleave double-precision (64-bit) floating-point elements from the high half of a and b, and store the results in dst.
+	return  _mm_cvtsd_f64(_mm_add_sd(low_128d, high64));  // Reduce to scalar.
+}
+
+
+__attribute__((hot,pure))
+static inline
+ValueType
+subkernel_row_csr_vector_x86_256d(ValueType * vals, CSRVCArrays * restrict csr, ValueType * restrict x, long j_s, long j_e)
+{
+	long j, j_e_vector, k;
+	const long mask = ~(((long) 4) - 1); // Minimum number of elements for the vectorized code (power of 2).
+	__m256d v_a, v_x, v_sum;
+	ValueType sum = 0, sum_v = 0;
+	v_sum = _mm256_setzero_pd();
+	sum = 0;
+	sum_v = 0;
+	j_e_vector = j_s + ((j_e - j_s) & mask);
+	if (j_s != j_e_vector)
+	{
+		for (j=j_s,k=0;j<j_e_vector;j+=4,k+=4)
+		{
+			v_a = _mm256_loadu_pd(&vals[k]);
+			v_x = _mm256_set_pd(x[csr->ja[j]], x[csr->ja[j+1]], x[csr->ja[j+2]], x[csr->ja[j+3]]);
+			v_sum = _mm256_fmadd_pd(v_a, v_x, v_sum);
+		}
+		sum_v = hsum256_pd(v_sum);
+	}
+	for (j=j_e_vector,k=j_e_vector-j_s;j<j_e;j++,k++)
+		sum += vals[k] * x[csr->ja[j]];
+	return sum + sum_v;
+}
+
+
+static inline
+ValueType
+subkernel_row_csr(ValueType * vals, CSRVCArrays * restrict csr, ValueType * restrict x, INT_T j_s, INT_T j_e)
+{
+	// return subkernel_row_csr_scalar(vals, csr, x, j_s, j_e);
+	// return subkernel_row_csr_scalar_kahan(vals, csr, x, j_s, j_e);
+	return subkernel_row_csr_vector_x86_256d(vals, csr, x, j_s, j_e);
+}
+
+
+//==========================================================================================================================================
+//= SpMV Kernel
+//==========================================================================================================================================
+
+
+void compute_csr_vc(CSRVCArrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
+
+
+void
+CSRVCArrays::spmv(ValueType * x, ValueType * y)
+{
+	compute_csr_vc(this, x, y);
+}
+
+
+void
+compute_csr_vc(CSRVCArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
+{
+	static __thread CSRVCArrays * csr_prev;
+	static __thread ValueType * vals, * vals_buf, * tmp;
+	#pragma omp parallel
+	{
+		int core_num = topo_get_core_num_physical();
+		int tnum = omp_get_thread_num();
+		long num_packet_vals = get_num_uncompressed_packet_vals();
+		long num_vals;
+		long num_packets = csr->t_num_packets[tnum];
+		unsigned char * data = csr->t_compr_data[tnum];
+		INT_T * packet_i_s = csr->t_packet_i_s[tnum];
+		INT_T * packet_i_e = csr->t_packet_i_e[tnum];
+		ValueType sum;
+		long pos, p, i, i_s, i_e, j, j_e, j_packet_e, k;
+		if (vals == NULL || csr != csr_prev)
+		{
+			free(vals);
+			vals = (typeof(vals)) aligned_alloc(64, num_packet_vals * sizeof(*vals));
+			vals_buf = (typeof(vals_buf)) aligned_alloc(64, num_packet_vals * sizeof(*vals_buf));
+			csr_prev = csr;
+		}
+		i_s = thread_i_s[tnum];
+		i_e = thread_i_e[tnum];
+		j = csr->ia[i_s];
+		pos = 0;
+		for (p=0;p<num_packets;p++)
+		{
+			// if (thread_type == EXECUTE_THREAD)
+			// {
+				// do_spin(&csr->pipeline_sem[core_num], 1);
+				// goto execute;
+			// }
+			pos += decompress(vals, &(data[pos]), &num_vals);
+
+			i_s = packet_i_s[p];
+			i_e = packet_i_e[p];
+			// if (i_s == i_e)
+				// continue;
+			k = 0;
+			i = i_s;
+			j_packet_e = j + num_vals;
+			if (j > csr->ia[i_s])   // Partial first row.
+			{
+				j_e = csr->ia[i+1];
+				if (j_e > j_packet_e)
+					j_e = j_packet_e;
+				sum = subkernel_row_csr(&vals[k], csr, x, j, j_e);
+				k += j_e - j;
+				j = j_e;
+				y[i] += sum;
+				i++;
+			}
+			for (;i<i_e-1;i++)  // Except last row.
+			{
+				j_e = csr->ia[i+1];
+				sum = subkernel_row_csr(&vals[k], csr, x, j, j_e);
+				k += j_e - j;
+				j = j_e;
+				y[i] = sum;
+			}
+			// Last row might be partial.
+			if (j < j_packet_e)
+			{
+				sum = subkernel_row_csr(&vals[k], csr, x, j, j_packet_e);
+				k += j_packet_e - j;
+				j = j_packet_e;
+				y[i] = sum;
+			}
+		}
+	}
+}
+

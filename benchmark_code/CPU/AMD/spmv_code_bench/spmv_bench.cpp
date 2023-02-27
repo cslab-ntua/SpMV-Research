@@ -10,11 +10,11 @@
 #include <unistd.h>
 
 #include "spmv_bench_common.h"
-#include "read_mtx.h"
 
 #ifdef __cplusplus
 extern "C"{
 #endif
+
 	#include "macros/cpp_defines.h"
 	#include "macros/macrolib.h"
 	#include "time_it.h"
@@ -31,6 +31,8 @@ extern "C"{
 	#include "monitoring/power/rapl.h"
 
 	#include "artificial_matrix_generation.h"
+
+	#include "read_mtx.h"
 
 #ifdef __cplusplus
 }
@@ -145,11 +147,11 @@ CheckAccuracy(ValueType * val, INT_T * rowind, INT_T * colind, INT_T m, INT_T nn
 	#pragma omp parallel
 	{
 		double mae, max_ae, mse, mape, smape;
-		mae = array_mae_parallel(y_gold, y, m);
-		max_ae = array_max_ae_parallel(y_gold, y, m);
-		mse = array_mse_parallel(y_gold, y, m);
-		mape = array_mape_parallel(y_gold, y, m);
-		smape = array_smape_parallel(y_gold, y, m);
+		mae = array_mae_parallel(y_gold, y, m, val_to_double);
+		max_ae = array_max_ae_parallel(y_gold, y, m, val_to_double);
+		mse = array_mse_parallel(y_gold, y, m, val_to_double);
+		mape = array_mape_parallel(y_gold, y, m, val_to_double);
+		smape = array_smape_parallel(y_gold, y, m, val_to_double);
 		#pragma omp single
 		printf("errors spmv: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g\n", mae, max_ae, mse, mape, smape);
 	}
@@ -226,7 +228,7 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 	double gflops;
 	__attribute__((unused)) double time, time_warm_up, time_after_warm_up;
 	long buf_n = 10000;
-	char buf[buf_n];
+	char buf[buf_n + 1];
 	long i;
 
 	#if defined(PER_THREAD_STATS)
@@ -417,6 +419,7 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 		i += snprintf(buf + i, buf_n - i, ",%u", MF->nnz);
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / (1024*1024));
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / MF->csr_mem_footprint);
+		i += snprintf(buf + i, buf_n - i, ",%ld", atol(getenv("CSRVC_NUM_PACKET_VALS")));
 		#ifdef PER_THREAD_STATS
 			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_avg);
 			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_std);
@@ -431,7 +434,7 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_std);
 			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_balance);
 		#endif
-		buf[i-1] = '\0';
+		buf[i] = '\0';
 		fprintf(stderr, "%s\n", buf);
 
 		CheckAccuracy(mtx_val, mtx_rowind, mtx_colind, mtx_m, mtx_nnz, x, y);
@@ -481,7 +484,7 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_std);
 			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_balance);
 		#endif
-		buf[i-1] = '\0';
+		buf[i] = '\0';
 		fprintf(stderr, "%s\n", buf);
 	}
 

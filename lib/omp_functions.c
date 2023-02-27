@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <omp.h>
+#include <sys/types.h>  // In PowerPC the gettid() function in included this way.
 
 #include "debug.h"
 #include "pthread_functions.h"
@@ -122,7 +123,8 @@ print_affinity()
 	int * cpus;
 	int i, j=0,  count=0;
 	count = get_affinity(tid, &cpus);
-	j += snprintf(buf+j, buf_n-j, "pid %d tid %d pthread_id 0x%lx omp_id %d bound to OS proc set {", getpid(), gettid(), tid, safe_omp_get_thread_num_initial());
+	// j += snprintf(buf+j, buf_n-j, "pid %d tid %d pthread_id 0x%lx omp_id %d bound to OS proc set {", getpid(), gettid(), tid, safe_omp_get_thread_num_initial());
+	j += snprintf(buf+j, buf_n-j, "pid %d pthread_id 0x%lx omp_id %d bound to OS proc set {", getpid(), tid, safe_omp_get_thread_num_initial());
 	for (i=0;i<count;i++)
 		j += snprintf(buf+j, buf_n-j, "%d, ", cpus[i]);
 	j -= 2;

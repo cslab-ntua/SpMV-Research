@@ -363,13 +363,15 @@ read_until_EOF(int fd, char **ret)
 }
 
 
-/* sysfs files are always read with one call to 'read()', next calls always return 0.
+/* sysfs files are always read with one call to 'read()', subsequent calls always return 0.
+ * Their size is always PAGE_SIZE bytes in length.
+ * https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt  --> (Reading/Writing Attribute Data)
  */
 static inline
 ssize_t
 read_sysfs_file(const char * filename, char ** buf_out)
 {
-	long buf_n = sysconf(_SC_PAGESIZE) + 1;
+	unsigned long buf_n = sysconf(_SC_PAGESIZE) + 1;
 	char buf[buf_n];
 	int fd;
 	ssize_t len;

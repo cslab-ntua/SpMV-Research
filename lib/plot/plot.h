@@ -134,11 +134,12 @@ void figure_set_title(struct Figure * fig, char * title);
 
 void figure_series_type_density_map(struct Figure_Series * s);
 
-void figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int plot_percentages);
+// Returns the bins frequencies as doubles.
+double * figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int plot_percentages);
 #define figure_series_type_histogram(s, num_bins, ... /* plot_percentages */)               \
-do {                                                                                        \
+({                                                                                          \
 	figure_series_type_histogram_base(s, num_bins, DEFAULT_ARG_1(0, ##__VA_ARGS__));    \
-} while (0)
+})
 
 void figure_series_type_barplot_base(struct Figure_Series * s, double max_bar_width, double bar_width_fraction);
 #define figure_series_type_barplot(s, ... /* max_bar_width, bar_width_fraction */)                                 \

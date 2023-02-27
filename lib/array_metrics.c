@@ -904,6 +904,14 @@ struct pair {
 };
 
 
+int ARRAY_METRICS_closest_pair_idx_cmpfunc(const void * a, const void * b)
+{
+	struct pair * p1 = (struct pair *) a;
+	struct pair * p2 = (struct pair *) b;
+	return (p1->val > p1->val) ? 1 : p1->val < p2->val ? -1 : 0;
+}
+
+
 double
 ARRAY_METRICS_closest_pair_idx_serial(void * A, long i_start, long i_end, long * idx1_out, long * idx2_out, double (* get_val_as_double)(void * A, long i))
 {
@@ -918,13 +926,7 @@ ARRAY_METRICS_closest_pair_idx_serial(void * A, long i_start, long i_end, long *
 		P[i].val = get_val_as_double(A, i_start+i);
 		P[i].idx = i;
 	}
-	int cmpfunc(const void * a, const void * b)
-	{
-		struct pair * p1 = (struct pair *) a;
-		struct pair * p2 = (struct pair *) b;
-		return (p1->val > p1->val) ? 1 : p1->val < p2->val ? -1 : 0;
-	}
-	qsort(P, N, sizeof(*P), cmpfunc);
+	qsort(P, N, sizeof(*P), ARRAY_METRICS_closest_pair_idx_cmpfunc);
 	pos = 0;
 	min = fabs(P[1].val - P[0].val);
 	for (i=0;i<N-1;i++)

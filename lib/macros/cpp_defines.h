@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 
 	#include <type_traits>
+	#include <typeinfo>
 
 	#define __auto_type  auto
 	// #define typeof(t)  std::decay<decltype(t)>::type
@@ -20,8 +21,18 @@
 
 	#define static_cast(type, expression)  static_cast<type>(expression)
 
+	#define _Static_assert  static_assert
+
 	// 'restrict' not a cpp keyword.
 	#define restrict 
+
+	// C++ in it's infinite wisdom considers NULL of type long int.
+	// Include headers that define NULL and pray for the best.
+	#include <stddef.h>
+	#include <iostream>
+	#include <unistd.h>
+	// #undef NULL
+	// #define NULL  ((void *) 0)
 
 #else
 

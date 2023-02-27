@@ -160,9 +160,9 @@ figure_series_init(struct Figure_Series * s, void * x, void * y, void * z, long 
 	s->x_in_percentages = 0;
 	s->y_in_percentages = 0;
 
-	if (x == NULL)
+	if (get_x_as_double == NULL)
 		get_x_as_double = id;
-	if (y == NULL)
+	if (get_y_as_double == NULL)
 		get_y_as_double = id;
 	s->get_x_as_double = get_x_as_double;
         s->get_y_as_double = get_y_as_double;
@@ -358,11 +358,14 @@ figure_series_type_density_map(struct Figure_Series * s)
 }
 
 
-// Histogram is a 2D plot of the occurrence frequencies of the series values ('y' for 2D and 'z' for 3D series).
-// The x axis is a discretization of the range of the values, with a given 'num_bins'.
-// This function converts the series to the 2D type_histogram.
+/* Histogram is a 2D plot of the occurrence frequencies of the series values ('y' for 2D and 'z' for 3D series).
+ * The x axis is a discretization of the range of the values, with a given 'num_bins'.
+ * This function converts the series to the 2D type_histogram.
+ *
+ * Returns the bins frequencies as doubles.
+ */
 static
-void
+double *
 convert_to_histogram(struct Figure_Series * s, long num_bins, int plot_percentages)
 {
 	void * values;
@@ -440,13 +443,15 @@ convert_to_histogram(struct Figure_Series * s, long num_bins, int plot_percentag
 	s->histogram_num_bins = num_bins;
 	s->histogram_in_percentages = plot_percentages;
 	s->deallocate_data = 1;
+	return y;
 }
 
 
-void
+// Returns the bins frequencies as doubles.
+double *
 figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int plot_percentages)
 {
-	convert_to_histogram(s, num_bins, plot_percentages);
+	return convert_to_histogram(s, num_bins, plot_percentages);
 }
 
 

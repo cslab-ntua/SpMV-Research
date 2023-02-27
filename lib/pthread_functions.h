@@ -69,7 +69,7 @@ int safe_pthread_barrier_wait(pthread_barrier_t * barrier);
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 
-void safe_pthread_spin_init(pthread_spinlock_t * lock, int pshared);
+void safe_pthread_spin_init(pthread_spinlock_t * lock, int pshared); // Use PTHREAD_PROCESS_PRIVATE as 'pshared' if the lock is private to the process.
 void safe_pthread_spin_destroy(pthread_spinlock_t * lock);
 void safe_pthread_spin_lock(pthread_spinlock_t * lock);
 void safe_pthread_spin_trylock(pthread_spinlock_t * lock);

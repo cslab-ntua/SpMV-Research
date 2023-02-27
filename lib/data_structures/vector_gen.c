@@ -11,19 +11,6 @@
 #include "vector_gen.h"
 
 
-#ifndef VECTOR_GEN_C
-#define VECTOR_GEN_C
-
-#endif /* VECTOR_GEN_C */
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//------------------------------------------------------------------------------------------------------------------------------------------
-//-                                                              Templates                                                                 -
-//------------------------------------------------------------------------------------------------------------------------------------------
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 //==========================================================================================================================================
 //= User Functions Declarations
 //==========================================================================================================================================
@@ -45,7 +32,9 @@ typedef VECTOR_GEN_TYPE_1  _TYPE;
 
 
 //==========================================================================================================================================
-//= Generic Code
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                              Templates                                                                 -
+//------------------------------------------------------------------------------------------------------------------------------------------
 //==========================================================================================================================================
 
 
@@ -176,8 +165,34 @@ vector_push_back_array(struct Vector * restrict v, _TYPE * restrict array, long 
 			new_capacity *= 2;
 		vector_resize(v, new_capacity);
 	}
-	for (i=0;i<n;i++)
-		v->data[v->size + i] = array[i];
+	memcpy(&(v->data[v->size]), array, n * sizeof(*array));
 	v->size += n;
 }
+
+
+// Set element at position WITHOUT bounds checking.
+#undef  vector_set
+#define vector_set  VECTOR_GEN_EXPAND(vector_set)
+inline
+void
+vector_set(struct Vector * restrict v, _TYPE elem, long pos)
+{
+	v->data[pos] = elem;
+}
+
+// Set element at position with bounds checking.
+#undef  vector_set_safe
+#define vector_set_safe  VECTOR_GEN_EXPAND(vector_set_safe)
+inline
+void
+vector_set_safe(struct Vector * restrict v, _TYPE elem, long pos)
+{
+	if (__builtin_expect(pos >= v->max_size, 0))
+	{
+		vector_resize(v, 2 * v->capacity);
+		v->size = pos;                       // Possible unfilled positions will still count toward the size.
+	}
+	v->data[pos] = elem;
+}
+
 

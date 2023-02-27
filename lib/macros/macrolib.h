@@ -20,7 +20,8 @@
 
 
 #define _CONCAT(a, b)  a ## b
-#define CONCAT(a, b)  _CONCAT(a, b)
+#define _CONCAT_EXPAND(a, b)  _CONCAT(a, b)
+#define CONCAT(a, b)  _CONCAT_EXPAND(a, b)
 
 
 // This is usefull for the _Pragma operator, which expects a single string literal, when we want to parameterize the string.
@@ -64,8 +65,15 @@
 #define DEFAULT_ARG_1(def, ...)  _DEFAULT_ARG_1(def, __VA_ARGS__, def)
 
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                               Tuples                                                                   -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 //==========================================================================================================================================
-//= Tupples Packing / Unpacking
+//= Packing / Unpacking
 //==========================================================================================================================================
 
 
@@ -77,7 +85,8 @@
 #define _UNPACK_TEST_IF_TUPLE(...)  /* one */, /* two */
 // If there is a third argument (i.e. if _UNPACK_TEST_IF_TUPLE was called), args are unpacked with _UNPACK_ID.
 // Else they are returned as is (args where not packed - not a tuple).
-#define _UNPACK(args, one, ...)  OPT(_UNPACK_ID, ##__VA_ARGS__) args
+// No space before 'args' for purely aesthetic reasons, so that no space remains when 'OPT()' expands to empty (i.e. 'args' was not in a tuple).
+#define _UNPACK(args, one, ...)  OPT(_UNPACK_ID, ##__VA_ARGS__)args
 // Always passed as only 2 arguments, so we pass them again.
 #define _UNPACK_EXPAND_ARGS(...)  _UNPACK(__VA_ARGS__)
 // When 'tuple' is a tuple '_UNPACK_TEST_IF_TUPLE' is called and it returns two arguments.
@@ -85,129 +94,97 @@
 #define UNPACK(tuple)  _UNPACK_EXPAND_ARGS(tuple, _UNPACK_TEST_IF_TUPLE tuple)
 
 
+//==========================================================================================================================================
+//= Test If Empty
+//==========================================================================================================================================
+
+
+#define __TUPLE_NOT_EMPTY(...)  OPT_NEG(0, ##__VA_ARGS__) OPT(1, ##__VA_ARGS__)
+#define _TUPLE_NOT_EMPTY(...)   __TUPLE_NOT_EMPTY(__VA_ARGS__)
+#define TUPLE_NOT_EMPTY(t)      _TUPLE_NOT_EMPTY(UNPACK(t))
+
+
+//==========================================================================================================================================
+//= Concat Tuples
+//==========================================================================================================================================
+
+
+#define _CONCAT_TUPLES_0_0(t1, t2)  ()
+#define _CONCAT_TUPLES_0_1(t1, t2)  (UNPACK(t2))
+#define _CONCAT_TUPLES_1_0(t1, t2)  (UNPACK(t1))
+#define _CONCAT_TUPLES_1_1(t1, t2)  (UNPACK(t1), UNPACK(t2))
+
+#define _CONCAT_TUPLES_SELECT(t1_not_empty, t2_not_empty, t1, t2)  _CONCAT_TUPLES_ ## t1_not_empty ## _ ## t2_not_empty(t1, t2)  
+
+#define _CONCAT_TUPLES_EXPAND(t1_not_empty, t2_not_empty, t1, t2)  _CONCAT_TUPLES_SELECT(t1_not_empty, t2_not_empty, t1, t2)
+#define CONCAT_TUPLES(t1, t2)  _CONCAT_TUPLES_EXPAND(TUPLE_NOT_EMPTY(t1), TUPLE_NOT_EMPTY(t2), t1, t2)
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                       Foreach Macro Argument                                                           -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Foreach Base
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+
+#define _FOREACH_EXPAND_0(i, fun, ...)  fun(__VA_ARGS__)
+#define _FOREACH_EXPAND_1(i, fun, ...)  fun(i, __VA_ARGS__)
+
+#define _FOREACH_EXPAND(expand_ver, i, fun, tpl_prefix, a, tpl_suffix)  expand_ver(i, fun, UNPACK(CONCAT_TUPLES(CONCAT_TUPLES(tpl_prefix, a), tpl_suffix)))
+
+
+// As is.
+#define _FOREACH_AS_IS_0(i, tpl_src_code, expand_ver, fun, tpl_prefix, tpl_suffix)              UNPACK(tpl_src_code)
+#define _FOREACH_AS_IS_REC(i, tpl_src_code, expand_ver, fun, tpl_prefix, tpl_suffix, a, ...)    (UNPACK(tpl_src_code) _FOREACH_EXPAND(expand_ver, i, fun, tpl_prefix, a, tpl_suffix)), expand_ver, fun, tpl_prefix, tpl_suffix, ##__VA_ARGS__
+
+// As semicolon-terminated statements.
+#define _FOREACH_AS_STMT_0(i, tpl_src_code, expand_ver, fun, tpl_prefix, tpl_suffix)            UNPACK(tpl_src_code)
+#define _FOREACH_AS_STMT_REC(i, tpl_src_code, expand_ver, fun, tpl_prefix, tpl_suffix, a, ...)  (UNPACK(tpl_src_code) _FOREACH_EXPAND(expand_ver, i, fun, tpl_prefix, a, tpl_suffix);), expand_ver, fun, tpl_prefix, tpl_suffix, ##__VA_ARGS__
+
+// As a comma-separated list of expressions.
+#define _FOREACH_AS_EXPR_0(i, tpl_src_code, expand_ver, fun, tpl_prefix, tpl_suffix)            UNPACK(tpl_src_code)
+#define _FOREACH_AS_EXPR_REC(i, tpl_src_code, expand_ver, fun, tpl_prefix, tpl_suffix, a, ...)  CONCAT_TUPLES(tpl_src_code, (_FOREACH_EXPAND(expand_ver, i, fun, tpl_prefix, a, tpl_suffix))), expand_ver, fun, tpl_prefix, tpl_suffix, ##__VA_ARGS__
+
+
+#define _FOREACH_BASE(foreach_rec, foreach_0, pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)  RECURSION_FORM_ITER(UNPACK(tpl_arg_vals)) (foreach_rec, foreach_0, (, _FOREACH_EXPAND_ ## pass_iter, fun, tpl_prefix, tpl_suffix, UNPACK(tpl_arg_vals)))
+
+
+#define FOREACH_AS_IS(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)              _FOREACH_BASE(_FOREACH_AS_IS_REC, _FOREACH_AS_IS_0, pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)
+
+#define FOREACH_AS_STMT_UNGUARDED(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)  _FOREACH_BASE(_FOREACH_AS_STMT_REC, _FOREACH_AS_STMT_0, pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)
+#define FOREACH_AS_STMT(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)            do { FOREACH_AS_STMT_UNGUARDED(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix) } while (0)
+
+#define FOREACH_AS_EXPR_UNGUARDED(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)  _FOREACH_BASE(_FOREACH_AS_EXPR_REC, _FOREACH_AS_EXPR_0, pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)
+#define FOREACH_AS_EXPR(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)            ( FOREACH_AS_EXPR_UNGUARDED(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix) )
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Foreach
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+
+// #define _FOREACH_EXPAND(fun, ...)  fun(__VA_ARGS__)
+
+// #define _FOREACH_0(i, tpl_src_code, fun)            UNPACK(tpl_src_code)
+// #define _FOREACH_REC(i, tpl_src_code, fun, a, ...)  (UNPACK(tpl_src_code) _FOREACH_EXPAND(fun, UNPACK(a));), fun, ##__VA_ARGS__
+
+// #define FOREACH_UNGUARDED(fun, ...)  RECURSION_FORM_ITER(__VA_ARGS__)(_FOREACH_REC, _FOREACH_0, (, fun, __VA_ARGS__))
+// #define FOREACH(fun, ...)            do { FOREACH_UNGUARDED(fun, ##__VA_ARGS__); } while (0)
+
+#define FOREACH_UNGUARDED(fun, ...)  FOREACH_AS_STMT_UNGUARDED(0, fun, , (__VA_ARGS__), )
+#define FOREACH(fun, ...)            FOREACH_AS_STMT(0, fun,  , (__VA_ARGS__), )
+
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                           Macro Functions                                                              -
 //------------------------------------------------------------------------------------------------------------------------------------------
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-//==========================================================================================================================================
-//= Foreach Macro Argument
-//==========================================================================================================================================
-
-
-#define _FOREACH_EXPAND(fun, ...)  fun(__VA_ARGS__)
-
-#define _FOREACH_0(i, resulting_code, fun)            UNPACK(resulting_code)
-#define _FOREACH_REC(i, resulting_code, fun, a, ...)  (UNPACK(resulting_code) _FOREACH_EXPAND(fun, UNPACK(a));), fun, ##__VA_ARGS__
-
-#define FOREACH_UNGUARDED(fun, ...)  RECURSION_FORM_ITER(__VA_ARGS__)(_FOREACH_REC, _FOREACH_0, (, fun, __VA_ARGS__))
-#define FOREACH(fun, ...)            do { FOREACH_UNGUARDED(fun, ##__VA_ARGS__); } while (0)
-
-
-//------------------------------------------------------------------------------------------------------------------------------------------
-//- Foreach Macro Argument With Iterator
-//------------------------------------------------------------------------------------------------------------------------------------------
-
-
-#define _FOREACH_ITER_EXPAND(fun, ...)  fun(__VA_ARGS__)
-
-#define _FOREACH_ITER_0(i, resulting_code, fun)            UNPACK(resulting_code)
-#define _FOREACH_ITER_REC(i, resulting_code, fun, a, ...)  (UNPACK(resulting_code) _FOREACH_ITER_EXPAND(fun, i, UNPACK(a));), fun, ##__VA_ARGS__
-
-#define FOREACH_ITER_UNGUARDED(fun, ...)  RECURSION_FORM_ITER(__VA_ARGS__)(_FOREACH_ITER_REC, _FOREACH_ITER_0, (, fun, __VA_ARGS__))
-#define FOREACH_ITER(fun, ...)            do { FOREACH_ITER_UNGUARDED(fun, ##__VA_ARGS__); } while (0)
-
-
-//------------------------------------------------------------------------------------------------------------------------------------------
-//- Foreach Macro Argument In Tupple With Extra Static Prefix/Suffix Arguments
-//------------------------------------------------------------------------------------------------------------------------------------------
-
-
-#define _FOREACH_PACKED_EXPAND(fun, ...)  fun(__VA_ARGS__)
-
-#define _FOREACH_PACKED_0_0_0(i, resulting_code, fun)                            UNPACK(resulting_code)
-#define _FOREACH_PACKED_0_0_REC(i, resulting_code, fun, a, ...)                  (UNPACK(resulting_code) _FOREACH_PACKED_EXPAND(fun, UNPACK(a));), fun, ##__VA_ARGS__
-#define _FOREACH_PACKED_UNGUARDED_0_0(fun, prefix, arg, suffix)               RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_0_0_REC, _FOREACH_PACKED_0_0_0, (, fun, UNPACK(arg)))
-
-#define _FOREACH_PACKED_0_1_0(i, resulting_code, fun, suffix)                    UNPACK(resulting_code)
-#define _FOREACH_PACKED_0_1_REC(i, resulting_code, fun, suffix, a, ...)          (UNPACK(resulting_code) _FOREACH_PACKED_EXPAND(fun, UNPACK(a), UNPACK(suffix));), fun, suffix, ##__VA_ARGS__
-#define _FOREACH_PACKED_UNGUARDED_0_1(fun, prefix, arg, suffix)               RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_0_1_REC, _FOREACH_PACKED_0_1_0, (, fun, suffix, UNPACK(arg)))
-
-#define _FOREACH_PACKED_1_0_0(i, resulting_code, fun, prefix)                    UNPACK(resulting_code)
-#define _FOREACH_PACKED_1_0_REC(i, resulting_code, fun, prefix, a, ...)          (UNPACK(resulting_code) _FOREACH_PACKED_EXPAND(fun, UNPACK(prefix), UNPACK(a));), fun, prefix, ##__VA_ARGS__
-#define _FOREACH_PACKED_UNGUARDED_1_0(fun, prefix, arg, suffix)               RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_1_0_REC, _FOREACH_PACKED_1_0_0, (, fun, prefix, UNPACK(arg)))
-
-#define _FOREACH_PACKED_1_1_0(i, resulting_code, fun, prefix, suffix)            UNPACK(resulting_code)
-#define _FOREACH_PACKED_1_1_REC(i, resulting_code, fun, prefix, suffix, a, ...)  (UNPACK(resulting_code) _FOREACH_PACKED_EXPAND(fun, UNPACK(prefix), UNPACK(a), UNPACK(suffix));), fun, prefix, suffix, ##__VA_ARGS__
-#define _FOREACH_PACKED_UNGUARDED_1_1(fun, prefix, arg, suffix)               RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_1_1_REC, _FOREACH_PACKED_1_1_0, (, fun, prefix, suffix, UNPACK(arg)))
-
-#define __FOREACH_PACKED_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)  _FOREACH_PACKED_UNGUARDED_ ## prefix_num ## _ ## suffix_num(fun, prefix, arg, suffix)  
-#define _FOREACH_PACKED_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)   __FOREACH_PACKED_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)
-
-#define FOREACH_PACKED_UNGUARDED(fun, prefix, arg, suffix)  _FOREACH_PACKED_UNGUARDED(COUNT_ARGS(prefix), COUNT_ARGS(suffix), fun, prefix, arg, suffix)
-#define FOREACH_PACKED(fun, prefix, arg, suffix)            do { FOREACH_PACKED_UNGUARDED(fun, prefix, arg, suffix); } while (0)
-
-
-//------------------------------------------------------------------------------------------------------------------------------------------
-//- Foreach Macro Argument In Tupple With Extra Static Prefix/Suffix Arguments And Iterator
-//------------------------------------------------------------------------------------------------------------------------------------------
-
-
-#define _FOREACH_PACKED_ITER_EXPAND(fun, ...)  fun(__VA_ARGS__)
-
-#define _FOREACH_PACKED_ITER_0_0_0(i, resulting_code, fun)                            UNPACK(resulting_code)
-#define _FOREACH_PACKED_ITER_0_0_REC(i, resulting_code, fun, a, ...)                  (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(a));), fun, ##__VA_ARGS__
-#define _FOREACH_PACKED_ITER_UNGUARDED_0_0(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_0_0_REC, _FOREACH_PACKED_ITER_0_0_0, (, fun, UNPACK(arg)))
-
-#define _FOREACH_PACKED_ITER_0_1_0(i, resulting_code, fun, suffix)                    UNPACK(resulting_code)
-#define _FOREACH_PACKED_ITER_0_1_REC(i, resulting_code, fun, suffix, a, ...)          (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(a), UNPACK(suffix));), fun, suffix, ##__VA_ARGS__
-#define _FOREACH_PACKED_ITER_UNGUARDED_0_1(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_0_1_REC, _FOREACH_PACKED_ITER_0_1_0, (, fun, suffix, UNPACK(arg)))
-
-#define _FOREACH_PACKED_ITER_1_0_0(i, resulting_code, fun, prefix)                    UNPACK(resulting_code)
-#define _FOREACH_PACKED_ITER_1_0_REC(i, resulting_code, fun, prefix, a, ...)          (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(prefix), UNPACK(a));), fun, prefix, ##__VA_ARGS__
-#define _FOREACH_PACKED_ITER_UNGUARDED_1_0(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_1_0_REC, _FOREACH_PACKED_ITER_1_0_0, (, fun, prefix, UNPACK(arg)))
-
-#define _FOREACH_PACKED_ITER_1_1_0(i, resulting_code, fun, prefix, suffix)            UNPACK(resulting_code)
-#define _FOREACH_PACKED_ITER_1_1_REC(i, resulting_code, fun, prefix, suffix, a, ...)  (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPAND(fun, i, UNPACK(prefix), UNPACK(a), UNPACK(suffix));), fun, prefix, suffix, ##__VA_ARGS__
-#define _FOREACH_PACKED_ITER_UNGUARDED_1_1(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_1_1_REC, _FOREACH_PACKED_ITER_1_1_0, (, fun, prefix, suffix, UNPACK(arg)))
-
-#define __FOREACH_PACKED_ITER_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)  _FOREACH_PACKED_ITER_UNGUARDED_ ## prefix_num ## _ ## suffix_num(fun, prefix, arg, suffix)  
-#define _FOREACH_PACKED_ITER_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)   __FOREACH_PACKED_ITER_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)
-
-#define FOREACH_PACKED_ITER_UNGUARDED(fun, prefix, arg, suffix)  _FOREACH_PACKED_ITER_UNGUARDED(COUNT_ARGS(prefix), COUNT_ARGS(suffix), fun, prefix, arg, suffix)
-#define FOREACH_PACKED_ITER(fun, prefix, arg, suffix)            do { FOREACH_PACKED_ITER_UNGUARDED(fun, prefix, arg, suffix); } while (0)
-
-
-//------------------------------------------------------------------------------------------------------------------------------------------
-//- Expression Foreach Macro Argument In Tupple With Extra Static Prefix/Suffix Arguments And Iterator
-//------------------------------------------------------------------------------------------------------------------------------------------
-
-
-#define _FOREACH_PACKED_ITER_EXPRESSION_EXPAND(fun, ...)  fun(__VA_ARGS__)
-
-#define _FOREACH_PACKED_ITER_EXPRESSION_0_0_0(i, resulting_code, fun)                            UNPACK(resulting_code)
-#define _FOREACH_PACKED_ITER_EXPRESSION_0_0_REC(i, resulting_code, fun, a, ...)                  (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPRESSION_EXPAND(fun, i, UNPACK(a))), fun, ##__VA_ARGS__
-#define _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED_0_0(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_EXPRESSION_0_0_REC, _FOREACH_PACKED_ITER_EXPRESSION_0_0_0, (, fun, UNPACK(arg)))
-
-#define _FOREACH_PACKED_ITER_EXPRESSION_0_1_0(i, resulting_code, fun, suffix)                    UNPACK(resulting_code)
-#define _FOREACH_PACKED_ITER_EXPRESSION_0_1_REC(i, resulting_code, fun, suffix, a, ...)          (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPRESSION_EXPAND(fun, i, UNPACK(a), UNPACK(suffix))), fun, suffix, ##__VA_ARGS__
-#define _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED_0_1(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_EXPRESSION_0_1_REC, _FOREACH_PACKED_ITER_EXPRESSION_0_1_0, (, fun, suffix, UNPACK(arg)))
-
-#define _FOREACH_PACKED_ITER_EXPRESSION_1_0_0(i, resulting_code, fun, prefix)                    UNPACK(resulting_code)
-#define _FOREACH_PACKED_ITER_EXPRESSION_1_0_REC(i, resulting_code, fun, prefix, a, ...)          (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPRESSION_EXPAND(fun, i, UNPACK(prefix), UNPACK(a))), fun, prefix, ##__VA_ARGS__
-#define _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED_1_0(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_EXPRESSION_1_0_REC, _FOREACH_PACKED_ITER_EXPRESSION_1_0_0, (, fun, prefix, UNPACK(arg)))
-
-#define _FOREACH_PACKED_ITER_EXPRESSION_1_1_0(i, resulting_code, fun, prefix, suffix)            UNPACK(resulting_code)
-#define _FOREACH_PACKED_ITER_EXPRESSION_1_1_REC(i, resulting_code, fun, prefix, suffix, a, ...)  (UNPACK(resulting_code) _FOREACH_PACKED_ITER_EXPRESSION_EXPAND(fun, i, UNPACK(prefix), UNPACK(a), UNPACK(suffix))), fun, prefix, suffix, ##__VA_ARGS__
-#define _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED_1_1(fun, prefix, arg, suffix)                  RECURSION_FORM_ITER(UNPACK(arg))(_FOREACH_PACKED_ITER_EXPRESSION_1_1_REC, _FOREACH_PACKED_ITER_EXPRESSION_1_1_0, (, fun, prefix, suffix, UNPACK(arg)))
-
-#define __FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)  _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED_ ## prefix_num ## _ ## suffix_num(fun, prefix, arg, suffix)  
-#define _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)   __FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED(prefix_num, suffix_num, fun, prefix, arg, suffix)
-
-#define FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED(fun, prefix, arg, suffix)  _FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED(COUNT_ARGS(prefix), COUNT_ARGS(suffix), fun, prefix, arg, suffix)
-#define FOREACH_PACKED_ITER_EXPRESSION(fun, prefix, arg, suffix)            ({ FOREACH_PACKED_ITER_EXPRESSION_UNGUARDED(fun, prefix, arg, suffix) })
 
 
 //==========================================================================================================================================
@@ -221,13 +198,13 @@
  */
 
 #define __RENAME_PREFIX __eb320f0c2b6a25b48ca861a120eea902__     // MD5 of "macro" (no reason)
-#define RENAME_1(a, b, ...)  DEFAULT_ARG_1(__auto_type, ##__VA_ARGS__) __MACRO_EXCLUSIVE_PREFIX##b = (a);
-// DON'T reuse possible given type for RENAME_2, the intermediate variables are already the correct type (the given type might be in a 'typeof(var)' format, and the name of 'var' could be shadowed).
-#define RENAME_2(a, b, ...)  __auto_type b = __MACRO_EXCLUSIVE_PREFIX##b;
+#define _RENAME_1(a, b, ...)  DEFAULT_ARG_1(__auto_type, ##__VA_ARGS__) __MACRO_EXCLUSIVE_PREFIX##b = (a);
+// DON'T reuse possible given type for _RENAME_2, the intermediate variables are already the correct type (the given type might be in a 'typeof(var)' format, and the name of 'var' could be shadowed).
+#define _RENAME_2(a, b, ...)  __auto_type b = __MACRO_EXCLUSIVE_PREFIX##b;
 
-#define RENAME(...)                                    \
-	FOREACH_UNGUARDED(RENAME_1, ##__VA_ARGS__);    \
-	FOREACH_UNGUARDED(RENAME_2, ##__VA_ARGS__);
+#define RENAME(...)                                     \
+	FOREACH_UNGUARDED(_RENAME_1, ##__VA_ARGS__);    \
+	FOREACH_UNGUARDED(_RENAME_2, ##__VA_ARGS__);
 
 
 //==========================================================================================================================================
@@ -235,52 +212,65 @@
 //==========================================================================================================================================
 
 
-/* THIS IS VERY DANGEROUS! (e.g. int * _ptr, long _val)
- *
- * We can't just dereference, because if 'ptr' is NULL (not just equal, but actually the token NULL,
- * like when NULL is passed as an argument of a macro) we will be dereferencing a void *.
- * Therefor, we need to explicitly copy the memory region.
- */
-/* #undef  arg_return
-#define arg_return(_ptr, _val)                                   \
-do {                                                             \
-	RENAME((_ptr, ptr), (_val, val));                        \
-	unsigned char * mem = (unsigned char *) ptr;             \
-	const long N = sizeof(val);                              \
-	long i;                                                  \
-	if (mem != NULL)                                         \
-		for (i=0;i<N;i++)                                \
-			mem[i] = ((unsigned char *) &val)[i];    \
-} while (0) */
+#ifdef __cplusplus
 
-/* It is very dangerous to attempt to guess the type of the pointer '_ptr' from the type of '_val' (e.g. _ptr: int * , _val: long).
- * If '_ptr' ends up of type void * (e.g. with NULL as argument to a macro), then fix your macro by
+	#define assert_non_void_type(ptr, str)                          \
+	do {                                                            \
+		_Static_assert(                                         \
+			!std::is_same<decltype(ptr), void *>::value,    \
+			str                                             \
+		);                                                      \
+	} while (0)
+
+#else
+
+	#define assert_non_void_type(ptr, str)    \
+	do {                                      \
+		_Static_assert(                   \
+			_Generic((ptr),           \
+				void * : 0,       \
+				default: 1        \
+			),                        \
+			str                       \
+		);                                \
+	} while (0)
+
+#endif /* __cplusplus */
+
+
+/* Return '_val' if '_ptr_out' not NULL.
+ *
+ * It is very dangerous to attempt to guess the type of the pointer '_ptr_out' from the type of '_val' (e.g. _ptr_out: int * , _val: long).
+ * If '_ptr_out' ends up of type void * (e.g. with NULL as argument to a macro), then fix your macro by
  * enforcing the appropriate type for the pointer.
  */
 #undef  arg_return
-#define arg_return(_ptr, _val)                                                                                         \
-do {                                                                                                                   \
-	RENAME((_ptr, ptr), (_val, val));                                                                              \
-	_Static_assert(                                                                                                \
-		_Generic((ptr),                                                                                        \
-			void * : 0,                                                                                    \
-			default: 1                                                                                     \
-		),                                                                                                     \
-		"Pointer passed to macro <arg_return()> is of type <void *>, possibly by passing NULL as argument."    \
-		" Enforce the appropriate type for the pointer before passing it."                                     \
-	);                                                                                                             \
-	if (ptr != NULL)                                                                                               \
-		*ptr = (val);                                                                                          \
+#define arg_return(_ptr_out, _val)                                                                                            \
+do {                                                                                                                          \
+	RENAME((_ptr_out, ptr_out), (_val, val));                                                                             \
+	assert_non_void_type(ptr_out,                                                                                         \
+		"Output pointer passed to macro <arg_return()> is of type <void *>, possibly by passing NULL as argument."    \
+		" Enforce the appropriate type for the pointer before passing it."                                            \
+	);                                                                                                                    \
+	if (ptr_out != NULL)                                                                                                  \
+		*ptr_out = val;                                                                                               \
 } while (0)
 
 
+/* Return '_val' if '_ptr_out' not NULL, or free it.
+ */
 #undef  arg_return_or_free
-#define arg_return_or_free(ptr, val)    \
-do {                                    \
-	if (ptr != NULL)                \
-		*ptr = (val);           \
-	else                            \
-		free(ptr);              \
+#define arg_return_or_free(_ptr_out, _val)                                                                                            \
+do {                                                                                                                                  \
+	RENAME((_ptr_out, ptr_out), (_val, val));                                                                                     \
+	assert_non_void_type(ptr_out,                                                                                                 \
+		"Output pointer passed to macro <arg_return_or_free()> is of type <void *>, possibly by passing NULL as argument."    \
+		" Enforce the appropriate type for the pointer before passing it."                                                    \
+	);                                                                                                                            \
+	if (ptr_out != NULL)                                                                                                          \
+		*ptr_out = val;                                                                                                       \
+	else                                                                                                                          \
+		free(val);                                                                                                            \
 } while (0)
 
 
@@ -305,13 +295,13 @@ do {                                    \
 //==========================================================================================================================================
 
 
-// We can't raname a, b because we need to store to them.
 #undef  SWAP
-#define SWAP(a, b)                     \
-do {                                   \
-	__auto_type __SWAP_buf = a;    \
-	a = b;                         \
-	b = __SWAP_buf;                \
+#define SWAP(_a_ptr, _b_ptr)                         \
+do {                                                 \
+	RENAME((_a_ptr, a_ptr), (_b_ptr, b_ptr));    \
+	__auto_type buf = *a_ptr;                    \
+	*a_ptr = *b_ptr;                             \
+	*b_ptr = buf;                                \
 } while (0)
 
 
@@ -346,8 +336,11 @@ do {                                   \
 #define _binary_search_base(_A, _index_lower_value, _index_upper_value, _target, _boundary_lower_ptr, _boundary_upper_ptr, _cmp_fun, _dist_fun)    \
 ({                                                                                                                                                 \
 	RENAME((_A, A), (_index_lower_value, index_lower_value), (_index_upper_value, index_upper_value), (_target, target),                       \
-			(_boundary_lower_ptr, boundary_lower_ptr, long *), (_boundary_upper_ptr, boundary_upper_ptr, long *));                     \
+			(_boundary_lower_ptr, __boundary_lower_ptr, long *), (_boundary_upper_ptr, __boundary_upper_ptr, long *));                 \
 	long s, e, m, ret;                                                                                                                         \
+	long * boundary_lower_ptr = __boundary_lower_ptr;                                                                                          \
+	long * boundary_upper_ptr = __boundary_upper_ptr;                                                                                          \
+                                                                                                                                                   \
 	s = (index_lower_value);                                                                                                                   \
 	e = (index_upper_value);                                                                                                                   \
 	if (_cmp_fun(target, A, s) < 0)                                                                                                            \
@@ -381,10 +374,8 @@ do {                                   \
 		else                                                                                                                               \
 			ret = (_dist_fun(target, A, s) < _dist_fun(target, A, e)) ? s : e;                                                         \
 	}                                                                                                                                          \
-	if (boundary_lower_ptr != NULL)                                                                                                            \
-		*boundary_lower_ptr = s;                                                                                                           \
-	if (boundary_upper_ptr != NULL)                                                                                                            \
-		*boundary_upper_ptr = e;                                                                                                           \
+	arg_return(boundary_lower_ptr, s);                                                                                                         \
+	arg_return(boundary_upper_ptr, e);                                                                                                         \
 	ret;                                                                                                                                       \
 })
 

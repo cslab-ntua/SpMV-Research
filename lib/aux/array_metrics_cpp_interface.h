@@ -5,13 +5,7 @@
 
 #include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
-
-/* For CPP the user has to always give the value to double converter function,
- * because the genlib.h header file is C only.
- */
-#ifndef __cplusplus
-	#include "genlib.h"
-#endif
+#include "genlib.h"
 
 
 // Index-Value Pair

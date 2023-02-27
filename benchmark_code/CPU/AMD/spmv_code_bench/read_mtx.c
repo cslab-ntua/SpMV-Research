@@ -1,47 +1,27 @@
-#include <iostream>
-#include <cstring> // memset
-#include <cstdlib> // for random generation
-#include <cstdio>  // for printf
-#include <cmath>
-#include <omp.h>   // just for timer
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h> // memset
+#include <math.h>
+#include <omp.h>
 
-// #include <stdio.h>
-#include <string>
-#include <fstream>
-
-// #include <cassert> // for assert
-// #include <iterator>
-// #include <algorithm>
-// #include <queue>
-// #include <set>
-// #include <list>
-// #include <sys/time.h>
+#include "macros/cpp_defines.h"
+#include "debug.h"
+#include "io.h"
+#include "genlib.h"
+#include "parallel_util.h"
+#include "string_util.h"
+#include "parallel_io.h"
 
 #include "spmv_bench_common.h"
-
-
-#ifdef __cplusplus
-extern "C"{
-#endif
-	#include "macros/cpp_defines.h"
-	#include "debug.h"
-	#include "io.h"
-	#include "genlib.h"
-	#include "parallel_util.h"
-	#include "string_util.h"
-	#include "parallel_io.h"
-#ifdef __cplusplus
-}
-#endif
 
 #include "read_mtx.h"
 
 
 /**
- * Builds a MARKET COO sparse from the given file.
+ * Builds a COO matrix from the given matrix market file.
  */
 void
-create_coo_matrix(const std::string & market_filename,
+create_coo_matrix(const char * market_filename,
 	ValueType ** V_out, INT_T ** R_out, INT_T ** C_out, INT_T * m_ptr, INT_T * n_ptr, INT_T * nnz_ptr)
 {
 	int num_threads = omp_get_max_threads();
@@ -51,9 +31,9 @@ create_coo_matrix(const std::string & market_filename,
 	INT_T nr_rows=0, nr_cols=0, nr_nnzs=0;
 	INT_T * R = NULL, * C = NULL;
 	ValueType * V = NULL;
-	bool array = false;
-	bool symmetric = false;
-	bool skew = false;
+	int array = 0;
+	int symmetric = 0;
+	int skew = 0;
 
 	int num_lines;
 	int non_diag_total = 0;
@@ -61,13 +41,8 @@ create_coo_matrix(const std::string & market_filename,
 	long i;
 
 	A = (typeof(A)) malloc(sizeof(*A));
-	file_to_lines(A, market_filename.c_str(), 0);
+	file_to_lines(A, market_filename, 0);
 	lines = A->atoms;
-
-	// std::ifstream ifs;
-	// ifs.open(market_filename.c_str(), std::ifstream::in);
-	// if (!ifs.good())
-		// error("Error opening file\n");
 
 	i = 0;
 
@@ -87,7 +62,7 @@ create_coo_matrix(const std::string & market_filename,
 	// Problem description
 	INT_T nparsed = sscanf(lines[i], "%d %d %d", &nr_rows, &nr_cols, &num_lines);
 	nr_nnzs = num_lines;
-	// std::cout << "rows " << nr_rows << ", cols " << nr_cols << ", nnz " << num_lines << "\n";
+	// printf("rows %ld, cols %ld, nnz %ld\n", nr_rows, nr_cols, nr_nnzs);
 	if ((!array) && (nparsed == 3))
 	{
 		if (symmetric)
@@ -159,7 +134,7 @@ create_coo_matrix(const std::string & market_filename,
 					offsets[i] = a;
 					a += tmp;
 				}
-				// std::cout << "rows " << nr_rows << ", cols " << nr_cols << ", nnz " << nr_nnzs << "\n";
+				// printf("rows %ld, cols %ld, nnz %ld\n", nr_rows, nr_cols, nr_nnzs);
 			}
 
 			_Pragma("omp barrier")

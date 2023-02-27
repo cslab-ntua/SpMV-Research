@@ -7,10 +7,13 @@
 #include "spmv_bench_common.h"
 #include "spmv_kernel.h"
 
+#include <immintrin.h>
+
 #ifdef __cplusplus
 extern "C"{
 #endif
 	#include "macros/macrolib.h"
+	#include "topology.h"
 	#include "time_it.h"
 	#include "parallel_util.h"
 	#include "array_metrics.h"
@@ -18,13 +21,21 @@ extern "C"{
 }
 #endif
 
+#include "spmv_kernel_csr_vc_compression_kernels.h"
+
 
 // Account for a fraction of the cache to leave space for indeces, etc.
 static inline
 long
 get_num_uncompressed_packet_vals()
 {
-	return LEVEL3_CACHE_SIZE / sizeof(ValueType) / omp_get_max_threads() / 4;
+	// return LEVEL3_CACHE_SIZE / sizeof(ValueType) / omp_get_max_threads() / 4;
+	// return LEVEL3_CACHE_SIZE / sizeof(ValueType) / omp_get_max_threads() / 64;
+	// return LEVEL3_CACHE_SIZE / sizeof(ValueType) / omp_get_max_threads() / 128;
+	// return LEVEL2_CACHE_SIZE / sizeof(ValueType) / omp_get_max_threads() / 4;
+	// return LEVEL1_DCACHE_SIZE / sizeof(ValueType) / omp_get_max_threads() / 4;
+	// return 512;
+	return atol(getenv("CSRVC_NUM_PACKET_VALS"));
 }
 
 
@@ -40,60 +51,43 @@ extern ValueType * thread_v_e;
 extern int prefetch_distance;
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//------------------------------------------------------------------------------------------------------------------------------------------
-//-                                                Compression / Decompression Kernels                                                     -
-//------------------------------------------------------------------------------------------------------------------------------------------
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+enum thread_type_t {
+	EXECUTE_THREAD = 0,
+	IO_THREAD = 1,
+	GENERIC_THREAD = 2
+};
+
+__thread thread_type_t thread_type = GENERIC_THREAD;
+
+
+//==========================================================================================================================================
+//= Spinlock
+//==========================================================================================================================================
 
 
 static inline
-long
-compress_kernel_id(ValueType * vals, unsigned char * buf, const long num_vals)
+void cpu_relax()
 {
-	long i;
-	*((int *) buf) = num_vals;
-	buf += sizeof(int);
-	for (i=0;i<num_vals;i++)
-		((ValueType *) buf)[i] = vals[i];
-	return sizeof(int) + num_vals * sizeof(ValueType);
-}
-static inline
-long
-decompress_kernel_id(ValueType * vals, unsigned char * buf, long * num_vals_out)
-{
-	long i;
-	int num_vals = *((int *) buf);
-	buf += sizeof(int);
-	for (i=0;i<num_vals;i++)
-		vals[i] = ((ValueType *) buf)[i];
-	*num_vals_out = num_vals;
-	return sizeof(int) + num_vals * sizeof(ValueType);
+	// __asm("pause");
+	// __asm volatile ("" : : : "memory");
+	// __asm volatile ("pause" : : : "memory");
+	__asm volatile ("rep; pause" : : : "memory");
+	// __asm volatile ("rep; nop" : : : "memory");
 }
 
 
+// Spins while *flag == val.
 static inline
-long
-compress_kernel_float(ValueType * vals, unsigned char * buf, const long num_vals)
+void
+do_spin(long * flag, long val)
 {
-	long i;
-	*((int *) buf) = num_vals;
-	buf += sizeof(int);
-	for (i=0;i<num_vals;i++)
-		((float *) buf)[i] = (float) vals[i];
-	return sizeof(int) + num_vals * sizeof(float);
-}
-static inline
-long
-decompress_kernel_float(ValueType * vals, unsigned char * buf, long * num_vals_out)
-{
-	long i;
-	int num_vals = *((int *) buf);
-	buf += sizeof(int);
-	for (i=0;i<num_vals;i++)
-		vals[i] = (ValueType) ((float *) buf)[i];
-	*num_vals_out = num_vals;
-	return sizeof(int) + num_vals * sizeof(float);
+	while (1)
+	{
+		if (__builtin_expect(__atomic_load_n(flag, __ATOMIC_SEQ_CST) != val, 0))
+			return;
+		else
+			cpu_relax();
+	}
 }
 
 
@@ -109,7 +103,8 @@ long
 compress(ValueType * vals, unsigned char * buf, const long num_vals)
 {
 	// return compress_kernel_id(vals, buf, num_vals);
-	return compress_kernel_float(vals, buf, num_vals);
+	// return compress_kernel_float(vals, buf, num_vals);
+	return compress_kernel_fpc(vals, buf, num_vals);
 }
 
 
@@ -118,8 +113,17 @@ long
 decompress(ValueType * vals, unsigned char * buf, long * num_vals_out)
 {
 	// return decompress_kernel_id(vals, buf, num_vals_out);
-	return decompress_kernel_float(vals, buf, num_vals_out);
+	// return decompress_kernel_float(vals, buf, num_vals_out);
+	return decompress_kernel_fpc(vals, buf, num_vals_out);
 }
+
+
+#define CACHE_LINE_SIZE  64
+struct semaphore_s {
+	long producer __attribute__ ((aligned (CACHE_LINE_SIZE)));
+	long consumer __attribute__ ((aligned (CACHE_LINE_SIZE)));
+	char padding[0] __attribute__ ((aligned (CACHE_LINE_SIZE)));
+} __attribute__ ((aligned (CACHE_LINE_SIZE)));
 
 
 struct CSRVCArrays : Matrix_Format
@@ -134,95 +138,178 @@ struct CSRVCArrays : Matrix_Format
 
 	double error_matrix;
 
+	long num_exec_threads;
+	long * thread_work_ids;
+	struct semaphore_s * pipeline_sem;
+
 	void validate_grouping_method(ValueType * a);
 	void calculate_matrix_compression_error(ValueType * a);
 
 	CSRVCArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja)
 	{
 		int num_threads = omp_get_max_threads();
+		long num_cores = topo_get_num_cores_physical();
 		double time_balance, time_compress;
 		long compr_data_size, i;
-		thread_i_s = (INT_T *) malloc(num_threads * sizeof(*thread_i_s));
-		thread_i_e = (INT_T *) malloc(num_threads * sizeof(*thread_i_e));
+
+		thread_work_ids = (typeof(thread_work_ids)) malloc(num_threads * sizeof(*thread_work_ids));
+
+		long thread_flags[num_cores];
+		long ids[num_cores];
+		for (i=0;i<num_cores;i++)
+		{
+			thread_flags[i] = 0;
+			ids[i] = 0;
+		}
+		printf("num_cores = %ld\n", num_cores);
+		_Pragma("omp parallel")
+		{
+			int tnum = omp_get_thread_num();
+			long core_num = topo_get_core_num_physical();
+			long res;
+			long i;
+
+			/* Only hyperthreads (if any) are type 'IO_THREAD'.*/
+			res = __atomic_fetch_add(&thread_flags[core_num], 1, __ATOMIC_RELAXED);
+			thread_type = (!res) ? EXECUTE_THREAD : IO_THREAD;
+			_Pragma("omp barrier")
+			if (thread_flags[core_num] == 1)
+				thread_type = GENERIC_THREAD;
+			if (thread_type != IO_THREAD)
+			{
+				ids[core_num] = 1;
+			}
+			_Pragma("omp barrier")
+			_Pragma("omp single")
+			{
+				num_exec_threads = 0;
+				for (i=0;i<num_cores;i++)
+				{
+					if (ids[i])
+					{
+						ids[i] = num_exec_threads;
+						num_exec_threads++;
+					}
+				}
+			}
+			_Pragma("omp barrier")
+			thread_work_ids[tnum] = ids[core_num];
+
+			/* Half threads are type 'IO_THREAD'.*/
+			if (0)
+			{
+				num_exec_threads = num_threads / 2;
+				thread_work_ids[tnum] = tnum / 2;
+				thread_type = (tnum % 2 == 0) ? EXECUTE_THREAD : IO_THREAD;
+			}
+
+			/* Normal execution, all type 'GENERIC_THREAD' threads. */
+			if (0)
+			{
+				num_exec_threads = num_threads;
+				thread_work_ids[tnum] = tnum;
+				thread_type = GENERIC_THREAD;
+			}
+
+			printf("work_id=%ld core=%ld, tnum=%d, type_exec=%d, num_exec_threads=%ld\n", thread_work_ids[tnum], core_num, tnum, thread_type, num_exec_threads);
+		}
+
+		thread_i_s = (INT_T *) malloc(num_exec_threads * sizeof(*thread_i_s));
+		thread_i_e = (INT_T *) malloc(num_exec_threads * sizeof(*thread_i_e));
+
+		pipeline_sem = (typeof(pipeline_sem)) malloc(num_exec_threads * sizeof(*pipeline_sem));
+
 		time_balance = time_it(1,
 			_Pragma("omp parallel")
 			{
-				int tnum = omp_get_thread_num();
-				loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
-				// long i_s=thread_i_s[tnum], i_e=thread_i_e[tnum], t_nnz=ia[i_e]-ia[i_s];
-				// printf("%d: i=[%ld, %ld] (%ld) , nnz=%ld\n", tnum, i_s, i_e, i_e - i_s, t_nnz);
+				if (thread_type != IO_THREAD)
+				{
+					int tnum = omp_get_thread_num();
+					long work_id = thread_work_ids[tnum];
+					loop_partitioner_balance_partial_sums(num_exec_threads, work_id, ia, m, nnz, &thread_i_s[work_id], &thread_i_e[work_id]);
+				}
 			}
 		);
 		printf("balance time = %g\n", time_balance);
-		t_compr_data_size = (typeof(t_compr_data_size)) aligned_alloc(64, num_threads * sizeof(*t_compr_data_size));
-		t_compr_data = (typeof(t_compr_data)) aligned_alloc(64, num_threads * sizeof(*t_compr_data));
-		t_num_packets = (typeof(t_num_packets)) aligned_alloc(64, num_threads * sizeof(*t_num_packets));
-		t_packet_i_s = (typeof(t_packet_i_s)) aligned_alloc(64, num_threads * sizeof(*t_packet_i_s));
-		t_packet_i_e = (typeof(t_packet_i_e)) aligned_alloc(64, num_threads * sizeof(*t_packet_i_e));
+		t_compr_data_size = (typeof(t_compr_data_size)) aligned_alloc(64, num_exec_threads * sizeof(*t_compr_data_size));
+		t_compr_data = (typeof(t_compr_data)) aligned_alloc(64, num_exec_threads * sizeof(*t_compr_data));
+		t_num_packets = (typeof(t_num_packets)) aligned_alloc(64, num_exec_threads * sizeof(*t_num_packets));
+		t_packet_i_s = (typeof(t_packet_i_s)) aligned_alloc(64, num_exec_threads * sizeof(*t_packet_i_s));
+		t_packet_i_e = (typeof(t_packet_i_e)) aligned_alloc(64, num_exec_threads * sizeof(*t_packet_i_e));
 		time_compress = time_it(1,
 			_Pragma("omp parallel")
 			{
-				int tnum = omp_get_thread_num();
-				unsigned char * data;
-				INT_T * packet_i_s, * packet_i_e;
-				long t_nnz, max_data_size;
-				long p, i, i_s, i_e, j, j_s, j_e;
-				long num_packet_vals, num_vals;
-				long num_packets;
-				long pos;
-				long upper_boundary;
-
-				i_s = thread_i_s[tnum];
-				i_e = thread_i_e[tnum];
-				j_s = ia[i_s];
-				j_e = ia[i_e];
-
-				num_packet_vals = get_num_uncompressed_packet_vals();
-
-				t_nnz = j_e - j_s;
-				num_packets = (t_nnz + num_packet_vals - 1) / num_packet_vals;
-				// long leftover = t_nnz % num_packet_vals;
-
-				max_data_size = 2 * t_nnz  * sizeof(ValueType);    // We assume worst case scenario:  compr_data = 2 * data
-				data = (typeof(data)) aligned_alloc(64, max_data_size);
-
-				packet_i_s = (typeof(packet_i_s)) aligned_alloc(64, num_packets * sizeof(*packet_i_s));
-				packet_i_e = (typeof(packet_i_e)) aligned_alloc(64, num_packets * sizeof(*packet_i_e));
-
-				pos = 0;
-				for (p=0,j=j_s;j<j_e;p++,j+=num_packet_vals)
+				if (thread_type != IO_THREAD)
 				{
-					num_vals = (j + num_packet_vals <= j_e) ? num_packet_vals : j_e - j;
-					pos += compress(&a[j], &data[pos], num_vals);
-					if (p == 0)
-						packet_i_s[p] = i_s;
-					else
+					int tnum = omp_get_thread_num();
+					long work_id = thread_work_ids[tnum];
+					unsigned char * data;
+					INT_T * packet_i_s, * packet_i_e;
+					long t_nnz, max_data_size;
+					long p, i, i_s, i_e, j, j_s, j_e;
+					long num_packet_vals, num_vals;
+					long num_packets;
+					long pos;
+					long upper_boundary;
+
+					i_s = thread_i_s[work_id];
+					i_e = thread_i_e[work_id];
+					j_s = ia[i_s];
+					j_e = ia[i_e];
+
+					num_packet_vals = get_num_uncompressed_packet_vals();
+					_Pragma("omp single nowait")
 					{
-						i = packet_i_e[p-1];
-						packet_i_s[p] = j < ia[i] ? i-1 : i;  // Test for partial row.
+						printf("Number of packet vals = %ld\n", num_packet_vals);
 					}
-					if (p == num_packets - 1)
-						packet_i_e[p] = i_e;
-					else
+
+					t_nnz = j_e - j_s;
+					num_packets = (t_nnz + num_packet_vals - 1) / num_packet_vals;
+					// long leftover = t_nnz % num_packet_vals;
+
+					max_data_size = 2 * t_nnz  * sizeof(ValueType);    // We assume worst case scenario:  compr_data = 2 * data
+					data = (typeof(data)) aligned_alloc(64, max_data_size);
+
+					packet_i_s = (typeof(packet_i_s)) aligned_alloc(64, num_packets * sizeof(*packet_i_s));
+					packet_i_e = (typeof(packet_i_e)) aligned_alloc(64, num_packets * sizeof(*packet_i_e));
+
+					pos = 0;
+					for (p=0,j=j_s;j<j_e;p++,j+=num_packet_vals)
 					{
-						// Index boundaries are inclusive. 'upper_boundary' is certainly the first row after the rows belonging to the packet (last packet row can be partial).
-						binary_search(ia, i_s, i_e, j+num_vals, NULL, &upper_boundary);
-						packet_i_e[p] = upper_boundary;
+						num_vals = (j + num_packet_vals <= j_e) ? num_packet_vals : j_e - j;
+						pos += compress(&a[j], &data[pos], num_vals);
+					// printf("%d: p=%ld , num_vals=%ld , packet_i=[%d, %d] (%d) , data_pos=%ld (%ld nnz)\n", tnum, p, num_vals, packet_i_s[p], packet_i_e[p], packet_i_e[p] - packet_i_s[p], pos, (pos-sizeof(int)*num_packets)/sizeof(ValueType));
+						if (p == 0)
+							packet_i_s[p] = i_s;
+						else
+						{
+							i = packet_i_e[p-1];
+							packet_i_s[p] = j < ia[i] ? i-1 : i;  // Test for partial row.
+						}
+						if (p == num_packets - 1)
+							packet_i_e[p] = i_e;
+						else
+						{
+							// Index boundaries are inclusive. 'upper_boundary' is certainly the first row after the rows belonging to the packet (last packet row can be partial).
+							binary_search(ia, i_s, i_e, j+num_vals, NULL, &upper_boundary);
+							packet_i_e[p] = upper_boundary;
+						}
+						// if (tnum == 0)
+							// printf("%d: i=[%ld,%ld] , j=%ld[%ld,%ld] , p=%ld , num_vals=%ld , packet_i=[%d, %d] (%d) , t_nnz=%ld\n",
+									// tnum, i_s, i_e, j, j_s, j_e, p, num_vals, packet_i_s[p], packet_i_e[p], packet_i_e[p] - packet_i_s[p], t_nnz);
 					}
-					// if (tnum == 0)
-						// printf("%d: i=[%ld,%ld] , j=%ld[%ld,%ld] , p=%ld , num_vals=%ld , packet_i=[%d, %d] (%d) , t_nnz=%ld\n", tnum, i_s, i_e, j, j_s, j_e, p, num_vals, packet_i_s[p], packet_i_e[p], packet_i_e[p] - packet_i_s[p], t_nnz);
+					t_compr_data_size[work_id] = pos;
+					t_compr_data[work_id] = data;
+					t_num_packets[work_id] = num_packets;
+					t_packet_i_s[work_id] = packet_i_s;
+					t_packet_i_e[work_id] = packet_i_e;
 				}
-				t_compr_data_size[tnum] = pos;
-				t_compr_data[tnum] = data;
-				t_num_packets[tnum] = num_packets;
-				t_packet_i_s[tnum] = packet_i_s;
-				t_packet_i_e[tnum] = packet_i_e;
 			}
 		);
 		printf("compression time = %g\n", time_compress);
 
 		compr_data_size = 0;
-		for (i=0;i<num_threads;i++)
+		for (i=0;i<num_exec_threads;i++)
 			compr_data_size += t_compr_data_size[i];
 		mem_footprint = compr_data_size + nnz * sizeof(INT_T) + (m+1) * sizeof(INT_T);
 
@@ -232,9 +319,8 @@ struct CSRVCArrays : Matrix_Format
 
 	~CSRVCArrays()
 	{
-		int num_threads = omp_get_max_threads();
 		long i;
-		for (i=0;i<num_threads;i++)
+		for (i=0;i<num_exec_threads;i++)
 		{
 			free(t_compr_data[i]);
 			free(t_packet_i_s[i]);
@@ -275,58 +361,63 @@ CSRVCArrays::validate_grouping_method(ValueType * a)
 	#pragma omp parallel
 	{
 		int tnum = omp_get_thread_num();
-		long num_packet_vals = get_num_uncompressed_packet_vals();
-		long num_vals;
-		long num_packets = t_num_packets[tnum];
-		unsigned char * data = t_compr_data[tnum];
-		INT_T * packet_i_s = t_packet_i_s[tnum];
-		INT_T * packet_i_e = t_packet_i_e[tnum];
-		long pos, p, i, i_s, i_e, j, j_e, j_packet_e, k;
-		ValueType * vals;
-		vals = (typeof(vals)) aligned_alloc(64, num_packet_vals * sizeof(*vals));
-		i_s = thread_i_s[tnum];
-		i_e = thread_i_e[tnum];
-		j = ia[i_s];
-		pos = 0;
-		for (p=0;p<num_packets;p++)
+		if (thread_type != IO_THREAD)
 		{
-			pos += decompress(vals, &(data[pos]), &num_vals);
-			// printf("%d: p=%ld , num_vals=%ld , packet_i=[%d, %d] (%d) , data_pos=%ld (%ld nnz)\n", tnum, p, num_vals, packet_i_s[p], packet_i_e[p], packet_i_e[p] - packet_i_s[p], pos, (pos-sizeof(int)*num_packets)/sizeof(ValueType));
-			i_s = packet_i_s[p];
-			i_e = packet_i_e[p];
-			if (i_s == i_e)
-				continue;
-			k = 0;
-			i = i_s;
-			j_packet_e = j + num_vals;
-			if (j > ia[i_s])   // Partial first row.
+			long work_id = thread_work_ids[tnum];
+			long num_packet_vals = get_num_uncompressed_packet_vals();
+			long num_vals;
+			long num_packets = t_num_packets[work_id];
+			unsigned char * data = t_compr_data[work_id];
+			INT_T * packet_i_s = t_packet_i_s[work_id];
+			INT_T * packet_i_e = t_packet_i_e[work_id];
+			long pos, p, i, i_s, i_e, j, j_e, j_packet_e, k;
+			ValueType * vals;
+			vals = (typeof(vals)) aligned_alloc(64, num_packet_vals * sizeof(*vals));
+			i_s = thread_i_s[work_id];
+			i_e = thread_i_e[work_id];
+			j = ia[i_s];
+			pos = 0;
+			for (p=0;p<num_packets;p++)
 			{
-				j_e = ia[i+1];
-				if (j_e > j_packet_e)
-					j_e = j_packet_e;
-				a_new[j] = vals[k];
-				// if (vals[k] != a[j]) printf("%d: a=%g != a_new=%g , at pos=%ld : row=%ld  col=%d\n", tnum, a[j], vals[k], j, i, ja[j]);
-				i++;
+				pos += decompress(vals, &(data[pos]), &num_vals);
+				// printf("%d: p=%ld , num_vals=%ld , packet_i=[%d, %d] (%d) , data_pos=%ld (%ld nnz)\n", tnum, p, num_vals, packet_i_s[p], packet_i_e[p], packet_i_e[p] - packet_i_s[p], pos, (pos-sizeof(int)*num_packets)/sizeof(ValueType));
+				i_s = packet_i_s[p];
+				i_e = packet_i_e[p];
+				if (i_s == i_e)
+					continue;
+				k = 0;
+				i = i_s;
+				j_packet_e = j + num_vals;
+				if (j > ia[i_s])   // Partial first row.
+				{
+					j_e = ia[i+1];
+					if (j_e > j_packet_e)
+						j_e = j_packet_e;
+					a_new[j] = vals[k];
+					// if (vals[k] != a[j]) printf("%d: a=%g != a_new=%g , at pos=%ld : row=%ld  col=%d\n", tnum, a[j], vals[k], j, i, ja[j]);
+					i++;
+				}
+				for (;i<i_e-1;i++)  // Except last row.
+				{
+					j_e = ia[i+1];
+					a_new[j] = vals[k];
+					// if (vals[k] != a[j]) printf("%d: a=%g != a_new=%g , at pos=%ld : row=%ld  col=%d\n", tnum, a[j], vals[k], j, i, ja[j]);
+				}
+				// Last row might be partial.
+				for (;j<j_packet_e;j++,k++)
+				{
+					a_new[j] = vals[k];
+					// if (vals[k] != a[j]) printf("%d: a=%g != a_new=%g , at pos=%ld : row=%ld  col=%d\n", tnum, a[j], vals[k], j, i, ja[j]);
+				}
 			}
-			for (;i<i_e-1;i++)  // Except last row.
-			{
-				j_e = ia[i+1];
-				a_new[j] = vals[k];
-				// if (vals[k] != a[j]) printf("%d: a=%g != a_new=%g , at pos=%ld : row=%ld  col=%d\n", tnum, a[j], vals[k], j, i, ja[j]);
-			}
-			// Last row might be partial.
-			for (;j<j_packet_e;j++,k++)
-			{
-				a_new[j] = vals[k];
-				// if (vals[k] != a[j]) printf("%d: a=%g != a_new=%g , at pos=%ld : row=%ld  col=%d\n", tnum, a[j], vals[k], j, i, ja[j]);
-			}
+			free(vals);
 		}
+		long j;
 		#pragma omp barrier
 		#pragma omp for
 		for (j=0;j<nnz;j++)
 			if (a[j] != a_new[j])
 				printf("%d: a=%g != a_new=%g , at pos=%ld : col=%d\n", tnum, a[j], a_new[j], j, ja[j]);
-		free(vals);
 	}
 	free(a_new);
 }
@@ -339,30 +430,34 @@ CSRVCArrays::calculate_matrix_compression_error(ValueType * a)
 	a_new = (typeof(a_new)) aligned_alloc(64, nnz * sizeof(*a_new));
 	#pragma omp parallel
 	{
-		int tnum = omp_get_thread_num();
-		long num_vals;
-		long num_packets = t_num_packets[tnum];
-		unsigned char * data = t_compr_data[tnum];
-		long pos, p, i_s, j;
-		double mae, max_ae, mse, mape, smape;
-		i_s = thread_i_s[tnum];
-		j = ia[i_s];
-		pos = 0;
-		for (p=0;p<num_packets;p++)
+		if (thread_type != IO_THREAD)
 		{
-			pos += decompress(&a_new[j], &(data[pos]), &num_vals);
-			j += num_vals;
+			int tnum = omp_get_thread_num();
+			long work_id = thread_work_ids[tnum];
+			long num_vals;
+			long num_packets = t_num_packets[work_id];
+			unsigned char * data = t_compr_data[work_id];
+			long pos, p, i_s, j;
+			i_s = thread_i_s[work_id];
+			j = ia[i_s];
+			pos = 0;
+			for (p=0;p<num_packets;p++)
+			{
+				pos += decompress(&a_new[j], &(data[pos]), &num_vals);
+				j += num_vals;
+			}
 		}
 		#pragma omp barrier
 		// #pragma omp for
 		// for (j=0;j<nnz;j++)
 			// if (a[j] != a_new[j])
 				// printf("%d: a=%g != a_new=%g , at pos=%ld : col=%d\n", tnum, a[j], a_new[j], j, ja[j]);
-		mae = array_mae_parallel(a, a_new, nnz);
-		max_ae = array_max_ae_parallel(a, a_new, nnz);
-		mse = array_mse_parallel(a, a_new, nnz);
-		mape = array_mape_parallel(a, a_new, nnz);
-		smape = array_smape_parallel(a, a_new, nnz);
+		double mae, max_ae, mse, mape, smape;
+		mae = array_mae_parallel(a, a_new, nnz, val_to_double);
+		max_ae = array_max_ae_parallel(a, a_new, nnz, val_to_double);
+		mse = array_mse_parallel(a, a_new, nnz, val_to_double);
+		mape = array_mape_parallel(a, a_new, nnz, val_to_double);
+		smape = array_smape_parallel(a, a_new, nnz, val_to_double);
 		#pragma omp single
 		{
 			printf("errors matrix: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g\n", mae, max_ae, mse, mape, smape);
@@ -408,12 +503,56 @@ subkernel_row_csr_scalar_kahan(ValueType * vals, CSRVCArrays * restrict csr, Val
 }
 
 
+// Reduce add 4 double-precision numbers.
+__attribute__((const))
+static inline
+double
+hsum256_pd(__m256d v_256d)
+{
+	__m128d low_128d  = _mm256_castpd256_pd128(v_256d);   // Cast vector of type __m256d to type __m128d. This intrinsic is only used for compilation and does not generate any instructions, thus it has zero latency.
+	__m128d high_128d = _mm256_extractf128_pd(v_256d, 1); // High 128: Extract 128 bits (composed of 2 packed double-precision (64-bit) floating-point elements) from a, selected with imm8, and store the result in dst.
+	low_128d  = _mm_add_pd(low_128d, high_128d);          // Add low 128 and high 128.
+	__m128d high64 = _mm_unpackhi_pd(low_128d, low_128d); // High 64: Unpack and interleave double-precision (64-bit) floating-point elements from the high half of a and b, and store the results in dst.
+	return  _mm_cvtsd_f64(_mm_add_sd(low_128d, high64));  // Reduce to scalar.
+}
+
+
+__attribute__((hot,pure))
+static inline
+ValueType
+subkernel_row_csr_vector_x86_256d(ValueType * vals, CSRVCArrays * restrict csr, ValueType * restrict x, long j_s, long j_e)
+{
+	long j, j_e_vector, k;
+	const long mask = ~(((long) 4) - 1); // Minimum number of elements for the vectorized code (power of 2).
+	__m256d v_a, v_x, v_sum;
+	ValueType sum = 0, sum_v = 0;
+	v_sum = _mm256_setzero_pd();
+	sum = 0;
+	sum_v = 0;
+	j_e_vector = j_s + ((j_e - j_s) & mask);
+	if (j_s != j_e_vector)
+	{
+		for (j=j_s,k=0;j<j_e_vector;j+=4,k+=4)
+		{
+			v_a = _mm256_loadu_pd(&vals[k]);
+			v_x = _mm256_set_pd(x[csr->ja[j]], x[csr->ja[j+1]], x[csr->ja[j+2]], x[csr->ja[j+3]]);
+			v_sum = _mm256_fmadd_pd(v_a, v_x, v_sum);
+		}
+		sum_v = hsum256_pd(v_sum);
+	}
+	for (j=j_e_vector,k=j_e_vector-j_s;j<j_e;j++,k++)
+		sum += vals[k] * x[csr->ja[j]];
+	return sum + sum_v;
+}
+
+
 static inline
 ValueType
 subkernel_row_csr(ValueType * vals, CSRVCArrays * restrict csr, ValueType * restrict x, INT_T j_s, INT_T j_e)
 {
-	return subkernel_row_csr_scalar(vals, csr, x, j_s, j_e);
+	// return subkernel_row_csr_scalar(vals, csr, x, j_s, j_e);
 	// return subkernel_row_csr_scalar_kahan(vals, csr, x, j_s, j_e);
+	return subkernel_row_csr_vector_x86_256d(vals, csr, x, j_s, j_e);
 }
 
 
@@ -435,26 +574,97 @@ CSRVCArrays::spmv(ValueType * x, ValueType * y)
 void
 compute_csr_vc(CSRVCArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
 {
+	long num_exec_threads = csr->num_exec_threads;
+	static CSRVCArrays * csr_prev;
+	static ValueType ** t_vals = NULL, ** t_vals_buf = NULL;
+	static long * t_num_vals = NULL;
+
+	// long num_cores = topo_get_num_cores_physical();
+	long num_packet_vals = get_num_uncompressed_packet_vals();
+	long i;
+	// printf("IN packet_vals=%ld, packets=%ld, nnz=%d, LLC_vals=%ld\n", num_packet_vals, csr->t_num_packets[0], csr->nnz, LEVEL3_CACHE_SIZE/sizeof(ValueType));
+	if (t_vals == NULL || csr != csr_prev)
+	{
+		if (t_vals != NULL)
+		{
+			free(t_num_vals);
+			for (i=0;i<num_exec_threads;i++)
+			{
+				free(t_vals[i]);
+				free(t_vals_buf[i]);
+			}
+			free(t_vals);
+			free(t_vals_buf);
+		}
+		t_num_vals = (typeof(t_num_vals)) aligned_alloc(64, num_exec_threads * sizeof(*t_num_vals));
+		t_vals = (typeof(t_vals)) aligned_alloc(64, num_exec_threads * sizeof(*t_vals));
+		t_vals_buf = (typeof(t_vals_buf)) aligned_alloc(64, num_exec_threads * sizeof(*t_vals_buf));
+		for (i=0;i<num_exec_threads;i++)
+		{
+			t_num_vals[i] = 0;
+			t_vals[i] = (ValueType *) aligned_alloc(64, num_packet_vals * sizeof(**t_vals));
+			t_vals_buf[i] = (ValueType *) aligned_alloc(64, num_packet_vals * sizeof(**t_vals_buf));
+		}
+		csr_prev = csr;
+	}
 	#pragma omp parallel
 	{
 		int tnum = omp_get_thread_num();
-		long num_packet_vals = get_num_uncompressed_packet_vals();
+		long work_id = csr->thread_work_ids[tnum];
+		ValueType * vals = t_vals[work_id], * vals_buf;
 		long num_vals;
-		long num_packets = csr->t_num_packets[tnum];
-		unsigned char * data = csr->t_compr_data[tnum];
-		INT_T * packet_i_s = csr->t_packet_i_s[tnum];
-		INT_T * packet_i_e = csr->t_packet_i_e[tnum];
+		long num_packets = csr->t_num_packets[work_id];
+		unsigned char * data = csr->t_compr_data[work_id];
+		INT_T * packet_i_s = csr->t_packet_i_s[work_id];
+		INT_T * packet_i_e = csr->t_packet_i_e[work_id];
 		ValueType sum;
 		long pos, p, i, i_s, i_e, j, j_e, j_packet_e, k;
-		ValueType * vals;
-		vals = (typeof(vals)) aligned_alloc(64, num_packet_vals * sizeof(*vals));
-		i_s = thread_i_s[tnum];
-		i_e = thread_i_e[tnum];
+		i_s = thread_i_s[work_id];
+		i_e = thread_i_e[work_id];
 		j = csr->ia[i_s];
 		pos = 0;
+		__atomic_store_n(&csr->pipeline_sem[work_id].producer, 1, __ATOMIC_SEQ_CST);
+		__atomic_store_n(&csr->pipeline_sem[work_id].consumer, 0, __ATOMIC_SEQ_CST);
+		// printf("wid=%ld, tnum=%d, sem=%ld\n", work_id, tnum, csr->pipeline_sem[work_id].val);
+		#pragma omp barrier
 		for (p=0;p<num_packets;p++)
 		{
-			pos += decompress(vals, &(data[pos]), &num_vals);
+			// printf("wid=%ld, tnum=%d, sem=%ld, p=%ld\n", work_id, tnum, csr->pipeline_sem[work_id].val, p);
+			switch (thread_type) {
+				case EXECUTE_THREAD:
+					do_spin(&csr->pipeline_sem[work_id].consumer, 0);
+					num_vals = __atomic_load_n(&t_num_vals[work_id], __ATOMIC_SEQ_CST);
+					vals = __atomic_load_n(&t_vals[work_id], __ATOMIC_SEQ_CST);
+					// printf("EX: p=%ld/%ld, wid=%ld, tnum=%d, sem=%ld, num_vals=%ld\n", p, num_packets, work_id, tnum, csr->pipeline_sem[work_id].consumer, num_vals);
+					// printf("%d: p=%ld , num_vals=%ld , packet_i=[%d, %d] (%d) \n", tnum, p, num_vals, packet_i_s[p], packet_i_e[p], packet_i_e[p] - packet_i_s[p]);
+					break;
+				case IO_THREAD:
+					vals_buf = __atomic_load_n(&t_vals_buf[work_id], __ATOMIC_SEQ_CST);
+					pos += decompress(vals_buf, &(data[pos]), &num_vals);
+
+					do_spin(&csr->pipeline_sem[work_id].producer, 0);
+					// printf("IO: p=%ld/%ld, wid=%ld, tnum=%d, sem=%ld, num_vals=%ld\n", p, num_packets, work_id, tnum, csr->pipeline_sem[work_id].val, num_vals);
+					// printf("%d: p=%ld , num_vals=%ld , packet_i=[%d, %d] (%d) , data_pos=%ld (%ld nnz)\n", tnum, p, num_vals, packet_i_s[p], packet_i_e[p], packet_i_e[p] - packet_i_s[p], pos, (pos-sizeof(int)*num_packets)/sizeof(ValueType));
+					// printf("p=%ld %ld\n", p, t_num_vals);
+
+					__atomic_store_n(&t_num_vals[work_id], num_vals, __ATOMIC_SEQ_CST);
+
+					vals = __atomic_load_n(&t_vals[work_id], __ATOMIC_SEQ_CST);
+					__atomic_store_n(&t_vals[work_id], vals_buf, __ATOMIC_SEQ_CST);
+					__atomic_store_n(&t_vals_buf[work_id], vals, __ATOMIC_SEQ_CST);
+
+					__atomic_store_n(&csr->pipeline_sem[work_id].producer, 0, __ATOMIC_SEQ_CST);
+					__atomic_store_n(&csr->pipeline_sem[work_id].consumer, 1, __ATOMIC_SEQ_CST);
+					continue;
+				default:
+					pos += decompress(vals, &(data[pos]), &num_vals);
+					// printf("p=%ld/%ld, wid=%ld, tnum=%d, sem=%ld, num_vals=%ld\n", p, num_packets, work_id, tnum, csr->pipeline_sem[work_id].val, num_vals);
+					break;
+			}
+			if (thread_type == IO_THREAD)
+				error("io thread shouldn't execute");
+			// printf("p=%ld\n", p);
+			// printf("%d: p=%ld , num_vals=%ld , packet_i=[%d, %d] (%d) , data_pos=%ld (%ld nnz)\n", tnum, p, num_vals, packet_i_s[p], packet_i_e[p], packet_i_e[p] - packet_i_s[p], pos, (pos-sizeof(int)*num_packets)/sizeof(ValueType));
 			i_s = packet_i_s[p];
 			i_e = packet_i_e[p];
 			// if (i_s == i_e)
@@ -489,8 +699,11 @@ compute_csr_vc(CSRVCArrays * restrict csr, ValueType * restrict x, ValueType * r
 				j = j_packet_e;
 				y[i] = sum;
 			}
+			__atomic_store_n(&csr->pipeline_sem[work_id].consumer, 0, __ATOMIC_SEQ_CST);
+			__atomic_store_n(&csr->pipeline_sem[work_id].producer, 1, __ATOMIC_SEQ_CST);
 		}
-		// free(vals);
+		// printf("OUT: wid=%ld, tnum=%d, sem=%ld\n", work_id, tnum, csr->pipeline_sem[work_id].val);
 	}
+	// printf("OUT\n");
 }
 

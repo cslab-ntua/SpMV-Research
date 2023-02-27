@@ -8,9 +8,7 @@
 	#define INT_T  int32_t
 #endif
 
-#if DOUBLE == 0
-	#define ValueType  float
-#elif DOUBLE == 1
+#ifndef ValueType
 	#define ValueType  double
 #endif
 
@@ -39,6 +37,15 @@
 	#define VECTOR_ELEM_NUM  4
 
 #endif
+
+
+static inline
+double
+val_to_double(void * A, long i)
+{
+	return (double) ((ValueType *) A)[i]; 
+}
+
 
 #endif /* SPMV_BENCH_COMMON_H */
 

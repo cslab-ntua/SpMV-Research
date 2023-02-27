@@ -9,12 +9,14 @@ MAKEFLAGS += --warn-undefined-variables
 # Targets that don't generate dependency files.
 NODEPS = clean
 
+DIRS = obj
+
 define Rule_Auto_Dependencies_base =
-    $(1:.o=.d): $(2)
+    $(1:.o=.d): $(2) | $(DIRS)
 	@echo 'Generating dependencies file:  $(2)'
 	gcc $$(CFLAGS) -MT '$(1:.o=.d)' -MM -MG '$(2)' -MF '$(1:.o=.d)'
     ifeq (0, $(words $(findstring $(MAKECMDGOALS),$(NODEPS))))
-        include $(1:.o=.d)
+        -include $(1:.o=.d)
     endif
     $(1): $(1:.o=.d)
 endef
@@ -57,6 +59,7 @@ CFLAGS =
 CFLAGS += -Wall -Wextra
 CFLAGS += -pipe  # Tells the compiler to use pipes instead of temporary files (faster compilation, but uses more memory).
 # CFLAGS += -Wno-unused-variable
+CFLAGS += -Wno-alloc-size-larger-than
 CFLAGS += -fopenmp
 
 # CFLAGS += -g
@@ -68,7 +71,7 @@ CFLAGS += -O3
 
 # CFLAGS += -ffast-math
 
-CFLAGS += -flto
+CFLAGS += -flto=auto
 ifeq ($(ARCH), x86_64)
     CFLAGS += -march=native
 else ifeq ($(ARCH), ppc64le)
@@ -82,9 +85,16 @@ CFLAGS += -I'$(AMG_PATH)'
 
 CFLAGS += -D'INT_T=int32_t'
 
+
 # DOUBLE := 0
 DOUBLE := 1
 CFLAGS += -D'DOUBLE=$(DOUBLE)'
+
+ifeq ($(DOUBLE),1)
+    CFLAGS += -D'ValueType=double'
+else
+    CFLAGS += -D'ValueType=float'
+endif
 
 
 CPPFLAGS =
@@ -109,7 +119,7 @@ LDFLAGS =
 LDFLAGS += -lm
 
 
-LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c pthread_functions.c omp_functions.c array_metrics.c string_util.c parallel_io.c openfoam_matrix.c rapl.c
+LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c pthread_functions.c omp_functions.c topology.c array_metrics.c string_util.c parallel_io.c openfoam_matrix.c rapl.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%.o,$(LIB_OBJ))
@@ -119,18 +129,18 @@ LIB_OBJ := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ))
 EXE =
 
 EXE += spmv_csr_naive.exe
-EXE += spmv_csr.exe
-EXE += spmv_csr_kahan.exe
+# EXE += spmv_csr.exe
+# EXE += spmv_csr_kahan.exe
 # EXE += spmv_csr_prefetch.exe
 # EXE += spmv_csr_simd.exe
 # EXE += spmv_csr_vector.exe
-EXE += spmv_csr_vector_perfect_nnz_balance.exe
+# EXE += spmv_csr_vector_perfect_nnz_balance.exe
 
 EXE += spmv_csr_vc.exe
 
 EXE += spmv_csr_x86_vector.exe
 # EXE += spmv_csr_x86_vector_queues.exe
-EXE += spmv_csr_x86_vector_perfect_nnz_balance.exe
+# EXE += spmv_csr_x86_vector_perfect_nnz_balance.exe
 
 # EXE += spmv_dia.exe
 # EXE += spmv_ldu.exe
@@ -145,16 +155,14 @@ EXE += spmv_mkl_ie.exe
 
 # EXE += spmv_aocl_optmv.exe
 
-EXE += spmv_csr5.exe
+# EXE += spmv_csr5.exe
 
-EXE += spmv_merge.exe
+# EXE += spmv_merge.exe
 
-EXE += spmv_sparsex.exe
+# EXE += spmv_sparsex.exe
 
 
-DIRS = obj
-
-all: $(DIRS) $(EXE)
+all: $(EXE) | $(DIRS)
 
 
 # x86_64 aarch64 ppc64le
@@ -180,8 +188,8 @@ spmv_csr_vector.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 spmv_csr_vector_perfect_nnz_balance.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
 
-spmv_csr_vc.exe: obj/spmv_bench.o spmv_kernel_csr_vc.cpp $(LIB_OBJ)
-	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
+spmv_csr_vc.exe: obj/spmv_bench.o spmv_kernel_csr_vc.cpp spmv_kernel_csr_vc_compression_kernels.h $(LIB_OBJ)
+	$(CPP) $(CFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
 
 spmv_csr_x86_vector.exe: obj/spmv_bench.o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR' $^ -o $@ $(LDFLAGS)
@@ -314,8 +322,8 @@ obj/spmv_kernel_sparsex.o: spmv_kernel_sparsex.cpp
 $(call Rule_Auto_Dependencies,obj/spmv_bench.o,spmv_bench.cpp)
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
-$(call Rule_Auto_Dependencies,obj/read_mtx.o,read_mtx.cpp)
-	$(CPP) $(CPPFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/read_mtx.o,read_mtx.c)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(call Rule_Auto_Dependencies,obj/artificial_matrix_generation.o,$(AMG_PATH)/artificial_matrix_generation.c)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -325,6 +333,8 @@ $(call Rule_Auto_Dependencies,obj/ordered_set.o,$(AMG_PATH)/ordered_set.c)
 $(call Rule_Auto_Dependencies,obj/pthread_functions.o,$(library)/pthread_functions.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/omp_functions.o,$(library)/omp_functions.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/topology.o,$(library)/topology.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/array_metrics.o,$(library)/array_metrics.c)
 	$(CC) $(CFLAGS) -c $< -o $@

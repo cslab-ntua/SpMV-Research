@@ -1,26 +1,28 @@
 #ifndef GENLIB_H
 #define GENLIB_H
 
+#ifdef __cplusplus
+	#error "genlib.h is a strictly C library, can't compile as C++ source"
+#endif
+
 #include <assert.h>
 #include <complex.h>
-#ifdef __cplusplus
-	#define complex  _Complex
-#endif
 #include <tgmath.h>
 #include <string.h>
+#include <limits.h>   // for CHAR_BIT
 
-#include "macros/cpp_defines.h"
 #include "debug.h"
 #include "macros/macrolib.h"
 
-
-#define GENLIB_is_ws(c)  (c == ' ' || c == '\n' || c == '\r' || c == '\t')
 
 /* 
  * Complex numbers:
  *     The C programming language, as of C99, supports complex number math with the three built-in types double _Complex, float _Complex, and long double _Complex (see _Complex).
  *     When the header <complex.h> is included, the three complex number types are also accessible as double complex, float complex, long double complex.
  */
+
+
+#define GENLIB_is_ws(c)  (c == ' ' || c == '\n' || c == '\r' || c == '\t')
 
 
 #define GENLIB_rule_expand_storage_classes(type, ...)    \
@@ -30,19 +32,22 @@
 	volatile const type: __VA_ARGS__
 
 
-#define GENLIB_rule_expand_sign(type, code...)             \
-	GENLIB_rule_expand_storage_classes(type, code),    \
+#define GENLIB_rule_expand_storage_classes_and_sign(type, code...)    \
+	GENLIB_rule_expand_storage_classes(type, code),               \
 	GENLIB_rule_expand_storage_classes(unsigned type, code)
 
 
 //==========================================================================================================================================
-//= Asserts
+//= Type Checks
 //==========================================================================================================================================
 
 
-#ifdef __cplusplus
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                            Type Checking                                                               -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#else
 
 #define gen_type_equals(var, T)    \
 (                                  \
@@ -53,15 +58,37 @@
 )
 
 
-#define gen_type_is_basic(var)                                                 \
+#define gen_type_is_basic_int(var)                                            \
+(                                                                             \
+	_Generic((var),                                                       \
+		GENLIB_rule_expand_storage_classes_and_sign(char, 1),         \
+		GENLIB_rule_expand_storage_classes(signed char, 1),           \
+		GENLIB_rule_expand_storage_classes_and_sign(short, 1),        \
+		GENLIB_rule_expand_storage_classes_and_sign(int, 1),          \
+		GENLIB_rule_expand_storage_classes_and_sign(long, 1),         \
+		GENLIB_rule_expand_storage_classes_and_sign(long long, 1),    \
+		default: 0                                                    \
+	)                                                                     \
+)
+
+
+#define gen_type_is_basic_int_ptr(var)                                          \
+(                                                                               \
+	_Generic((var),                                                         \
+		GENLIB_rule_expand_storage_classes_and_sign(char *, 1),         \
+		GENLIB_rule_expand_storage_classes(signed char *, 1),           \
+		GENLIB_rule_expand_storage_classes_and_sign(short *, 1),        \
+		GENLIB_rule_expand_storage_classes_and_sign(int *, 1),          \
+		GENLIB_rule_expand_storage_classes_and_sign(long *, 1),         \
+		GENLIB_rule_expand_storage_classes_and_sign(long long *, 1),    \
+		default: 0                                                      \
+	)                                                                       \
+)
+
+
+#define gen_type_is_basic_float(var)                                           \
 (                                                                              \
 	_Generic((var),                                                        \
-		GENLIB_rule_expand_sign(char, 1),                              \
-		GENLIB_rule_expand_storage_classes(signed char, 1),            \
-		GENLIB_rule_expand_sign(short, 1),                             \
-		GENLIB_rule_expand_sign(int, 1),                               \
-		GENLIB_rule_expand_sign(long, 1),                              \
-		GENLIB_rule_expand_sign(long long, 1),                         \
 		GENLIB_rule_expand_storage_classes(float, 1),                  \
 		GENLIB_rule_expand_storage_classes(double, 1),                 \
 		GENLIB_rule_expand_storage_classes(long double, 1),            \
@@ -73,16 +100,90 @@
 )
 
 
-#define gen_ptr_type_is_basic(var)        \
-(                                         \
-	_Generic((var),                   \
-		void * : 1,               \
-		default: 0                \
-	) || gen_type_is_basic(*(var))    \
+#define gen_type_is_basic_float_ptr(var)                                         \
+(                                                                                \
+	_Generic((var),                                                          \
+		GENLIB_rule_expand_storage_classes(float *, 1),                  \
+		GENLIB_rule_expand_storage_classes(double *, 1),                 \
+		GENLIB_rule_expand_storage_classes(long double *, 1),            \
+		GENLIB_rule_expand_storage_classes(complex float *, 1),          \
+		GENLIB_rule_expand_storage_classes(complex double *, 1),         \
+		GENLIB_rule_expand_storage_classes(complex long double *, 1),    \
+		default: 0                                                       \
+	)                                                                        \
 )
 
 
-#define gen_assert_basic_type(var, ... /* error_message */)                                             \
+#define gen_type_is_basic(var)                                       \
+(                                                                    \
+								     gen_type_is_basic_int(var) || gen_type_is_basic_float(var)    \
+)
+
+#define gen_type_is_basic_ptr(var)                                            \
+(                                                                             \
+	gen_type_is_basic_int_ptr(var) || gen_type_is_basic_float_ptr(var)    \
+)
+
+#define gen_type_is_basic_or_void_ptr(var)    \
+(                                             \
+	_Generic((var),                       \
+		void * : 1,                   \
+		default: 0                    \
+	) || gen_type_is_basic_ptr(var)       \
+)
+
+
+//==========================================================================================================================================
+//= Asserts
+//==========================================================================================================================================
+
+
+#define gen_assert_type_equals(var, type)                              \
+do {                                                                   \
+	_Static_assert(                                                \
+		gen_type_equals(var, type),                            \
+		"Type of <" STRING(var) "> should be " STRING(type)    \
+	);                                                             \
+} while (0)
+
+
+#define gen_assert_type_is_basic_int(var, ... /* error_message */)                                              \
+do {                                                                                                            \
+	_Static_assert(                                                                                         \
+		gen_type_is_basic_int(var),                                                                     \
+		"Type of <" STRING(var) "> is not a basic integer type" OPT(": ", ##__VA_ARGS__) __VA_ARGS__    \
+	);                                                                                                      \
+} while (0)
+
+
+#define gen_assert_type_is_basic_int_ptr(var, ... /* error_message */)                                                  \
+do {                                                                                                                    \
+	_Static_assert(                                                                                                 \
+		gen_type_is_basic_int_ptr(var),                                                                         \
+		"Type of <" STRING(var) "> is not a basic integer pointer type" OPT(": ", ##__VA_ARGS__) __VA_ARGS__    \
+	);                                                                                                              \
+} while (0)
+
+
+#define gen_assert_type_is_basic_float(var, ... /* error_message */)                                                   \
+do {                                                                                                                   \
+	_Static_assert(                                                                                                \
+		gen_type_is_basic_float(var),                                                                          \
+		"Type of <" STRING(var) "> is not a basic floating-point type" OPT(": ", ##__VA_ARGS__) __VA_ARGS__    \
+	);                                                                                                             \
+} while (0)
+
+
+#define gen_assert_type_is_basic_float_ptr(var, ... /* error_message */)                                                       \
+do {                                                                                                                           \
+	_Static_assert(                                                                                                        \
+		gen_type_is_basic_float_ptr(var),                                                                              \
+		"Type of <" STRING(var) "> is not a basic floating-point pointer type" OPT(": ", ##__VA_ARGS__) __VA_ARGS__    \
+	);                                                                                                                     \
+} while (0)
+
+
+#define gen_assert_type_is_basic(var, ... /* error_message */)                                          \
 do {                                                                                                    \
 	_Static_assert(                                                                                 \
 		gen_type_is_basic(var),                                                                 \
@@ -91,38 +192,72 @@ do {                                                                            
 } while (0)
 
 
-#define gen_assert_ptr_basic_type(var, ... /* error_message */)                                                    \
-do {                                                                                                               \
-	_Static_assert(                                                                                            \
-		gen_ptr_type_is_basic(var),                                                                        \
-		"Type referenced by <" STRING(var) "> is not a basic type" OPT(": ", ##__VA_ARGS__) __VA_ARGS__    \
-	);                                                                                                         \
+#define gen_assert_type_is_basic_ptr(var, ... /* error_message */)                                              \
+do {                                                                                                            \
+	_Static_assert(                                                                                         \
+		gen_type_is_basic_ptr(var),                                                                     \
+		"Type of <" STRING(var) "> is not a basic pointer type" OPT(": ", ##__VA_ARGS__) __VA_ARGS__    \
+	);                                                                                                      \
 } while (0)
 
 
-#define gen_assert_type(var, type, var_name)                                \
-do {                                                                        \
-	_Static_assert(                                                     \
-		gen_type_equals(var, type),                                 \
-		"Type of <" STRING(var_name) "> should be " STRING(type)    \
-	);                                                                  \
+#define gen_assert_type_is_basic_ptr_or_void_ptr(var, ... /* error_message */)                                          \
+do {                                                                                                                    \
+	_Static_assert(                                                                                                 \
+		gen_type_is_basic_or_void_ptr(var),                                                                     \
+		"Type of <" STRING(var) "> is not a basic or void pointer type" OPT(": ", ##__VA_ARGS__) __VA_ARGS__    \
+	);                                                                                                              \
 } while (0)
 
-#endif /* __cplusplus */
+
+#define gen_assert_type_is_basic_or_basic_ptr(var, ... /* error_message */)                                                     \
+do {                                                                                                                            \
+	_Static_assert(                                                                                                         \
+		gen_type_is_basic(var) || gen_type_is_basic_ptr(var),                                                           \
+		"Type of <" STRING(var) "> is not a basic type or a basic pointer type" OPT(": ", ##__VA_ARGS__) __VA_ARGS__    \
+	);                                                                                                                      \
+} while (0)
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                             Conversions                                                                -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 //==========================================================================================================================================
-//= Basic Type to String
+//= Convert Integer to Unsigned
 //==========================================================================================================================================
 
 
-#ifdef __cplusplus
+#define gen_cast_integer_to_unsigned(var)                                                              \
+({                                                                                                     \
+	/* fail for non-simple array types */                                                          \
+	gen_assert_type_is_basic_int((var), "gen_cast_integer_to_unsigned");                           \
+	_Generic((var),                                                                                \
+		GENLIB_rule_expand_storage_classes_and_sign(char, (unsigned char) (var)),              \
+		GENLIB_rule_expand_storage_classes(signed char, (unsigned char) (var)),                \
+		GENLIB_rule_expand_storage_classes_and_sign(short, (unsigned short) (var)),            \
+		GENLIB_rule_expand_storage_classes_and_sign(int, (unsigned int) (var)),                \
+		GENLIB_rule_expand_storage_classes_and_sign(long, (unsigned long) (var)),              \
+		GENLIB_rule_expand_storage_classes_and_sign(long long, (unsigned long long) (var)),    \
+		default: (var)                                                                         \
+	);                                                                                             \
+})
 
-	#include <typeinfo>
 
-	#define gen_basic_type_name_to_string(var)  (typeid(typeof(var)).name())
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                     String / Printing Utilities                                                        -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#else
+
+//==========================================================================================================================================
+//= Basic Type Name to String
+//==========================================================================================================================================
+
 
 #define GENLIB_rule_type_string_storage_classes(type)    \
 	type: STRING(type),                              \
@@ -138,20 +273,21 @@ do {                                                                        \
 	GENLIB_rule_type_string_storage_classes(type),      \
 	GENLIB_rule_type_string_storage_classes(type *)
 
-#define GENLIB_rule_pointer_string_sign(type)    \
-	GENLIB_rule_type_string_sign(type),      \
+#define GENLIB_rule_pointer_string_storage_classes_and_sign(type)    \
+	GENLIB_rule_type_string_sign(type),                          \
 	GENLIB_rule_type_string_sign(type *)
 
 
 #define gen_basic_type_name_to_string(var)                                          \
 (                                                                                   \
 	_Generic((var),                                                             \
-		GENLIB_rule_pointer_string_sign(char),                              \
+		void *: "void *",                                                   \
+		GENLIB_rule_pointer_string_storage_classes_and_sign(char),          \
 		GENLIB_rule_pointer_string_storage_classes(signed char),            \
-		GENLIB_rule_pointer_string_sign(short),                             \
-		GENLIB_rule_pointer_string_sign(int),                               \
-		GENLIB_rule_pointer_string_sign(long),                              \
-		GENLIB_rule_pointer_string_sign(long long),                         \
+		GENLIB_rule_pointer_string_storage_classes_and_sign(short),         \
+		GENLIB_rule_pointer_string_storage_classes_and_sign(int),           \
+		GENLIB_rule_pointer_string_storage_classes_and_sign(long),          \
+		GENLIB_rule_pointer_string_storage_classes_and_sign(long long),     \
 		GENLIB_rule_pointer_string_storage_classes(float),                  \
 		GENLIB_rule_pointer_string_storage_classes(double),                 \
 		GENLIB_rule_pointer_string_storage_classes(long double),            \
@@ -162,44 +298,18 @@ do {                                                                        \
 	)                                                                           \
 )
 
-#endif /* __cplusplus */
-
 
 //==========================================================================================================================================
 //= Number to String
 //==========================================================================================================================================
 
 
-#ifdef __cplusplus
-
-	#include <iostream>
-	#include <sstream>
-
-	/* #define gen_numtostr(_str, N, val)              \
-	({                                              \
-		std::stringstream _ss;                  \
-		std::string _s;                         \
-		_ss << val;                             \
-		_ss >> _s;                              \
-		snprintf(_str, N, "%s", _s.c_str());    \
-		_s.length();                            \
-	}) */
-
-	#define gen_numtostr(_str, N, val)               \
-	({                                               \
-		std::string _s = std::to_string(val);    \
-		snprintf(_str, N, "%s", _s.c_str());     \
-		_s.length();                             \
-	})
-
-#else
-
 #define gen_numtostr(str, N, val)                                                                                                                                    \
 ({                                                                                                                                                                   \
 	int _len = 0;                                                                                                                                                \
 	char * _str = (str);                                                                                                                                         \
 	__auto_type _val = (val);                                                                                                                                    \
-	gen_assert_basic_type(_val, "gen_numtostr");                                                                                                                 \
+	gen_assert_type_is_basic(_val, "gen_numtostr");                                                                                                              \
 	_len = _Generic(_val,                                                                                                                                        \
 		GENLIB_rule_expand_storage_classes(char,                snprintf(_str, N, "%d"     , (char               ) _val)),                                   \
 		GENLIB_rule_expand_storage_classes(unsigned char,       snprintf(_str, N, "%u"     , (char               ) _val)),                                   \
@@ -221,8 +331,6 @@ do {                                                                        \
 	);                                                                                                                                                           \
 	_len;                                                                                                                                                        \
 })
-
-#endif /* __cplusplus */
 
 
 //==========================================================================================================================================
@@ -281,147 +389,109 @@ GENLIB_cpy(char * restrict src, char * restrict dst, int N)
 }
 
 
-#ifdef __cplusplus
-
-	#include <iostream>
-	#include <sstream>
-	// #include <charconv>
-
-	#define gen_strtonum(__str, N, var_ptr, base...)                 \
-	({                                                               \
-		__auto_type _N = N;                                      \
-		__auto_type _var_ptr = var_ptr;                          \
-		int _ws_len, _len, _total_len;                           \
-		char * _str = (__str);                                   \
-		char * _ptr = _str;                                      \
-		auto _num = *_var_ptr;                                   \
-		_ptr += GENLIB_find_non_ws(_ptr, _N - (_ptr - _str));    \
-		_len = GENLIB_find_ws(_ptr, _N - (_ptr - _str));         \
-		_ws_len = _ptr - _str;                                   \
-		_total_len = _len + _ws_len;                             \
-		std::stringstream _ss(_ptr);                             \
-		if (_len > 0)                                            \
-		{                                                        \
-			if (_ptr[0] == '0')                              \
-			{                                                \
-				if ((_len > 1) && (_ptr[1] == 'x'))      \
-				{                                        \
-					_ss.seekp(_ws_len + 2);          \
-					_ss >> std::hex >> _num;         \
-				}                                        \
-				else                                     \
-					_ss >> std::oct >> _num;         \
-			}                                                \
-			else                                             \
-				_ss >> _num;                             \
-			*_var_ptr = _num;                                \
-		}                                                        \
-		_total_len;                                              \
-	})
-
-	/* #define gen_strtonum(__str, N, var_ptr, base...)    \
-	({                                                  \
-		auto _str = __str;                          \
-		auto _var_ptr = var_ptr;                    \
-		auto _num = *_var_ptr;                      \
-		std::stringstream _ss(_str);                \
-		std::string _rem;                           \
-		_ss >> _num;                                \
-		getline(_ss, _rem, '\0');                   \
-		*_var_ptr = _num;                           \
-		(N-1) - _rem.length();                      \
-	}) */
-
-	/* #define gen_strtonum(_str, N, var_ptr, base...)        \
-	({                                                     \
-		auto _str = __str;                             \
-		auto _var_ptr = var_ptr;                       \
-		auto _num = *_var_ptr;                         \
-		std::from_chars_result _ret;                   \
-		_ret = std::from_chars(_str, _str+N, _num);    \
-		*_var_ptr = _num;                              \
-		_ret.ptr - _str;                               \
-	}) */
-
-#else
-
 // In tgmath.h macros are defined with names like their 'double' counterparts of math.h or complex.h.
 // So we need to explicitly cast to 'double' or 'complex double' to avoid warnings when the type is different (e.g. float).
 
-#define GENLIB_safe_strtox(strtox, str, len, endptr, ... /* base */)    \
-({                                                                      \
-	char _buf[len + 1];                                             \
-	/* GENLIB_cpy((str), _buf, len); */                             \
-	strncpy(_buf, (str), len);                                      \
-	_buf[len] = '\0';                                               \
-	errno = 0;                                                      \
-	__auto_type _ret = strtox(_buf, &endptr, ##__VA_ARGS__);        \
-	if (errno != 0)                                                 \
-		error(STRING(strtox));                                  \
-	endptr = str + (endptr - _buf);                                 \
-	_ret;                                                           \
+#define GENLIB_safe_strtox(strtox, _str, _N, _len_ptr, base...)                             \
+({                                                                                          \
+	__attribute__((unused)) long GENLIB_safe_strtox_base = DEFAULT_ARG_1(0, ##base);    \
+	RENAME((_str, str, char *), (_N, N, long), (_len_ptr, len_ptr));                    \
+	char * endptr;                                                                      \
+	int len;                                                                            \
+	long i = 0;                                                                         \
+	i += GENLIB_find_non_ws(str + i, N - i);                                            \
+	len = GENLIB_find_ws(str + i, N - i);                                               \
+	char buf[len + 1];                                                                  \
+	strncpy(buf, str + i, len);                                                         \
+	buf[len] = '\0';                                                                    \
+	errno = 0;                                                                          \
+	__auto_type ret = OPT(strtox(buf, &endptr, GENLIB_safe_strtox_base), ##base)        \
+	                  OPT_NEG(strtox(buf, &endptr), ##base);                            \
+	if (errno != 0)                                                                     \
+		error(STRING(strtox));                                                      \
+	*len_ptr = i + len;                                                                 \
+	ret;                                                                                \
+})
+
+#define GENLIB_safe_strtox_complex(strtox, _str, _N, _len_ptr)                      \
+({                                                                                  \
+	RENAME((_str, str, char *), (_N, N, long), (_len_ptr, len_ptr));            \
+	long len;                                                                   \
+	__auto_type real = GENLIB_safe_strtox(strtox, str, N, &len);                \
+	*len_ptr = len;                                                             \
+	__auto_type imag = GENLIB_safe_strtox(strtox, str + len, N - len, &len);    \
+	*len_ptr += len;                                                            \
+	real + imag * I;                                                            \
 })
 
 
-#define gen_strtonum(str, N, var_ptr, base...)                                                                                                           \
-({                                                                                                                                                       \
-	__auto_type _N = N;                                                                                                                              \
-	__auto_type _var_ptr = var_ptr;                                                                                                                  \
-	int _len;                                                                                                                                        \
-	char * _str = (str);                                                                                                                             \
-	char * _ptr = _str;                                                                                                                              \
-	char * _endptr;                                                                                                                                  \
-	gen_assert_basic_type(*_var_ptr, "gen_strtonum");                                                                                                \
-	_ptr += GENLIB_find_non_ws(_ptr, _N - (_ptr - _str));                                                                                            \
-	_len = GENLIB_find_ws(_ptr, _N - (_ptr - _str));                                                                                                 \
-	(*_var_ptr) = _Generic((_var_ptr),                                                                                                               \
-		GENLIB_rule_expand_sign(char *,                          GENLIB_safe_strtox(strtol , _ptr, _len, _endptr, DEFAULT_ARG_1(0, ##base))),    \
-		GENLIB_rule_expand_storage_classes(signed char *,        GENLIB_safe_strtox(strtol , _ptr, _len, _endptr, DEFAULT_ARG_1(0, ##base))),    \
-		GENLIB_rule_expand_sign(short *,                         GENLIB_safe_strtox(strtol , _ptr, _len, _endptr, DEFAULT_ARG_1(0, ##base))),    \
-		GENLIB_rule_expand_sign(int *,                           GENLIB_safe_strtox(strtol , _ptr, _len, _endptr, DEFAULT_ARG_1(0, ##base))),    \
-		GENLIB_rule_expand_sign(long *,                          GENLIB_safe_strtox(strtol , _ptr, _len, _endptr, DEFAULT_ARG_1(0, ##base))),    \
-		GENLIB_rule_expand_sign(long long *,                     GENLIB_safe_strtox(strtoll, _ptr, _len, _endptr, DEFAULT_ARG_1(0, ##base))),    \
-		GENLIB_rule_expand_storage_classes(float *,              GENLIB_safe_strtox(strtof , _ptr, _len, _endptr)),                              \
-		GENLIB_rule_expand_storage_classes(double *,             GENLIB_safe_strtox(strtod , _ptr, _len, _endptr)),                              \
-		GENLIB_rule_expand_storage_classes(long double *,        GENLIB_safe_strtox(strtold, _ptr, _len, _endptr)),                              \
-		GENLIB_rule_expand_storage_classes(complex float *, ({                                                                                   \
-			float _real, _imag;                                                                                                              \
-			_real = GENLIB_safe_strtox(strtof, _ptr, _len, _endptr);                                                                         \
-			_ptr = _endptr;                                                                                                                  \
-			_ptr += GENLIB_find_non_ws(_ptr, _N - (_ptr - _str));                                                                            \
-			_len = GENLIB_find_ws(_ptr, _N - (_ptr - _str));                                                                                 \
-			_imag = GENLIB_safe_strtox(strtof, _ptr, _len, _endptr);                                                                         \
-			_real + _imag * I;                                                                                                               \
-			})),                                                                                                                             \
-		GENLIB_rule_expand_storage_classes(complex double *, ({                                                                                  \
-			double _real, _imag;                                                                                                             \
-			_real = GENLIB_safe_strtox(strtod, _ptr, _len, _endptr);                                                                         \
-			_ptr = _endptr;                                                                                                                  \
-			_ptr += GENLIB_find_non_ws(_ptr, _N - (_ptr - _str));                                                                            \
-			_len = GENLIB_find_ws(_ptr, _N - (_ptr - _str));                                                                                 \
-			_imag = GENLIB_safe_strtox(strtod, _ptr, _len, _endptr);                                                                         \
-			_real + _imag * I;                                                                                                               \
-			})),                                                                                                                             \
-		GENLIB_rule_expand_storage_classes(complex long double *, ({                                                                             \
-			long double _real, _imag;                                                                                                        \
-			_real = GENLIB_safe_strtox(strtold, _ptr, _len, _endptr);                                                                        \
-			_ptr = _endptr;                                                                                                                  \
-			_ptr += GENLIB_find_non_ws(_ptr, _N - (_ptr - _str));                                                                            \
-			_len = GENLIB_find_ws(_ptr, _N - (_ptr - _str));                                                                                 \
-			_imag = GENLIB_safe_strtox(strtold, _ptr, _len, _endptr);                                                                        \
-			_real + _imag * I;                                                                                                               \
-			}))                                                                                                                              \
-	);                                                                                                                                               \
-	_ptr = _endptr;                                                                                                                                  \
-	_ptr - _str;                                                                                                                                     \
+#define gen_strtonum(_str, _N, _var_ptr, base...)                                                                                           \
+({                                                                                                                                          \
+	long gen_strtonum_base = DEFAULT_ARG_1(0, ##base);                                                                                  \
+	RENAME((_str, __str), (_N, N, long), (_var_ptr, var_ptr));                                                                          \
+	char * str = __str;                                                                                                                 \
+	long len;                                                                                                                           \
+	gen_assert_type_is_basic(*var_ptr, "gen_strtonum");                                                                                 \
+	(*var_ptr) = _Generic((var_ptr),                                                                                                    \
+		GENLIB_rule_expand_storage_classes_and_sign(char *,       GENLIB_safe_strtox(strtol , str, N, &len, gen_strtonum_base)),    \
+		GENLIB_rule_expand_storage_classes(signed char *,         GENLIB_safe_strtox(strtol , str, N, &len, gen_strtonum_base)),    \
+		GENLIB_rule_expand_storage_classes_and_sign(short *,      GENLIB_safe_strtox(strtol , str, N, &len, gen_strtonum_base)),    \
+		GENLIB_rule_expand_storage_classes_and_sign(int *,        GENLIB_safe_strtox(strtol , str, N, &len, gen_strtonum_base)),    \
+		GENLIB_rule_expand_storage_classes_and_sign(long *,       GENLIB_safe_strtox(strtol , str, N, &len, gen_strtonum_base)),    \
+		GENLIB_rule_expand_storage_classes_and_sign(long long *,  GENLIB_safe_strtox(strtoll, str, N, &len, gen_strtonum_base)),    \
+		GENLIB_rule_expand_storage_classes(float *,               GENLIB_safe_strtox(strtof , str, N, &len)),                       \
+		GENLIB_rule_expand_storage_classes(double *,              GENLIB_safe_strtox(strtod , str, N, &len)),                       \
+		GENLIB_rule_expand_storage_classes(long double *,         GENLIB_safe_strtox(strtold, str, N, &len)),                       \
+		GENLIB_rule_expand_storage_classes(complex float *,       GENLIB_safe_strtox_complex(strtof , str, N, &len)),               \
+		GENLIB_rule_expand_storage_classes(complex double *,      GENLIB_safe_strtox_complex(strtod , str, N, &len)),               \
+		GENLIB_rule_expand_storage_classes(complex long double *, GENLIB_safe_strtox_complex(strtold, str, N, &len))                \
+	);                                                                                                                                  \
+	len;                                                                                                                                \
 })
 
-#endif /* __cplusplus */
+
+//==========================================================================================================================================
+//= Generic Printing of Basic Types
+//==========================================================================================================================================
+
+
+#define GENLIB_print(buf, N, val)                                                                                                                                                          \
+do {                                                                                                                                                                                       \
+	__auto_type _val = (val);                                                                                                                                                          \
+	_i += _Generic(_val,                                                                                                                                                               \
+		GENLIB_rule_expand_storage_classes(char *,              snprintf(buf + _i, N - _i, "%s"      , (char *             ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(char,                snprintf(buf + _i, N - _i, "%c"      , (char               ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(unsigned char,       snprintf(buf + _i, N - _i, "%c"      , (char               ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(signed char,         snprintf(buf + _i, N - _i, "%c"      , (signed char        ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(short,               snprintf(buf + _i, N - _i, "%d"      , (short              ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(unsigned short,      snprintf(buf + _i, N - _i, "%u"      , (short              ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(int,                 snprintf(buf + _i, N - _i, "%d"      , (int                ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(unsigned int,        snprintf(buf + _i, N - _i, "%u"      , (int                ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(long,                snprintf(buf + _i, N - _i, "%ld"     , (long               ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(unsigned long,       snprintf(buf + _i, N - _i, "%lu"     , (long               ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(long long,           snprintf(buf + _i, N - _i, "%lld"    , (long long          ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(unsigned long long,  snprintf(buf + _i, N - _i, "%llu"    , (long long          ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(float,               snprintf(buf + _i, N - _i, "%g"      , (float              ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(double,              snprintf(buf + _i, N - _i, "%lg"     , (double             ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(long double,         snprintf(buf + _i, N - _i, "%Lg"     , (long double        ) _val)),                                               \
+		GENLIB_rule_expand_storage_classes(complex float,       snprintf(buf + _i, N - _i, "%g %gI"  , crealf((complex float) _val), cimagf((complex float) _val))),               \
+		GENLIB_rule_expand_storage_classes(complex double,      snprintf(buf + _i, N - _i, "%lg %lgI", creal((complex double) _val), cimag((complex double) _val))),               \
+		GENLIB_rule_expand_storage_classes(complex long double, snprintf(buf + _i, N - _i, "%Lg %LgI", creall((complex long double) _val), cimagl((complex long double) _val)))    \
+	);                                                                                                                                                                                 \
+} while (0)
+
+
+#define gen_print(buf, n, ...)                                                    \
+do {                                                                              \
+	long _i = 0;                                                              \
+	FOREACH_AS_STMT_UNGUARDED(0, GENLIB_print, (buf, n), (__VA_ARGS__), );    \
+	printf("%s", buf);                                                        \
+} while (0)
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //------------------------------------------------------------------------------------------------------------------------------------------
-//-                                                       Generics Over Doubles                                                            -
+//-                                                        Generics Over Doubles                                                           -
 //------------------------------------------------------------------------------------------------------------------------------------------
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -431,34 +501,28 @@ GENLIB_cpy(char * restrict src, char * restrict dst, int N)
 //==========================================================================================================================================
 
 
-#ifdef __cplusplus
-
-	#define gen_functor_basic_type_to_double(var_ptr)  ([](void * x, long i) -> double { return (double) (((typeof(var_ptr)) x)[i]); })
-
-#else
-
-static inline double gen_c2d  (void * x, long i) { return (double)      (((char *)                x)[i]); }
-static inline double gen_sc2d (void * x, long i) { return (double)      (((signed char *)         x)[i]); }
-static inline double gen_uc2d (void * x, long i) { return (double)      (((unsigned char *)       x)[i]); }
-static inline double gen_s2d  (void * x, long i) { return (double)      (((short *)               x)[i]); }
-static inline double gen_us2d (void * x, long i) { return (double)      (((unsigned short *)      x)[i]); }
-static inline double gen_i2d  (void * x, long i) { return (double)      (((int *)                 x)[i]); }
-static inline double gen_ui2d (void * x, long i) { return (double)      (((unsigned int *)        x)[i]); }
-static inline double gen_l2d  (void * x, long i) { return (double)      (((long *)                x)[i]); }
-static inline double gen_ul2d (void * x, long i) { return (double)      (((unsigned long *)       x)[i]); }
-static inline double gen_ll2d (void * x, long i) { return (double)      (((long long *)           x)[i]); }
-static inline double gen_ull2d(void * x, long i) { return (double)      (((unsigned long long *)  x)[i]); }
-static inline double gen_f2d  (void * x, long i) { return (double)      (((float *)               x)[i]); }
-static inline double gen_d2d  (void * x, long i) { return (double)      (((double *)              x)[i]); }
-static inline double gen_ld2d (void * x, long i) { return (double)      (((long double *)         x)[i]); }
-static inline double gen_cf2d (void * x, long i) { return (double) cabsf(((complex float *)       x)[i]); }
-static inline double gen_cd2d (void * x, long i) { return (double) cabs (((complex double *)      x)[i]); }
-static inline double gen_cld2d(void * x, long i) { return (double) cabsl(((complex long double *) x)[i]); }
+__attribute__((hot)) static inline double gen_c2d  (void * A, long i) { return (double)      (((char *)                A)[i]); }
+__attribute__((hot)) static inline double gen_sc2d (void * A, long i) { return (double)      (((signed char *)         A)[i]); }
+__attribute__((hot)) static inline double gen_uc2d (void * A, long i) { return (double)      (((unsigned char *)       A)[i]); }
+__attribute__((hot)) static inline double gen_s2d  (void * A, long i) { return (double)      (((short *)               A)[i]); }
+__attribute__((hot)) static inline double gen_us2d (void * A, long i) { return (double)      (((unsigned short *)      A)[i]); }
+__attribute__((hot)) static inline double gen_i2d  (void * A, long i) { return (double)      (((int *)                 A)[i]); }
+__attribute__((hot)) static inline double gen_ui2d (void * A, long i) { return (double)      (((unsigned int *)        A)[i]); }
+__attribute__((hot)) static inline double gen_l2d  (void * A, long i) { return (double)      (((long *)                A)[i]); }
+__attribute__((hot)) static inline double gen_ul2d (void * A, long i) { return (double)      (((unsigned long *)       A)[i]); }
+__attribute__((hot)) static inline double gen_ll2d (void * A, long i) { return (double)      (((long long *)           A)[i]); }
+__attribute__((hot)) static inline double gen_ull2d(void * A, long i) { return (double)      (((unsigned long long *)  A)[i]); }
+__attribute__((hot)) static inline double gen_f2d  (void * A, long i) { return (double)      (((float *)               A)[i]); }
+__attribute__((hot)) static inline double gen_d2d  (void * A, long i) { return (double)      (((double *)              A)[i]); }
+__attribute__((hot)) static inline double gen_ld2d (void * A, long i) { return (double)      (((long double *)         A)[i]); }
+__attribute__((hot)) static inline double gen_cf2d (void * A, long i) { return (double) cabsf(((complex float *)       A)[i]); }
+__attribute__((hot)) static inline double gen_cd2d (void * A, long i) { return (double) cabs (((complex double *)      A)[i]); }
+__attribute__((hot)) static inline double gen_cld2d(void * A, long i) { return (double) cabsl(((complex long double *) A)[i]); }
 
 #define gen_functor_basic_type_to_double(var_ptr)                                        \
 ({                                                                                       \
 	/* fail for non-simple array types */                                            \
-	gen_assert_ptr_basic_type((var_ptr),                                             \
+	gen_assert_type_is_basic_ptr_or_void_ptr((var_ptr),                              \
 		"for non-simple array types a <get-and-cast-to-double> "                 \
 		"function must be provided, of type:  double ()(void * a, int i)"        \
 	);                                                                               \
@@ -484,7 +548,42 @@ static inline double gen_cld2d(void * x, long i) { return (double) cabsl(((compl
 	);                                                                               \
 })
 
-#endif /* __cplusplus */
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                          Generic Functions                                                             -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+//==========================================================================================================================================
+//= Rotate Generic Integer
+//==========================================================================================================================================
+
+
+#define gen_rotl(_v, _n)                                    \
+({                                                          \
+	RENAME((_v, __v), (_n, __n));                       \
+	typeof(gen_cast_integer_to_unsigned(__v)) T;        \
+	typeof(T) v = __v;                                  \
+	typeof(T) n = __n;                                  \
+	const typeof(T) mask = sizeof(v) * CHAR_BIT - 1;    \
+	n &= mask;                                          \
+	v = (v << n) | (v >> ((-n) & mask));                \
+	v;                                                  \
+})
+
+#define gen_rotr(_v, _n)                                    \
+({                                                          \
+	RENAME((_v, __v), (_n, __n));                       \
+	typeof(gen_cast_integer_to_unsigned(__v)) T;        \
+	typeof(T) v = __v;                                  \
+	typeof(T) n = __n;                                  \
+	const typeof(T) mask = sizeof(v) * CHAR_BIT - 1;    \
+	n &= mask;                                          \
+	v = (v >> n) | (v << ((-n) & mask));                \
+	v;                                                  \
+})
 
 
 #endif /* GENLIB_H */
