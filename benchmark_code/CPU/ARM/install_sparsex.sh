@@ -14,6 +14,26 @@ export SPARSEX_ROOT_DIR="${ROOT_DIR}/sparsex"
 # export BOOST_LIB_PATH="${BOOST_ROOT_DIR}/bin/lib"
 # export LLVM_LIB_PATH="${LLVM_ROOT_DIR}/build/lib"
 
+#==========================================================================================================================================
+# Install cmake (if not installed already)
+#==========================================================================================================================================
+
+cd "$ROOT_DIR"
+export CMAKE_DIR="$ROOT_DIR"/cmake-3.26.0-rc3/build
+if [ ! -d "$CMAKE_DIR" ] 
+then
+	wget https://github.com/Kitware/CMake/releases/download/v3.26.0-rc3/cmake-3.26.0-rc3.tar.gz
+	tar -xf cmake-3.26.0-rc3.tar.gz
+	rm cmake-3.26.0-rc3.tar.gz
+	cd cmake-3.26.0-rc3
+	./bootstrap --prefix="$CMAKE_DIR"
+	make -j
+	make -j install
+	cd ../
+fi
+
+# After building, include these two in the PATH
+export PATH="$CMAKE_DIR"/bin:$PATH
 
 #==========================================================================================================================================
 # BOOST

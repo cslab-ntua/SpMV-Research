@@ -10,17 +10,20 @@ export MKL_PATH="<<Insert MKL_PATH>>"
 #==========================================================================================================================================
 # Install SELL-C-σ prerequisites
 #==========================================================================================================================================
-cd "$ROOT_DIR"
 
-wget https://github.com/Kitware/CMake/releases/download/v3.26.0-rc3/cmake-3.26.0-rc3.tar.gz
-tar -xf cmake-3.26.0-rc3.tar.gz
-rm cmake-3.26.0-rc3.tar.gz
-cd cmake-3.26.0-rc3
+cd "$ROOT_DIR"
 export CMAKE_DIR="$ROOT_DIR"/cmake-3.26.0-rc3/build
-./bootstrap --prefix="$CMAKE_DIR"
-make -j
-make -j install
-cd ../
+if [ ! -d "$CMAKE_DIR" ] 
+then
+	wget https://github.com/Kitware/CMake/releases/download/v3.26.0-rc3/cmake-3.26.0-rc3.tar.gz
+	tar -xf cmake-3.26.0-rc3.tar.gz
+	rm cmake-3.26.0-rc3.tar.gz
+	cd cmake-3.26.0-rc3
+	./bootstrap --prefix="$CMAKE_DIR"
+	make -j
+	make -j install
+	cd ../
+fi
 
 wget https://download.open-mpi.org/release/hwloc/v1.11/hwloc-1.11.13.tar.gz
 tar -xf hwloc-1.11.13.tar.gz
@@ -59,7 +62,6 @@ export GHOST_DIR="$ROOT_DIR"/ghost/build
 # perhaps need to add  to CMakeLists.txt
 # set(GHOST_AUTOGEN_SPMMV "8,1;8,2;8,4;8,8;8,16;8,32;8,64;8,128;8,256;4,1;4,2;4,4;4,8;4,16;4,32;4,64;4,128;4,256;16,1;16,2;16,4;16,8;16,16;16,32;16,64;16,128;16,256;32,1;32,2;32,4;32,8;32,16;32,32;32,64;32,128;32,256;" CACHE STRING "SpM(M)V kernels to be auto-generated. Semicolon-separated list of 2-tuples: (CHUNKHEIGHT, NVECS)")
 # but leave it for now
-
 
 # f) In "ESSEX/ghost/src/sparsemat.c" -> "ghost_sparsemat_init_crs" function, change definition of function, by doing the following:
 # 	i) change definition of function

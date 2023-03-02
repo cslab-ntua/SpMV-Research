@@ -1,754 +1,2667 @@
-program: /various/pmpakos/SpMV-Research/benchmark_code/CPU/ARM/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe
-number of matrices: 30
+program: /home/spmv/000/SpMV-Research/benchmark_code/CPU/ARM/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe
+number of matrices: 52
 File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
-J_estimated = 1.591159	W_avg = 129.175678
-Preprocessing: 0.875959 secs
-SPMV time: 0.012318 secs
-GFLOPS: 19.929516
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.091000	W_avg = 8.836137
+Preprocessing: 0.802684 secs
+SPMV time: 0.010299 secs
+GFLOPS: 23.836947
 File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
-J_estimated = 2.223364	W_avg = 135.298711
-Preprocessing: 1.037052 secs
-SPMV time: 0.016433 secs
-GFLOPS: 19.837373
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.126000	W_avg = 8.775751
+Preprocessing: 0.980329 secs
+SPMV time: 0.014358 secs
+GFLOPS: 22.704651
 File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
-J_estimated = 0.439035	W_avg = 132.312427
-Preprocessing: 1.256353 secs
-SPMV time: 0.003318 secs
-GFLOPS: 114.859913
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.051000	W_avg = 8.741723
+Preprocessing: 1.248409 secs
+SPMV time: 0.005834 secs
+GFLOPS: 65.327173
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2661085 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
-J_estimated = 0.869922	W_avg = 146.897276
-Preprocessing: 1.488576 secs
-SPMV time: 0.005922 secs
-GFLOPS: 76.589454
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.067000	W_avg = 8.167849
+Preprocessing: 1.465934 secs
+SPMV time: 0.008203 secs
+GFLOPS: 55.292782
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.081000	W_avg = 9.126868
+Preprocessing: 1.500376 secs
+SPMV time: 0.008875 secs
+GFLOPS: 53.453542
 File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
-J_estimated = 1.364178	W_avg = 104.656989
-Preprocessing: 1.471926 secs
-SPMV time: 0.013035 secs
-GFLOPS: 37.648091
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.050000	W_avg = 7.485599
+Preprocessing: 1.427466 secs
+SPMV time: 0.006679 secs
+GFLOPS: 73.468696
 File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
-J_estimated = 1.357590	W_avg = 120.042252
-Preprocessing: 1.305823 secs
-SPMV time: 0.011309 secs
-GFLOPS: 47.541326
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.070000	W_avg = 8.007930
+Preprocessing: 1.242150 secs
+SPMV time: 0.008741 secs
+GFLOPS: 61.507493
 File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
-J_estimated = 2.282870	W_avg = 140.650491
-Preprocessing: 1.816889 secs
-SPMV time: 0.016231 secs
-GFLOPS: 37.443888
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.103000	W_avg = 8.940677
+Preprocessing: 1.763998 secs
+SPMV time: 0.011520 secs
+GFLOPS: 52.753838
 File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
-J_estimated = 3.664521	W_avg = 132.246251
-Preprocessing: 1.054186 secs
-SPMV time: 0.027710 secs
-GFLOPS: 24.245142
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.183000	W_avg = 8.374520
+Preprocessing: 1.015714 secs
+SPMV time: 0.021852 secs
+GFLOPS: 30.744499
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.098000	W_avg = 8.811096
+Preprocessing: 2.268241 secs
+SPMV time: 0.011122 secs
+GFLOPS: 65.510894
 File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
-J_estimated = 33.826635	W_avg = 124.041438
-Preprocessing: 2.910480 secs
-SPMV time: 0.272704 secs
-GFLOPS: 2.915309
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 2.426000	W_avg = 8.370173
+Preprocessing: 2.758561 secs
+SPMV time: 0.289839 secs
+GFLOPS: 2.742964
 File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
-J_estimated = 2.637710	W_avg = 132.232418
-Preprocessing: 1.734455 secs
-SPMV time: 0.019948 secs
-GFLOPS: 51.429430
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.109000	W_avg = 8.020590
+Preprocessing: 1.698301 secs
+SPMV time: 0.013590 secs
+GFLOPS: 75.488470
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 13.128000	W_avg = 8.402969
+Preprocessing: 54.452179 secs
+SPMV time: 1.562305 secs
+GFLOPS: 0.634430
 File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
-J_estimated = 3.476767	W_avg = 136.926617
-Preprocessing: 1.790193 secs
-SPMV time: 0.025391 secs
-GFLOPS: 43.804482
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.180000	W_avg = 8.721355
+Preprocessing: 1.714098 secs
+SPMV time: 0.020639 secs
+GFLOPS: 53.891185
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2662054 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
-J_estimated = 3.857264	W_avg = 140.393680
-Preprocessing: 3.826081 secs
-SPMV time: 0.027475 secs
-GFLOPS: 41.123140
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.174000	W_avg = 8.221805
+Preprocessing: 3.730006 secs
+SPMV time: 0.021163 secs
+GFLOPS: 53.387062
 File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
-J_estimated = 150.753460	W_avg = 118.042565
-Preprocessing: 6.238853 secs
-SPMV time: 1.277111 secs
-GFLOPS: 1.077985
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 10.910000	W_avg = 8.402455
+Preprocessing: 6.059693 secs
+SPMV time: 1.298430 secs
+GFLOPS: 1.060286
 File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
-J_estimated = 4.536789	W_avg = 128.988934
-Preprocessing: 2.551165 secs
-SPMV time: 0.035172 secs
-GFLOPS: 43.747475
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.224000	W_avg = 8.201389
+Preprocessing: 2.446996 secs
+SPMV time: 0.027312 secs
+GFLOPS: 56.336327
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2662374 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.544000	W_avg = 7.617118
+Preprocessing: 60.963222 secs
+SPMV time: 2.303233 secs
+GFLOPS: 0.686381
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.868000	W_avg = 7.579839
+Preprocessing: 5.152310 secs
+SPMV time: 0.114514 secs
+GFLOPS: 17.074270
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2662625 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
-J_estimated = 8.012905	W_avg = 111.141583
-Preprocessing: 2.726782 secs
-SPMV time: 0.072096 secs
-GFLOPS: 27.743856
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.473000	W_avg = 7.552863
+Preprocessing: 2.656981 secs
+SPMV time: 0.062625 secs
+GFLOPS: 31.939690
 File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
-J_estimated = 9.812346	W_avg = 102.907261
-Preprocessing: 6.966364 secs
-SPMV time: 0.095351 secs
-GFLOPS: 21.975514
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.695000	W_avg = 7.563185
+Preprocessing: 6.769218 secs
+SPMV time: 0.091893 secs
+GFLOPS: 22.802673
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.730000	W_avg = 7.489872
+Preprocessing: 3.981540 secs
+SPMV time: 0.097465 secs
+GFLOPS: 23.433838
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2662945 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
-J_estimated = 44.646314	W_avg = 122.340715
-Preprocessing: 4.144530 secs
-SPMV time: 0.364934 secs
-GFLOPS: 7.262464
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 2.904000	W_avg = 7.622654
+Preprocessing: 4.043826 secs
+SPMV time: 0.380970 secs
+GFLOPS: 6.956778
 File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
-J_estimated = 140.777438	W_avg = 117.681879
-Preprocessing: 6.792346 secs
-SPMV time: 1.196254 secs
-GFLOPS: 2.414798
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 9.232000	W_avg = 7.613000
+Preprocessing: 6.483321 secs
+SPMV time: 1.212663 secs
+GFLOPS: 2.382124
 File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
-J_estimated = 11.469265	W_avg = 99.314281
-Preprocessing: 4.790226 secs
-SPMV time: 0.115485 secs
-GFLOPS: 25.790572
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.881000	W_avg = 7.702222
+Preprocessing: 4.628247 secs
+SPMV time: 0.114383 secs
+GFLOPS: 26.039039
 File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
-J_estimated = 25.110208	W_avg = 106.061377
-Preprocessing: 5.302139 secs
-SPMV time: 0.236752 secs
-GFLOPS: 15.299185
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 1.852000	W_avg = 7.631667
+Preprocessing: 5.193857 secs
+SPMV time: 0.242673 secs
+GFLOPS: 14.925874
 File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
-J_estimated = 58.819775	W_avg = 106.974830
-Preprocessing: 6.882854 secs
-SPMV time: 0.549847 secs
-GFLOPS: 6.989007
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 4.302000	W_avg = 7.639298
+Preprocessing: 6.676013 secs
+SPMV time: 0.563141 secs
+GFLOPS: 6.824020
 File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
-J_estimated = 27.173544	W_avg = 122.938177
-Preprocessing: 14.110687 secs
-SPMV time: 0.221034 secs
-GFLOPS: 18.729314
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 1.740000	W_avg = 7.659911
+Preprocessing: 13.724660 secs
+SPMV time: 0.227157 secs
+GFLOPS: 18.224511
 File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
-J_estimated = 87.384771	W_avg = 98.408093
-Preprocessing: 11.969127 secs
-SPMV time: 0.887984 secs
-GFLOPS: 4.877078
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 7.624000	W_avg = 8.397347
+Preprocessing: 11.471753 secs
+SPMV time: 0.907906 secs
+GFLOPS: 4.770060
 File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
-J_estimated = 85.015327	W_avg = 105.794310
-Preprocessing: 8.480786 secs
-SPMV time: 0.803591 secs
-GFLOPS: 5.889876
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 6.899000	W_avg = 8.394429
+Preprocessing: 8.121843 secs
+SPMV time: 0.821855 secs
+GFLOPS: 5.758987
 File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
-J_estimated = 73.947587	W_avg = 99.042115
-Preprocessing: 12.301189 secs
-SPMV time: 0.746628 secs
-GFLOPS: 6.595249
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 6.435000	W_avg = 8.398823
+Preprocessing: 11.773478 secs
+SPMV time: 0.766179 secs
+GFLOPS: 6.426954
 File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
-J_estimated = 421.129098	W_avg = 106.808792
-Preprocessing: 13.904459 secs
-SPMV time: 3.942832 secs
-GFLOPS: 1.282527
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 32.934000	W_avg = 8.403265
+Preprocessing: 13.331643 secs
+SPMV time: 3.919191 secs
+GFLOPS: 1.290263
+File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 52.191000	W_avg = 8.415234
+Preprocessing: 12.265286 secs
+SPMV time: 6.201966 secs
+GFLOPS: 0.873670
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 3.946000	W_avg = 8.419887
+Preprocessing: 15.863687 secs
+SPMV time: 0.468652 secs
+GFLOPS: 11.097695
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 13.603000	W_avg = 8.405582
+Preprocessing: 10.847747 secs
+SPMV time: 1.618329 secs
+GFLOPS: 3.902437
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2664082 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.455000	W_avg = 8.408713
+Preprocessing: 16.386899 secs
+SPMV time: 2.075823 secs
+GFLOPS: 3.686552
+File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 206.028000	W_avg = 8.408729
+Preprocessing: 43.857797 secs
+SPMV time: 24.501683 secs
+GFLOPS: 0.378577
+File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 8.406000	W_avg = 8.393998
+Preprocessing: 25.215991 secs
+SPMV time: 1.001430 secs
+GFLOPS: 9.780544
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+run.sh: line 154: 2664417 Killed                  "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
-J_estimated = 83.347022	W_avg = 87.708220
-Preprocessing: 18.423457 secs
-SPMV time: 0.950276 secs
-GFLOPS: 12.532941
-File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
-J_estimated = 2772.753320	W_avg = 128.248211
-Preprocessing: 1410.253108 secs
-SPMV time: 21.620211 secs
-GFLOPS: 0.704814
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 8.115000	W_avg = 8.407669
+Preprocessing: 23.474614 secs
+SPMV time: 0.965190 secs
+GFLOPS: 12.339282
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 12.447000	W_avg = 8.398497
+Preprocessing: 28.995681 secs
+SPMV time: 1.482051 secs
+GFLOPS: 8.384308
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2664674 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
-J_estimated = 113.834948	W_avg = 88.800950
-Preprocessing: 24.575021 secs
-SPMV time: 1.281911 secs
-GFLOPS: 14.311894
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 10.713000	W_avg = 8.411653
+Preprocessing: 26.910287 secs
+SPMV time: 1.273590 secs
+GFLOPS: 14.405401
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 14.796000	W_avg = 8.403992
+Preprocessing: 44.761019 secs
+SPMV time: 1.760592 secs
+GFLOPS: 11.291017
 File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
-J_estimated = 197.136369	W_avg = 92.825030
-Preprocessing: 72.062847 secs
-SPMV time: 2.123742 secs
-GFLOPS: 11.957710
-program: /various/pmpakos/SpMV-Research/benchmark_code/CPU/ARM/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe
-number of matrices: 30
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 19.566000	W_avg = 9.183895
+Preprocessing: 86.040784 secs
+SPMV time: 2.130469 secs
+GFLOPS: 11.919953
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2665008 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
-J_estimated = 1.625921	W_avg = 132.381729
-Preprocessing: 0.882816 secs
-SPMV time: 0.012282 secs
-GFLOPS: 19.987487
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.094000	W_avg = 9.003233
+Preprocessing: 1.010063 secs
+SPMV time: 0.010441 secs
+GFLOPS: 23.512576
 File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
-J_estimated = 2.272654	W_avg = 135.478475
-Preprocessing: 1.037697 secs
-SPMV time: 0.016775 secs
-GFLOPS: 19.432919
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.138000	W_avg = 9.615667
+Preprocessing: 1.364175 secs
+SPMV time: 0.014352 secs
+GFLOPS: 22.714405
 File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
-J_estimated = 1.089528	W_avg = 100.629652
-Preprocessing: 1.279511 secs
-SPMV time: 0.010827 secs
-GFLOPS: 35.200965
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.048000	W_avg = 8.519085
+Preprocessing: 1.565757 secs
+SPMV time: 0.005634 secs
+GFLOPS: 67.642351
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2665328 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
-J_estimated = 1.729270	W_avg = 126.709255
-Preprocessing: 1.506043 secs
-SPMV time: 0.013648 secs
-GFLOPS: 33.233882
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.073000	W_avg = 9.115827
+Preprocessing: 1.696633 secs
+SPMV time: 0.008008 secs
+GFLOPS: 56.638112
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.081000	W_avg = 8.767778
+Preprocessing: 2.022364 secs
+SPMV time: 0.009238 secs
+GFLOPS: 51.350451
 File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
-J_estimated = 1.388943	W_avg = 103.475597
-Preprocessing: 1.468484 secs
-SPMV time: 0.013423 secs
-GFLOPS: 36.559419
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.064000	W_avg = 9.636858
+Preprocessing: 1.962518 secs
+SPMV time: 0.006641 secs
+GFLOPS: 73.892649
 File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
-J_estimated = 1.373684	W_avg = 121.111100
-Preprocessing: 1.313922 secs
-SPMV time: 0.011342 secs
-GFLOPS: 47.402680
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.070000	W_avg = 7.917252
+Preprocessing: 1.720449 secs
+SPMV time: 0.008841 secs
+GFLOPS: 60.811007
 File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
-J_estimated = 2.294656	W_avg = 141.382051
-Preprocessing: 1.818748 secs
-SPMV time: 0.016230 secs
-GFLOPS: 37.445320
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.106000	W_avg = 8.811322
+Preprocessing: 2.285672 secs
+SPMV time: 0.012030 secs
+GFLOPS: 50.519154
 File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
-J_estimated = 3.611801	W_avg = 131.523949
-Preprocessing: 1.056388 secs
-SPMV time: 0.027461 secs
-GFLOPS: 24.464684
-File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
-J_estimated = 33.716026	W_avg = 124.097768
-Preprocessing: 2.906957 secs
-SPMV time: 0.271689 secs
-GFLOPS: 2.926201
-File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
-J_estimated = 2.721495	W_avg = 135.889838
-Preprocessing: 1.740627 secs
-SPMV time: 0.020027 secs
-GFLOPS: 51.224798
-File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
-J_estimated = 3.554643	W_avg = 138.110638
-Preprocessing: 1.774832 secs
-SPMV time: 0.025738 secs
-GFLOPS: 43.215287
-File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
-J_estimated = 4.017828	W_avg = 142.430891
-Preprocessing: 3.842492 secs
-SPMV time: 0.028209 secs
-GFLOPS: 40.052620
-File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
-J_estimated = 148.640182	W_avg = 118.091616
-Preprocessing: 6.197820 secs
-SPMV time: 1.258685 secs
-GFLOPS: 1.093766
-File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
-J_estimated = 4.510524	W_avg = 126.808555
-Preprocessing: 2.538420 secs
-SPMV time: 0.035570 secs
-GFLOPS: 43.258422
-File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
-J_estimated = 7.962292	W_avg = 111.455393
-Preprocessing: 2.720547 secs
-SPMV time: 0.071439 secs
-GFLOPS: 27.999046
-File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
-J_estimated = 10.222776	W_avg = 102.605763
-Preprocessing: 6.968391 secs
-SPMV time: 0.099632 secs
-GFLOPS: 21.031429
-File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
-J_estimated = 44.160762	W_avg = 122.332711
-Preprocessing: 4.172932 secs
-SPMV time: 0.360989 secs
-GFLOPS: 7.341835
-File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
-J_estimated = 140.204253	W_avg = 117.697300
-Preprocessing: 6.769258 secs
-SPMV time: 1.191227 secs
-GFLOPS: 2.424988
-File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
-J_estimated = 11.390948	W_avg = 99.613561
-Preprocessing: 4.756264 secs
-SPMV time: 0.114351 secs
-GFLOPS: 26.046145
-File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
-J_estimated = 25.055423	W_avg = 105.794781
-Preprocessing: 5.349163 secs
-SPMV time: 0.236830 secs
-GFLOPS: 15.294098
-File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
-J_estimated = 58.829708	W_avg = 106.822186
-Preprocessing: 6.883884 secs
-SPMV time: 0.550726 secs
-GFLOPS: 6.977856
-File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
-J_estimated = 27.321783	W_avg = 122.621898
-Preprocessing: 14.147326 secs
-SPMV time: 0.222813 secs
-GFLOPS: 18.579772
-File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
-J_estimated = 87.976208	W_avg = 99.538768
-Preprocessing: 11.888494 secs
-SPMV time: 0.883839 secs
-GFLOPS: 4.899951
-File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
-J_estimated = 84.660600	W_avg = 105.293030
-Preprocessing: 8.396800 secs
-SPMV time: 0.804048 secs
-GFLOPS: 5.886530
-File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
-J_estimated = 73.946772	W_avg = 99.162929
-Preprocessing: 12.260082 secs
-SPMV time: 0.745710 secs
-GFLOPS: 6.603367
-File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
-J_estimated = 411.650069	W_avg = 106.449335
-Preprocessing: 13.897719 secs
-SPMV time: 3.867099 secs
-GFLOPS: 1.307644
-File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
-J_estimated = 83.086804	W_avg = 87.190777
-Preprocessing: 18.582200 secs
-SPMV time: 0.952931 secs
-GFLOPS: 12.498022
-File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
-J_estimated = 2778.260985	W_avg = 128.362656
-Preprocessing: 1408.827959 secs
-SPMV time: 21.643842 secs
-GFLOPS: 0.704044
-File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
-J_estimated = 113.462568	W_avg = 88.553104
-Preprocessing: 24.726630 secs
-SPMV time: 1.281294 secs
-GFLOPS: 14.318789
-File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
-J_estimated = 195.842188	W_avg = 92.118949
-Preprocessing: 71.946349 secs
-SPMV time: 2.125971 secs
-GFLOPS: 11.945172
-File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
-J_estimated = 1.649982	W_avg = 132.574368
-Preprocessing: 0.880075 secs
-SPMV time: 0.012446 secs
-GFLOPS: 19.724679
-File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
-J_estimated = 2.292121	W_avg = 136.557586
-Preprocessing: 1.036629 secs
-SPMV time: 0.016785 secs
-GFLOPS: 19.421347
-File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
-J_estimated = 1.116917	W_avg = 101.886128
-Preprocessing: 1.281763 secs
-SPMV time: 0.010962 secs
-GFLOPS: 34.766514
-File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
-J_estimated = 1.764245	W_avg = 128.903785
-Preprocessing: 1.515626 secs
-SPMV time: 0.013687 secs
-GFLOPS: 33.139223
-File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
-J_estimated = 1.362595	W_avg = 106.204547
-Preprocessing: 1.483477 secs
-SPMV time: 0.012830 secs
-GFLOPS: 38.249176
-File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
-J_estimated = 1.431370	W_avg = 124.836353
-Preprocessing: 1.345750 secs
-SPMV time: 0.011466 secs
-GFLOPS: 46.891589
-File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
-J_estimated = 2.254915	W_avg = 141.373645
-Preprocessing: 1.813378 secs
-SPMV time: 0.015950 secs
-GFLOPS: 38.102997
-File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
-J_estimated = 3.784805	W_avg = 133.834311
-Preprocessing: 1.050702 secs
-SPMV time: 0.028280 secs
-GFLOPS: 23.756504
-File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
-J_estimated = 33.557689	W_avg = 125.330336
-Preprocessing: 2.911093 secs
-SPMV time: 0.267754 secs
-GFLOPS: 2.969208
-File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
-J_estimated = 1.627393	W_avg = 147.392725
-Preprocessing: 1.725235 secs
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.214000	W_avg = 9.538756
+Preprocessing: 1.196954 secs
+SPMV time: 0.022435 secs
+GFLOPS: 29.945843
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.102000	W_avg = 9.238114
+Preprocessing: 3.793086 secs
 SPMV time: 0.011041 secs
-GFLOPS: 92.914698
-File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
-J_estimated = 3.591816	W_avg = 139.863987
-Preprocessing: 1.772550 secs
-SPMV time: 0.025681 secs
-GFLOPS: 43.310987
-File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
-J_estimated = 4.207177	W_avg = 147.022571
-Preprocessing: 3.832351 secs
-SPMV time: 0.028616 secs
-GFLOPS: 39.483106
-File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
-J_estimated = 151.024667	W_avg = 120.321541
-Preprocessing: 6.216028 secs
-SPMV time: 1.255176 secs
-GFLOPS: 1.096824
-File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
-J_estimated = 4.554381	W_avg = 132.518170
-Preprocessing: 2.543739 secs
-SPMV time: 0.034368 secs
-GFLOPS: 44.770835
-File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
-J_estimated = 8.470233	W_avg = 112.470609
-Preprocessing: 2.736194 secs
-SPMV time: 0.075311 secs
-GFLOPS: 26.559747
-File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
-J_estimated = 10.115283	W_avg = 103.980505
-Preprocessing: 7.017600 secs
-SPMV time: 0.097281 secs
-GFLOPS: 21.539705
-File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
-J_estimated = 45.519563	W_avg = 124.390985
-Preprocessing: 4.160784 secs
-SPMV time: 0.365939 secs
-GFLOPS: 7.242515
-File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
-J_estimated = 143.397660	W_avg = 119.720331
-Preprocessing: 6.829146 secs
-SPMV time: 1.197772 secs
-GFLOPS: 2.411738
-File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
-J_estimated = 11.610734	W_avg = 101.159371
-Preprocessing: 4.795855 secs
-SPMV time: 0.114777 secs
-GFLOPS: 25.949638
-File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
-J_estimated = 25.204994	W_avg = 107.171202
-Preprocessing: 5.261840 secs
-SPMV time: 0.235184 secs
-GFLOPS: 15.401140
-File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
-J_estimated = 59.999601	W_avg = 108.325072
-Preprocessing: 6.854341 secs
-SPMV time: 0.553885 secs
-GFLOPS: 6.938057
-File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
-J_estimated = 27.627193	W_avg = 123.945874
-Preprocessing: 14.183851 secs
-SPMV time: 0.222897 secs
-GFLOPS: 18.572770
-File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
-J_estimated = 89.576560	W_avg = 101.240754
-Preprocessing: 11.868607 secs
-SPMV time: 0.884788 secs
-GFLOPS: 4.894695
-File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
-J_estimated = 86.912357	W_avg = 107.637510
-Preprocessing: 8.337527 secs
-SPMV time: 0.807454 secs
-GFLOPS: 5.861695
-File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
-J_estimated = 75.087287	W_avg = 100.640480
-Preprocessing: 12.318526 secs
-SPMV time: 0.746094 secs
-GFLOPS: 6.599965
-File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
-J_estimated = 429.109641	W_avg = 107.972983
-Preprocessing: 13.882629 secs
-SPMV time: 3.974232 secs
-GFLOPS: 1.272394
-File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
-J_estimated = 84.210689	W_avg = 88.414537
-Preprocessing: 18.469747 secs
-SPMV time: 0.952453 secs
-GFLOPS: 12.504296
-File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
-J_estimated = 2787.944414	W_avg = 128.867670
-Preprocessing: 1408.728263 secs
-SPMV time: 21.634165 secs
-GFLOPS: 0.704359
-File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
-J_estimated = 113.786985	W_avg = 88.662474
-Preprocessing: 24.557690 secs
-SPMV time: 1.283373 secs
-GFLOPS: 14.295599
-File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
-J_estimated = 195.993598	W_avg = 92.309833
-Preprocessing: 71.936632 secs
-SPMV time: 2.123215 secs
-GFLOPS: 11.960677
-File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
-J_estimated = 1.620134	W_avg = 131.444668
-Preprocessing: 0.876533 secs
-SPMV time: 0.012326 secs
-GFLOPS: 19.916895
-File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
-J_estimated = 1.579532	W_avg = 153.485065
-Preprocessing: 1.018704 secs
-SPMV time: 0.010291 secs
-GFLOPS: 31.676614
-File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
-J_estimated = 1.133035	W_avg = 103.287193
-Preprocessing: 1.282083 secs
-SPMV time: 0.010970 secs
-GFLOPS: 34.743226
-File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
-J_estimated = 1.756498	W_avg = 127.874374
-Preprocessing: 1.518701 secs
-SPMV time: 0.013736 secs
-GFLOPS: 33.019569
-File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
-J_estimated = 1.385018	W_avg = 106.181451
-Preprocessing: 1.475874 secs
-SPMV time: 0.013044 secs
-GFLOPS: 37.621751
-File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
-J_estimated = 1.388481	W_avg = 123.240941
-Preprocessing: 1.313778 secs
-SPMV time: 0.011266 secs
-GFLOPS: 47.722244
-File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
-J_estimated = 2.319352	W_avg = 140.147103
-Preprocessing: 1.815608 secs
-SPMV time: 0.016549 secs
-GFLOPS: 36.723014
-File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
-J_estimated = 3.479691	W_avg = 113.810856
-Preprocessing: 1.058704 secs
-SPMV time: 0.030574 secs
-GFLOPS: 21.973619
+GFLOPS: 65.992227
 File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
-J_estimated = 33.007881	W_avg = 122.926508
-Preprocessing: 2.902912 secs
-SPMV time: 0.268517 secs
-GFLOPS: 2.960768
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 2.656000	W_avg = 9.214709
+Preprocessing: 3.265098 secs
+SPMV time: 0.288235 secs
+GFLOPS: 2.758227
 File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
-J_estimated = 2.672509	W_avg = 133.837488
-Preprocessing: 1.737170 secs
-SPMV time: 0.019968 secs
-GFLOPS: 51.375897
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.128000	W_avg = 9.309213
+Preprocessing: 2.221469 secs
+SPMV time: 0.013750 secs
+GFLOPS: 74.611167
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 12.848000	W_avg = 8.400990
+Preprocessing: 55.813951 secs
+SPMV time: 1.529344 secs
+GFLOPS: 0.648104
 File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
-J_estimated = 3.546526	W_avg = 140.994029
-Preprocessing: 1.768888 secs
-SPMV time: 0.025154 secs
-GFLOPS: 44.218482
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.167000	W_avg = 8.237936
+Preprocessing: 2.118573 secs
+SPMV time: 0.020272 secs
+GFLOPS: 54.866622
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2666301 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
-J_estimated = 3.915006	W_avg = 142.724850
-Preprocessing: 3.852059 secs
-SPMV time: 0.027430 secs
-GFLOPS: 41.189379
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.175000	W_avg = 8.277931
+Preprocessing: 4.157934 secs
+SPMV time: 0.021141 secs
+GFLOPS: 53.444352
 File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
-J_estimated = 151.661883	W_avg = 120.528172
-Preprocessing: 6.217854 secs
-SPMV time: 1.258311 secs
-GFLOPS: 1.094091
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 10.915000	W_avg = 8.406971
+Preprocessing: 7.147056 secs
+SPMV time: 1.298327 secs
+GFLOPS: 1.060370
 File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
-J_estimated = 4.569898	W_avg = 135.912024
-Preprocessing: 2.548697 secs
-SPMV time: 0.033624 secs
-GFLOPS: 45.761525
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.229000	W_avg = 8.487292
+Preprocessing: 2.880831 secs
+SPMV time: 0.026982 secs
+GFLOPS: 57.027295
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2666621 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.883000	W_avg = 7.610793
+Preprocessing: 62.771145 secs
+SPMV time: 2.349689 secs
+GFLOPS: 0.672811
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.847000	W_avg = 7.479973
+Preprocessing: 6.710589 secs
+SPMV time: 0.113236 secs
+GFLOPS: 17.267063
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2666869 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
-J_estimated = 8.372781	W_avg = 113.631818
-Preprocessing: 2.741193 secs
-SPMV time: 0.073683 secs
-GFLOPS: 27.146289
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.490000	W_avg = 7.707359
+Preprocessing: 3.139793 secs
+SPMV time: 0.063576 secs
+GFLOPS: 31.462249
 File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
-J_estimated = 9.959916	W_avg = 104.779036
-Preprocessing: 7.005281 secs
-SPMV time: 0.095056 secs
-GFLOPS: 22.043705
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.696000	W_avg = 7.582231
+Preprocessing: 8.308678 secs
+SPMV time: 0.091794 secs
+GFLOPS: 22.827253
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.741000	W_avg = 7.583892
+Preprocessing: 5.740451 secs
+SPMV time: 0.097707 secs
+GFLOPS: 23.375766
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2667191 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
-J_estimated = 43.827317	W_avg = 121.571152
-Preprocessing: 4.199838 secs
-SPMV time: 0.360508 secs
-GFLOPS: 7.351640
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 2.912000	W_avg = 7.627984
+Preprocessing: 4.423303 secs
+SPMV time: 0.381752 secs
+GFLOPS: 6.942517
 File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
-J_estimated = 141.280009	W_avg = 118.698930
-Preprocessing: 6.770995 secs
-SPMV time: 1.190238 secs
-GFLOPS: 2.427003
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 9.269000	W_avg = 7.610825
+Preprocessing: 7.249081 secs
+SPMV time: 1.217871 secs
+GFLOPS: 2.371937
 File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
-J_estimated = 11.603365	W_avg = 101.494796
-Preprocessing: 4.813846 secs
-SPMV time: 0.114325 secs
-GFLOPS: 26.052216
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.848000	W_avg = 7.693850
+Preprocessing: 5.393920 secs
+SPMV time: 0.110218 secs
+GFLOPS: 27.022947
 File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
-J_estimated = 25.203415	W_avg = 107.055853
-Preprocessing: 5.299327 secs
-SPMV time: 0.235423 secs
-GFLOPS: 15.385527
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 1.860000	W_avg = 7.604187
+Preprocessing: 6.098404 secs
+SPMV time: 0.244602 secs
+GFLOPS: 14.808164
 File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
-J_estimated = 59.713462	W_avg = 108.507533
-Preprocessing: 6.868318 secs
-SPMV time: 0.550316 secs
-GFLOPS: 6.983046
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 4.267000	W_avg = 7.602181
+Preprocessing: 8.653510 secs
+SPMV time: 0.561286 secs
+GFLOPS: 6.846566
 File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
-J_estimated = 27.680184	W_avg = 123.881765
-Preprocessing: 14.097788 secs
-SPMV time: 0.223440 secs
-GFLOPS: 18.527627
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 1.708000	W_avg = 7.598081
+Preprocessing: 15.947092 secs
+SPMV time: 0.224794 secs
+GFLOPS: 18.416089
 File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
-J_estimated = 88.672004	W_avg = 99.851377
-Preprocessing: 11.952251 secs
-SPMV time: 0.888040 secs
-GFLOPS: 4.876769
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 6.947000	W_avg = 7.617925
+Preprocessing: 13.289136 secs
+SPMV time: 0.911928 secs
+GFLOPS: 4.749021
 File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
-J_estimated = 86.213647	W_avg = 105.736999
-Preprocessing: 8.347637 secs
-SPMV time: 0.815359 secs
-GFLOPS: 5.804864
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 6.268000	W_avg = 7.613205
+Preprocessing: 10.756056 secs
+SPMV time: 0.823306 secs
+GFLOPS: 5.748832
 File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
-J_estimated = 74.802035	W_avg = 100.498085
-Preprocessing: 12.129226 secs
-SPMV time: 0.744313 secs
-GFLOPS: 6.615759
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 5.837000	W_avg = 7.619375
+Preprocessing: 13.471758 secs
+SPMV time: 0.766073 secs
+GFLOPS: 6.427839
 File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
-J_estimated = 407.873949	W_avg = 107.539307
-Preprocessing: 13.920534 secs
-SPMV time: 3.792789 secs
-GFLOPS: 1.333264
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 32.933000	W_avg = 8.416111
+Preprocessing: 14.805273 secs
+SPMV time: 3.913090 secs
+GFLOPS: 1.292275
+File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 52.215000	W_avg = 8.405282
+Preprocessing: 13.468652 secs
+SPMV time: 6.212165 secs
+GFLOPS: 0.872236
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 3.925000	W_avg = 8.389991
+Preprocessing: 21.073640 secs
+SPMV time: 0.467819 secs
+GFLOPS: 11.117456
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 13.593000	W_avg = 8.402897
+Preprocessing: 14.523909 secs
+SPMV time: 1.617656 secs
+GFLOPS: 3.904061
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2668330 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.474000	W_avg = 8.407114
+Preprocessing: 21.306020 secs
+SPMV time: 2.078478 secs
+GFLOPS: 3.681843
+File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 206.437000	W_avg = 8.407169
+Preprocessing: 47.493601 secs
+SPMV time: 24.554876 secs
+GFLOPS: 0.377756
+File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 8.343000	W_avg = 8.401780
+Preprocessing: 30.103500 secs
+SPMV time: 0.993004 secs
+GFLOPS: 9.863535
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+run.sh: line 154: 2668665 Killed                  "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
-J_estimated = 84.182085	W_avg = 88.359677
-Preprocessing: 18.595403 secs
-SPMV time: 0.952721 secs
-GFLOPS: 12.500783
-File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
-J_estimated = 2782.769665	W_avg = 128.559211
-Preprocessing: 1408.925281 secs
-SPMV time: 21.645821 secs
-GFLOPS: 0.703980
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 8.102000	W_avg = 8.403613
+Preprocessing: 20.718873 secs
+SPMV time: 0.964109 secs
+GFLOPS: 12.353118
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 12.409000	W_avg = 8.401842
+Preprocessing: 28.166172 secs
+SPMV time: 1.476938 secs
+GFLOPS: 8.413333
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2668916 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
-J_estimated = 113.208850	W_avg = 88.389891
-Preprocessing: 24.554968 secs
-SPMV time: 1.280790 secs
-GFLOPS: 14.324429
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 10.784000	W_avg = 8.403423
+Preprocessing: 28.204994 secs
+SPMV time: 1.283287 secs
+GFLOPS: 14.296556
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 14.768000	W_avg = 8.410903
+Preprocessing: 44.707550 secs
+SPMV time: 1.755816 secs
+GFLOPS: 11.321728
 File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
-J_estimated = 195.748388	W_avg = 92.223675
-Preprocessing: 71.978939 secs
-SPMV time: 2.122539 secs
-GFLOPS: 11.964482
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 18.043000	W_avg = 8.474050
+Preprocessing: 84.666263 secs
+SPMV time: 2.129206 secs
+GFLOPS: 11.927020
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2669254 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
-J_estimated = 1.162458	W_avg = 144.862288
-Preprocessing: 0.860219 secs
-SPMV time: 0.008025 secs
-GFLOPS: 30.591985
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.085000	W_avg = 8.153442
+Preprocessing: 1.151058 secs
+SPMV time: 0.010425 secs
+GFLOPS: 23.547871
 File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
-J_estimated = 2.298997	W_avg = 133.753226
-Preprocessing: 1.039130 secs
-SPMV time: 0.017188 secs
-GFLOPS: 18.965615
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.152000	W_avg = 9.523280
+Preprocessing: 1.256170 secs
+SPMV time: 0.015961 secs
+GFLOPS: 20.424152
 File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
-J_estimated = 1.114848	W_avg = 103.458318
-Preprocessing: 1.285554 secs
-SPMV time: 0.010776 secs
-GFLOPS: 35.368508
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.057000	W_avg = 9.348673
+Preprocessing: 1.511773 secs
+SPMV time: 0.006097 secs
+GFLOPS: 62.508936
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2669578 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
-J_estimated = 1.726953	W_avg = 129.186153
-Preprocessing: 1.510350 secs
-SPMV time: 0.013368 secs
-GFLOPS: 33.928995
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.074000	W_avg = 8.901589
+Preprocessing: 1.769101 secs
+SPMV time: 0.008313 secs
+GFLOPS: 54.559620
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.075000	W_avg = 8.465696
+Preprocessing: 1.826406 secs
+SPMV time: 0.008859 secs
+GFLOPS: 53.547745
 File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
-J_estimated = 1.367853	W_avg = 107.137554
-Preprocessing: 1.469803 secs
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.057000	W_avg = 8.146531
+Preprocessing: 1.761619 secs
+SPMV time: 0.006997 secs
+GFLOPS: 70.136427
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.078000	W_avg = 9.249067
+Preprocessing: 1.503980 secs
+SPMV time: 0.008433 secs
+GFLOPS: 63.754246
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.115000	W_avg = 9.899384
+Preprocessing: 2.085536 secs
+SPMV time: 0.011617 secs
+GFLOPS: 52.315596
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.195000	W_avg = 9.033981
+Preprocessing: 1.133348 secs
+SPMV time: 0.021585 secs
+GFLOPS: 31.124553
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.097000	W_avg = 8.737129
+Preprocessing: 3.515874 secs
+SPMV time: 0.011102 secs
+GFLOPS: 65.630644
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 2.696000	W_avg = 9.175075
+Preprocessing: 3.067758 secs
+SPMV time: 0.293840 secs
+GFLOPS: 2.705617
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.117000	W_avg = 9.221424
+Preprocessing: 2.070834 secs
+SPMV time: 0.012688 secs
+GFLOPS: 80.856130
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 12.752000	W_avg = 8.405452
+Preprocessing: 55.362470 secs
+SPMV time: 1.517111 secs
+GFLOPS: 0.653330
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.179000	W_avg = 8.633708
+Preprocessing: 2.092364 secs
+SPMV time: 0.020733 secs
+GFLOPS: 53.647638
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2670544 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.174000	W_avg = 8.174414
+Preprocessing: 4.335683 secs
+SPMV time: 0.021286 secs
+GFLOPS: 53.079332
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 11.090000	W_avg = 8.408393
+Preprocessing: 6.891525 secs
+SPMV time: 1.318920 secs
+GFLOPS: 1.043814
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.213000	W_avg = 7.928138
+Preprocessing: 2.887469 secs
+SPMV time: 0.026866 secs
+GFLOPS: 57.271784
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2670865 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.518000	W_avg = 7.617035
+Preprocessing: 62.727666 secs
+SPMV time: 2.299845 secs
+GFLOPS: 0.687393
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.873000	W_avg = 7.600542
+Preprocessing: 13.032129 secs
+SPMV time: 0.114860 secs
+GFLOPS: 17.022847
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2671113 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.503000	W_avg = 7.759496
+Preprocessing: 3.198215 secs
+SPMV time: 0.064824 secs
+GFLOPS: 30.856436
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.691000	W_avg = 7.702091
+Preprocessing: 8.156026 secs
+SPMV time: 0.089716 secs
+GFLOPS: 23.355893
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.735000	W_avg = 7.581073
+Preprocessing: 5.854472 secs
+SPMV time: 0.096952 secs
+GFLOPS: 23.557827
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2671435 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 2.914000	W_avg = 7.638824
+Preprocessing: 4.698368 secs
+SPMV time: 0.381472 secs
+GFLOPS: 6.947611
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 9.220000	W_avg = 7.608007
+Preprocessing: 10.073259 secs
+SPMV time: 1.211881 secs
+GFLOPS: 2.383660
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.857000	W_avg = 7.634845
+Preprocessing: 7.415545 secs
+SPMV time: 0.112249 secs
+GFLOPS: 26.534094
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 1.833000	W_avg = 7.581874
+Preprocessing: 5.721902 secs
+SPMV time: 0.241761 secs
+GFLOPS: 14.982196
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 4.304000	W_avg = 7.629246
+Preprocessing: 8.183861 secs
+SPMV time: 0.564145 secs
+GFLOPS: 6.811874
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 1.716000	W_avg = 7.615399
+Preprocessing: 16.706871 secs
+SPMV time: 0.225333 secs
+GFLOPS: 18.372014
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 6.915000	W_avg = 7.597740
+Preprocessing: 21.881675 secs
+SPMV time: 0.910139 secs
+GFLOPS: 4.758356
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 6.255000	W_avg = 7.620340
+Preprocessing: 9.491146 secs
+SPMV time: 0.820829 secs
+GFLOPS: 5.766179
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 5.931000	W_avg = 7.753886
+Preprocessing: 15.090363 secs
+SPMV time: 0.764907 secs
+GFLOPS: 6.437642
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 32.431000	W_avg = 8.404858
+Preprocessing: 22.136434 secs
+SPMV time: 3.858602 secs
+GFLOPS: 1.310523
+File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 52.196000	W_avg = 8.406797
+Preprocessing: 14.025928 secs
+SPMV time: 6.208785 secs
+GFLOPS: 0.872711
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 3.918000	W_avg = 8.404475
+Preprocessing: 18.884053 secs
+SPMV time: 0.466180 secs
+GFLOPS: 11.156545
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 13.582000	W_avg = 8.404059
+Preprocessing: 13.693193 secs
+SPMV time: 1.616124 secs
+GFLOPS: 3.907763
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2672572 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.489000	W_avg = 8.399555
+Preprocessing: 20.344409 secs
+SPMV time: 2.082134 secs
+GFLOPS: 3.675378
+File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 204.774000	W_avg = 8.415295
+Preprocessing: 48.526425 secs
+SPMV time: 24.333550 secs
+GFLOPS: 0.381192
+File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 8.603000	W_avg = 8.404188
+Preprocessing: 35.677326 secs
+SPMV time: 1.023656 secs
+GFLOPS: 9.568181
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+run.sh: line 154: 2672905 Killed                  "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 8.110000	W_avg = 8.405026
+Preprocessing: 30.490623 secs
+SPMV time: 0.964899 secs
+GFLOPS: 12.343007
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 12.453000	W_avg = 8.410077
+Preprocessing: 28.956238 secs
+SPMV time: 1.480724 secs
+GFLOPS: 8.391824
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2673158 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 10.695000	W_avg = 8.410478
+Preprocessing: 27.424303 secs
+SPMV time: 1.271628 secs
+GFLOPS: 14.427630
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 14.743000	W_avg = 8.402898
+Preprocessing: 45.885524 secs
+SPMV time: 1.754514 secs
+GFLOPS: 11.330132
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.939000	W_avg = 8.408206
+Preprocessing: 83.411331 secs
+SPMV time: 2.133511 secs
+GFLOPS: 11.902955
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2673491 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.088000	W_avg = 8.478357
+Preprocessing: 1.067505 secs
+SPMV time: 0.010379 secs
+GFLOPS: 23.651497
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.109000	W_avg = 8.824560
+Preprocessing: 1.284437 secs
+SPMV time: 0.012352 secs
+GFLOPS: 26.391715
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.052000	W_avg = 9.132988
+Preprocessing: 1.623982 secs
+SPMV time: 0.005694 secs
+GFLOPS: 66.938585
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2673811 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.075000	W_avg = 9.179604
+Preprocessing: 1.817643 secs
+SPMV time: 0.008170 secs
+GFLOPS: 55.513452
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.074000	W_avg = 8.051067
+Preprocessing: 2.027705 secs
+SPMV time: 0.009191 secs
+GFLOPS: 51.613284
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.049000	W_avg = 7.198592
+Preprocessing: 6.556255 secs
+SPMV time: 0.006807 secs
+GFLOPS: 72.093685
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.081000	W_avg = 9.086740
+Preprocessing: 3.611954 secs
+SPMV time: 0.008914 secs
+GFLOPS: 60.315492
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.099000	W_avg = 8.468566
+Preprocessing: 2.022566 secs
+SPMV time: 0.011690 secs
+GFLOPS: 51.987094
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.189000	W_avg = 8.510423
+Preprocessing: 1.291262 secs
+SPMV time: 0.022208 secs
+GFLOPS: 30.251571
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.102000	W_avg = 8.523831
+Preprocessing: 3.267074 secs
+SPMV time: 0.011966 secs
+GFLOPS: 60.889763
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 2.478000	W_avg = 8.590201
+Preprocessing: 3.130798 secs
+SPMV time: 0.288468 secs
+GFLOPS: 2.755996
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.109000	W_avg = 8.353379
+Preprocessing: 2.028181 secs
+SPMV time: 0.013049 secs
+GFLOPS: 78.620626
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 13.170000	W_avg = 8.406674
+Preprocessing: 55.465075 secs
+SPMV time: 1.566613 secs
+GFLOPS: 0.632686
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.180000	W_avg = 8.559421
+Preprocessing: 2.047465 secs
+SPMV time: 0.021029 secs
+GFLOPS: 52.890556
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2674779 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.170000	W_avg = 7.931109
+Preprocessing: 4.346177 secs
+SPMV time: 0.021435 secs
+GFLOPS: 52.711221
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 11.070000	W_avg = 8.406373
+Preprocessing: 7.298054 secs
+SPMV time: 1.316858 secs
+GFLOPS: 1.045448
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.223000	W_avg = 8.254152
+Preprocessing: 2.761304 secs
+SPMV time: 0.027017 secs
+GFLOPS: 56.953018
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2675099 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.483000	W_avg = 7.610066
+Preprocessing: 62.512423 secs
+SPMV time: 2.297352 secs
+GFLOPS: 0.688139
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.851000	W_avg = 7.589669
+Preprocessing: 13.498959 secs
+SPMV time: 0.112126 secs
+GFLOPS: 17.437938
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2675346 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.490000	W_avg = 7.446987
+Preprocessing: 3.077887 secs
+SPMV time: 0.065798 secs
+GFLOPS: 30.399382
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.694000	W_avg = 7.630962
+Preprocessing: 9.022804 secs
+SPMV time: 0.090945 secs
+GFLOPS: 23.040169
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.740000	W_avg = 7.593509
+Preprocessing: 5.794693 secs
+SPMV time: 0.097452 secs
+GFLOPS: 23.437037
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2675670 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 2.897000	W_avg = 7.594632
+Preprocessing: 4.489289 secs
+SPMV time: 0.381454 secs
+GFLOPS: 6.947952
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 9.295000	W_avg = 7.605444
+Preprocessing: 7.350525 secs
+SPMV time: 1.222151 secs
+GFLOPS: 2.363630
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.860000	W_avg = 7.679532
+Preprocessing: 5.918756 secs
+SPMV time: 0.111986 secs
+GFLOPS: 26.596296
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 1.854000	W_avg = 7.606572
+Preprocessing: 7.094621 secs
+SPMV time: 0.243737 secs
+GFLOPS: 14.860746
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 4.275000	W_avg = 7.621080
+Preprocessing: 15.570628 secs
+SPMV time: 0.560944 secs
+GFLOPS: 6.850743
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 1.732000	W_avg = 7.615859
+Preprocessing: 16.923407 secs
+SPMV time: 0.227420 secs
+GFLOPS: 18.203394
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 6.946000	W_avg = 7.630553
+Preprocessing: 12.949512 secs
+SPMV time: 0.910288 secs
+GFLOPS: 4.757578
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 6.258000	W_avg = 7.611906
+Preprocessing: 9.513403 secs
+SPMV time: 0.822133 secs
+GFLOPS: 5.757036
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 6.106000	W_avg = 7.943503
+Preprocessing: 13.480096 secs
+SPMV time: 0.768679 secs
+GFLOPS: 6.406054
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 31.763000	W_avg = 8.407106
+Preprocessing: 15.150088 secs
+SPMV time: 3.778113 secs
+GFLOPS: 1.338443
+File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 52.157000	W_avg = 8.412267
+Preprocessing: 13.894386 secs
+SPMV time: 6.200112 secs
+GFLOPS: 0.873931
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 3.919000	W_avg = 8.400577
+Preprocessing: 19.370282 secs
+SPMV time: 0.466516 secs
+GFLOPS: 11.148525
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 13.605000	W_avg = 8.403606
+Preprocessing: 14.390351 secs
+SPMV time: 1.618948 secs
+GFLOPS: 3.900946
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2676806 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.440000	W_avg = 8.402752
+Preprocessing: 21.884830 secs
+SPMV time: 2.075510 secs
+GFLOPS: 3.687107
+File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 207.332000	W_avg = 8.405527
+Preprocessing: 47.770913 secs
+SPMV time: 24.666152 secs
+GFLOPS: 0.376052
+File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 9.158000	W_avg = 8.408902
+Preprocessing: 31.058655 secs
+SPMV time: 1.089084 secs
+GFLOPS: 8.993365
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+run.sh: line 154: 2677140 Killed                  "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 8.106000	W_avg = 8.409570
+Preprocessing: 21.654371 secs
+SPMV time: 0.963902 secs
+GFLOPS: 12.355774
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 12.468000	W_avg = 8.407989
+Preprocessing: 30.098147 secs
+SPMV time: 1.482875 secs
+GFLOPS: 8.379646
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2677394 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 10.716000	W_avg = 8.412936
+Preprocessing: 28.540982 secs
+SPMV time: 1.273753 secs
+GFLOPS: 14.403565
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 14.822000	W_avg = 8.399954
+Preprocessing: 45.251879 secs
+SPMV time: 1.764534 secs
+GFLOPS: 11.265795
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.919000	W_avg = 8.413617
+Preprocessing: 82.937113 secs
+SPMV time: 2.129762 secs
+GFLOPS: 11.923908
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2677728 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.089000	W_avg = 8.406798
+Preprocessing: 0.998283 secs
+SPMV time: 0.010587 secs
+GFLOPS: 23.188370
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.136000	W_avg = 8.461813
+Preprocessing: 1.225268 secs
+SPMV time: 0.016072 secs
+GFLOPS: 20.282691
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.052000	W_avg = 8.826999
+Preprocessing: 1.435085 secs
+SPMV time: 0.005891 secs
+GFLOPS: 64.695893
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2678048 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.063000	W_avg = 7.756306
+Preprocessing: 1.838867 secs
+SPMV time: 0.008122 secs
+GFLOPS: 55.840583
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.080000	W_avg = 9.276497
+Preprocessing: 1.719395 secs
+SPMV time: 0.008624 secs
+GFLOPS: 55.009004
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.053000	W_avg = 8.353537
+Preprocessing: 1.978028 secs
+SPMV time: 0.006345 secs
+GFLOPS: 77.346433
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.079000	W_avg = 8.459560
+Preprocessing: 1.689677 secs
+SPMV time: 0.009339 secs
+GFLOPS: 57.574010
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.098000	W_avg = 8.016416
+Preprocessing: 2.128112 secs
+SPMV time: 0.012225 secs
+GFLOPS: 49.713577
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.187000	W_avg = 8.320362
+Preprocessing: 1.198078 secs
+SPMV time: 0.022475 secs
+GFLOPS: 29.892291
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.093000	W_avg = 8.094761
+Preprocessing: 3.576375 secs
+SPMV time: 0.011489 secs
+GFLOPS: 63.420659
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 2.492000	W_avg = 8.391427
+Preprocessing: 3.406671 secs
+SPMV time: 0.296970 secs
+GFLOPS: 2.677098
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.139000	W_avg = 10.887720
+Preprocessing: 2.238926 secs
 SPMV time: 0.012767 secs
-GFLOPS: 38.436874
-File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
-J_estimated = 1.368690	W_avg = 123.329650
-Preprocessing: 1.300642 secs
-SPMV time: 0.011098 secs
-GFLOPS: 48.447146
-File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
-J_estimated = 2.323762	W_avg = 142.252570
-Preprocessing: 1.813708 secs
-SPMV time: 0.016335 secs
-GFLOPS: 37.203974
-File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
-J_estimated = 3.666711	W_avg = 134.087179
-Preprocessing: 1.058928 secs
-SPMV time: 0.027346 secs
-GFLOPS: 24.567963
-File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
-J_estimated = 32.763329	W_avg = 123.646819
-Preprocessing: 2.917697 secs
-SPMV time: 0.264975 secs
-GFLOPS: 3.000347
-File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
-J_estimated = 2.718211	W_avg = 134.815631
-Preprocessing: 1.747431 secs
-SPMV time: 0.020162 secs
-GFLOPS: 50.881265
+GFLOPS: 80.356864
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 12.800000	W_avg = 8.429738
+Preprocessing: 55.491172 secs
+SPMV time: 1.518434 secs
+GFLOPS: 0.652761
 File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
-J_estimated = 3.535461	W_avg = 140.292954
-Preprocessing: 1.777646 secs
-SPMV time: 0.025201 secs
-GFLOPS: 44.136314
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.164000	W_avg = 7.934045
+Preprocessing: 2.324891 secs
+SPMV time: 0.020670 secs
+GFLOPS: 53.809268
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2679088 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
-J_estimated = 3.943669	W_avg = 143.859779
-Preprocessing: 3.832671 secs
-SPMV time: 0.027413 secs
-GFLOPS: 41.215162
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.179000	W_avg = 8.451124
+Preprocessing: 5.114639 secs
+SPMV time: 0.021181 secs
+GFLOPS: 53.343255
 File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
-J_estimated = 153.047145	W_avg = 120.217862
-Preprocessing: 6.241828 secs
-SPMV time: 1.273082 secs
-GFLOPS: 1.081397
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 10.904000	W_avg = 8.406718
+Preprocessing: 7.821202 secs
+SPMV time: 1.297058 secs
+GFLOPS: 1.061407
 File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
-J_estimated = 4.597693	W_avg = 128.918015
-Preprocessing: 2.535171 secs
-SPMV time: 0.035664 secs
-GFLOPS: 43.144234
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.230000	W_avg = 8.468077
+Preprocessing: 3.130691 secs
+SPMV time: 0.027161 secs
+GFLOPS: 56.650805
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2679410 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.332000	W_avg = 7.612569
+Preprocessing: 63.695773 secs
+SPMV time: 2.276761 secs
+GFLOPS: 0.694362
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.856000	W_avg = 7.565246
+Preprocessing: 6.444454 secs
+SPMV time: 0.113149 secs
+GFLOPS: 17.280297
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2679652 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
-J_estimated = 8.093651	W_avg = 112.643621
-Preprocessing: 2.739543 secs
-SPMV time: 0.071852 secs
-GFLOPS: 27.838279
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.496000	W_avg = 7.684143
+Preprocessing: 3.138935 secs
+SPMV time: 0.064549 secs
+GFLOPS: 30.988032
 File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
-J_estimated = 10.440625	W_avg = 104.127478
-Preprocessing: 7.017697 secs
-SPMV time: 0.100268 secs
-GFLOPS: 20.898000
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.692000	W_avg = 7.513333
+Preprocessing: 8.396313 secs
+SPMV time: 0.092103 secs
+GFLOPS: 22.750575
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.745000	W_avg = 7.635911
+Preprocessing: 6.037236 secs
+SPMV time: 0.097565 secs
+GFLOPS: 23.409734
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2679975 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
-J_estimated = 44.833469	W_avg = 124.481333
-Preprocessing: 4.194609 secs
-SPMV time: 0.360162 secs
-GFLOPS: 7.358689
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 2.927000	W_avg = 7.600857
+Preprocessing: 4.312236 secs
+SPMV time: 0.385088 secs
+GFLOPS: 6.882377
 File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
-J_estimated = 142.760141	W_avg = 119.665742
-Preprocessing: 6.785758 secs
-SPMV time: 1.192991 secs
-GFLOPS: 2.421403
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 9.234000	W_avg = 7.614906
+Preprocessing: 7.545772 secs
+SPMV time: 1.212622 secs
+GFLOPS: 2.382204
 File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
-J_estimated = 11.657615	W_avg = 100.876090
-Preprocessing: 4.775667 secs
-SPMV time: 0.115564 secs
-GFLOPS: 25.772906
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 0.858000	W_avg = 7.620103
+Preprocessing: 5.552385 secs
+SPMV time: 0.112597 secs
+GFLOPS: 26.451994
 File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
-J_estimated = 25.266165	W_avg = 106.954252
-Preprocessing: 5.301780 secs
-SPMV time: 0.236233 secs
-GFLOPS: 15.332751
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 1.847000	W_avg = 7.610883
+Preprocessing: 5.908014 secs
+SPMV time: 0.242679 secs
+GFLOPS: 14.925522
 File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
-J_estimated = 59.603296	W_avg = 108.178931
-Preprocessing: 6.884440 secs
-SPMV time: 0.550970 secs
-GFLOPS: 6.974766
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 4.271000	W_avg = 7.602692
+Preprocessing: 7.912813 secs
+SPMV time: 0.561775 secs
+GFLOPS: 6.840614
 File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
-J_estimated = 27.549061	W_avg = 123.682569
-Preprocessing: 14.152591 secs
-SPMV time: 0.222740 secs
-GFLOPS: 18.585878
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 1.728000	W_avg = 7.625708
+Preprocessing: 15.680333 secs
+SPMV time: 0.226602 secs
+GFLOPS: 18.269128
 File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
-J_estimated = 89.006722	W_avg = 100.354701
-Preprocessing: 11.941688 secs
-SPMV time: 0.886921 secs
-GFLOPS: 4.882920
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 6.888000	W_avg = 7.603349
+Preprocessing: 13.292523 secs
+SPMV time: 0.905917 secs
+GFLOPS: 4.780535
 File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
-J_estimated = 85.851246	W_avg = 106.707727
-Preprocessing: 8.353237 secs
-SPMV time: 0.804546 secs
-GFLOPS: 5.882885
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 6.249000	W_avg = 7.614711
+Preprocessing: 9.914835 secs
+SPMV time: 0.820648 secs
+GFLOPS: 5.767452
 File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
-J_estimated = 74.876814	W_avg = 100.241708
-Preprocessing: 12.274288 secs
-SPMV time: 0.746963 secs
-GFLOPS: 6.592292
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 6.456000	W_avg = 8.401586
+Preprocessing: 28.871539 secs
+SPMV time: 0.768426 secs
+GFLOPS: 6.408156
 File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
-J_estimated = 419.785551	W_avg = 107.375692
-Preprocessing: 13.914022 secs
-SPMV time: 3.909503 secs
-GFLOPS: 1.293461
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 32.074000	W_avg = 8.402876
+Preprocessing: 15.053703 secs
+SPMV time: 3.817027 secs
+GFLOPS: 1.324798
+File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 52.320000	W_avg = 8.412429
+Preprocessing: 13.818144 secs
+SPMV time: 6.219369 secs
+GFLOPS: 0.871225
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 3.937000	W_avg = 8.409214
+Preprocessing: 21.811669 secs
+SPMV time: 0.468177 secs
+GFLOPS: 11.108965
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 13.594000	W_avg = 8.402390
+Preprocessing: 14.200699 secs
+SPMV time: 1.617873 secs
+GFLOPS: 3.903538
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2681109 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.454000	W_avg = 8.404428
+Preprocessing: 32.154018 secs
+SPMV time: 2.076762 secs
+GFLOPS: 3.684884
+File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 207.326000	W_avg = 8.406494
+Preprocessing: 48.594423 secs
+SPMV time: 24.662601 secs
+GFLOPS: 0.376106
+File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 8.476000	W_avg = 8.422375
+Preprocessing: 32.337919 secs
+SPMV time: 1.006367 secs
+GFLOPS: 9.732561
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+run.sh: line 154: 2681437 Killed                  "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
-J_estimated = 83.950401	W_avg = 88.111588
-Preprocessing: 18.470012 secs
-SPMV time: 0.952774 secs
-GFLOPS: 12.500087
-File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
-J_estimated = 2786.176286	W_avg = 128.862946
-Preprocessing: 1408.903098 secs
-SPMV time: 21.621237 secs
-GFLOPS: 0.704780
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 8.069000	W_avg = 8.400327
+Preprocessing: 22.624092 secs
+SPMV time: 0.960558 secs
+GFLOPS: 12.398788
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 12.434000	W_avg = 8.401932
+Preprocessing: 33.656870 secs
+SPMV time: 1.479898 secs
+GFLOPS: 8.396507
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2681689 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1
 File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
-J_estimated = 113.437985	W_avg = 88.654541
-Preprocessing: 24.676215 secs
-SPMV time: 1.279551 secs
-GFLOPS: 14.338297
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 10.729000	W_avg = 8.411366
+Preprocessing: 27.751559 secs
+SPMV time: 1.275536 secs
+GFLOPS: 14.383427
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] PERFWARNING at unknown() <matrixmarket.c:99>: Will create a general matrix out of a symmetric matrix!
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 14.753000	W_avg = 8.405335
+Preprocessing: 43.266749 secs
+SPMV time: 1.755195 secs
+GFLOPS: 11.325736
 File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
-J_estimated = 196.049982	W_avg = 92.333884
-Preprocessing: 71.881320 secs
-SPMV time: 2.123272 secs
-GFLOPS: 11.960352
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+J_estimated = 17.937000	W_avg = 8.404529
+Preprocessing: 94.940697 secs
+SPMV time: 2.134206 secs
+GFLOPS: 11.899077
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+schedule 1
+[GHOST] INFO at unknown() <core.c:239>: # sockets: 2, # NUMA nodes: 2, # cores: 160, # PUs: 160
+[GHOST] INFO at unknown() <core.c:523>: One process per node
+[GHOST] ERROR at unknown() <matrixmarket.c:85>: Pattern matrices not supported!
+[GHOST] ERROR at unknown() <sparsemat.c:1144>: Error in matrix creation function
+[GHOST] GHOST_ERROR at unknown() <sparsemat.c:742>: Unknown error
+[GHOST] INFO at unknown() <sell_spmv.cpp:578>: Try chunkheight=32, blocksz=1, impl=PLAIN, aligned
+[GHOST] INFO at unknown() <sell_spmv.cpp:604>: Found kernel with highest specialization grade: C=32 blocksz=1 align=1 impl=PLAIN
+run.sh: line 154: 2682019 Segmentation fault      "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1

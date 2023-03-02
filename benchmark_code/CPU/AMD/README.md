@@ -23,7 +23,7 @@ To test different formats/implementations, you can use the class template provid
 
 To compile this benchmark, you need to first edit the `config.sh` file with the appropriate benchmark configurations that you want (number of threads, desired matrices, spmv kernels ...). Additionally, paths for MKL, AOCL-Sparse, SparseX and SELL-C-σ libraries have to be set properly. Then you run `make` in any `spmv_code_*` directory.
 
-(The SparseX and SELL-C-σ projects have to be built beforehand. The `install_sparsex.sh` and `install_sell_C_s.sh` bash scripts build SparseX and SELL-C-σ respectively. In these scripts, you have to specify the location of the `ROOT_DIR`, where the libraries, along with their dependencies, will be built/installed.)
+The SparseX and SELL-C-σ projects have to be built beforehand. The `install_sparsex.sh` and `install_sell_C_s.sh` bash scripts build SparseX and SELL-C-σ respectively. In these scripts, you have to specify the location of the `ROOT_DIR`, where the libraries, along with their dependencies, will be built/installed.
 
 ### How to run
 

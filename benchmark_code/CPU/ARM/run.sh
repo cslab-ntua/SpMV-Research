@@ -35,8 +35,6 @@ export GOMP_CPU_AFFINITY="$cpu_affinity"
 # printf "cpu affinities: %s\n" "$cpu_affinity"
 # exit
 
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${SPARSEX_LIB_PATH}
-
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'
 # Don't let the runtime deliver fewer threads than those we asked for.
@@ -130,6 +128,8 @@ bench()
         #     # since affinity is set with the runtime variable, just reset it to "0" so no warnings are displayed, and reset it after execution of benchmark (for other benchmarks to run)
         #     export GOMP_CPU_AFFINITY_backup="${GOMP_CPU_AFFINITY}"
         #     export GOMP_CPU_AFFINITY="0"
+        #     export LD_LIBRARY_PATH_backup="${LD_LIBRARY_PATH}"
+        #     export LD_LIBRARY_PATH=${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${SPARSEX_LIB_PATH}
         #     mt_conf=$(seq -s ',' 0 1 "$(($t-1))")
         #     if ((!use_artificial_matrices)); then
         #         "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all
@@ -137,6 +137,7 @@ bench()
         #         prog_args2="${prog_args[@]}"
         #         "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all
         #     fi
+        #     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH_backup}"
         #     export GOMP_CPU_AFFINITY="${GOMP_CPU_AFFINITY_backup}"
         # elif [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
         if [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
@@ -147,7 +148,15 @@ bench()
                 "$prog" -c $OMP_NUM_THREADS --artif_args="${prog_args2[@]}" -f SELL-32-1
             fi
         else
-            "$prog" "${prog_args[@]}"
+            if [[ "$prog" == *"spmv_sparsex.exe"* ]]; then
+                # if sparsex, need to use non ARM-compiler LD_LIBRARY_PATH... well... (otherwise an issue about libstdc++ would occur, saying that GLIBC-4.3.0 not found...whatever)
+                export LD_LIBRARY_PATH_backup="${LD_LIBRARY_PATH}"
+                export LD_LIBRARY_PATH=${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${SPARSEX_LIB_PATH}
+                "$prog" "${prog_args[@]}"    
+                export LD_LIBRARY_PATH="${LD_LIBRARY_PATH_backup}"
+            else
+                "$prog" "${prog_args[@]}"
+            fi
         fi
 
     done
@@ -252,6 +261,8 @@ fi
 
 temp_labels=( $(printf "%s\n" /sys/class/hwmon/hwmon*/temp*_label | sort) )
 temp_inputs=( ${temp_labels[@]/label/input} )
+
+for cpu in `seq 0 159`; do cpufreq-set -g userspace -d 3GHz -u 3GHz -c $cpu; done
 
 for format_name in "${!progs[@]}"; do
     p="${progs["$format_name"]}"

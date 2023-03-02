@@ -10,17 +10,20 @@ export ARMPL_CBLAS_PATH="<<Insert ARMPL_CBLAS_PATH>>"
 #==========================================================================================================================================
 # Install SELL-C-σ prerequisites
 #==========================================================================================================================================
-cd "$ROOT_DIR"
 
-wget https://github.com/Kitware/CMake/releases/download/v3.26.0-rc3/cmake-3.26.0-rc3.tar.gz
-tar -xf cmake-3.26.0-rc3.tar.gz
-rm cmake-3.26.0-rc3.tar.gz
-cd cmake-3.26.0-rc3
+cd "$ROOT_DIR"
 export CMAKE_DIR="$ROOT_DIR"/cmake-3.26.0-rc3/build
-./bootstrap --prefix="$CMAKE_DIR"
-make -j
-make -j install
-cd ../
+if [ ! -d "$CMAKE_DIR" ] 
+then
+	wget https://github.com/Kitware/CMake/releases/download/v3.26.0-rc3/cmake-3.26.0-rc3.tar.gz
+	tar -xf cmake-3.26.0-rc3.tar.gz
+	rm cmake-3.26.0-rc3.tar.gz
+	cd cmake-3.26.0-rc3
+	./bootstrap --prefix="$CMAKE_DIR"
+	make -j
+	make -j install
+	cd ../
+fi
 
 wget https://download.open-mpi.org/release/hwloc/v1.11/hwloc-1.11.13.tar.gz
 tar -xf hwloc-1.11.13.tar.gz

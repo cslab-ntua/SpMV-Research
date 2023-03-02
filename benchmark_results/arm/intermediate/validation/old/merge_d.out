@@ -1,0 +1,1396 @@
+program: /various/pmpakos/SpMV-Research/benchmark_code/CPU/ARM/spmv_code_bench/spmv_merge.exe
+number of matrices: 30
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 80
+time read: 0.018167
+time coo to csr: 0.015149
+J_estimated = 0.609766	W_avg = 107.772933
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 80
+time read: 0.020226
+time coo to csr: 0.015372
+J_estimated = 0.640920	W_avg = 107.785108
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 80
+time read: 0.024931
+time coo to csr: 0.019628
+J_estimated = 0.612614	W_avg = 107.476197
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 80
+time read: 0.026311
+time coo to csr: 0.021296
+J_estimated = 0.705786	W_avg = 111.649632
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 80
+time read: 0.033366
+time coo to csr: 0.021783
+J_estimated = 0.732490	W_avg = 115.590198
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 80
+time read: 0.024816
+time coo to csr: 0.023424
+J_estimated = 1.000586	W_avg = 131.968697
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 80
+time read: 0.030031
+time coo to csr: 0.024167
+J_estimated = 0.840200	W_avg = 122.949950
+Test failed! (2.96495e-09)
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+max threads 80
+time read: 0.026674
+time coo to csr: 0.022101
+J_estimated = 1.128962	W_avg = 138.334962
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 80
+time read: 0.030635
+time coo to csr: 0.032147
+J_estimated = 1.959260	W_avg = 138.810169
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 80
+time read: 0.034434
+time coo to csr: 0.033316
+J_estimated = 1.269212	W_avg = 138.985199
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 80
+time read: 0.036642
+time coo to csr: 0.034325
+J_estimated = 1.358034	W_avg = 143.381484
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 80
+time read: 0.047441
+time coo to csr: 0.045001
+J_estimated = 1.373224	W_avg = 141.951216
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 80
+time read: 0.056835
+time coo to csr: 0.051498
+J_estimated = 2.008198	W_avg = 163.892895
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+max threads 80
+time read: 0.043048
+time coo to csr: 0.043853
+J_estimated = 2.004469	W_avg = 156.174152
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 80
+time read: 0.044811
+time coo to csr: 0.055108
+J_estimated = 3.581123	W_avg = 145.896822
+Test failed! (0.00012207)
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 80
+time read: 0.072850
+time coo to csr: 0.075831
+J_estimated = 4.095399	W_avg = 139.385278
+Test failed! (2.38419e-07)
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 80
+time read: 0.045066
+time coo to csr: 0.078343
+J_estimated = 6.823552	W_avg = 121.483895
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+max threads 80
+time read: 0.053507
+time coo to csr: 0.125677
+J_estimated = 24.632166	W_avg = 108.039879
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 80
+time read: 0.062332
+time coo to csr: 0.090131
+J_estimated = 9.237148	W_avg = 106.654048
+Test failed! (5.15683e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 80
+time read: 0.063137
+time coo to csr: 0.102531
+J_estimated = 13.566175	W_avg = 98.538653
+Test failed! (3.07336e-08)
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 80
+time read: 0.078967
+time coo to csr: 0.106329
+J_estimated = 16.125063	W_avg = 95.687107
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 80
+time read: 0.129613
+time coo to csr: 0.122498
+J_estimated = 16.356032	W_avg = 96.490629
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+max threads 80
+time read: 0.078482
+time coo to csr: 0.162765
+J_estimated = 22.468112	W_avg = 91.151746
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 80
+time read: 0.091588
+time coo to csr: 0.160435
+J_estimated = 22.353378	W_avg = 93.094258
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+max threads 80
+time read: 0.085359
+time coo to csr: 0.185127
+J_estimated = 26.729815	W_avg = 93.140685
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+max threads 80
+time read: 0.087870
+time coo to csr: 0.184980
+J_estimated = 54.726770	W_avg = 103.722433
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 80
+time read: 0.175576
+time coo to csr: 0.341678
+J_estimated = 69.927152	W_avg = 88.306150
+Test failed! (3.49246e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 80
+time read: 0.464472
+time coo to csr: 0.451943
+J_estimated = 123.348229	W_avg = 91.189434
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 80
+time read: 0.214583
+time coo to csr: 0.491324
+J_estimated = 103.441975	W_avg = 87.299816
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 80
+time read: 0.574303
+time coo to csr: 0.711368
+J_estimated = 187.439033	W_avg = 89.836913
+program: /various/pmpakos/SpMV-Research/benchmark_code/CPU/ARM/spmv_code_bench/spmv_merge.exe
+number of matrices: 30
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 80
+time read: 0.017791
+time coo to csr: 0.014968
+J_estimated = 0.527158	W_avg = 123.926284
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 80
+time read: 0.021041
+time coo to csr: 0.016527
+J_estimated = 0.556355	W_avg = 130.889720
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 80
+time read: 0.024712
+time coo to csr: 0.017651
+J_estimated = 0.529835	W_avg = 136.783785
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 80
+time read: 0.026472
+time coo to csr: 0.019989
+J_estimated = 0.613124	W_avg = 139.921185
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 80
+time read: 0.026419
+time coo to csr: 0.020524
+J_estimated = 0.613262	W_avg = 137.374464
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 80
+time read: 0.024620
+time coo to csr: 0.021532
+J_estimated = 0.832431	W_avg = 147.316129
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 80
+time read: 0.029117
+time coo to csr: 0.025591
+J_estimated = 0.687298	W_avg = 133.954180
+Test failed! (2.96495e-09)
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+max threads 80
+time read: 0.027051
+time coo to csr: 0.025047
+J_estimated = 1.055323	W_avg = 141.813134
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 80
+time read: 0.031441
+time coo to csr: 0.030622
+J_estimated = 1.863333	W_avg = 137.472242
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 80
+time read: 0.036066
+time coo to csr: 0.033985
+J_estimated = 0.989415	W_avg = 139.043141
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 80
+time read: 0.036190
+time coo to csr: 0.035576
+J_estimated = 1.124160	W_avg = 142.777926
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 80
+time read: 0.047275
+time coo to csr: 0.044165
+J_estimated = 1.149858	W_avg = 137.203982
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 80
+time read: 0.059115
+time coo to csr: 0.053746
+J_estimated = 1.767707	W_avg = 156.167685
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+max threads 80
+time read: 0.043366
+time coo to csr: 0.044162
+J_estimated = 1.721701	W_avg = 158.853008
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 80
+time read: 0.045737
+time coo to csr: 0.054432
+J_estimated = 3.466978	W_avg = 146.834819
+Test failed! (0.00012207)
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 80
+time read: 0.071689
+time coo to csr: 0.072806
+J_estimated = 3.928749	W_avg = 140.588525
+Test failed! (2.38419e-07)
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 80
+time read: 0.043809
+time coo to csr: 0.076291
+J_estimated = 6.793924	W_avg = 124.240252
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+max threads 80
+time read: 0.054331
+time coo to csr: 0.121815
+J_estimated = 24.761545	W_avg = 108.848501
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 80
+time read: 0.062989
+time coo to csr: 0.083600
+J_estimated = 9.311144	W_avg = 107.956368
+Test failed! (5.15683e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 80
+time read: 0.063343
+time coo to csr: 0.100748
+J_estimated = 13.717435	W_avg = 99.838520
+Test failed! (3.07336e-08)
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 80
+time read: 0.080840
+time coo to csr: 0.108523
+J_estimated = 16.170462	W_avg = 97.044402
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 80
+time read: 0.130925
+time coo to csr: 0.124746
+J_estimated = 16.489877	W_avg = 97.343368
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+max threads 80
+time read: 0.079621
+time coo to csr: 0.164527
+J_estimated = 22.679849	W_avg = 92.512460
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 80
+time read: 0.091490
+time coo to csr: 0.155945
+J_estimated = 22.695318	W_avg = 94.176660
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+max threads 80
+time read: 0.086844
+time coo to csr: 0.186010
+J_estimated = 27.055231	W_avg = 94.316182
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+max threads 80
+time read: 0.088937
+time coo to csr: 0.192755
+J_estimated = 55.874022	W_avg = 105.750114
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 80
+time read: 0.175930
+time coo to csr: 0.343605
+J_estimated = 71.296603	W_avg = 90.132956
+Test failed! (3.49246e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 80
+time read: 0.466659
+time coo to csr: 0.452582
+J_estimated = 125.849800	W_avg = 93.252429
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 80
+time read: 0.216080
+time coo to csr: 0.491431
+J_estimated = 105.205448	W_avg = 88.937355
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 80
+time read: 0.580409
+time coo to csr: 0.717949
+J_estimated = 191.053417	W_avg = 91.642655
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 80
+time read: 0.017812
+time coo to csr: 0.014198
+J_estimated = 0.532593	W_avg = 126.178078
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 80
+time read: 0.020604
+time coo to csr: 0.016787
+J_estimated = 0.560922	W_avg = 133.461246
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 80
+time read: 0.025664
+time coo to csr: 0.018908
+J_estimated = 0.491094	W_avg = 125.521062
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 80
+time read: 0.027231
+time coo to csr: 0.022062
+J_estimated = 0.575449	W_avg = 130.858751
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 80
+time read: 0.026868
+time coo to csr: 0.023010
+J_estimated = 0.579698	W_avg = 129.836115
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 80
+time read: 0.024957
+time coo to csr: 0.021725
+J_estimated = 0.817062	W_avg = 140.943619
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 80
+time read: 0.029544
+time coo to csr: 0.024455
+J_estimated = 0.707923	W_avg = 139.011115
+Test failed! (2.96495e-09)
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+max threads 80
+time read: 0.025980
+time coo to csr: 0.023768
+J_estimated = 0.942343	W_avg = 147.879633
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 80
+time read: 0.031573
+time coo to csr: 0.033055
+J_estimated = 1.914718	W_avg = 146.009551
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 80
+time read: 0.035525
+time coo to csr: 0.031901
+J_estimated = 1.105391	W_avg = 151.949524
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 80
+time read: 0.036768
+time coo to csr: 0.034851
+J_estimated = 1.149873	W_avg = 151.006484
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 80
+time read: 0.047885
+time coo to csr: 0.046563
+J_estimated = 1.260337	W_avg = 150.887857
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 80
+time read: 0.058695
+time coo to csr: 0.053944
+J_estimated = 1.814802	W_avg = 163.581033
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+max threads 80
+time read: 0.043999
+time coo to csr: 0.045951
+J_estimated = 1.766042	W_avg = 159.327837
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 80
+time read: 0.043951
+time coo to csr: 0.058575
+J_estimated = 3.444275	W_avg = 149.975293
+Test failed! (0.00012207)
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 80
+time read: 0.072596
+time coo to csr: 0.076376
+J_estimated = 3.985019	W_avg = 142.839697
+Test failed! (2.38419e-07)
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 80
+time read: 0.044790
+time coo to csr: 0.079004
+J_estimated = 6.906206	W_avg = 124.147228
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+max threads 80
+time read: 0.053879
+time coo to csr: 0.128947
+J_estimated = 24.950207	W_avg = 109.939482
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 80
+time read: 0.062611
+time coo to csr: 0.091739
+J_estimated = 9.335876	W_avg = 108.648340
+Test failed! (5.15683e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 80
+time read: 0.063051
+time coo to csr: 0.108757
+J_estimated = 13.773103	W_avg = 100.152276
+Test failed! (3.07336e-08)
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 80
+time read: 0.079828
+time coo to csr: 0.103356
+J_estimated = 16.350674	W_avg = 97.759914
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 80
+time read: 0.131064
+time coo to csr: 0.125596
+J_estimated = 16.630756	W_avg = 98.419093
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+max threads 80
+time read: 0.079444
+time coo to csr: 0.166290
+J_estimated = 22.842947	W_avg = 93.373150
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 80
+time read: 0.091733
+time coo to csr: 0.158389
+J_estimated = 22.833621	W_avg = 94.912025
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+max threads 80
+time read: 0.086132
+time coo to csr: 0.186100
+J_estimated = 27.067315	W_avg = 94.952871
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+max threads 80
+time read: 0.089364
+time coo to csr: 0.189530
+J_estimated = 56.406501	W_avg = 106.060946
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 80
+time read: 0.176993
+time coo to csr: 0.345189
+J_estimated = 71.777453	W_avg = 90.898336
+Test failed! (3.49246e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 80
+time read: 0.469896
+time coo to csr: 0.458174
+J_estimated = 126.527079	W_avg = 93.786712
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 80
+time read: 0.216456
+time coo to csr: 0.491815
+J_estimated = 105.779629	W_avg = 89.372008
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 80
+time read: 0.578996
+time coo to csr: 0.715199
+J_estimated = 192.146721	W_avg = 92.163898
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 80
+time read: 0.018206
+time coo to csr: 0.014911
+J_estimated = 0.512024	W_avg = 121.910389
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 80
+time read: 0.020987
+time coo to csr: 0.016496
+J_estimated = 0.537417	W_avg = 128.623956
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 80
+time read: 0.024679
+time coo to csr: 0.018354
+J_estimated = 0.551571	W_avg = 139.450305
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 80
+time read: 0.026736
+time coo to csr: 0.021706
+J_estimated = 0.560309	W_avg = 127.252634
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 80
+time read: 0.026988
+time coo to csr: 0.023450
+J_estimated = 0.584043	W_avg = 130.447018
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 80
+time read: 0.025481
+time coo to csr: 0.018702
+J_estimated = 0.857437	W_avg = 146.777069
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 80
+time read: 0.027866
+time coo to csr: 0.025927
+J_estimated = 0.715451	W_avg = 139.693851
+Test failed! (2.96495e-09)
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+max threads 80
+time read: 0.027451
+time coo to csr: 0.024441
+J_estimated = 1.021813	W_avg = 152.024626
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 80
+time read: 0.032332
+time coo to csr: 0.029650
+J_estimated = 1.910211	W_avg = 146.786999
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 80
+time read: 0.034853
+time coo to csr: 0.034441
+J_estimated = 1.081255	W_avg = 150.306972
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 80
+time read: 0.036963
+time coo to csr: 0.034194
+J_estimated = 1.195592	W_avg = 151.833430
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 80
+time read: 0.047702
+time coo to csr: 0.045351
+J_estimated = 1.226824	W_avg = 147.717468
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 80
+time read: 0.058444
+time coo to csr: 0.053252
+J_estimated = 1.818783	W_avg = 165.453891
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+max threads 80
+time read: 0.043694
+time coo to csr: 0.045640
+J_estimated = 1.817833	W_avg = 167.641592
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 80
+time read: 0.044194
+time coo to csr: 0.055384
+J_estimated = 3.522546	W_avg = 149.107418
+Test failed! (0.00012207)
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 80
+time read: 0.072327
+time coo to csr: 0.076367
+J_estimated = 4.020976	W_avg = 143.705134
+Test failed! (2.38419e-07)
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 80
+time read: 0.045674
+time coo to csr: 0.076491
+J_estimated = 6.933723	W_avg = 124.969865
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+max threads 80
+time read: 0.053983
+time coo to csr: 0.126887
+J_estimated = 25.085100	W_avg = 109.773201
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 80
+time read: 0.062727
+time coo to csr: 0.082166
+J_estimated = 9.430081	W_avg = 109.337946
+Test failed! (5.15683e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 80
+time read: 0.063905
+time coo to csr: 0.099742
+J_estimated = 13.910293	W_avg = 101.415879
+Test failed! (3.07336e-08)
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 80
+time read: 0.080098
+time coo to csr: 0.104505
+J_estimated = 16.482479	W_avg = 98.352268
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 80
+time read: 0.130872
+time coo to csr: 0.129719
+J_estimated = 16.764977	W_avg = 98.599508
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+max threads 80
+time read: 0.079918
+time coo to csr: 0.170567
+J_estimated = 23.099696	W_avg = 93.995911
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 80
+time read: 0.092087
+time coo to csr: 0.151974
+J_estimated = 22.975785	W_avg = 95.606392
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+max threads 80
+time read: 0.085942
+time coo to csr: 0.188851
+J_estimated = 27.456440	W_avg = 95.800891
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+max threads 80
+time read: 0.089556
+time coo to csr: 0.189828
+J_estimated = 56.120806	W_avg = 107.715582
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 80
+time read: 0.176549
+time coo to csr: 0.345077
+J_estimated = 72.859559	W_avg = 91.234477
+Test failed! (3.49246e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 80
+time read: 0.470920
+time coo to csr: 0.449930
+J_estimated = 127.827685	W_avg = 94.612863
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 80
+time read: 0.216608
+time coo to csr: 0.491647
+J_estimated = 105.770304	W_avg = 89.943571
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 80
+time read: 0.580565
+time coo to csr: 0.710946
+J_estimated = 192.755099	W_avg = 92.406211
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 80
+time read: 0.018598
+time coo to csr: 0.017035
+J_estimated = 0.525210	W_avg = 124.206490
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 80
+time read: 0.020575
+time coo to csr: 0.017236
+J_estimated = 0.518887	W_avg = 125.776061
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 80
+time read: 0.024351
+time coo to csr: 0.020053
+J_estimated = 0.527785	W_avg = 133.505494
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 80
+time read: 0.026863
+time coo to csr: 0.019322
+J_estimated = 0.543225	W_avg = 128.880135
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 80
+time read: 0.027452
+time coo to csr: 0.023095
+J_estimated = 0.629460	W_avg = 143.085009
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 80
+time read: 0.024804
+time coo to csr: 0.022814
+J_estimated = 0.844469	W_avg = 144.910429
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 80
+time read: 0.029325
+time coo to csr: 0.024772
+J_estimated = 0.701920	W_avg = 138.646948
+Test failed! (2.96495e-09)
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+max threads 80
+time read: 0.026908
+time coo to csr: 0.024932
+J_estimated = 1.019434	W_avg = 147.033927
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 80
+time read: 0.031155
+time coo to csr: 0.028904
+J_estimated = 1.938973	W_avg = 144.352493
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 80
+time read: 0.035789
+time coo to csr: 0.032891
+J_estimated = 1.084941	W_avg = 151.151355
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 80
+time read: 0.036038
+time coo to csr: 0.033724
+J_estimated = 1.149175	W_avg = 148.991092
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 80
+time read: 0.048115
+time coo to csr: 0.047636
+J_estimated = 1.246475	W_avg = 148.509289
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 80
+time read: 0.058684
+time coo to csr: 0.053244
+J_estimated = 1.869731	W_avg = 163.708659
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+max threads 80
+time read: 0.044292
+time coo to csr: 0.046266
+J_estimated = 1.807166	W_avg = 160.751175
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 80
+time read: 0.044699
+time coo to csr: 0.060984
+J_estimated = 3.545327	W_avg = 148.950946
+Test failed! (0.00012207)
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 80
+time read: 0.071857
+time coo to csr: 0.075967
+J_estimated = 4.030625	W_avg = 141.178643
+Test failed! (2.38419e-07)
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 80
+time read: 0.054850
+time coo to csr: 0.076168
+J_estimated = 6.751280	W_avg = 122.239363
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+max threads 80
+time read: 0.054226
+time coo to csr: 0.125692
+J_estimated = 25.064777	W_avg = 110.490433
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 80
+time read: 0.063807
+time coo to csr: 0.082707
+J_estimated = 9.395674	W_avg = 109.357998
+Test failed! (5.15683e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 80
+time read: 0.063683
+time coo to csr: 0.102486
+J_estimated = 13.799811	W_avg = 101.382980
+Test failed! (3.07336e-08)
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 80
+time read: 0.080146
+time coo to csr: 0.106525
+J_estimated = 16.433436	W_avg = 98.255825
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 80
+time read: 0.131577
+time coo to csr: 0.126841
+J_estimated = 16.758869	W_avg = 98.493841
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+max threads 80
+time read: 0.079874
+time coo to csr: 0.161498
+J_estimated = 23.025799	W_avg = 93.801278
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 80
+time read: 0.091474
+time coo to csr: 0.163848
+J_estimated = 22.913067	W_avg = 95.196355
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+max threads 80
+time read: 0.086193
+time coo to csr: 0.185728
+J_estimated = 27.546089	W_avg = 95.038304
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+max threads 80
+time read: 0.089561
+time coo to csr: 0.188480
+J_estimated = 55.905586	W_avg = 107.061485
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 80
+time read: 0.175762
+time coo to csr: 0.338583
+J_estimated = 71.950037	W_avg = 91.007571
+Test failed! (3.49246e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 80
+time read: 0.469428
+time coo to csr: 0.460346
+J_estimated = 127.104353	W_avg = 93.930664
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 80
+time read: 0.216638
+time coo to csr: 0.490349
+J_estimated = 105.773082	W_avg = 89.373522
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 80
+time read: 0.580165
+time coo to csr: 0.718092
+J_estimated = 192.318263	W_avg = 92.174827
+program: /home/spmv/000/SpMV-Research/benchmark_code/CPU/ARM/spmv_code_bench/spmv_merge.exe
+number of matrices: 23
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+max threads 80
+time read: 0.017997
+time coo to csr: 0.013165
+J_estimated = 0.029000	W_avg = 6.225574
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+max threads 80
+time read: 0.029560
+time coo to csr: 0.014566
+J_estimated = 0.046000	W_avg = 8.822459
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+max threads 80
+time read: 0.036803
+time coo to csr: 0.019337
+J_estimated = 0.068000	W_avg = 7.807862
+Test failed! (0.000106812)
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+max threads 80
+time read: 0.046475
+time coo to csr: 0.040882
+J_estimated = 0.197000	W_avg = 8.011808
+Test failed! (8.62201e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+max threads 80
+time read: 0.030062
+time coo to csr: 0.031280
+J_estimated = 0.160000	W_avg = 7.878256
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+max threads 80
+time read: 0.037830
+time coo to csr: 0.045307
+J_estimated = 0.976000	W_avg = 7.600047
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+max threads 80
+time read: 0.063369
+time coo to csr: 0.054360
+J_estimated = 0.227000	W_avg = 7.893864
+Test failed! (3.79742e-08)
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+max threads 80
+time read: 0.059853
+time coo to csr: 0.041574
+J_estimated = 0.228000	W_avg = 7.501581
+Test failed! (9.53674e-07)
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+max threads 80
+time read: 0.046894
+time coo to csr: 0.043816
+J_estimated = 0.282000	W_avg = 7.510978
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+max threads 80
+time read: 0.061617
+time coo to csr: 0.079191
+J_estimated = 0.536000	W_avg = 7.492940
+Test failed! (3.8147e-06)
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+max threads 80
+time read: 0.043917
+time coo to csr: 0.049922
+J_estimated = 0.283000	W_avg = 7.691664
+File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+max threads 80
+time read: 0.070168
+time coo to csr: 0.095096
+J_estimated = 2.874000	W_avg = 7.620125
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+max threads 80
+time read: 0.152288
+time coo to csr: 0.097402
+J_estimated = 3.592000	W_avg = 7.612072
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+max threads 80
+time read: 0.114167
+time coo to csr: 0.106114
+J_estimated = 2.512000	W_avg = 7.641113
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+max threads 80
+time read: 0.088027
+time coo to csr: 0.119843
+J_estimated = 5.955000	W_avg = 7.618630
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+max threads 80
+time read: 0.133392
+time coo to csr: 0.123374
+J_estimated = 11.602000	W_avg = 7.617124
+File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+max threads 80
+time read: 0.152351
+time coo to csr: 0.142419
+J_estimated = 10.468000	W_avg = 7.617960
+File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+max threads 80
+time read: 0.229797
+time coo to csr: 0.139435
+J_estimated = 5.893000	W_avg = 7.619812
+Test failed! (0.00348949)
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+max threads 80
+time read: 0.112710
+time coo to csr: 0.767451
+J_estimated = 11.828000	W_avg = 7.622316
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+max threads 80
+time read: 0.221587
+time coo to csr: 0.180542
+J_estimated = 6.403000	W_avg = 7.623423
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+max threads 80
+time read: 0.295769
+time coo to csr: 0.226370
+J_estimated = 18.369000	W_avg = 7.614732
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+max threads 80
+time read: 0.313675
+time coo to csr: 0.246219
+J_estimated = 10.292000	W_avg = 7.612135
+Test failed! (3.12866e-09)
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+max threads 80
+time read: 0.326166
+time coo to csr: 0.558214
+J_estimated = 68.668000	W_avg = 7.613813
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+max threads 80
+time read: 0.019931
+time coo to csr: 0.015094
+J_estimated = 0.037000	W_avg = 7.487626
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+max threads 80
+time read: 0.028953
+time coo to csr: 0.015905
+J_estimated = 0.045000	W_avg = 9.037440
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+max threads 80
+time read: 0.038360
+time coo to csr: 0.018766
+J_estimated = 0.069000	W_avg = 7.380934
+Test failed! (0.000106812)
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+max threads 80
+time read: 0.047140
+time coo to csr: 0.041303
+J_estimated = 0.190000	W_avg = 7.687655
+Test failed! (8.62201e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+max threads 80
+time read: 0.030840
+time coo to csr: 0.032750
+J_estimated = 0.174000	W_avg = 8.141972
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+max threads 80
+time read: 0.037427
+time coo to csr: 0.044050
+J_estimated = 0.990000	W_avg = 7.597917
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+max threads 80
+time read: 0.063859
+time coo to csr: 0.051049
+J_estimated = 0.214000	W_avg = 7.893431
+Test failed! (3.79742e-08)
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+max threads 80
+time read: 0.058725
+time coo to csr: 0.036894
+J_estimated = 0.227000	W_avg = 7.582622
+Test failed! (9.53674e-07)
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+max threads 80
+time read: 0.046844
+time coo to csr: 0.040719
+J_estimated = 0.277000	W_avg = 7.337678
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+max threads 80
+time read: 0.060795
+time coo to csr: 0.062443
+J_estimated = 0.556000	W_avg = 7.681650
+Test failed! (3.8147e-06)
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+max threads 80
+time read: 0.044778
+time coo to csr: 0.052365
+J_estimated = 0.282000	W_avg = 7.646188
+File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+max threads 80
+time read: 0.069995
+time coo to csr: 0.098042
+J_estimated = 2.880000	W_avg = 7.607338
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+max threads 80
+time read: 0.151637
+time coo to csr: 0.111995
+J_estimated = 3.608000	W_avg = 7.597598
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+max threads 80
+time read: 0.113957
+time coo to csr: 0.104143
+J_estimated = 2.533000	W_avg = 7.648011
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+max threads 80
+time read: 0.087320
+time coo to csr: 0.118561
+J_estimated = 5.987000	W_avg = 7.631766
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+max threads 80
+time read: 0.131898
+time coo to csr: 0.125407
+J_estimated = 11.650000	W_avg = 7.613991
+File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+max threads 80
+time read: 0.152942
+time coo to csr: 0.142280
+J_estimated = 10.550000	W_avg = 7.619849
+File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+max threads 80
+time read: 0.227954
+time coo to csr: 0.149007
+J_estimated = 5.633000	W_avg = 7.639959
+Test failed! (0.00348949)
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+max threads 80
+time read: 0.110839
+time coo to csr: 0.768939
+J_estimated = 11.828000	W_avg = 7.617163
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+max threads 80
+time read: 0.223821
+time coo to csr: 0.182056
+J_estimated = 6.352000	W_avg = 7.627097
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+max threads 80
+time read: 0.293729
+time coo to csr: 0.235440
+J_estimated = 18.409000	W_avg = 7.624356
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+max threads 80
+time read: 0.312720
+time coo to csr: 0.251227
+J_estimated = 10.306000	W_avg = 7.634808
+Test failed! (3.12866e-09)
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+max threads 80
+time read: 0.326916
+time coo to csr: 0.543280
+J_estimated = 68.683000	W_avg = 7.618414
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+max threads 80
+time read: 0.017613
+time coo to csr: 0.016482
+J_estimated = 0.038000	W_avg = 7.552082
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+max threads 80
+time read: 0.029405
+time coo to csr: 0.016007
+J_estimated = 0.036000	W_avg = 7.071183
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+max threads 80
+time read: 0.039431
+time coo to csr: 0.019440
+J_estimated = 0.064000	W_avg = 7.231271
+Test failed! (0.000106812)
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+max threads 80
+time read: 0.046384
+time coo to csr: 0.038889
+J_estimated = 0.183000	W_avg = 7.446620
+Test failed! (8.62201e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+max threads 80
+time read: 0.031285
+time coo to csr: 0.032714
+J_estimated = 0.158000	W_avg = 7.633417
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+max threads 80
+time read: 0.038152
+time coo to csr: 0.050175
+J_estimated = 0.983000	W_avg = 7.639533
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+max threads 80
+time read: 0.062953
+time coo to csr: 0.050668
+J_estimated = 0.226000	W_avg = 7.836503
+Test failed! (3.79742e-08)
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+max threads 80
+time read: 0.058330
+time coo to csr: 0.035715
+J_estimated = 0.234000	W_avg = 7.581001
+Test failed! (9.53674e-07)
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+max threads 80
+time read: 0.046273
+time coo to csr: 0.040373
+J_estimated = 0.300000	W_avg = 7.827584
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+max threads 80
+time read: 0.061069
+time coo to csr: 0.066630
+J_estimated = 0.549000	W_avg = 7.653893
+Test failed! (3.8147e-06)
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+max threads 80
+time read: 0.044709
+time coo to csr: 0.052875
+J_estimated = 0.284000	W_avg = 7.573317
+File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+max threads 80
+time read: 0.069717
+time coo to csr: 0.102041
+J_estimated = 2.876000	W_avg = 7.615082
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+max threads 80
+time read: 0.151344
+time coo to csr: 0.093579
+J_estimated = 3.595000	W_avg = 7.616188
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+max threads 80
+time read: 0.115710
+time coo to csr: 0.108620
+J_estimated = 2.534000	W_avg = 7.655956
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+max threads 80
+time read: 0.086719
+time coo to csr: 0.115418
+J_estimated = 5.966000	W_avg = 7.622216
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+max threads 80
+time read: 0.134146
+time coo to csr: 0.119962
+J_estimated = 11.627000	W_avg = 7.617388
+File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+max threads 80
+time read: 0.152280
+time coo to csr: 0.145442
+J_estimated = 10.550000	W_avg = 7.616163
+File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+max threads 80
+time read: 0.228785
+time coo to csr: 0.139860
+J_estimated = 5.802000	W_avg = 7.611246
+Test failed! (0.00348949)
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+max threads 80
+time read: 0.112081
+time coo to csr: 0.763792
+J_estimated = 11.811000	W_avg = 7.615854
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+max threads 80
+time read: 0.223158
+time coo to csr: 0.187908
+J_estimated = 6.390000	W_avg = 7.630344
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+max threads 80
+time read: 0.294760
+time coo to csr: 0.226982
+J_estimated = 18.310000	W_avg = 7.612415
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+max threads 80
+time read: 0.316774
+time coo to csr: 0.255002
+J_estimated = 10.281000	W_avg = 7.625105
+Test failed! (3.12866e-09)
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+max threads 80
+time read: 0.327004
+time coo to csr: 0.547491
+J_estimated = 66.264000	W_avg = 7.350789
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+max threads 80
+time read: 0.017445
+time coo to csr: 0.014035
+J_estimated = 0.033000	W_avg = 6.844364
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+max threads 80
+time read: 0.029095
+time coo to csr: 0.014333
+J_estimated = 0.037000	W_avg = 7.224974
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+max threads 80
+time read: 0.037458
+time coo to csr: 0.019145
+J_estimated = 0.071000	W_avg = 7.408419
+Test failed! (0.000106812)
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+max threads 80
+time read: 0.046943
+time coo to csr: 0.039804
+J_estimated = 0.159000	W_avg = 6.531666
+Test failed! (8.62201e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+max threads 80
+time read: 0.031049
+time coo to csr: 0.031074
+J_estimated = 0.148000	W_avg = 7.087748
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+max threads 80
+time read: 0.038155
+time coo to csr: 0.041571
+J_estimated = 0.888000	W_avg = 6.869775
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+max threads 80
+time read: 0.062885
+time coo to csr: 0.052878
+J_estimated = 0.198000	W_avg = 6.909993
+Test failed! (3.79742e-08)
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+max threads 80
+time read: 0.058449
+time coo to csr: 0.041519
+J_estimated = 0.216000	W_avg = 7.042071
+Test failed! (9.53674e-07)
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+max threads 80
+time read: 0.046538
+time coo to csr: 0.047614
+J_estimated = 0.277000	W_avg = 6.841897
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+max threads 80
+time read: 0.061485
+time coo to csr: 0.061361
+J_estimated = 0.503000	W_avg = 6.977358
+Test failed! (3.8147e-06)
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+max threads 80
+time read: 0.044375
+time coo to csr: 0.048976
+J_estimated = 0.247000	W_avg = 6.708609
+File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+max threads 80
+time read: 0.069282
+time coo to csr: 0.099699
+J_estimated = 2.596000	W_avg = 6.833010
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+max threads 80
+time read: 0.151419
+time coo to csr: 0.097346
+J_estimated = 3.251000	W_avg = 6.843153
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+max threads 80
+time read: 0.116159
+time coo to csr: 0.107821
+J_estimated = 2.265000	W_avg = 6.841308
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+max threads 80
+time read: 0.086662
+time coo to csr: 0.116591
+J_estimated = 5.378000	W_avg = 6.841048
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+max threads 80
+time read: 0.131772
+time coo to csr: 0.137912
+J_estimated = 10.451000	W_avg = 6.844029
+File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+max threads 80
+time read: 0.153490
+time coo to csr: 0.142279
+J_estimated = 9.390000	W_avg = 6.839188
+File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+max threads 80
+time read: 0.228820
+time coo to csr: 0.148207
+J_estimated = 4.955000	W_avg = 6.848319
+Test failed! (0.00348949)
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+max threads 80
+time read: 0.113354
+time coo to csr: 0.778442
+J_estimated = 10.664000	W_avg = 6.849200
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+max threads 80
+time read: 0.222164
+time coo to csr: 0.187353
+J_estimated = 5.734000	W_avg = 6.839986
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+max threads 80
+time read: 0.295501
+time coo to csr: 0.224903
+J_estimated = 16.549000	W_avg = 6.838967
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+max threads 80
+time read: 0.314743
+time coo to csr: 0.252108
+J_estimated = 9.237000	W_avg = 6.858936
+Test failed! (3.12866e-09)
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+max threads 80
+time read: 0.326028
+time coo to csr: 0.537837
+J_estimated = 61.817000	W_avg = 6.852444
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+max threads 80
+time read: 0.019804
+time coo to csr: 0.015456
+J_estimated = 0.035000	W_avg = 6.700763
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+max threads 80
+time read: 0.028936
+time coo to csr: 0.014733
+J_estimated = 0.042000	W_avg = 7.682113
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+max threads 80
+time read: 0.036434
+time coo to csr: 0.020112
+J_estimated = 0.064000	W_avg = 7.222294
+Test failed! (0.000106812)
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+max threads 80
+time read: 0.045807
+time coo to csr: 0.036490
+J_estimated = 0.167000	W_avg = 6.899028
+Test failed! (8.62201e-10)
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+max threads 80
+time read: 0.029894
+time coo to csr: 0.035255
+J_estimated = 0.140000	W_avg = 6.916564
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+max threads 80
+time read: 0.038197
+time coo to csr: 0.043300
+J_estimated = 0.883000	W_avg = 6.891088
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+max threads 80
+time read: 0.064020
+time coo to csr: 0.055028
+J_estimated = 0.187000	W_avg = 6.712501
+Test failed! (3.79742e-08)
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+max threads 80
+time read: 0.058662
+time coo to csr: 0.040189
+J_estimated = 0.204000	W_avg = 6.580587
+Test failed! (9.53674e-07)
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+max threads 80
+time read: 0.046597
+time coo to csr: 0.047184
+J_estimated = 0.278000	W_avg = 7.264881
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+max threads 80
+time read: 0.060702
+time coo to csr: 0.059069
+J_estimated = 0.499000	W_avg = 6.900236
+Test failed! (3.8147e-06)
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+max threads 80
+time read: 0.045281
+time coo to csr: 0.052238
+J_estimated = 0.261000	W_avg = 7.004342
+File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+max threads 80
+time read: 0.068413
+time coo to csr: 0.093506
+J_estimated = 2.546000	W_avg = 6.840298
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+max threads 80
+time read: 0.151769
+time coo to csr: 0.101826
+J_estimated = 3.249000	W_avg = 6.834218
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+max threads 80
+time read: 0.115343
+time coo to csr: 0.100783
+J_estimated = 2.261000	W_avg = 6.849059
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+max threads 80
+time read: 0.087072
+time coo to csr: 0.121320
+J_estimated = 5.445000	W_avg = 6.854852
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+max threads 80
+time read: 0.133835
+time coo to csr: 0.134074
+J_estimated = 10.481000	W_avg = 6.836648
+File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+max threads 80
+time read: 0.152452
+time coo to csr: 0.144041
+J_estimated = 9.420000	W_avg = 6.830265
+File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+max threads 80
+time read: 0.227257
+time coo to csr: 0.139376
+J_estimated = 4.920000	W_avg = 6.848529
+Test failed! (0.00348949)
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+max threads 80
+time read: 0.112791
+time coo to csr: 0.783273
+J_estimated = 10.639000	W_avg = 6.847029
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+max threads 80
+time read: 0.223498
+time coo to csr: 0.182954
+J_estimated = 5.701000	W_avg = 6.846736
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+max threads 80
+time read: 0.294718
+time coo to csr: 0.237483
+J_estimated = 16.554000	W_avg = 6.849411
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+max threads 80
+time read: 0.312041
+time coo to csr: 0.246983
+J_estimated = 9.245000	W_avg = 6.858394
+Test failed! (3.12866e-09)
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+max threads 80
+time read: 0.326458
+time coo to csr: 0.533300
+J_estimated = 61.779000	W_avg = 6.851112

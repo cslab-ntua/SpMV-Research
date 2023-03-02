@@ -167,8 +167,9 @@ spmv_ldu.exe: obj/spmv_bench2.o spmv_kernel_ldu.cpp $(LIB_OBJ)
 spmv_ell.exe: obj/spmv_bench2.o spmv_kernel_ell.cpp $(LIB_OBJ)
 	$(CPP2) $(CFLAGS2) $^ -o $@ $(LDFLAGS)
 
-spmv_armpl.exe: obj/spmv_bench.o spmv_kernel_armpl.cpp $(LIB_OBJ)
-	$(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS) -larmpl_lp64_mp
+spmv_armpl.exe: obj/spmv_bench2.o spmv_kernel_armpl.cpp $(LIB_OBJ)
+	$(CPP2) $(CFLAGS2) -I$(ARMPL_ROOT_DIR)/include $^ -o $@ $(LDFLAGS) -L$(ARMPL_ROOT_DIR)/lib -larmpl_mp
+	# $(CPP) $(CFLAGS) $^ -o $@ $(LDFLAGS) -larmpl_lp64_mp
 
 CFLAGS_MERGE = $(CFLAGS2)
 # CFLAGS_MERGE += -D'CUB_MKL'
