@@ -68,7 +68,7 @@ do {                                                                            
 	typeof(T) * local_result_ptr_ret = __local_result_ptr_ret;                                                    \
 	typeof(T) * total_result_ptr_ret = __total_result_ptr_ret;                                                    \
                                                                                                                       \
-	static int t_num_threads = 0;                                                                                 \
+	static int t_num_threads = 0;  /* Store the static data for next calls. */                                    \
 	static typeof(T) * t_partial = NULL;                                                                          \
 	int num_threads = safe_omp_get_num_threads();                                                                 \
 	int tnum = omp_get_thread_num();                                                                              \

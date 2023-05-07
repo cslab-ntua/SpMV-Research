@@ -31,6 +31,8 @@ struct CSCArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -85,5 +87,22 @@ compute_csc(CSCArrays * csc, ValueType * x, ValueType * y)
     #elif DOUBLE == 1
 	    mkl_dcscmv(&transa, &csc->m, &csc->n, &alpha, matdescra, csc->a, csc->ja, csc->ia, csc->ia+1, x, &beta, y);
     #endif
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+CSCArrays::statistics_start()
+{
+}
+
+
+void
+CSCArrays::statistics_print()
+{
 }
 

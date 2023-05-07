@@ -27,6 +27,7 @@ extern "C"{
 	#include "parallel_io.h"
 	#include "file_formats/openfoam/openfoam_matrix.h"
 	#include "aux/csr_converter.h"
+	#include "aux/csr_util.h"
 
 	#include "monitoring/power/rapl.h"
 
@@ -41,31 +42,13 @@ extern "C"{
 #include "spmv_kernel.h"
 
 
-// #define VERBOSE
-// #define PER_THREAD_STATS
-
-#if !defined(USE_CUSTOM_CSR)
-	#undef PER_THREAD_STATS
-#endif
-
 #ifndef BLOCK_SIZE
 	#define BLOCK_SIZE  64
 #endif
 
 
-INT_T * thread_i_s = NULL;
-INT_T * thread_i_e = NULL;
-
-INT_T * thread_j_s = NULL;
-INT_T * thread_j_e = NULL;
-
-ValueType * thread_v_s = NULL;
-ValueType * thread_v_e = NULL;
-
 int prefetch_distance = 8;
 
-
-double * thread_time_compute, * thread_time_barrier;
 
 int num_procs;
 int process_custom_id;
@@ -147,11 +130,11 @@ CheckAccuracy(ValueType * val, INT_T * rowind, INT_T * colind, INT_T m, INT_T nn
 	#pragma omp parallel
 	{
 		double mae, max_ae, mse, mape, smape;
-		mae = array_mae_parallel(y_gold, y, m, val_to_double);
-		max_ae = array_max_ae_parallel(y_gold, y, m, val_to_double);
-		mse = array_mse_parallel(y_gold, y, m, val_to_double);
-		mape = array_mape_parallel(y_gold, y, m, val_to_double);
-		smape = array_smape_parallel(y_gold, y, m, val_to_double);
+		mae = array_mae_concurrent(y_gold, y, m, val_to_double);
+		max_ae = array_max_ae_concurrent(y_gold, y, m, val_to_double);
+		mse = array_mse_concurrent(y_gold, y, m, val_to_double);
+		mape = array_mape_concurrent(y_gold, y, m, val_to_double);
+		smape = array_smape_concurrent(y_gold, y, m, val_to_double);
 		#pragma omp single
 		printf("errors spmv: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g\n", mae, max_ae, mse, mape, smape);
 	}
@@ -223,30 +206,13 @@ get_pinning_position_from_affinity_string(const char * range_string, long len, i
 void
 compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueType * x, ValueType * y, const int loop = 128)
 {
-	__attribute__((unused)) int num_threads = omp_get_max_threads();
+	int num_threads = omp_get_max_threads();
 	int use_processes = atoi(getenv("USE_PROCESSES"));
 	double gflops;
 	__attribute__((unused)) double time, time_warm_up, time_after_warm_up;
 	long buf_n = 10000;
 	char buf[buf_n + 1];
 	long i;
-
-	#if defined(PER_THREAD_STATS)
-		thread_time_barrier = (double *) malloc(num_threads * sizeof(*thread_time_barrier));
-		thread_time_compute = (double *) malloc(num_threads * sizeof(*thread_time_compute));
-		for (i=0;i<num_threads;i++)
-		{
-			long rows, nnz;
-			INT_T i_s, i_e, j_s, j_e;
-			i_s = thread_i_s[i];
-			i_e = thread_i_e[i];
-			j_s = thread_j_s[i];
-			j_e = thread_j_e[i];
-			rows = i_e - i_s;
-			nnz = csr_ia[i_e] - csr_ia[i_s];
-			printf("%ld: rows=[%d(%d), %d(%d)]:%ld(%ld), nnz=[%d, %d]:%d\n", i, i_s, csr_ia[i_s], i_e, csr_ia[i_e], rows, nnz, j_s, j_e, j_e-j_s);
-		}
-	#endif
 
 	// Warm up cpu.
 	__attribute__((unused)) volatile double warmup_total;
@@ -279,17 +245,12 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 		MF->spmv(x, y);
 	);
 
-	#if defined(PER_THREAD_STATS)
-		// Clear times after warmup.
-		for (i=0;i<num_threads;i++)
-		{
-			thread_time_compute[i] = 0;
-			thread_time_barrier[i] = 0;
-		}
-	#endif
-
 	if (use_processes)
 		raise(SIGSTOP);
+
+	#ifdef PRINT_STATISTICS
+		MF->statistics_start();
+	#endif
 
 	/*****************************************************************************************/
 	struct RAPL_Register * regs;
@@ -329,69 +290,8 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 	//= Output section.
 	//=============================================================================
 
-	#if defined(PER_THREAD_STATS)
-		double iters_per_t[num_threads];
-		double nnz_per_t[num_threads];
-		__attribute__((unused)) double gflops_per_t[num_threads];
-		double iters_per_t_min, iters_per_t_max, iters_per_t_avg, iters_per_t_std, iters_per_t_balance;
-		double nnz_per_t_min, nnz_per_t_max, nnz_per_t_avg, nnz_per_t_std, nnz_per_t_balance;
-		__attribute__((unused)) double time_per_t_min, time_per_t_max, time_per_t_avg, time_per_t_std, time_per_t_balance;
-		__attribute__((unused)) double gflops_per_t_min, gflops_per_t_max, gflops_per_t_avg, gflops_per_t_std, gflops_per_t_balance;
-		long i_s, i_e;
-
-		for (i=0;i<num_threads;i++)
-		{
-			i_s = thread_i_s[i];
-			i_e = thread_i_e[i];
-			iters_per_t[i] = i_e - i_s;
-			// nnz_per_t[i] = &(csr_a[csr_ia[i_e]]) - &(csr_a[csr_ia[i_s]]);
-			nnz_per_t[i] = csr_ia[i_e] - csr_ia[i_s];
-			gflops_per_t[i] = nnz_per_t[i] / thread_time_compute[i] * loop * 2 * 1e-9;   // Calculate before making nnz_per_t a ratio.
-			iters_per_t[i] /= csr_m;    // As a fraction of m.
-			nnz_per_t[i] /= csr_nnz;    // As a fraction of nnz.
-		}
-
-		matrix_min_max(iters_per_t, num_threads, &iters_per_t_min, &iters_per_t_max);
-		iters_per_t_avg = matrix_mean(iters_per_t, num_threads);
-		iters_per_t_std = matrix_std_base(iters_per_t, num_threads, iters_per_t_avg);
-		iters_per_t_balance = iters_per_t_avg / iters_per_t_max;
-
-		matrix_min_max(nnz_per_t, num_threads, &nnz_per_t_min, &nnz_per_t_max);
-		nnz_per_t_avg = matrix_mean(nnz_per_t, num_threads);
-		nnz_per_t_std = matrix_std_base(nnz_per_t, num_threads, nnz_per_t_avg);
-		nnz_per_t_balance = nnz_per_t_avg / nnz_per_t_max;
-
-		matrix_min_max(thread_time_compute, num_threads, &time_per_t_min, &time_per_t_max);
-		time_per_t_avg = matrix_mean(thread_time_compute, num_threads);
-		time_per_t_std = matrix_std_base(thread_time_compute, num_threads, time_per_t_avg);
-		time_per_t_balance = time_per_t_avg / time_per_t_max;
-
-		matrix_min_max(gflops_per_t, num_threads, &gflops_per_t_min, &gflops_per_t_max);
-		gflops_per_t_avg = matrix_mean(gflops_per_t, num_threads);
-		gflops_per_t_std = matrix_std_base(gflops_per_t, num_threads, gflops_per_t_avg);
-		gflops_per_t_balance = gflops_per_t_avg / gflops_per_t_max;
-
-		printf("i:%g,%g,%g,%g,%g\n", iters_per_t_min, iters_per_t_max, iters_per_t_avg, iters_per_t_std, iters_per_t_balance);
-		printf("nnz:%g,%g,%g,%g,%g\n", nnz_per_t_min, nnz_per_t_max, nnz_per_t_avg, nnz_per_t_std, nnz_per_t_balance);
-		printf("time:%g,%g,%g,%g,%g\n", time_per_t_min, time_per_t_max, time_per_t_avg, time_per_t_std, time_per_t_balance);
-		printf("gflops:%g,%g,%g,%g,%g\n", gflops_per_t_min, gflops_per_t_max, gflops_per_t_avg, gflops_per_t_std, gflops_per_t_balance);
-		printf("tnum i_s i_e num_rows_frac nnz_frac\n");
-		for (i=0;i<num_threads;i++)
-		{
-			i_s = thread_i_s[i];
-			i_e = thread_i_e[i];
-			printf("%ld %ld %ld %g %g\n", i, i_s, i_e, iters_per_t[i], nnz_per_t[i]);
-		}
-		printf("tnum gflops compute barrier total barrier/compute%%\n");
-		for (i=0;i<num_threads;i++)
-		{
-			double time_compute, time_barrier, time_total, percent;
-			time_compute = thread_time_compute[i];
-			time_barrier = thread_time_barrier[i];
-			time_total = time_compute + time_barrier;
-			percent = time_barrier / time_compute * 100;
-			printf("%ld %g %g %g %g %g\n", i, gflops_per_t[i], time_compute, time_barrier, time_total, percent);
-		}
+	#ifdef PRINT_STATISTICS
+		MF->statistics_print();
 	#endif
 
 	std::stringstream stream;
@@ -420,20 +320,6 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / (1024*1024));
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / MF->csr_mem_footprint);
 		i += snprintf(buf + i, buf_n - i, ",%ld", atol(getenv("CSRVC_NUM_PACKET_VALS")));
-		#ifdef PER_THREAD_STATS
-			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_balance);
-			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_balance);
-			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_balance);
-			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_balance);
-		#endif
 		buf[i] = '\0';
 		fprintf(stderr, "%s\n", buf);
 
@@ -470,28 +356,9 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 		i += snprintf(buf + i, buf_n - i, ",%lf", gflops);
 		i += snprintf(buf + i, buf_n - i, ",%lf", W_avg);
 		i += snprintf(buf + i, buf_n - i, ",%lf", J_estimated);
-		#ifdef PER_THREAD_STATS
-			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_balance);
-			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_balance);
-			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_balance);
-			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_balance);
-		#endif
 		buf[i] = '\0';
 		fprintf(stderr, "%s\n", buf);
 	}
-
-	#if defined(PER_THREAD_STATS)
-		free(thread_time_barrier);
-		free(thread_time_compute);
-	#endif
 }
 
 
@@ -637,6 +504,10 @@ child_proc_label:
 			avg_num_neighbours = atof(argv[i++]);
 			cross_row_similarity = atof(argv[i++]);
 			seed = atoi(argv[i++]);
+			if (i < argc)
+				snprintf(matrix_name, sizeof(matrix_name), "%s_artificial", argv[i++]);
+			else
+				snprintf(matrix_name, sizeof(matrix_name), "%d_%d_%d_%g_%g_%g_%g", AM->nr_rows, AM->nr_cols, AM->nr_nzeros, AM->avg_bw, AM->std_bw, AM->avg_sc, AM->std_sc);
 
 			AM = artificial_matrix_generation(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, seed, placement, bw, skew, avg_num_neighbours, cross_row_similarity);
 
@@ -666,8 +537,6 @@ child_proc_label:
 		AM->values = NULL;
 		free(AM->col_ind);
 		AM->col_ind = NULL;
-
-		snprintf(matrix_name, sizeof(matrix_name), "'%d_%d_%d_%g_%g_%g_%g'", AM->nr_rows, AM->nr_cols, AM->nr_nzeros, AM->avg_bw, AM->std_bw, AM->avg_sc, AM->std_sc);
 	}
 
 	int dimMultipleBlock, dimMultipleBlock_y;
@@ -704,6 +573,21 @@ child_proc_label:
 			}
 		}
 	#endif
+
+	long buf_n = strlen(matrix_name) + 1 + 1000;
+	char buf[buf_n];
+	char * path, * filename, * filename_base;
+	str_path_split_path(matrix_name, strlen(matrix_name) + 1, buf, buf_n, &path, &filename);
+	path = strdup(path);
+	filename = strdup(filename);
+	str_path_split_ext(filename, strlen(filename) + 1, buf, buf_n, &filename_base, NULL);
+	filename_base = strdup(filename_base);
+	printf("ploting : %s\n", filename_base);
+	if (1)
+	{
+		csr_plot(filename_base, csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz, 0);
+		return 0;
+	}
 
 	MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
 

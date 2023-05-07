@@ -31,6 +31,8 @@ struct CSRArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -65,5 +67,22 @@ compute_csr(CSRArrays * csr, ValueType * x , ValueType * y)
 	#elif DOUBLE == 1
 		mkl_cspblas_dcsrgemv(&transa, &csr->m , csr->a , csr->ia , csr->ja , x , y);
 	#endif
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+CSRArrays::statistics_start()
+{
+}
+
+
+void
+CSRArrays::statistics_print()
+{
 }
 

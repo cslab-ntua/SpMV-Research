@@ -49,6 +49,8 @@ struct CSXArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -157,5 +159,22 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	csx->input = input;
 	csx->parts = parts;
 	return csx;
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+CSXArrays::statistics_start()
+{
+}
+
+
+void
+CSXArrays::statistics_print()
+{
 }
 

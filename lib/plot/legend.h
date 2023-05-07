@@ -107,7 +107,7 @@ add_legend(struct Figure * fig, char * filename)
 	i += snprintf(cmd+i, cmd_n-i, " -gravity southeast");
 	i += snprintf(cmd+i, cmd_n-i, " -draw \"text %d,%d '%g%s'\"", text_spacer, label_d_y, text_dr, percentage_sign_x);
 
-	i += snprintf(cmd+i, cmd_n-i, " %s %s", filename, filename);
+	i += snprintf(cmd+i, cmd_n-i, " '%s' '%s'", filename, filename);
 
 	// printf("%s\n", cmd);
 

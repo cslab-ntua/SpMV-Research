@@ -40,7 +40,7 @@ void csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long 
 #define coo_to_csr  CSR_GEN_EXPAND(coo_to_csr)
 void coo_to_csr(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, long n, long nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int sort_columns);
 
-#undef  coo_to_csr_fully_sorted
+/* #undef  coo_to_csr_fully_sorted
 #define coo_to_csr_fully_sorted  CSR_GEN_EXPAND(coo_to_csr_fully_sorted)
-void coo_to_csr_fully_sorted(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, long n, long nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val);
+void coo_to_csr_fully_sorted(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, long n, long nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val); */
 

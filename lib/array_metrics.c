@@ -3,6 +3,7 @@
 #endif
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <float.h>
 #include <math.h>
 #include <omp.h>
@@ -12,6 +13,8 @@
 #include "debug.h"
 #include "omp_functions.h"
 #include "parallel_util.h"
+#include "hash/hash.h"
+#include "plot/plot.h"
 
 #include "array_metrics.h"
 
@@ -75,7 +78,7 @@ ARRAY_METRICS_ ## _name ## _serial(UNPACK(_tupple_decl_args))                   
 	return ARRAY_METRICS_ ## _name ## _output(_agg, UNPACK(_tupple_call_args));                                                 \
 }                                                                                                                                   \
 _type_output                                                                                                                        \
-ARRAY_METRICS_ ## _name ## _parallel(UNPACK(_tupple_decl_args))                                                                     \
+ARRAY_METRICS_ ## _name ## _concurrent(UNPACK(_tupple_decl_args))                                                                   \
 {                                                                                                                                   \
 	int _num_threads = safe_omp_get_num_threads();                                                                              \
 	int _tnum = omp_get_thread_num();                                                                                           \
@@ -96,9 +99,11 @@ ARRAY_METRICS_ ## _name(UNPACK(_tupple_decl_args))                              
 		return ARRAY_METRICS_ ## _name ## _serial(UNPACK(_tupple_call_args));                                               \
 	_Pragma("omp parallel")                                                                                                     \
 	{                                                                                                                           \
-		_type_output agg = ARRAY_METRICS_ ## _name ## _parallel(UNPACK(_tupple_call_args));                                 \
+		_type_output agg = ARRAY_METRICS_ ## _name ## _concurrent(UNPACK(_tupple_call_args));                               \
 		_Pragma("omp single nowait")                                                                                        \
-		_ret = agg;                                                                                                         \
+		{                                                                                                                   \
+			_ret = agg;                                                                                                 \
+		}                                                                                                                   \
 	}                                                                                                                           \
 	return _ret;                                                                                                                \
 }
@@ -317,6 +322,42 @@ ARRAY_METRICS_mean_output(double agg, void * A, long i_start, long i_end, double
 #pragma GCC diagnostic pop
 
 metric_functions_template(mean, double, double,
+	(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, i_start, i_end, get_val_as_double)
+)
+
+
+//==========================================================================================================================================
+//= Mean of Absolute Values
+//==========================================================================================================================================
+
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
+double
+ARRAY_METRICS_mean_abs_map(long i, void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	return fabs(get_val_as_double(A, i));
+}
+
+inline
+double
+ARRAY_METRICS_mean_abs_reduce(double sum, double val)
+{
+	return sum + val;
+}
+
+inline
+double
+ARRAY_METRICS_mean_abs_output(double agg, void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
+	return agg / N;
+}
+#pragma GCC diagnostic pop
+
+metric_functions_template(mean_abs, double, double,
 	(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
 	(A, i_start, i_end, get_val_as_double)
 )
@@ -893,6 +934,231 @@ metric_functions_template(lnQ_error, double, double,
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                         Bit Characteristics                                                            -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+inline
+double
+ARRAY_METRICS_mean_trailing_zeros_map(long i, void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	double val = get_val_as_double(A, i);
+	void * ptr = &val;
+	uint64_t u = *((uint64_t *) ptr);
+	double trailing_zeros = __builtin_ctzl(u);
+	return trailing_zeros;
+}
+
+inline
+double
+ARRAY_METRICS_mean_trailing_zeros_reduce(double sum, double val)
+{
+	return sum + val;
+}
+
+inline
+double
+ARRAY_METRICS_mean_trailing_zeros_output(double agg, void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
+	return agg / N;
+}
+#pragma GCC diagnostic pop
+
+metric_functions_template(mean_trailing_zeros, double, double,
+	(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i)),
+	(A, i_start, i_end, get_val_as_double)
+)
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                           Unique Values                                                                -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+#include "hash/hashtable_gen_undef.h"
+#define HASHTABLE_GEN_VALUE_SAME_AS_KEY  1
+#define HASHTABLE_GEN_KEY_IS_REF  0
+#define HASHTABLE_GEN_TYPE_1  double
+#undef  HASHTABLE_GEN_TYPE_2
+#define HASHTABLE_GEN_TYPE_3  short
+#define HASHTABLE_GEN_SUFFIX  _array_metrics
+#include "hash/hashtable_gen.c"
+
+
+long
+ARRAY_METRICS_unique_num_serial(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long N = i_end - i_start;
+	struct hashtable * ht;
+	long num_entries;
+	long i;
+	ht = hashtable_new(N);
+	for (i=i_start;i<i_end;i++)
+	{
+		hashtable_insert(ht, get_val_as_double(A, i));
+	}
+	num_entries = hashtable_num_entries_serial(ht);
+	hashtable_destroy(&ht);
+	return num_entries;
+}
+
+
+static inline
+double
+get_bucket_size_as_double(void * y, long i)
+{
+	struct hashtable * ht = (struct hashtable *) y;
+	return ht->buckets[i].n;
+}
+
+
+long
+ARRAY_METRICS_unique_num_concurrent(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	static struct hashtable ht;
+	int num_threads = safe_omp_get_num_threads();
+	int tnum = omp_get_thread_num();
+	long N = i_end - i_start;
+	long num_entries;
+	long i, i_s, i_e;
+	hashtable_init_concurrent(&ht, N);
+	#pragma omp barrier
+	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
+	for (i=i_s;i<i_e;i++)
+	{
+		hashtable_insert_concurrent(&ht, get_val_as_double(A, i));
+	}
+	#pragma omp barrier
+	num_entries = hashtable_num_entries_concurrent(&ht);
+	#pragma omp barrier
+	#if 0
+		#pragma omp single
+		{
+			long num_pixels = 1024;
+			long num_pixels_x = num_pixels;
+			long num_pixels_y = num_pixels;
+			long buf_n = 1000;
+			char buf[buf_n], buf_title[buf_n];
+			double * freq;
+			double max = array_max(&ht, ht.buckets_n, NULL, get_bucket_size_as_double);
+			double mean = array_mean(&ht, ht.buckets_n, get_bucket_size_as_double);
+			double std = array_std(&ht, ht.buckets_n, mean, get_bucket_size_as_double);
+			snprintf(buf_title, buf_n, "hashtable bucket size");
+			figure_simple_plot("hashtable_bucket_size.png", num_pixels_x, num_pixels_y, (NULL, &ht, NULL, ht.buckets_n, 0, , get_bucket_size_as_double),
+				figure_enable_legend(_fig);
+				snprintf(buf, buf_n, "hashtable bucket size (%ld buckets), frequency: max=%g, avg=%g, std=%g", ht.buckets_n, max, mean, std);
+				printf("%s\n", buf);
+				figure_set_title(_fig, buf);
+			);
+			snprintf(buf_title, buf_n, "hashtable bucket size distribution");
+			figure_simple_plot("hashtable_bucket_size_dist_hist.png", num_pixels_x, num_pixels_y, (NULL, &ht, NULL, ht.buckets_n, 0, , get_bucket_size_as_double),
+				figure_enable_legend(_fig);
+				figure_series_type_histogram(_s, 0, 1, &freq);
+				figure_series_type_barplot(_s);
+				snprintf(buf, buf_n, "hashtable bucket size distribution histogram (%ld buckets), frequency: max=%g, avg=%g, std=%g", ht.buckets_n, max, mean, std);
+				printf("%s\n", buf);
+				figure_set_title(_fig, buf);
+			);
+		}
+	#endif
+	#pragma omp barrier
+	hashtable_clean_concurrent(&ht);
+	return num_entries;
+}
+
+
+long
+ARRAY_METRICS_unique_num(void * A, long i_start, long i_end, double (* get_val_as_double)(void * A, long i))
+{
+	long ret;
+	if (omp_get_level() > 0)
+		return ARRAY_METRICS_unique_num_serial(A, i_start, i_end, get_val_as_double);
+	_Pragma("omp parallel")
+	{
+		long agg = ARRAY_METRICS_unique_num_concurrent(A, i_start, i_end, get_val_as_double);
+		_Pragma("omp single nowait")
+		{
+			ret = agg;
+		}
+	}
+	return ret;
+}
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                      Windowed Composite Metric                                                         -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+double
+ARRAY_METRICS_windowed_composite_metric_serial(void * A, long i_start, long i_end, long window_len,
+		double (* reduce_fun)(double a, double b),
+		double (* get_window_aggregate_as_double)(void * A, long i, long len)
+		)
+{
+	double agg = 0;
+	long i, len;
+	for (i=i_start;i<i_end;i+=window_len)
+	{
+		len = (i_end - i) < window_len ? (i_end - i) : window_len;
+		agg = reduce_fun(agg, get_window_aggregate_as_double(A, i, len));
+	}
+	return agg;
+}
+
+
+double
+ARRAY_METRICS_windowed_composite_metric_concurrent(void * A, long i_start, long i_end, long window_len,
+		double (* reduce_fun)(double a, double b),
+		double (* get_window_aggregate_as_double)(void * A, long i, long len)
+		)
+{
+	int num_threads = safe_omp_get_num_threads();
+	int tnum = omp_get_thread_num();
+	double agg = 0;
+	long i, i_s, i_e, len;
+	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e, window_len);
+	for (i=i_s;i<i_e;i+=window_len)
+	{
+		len = (i_e - i) < window_len ? (i_e - i) : window_len;
+		agg = reduce_fun(agg, get_window_aggregate_as_double(A, i, len));
+	}
+	agg = ARRAY_METRICS_thread_reduce_double(reduce_fun, agg, 0);
+	return agg;
+}
+
+
+double
+ARRAY_METRICS_windowed_composite_metric(void * A, long i_start, long i_end, long window_len,
+		double (* reduce_fun)(double a, double b),
+		double (* get_window_aggregate_as_double)(void * A, long i, long len)
+		)
+{
+	long ret;
+	if (omp_get_level() > 0)
+		return ARRAY_METRICS_windowed_composite_metric_serial(A, i_start, i_end, window_len, reduce_fun, get_window_aggregate_as_double);
+	_Pragma("omp parallel")
+	{
+		long agg = ARRAY_METRICS_windowed_composite_metric_concurrent(A, i_start, i_end, window_len, reduce_fun, get_window_aggregate_as_double);
+		_Pragma("omp single nowait")
+		{
+			ret = agg;
+		}
+	}
+	return ret;
+}
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                       Closest Pair Distance                                                            -
 //------------------------------------------------------------------------------------------------------------------------------------------
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -904,7 +1170,8 @@ struct pair {
 };
 
 
-int ARRAY_METRICS_closest_pair_idx_cmpfunc(const void * a, const void * b)
+int
+ARRAY_METRICS_closest_pair_idx_cmpfunc(const void * a, const void * b)
 {
 	struct pair * p1 = (struct pair *) a;
 	struct pair * p2 = (struct pair *) b;
@@ -1028,4 +1295,12 @@ ARRAY_METRICS_closest_pair_idx(void * A, long i_start, long i_end, long * idx1_o
 	free(P);
 	return dist;
 }
+
+
+//==========================================================================================================================================
+//= Undefs
+//==========================================================================================================================================
+
+
+#undef metric_functions_template
 

@@ -114,9 +114,9 @@
 )
 
 
-#define gen_type_is_basic(var)                                       \
-(                                                                    \
-								     gen_type_is_basic_int(var) || gen_type_is_basic_float(var)    \
+#define gen_type_is_basic(var)                                        \
+(                                                                     \
+	gen_type_is_basic_int(var) || gen_type_is_basic_float(var)    \
 )
 
 #define gen_type_is_basic_ptr(var)                                            \
@@ -491,7 +491,7 @@ do {                                                                            
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //------------------------------------------------------------------------------------------------------------------------------------------
-//-                                                        Generics Over Doubles                                                           -
+//-                                                   Type Conversion / Type Casting                                                       -
 //------------------------------------------------------------------------------------------------------------------------------------------
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -519,7 +519,7 @@ __attribute__((hot)) static inline double gen_cf2d (void * A, long i) { return (
 __attribute__((hot)) static inline double gen_cd2d (void * A, long i) { return (double) cabs (((complex double *)      A)[i]); }
 __attribute__((hot)) static inline double gen_cld2d(void * A, long i) { return (double) cabsl(((complex long double *) A)[i]); }
 
-#define gen_functor_basic_type_to_double(var_ptr)                                        \
+#define gen_functor_convert_basic_type_to_double(var_ptr)                                \
 ({                                                                                       \
 	/* fail for non-simple array types */                                            \
 	gen_assert_type_is_basic_ptr_or_void_ptr((var_ptr),                              \

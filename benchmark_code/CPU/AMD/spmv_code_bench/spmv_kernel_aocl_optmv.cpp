@@ -48,6 +48,8 @@ struct CSRArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -146,5 +148,22 @@ compute_sparse_mv(CSRArrays * csr, ValueType * x , ValueType * y)
         #elif DOUBLE == 1
 		aoclsparse_dmv(csr->trans, &alpha, csr->A, csr->descr, x, &beta, y);
         #endif
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+CSRArrays::statistics_start()
+{
+}
+
+
+void
+CSRArrays::statistics_print()
+{
 }
 

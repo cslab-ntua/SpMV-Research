@@ -40,5 +40,5 @@ typedef SAMPLESORT_GEN_TYPE_4  _TYPE_AD;
 
 #undef  samplesort
 #define samplesort  SAMPLESORT_GEN_EXPAND(samplesort)
-void samplesort(_TYPE_V * A, _TYPE_I N, _TYPE_AD * aux_data);
+void samplesort(_TYPE_V * A, long N, _TYPE_AD * aux_data);
 

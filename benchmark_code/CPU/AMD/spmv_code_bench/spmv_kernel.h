@@ -16,6 +16,8 @@ struct Matrix_Format
 	double csr_mem_footprint;
 
 	virtual void spmv(ValueType * x, ValueType * y) = 0;
+	virtual void statistics_start() = 0;
+	virtual void statistics_print() = 0;
 
 	Matrix_Format(long m, long n, long nnz) : m(m), n(n), nnz(nnz)
 	{

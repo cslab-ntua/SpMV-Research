@@ -52,21 +52,30 @@ typedef QUICKSORT_GEN_TYPE_3  _TYPE_AD;
 //==========================================================================================================================================
 
 
+/* Expected partitioning outcome,
+ * for s <= i <= e:
+ *     i <  i_s  :  A[i] <= pivot
+ *     i >= i_s  :  A[i] >= pivot
+ */
 #undef  partition
 #define partition  QUICKSORT_GEN_EXPAND(partition)
 static inline
-_TYPE_I
-partition(_TYPE_V * A, _TYPE_I s, _TYPE_I e, _TYPE_AD * aux_data)
+long
+partition(_TYPE_V * A, long s, long e, _TYPE_AD * aux_data)
 {
 	_TYPE_V pivot;
-	_TYPE_I pivot_pos;
+	long pivot_pos;
+	long i_s, i_e;
 
 	pivot_pos = (s+e)/2;    // A somewhat better pivot than simply the first element. Also works well when already sorted.
-	// pivot_pos = s + ((s ^ (e<<4)) % (e-s));
 
+	/* We need to always advance at least by one.
+	 * In order to do we can always at least advance by a value equal to the pivot.
+	 */
 	SWAP(&A[s], &A[pivot_pos]);
 	pivot = A[s];
-	_TYPE_I i_s = s+1, i_e = e;
+	i_s = s+1;
+	i_e = e;
 
 	while (1)
 	{
@@ -81,8 +90,62 @@ partition(_TYPE_V * A, _TYPE_I s, _TYPE_I e, _TYPE_AD * aux_data)
 		i_e--;
 	}
 
-	if (quicksort_cmp(A[s], A[i_s], aux_data) > 0)
+	if (quicksort_cmp(pivot, A[i_s], aux_data) > 0)
 		SWAP(&A[s], &A[i_s]);
+
+	/* Balancing
+	 *
+	 * We need to address the possibility of mostly equal values, which would degrade to O(N^2).
+	 *
+	 * Move 'i_s' towards the middle by swapping with values equal to the pivot.
+	 * At position i_s: A[i_s] >= pivot.
+	 */
+	long i, m;
+	double dist;
+	m = (s+e)/2;
+	if (m < s+1)
+		return i_s;
+	dist = labs(i_s - m);
+	if (dist >= 0.4 * (e - s))  // If very imbalanced.
+	{
+		if (i_s > m)   // Left of i_s: A[i] <= pivot.
+		{
+			i = s;
+			while (i_s > m && i < i_s)
+			{
+				if (quicksort_cmp(A[i_s-1], pivot, aux_data) == 0)
+				{
+					i_s--;
+					continue;
+				}
+				if (quicksort_cmp(A[i], pivot, aux_data) == 0)
+				{
+					SWAP(&A[i], &A[i_s-1]);
+					i_s--;
+				}
+				i++;
+			}
+		}
+		else if (i_s < m) // From and right of i_s: A[i] >= pivot.
+		{
+			i = e;
+			while (i_s < m && i > i_s)
+			{
+				if (quicksort_cmp(A[i_s], pivot, aux_data) == 0)
+				{
+					i_s++;
+					continue;
+				}
+				if (quicksort_cmp(A[i], pivot, aux_data) == 0)
+				{
+					SWAP(&A[i], &A[i_s]);
+					i_s++;
+				}
+				i--;
+			}
+		}
+	}
+
 	return i_s;
 }
 
@@ -90,7 +153,7 @@ partition(_TYPE_V * A, _TYPE_I s, _TYPE_I e, _TYPE_AD * aux_data)
 #undef  insertionsort
 #define insertionsort  QUICKSORT_GEN_EXPAND(insertionsort)
 void
-insertionsort(_TYPE_V * A, _TYPE_I N, _TYPE_AD * aux_data)
+insertionsort(_TYPE_V * A, long N, _TYPE_AD * aux_data)
 {
 	long i, i_e;
 	for (i_e=N-1;i_e>0;i_e--)
@@ -107,10 +170,10 @@ insertionsort(_TYPE_V * A, _TYPE_I N, _TYPE_AD * aux_data)
 #undef  quicksort_no_malloc
 #define quicksort_no_malloc  QUICKSORT_GEN_EXPAND(quicksort_no_malloc)
 void
-quicksort_no_malloc(_TYPE_V * A, _TYPE_I N, _TYPE_AD * aux_data, _TYPE_I * partitions)
+quicksort_no_malloc(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitions)
 {
-	_TYPE_I s, m, e;
-	_TYPE_I i;
+	long s, m, e;
+	long i;
 
 	if (N < 2)
 		return;
@@ -165,7 +228,7 @@ quicksort_no_malloc(_TYPE_V * A, _TYPE_I N, _TYPE_AD * aux_data, _TYPE_I * parti
 #undef  quicksort
 #define quicksort  QUICKSORT_GEN_EXPAND(quicksort)
 void
-quicksort(_TYPE_V * A, _TYPE_I N, _TYPE_AD * aux_data)
+quicksort(_TYPE_V * A, long N, _TYPE_AD * aux_data)
 {
 	_TYPE_I * partitions;
 	if (N < 2)

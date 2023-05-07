@@ -39,6 +39,9 @@ SPARSEX_ROOT_DIR="${HOME}/lib"
 
 declare -A conf_vars
 conf_vars=(
+    # ['PRINT_STATISTICS']=0
+    ['PRINT_STATISTICS']=1
+
     ['USE_PROCESSES']=0
     # ['USE_PROCESSES']=1
 
@@ -187,6 +190,9 @@ conf_vars=(
                     )
                     find_valid_dir "${options[@]}"
                 )"
+
+    ['path_tamu']="${HOME}/Data/graphs/tamu"
+
 )
 
 # conf_vars['cores']=16
@@ -220,6 +226,17 @@ artificial_matrices_files=(
 
 
 # Artificial twins.
+#     nr_rows
+#     nr_cols
+#     avg_nnz_per_row
+#     std_nnz_per_row
+#     distribution
+#     placement
+#     bw
+#     skew
+#     avg_num_neighbours
+#     cross_row_similarity
+#     seed
 declare -A matrices_validation_artificial_twins
 matrices_validation_artificial_twins=(
 
@@ -296,6 +313,7 @@ progs=(
 
     # Custom csr x86
     # ['csr_x86_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector.exe"
+    # ['csr_x86_vector_oracle_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_oracle_balance.exe"
     # ['csr_x86_vector_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_queues.exe"
     # ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
 

@@ -42,7 +42,12 @@
 //==========================================================================================================================================
 
 
-// Default function argument mechanism.
+/* Default function argument mechanism.
+ * One can actually use it for ANY macro argument, by simply leaving it empty.
+ * Example:
+ *     #define macro(arg1, arg2, arg3) fun(arg1, DEFAULT_ARG_1(0, arg2), arg3)
+ *     macro(arg1, , arg3);
+ */
 #define _DEF_ARG_1(def, arg)  arg
 #define _DEF_ARG_0(def, arg)  def
 #define _DEF_ARG(num, def, arg)  _DEF_ARG_ ## num (def, arg)
@@ -131,6 +136,9 @@
 //- Foreach Base
 //------------------------------------------------------------------------------------------------------------------------------------------
 
+/* Iterates over 'tpl_arg_vals'.
+ * Calls 'fun' foreach arg in 'tpl_arg_vals' as: fun(tpl_prefix, arg, tpl_suffix).
+ */
 
 #define _FOREACH_EXPAND_0(i, fun, ...)  fun(__VA_ARGS__)
 #define _FOREACH_EXPAND_1(i, fun, ...)  fun(i, __VA_ARGS__)
@@ -198,13 +206,35 @@
  */
 
 #define __RENAME_PREFIX __eb320f0c2b6a25b48ca861a120eea902__     // MD5 of "macro" (no reason)
-#define _RENAME_1(a, b, ...)  DEFAULT_ARG_1(__auto_type, ##__VA_ARGS__) __MACRO_EXCLUSIVE_PREFIX##b = (a);
+#define _RENAME_1(a, b, ...)  DEFAULT_ARG_1(__auto_type, __VA_ARGS__) __MACRO_EXCLUSIVE_PREFIX##b = (a);
 // DON'T reuse possible given type for _RENAME_2, the intermediate variables are already the correct type (the given type might be in a 'typeof(var)' format, and the name of 'var' could be shadowed).
 #define _RENAME_2(a, b, ...)  __auto_type b = __MACRO_EXCLUSIVE_PREFIX##b;
 
 #define RENAME(...)                                     \
 	FOREACH_UNGUARDED(_RENAME_1, ##__VA_ARGS__);    \
 	FOREACH_UNGUARDED(_RENAME_2, ##__VA_ARGS__);
+
+
+//==========================================================================================================================================
+//= Unsafe Cast To Type
+//==========================================================================================================================================
+
+
+/* #define unsafe_cast_to_type(x, trg_type)                                       \
+({                                                                             \
+	__auto_type _unsafe_cast_to_type_x = x;                                \
+	*((typeof(typeof(trg_type) *)) ((char *) &_unsafe_cast_to_type_x));    \
+}) */
+
+
+#define unsafe_cast_to_type(x, trg_type)                                            \
+({                                                                                  \
+	typeof(x) _unsafe_cast_to_type_x;                                           \
+	typeof(trg_type) * _unsafe_cast_to_type_ptr;                                \
+	_unsafe_cast_to_type_x = x;                                                 \
+	_unsafe_cast_to_type_ptr = (typeof(trg_type) *) &_unsafe_cast_to_type_x;    \
+	*_unsafe_cast_to_type_ptr;                                                  \
+})
 
 
 //==========================================================================================================================================
@@ -333,51 +363,10 @@ do {                                                 \
 	(ABS(target - A[i]));                        \
 })
 
-#define _binary_search_base(_A, _index_lower_value, _index_upper_value, _target, _boundary_lower_ptr, _boundary_upper_ptr, _cmp_fun, _dist_fun)    \
-({                                                                                                                                                 \
-	RENAME((_A, A), (_index_lower_value, index_lower_value), (_index_upper_value, index_upper_value), (_target, target),                       \
-			(_boundary_lower_ptr, __boundary_lower_ptr, long *), (_boundary_upper_ptr, __boundary_upper_ptr, long *));                 \
-	long s, e, m, ret;                                                                                                                         \
-	long * boundary_lower_ptr = __boundary_lower_ptr;                                                                                          \
-	long * boundary_upper_ptr = __boundary_upper_ptr;                                                                                          \
-                                                                                                                                                   \
-	s = (index_lower_value);                                                                                                                   \
-	e = (index_upper_value);                                                                                                                   \
-	if (_cmp_fun(target, A, s) < 0)                                                                                                            \
-	{                                                                                                                                          \
-		ret = s;                                                                                                                           \
-		e = s;                                                                                                                             \
-		s = -1;                                                                                                                            \
-	}                                                                                                                                          \
-	else if (_cmp_fun(target, A, e) > 0)                                                                                                       \
-	{                                                                                                                                          \
-		ret = e;                                                                                                                           \
-		s = e;                                                                                                                             \
-		e = -1;                                                                                                                            \
-	}                                                                                                                                          \
-	else                                                                                                                                       \
-	{                                                                                                                                          \
-		while (1)                                                                                                                          \
-		{                                                                                                                                  \
-			m = (s + e) / 2;                                                                                                           \
-			if (m == s || m == e)                                                                                                      \
-				break;                                                                                                             \
-			if (_cmp_fun(target, A, m) > 0)                                                                                            \
-				s = m;                                                                                                             \
-			else                                                                                                                       \
-				e = m;                                                                                                             \
-		}                                                                                                                                  \
-		if (_cmp_fun(target, A, s) == 0)                                                                                                   \
-			ret = e = s;                                                                                                               \
-		else if (_cmp_fun(target, A, e) == 0)                                                                                              \
-			ret = s = e;                                                                                                               \
-		else                                                                                                                               \
-			ret = (_dist_fun(target, A, s) < _dist_fun(target, A, e)) ? s : e;                                                         \
-	}                                                                                                                                          \
-	arg_return(boundary_lower_ptr, s);                                                                                                         \
-	arg_return(boundary_upper_ptr, e);                                                                                                         \
-	ret;                                                                                                                                       \
-})
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Binary Search - Strictly Defined Boundaries
+//------------------------------------------------------------------------------------------------------------------------------------------
 
 
 /* Index boundaries are inclusive: [index_lower_value, index_upper_value].
@@ -394,13 +383,112 @@ do {                                                 \
  *     A[boundary_lower_ptr]      <  target  ,   boundary_upper_ptr == -1    -> larger than everything
  */ 
 
+
+#define __binary_search(_A, _index_lower_value, _index_upper_value, _target, _boundary_lower_ptr, _boundary_upper_ptr, _cmp_fun, _dist_fun)    \
+({                                                                                                                                             \
+	RENAME((_A, A), (_index_lower_value, index_lower_value), (_index_upper_value, index_upper_value), (_target, target),                   \
+			(_boundary_lower_ptr, __boundary_lower_ptr, long *), (_boundary_upper_ptr, __boundary_upper_ptr, long *));             \
+	long s, e, m, ret;                                                                                                                     \
+	long * boundary_lower_ptr = __boundary_lower_ptr;                                                                                      \
+	long * boundary_upper_ptr = __boundary_upper_ptr;                                                                                      \
+                                                                                                                                               \
+	s = (index_lower_value);                                                                                                               \
+	e = (index_upper_value);                                                                                                               \
+	if (_cmp_fun(target, A, s) < 0)                                                                                                        \
+	{                                                                                                                                      \
+		ret = s;                                                                                                                       \
+		e = s;                                                                                                                         \
+		s = -1;                                                                                                                        \
+	}                                                                                                                                      \
+	else if (_cmp_fun(target, A, e) > 0)                                                                                                   \
+	{                                                                                                                                      \
+		ret = e;                                                                                                                       \
+		s = e;                                                                                                                         \
+		e = -1;                                                                                                                        \
+	}                                                                                                                                      \
+	else                                                                                                                                   \
+	{                                                                                                                                      \
+		while (1)                                                                                                                      \
+		{                                                                                                                              \
+			m = (s + e) / 2;                                                                                                       \
+			if (m == s || m == e)                                                                                                  \
+				break;                                                                                                         \
+			if (_cmp_fun(target, A, m) > 0)                                                                                        \
+				s = m;                                                                                                         \
+			else                                                                                                                   \
+				e = m;                                                                                                         \
+		}                                                                                                                              \
+		if (_cmp_fun(target, A, s) == 0)                                                                                               \
+			ret = e = s;                                                                                                           \
+		else if (_cmp_fun(target, A, e) == 0)                                                                                          \
+			ret = s = e;                                                                                                           \
+		else                                                                                                                           \
+			ret = (_dist_fun(target, A, s) < _dist_fun(target, A, e)) ? s : e;                                                     \
+	}                                                                                                                                      \
+	arg_return(boundary_lower_ptr, s);                                                                                                     \
+	arg_return(boundary_upper_ptr, e);                                                                                                     \
+	ret;                                                                                                                                   \
+})
+
+
 #undef  binary_search
 #define binary_search(A, index_lower_value, index_upper_value, target, boundary_lower_ptr, boundary_upper_ptr, ... /* compare_function, distance_function */)    \
 ({                                                                                                                                                               \
-	_binary_search_base(A, index_lower_value, index_upper_value, target, boundary_lower_ptr, boundary_upper_ptr,                                             \
-			/* either given both, or use the default for both */                                                                                     \
-			DEFAULT_ARG_2(_binary_search_default_cmp, ##__VA_ARGS__),                                                                                \
-			DEFAULT_ARG_2(_binary_search_default_dist, ##__VA_ARGS__));                                                                              \
+	__binary_search(A, index_lower_value, index_upper_value, target, boundary_lower_ptr, boundary_upper_ptr,                                                 \
+			DEFAULT_ARG_1(_binary_search_default_cmp, __VA_ARGS__),                                                                                  \
+			DEFAULT_ARG_2(_binary_search_default_dist, __VA_ARGS__));                                                                                \
+})
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Binary Search - Simple
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+
+/* Index boundaries are inclusive: [index_lower_value, index_upper_value].
+ *
+ * If no equal value found, returns the lower position.
+ */ 
+
+
+#define __binary_search_simple(_A, _index_lower_value, _index_upper_value, _target, _cmp_fun)                                    \
+({                                                                                                                               \
+	RENAME((_A, A), (_index_lower_value, index_lower_value), (_index_upper_value, index_upper_value), (_target, target));    \
+	long s, e, m, ret;                                                                                                       \
+                                                                                                                                 \
+	s = (index_lower_value);                                                                                                 \
+	e = (index_upper_value);                                                                                                 \
+	if (_cmp_fun(target, A, s) < 0)                                                                                          \
+		ret = s;                                                                                                         \
+	else if (_cmp_fun(target, A, e) > 0)                                                                                     \
+		ret = e;                                                                                                         \
+	else                                                                                                                     \
+	{                                                                                                                        \
+		while (1)                                                                                                        \
+		{                                                                                                                \
+			m = (s + e) / 2;                                                                                         \
+			if (m == s || m == e)                                                                                    \
+				break;                                                                                           \
+			if (_cmp_fun(target, A, m) > 0)                                                                          \
+				s = m;                                                                                           \
+			else                                                                                                     \
+				e = m;                                                                                           \
+		}                                                                                                                \
+		if (_cmp_fun(target, A, s) == 0)                                                                                 \
+			ret = s;                                                                                                 \
+		else if (_cmp_fun(target, A, e) == 0)                                                                            \
+			ret = e;                                                                                                 \
+		else                                                                                                             \
+			ret = s;                                                                                                 \
+	}                                                                                                                        \
+	ret;                                                                                                                     \
+})
+
+
+#undef  binary_search_simple
+#define binary_search_simple(A, index_lower_value, index_upper_value, target, ... /* compare_function */)                                   \
+({                                                                                                                                          \
+	__binary_search_simple(A, index_lower_value, index_upper_value, target, DEFAULT_ARG_1(_binary_search_default_cmp, __VA_ARGS__));    \
 })
 
 

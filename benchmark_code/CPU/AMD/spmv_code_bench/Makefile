@@ -96,6 +96,10 @@ else
     CFLAGS += -D'ValueType=float'
 endif
 
+ifeq ($(PRINT_STATISTICS),1)
+    CFLAGS += -D'PRINT_STATISTICS'
+endif
+
 
 CPPFLAGS =
 CPPFLAGS += $(CFLAGS)
@@ -119,7 +123,7 @@ LDFLAGS =
 LDFLAGS += -lm
 
 
-LIB_SRC = read_mtx.cpp csr_converter.c artificial_matrix_generation.c ordered_set.c pthread_functions.c omp_functions.c topology.c array_metrics.c string_util.c parallel_io.c openfoam_matrix.c rapl.c
+LIB_SRC = pthread_functions.c omp_functions.c topology.c array_metrics.c string_util.c parallel_io.c hash.c plot.c openfoam_matrix.c rapl.c read_mtx.cpp csr_converter.c csr_util.c artificial_matrix_generation.c ordered_set.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%.o,$(LIB_OBJ))
@@ -128,7 +132,7 @@ LIB_OBJ := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ))
 
 EXE =
 
-EXE += spmv_csr_naive.exe
+# EXE += spmv_csr_naive.exe
 # EXE += spmv_csr.exe
 # EXE += spmv_csr_kahan.exe
 # EXE += spmv_csr_prefetch.exe
@@ -139,6 +143,7 @@ EXE += spmv_csr_naive.exe
 EXE += spmv_csr_vc.exe
 
 EXE += spmv_csr_x86_vector.exe
+EXE += spmv_csr_x86_vector_oracle_balance.exe
 # EXE += spmv_csr_x86_vector_queues.exe
 # EXE += spmv_csr_x86_vector_perfect_nnz_balance.exe
 
@@ -193,6 +198,8 @@ spmv_csr_vc.exe: obj/spmv_bench.o spmv_kernel_csr_vc.cpp spmv_kernel_csr_vc_comp
 
 spmv_csr_x86_vector.exe: obj/spmv_bench.o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR' $^ -o $@ $(LDFLAGS)
+spmv_csr_x86_vector_oracle_balance.exe: obj/spmv_bench.o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
+	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR' -D'CUSTOM_X86_VECTOR_ORACLE_BALANCE' $^ -o $@ $(LDFLAGS)
 spmv_csr_x86_vector_perfect_nnz_balance.exe: obj/spmv_bench.o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
 spmv_csr_x86_vector_queues.exe: obj/spmv_bench.o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
@@ -342,11 +349,17 @@ $(call Rule_Auto_Dependencies,obj/string_util.o,$(library)/string_util.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/parallel_io.o,$(library)/parallel_io.c)
 	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/hash.o,$(library)/hash/hash.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/plot.o,$(library)/plot/plot.c)
+	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/openfoam_matrix.o,$(library)/file_formats/openfoam/openfoam_matrix.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/rapl.o,$(library)/monitoring/power/rapl.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/csr_converter.o,$(library)/aux/csr_converter.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/csr_util.o,$(library)/aux/csr_util.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 

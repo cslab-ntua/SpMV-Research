@@ -75,7 +75,7 @@
 
 
 static __attribute__((cold)) __attribute__((unused))
-void display_error(int exit_status, const char *file_name, const char *function_name, int line, const char *format, ...)
+void display_error(int do_exit, int exit_status, const char *file_name, const char *function_name, int line, const char *format, ...)
 {
 	va_list ap;
 	int buf_size = 10*1024 - 1;     // -1 so that +1 will be a power of 2
@@ -112,18 +112,18 @@ void display_error(int exit_status, const char *file_name, const char *function_
 	
 	va_end(ap);
 	
-	if (exit_status)
+	if (do_exit)
 		exit(exit_status);
 }
 
-#define __display_error(exit_status, format, ...) display_error(exit_status, __FILE__, __FUNCTION__, __LINE__, format, ##__VA_ARGS__)
+#define __display_error(do_exit, exit_status, format, ...) display_error(do_exit, exit_status, __FILE__, __FUNCTION__, __LINE__, format, ##__VA_ARGS__)
 
 
-#define error_fatal(exit_status, format, ...) __display_error(exit_status, format, ##__VA_ARGS__)
+#define error_fatal(exit_status, format, ...) __display_error(1, exit_status, format, ##__VA_ARGS__)
 
-#define warning(format, ...) __display_error(0, format, ##__VA_ARGS__)
+#define warning(format, ...) __display_error(0, 0, format, ##__VA_ARGS__)
 
-#define error(format, ...) __display_error(EXIT_FAILURE, format, ##__VA_ARGS__)
+#define error(format, ...) __display_error(1, EXIT_FAILURE, format, ##__VA_ARGS__)
 
 
 // POSIX thread functions do not return error numbers in errno, but in the actual return value of the function call instead.

@@ -23,7 +23,7 @@
 
 // Quicksort
 
-#include "sort/quicksort_gen_undef.h"
+#include "sort/quicksort_gen_push.h"
 #define QUICKSORT_GEN_TYPE_1  CSR_GEN_TYPE_2
 #define QUICKSORT_GEN_TYPE_2  CSR_GEN_TYPE_2
 #define QUICKSORT_GEN_TYPE_3  CSR_GEN_TYPE_2
@@ -40,7 +40,7 @@ quicksort_cmp(CSR_GEN_TYPE_2 a, CSR_GEN_TYPE_2 b, CSR_GEN_TYPE_2 * sorting_keys)
 
 // Bucketsort
 
-#include "sort/bucketsort_gen_undef.h"
+#include "sort/bucketsort_gen_push.h"
 #define BUCKETSORT_GEN_TYPE_1  CSR_GEN_TYPE_2
 #define BUCKETSORT_GEN_TYPE_2  CSR_GEN_TYPE_2
 #define BUCKETSORT_GEN_TYPE_3  CSR_GEN_TYPE_2
@@ -56,9 +56,9 @@ bucketsort_find_bucket(CSR_GEN_TYPE_2 a, __attribute__((unused)) void * unused)
 }
 
 
-// Samplesort
+/* // Samplesort
 
-#include "sort/samplesort_gen_undef.h"
+#include "sort/samplesort_gen_push.h"
 #define SAMPLESORT_GEN_TYPE_1  CSR_GEN_TYPE_2
 #define SAMPLESORT_GEN_TYPE_2  CSR_GEN_TYPE_2
 #define SAMPLESORT_GEN_TYPE_3  CSR_GEN_TYPE_2
@@ -80,7 +80,7 @@ samplesort_cmp(CSR_GEN_TYPE_2 a, CSR_GEN_TYPE_2 b, CSR_GEN_TYPE_2 ** sorting_key
 
 // Scan
 
-#include "functools_gen_undef.h"
+#include "functools_gen_push.h"
 #define FUNCTOOLS_GEN_TYPE_1  CSR_GEN_TYPE_2
 #define FUNCTOOLS_GEN_TYPE_2  CSR_GEN_TYPE_2
 #define FUNCTOOLS_GEN_SUFFIX  CONCAT(_FT_i_CSR_GEN, CSR_GEN_SUFFIX)
@@ -98,7 +98,7 @@ CSR_GEN_TYPE_2
 functools_reduce_fun(CSR_GEN_TYPE_2 a, CSR_GEN_TYPE_2 b)
 {
 	return a + b;
-}
+} */
 
 
 //==========================================================================================================================================
@@ -115,14 +115,6 @@ typedef CSR_GEN_TYPE_1  _TYPE_V;
 typedef CSR_GEN_TYPE_2  _TYPE_I;
 
 
-#undef  insertionsort
-#define insertionsort  CONCAT(insertionsort_QS_CSR_GEN, CSR_GEN_SUFFIX)
-#undef  quicksort
-#define quicksort  CONCAT(quicksort_QS_CSR_GEN, CSR_GEN_SUFFIX)
-#undef  quicksort_no_malloc
-#define quicksort_no_malloc  CONCAT(quicksort_no_malloc_QS_CSR_GEN, CSR_GEN_SUFFIX)
-
-
 //==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                              Templates                                                                 -
@@ -133,7 +125,7 @@ typedef CSR_GEN_TYPE_2  _TYPE_I;
 #undef  csr_sort_columns
 #define csr_sort_columns  CSR_GEN_EXPAND(csr_sort_columns)
 void
-csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz)
+csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz)
 {
 	int num_threads = safe_omp_get_num_threads_external();
 	_TYPE_I * permutation, * C;
@@ -143,7 +135,7 @@ csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, lo
 
 	permutation = (typeof(permutation)) malloc(nnz * sizeof(*permutation));
 	C = (typeof(C)) malloc(nnz * sizeof(*C));
-	V = (val != NULL) ? (typeof(V)) malloc(nnz * sizeof(*V)) : NULL;
+	V = (values != NULL) ? (typeof(V)) malloc(nnz * sizeof(*V)) : NULL;
 	#pragma omp parallel
 	{
 		int tnum = omp_get_thread_num();
@@ -154,7 +146,7 @@ csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, lo
 		_TYPE_I * buf_bucket_ids   = (typeof(buf_bucket_ids)) malloc((n+1)*sizeof(*buf_offsets));
 		_TYPE_I * qsort_partitions = (typeof(qsort_partitions)) malloc(m * sizeof(*qsort_partitions));
 
-		loop_partitioner_balance_partial_sums(num_threads, tnum, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 		i_s = thread_i_s[tnum];
 		i_e = thread_i_e[tnum];
 
@@ -164,8 +156,8 @@ csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, lo
 		{
 			permutation[i] = i;
 			C[i] = col_idx[i];
-			if (val != NULL)
-				V[i] = val[i];
+			if (values != NULL)
+				V[i] = values[i];
 		}
 
 		for (i=i_s;i<i_e;i++)
@@ -181,8 +173,8 @@ csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, lo
 				{
 					pos = row_ptr[i] + buf_permutation[j - row_ptr[i]];
 					col_idx[pos] = C[j];
-					if (val != NULL)
-						val[pos] = V[j];
+					if (values != NULL)
+						values[pos] = V[j];
 				}
 			}
 			else
@@ -193,8 +185,8 @@ csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, lo
 				{
 					pos = permutation[j];
 					col_idx[j] = C[pos];
-					if (val != NULL)
-						val[j] = V[pos];
+					if (values != NULL)
+						values[j] = V[pos];
 				}
 			}
 		}
@@ -214,7 +206,7 @@ csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, lo
 #undef  coo_to_csr
 #define coo_to_csr  CSR_GEN_EXPAND(coo_to_csr)
 void
-coo_to_csr(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, long n, long nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int sort_columns)
+coo_to_csr(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, long n, long nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, int sort_columns)
 {
 	_TYPE_I * permutation = (typeof(permutation)) malloc(nnz * sizeof(*permutation));
 
@@ -248,7 +240,7 @@ coo_to_csr(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, long n, long nnz, _TYP
 			// pos = permutation[permutation_base[i]];
 			col_idx[pos] = C[i];
 			if (V != NULL)
-				val[pos] = V[i];
+				values[pos] = V[i];
 		}
 	}
 	free(permutation);
@@ -257,15 +249,15 @@ coo_to_csr(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, long n, long nnz, _TYP
 	// free(permutation_base);
 
 	if (sort_columns)
-		csr_sort_columns(row_ptr, col_idx, val, m, n, nnz);
+		csr_sort_columns(row_ptr, col_idx, values, m, n, nnz);
 
 }
 
 
-#undef  coo_to_csr_fully_sorted
+/* #undef  coo_to_csr_fully_sorted
 #define coo_to_csr_fully_sorted  CSR_GEN_EXPAND(coo_to_csr_fully_sorted)
 void
-coo_to_csr_fully_sorted(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, __attribute__((unused)) long n, long nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val)
+coo_to_csr_fully_sorted(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, __attribute__((unused)) long n, long nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values)
 {
 	_TYPE_I * offsets;
 	_TYPE_I * permutation;
@@ -301,12 +293,12 @@ coo_to_csr_fully_sorted(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, __attribu
 			pos = permutation[i];
 			col_idx[i] = C[pos];
 			if (V != NULL)
-				val[i] = V[pos];
+				values[i] = V[pos];
 		}
 	}
 	free(offsets);
 	free(permutation);
-}
+} */
 
 
 //==========================================================================================================================================
@@ -314,8 +306,8 @@ coo_to_csr_fully_sorted(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, __attribu
 //==========================================================================================================================================
 
 
-#include "sort/bucketsort_gen_undef.h"
-#include "sort/quicksort_gen_undef.h"
-#include "sort/samplesort_gen_undef.h"
-#include "functools_gen_undef.h"
+#include "sort/bucketsort_gen_pop.h"
+#include "sort/quicksort_gen_pop.h"
+// #include "sort/samplesort_gen_pop.h"
+// #include "functools_gen_pop.h"
 

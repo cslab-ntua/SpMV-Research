@@ -106,14 +106,14 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 
 	// File conversion.
 	// Actually, the conversion to e.g. png takes most of the time, but the file sizes are orders of magnitude smaller.
-	snprintf(buf, buf_n, "convert %s %s", f_ppm, f_conv);
+	snprintf(buf, buf_n, "convert '%s' '%s'", f_ppm, f_conv);
 	ret = system(buf);
 	if (ret)
 	{
 		printf("convert failed with code: %d\n", ret);
 		goto out;
 	}
-	snprintf(buf, buf_n, "rm %s", f_ppm);
+	snprintf(buf, buf_n, "rm '%s'", f_ppm);
 	if (system(buf))
 		goto out;
 
@@ -362,11 +362,43 @@ figure_series_type_density_map(struct Figure_Series * s)
  * The x axis is a discretization of the range of the values, with a given 'num_bins'.
  * This function converts the series to the 2D type_histogram.
  *
- * Returns the bins frequencies as doubles.
+ * If 'num_bins' = 0 then plots in integer mode and calculates the number of bins as: max - min + 1.
+ *
+ * Returns the number of bins.
+ * Through 'freq_out' it returns the bins frequencies as doubles.
+ *
+ * Integer / Float Modes:
+ *     Like when matching value to pixel, the max values are an inclusive boundary, and are at the position of the 'number of bins' we divide each length by.
+ *     But we have to be more careful with frequencies.
+ *
+ *     For integer frequencies:
+ *         e.g. [0, 10]:
+ *         num_bins = 11
+ *         (max - min) / (num_bins - 1) = (10 - 0) / 10 = 1 , OK
+ *
+ *     For floating point frequencies:
+ *         e.g. [0, 1]:
+ *         num_bins = 11
+ *         (max - min) / (num_bins - 1) = 0.1
+ *         bin  0: [0-0.1)
+ *         bin  1: [0.1-0.2)
+ *         ...
+ *         bin  9: [0.9-1.0)
+ *         bin 10: [1.0-1.0] -> only max values, basically an empty bin
+ *     It is more fair (i.e. same intervals for all bins) to do it this way:
+ *         e.g. [0, 1]:
+ *         num_bins = 10
+ *         (max - min) / (num_bins) = 0.1
+ *         bin  0: [0-0.1)
+ *         bin  1: [0.1-0.2)
+ *         ...
+ *         bin  9: [0.9-1.0] : Check for max values and send them to this last bin.
+ *
+ *     We can't know which mode is appropriate (integer / float), so user has to select via the 'num_bins' argument.
  */
-static
-double *
-convert_to_histogram(struct Figure_Series * s, long num_bins, int plot_percentages)
+long
+figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int plot_percentages,
+		double ** freq_out)
 {
 	void * values;
 	long values_n;
@@ -375,10 +407,6 @@ convert_to_histogram(struct Figure_Series * s, long num_bins, int plot_percentag
 	double * x, * y;
 	double quantum_size;
 	double min, max;
-
-	freq = malloc(num_bins * sizeof(*freq));
-	x = malloc(num_bins * sizeof(*x));
-	y = malloc(num_bins * sizeof(*y));
 
 	values_n = (s->cart_prod) ? s->M * s->N : s->N;
 	if (s->z == NULL)
@@ -394,7 +422,19 @@ convert_to_histogram(struct Figure_Series * s, long num_bins, int plot_percentag
 
 	array_min_max(values, values_n, &min, NULL, &max, NULL, get_value_as_double);
 
-	quantum_size = (max - min) / (num_bins);
+	if (num_bins == 0)     // Integer mode.
+	{
+		num_bins = max - min + 1;
+		quantum_size = 1;    // i.e.: quantum_size = (max - min) / (num_bins - 1);
+	}
+	else                   // Float mode.
+		quantum_size = (max - min) / (num_bins);
+
+	// if (num_bins > 1000000000)
+		// warning("too many bins: %ld", num_bins);
+	freq = malloc(num_bins * sizeof(*freq));
+	x = malloc(num_bins * sizeof(*x));
+	y = malloc(num_bins * sizeof(*y));
 
 	#pragma omp parallel
 	{
@@ -409,10 +449,15 @@ convert_to_histogram(struct Figure_Series * s, long num_bins, int plot_percentag
 		{
 			v = get_value_as_double(values, i);
 			pos = (v - min) / quantum_size;
-			if (pos >= num_bins)                 // This occurs for the max values only.
+			if (pos >= num_bins)                 // This CAN happen here for the max values in float mode.
+			{
 				pos = num_bins - 1;
+			}
 			else if (pos < 0)                    // This should logically never happen (better safe than sorry, floats are weird).
+			{
+				error("frequency bin out of bounds: %ld\n", pos);
 				pos = 0;
+			}
 			__atomic_fetch_add(&freq[pos], 1, __ATOMIC_RELAXED);
 		}
 
@@ -443,15 +488,9 @@ convert_to_histogram(struct Figure_Series * s, long num_bins, int plot_percentag
 	s->histogram_num_bins = num_bins;
 	s->histogram_in_percentages = plot_percentages;
 	s->deallocate_data = 1;
-	return y;
-}
-
-
-// Returns the bins frequencies as doubles.
-double *
-figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int plot_percentages)
-{
-	return convert_to_histogram(s, num_bins, plot_percentages);
+	if (freq_out != NULL)
+		*freq_out = y;
+	return num_bins;
 }
 
 
@@ -545,15 +584,18 @@ figure_color_mapping_greyscale(double val_norm, __attribute__((unused)) double v
  */  
 
 
-#define find_pixel_coord(num_pixels, val, min, step, flip, q_out)    \
-({                                                                   \
-	long ret = 1;                                                \
-	q_out = (long) floor((val - min) / step + 0.5);              \
-	if (flip)                                                    \
-		q_out = num_pixels - 1 - q_out;                      \
-	if ((q_out < 0) || (q_out >= num_pixels))                    \
-		ret = 0;                                             \
-	ret;                                                         \
+#define find_pixel_coord(num_pixels, val, min, step, flip, q_out)                                                        \
+({                                                                                                                       \
+	long ret = 1;                                                                                                    \
+	q_out = (long) floor((val - min) / step + 0.5);                                                                  \
+	if (flip)                                                                                                        \
+		q_out = num_pixels - 1 - q_out;                                                                          \
+	if ((q_out < 0) || (q_out >= num_pixels)) /* This should logically NEVER happen. */                              \
+	{                                                                                                                \
+		error("find_pixel_coord: pixel coordinate out of bounds: %ld , num_pixels = %ld", q_out, num_pixels);    \
+		ret = 0;                                                                                                 \
+	}                                                                                                                \
+	ret;                                                                                                             \
 })
 
 
@@ -797,7 +839,13 @@ series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pi
 //==========================================================================================================================================
 
 
-__attribute__((unused))
+static
+int closest_pair_distance_cmpfunc(const void * a, const void * b)
+{
+	return (*(double *)a > *(double *)b) ? 1 : (*(double *)a < *(double *)b) ? -1 : 0;
+}
+
+
 static
 double
 closest_pair_distance(void * A, long N, double (* get_val_as_double)(void * A, long i))
@@ -807,13 +855,9 @@ closest_pair_distance(void * A, long N, double (* get_val_as_double)(void * A, l
 	long i;
 	if (N <= 1)
 		return 0;
-	int cmpfunc(const void * a, const void * b)
-	{
-		return (*(double *)a > *(double *)b) ? 1 : (*(double *)a < *(double *)b) ? -1 : 0;
-	}
 	for (i=0;i<N;i++)
 		B[i] = get_val_as_double(A, i);
-	qsort(B, N, sizeof(*B), cmpfunc);
+	qsort(B, N, sizeof(*B), closest_pair_distance_cmpfunc);
 	min = fabs(B[1] - B[0]);
 	for (i=0;i<N-1;i++)
 	{
@@ -949,7 +993,7 @@ figure_plot(struct Figure * fig, char * filename)
 	if (y_len == 0)
 		y_len = x_len;
 
-	// -1 to fit the max values, which are at the position of the 'number of pixels' we divide each length by.
+	// -1 to fit the max values which are an inclusive boundary, and are at the position of the 'number of pixels' we divide each length by.
 	x_step = x_len / (x_num_pixels - 1);
 	y_step = y_len / (y_num_pixels - 1);
 

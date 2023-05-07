@@ -41,6 +41,8 @@ struct COOArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -100,5 +102,22 @@ compute_coo(COOArrays * coo, ValueType * x , ValueType * y)
     #elif DOUBLE == 1
 	    mkl_cspblas_dcoogemv(&transa, &coo->m, coo->val, coo->rowind, coo->colind, &coo->nnz, x, y);
     #endif
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+COOArrays::statistics_start()
+{
+}
+
+
+void
+COOArrays::statistics_print()
+{
 }
 

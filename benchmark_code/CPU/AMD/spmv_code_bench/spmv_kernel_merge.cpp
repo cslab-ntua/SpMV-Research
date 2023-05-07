@@ -45,6 +45,8 @@ struct MERGEArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -307,5 +309,22 @@ void
 compute_merge(MERGEArrays * merge, ValueType * x , ValueType * y)
 {
 	OmpMergeCsrmv(merge->num_threads, merge->ia + 1, merge->ja, merge->a, x, y, merge->m, merge->nnz);
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+MERGEArrays::statistics_start()
+{
+}
+
+
+void
+MERGEArrays::statistics_print()
+{
 }
 

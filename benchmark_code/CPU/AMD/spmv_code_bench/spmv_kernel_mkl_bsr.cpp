@@ -48,6 +48,8 @@ struct BCSRArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -143,5 +145,22 @@ compute_bcsr(BCSRArrays * bcsr, ValueType * x , ValueType * y )
     #elif DOUBLE == 1
 	    mkl_cspblas_dbsrgemv(&transa, &bcsr->nbBlockRows , &bcsr->lb , bcsr->a , bcsr->ia , bcsr->ja , x , y);
     #endif
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+BCSRArrays::statistics_start()
+{
+}
+
+
+void
+BCSRArrays::statistics_print()
+{
 }
 

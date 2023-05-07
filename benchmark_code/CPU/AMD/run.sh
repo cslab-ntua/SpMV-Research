@@ -51,59 +51,59 @@ IFS="$IFS_buf"
 
 matrices_validation=(
 
-    # scircuit.mtx
-    # mac_econ_fwd500.mtx
-    # raefsky3.mtx
-    # rgg_n_2_17_s0.mtx
-    # bbmat.mtx
-    # appu.mtx
-    # conf5_4-8x8-15.mtx
-    # mc2depi.mtx
-    # rma10.mtx
-    # cop20k_A.mtx
-    # thermomech_dK.mtx
-    # webbase-1M.mtx
-    # cant.mtx
-    # ASIC_680k.mtx
-    # roadNet-TX.mtx
-    # pdb1HYS.mtx
-    # TSOPF_RS_b300_c3.mtx
-    # Chebyshev4.mtx
-    # consph.mtx
-    # com-Youtube.mtx
-    # rajat30.mtx
-    # radiation.mtx
-    # Stanford_Berkeley.mtx
-    # shipsec1.mtx
-    # PR02R.mtx
-    # CurlCurl_2.mtx
-    # gupta3.mtx
-    # mip1.mtx
-    # rail4284.mtx
-    # pwtk.mtx
-    # crankseg_2.mtx
-    # Si41Ge41H72.mtx
-    # TSOPF_RS_b2383.mtx
-    # in-2004.mtx
-    # Ga41As41H72.mtx
-    # eu-2005.mtx
-    # wikipedia-20051105.mtx
-    # kron_g500-logn18.mtx
-    # rajat31.mtx
-    # human_gene1.mtx
-    # delaunay_n22.mtx
-    # GL7d20.mtx
-    # sx-stackoverflow.mtx
-    # dgreen.mtx
-    # mawi_201512012345.mtx
-    # ldoor.mtx
-    # dielFilterV2real.mtx
-    # circuit5M.mtx
-    # soc-LiveJournal1.mtx
+    scircuit.mtx
+    mac_econ_fwd500.mtx
+    raefsky3.mtx
+    rgg_n_2_17_s0.mtx
+    bbmat.mtx
+    appu.mtx
+    conf5_4-8x8-15.mtx
+    mc2depi.mtx
+    rma10.mtx
+    cop20k_A.mtx
+    thermomech_dK.mtx
+    webbase-1M.mtx
+    cant.mtx
+    ASIC_680k.mtx
+    roadNet-TX.mtx
+    pdb1HYS.mtx
+    TSOPF_RS_b300_c3.mtx
+    Chebyshev4.mtx
+    consph.mtx
+    com-Youtube.mtx
+    rajat30.mtx
+    radiation.mtx
+    Stanford_Berkeley.mtx
+    shipsec1.mtx
+    PR02R.mtx
+    CurlCurl_2.mtx
+    gupta3.mtx
+    mip1.mtx
+    rail4284.mtx
+    pwtk.mtx
+    crankseg_2.mtx
+    Si41Ge41H72.mtx
+    TSOPF_RS_b2383.mtx
+    in-2004.mtx
+    Ga41As41H72.mtx
+    eu-2005.mtx
+    wikipedia-20051105.mtx
+    kron_g500-logn18.mtx
+    rajat31.mtx
+    human_gene1.mtx
+    delaunay_n22.mtx
+    GL7d20.mtx
+    sx-stackoverflow.mtx
+    dgreen.mtx
+    mawi_201512012345.mtx
+    ldoor.mtx
+    dielFilterV2real.mtx
+    circuit5M.mtx
+    soc-LiveJournal1.mtx
     bone010.mtx
-    # audikw_1.mtx
-    # cage15.mtx
-    # kmer_V2a.mtx
+    audikw_1.mtx
+    cage15.mtx
+    kmer_V2a.mtx
 
 )
 
@@ -125,6 +125,58 @@ matrices_validation=( $(
 ) )
 
 
+matrices_compression=(
+
+    spal_004
+    # ldoor
+    # dielFilterV2real
+    # nv2
+    # af_shell10
+    # boneS10
+    # circuit5M
+    # Hook_1498
+    # Geo_1438
+    # Serena
+    # vas_stokes_2M
+    # bone010
+    # audikw_1
+    # Long_Coup_dt0
+    # Long_Coup_dt6
+    # dielFilterV3real
+    # nlpkkt120
+    # cage15
+    # ML_Geer
+    # Flan_1565
+    # Cube_Coup_dt0
+    # Cube_Coup_dt6
+    # Bump_2911
+    # vas_stokes_4M
+    # nlpkkt160
+    # HV15R
+    # Queen_4147
+    # stokes
+    # nlpkkt200
+
+)
+
+for ((i=0;i<${#matrices_compression[@]};i++)); do
+    m="${matrices_compression[i]}"
+    matrices_compression[i]="$path_tamu"/matrices/"$m"/"$m".mtx
+done
+
+# matrices_compression=( $(
+    # for ((i=0;i<${#matrices_compression[@]};i++)); do
+        # m="${matrices_compression[i]}"
+        # for d in "${validation_dirs[@]}"; do
+            # if [[ -f "${d}/${m}" ]]; then
+                # echo "${d}/${m}"
+                # break
+            # fi
+        # done
+    # done
+# ) )
+
+
 matrices_validation_loop=()
 for ((i=0;i<${#matrices_validation[@]};i++)); do
     path="${matrices_validation[i]}"
@@ -138,8 +190,7 @@ for ((i=0;i<${#matrices_validation[@]};i++)); do
     done
     matrices_validation_loop+=( "${matrices_validation[i]}" )
 done
-# printf "%s\n" "${matrices_validation_loop[@]}"
-# exit
+
 
 bench()
 {
@@ -198,7 +249,18 @@ bench()
 
 matrices=(
     # "${matrices_openFoam[@]}"
-    "${matrices_validation[@]}"
+    # "${matrices_validation[@]}"
+    # "${matrices_compression[@]}"
+
+    # "$path_tamu"/matrices/ASIC_680k/ASIC_680k.mtx
+    # '682862 682862 5.6699201303 659.8073579974 normal random 0.3746622132 69710.5639935502 0.6690077130 0.8254737741 14 ASIC_680k'
+
+    # nr_rows nr_cols avg_nnz_per_row std_nnz_per_row distribution placement bw           skew          avg_num_neighbours cross_row_similarity seed
+    ' 16783   16783   555.5280343204  1233.5202594143 normal       random    1            0             0                  0                    14 gupta3-1'
+    ' 16783   16783   555.5280343204  1233.5202594143 normal       random    0.5718415058 0             0                  0                    14 gupta3-2'
+    ' 16783   16783   555.5280343204  1233.5202594143 normal       random    0.5718415058 25.4109083495 0                  0                    14 gupta3-3'
+    ' 16783   16783   555.5280343204  1233.5202594143 normal       random    0.5718415058 25.4109083495 1.9016586927       0                    14 gupta3-4'
+    ' 16783   16783   555.5280343204  1233.5202594143 normal       random    0.5718415058 25.4109083495 1.9016586927       0.9767488489         14 gupta3-5'
 
     # "${matrices_validation_artificial_twins[@]}"
     # "${matrices_validation_loop[@]}"
@@ -321,7 +383,8 @@ for format_name in "${!progs[@]}"; do
     LEVEL3_CACHE_SIZE="$(getconf LEVEL3_CACHE_SIZE)"
     csrvc_num_packet_vals=(
         # 128 
-        $((2**16))
+        # $((2**16))
+        $((2**12))
         # $((LEVEL3_CACHE_SIZE / 8 / 8 / 16))
     )
     # if [[ "$p" == *'spmv_csr_vc.exe' ]]; then

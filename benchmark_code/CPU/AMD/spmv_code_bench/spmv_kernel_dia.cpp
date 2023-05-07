@@ -32,6 +32,8 @@ struct DIAArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -146,5 +148,22 @@ compute_dia_custom(DIAArrays * dia , ValueType * x , ValueType * y)
 		}
 	}
 	// free(offsets);
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+DIAArrays::statistics_start()
+{
+}
+
+
+void
+DIAArrays::statistics_print()
+{
 }
 

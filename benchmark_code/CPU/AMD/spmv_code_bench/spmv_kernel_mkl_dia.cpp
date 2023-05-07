@@ -32,6 +32,8 @@ struct DIAArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -113,5 +115,22 @@ compute_dia(DIAArrays * dia , ValueType * x , ValueType * y)
 	#elif DOUBLE == 1
 		mkl_ddiagemv(&transa, &dia->m , dia->val , &dia->lval , dia->idiag , &dia->ndiag , x , y);
 	#endif
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+DIAArrays::statistics_start()
+{
+}
+
+
+void
+DIAArrays::statistics_print()
+{
 }
 

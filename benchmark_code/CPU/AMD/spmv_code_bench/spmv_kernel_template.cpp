@@ -18,18 +18,6 @@ extern "C"{
 #endif
 
 
-// extern INT_T * thread_i_s;
-// extern INT_T * thread_i_e;
-
-// extern INT_T * thread_j_s;
-// extern INT_T * thread_j_e;
-
-// extern ValueType * thread_v_s;
-// extern ValueType * thread_v_e;
-
-extern int prefetch_distance;
-
-
 struct New_Array : Matrix_Format
 {
 
@@ -44,6 +32,8 @@ struct New_Array : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 void
@@ -58,3 +48,21 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 {
 
 }
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+New_Array::statistics_start()
+{
+}
+
+
+void
+New_Array::statistics_print()
+{
+}
+

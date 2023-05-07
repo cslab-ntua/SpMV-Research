@@ -37,6 +37,8 @@ struct ELLArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -547,4 +549,21 @@ compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 
 
 #endif /* __XLC__ */
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+ELLArrays::statistics_start()
+{
+}
+
+
+void
+ELLArrays::statistics_print()
+{
+}
 

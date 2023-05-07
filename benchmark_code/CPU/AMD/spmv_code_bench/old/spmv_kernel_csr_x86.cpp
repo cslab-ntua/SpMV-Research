@@ -59,7 +59,7 @@ struct CSRArrays : Matrix_Format
 				}
 				else
 				{
-					loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+					loop_partitioner_balance_prefix_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 					// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 				}
 				#ifdef CUSTOM_X86_VECTOR_PERFECT_NNZ_BALANCE

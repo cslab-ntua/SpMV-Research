@@ -235,9 +235,9 @@ safe_open_base(const char * pathname, int flags, mode_t mode)
 }
 
 
-// Default mode for created files: 664 rw-rw-r--
+// Default mode for created files: 644 rw-r--r--
 #define _safe_open(pathname, flags, mode, ...)  safe_open_base(pathname, flags, mode)
-#define safe_open(pathname, flags, ...)  _safe_open(pathname, flags, ##__VA_ARGS__, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH)
+#define safe_open(pathname, flags, ...)  _safe_open(pathname, flags, ##__VA_ARGS__, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 
 
 static inline
@@ -371,13 +371,13 @@ static inline
 ssize_t
 read_sysfs_file(const char * filename, char ** buf_out)
 {
-	unsigned long buf_n = sysconf(_SC_PAGESIZE) + 1;
+	long buf_n = sysconf(_SC_PAGESIZE) + 1;
 	char buf[buf_n];
 	int fd;
 	ssize_t len;
 	fd = safe_open(filename, O_RDONLY);
 	len = safe_read(fd, buf, buf_n - 1);
-	buf[len] = 0;
+	buf[(int) len] = 0;  // Stupid c++ warnings when 'len' is long.
 	safe_close(fd);
 	*buf_out = strdup(buf);
 	return len;

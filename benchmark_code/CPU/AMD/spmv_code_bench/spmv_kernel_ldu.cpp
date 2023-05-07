@@ -48,6 +48,8 @@ struct LDUArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -135,5 +137,22 @@ compute_ldu(LDUArrays * ldu, ValueType * x , ValueType * y)
 		y[row] += ldu->upper[i] * x[col];
 		y[col] += ldu->lower[i] * x[row];
 	}
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+LDUArrays::statistics_start()
+{
+}
+
+
+void
+LDUArrays::statistics_print()
+{
 }
 

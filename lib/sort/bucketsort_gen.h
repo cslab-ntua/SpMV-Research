@@ -40,13 +40,13 @@ typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
 
 #undef  bucketsort_stable_serial
 #define bucketsort_stable_serial  BUCKETSORT_GEN_EXPAND(bucketsort_stable_serial)
-void bucketsort_stable_serial(_TYPE_V * A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data, _TYPE_I * permutation_out, _TYPE_I * offsets_out, _TYPE_BUCKET_I * A_bucket_id_out);
+void bucketsort_stable_serial(_TYPE_V * A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data, _TYPE_I * permutation_out, _TYPE_I * offsets_out, _TYPE_BUCKET_I * A_bucket_id_out);
 
 #undef  bucketsort
 #define bucketsort  BUCKETSORT_GEN_EXPAND(bucketsort)
-void bucketsort(_TYPE_V * A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data, _TYPE_I * permutation_out, _TYPE_I * offsets_out, _TYPE_BUCKET_I * A_bucket_id_out);
+void bucketsort(_TYPE_V * A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data, _TYPE_I * permutation_out, _TYPE_I * offsets_out, _TYPE_BUCKET_I * A_bucket_id_out);
 
 // #undef  bucketsort2
 // #define bucketsort2  BUCKETSORT_GEN_EXPAND(bucketsort2)
-// _TYPE_I * bucketsort2(_TYPE_V * A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data, _TYPE_I ** offsets_out);
+// _TYPE_I * bucketsort2(_TYPE_V * A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data, _TYPE_I ** offsets_out);
 

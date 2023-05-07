@@ -29,6 +29,8 @@ struct CSR5Arrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -71,5 +73,22 @@ compute_csr5(CSR5Arrays * csr5, ValueType * x , ValueType * y)
 	err = csr5->A->setX(x);
 	//cout << "setX err = " << err << endl;
 	err = csr5->A->spmv(alpha, y);
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+CSR5Arrays::statistics_start()
+{
+}
+
+
+void
+CSR5Arrays::statistics_print()
+{
 }
 

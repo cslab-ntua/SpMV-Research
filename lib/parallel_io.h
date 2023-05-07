@@ -40,6 +40,7 @@ void file_to_raw_data(struct File_Atoms * A, const char * filename);
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+#if 0
 #ifndef VECTOR_GEN_H_I
 #define VECTOR_GEN_H_I
 #undef  VECTOR_GEN_TYPE_1
@@ -75,6 +76,7 @@ struct File_Content {
 	struct Vector_parallel_io_i * content_len;
 	long n;
 };
+#endif
 
 
 #endif /* PARALLEL_IO_H */

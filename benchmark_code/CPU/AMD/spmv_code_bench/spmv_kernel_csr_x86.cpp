@@ -14,20 +14,23 @@ extern "C"{
 #endif
 	#include "macros/macrolib.h"
 	#include "time_it.h"
+	#include "time_it_tsc.h"
 	#include "parallel_util.h"
+	#include "x86_util.h"
+	#include "spmv_subkernel_csr_x86_d.hpp"
 #ifdef __cplusplus
 }
 #endif
 
 
-extern INT_T * thread_i_s;
-extern INT_T * thread_i_e;
+INT_T * thread_i_s;
+INT_T * thread_i_e;
 
-extern INT_T * thread_j_s;
-extern INT_T * thread_j_e;
+INT_T * thread_j_s;
+INT_T * thread_j_e;
 
-extern ValueType * thread_v_s;
-extern ValueType * thread_v_e;
+ValueType * thread_v_s;
+ValueType * thread_v_e;
 
 extern int prefetch_distance;
 
@@ -37,6 +40,8 @@ struct CSRArrays : Matrix_Format
 	INT_T * ia;      // the usual rowptr (of size m+1)
 	INT_T * ja;      // the colidx of each NNZ (of size nnz)
 	ValueType * a;   // the values (of size NNZ)
+
+	void compute_csr_vector_x86_timings(ValueType * restrict x, ValueType * restrict y, long * timings);
 
 	CSRArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
 	{
@@ -49,32 +54,98 @@ struct CSRArrays : Matrix_Format
 		thread_v_s = (ValueType *) malloc(num_threads * sizeof(*thread_v_s));
 		thread_v_e = (ValueType *) malloc(num_threads * sizeof(*thread_v_e));
 		time_balance = time_it(1,
-			_Pragma("omp parallel")
-			{
-				int tnum = omp_get_thread_num();
-				int use_processes = atoi(getenv("USE_PROCESSES"));
-				if (use_processes)
+			#ifdef CUSTOM_X86_VECTOR_ORACLE_BALANCE
+				#ifndef BLOCK_SIZE
+					#define BLOCK_SIZE  64
+				#endif
+				ValueType * x;
+				ValueType * y;
+				int dimMultipleBlock, dimMultipleBlock_y;
+				dimMultipleBlock = ((m+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
+				dimMultipleBlock_y = ((n+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
+				x = (ValueType *) aligned_alloc(64, dimMultipleBlock_y * sizeof(ValueType));
+				_Pragma("omp parallel for")
+				for (int idx=0;idx<dimMultipleBlock_y;++idx)
+					x[idx] = 1.0;
+				y = (ValueType *) aligned_alloc(64, dimMultipleBlock * sizeof(ValueType));
+				_Pragma("omp parallel for")
+				for (long i=0;i<dimMultipleBlock;i++)
+					y[i] = 0.0;
+				long timings_num;
+				long * timings = (typeof(timings)) malloc((m + 1) * sizeof(*timings));
+				long * prefix_sums = (typeof(prefix_sums)) malloc((m + 1) * sizeof(*prefix_sums));
+				timings_num = m;
+				_Pragma("omp parallel")
 				{
-					loop_partitioner_balance_iterations(num_threads, tnum, 0, m, &thread_i_s[tnum], &thread_i_e[tnum]);
+					int tnum = omp_get_thread_num();
+					long i;
+					loop_partitioner_balance_prefix_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+					_Pragma("omp for")
+					for (i=0;i<m;i++)
+						timings[i] = 0;
 				}
-				else
+				// spmv(x, y);
+				for (long rep=0;rep<5;rep++)
 				{
-					#ifdef CUSTOM_X86_VECTOR_PERFECT_NNZ_BALANCE
-						long lower_boundary;
-						loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
-						binary_search(ia, 0, m, thread_j_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
-						thread_i_s[tnum] = lower_boundary;
-						_Pragma("omp barrier")
-						if (tnum == num_threads - 1)   // If we calculate each thread's boundaries individually some empty rows might be unassigned.
+					compute_csr_vector_x86_timings(x, y, timings);
+					double sum = 0, tmp;
+					for (int i=0;i<m+1;i++)
+					{
+						tmp = timings[i];
+						// prefix_sums[i] = sum;
+						prefix_sums[i] = sum / (rep+1);
+						sum += tmp;
+					}
+					_Pragma("omp parallel")
+					{
+						int tnum = omp_get_thread_num();
+						loop_partitioner_balance_prefix_sums(num_threads, tnum, prefix_sums, m, prefix_sums[m], &thread_i_s[tnum], &thread_i_e[tnum]);
+						if (tnum == num_threads - 1)
 							thread_i_e[tnum] = m;
-						else
-							thread_i_e[tnum] = thread_i_s[tnum+1] + 1;
-					#else
-						loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
-						// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
-					#endif
+					}
+					for (long i=0;i<num_threads;i++)
+					{
+						long i_s = thread_i_s[i];
+						long i_e = thread_i_e[i];
+						printf("%3ld: i=[%8ld, %8ld] (%8ld) , nnz=%8d , timings=%ld\n", i, i_s, i_e, i_e - i_s, ia[i_e] - ia[i_s], (prefix_sums[i_e] - prefix_sums[i_s]));
+					}
+					printf("\n");
 				}
-			}
+				// printf("timings_num = %ld\n", timings_num);
+				// for (int i=0;i<10;i++)
+					// printf("timings[%d] = %ld\n", i, timings[i]);
+				free(timings);
+				free(x);
+				free(y);
+				// sleep(10);
+			#else
+				_Pragma("omp parallel")
+				{
+					int tnum = omp_get_thread_num();
+					int use_processes = atoi(getenv("USE_PROCESSES"));
+					if (use_processes)
+					{
+						loop_partitioner_balance_iterations(num_threads, tnum, 0, m, &thread_i_s[tnum], &thread_i_e[tnum]);
+					}
+					else
+					{
+						#ifdef CUSTOM_X86_VECTOR_PERFECT_NNZ_BALANCE
+							long lower_boundary;
+							loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
+							binary_search(ia, 0, m, thread_j_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
+							thread_i_s[tnum] = lower_boundary;
+							_Pragma("omp barrier")
+							if (tnum == num_threads - 1)   // If we calculate each thread's boundaries individually some empty rows might be unassigned.
+								thread_i_e[tnum] = m;
+							else
+								thread_i_e[tnum] = thread_i_s[tnum+1] + 1;
+						#else
+							loop_partitioner_balance_prefix_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+							// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+						#endif
+					}
+				}
+			#endif
 		);
 		printf("balance time = %g\n", time_balance);
 	}
@@ -93,6 +164,8 @@ struct CSRArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -132,361 +205,9 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 }
 
 
-// Reduce add 2 double-precision numbers.
-__attribute__((const))
-static inline
-double
-hsum128_pd(__m128d v_128d)
-{
-	__m128d high64 = _mm_unpackhi_pd(v_128d, v_128d);
-	return  _mm_cvtsd_f64(_mm_add_sd(v_128d, high64));
-}
-
-
-// Reduce add 4 double-precision numbers.
-__attribute__((const))
-static inline
-double
-hsum256_pd(__m256d v_256d)
-{
-	// double sum;
-	// __m256d hsum = _mm256_add_pd(v_256d, _mm256_permute2f128_pd(v_256d, v_256d, 0x1));
-	// _mm_store_sd(&sum, _mm_hadd_pd( _mm256_castpd256_pd128(hsum), _mm256_castpd256_pd128(hsum) ) );
-	// return sum;
-
-	// __m256d temp = _mm256_hadd_pd(v_256d, v_256d);
-	// return ((double*)&temp)[0] + ((double*)&temp)[2];
-
-	// __m256d temp = _mm256_hadd_pd(v_256d, v_256d);
-	// __m128d sum_high = _mm256_extractf128_pd(temp, 1);
-	// __m128d result = _mm_add_pd(sum_high, _mm256_castpd256_pd128(temp));
-	// return ((double*)&result)[0];
-
-	__m128d low_128d  = _mm256_castpd256_pd128(v_256d);   // Cast vector of type __m256d to type __m128d. This intrinsic is only used for compilation and does not generate any instructions, thus it has zero latency.
-	__m128d high_128d = _mm256_extractf128_pd(v_256d, 1); // High 128: Extract 128 bits (composed of 2 packed double-precision (64-bit) floating-point elements) from a, selected with imm8, and store the result in dst.
-	low_128d  = _mm_add_pd(low_128d, high_128d);          // Add low 128 and high 128.
-	__m128d high64 = _mm_unpackhi_pd(low_128d, low_128d); // High 64: Unpack and interleave double-precision (64-bit) floating-point elements from the high half of a and b, and store the results in dst.
-	return  _mm_cvtsd_f64(_mm_add_sd(low_128d, high64));  // Reduce to scalar.
-}
-
-
-// Reduce add 8 double-precision numbers.
-__attribute__((const))
-static inline
-double
-hsum512_pd(__m512d v_512d)
-{
-	// __m256d low  = _mm512_castpd512_pd256(v_512d);
-	// __m256d high = _mm512_extractf64x4_pd(v_512d, 1);
-	// low  = _mm256_add_pd(low, high);                  // Add low 256 and high 256.
-	// return hsum256_pd(low);
-	return _mm512_reduce_add_pd(v_512d);
-}
-
-
-/*
-	__m256i start256i, stop256i, mask256i;
-	__m128i v_colind;
-	v_colind = _mm_loadu_si128((__m128i const*)&csr->ja[j]);
-	v_x = _mm256_set_pd(x[_mm_extract_epi32(v_colind,0)], x[_mm_extract_epi32(v_colind,1)], x[_mm_extract_epi32(v_colind,2)], x[_mm_extract_epi32(v_colind,3)]);
-						
-	v_sum2 = _mm256_setzero_pd();
-	for (j=j_e_vector,k=0;j<j_e;j++,k++)
-		v_sum_2[k] = csr->a[j] * x[csr->ja[j]];
-	__m256d temp = _mm256_hadd_pd(v_sum, v_sum_2);
-	__m128d sum_high = _mm256_extractf128_pd(temp, 1);
-	__m128d result = _mm_add_pd(sum_high, _mm256_castpd256_pd128(temp));
-	y[i] = hsum256_pd(v_sum);
-
-	x256d[0] = x[csr->ja[j_e_vector]];
-	x256d[1] = x[csr->ja[j_e_vector+1]];
-	x256d[2] = x[csr->ja[j_e_vector+2]];
-	x256d[3] = 0;
-	v_x = _mm256_load_pd(x256d);
-	start256i = _mm256_set1_epi64x(j_e_vector);
-	stop256i = _mm256_set1_epi64x(j_e);
-	start256i = _mm256_add_epi64(start256i, _mm256_set_epi64x(0, 1, 2, 3));
-	mask256i = _mm256_cmpgt_epi64(stop256i, start256i);
-	v_a = _mm256_maskload_pd(&csr->a[j], mask256i);
-	v_sum = _mm256_fmadd_pd(v_a, v_x, v_sum);
-	y[i] = hsum256_pd(v_sum);
-*/
-
-
-//==========================================================================================================================================
-//= Subkernels Single Row CSR x86
-//==========================================================================================================================================
-
-
-__attribute__((hot,pure))
-static inline
-double
-subkernel_row_csr_scalar(CSRArrays * restrict csr, ValueType * restrict x, long j_s, long j_e)
-{
-	ValueType sum;
-	long j;
-	sum = 0;
-	for (j=j_s;j<j_e;j++)
-	{
-		sum += csr->a[j] * x[csr->ja[j]];
-	}
-	return sum;
-}
-
-
-__attribute__((hot,pure))
-static inline
-double
-subkernel_row_csr_vector_x86_128d(CSRArrays * restrict csr, ValueType * restrict x, long j_s, long j_e)
-{
-	long j, j_e_vector;
-	const long mask = ~(((long) 2) - 1); // Minimum number of elements for the vectorized code (power of 2).
-	__m128d v_a, v_x, v_sum;
-	ValueType sum = 0, sum_v = 0;
-	v_sum = _mm_setzero_pd();
-	sum = 0;
-	sum_v = 0;
-	j_e_vector = j_s + ((j_e - j_s) & mask);
-	if (j_s != j_e_vector)
-	{
-		for (j=j_s;j<j_e_vector;j+=2)
-		{
-			v_a = _mm_loadu_pd(&csr->a[j]);
-			v_x = _mm_set_pd(x[csr->ja[j]], x[csr->ja[j+1]]);
-			v_sum = _mm_fmadd_pd(v_a, v_x, v_sum);
-		}
-		sum_v = hsum128_pd(v_sum);
-	}
-	for (j=j_e_vector;j<j_e;j++)
-		sum += csr->a[j] * x[csr->ja[j]];
-	return sum + sum_v;
-}
-
-
-__attribute__((hot,pure))
-static inline
-double
-subkernel_row_csr_vector_x86_256d(CSRArrays * restrict csr, ValueType * restrict x, long j_s, long j_e)
-{
-	long j, j_e_vector;
-	const long mask = ~(((long) 4) - 1); // Minimum number of elements for the vectorized code (power of 2).
-	__m256d v_a, v_x, v_sum;
-	ValueType sum = 0, sum_v = 0;
-	v_sum = _mm256_setzero_pd();
-	sum = 0;
-	sum_v = 0;
-	j_e_vector = j_s + ((j_e - j_s) & mask);
-	if (j_s != j_e_vector)
-	{
-		for (j=j_s;j<j_e_vector;j+=4)
-		{
-			v_a = _mm256_loadu_pd(&csr->a[j]);
-			v_x = _mm256_set_pd(x[csr->ja[j]], x[csr->ja[j+1]], x[csr->ja[j+2]], x[csr->ja[j+3]]);
-			v_sum = _mm256_fmadd_pd(v_a, v_x, v_sum);
-		}
-		sum_v = hsum256_pd(v_sum);
-	}
-	for (j=j_e_vector;j<j_e;j++)
-		sum += csr->a[j] * x[csr->ja[j]];
-	return sum + sum_v;
-}
-
-
-__attribute__((hot,pure))
-static inline
-double
-subkernel_row_csr_vector_x86_512d(CSRArrays * restrict csr, ValueType * restrict x, long j_s, long j_e)
-{
-	long j, j_e_vector;
-	const long mask = ~(((long) 8) - 1); // Minimum number of elements for the vectorized code (power of 2).
-	__m512d v_a, v_x, v_sum;
-	ValueType sum = 0, sum_v = 0;
-	v_sum = _mm512_setzero_pd();
-	sum = 0;
-	sum_v = 0;
-	j_e_vector = j_s + ((j_e - j_s) & mask);
-	if (j_s != j_e_vector)
-	{
-		for (j=j_s;j<j_e_vector;j+=8)
-		{
-			v_a = _mm512_loadu_pd(&csr->a[j]);
-			v_x = _mm512_set_pd(x[csr->ja[j]], x[csr->ja[j+1]], x[csr->ja[j+2]], x[csr->ja[j+3]], x[csr->ja[j+4]], x[csr->ja[j+5]], x[csr->ja[j+6]], x[csr->ja[j+7]]);
-			v_sum = _mm512_fmadd_pd(v_a, v_x, v_sum);
-		}
-		sum_v = hsum512_pd(v_sum);
-	}
-	for (j=j_e_vector;j<j_e;j++)
-		sum += csr->a[j] * x[csr->ja[j]];
-	return sum + sum_v;
-}
-
-
-__attribute__((hot,pure))
-static inline
-double
-subkernel_row_csr_vector_x86(CSRArrays * restrict csr, ValueType * restrict x, long j_s, long j_e)
-{
-	#if defined(__AVX512f__)
-	return subkernel_row_csr_vector_x86_512d(csr, x, j_s, j_e);
-	#elif defined(__AVX2__)
-	return subkernel_row_csr_vector_x86_256d(csr, x, j_s, j_e);
-	#elif defined(__AVX__)
-	return subkernel_row_csr_vector_x86_128d(csr, x, j_s, j_e);
-	#else
-	return subkernel_row_csr_scalar(csr, x, j_s, j_e);
-	#endif
-}
-
-
-//==========================================================================================================================================
-//= Subkernels CSR x86
-//==========================================================================================================================================
-
-
-// void
-// subkernel_csr_scalar(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
-// {
-	// ValueType sum;
-	// long i, j, j_s, j_e;
-	// j_e = csr->ia[i_s];
-	// for (i=i_s;i<i_e;i++)
-	// {
-		// y[i] = 0;
-		// j_s = j_e;
-		// j_e = csr->ia[i+1];
-		// if (j_s == j_e)
-			// continue;
-		// sum = 0;
-		// for (j=j_s;j<j_e;j++)
-		// {
-			// sum += csr->a[j] * x[csr->ja[j]];
-		// }
-		// y[i] = sum;
-	// }
-// }
-
-
-void
-subkernel_csr_scalar(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
-{
-	ValueType sum;
-	long i, j, j_e;
-	j = csr->ia[i_s];
-	for (i=i_s;i<i_e;i++)
-	{
-		j_e = csr->ia[i+1];
-		sum = 0;
-		for (;j<j_e;j++)
-		{
-			sum += csr->a[j] * x[csr->ja[j]];
-		}
-		y[i] = sum;
-	}
-}
-
-
-void
-subkernel_csr_vector_x86_128d(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
-{
-	#if defined(__AVX__)
-	long i, j_s, j_e;
-	j_e = csr->ia[i_s];
-	for (i=i_s;i<i_e;i++)
-	{
-		y[i] = 0;
-		j_s = j_e;
-		j_e = csr->ia[i+1];
-		if (j_s == j_e)
-			continue;
-		y[i] = subkernel_row_csr_vector_x86_128d(csr, x, j_s, j_e);
-	}
-	#else
-	subkernel_csr_scalar(csr, x, y, i_s, i_e);
-	#endif
-}
-
-
-void
-subkernel_csr_vector_x86_256d(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
-{
-	#if defined(__AVX2__)
-	long i, j_s, j_e;
-	j_e = csr->ia[i_s];
-	for (i=i_s;i<i_e;i++)
-	{
-		y[i] = 0;
-		j_s = j_e;
-		j_e = csr->ia[i+1];
-		if (j_s == j_e)
-			continue;
-		y[i] = subkernel_row_csr_vector_x86_256d(csr, x, j_s, j_e);
-	}
-	#elif defined(__AVX__)
-	subkernel_csr_vector_x86_128d(csr, x, y, i_s, i_e);
-	#else
-	subkernel_csr_scalar(csr, x, y, i_s, i_e);
-	#endif
-}
-
-
-void
-subkernel_csr_vector_x86_512d(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
-{
-	#if defined(__AVX512f__)
-	long i, j_s, j_e;
-	j_e = csr->ia[i_s];
-	for (i=i_s;i<i_e;i++)
-	{
-		y[i] = 0;
-		j_s = j_e;
-		j_e = csr->ia[i+1];
-		if (j_s == j_e)
-			continue;
-		y[i] = subkernel_row_csr_vector_x86_512d(csr, x, i, j_s, j_e);
-	}
-	#elif defined(__AVX2__)
-	subkernel_csr_vector_x86_256d(csr, x, y, i_s, i_e);
-	#elif defined(__AVX__)
-	subkernel_csr_vector_x86_128d(csr, x, y, i_s, i_e);
-	#else
-	subkernel_csr_scalar(csr, x, y, i_s, i_e);
-	#endif
-}
-
-
 //==========================================================================================================================================
 //= CSR x86
 //==========================================================================================================================================
-
-
-void
-subkernel_csr_density(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
-{
-	double density;
-	if (i_s >= i_e)
-		return;
-	density = ((double) csr->ia[i_e] - csr->ia[i_s]) / (i_e - i_s);
-	if (density < 4)
-	{
-		// printf("%d: scalar %lf\n", tnum, density);
-		subkernel_csr_scalar(csr, x, y, i_s, i_e);
-	}
-	else if (density < 8)
-	{
-		// printf("%d: 128 %lf\n", tnum, density);
-		subkernel_csr_vector_x86_128d(csr, x, y, i_s, i_e);
-	}
-	else if (density < 16)
-	{
-		// printf("%d: 256 %lf\n", tnum, density);
-		subkernel_csr_vector_x86_256d(csr, x, y, i_s, i_e);
-	}
-	else
-	{
-		// printf("%d: 512 %lf\n", tnum, density);
-		subkernel_csr_vector_x86_512d(csr, x, y, i_s, i_e);
-	}
-}
 
 
 void
@@ -498,7 +219,72 @@ compute_csr_vector_x86(CSRArrays * restrict csr, ValueType * restrict x, ValueTy
 		long i_s, i_e;
 		i_s = thread_i_s[tnum];
 		i_e = thread_i_e[tnum];
-		subkernel_csr_density(csr, x, y, i_s, i_e);
+		subkernel_csr_x86_density(csr->ia, csr->ja, csr->a, x, y, i_s, i_e);
+		// subkernel_csr_vector_x86_512d(csr->ia, csr->ja, csr->a, x, y, i_s, i_e);
+	}
+}
+
+
+//==========================================================================================================================================
+//= CSR x86 timings
+//==========================================================================================================================================
+
+
+void
+CSRArrays::compute_csr_vector_x86_timings(ValueType * restrict x, ValueType * restrict y, long * timings)
+{
+	int num_threads = omp_get_max_threads();
+	#pragma omp parallel
+	{
+		int tnum = omp_get_thread_num();
+		long i, i_s, i_e, j_s, j_e, k, k_e, num_rows;
+		long cycles;
+		i_s = thread_i_s[tnum];
+		i_e = thread_i_e[tnum];
+		j_e = ia[i_s];
+		for (i=i_s;i<i_e;i+=num_rows)
+		{
+			// for (k_e=i+1;k_e<i_e;k_e++)
+			// {
+				// if (ia[k_e] - ia[k_e-1] > 1)
+				// {
+					// if (k_e > i+1) // If not alone then time it alone next time.
+						// k_e--;
+					// break;
+				// }
+				// if (ia[k_e] - ia[i] > 64)
+					// break;
+			// }
+			// num_rows = k_e - i;
+			cycles = time_it_tsc(1,
+				for (k_e=i+1;k_e<i_e;k_e++)
+				{
+					if (ia[k_e] - ia[k_e-1] > 8)
+					{
+						if (k_e > i+1) // If not alone then time it alone next time.
+							k_e--;
+						break;
+					}
+					if (k_e - i > 32)
+						break;
+				}
+				num_rows = k_e - i;
+				for (k=i;k<k_e;k++)
+				{
+					j_s = j_e;
+					j_e = ia[k+1];
+					if (j_s == j_e)
+						continue;
+					// y[k] = subkernel_row_csr_scalar(ja, a, x, j_s, j_e);
+					y[k] += subkernel_row_csr_vector_x86_512d(ja, a, x, j_s, j_e);
+				}
+			);
+			for (k=i;k<k_e;k++)
+			{
+				// timings[i] = cycles / num_rows;
+				timings[i] += cycles / num_rows;
+			}
+		}
 	}
 }
 
@@ -610,6 +396,7 @@ compute_csr_vector_x86_queues(CSRArrays * restrict csr, ValueType * restrict x, 
 //==========================================================================================================================================
 
 
+#if 0
 __attribute__((hot,pure))
 static inline
 double
@@ -688,6 +475,7 @@ compute_csr_line(CSRArrays * csr, ValueType * x, INT_T j_s, INT_T j_e)
 {
 	return compute_csr_line_case(csr, x, j_s, j_e);
 }
+#endif
 
 
 void
@@ -715,10 +503,10 @@ compute_csr_vector_x86_perfect_nnz_balance(CSRArrays * restrict csr, ValueType *
 			j_e = thread_j_e[tnum];
 		if (j_s < j_e)
 		{
-			thread_v_s[tnum] = subkernel_row_csr_vector_x86(csr, x, j_s, j_e);
+			thread_v_s[tnum] = subkernel_row_csr_vector_x86(csr->ja, csr->a, x, j_s, j_e);
 		}
 
-		subkernel_csr_density(csr, x, y, i_s+1, i_e-1);
+		subkernel_csr_x86_density(csr->ia, csr->ja, csr->a, x, y, i_s+1, i_e-1);
 
 		i = i_e-1;
 		if (i > i_s)
@@ -731,7 +519,7 @@ compute_csr_vector_x86_perfect_nnz_balance(CSRArrays * restrict csr, ValueType *
 			if (thread_j_e[tnum] < j_e)
 				j_e = thread_j_e[tnum];
 			if (j_s < j_e)
-				thread_v_e[tnum] = subkernel_row_csr_vector_x86(csr, x, j_s, j_e);
+				thread_v_e[tnum] = subkernel_row_csr_vector_x86(csr->ja, csr->a, x, j_s, j_e);
 		}
 	}
 	for (t=0;t<num_threads;t++)
@@ -739,6 +527,31 @@ compute_csr_vector_x86_perfect_nnz_balance(CSRArrays * restrict csr, ValueType *
 		y[thread_i_s[t]] += thread_v_s[t];
 		if (thread_i_e[t] - 1 > thread_i_s[t])
 			y[thread_i_e[t] - 1] += thread_v_e[t];
+	}
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+CSRArrays::statistics_start()
+{
+}
+
+
+void
+CSRArrays::statistics_print()
+{
+	int num_threads = omp_get_max_threads();
+	long i, i_s, i_e;
+	for (i=0;i<num_threads;i++)
+	{
+		i_s = thread_i_s[i];
+		i_e = thread_i_e[i];
+		printf("%3ld: i=[%8ld, %8ld] (%8ld) , nnz=%8d\n", i, i_s, i_e, i_e - i_s, ia[i_e] - ia[i_s]);
 	}
 }
 

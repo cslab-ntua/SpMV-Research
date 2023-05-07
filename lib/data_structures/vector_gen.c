@@ -38,6 +38,11 @@ typedef VECTOR_GEN_TYPE_1  _TYPE;
 //==========================================================================================================================================
 
 
+//==========================================================================================================================================
+//= Constructor - Destructor
+//==========================================================================================================================================
+
+
 #undef  vector_init
 #define vector_init  VECTOR_GEN_EXPAND(vector_init)
 void
@@ -85,6 +90,11 @@ vector_destroy(struct Vector ** v_ptr)
 }
 
 
+//==========================================================================================================================================
+//= Resize
+//==========================================================================================================================================
+
+
 #undef  vector_resize_base
 #define vector_resize_base  VECTOR_GEN_EXPAND(vector_resize_base)
 static inline
@@ -114,6 +124,46 @@ vector_resize(struct Vector * v, long new_capacity)
 }
 
 
+//==========================================================================================================================================
+//= Set
+//==========================================================================================================================================
+
+
+// Set element at position WITHOUT bounds checking.
+#undef  vector_set
+#define vector_set  VECTOR_GEN_EXPAND(vector_set)
+inline
+void
+vector_set(struct Vector * restrict v, long pos, _TYPE elem)
+{
+	v->data[pos] = elem;
+}
+
+// Set element at position with bounds checking.
+#undef  vector_set_safe
+#define vector_set_safe  VECTOR_GEN_EXPAND(vector_set_safe)
+inline
+void
+vector_set_safe(struct Vector * restrict v, long pos, _TYPE elem)
+{
+	if (__builtin_expect(pos >= v->max_size, 0))
+	{
+		vector_resize(v, 2 * v->capacity);
+		v->size = pos;                       // Possible unfilled positions will still count toward the size.
+	}
+	v->data[pos] = elem;
+}
+
+
+//==========================================================================================================================================
+//= Push Back
+//==========================================================================================================================================
+
+
+/* We can only either always use atomic push back, or always use the regular one.
+ */
+
+
 #undef  vector_push_back
 #define vector_push_back  VECTOR_GEN_EXPAND(vector_push_back)
 inline
@@ -133,11 +183,11 @@ void
 vector_push_back_atomic(struct Vector * restrict v, _TYPE elem)
 {
 	long pos = __atomic_fetch_add(&v->size, 1, __ATOMIC_RELAXED);
-	while (__builtin_expect(pos >= __atomic_load_n(&v->max_size, __ATOMIC_ACQUIRE), 0))
+	while (__builtin_expect(pos >= __atomic_load_n(&v->max_size, __ATOMIC_ACQUIRE), 0))  // Resize.
 	{
-		if (pos == v->max_size)
+		if (pos == v->max_size) // It is our responsibitily to resize.
 		{
-			while (pos > __atomic_load_n(&v->semaphore, __ATOMIC_ACQUIRE))        // wait all previous to complete
+			while (pos > __atomic_load_n(&v->semaphore, __ATOMIC_ACQUIRE))        // Wait all previous to complete.
 				__asm volatile ("rep; pause" : : : "memory");   // relax
 			vector_resize_base(v, 2 * v->capacity);
 			__atomic_store_n(&v->max_size, v->capacity / sizeof(*(v->data)), __ATOMIC_RELEASE);
@@ -150,13 +200,17 @@ vector_push_back_atomic(struct Vector * restrict v, _TYPE elem)
 }
 
 
+//==========================================================================================================================================
+//= Push Back Array
+//==========================================================================================================================================
+
+
 #undef  vector_push_back_array
 #define vector_push_back_array  VECTOR_GEN_EXPAND(vector_push_back_array)
 inline
 void
 vector_push_back_array(struct Vector * restrict v, _TYPE * restrict array, long n)
 {
-	long i;
 	if (v->size + n > v->max_size)
 	{
 		long new_capacity = 2 * v->capacity;
@@ -168,31 +222,4 @@ vector_push_back_array(struct Vector * restrict v, _TYPE * restrict array, long 
 	memcpy(&(v->data[v->size]), array, n * sizeof(*array));
 	v->size += n;
 }
-
-
-// Set element at position WITHOUT bounds checking.
-#undef  vector_set
-#define vector_set  VECTOR_GEN_EXPAND(vector_set)
-inline
-void
-vector_set(struct Vector * restrict v, _TYPE elem, long pos)
-{
-	v->data[pos] = elem;
-}
-
-// Set element at position with bounds checking.
-#undef  vector_set_safe
-#define vector_set_safe  VECTOR_GEN_EXPAND(vector_set_safe)
-inline
-void
-vector_set_safe(struct Vector * restrict v, _TYPE elem, long pos)
-{
-	if (__builtin_expect(pos >= v->max_size, 0))
-	{
-		vector_resize(v, 2 * v->capacity);
-		v->size = pos;                       // Possible unfilled positions will still count toward the size.
-	}
-	v->data[pos] = elem;
-}
-
 

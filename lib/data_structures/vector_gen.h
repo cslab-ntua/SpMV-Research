@@ -58,6 +58,7 @@ void vector_clean(struct Vector * v);
 #define vector_destroy  VECTOR_GEN_EXPAND(vector_destroy)
 void vector_destroy(struct Vector ** v_ptr);
 
+
 #undef  vector_resize
 #define vector_resize  VECTOR_GEN_EXPAND(vector_resize)
 void vector_resize(struct Vector * v, long new_capacity);
@@ -76,9 +77,9 @@ void vector_push_back_array(struct Vector * v, _TYPE * elem, long n);
 
 #undef  vector_set
 #define vector_set  VECTOR_GEN_EXPAND(vector_set)
-void vector_set(struct Vector * restrict v, _TYPE elem, long pos);
+void vector_set(struct Vector * restrict v, long pos, _TYPE elem);
 
 #undef  vector_set_safe
 #define vector_set_safe  VECTOR_GEN_EXPAND(vector_set_safe)
-void vector_set_safe(struct Vector * restrict v, _TYPE elem, long pos);
+void vector_set_safe(struct Vector * restrict v, long pos, _TYPE elem);
 

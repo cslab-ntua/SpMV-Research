@@ -4,8 +4,8 @@
 #include <omp.h>
 
 #include "macros/macrolib.h"
-#include "omp_functions.h"
 #include "parallel_util.h"
+#include "omp_functions.h"
 #include "time_it.h"
 // #include "time_it_tsc.h"
 
@@ -221,7 +221,8 @@ scan_reduce_segment_serial(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end
 }
 
 
-/* map() has a relatively high cost compared to memory access, store the intermediate results.
+/* map() has a relatively high cost compared to memory access.
+ * Store the intermediate results.
  */
 #undef  scan_reduce_segment_parallel_compute_bound
 #define scan_reduce_segment_parallel_compute_bound  FUNCTOOLS_GEN_EXPAND(scan_reduce_segment_parallel_compute_bound)
@@ -251,7 +252,8 @@ scan_reduce_segment_parallel_compute_bound(_TYPE_IN * A, _TYPE_OUT * P, long i_s
 }
 
 
-/* map() has a relatively low cost compared to memory access, reevaluate instead of storing.
+/* map() has a relatively low cost compared to memory access.
+ * Reevaluate instead of storing.
  */
 #undef  scan_reduce_segment_parallel_memory_bound
 #define scan_reduce_segment_parallel_memory_bound  FUNCTOOLS_GEN_EXPAND(scan_reduce_segment_parallel_memory_bound)

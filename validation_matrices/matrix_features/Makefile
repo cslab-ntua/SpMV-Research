@@ -78,7 +78,7 @@ LDFLAGS =
 LDFLAGS += -lm
 
 
-LIB_SRC = read_mtx.cpp pthread_functions.c omp_functions.c string_util.c parallel_io.c array_metrics.c plot.c csr.c
+LIB_SRC = read_mtx.cpp pthread_functions.c omp_functions.c string_util.c parallel_io.c hash.c array_metrics.c plot.c csr.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%.o,$(LIB_OBJ))
@@ -108,6 +108,8 @@ $(call Rule_Auto_Dependencies,obj/omp_functions.o,$(library)/omp_functions.c)
 $(call Rule_Auto_Dependencies,obj/string_util.o,$(library)/string_util.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/parallel_io.o,$(library)/parallel_io.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/hash.o,$(library)/hash/hash.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/array_metrics.o,$(library)/array_metrics.c)
 	$(CC) $(CFLAGS) -c $< -o $@

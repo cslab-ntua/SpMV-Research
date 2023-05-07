@@ -34,13 +34,13 @@ typedef QUICKSORT_GEN_TYPE_3  _TYPE_AD;
 
 #undef  insertionsort
 #define insertionsort  QUICKSORT_GEN_EXPAND(insertionsort)
-void insertionsort(_TYPE_V * A, _TYPE_I N, _TYPE_AD * aux_data);
+void insertionsort(_TYPE_V * A, long N, _TYPE_AD * aux_data);
 
 #undef  quicksort_no_malloc
 #define quicksort_no_malloc  QUICKSORT_GEN_EXPAND(quicksort_no_malloc)
-void quicksort_no_malloc(_TYPE_V * A, _TYPE_I N, _TYPE_AD * aux_data, _TYPE_I * partitions);
+void quicksort_no_malloc(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitions);
 
 #undef  quicksort
 #define quicksort  QUICKSORT_GEN_EXPAND(quicksort)
-void quicksort(_TYPE_V * A, _TYPE_I N, _TYPE_AD * aux_data);
+void quicksort(_TYPE_V * A, long N, _TYPE_AD * aux_data);
 

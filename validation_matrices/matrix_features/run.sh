@@ -3,6 +3,7 @@
 
 path_validation='../'
 path_validation2='../new_matrices'
+path_validation="$HOME/Data/graphs/validation_matrices"
 
 cores='8'
 max_cores=8
@@ -76,9 +77,9 @@ matrices_validation2=(
 )
 
 matrices=(
-    # "$path_validation"/scircuit.mtx
-    "${matrices_validation[@]}"
-    "${matrices_validation2[@]}"
+    "$path_validation"/scircuit.mtx
+    # "${matrices_validation[@]}"
+    # "${matrices_validation2[@]}"
 )
 
 

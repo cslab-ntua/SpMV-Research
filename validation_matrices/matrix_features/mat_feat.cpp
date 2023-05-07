@@ -3,12 +3,11 @@
 
 // #include "read_coo_file.h"
 
-#include "read_mtx.h"
+#include "macros/cpp_defines.h"
 
 #ifdef __cplusplus
 extern "C"{
 #endif
-	#include "macros/cpp_defines.h"
 	#include "debug.h"
 	#include "time_it.h"
 	#include "string_util.h"
@@ -17,6 +16,8 @@ extern "C"{
 }
 #endif
 
+
+#include "read_mtx.h"
 
 // #include "util.h"
 // #include "matrix_util.h"
@@ -55,7 +56,7 @@ int main(int argc, char **argv)
 
 	str_path_split_ext(filename, strlen(filename) + 1, buf, buf_n, &filename_base, NULL);
 	filename_base = strdup(filename_base);
-	snprintf(buf, buf_n, "figures/%s.png", filename_base);
+	snprintf(buf, buf_n, "figures/%s", filename_base);
 	file_fig = strdup(buf);
 
 	time = time_it(1,
@@ -74,12 +75,11 @@ int main(int argc, char **argv)
 	printf("time coo_to_csr = %lf\n", time);
 
 	time = time_it(1,
-		// csr_plot_f(row_ptr, col_idx, val, m, n, nnz, "figures/fig.png");
-		csr_plot_f(row_ptr, col_idx, val, m, n, nnz, file_fig);
+		csr_plot_f(file_fig, row_ptr, col_idx, val, m, n, nnz, 0);
 	);
 	printf("time plot = %lf\n", time);
 
-	csr_matrix_features(argv[1], row_ptr, col_idx, m, n, nnz);
+	csr_matrix_features_validation(filename_base, row_ptr, col_idx, m, n, nnz);
 	// free(buf);
 
 	return 0;

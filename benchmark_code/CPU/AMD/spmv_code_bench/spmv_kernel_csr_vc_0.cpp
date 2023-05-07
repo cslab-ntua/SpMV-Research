@@ -144,7 +144,7 @@ struct CSRVCArrays : Matrix_Format
 			_Pragma("omp parallel")
 			{
 				int tnum = omp_get_thread_num();
-				loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+				loop_partitioner_balance_prefix_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 				// long i_s=thread_i_s[tnum], i_e=thread_i_e[tnum], t_nnz=ia[i_e]-ia[i_s];
 				// printf("%d: i=[%ld, %ld] (%ld) , nnz=%ld\n", tnum, i_s, i_e, i_e - i_s, t_nnz);
 			}
@@ -271,6 +271,8 @@ struct CSRVCArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -570,5 +572,22 @@ compute_csr_vc(CSRVCArrays * restrict csr, ValueType * restrict x, ValueType * r
 			}
 		}
 	}
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+CSRVCArrays::statistics_start()
+{
+}
+
+
+void
+CSRVCArrays::statistics_print()
+{
 }
 

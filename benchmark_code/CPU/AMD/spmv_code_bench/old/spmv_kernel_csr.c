@@ -53,7 +53,7 @@ struct CSRArrays : Matrix_Format
 				#if defined(NAIVE) || defined(PROC_BENCH)
 					loop_partitioner_balance_iterations(num_threads, tnum, 0, m, &thread_i_s[tnum], &thread_i_e[tnum]);
 				#else
-					loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+					loop_partitioner_balance_prefix_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 					// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 				#endif
 				#ifdef CUSTOM_VECTOR_PERFECT_NNZ_BALANCE

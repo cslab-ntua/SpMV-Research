@@ -107,9 +107,9 @@ struct Figure_Series * figure_add_series_base(struct Figure * fig, void * x, voi
 		);
 #define figure_add_series(fig, x, y, z, N, M, ... /* get_x_as_double(), get_y_as_double(), get_z_as_double() */ )    \
 	figure_add_series_base(fig, x, y, z, N, M,                                                                   \
-			DEFAULT_ARG_1(gen_functor_basic_type_to_double(x), ##__VA_ARGS__),                           \
-			DEFAULT_ARG_2(gen_functor_basic_type_to_double(y), ##__VA_ARGS__),                           \
-			DEFAULT_ARG_3(gen_functor_basic_type_to_double(z), ##__VA_ARGS__))
+			DEFAULT_ARG_1(gen_functor_convert_basic_type_to_double(x), __VA_ARGS__),                     \
+			DEFAULT_ARG_2(gen_functor_convert_basic_type_to_double(y), __VA_ARGS__),                     \
+			DEFAULT_ARG_3(gen_functor_convert_basic_type_to_double(z), __VA_ARGS__))
 
 void figure_axes_flip_x(struct Figure * fig);
 void figure_axes_flip_y(struct Figure * fig);
@@ -134,17 +134,18 @@ void figure_set_title(struct Figure * fig, char * title);
 
 void figure_series_type_density_map(struct Figure_Series * s);
 
-// Returns the bins frequencies as doubles.
-double * figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int plot_percentages);
-#define figure_series_type_histogram(s, num_bins, ... /* plot_percentages */)               \
-({                                                                                          \
-	figure_series_type_histogram_base(s, num_bins, DEFAULT_ARG_1(0, ##__VA_ARGS__));    \
+// Returns the number of bins.
+// Through 'freq_out' it returns the bins frequencies as doubles.
+long figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int plot_percentages, double ** freq_out);
+#define figure_series_type_histogram(s, num_bins, ... /* plot_percentages, freq_out */)                                     \
+({                                                                                                                          \
+	figure_series_type_histogram_base(s, num_bins, DEFAULT_ARG_1(0, __VA_ARGS__), DEFAULT_ARG_2(NULL, __VA_ARGS__));    \
 })
 
 void figure_series_type_barplot_base(struct Figure_Series * s, double max_bar_width, double bar_width_fraction);
-#define figure_series_type_barplot(s, ... /* max_bar_width, bar_width_fraction */)                                 \
-do {                                                                                                               \
-	figure_series_type_barplot_base(s, DEFAULT_ARG_1(0, ##__VA_ARGS__), DEFAULT_ARG_2(0.6, ##__VA_ARGS__));    \
+#define figure_series_type_barplot(s, ... /* max_bar_width, bar_width_fraction */)                             \
+do {                                                                                                           \
+	figure_series_type_barplot_base(s, DEFAULT_ARG_1(0, __VA_ARGS__), DEFAULT_ARG_2(0.6, __VA_ARGS__));    \
 } while (0)
 
 

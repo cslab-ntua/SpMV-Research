@@ -62,6 +62,10 @@ _TYPE_OUT reduce(_TYPE_IN * A, long N, _TYPE_OUT zero, const int backwards);
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 
+/* A = P is valid.
+ */
+
+
 #undef  scan_reduce_segment_serial
 #define scan_reduce_segment_serial  FUNCTOOLS_GEN_EXPAND(scan_reduce_segment_serial)
 _TYPE_OUT scan_reduce_segment_serial(_TYPE_IN * A, _TYPE_OUT * P, long i_s, long i_e, _TYPE_OUT zero, const int start_from_zero, const int backwards);

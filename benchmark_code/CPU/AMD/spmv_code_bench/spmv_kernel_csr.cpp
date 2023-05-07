@@ -13,21 +13,24 @@ extern "C"{
 	#include "macros/macrolib.h"
 	#include "time_it.h"
 	#include "parallel_util.h"
+	#include "array_metrics.h"
 #ifdef __cplusplus
 }
 #endif
 
 
-extern INT_T * thread_i_s;
-extern INT_T * thread_i_e;
+INT_T * thread_i_s = NULL;
+INT_T * thread_i_e = NULL;
 
-extern INT_T * thread_j_s;
-extern INT_T * thread_j_e;
+INT_T * thread_j_s = NULL;
+INT_T * thread_j_e = NULL;
 
-extern ValueType * thread_v_s;
-extern ValueType * thread_v_e;
+ValueType * thread_v_s = NULL;
+ValueType * thread_v_e = NULL;
 
 extern int prefetch_distance;
+
+double * thread_time_compute, * thread_time_barrier;
 
 
 struct CSRArrays : Matrix_Format
@@ -35,6 +38,8 @@ struct CSRArrays : Matrix_Format
 	INT_T * ia;      // the usual rowptr (of size m+1)
 	INT_T * ja;      // the colidx of each NNZ (of size nnz)
 	ValueType * a;   // the values (of size NNZ)
+
+	long num_loops;
 
 	CSRArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
 	{
@@ -104,7 +109,7 @@ struct CSRArrays : Matrix_Format
 								}
 							#endif
 						#else
-							loop_partitioner_balance_partial_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+							loop_partitioner_balance_prefix_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 							// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 						#endif
 					}
@@ -112,6 +117,25 @@ struct CSRArrays : Matrix_Format
 			}
 		);
 		printf("balance time = %g\n", time_balance);
+
+		#ifdef PRINT_STATISTICS
+			long i;
+			num_loops = 0;
+			thread_time_barrier = (double *) malloc(num_threads * sizeof(*thread_time_barrier));
+			thread_time_compute = (double *) malloc(num_threads * sizeof(*thread_time_compute));
+			for (i=0;i<num_threads;i++)
+			{
+				long rows, nnz;
+				INT_T i_s, i_e, j_s, j_e;
+				i_s = thread_i_s[i];
+				i_e = thread_i_e[i];
+				j_s = thread_j_s[i];
+				j_e = thread_j_e[i];
+				rows = i_e - i_s;
+				nnz = ia[i_e] - ia[i_s];
+				printf("%ld: rows=[%d(%d), %d(%d)]:%ld(%ld), nnz=[%d, %d]:%d\n", i, i_s, ia[i_s], i_e, ia[i_e], rows, nnz, j_s, j_e, j_e-j_s);
+			}
+		#endif
 	}
 
 	~CSRArrays()
@@ -125,9 +149,16 @@ struct CSRArrays : Matrix_Format
 		free(thread_j_e);
 		free(thread_v_s);
 		free(thread_v_e);
+
+		#ifdef PRINT_STATISTICS
+			free(thread_time_barrier);
+			free(thread_time_compute);
+		#endif
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	void statistics_print();
 };
 
 
@@ -142,6 +173,7 @@ void compute_csr_vector_perfect_nnz_balance(CSRArrays * restrict csr, ValueType 
 void
 CSRArrays::spmv(ValueType * x, ValueType * y)
 {
+	num_loops++;
 	#if defined(CUSTOM_PREFETCH)
 		compute_csr_prefetch(this, x, y);
 	#elif defined(CUSTOM_SIMD)
@@ -325,12 +357,12 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		long i_s, i_e;
 		i_s = thread_i_s[tnum];
 		i_e = thread_i_e[tnum];
-		#ifdef TIME_BARRIER
+		#ifdef PRINT_STATISTICS
 		double time;
 		time = time_it(1,
 		#endif
 			subkernel_csr_scalar(csr, x, y, i_s, i_e);
-		#ifdef TIME_BARRIER
+		#ifdef PRINT_STATISTICS
 		);
 		thread_time_compute[tnum] += time;
 		time = time_it(1,
@@ -645,5 +677,106 @@ compute_csr_vector_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * res
 		if (thread_i_e[t] - 1 > thread_i_s[t])
 			y[thread_i_e[t] - 1] += thread_v_e[t];
 	}
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+CSRArrays::statistics_start()
+{
+	int num_threads = omp_get_max_threads();
+	long i;
+	num_loops = 0;
+	for (i=0;i<num_threads;i++)
+	{
+		thread_time_compute[i] = 0;
+		thread_time_barrier[i] = 0;
+	}
+}
+
+
+void
+CSRArrays::statistics_print()
+{
+	int num_threads = omp_get_max_threads();
+	double iters_per_t[num_threads];
+	double nnz_per_t[num_threads];
+	__attribute__((unused)) double gflops_per_t[num_threads];
+	double iters_per_t_min, iters_per_t_max, iters_per_t_avg, iters_per_t_std, iters_per_t_balance;
+	double nnz_per_t_min, nnz_per_t_max, nnz_per_t_avg, nnz_per_t_std, nnz_per_t_balance;
+	__attribute__((unused)) double time_per_t_min, time_per_t_max, time_per_t_avg, time_per_t_std, time_per_t_balance;
+	__attribute__((unused)) double gflops_per_t_min, gflops_per_t_max, gflops_per_t_avg, gflops_per_t_std, gflops_per_t_balance;
+	long i, i_s, i_e;
+
+	for (i=0;i<num_threads;i++)
+	{
+		i_s = thread_i_s[i];
+		i_e = thread_i_e[i];
+		iters_per_t[i] = i_e - i_s;
+		// nnz_per_t[i] = &(a[ia[i_e]]) - &(a[ia[i_s]]);
+		nnz_per_t[i] = ia[i_e] - ia[i_s];
+		gflops_per_t[i] = nnz_per_t[i] / thread_time_compute[i] * num_loops * 2 * 1e-9;   // Calculate before making nnz_per_t a ratio.
+		iters_per_t[i] /= m;    // As a fraction of m.
+		nnz_per_t[i] /= nnz;    // As a fraction of nnz.
+	}
+
+	array_min_max(iters_per_t, num_threads, &iters_per_t_min, NULL, &iters_per_t_max, NULL, val_to_double);
+	iters_per_t_avg = array_mean(iters_per_t, num_threads, val_to_double);
+	iters_per_t_std = array_std(iters_per_t, num_threads, iters_per_t_avg, val_to_double);
+	iters_per_t_balance = iters_per_t_avg / iters_per_t_max;
+
+	array_min_max(nnz_per_t, num_threads, &nnz_per_t_min, NULL, &nnz_per_t_max, NULL, val_to_double);
+	nnz_per_t_avg = array_mean(nnz_per_t, num_threads, val_to_double);
+	nnz_per_t_std = array_std(nnz_per_t, num_threads, nnz_per_t_avg, val_to_double);
+	nnz_per_t_balance = nnz_per_t_avg / nnz_per_t_max;
+
+	array_min_max(thread_time_compute, num_threads, &time_per_t_min, NULL, &time_per_t_max, NULL, val_to_double);
+	time_per_t_avg = array_mean(thread_time_compute, num_threads, val_to_double);
+	time_per_t_std = array_std(thread_time_compute, num_threads, time_per_t_avg, val_to_double);
+	time_per_t_balance = time_per_t_avg / time_per_t_max;
+
+	array_min_max(gflops_per_t, num_threads, &gflops_per_t_min, NULL, &gflops_per_t_max, NULL, val_to_double);
+	gflops_per_t_avg = array_mean(gflops_per_t, num_threads, val_to_double);
+	gflops_per_t_std = array_std(gflops_per_t, num_threads, gflops_per_t_avg, val_to_double);
+	gflops_per_t_balance = gflops_per_t_avg / gflops_per_t_max;
+
+	printf("i:%g,%g,%g,%g,%g\n", iters_per_t_min, iters_per_t_max, iters_per_t_avg, iters_per_t_std, iters_per_t_balance);
+	printf("nnz:%g,%g,%g,%g,%g\n", nnz_per_t_min, nnz_per_t_max, nnz_per_t_avg, nnz_per_t_std, nnz_per_t_balance);
+	printf("time:%g,%g,%g,%g,%g\n", time_per_t_min, time_per_t_max, time_per_t_avg, time_per_t_std, time_per_t_balance);
+	printf("gflops:%g,%g,%g,%g,%g\n", gflops_per_t_min, gflops_per_t_max, gflops_per_t_avg, gflops_per_t_std, gflops_per_t_balance);
+	printf("tnum i_s i_e num_rows_frac nnz_frac\n");
+	for (i=0;i<num_threads;i++)
+	{
+		i_s = thread_i_s[i];
+		i_e = thread_i_e[i];
+		printf("%ld %ld %ld %g %g\n", i, i_s, i_e, iters_per_t[i], nnz_per_t[i]);
+	}
+	printf("tnum gflops compute barrier total barrier/compute%%\n");
+	for (i=0;i<num_threads;i++)
+	{
+		double time_compute, time_barrier, time_total, percent;
+		time_compute = thread_time_compute[i];
+		time_barrier = thread_time_barrier[i];
+		time_total = time_compute + time_barrier;
+		percent = time_barrier / time_compute * 100;
+		printf("%ld %g %g %g %g %g\n", i, gflops_per_t[i], time_compute, time_barrier, time_total, percent);
+	}
+
+	// i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_avg);
+	// i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_std);
+	// i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_balance);
+	// i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_avg);
+	// i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_std);
+	// i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_balance);
+	// i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_avg);
+	// i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_std);
+	// i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_balance);
+	// i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_avg);
+	// i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_std);
+	// i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_balance);
 }
 

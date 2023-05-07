@@ -20,7 +20,7 @@ static _TYPE_BUCKET_I bucketsort_find_bucket(_TYPE_V a, _TYPE_AD * aux_data);
 //==========================================================================================================================================
 
 
-#include "functools_gen_undef.h"
+#include "functools_gen_push.h"
 #define FUNCTOOLS_GEN_TYPE_1  BUCKETSORT_GEN_TYPE_2
 #define FUNCTOOLS_GEN_TYPE_2  BUCKETSORT_GEN_TYPE_2
 #define FUNCTOOLS_GEN_SUFFIX  CONCAT(_BUCKETSORT_GEN, BUCKETSORT_GEN_SUFFIX)
@@ -94,12 +94,12 @@ typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
 // #undef  bucketsort_unique_serial
 // #define bucketsort_unique_serial  BUCKETSORT_GEN_EXPAND(bucketsort_unique_serial)
 // void
-// bucketsort_unique_serial(_TYPE_V * A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data,
+// bucketsort_unique_serial(_TYPE_V * A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data,
 		// _TYPE_I * permutation_out, _TYPE_I * offsets_out)
 // {
 	// _TYPE_I * offsets;
 	// _TYPE_BUCKET_I b;
-	// _TYPE_I i;
+	// long i;
 	// offsets     = (offsets_out == NULL)     ? offsets_out     : (typeof(offsets)) malloc((num_buckets+1) * sizeof(*offsets));
 	// for (i=0;i<num_buckets+1;i++)
 		// offsets[i] = 0;
@@ -127,13 +127,13 @@ typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
 #undef  bucketsort_stable_serial
 #define bucketsort_stable_serial  BUCKETSORT_GEN_EXPAND(bucketsort_stable_serial)
 void
-bucketsort_stable_serial(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * restrict aux_data,
+bucketsort_stable_serial(_TYPE_V * restrict A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * restrict aux_data,
 		_TYPE_I * restrict permutation_out, _TYPE_I * restrict offsets_out, _TYPE_BUCKET_I * restrict A_bucket_id_out)
 {
 	_TYPE_I * offsets;
 	_TYPE_BUCKET_I * A_bucket_id;
 	_TYPE_BUCKET_I b;
-	_TYPE_I i;
+	long i;
 	offsets = (offsets_out != NULL) ? offsets_out : (typeof(offsets)) malloc((num_buckets+1) * sizeof(*offsets));
 	A_bucket_id = (A_bucket_id_out != NULL) ? A_bucket_id_out : (typeof(A_bucket_id)) malloc((N) * sizeof(*A_bucket_id));
 	for (i=0;i<num_buckets+1;i++)
@@ -161,7 +161,7 @@ bucketsort_stable_serial(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buc
 #undef  bucketsort
 #define bucketsort  BUCKETSORT_GEN_EXPAND(bucketsort)
 void
-bucketsort(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * restrict aux_data,
+bucketsort(_TYPE_V * restrict A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * restrict aux_data,
 		_TYPE_I * restrict permutation_out, _TYPE_I * restrict offsets_out, _TYPE_BUCKET_I * restrict A_bucket_id_out)
 {
 	_TYPE_I * offsets;
@@ -171,7 +171,7 @@ bucketsort(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD
 	#pragma omp parallel
 	{
 		_TYPE_BUCKET_I b;
-		_TYPE_I i, pos;
+		long i, pos;
 		#pragma omp for
 		for (i=0;i<num_buckets+1;i++)
 			offsets[i] = 0;
@@ -205,12 +205,12 @@ bucketsort(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD
 #define sort_bucket  BUCKETSORT_GEN_EXPAND(sort_bucket)
 static inline
 void
-sort_bucket(_TYPE_I * restrict permutation, _TYPE_I N, int num_threads, unsigned short * owner)
+sort_bucket(_TYPE_I * restrict permutation, long N, int num_threads, unsigned short * owner)
 {
 	_TYPE_I * buf;
 	_TYPE_I offsets[num_threads + 1];
 	_TYPE_BUCKET_I b;
-	_TYPE_I i;
+	long i;
 	buf = (typeof(buf)) malloc(N * sizeof(*buf));
 	for (i=0;i<num_threads+1;i++)
 		offsets[i] = 0;
@@ -233,7 +233,7 @@ sort_bucket(_TYPE_I * restrict permutation, _TYPE_I N, int num_threads, unsigned
 #undef  bucketsort_stable
 #define bucketsort_stable  BUCKETSORT_GEN_EXPAND(bucketsort_stable)
 void
-bucketsort_stable(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * restrict aux_data,
+bucketsort_stable(_TYPE_V * restrict A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * restrict aux_data,
 		_TYPE_I * restrict permutation_out, _TYPE_I * restrict offsets_out, _TYPE_BUCKET_I * restrict A_bucket_id_out)
 {
 	_TYPE_I * permutation_reverse;
@@ -249,7 +249,7 @@ bucketsort_stable(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _
 		int num_threads = omp_get_max_threads();
 		int tnum = omp_get_thread_num();
 		_TYPE_BUCKET_I b, b_n;
-		_TYPE_I i, i_s, i_e, pos;
+		long i, i_s, i_e, pos;
 		#pragma omp for
 		for (i=0;i<num_buckets+1;i++)
 			offsets[i] = 0;
@@ -270,7 +270,7 @@ bucketsort_stable(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _
 			permutation_reverse[pos] = i;
 			owner_tnum[pos] = tnum;
 		}
-		loop_partitioner_balance_partial_sums(num_threads, tnum, offsets, num_buckets, N, &i_s, &i_e);
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, offsets, num_buckets, N, &i_s, &i_e);
 		for (i=i_s;i<i_e;i++)
 		{
 			b_n = offsets[i+1] - offsets[i];
@@ -293,7 +293,7 @@ bucketsort_stable(_TYPE_V * restrict A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _
 /* #undef  bucketsort2
 #define bucketsort2  BUCKETSORT_GEN_EXPAND(bucketsort2)
 _TYPE_I *
-bucketsort2(_TYPE_V * A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data, _TYPE_I ** offsets_out)
+bucketsort2(_TYPE_V * A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data, _TYPE_I ** offsets_out)
 {
 	int num_threads = safe_omp_get_num_threads_external();
 	_TYPE_I * permutation;
@@ -312,10 +312,10 @@ bucketsort2(_TYPE_V * A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_d
 
 	#pragma omp parallel
 	{
-		_TYPE_I base;
+		long base;
 		int tnum = omp_get_thread_num();
-		_TYPE_I i, i_s, i_e;
-		_TYPE_I sum, tmp, pos;
+		long i, i_s, i_e;
+		long sum, tmp, pos;
 		_TYPE_BUCKET_I b;
 
 		loop_partitioner_balance_iterations(num_threads, tnum, 0, num_buckets, &i_s, &i_e);
@@ -390,5 +390,5 @@ bucketsort2(_TYPE_V * A, _TYPE_I N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_d
 //==========================================================================================================================================
 
 
-#include "functools_gen_undef.h"
+#include "functools_gen_pop.h"
 

@@ -8,14 +8,14 @@
 #include <string>
 #include <fstream>
 
+#include "macros/cpp_defines.h"
 
 #ifdef __cplusplus
 extern "C"{
 #endif
-	#include "macros/cpp_defines.h"
 	#include "debug.h"
 	#include "io.h"
-	#include "genlib.h"
+	// #include "genlib.h"
 	#include "parallel_util.h"
 	#include "string_util.h"
 	#include "parallel_io.h"
