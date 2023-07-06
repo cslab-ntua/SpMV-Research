@@ -82,7 +82,7 @@ file_to_atoms_base(struct File_Atoms * A, const char * filename, void string_del
 		}
 	}
 
-	if (use_mmap)
+	if (use_mmap) // Note: 'use_mmap' can change above.
 	{
 		safe_close(fd);
 

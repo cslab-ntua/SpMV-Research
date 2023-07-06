@@ -32,7 +32,7 @@ struct CSCArrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	void statistics_print();
+	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -101,8 +101,9 @@ CSCArrays::statistics_start()
 }
 
 
-void
-CSCArrays::statistics_print()
+int
+CSCArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
+	return 0;
 }
 

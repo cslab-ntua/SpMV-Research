@@ -38,9 +38,9 @@ void csr_degrees_bandwidths_scatters(_TYPE_I * row_ptr, _TYPE_I * col_idx, long 
 		_TYPE_I ** degrees_rows_out, _TYPE_I ** degrees_cols_out, double ** bandwidths_out, double ** scatters_out);
 
 
-#undef  csr_groups_per_row
-#define csr_groups_per_row  CSR_UTIL_GEN_EXPAND(csr_groups_per_row)
-void csr_groups_per_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long max_gap_size, long ** groups_per_row_out);
+// #undef  csr_groups_per_row
+// #define csr_groups_per_row  CSR_UTIL_GEN_EXPAND(csr_groups_per_row)
+// void csr_groups_per_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long max_gap_size, long ** groups_per_row_out);
 
 #undef  csr_column_distances_and_groupping
 #define csr_column_distances_and_groupping  CSR_UTIL_GEN_EXPAND(csr_column_distances_and_groupping)

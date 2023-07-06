@@ -73,6 +73,8 @@ CFLAGS += -O3
 
 CFLAGS += -flto=auto
 ifeq ($(ARCH), x86_64)
+    CFLAGS += -mbmi
+    CFLAGS += -mbmi2
     CFLAGS += -march=native
 else ifeq ($(ARCH), ppc64le)
     CFLAGS += -mcpu=power9
@@ -123,7 +125,7 @@ LDFLAGS =
 LDFLAGS += -lm
 
 
-LIB_SRC = pthread_functions.c omp_functions.c topology.c array_metrics.c string_util.c parallel_io.c hash.c plot.c openfoam_matrix.c rapl.c read_mtx.cpp csr_converter.c csr_util.c artificial_matrix_generation.c ordered_set.c
+LIB_SRC = pthread_functions.c omp_functions.c topology.c bitstream.c bytestream.c array_metrics.c string_util.c parallel_io.c hash.c plot.c openfoam_matrix.c rapl.c read_mtx.cpp csr_converter.c csr_util.c artificial_matrix_generation.c ordered_set.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%.o,$(LIB_OBJ))
@@ -140,7 +142,9 @@ EXE =
 # EXE += spmv_csr_vector.exe
 # EXE += spmv_csr_vector_perfect_nnz_balance.exe
 
-EXE += spmv_csr_vc.exe
+EXE += spmv_csr_cv.exe
+EXE += spmv_csr_cv_stream.exe
+# EXE += spmv_csr_cv_stream_vps.exe
 
 EXE += spmv_csr_x86_vector.exe
 EXE += spmv_csr_x86_vector_oracle_balance.exe
@@ -193,7 +197,11 @@ spmv_csr_vector.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 spmv_csr_vector_perfect_nnz_balance.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
 
-spmv_csr_vc.exe: obj/spmv_bench.o spmv_kernel_csr_vc.cpp spmv_kernel_csr_vc_compression_kernels.h $(LIB_OBJ)
+spmv_csr_cv.exe: obj/spmv_bench.o obj/spmv_kernel_csr_cv.o $(LIB_OBJ)
+	$(CPP) $(CFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+spmv_csr_cv_stream.exe: obj/spmv_bench.o obj/spmv_kernel_csr_cv_stream.o $(LIB_OBJ)
+	$(CPP) $(CFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+spmv_csr_cv_stream_vps.exe: obj/spmv_bench.o obj/spmv_kernel_csr_cv_stream_vps.o $(LIB_OBJ)
 	$(CPP) $(CFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
 
 spmv_csr_x86_vector.exe: obj/spmv_bench.o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
@@ -329,6 +337,14 @@ obj/spmv_kernel_sparsex.o: spmv_kernel_sparsex.cpp
 $(call Rule_Auto_Dependencies,obj/spmv_bench.o,spmv_bench.cpp)
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
+$(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv.o,spmv_kernel_csr_cv.cpp)
+	$(CPP) $(CPPFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_stream.o,spmv_kernel_csr_cv_stream.cpp)
+	$(CPP) $(CPPFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_stream_vps.o,spmv_kernel_csr_cv_stream_vps.cpp)
+	$(CPP) $(CPPFLAGS) -c $< -o $@
+
+
 $(call Rule_Auto_Dependencies,obj/read_mtx.o,read_mtx.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -342,6 +358,10 @@ $(call Rule_Auto_Dependencies,obj/pthread_functions.o,$(library)/pthread_functio
 $(call Rule_Auto_Dependencies,obj/omp_functions.o,$(library)/omp_functions.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/topology.o,$(library)/topology.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/bitstream.o,$(library)/bitstream.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/bytestream.o,$(library)/bytestream.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/array_metrics.o,$(library)/array_metrics.c)
 	$(CC) $(CFLAGS) -c $< -o $@

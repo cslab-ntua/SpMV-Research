@@ -110,6 +110,7 @@ CheckAccuracy(ValueType * val, INT_T * rowind, INT_T * colind, INT_T m, INT_T nn
 		// maxDiff = Max(maxDiff, diff);
 		if (y_gold[idx] > epsilon)
 		{
+			// printf("i=%d, y_gold=%lf , y=%lf, diff = %lf\n", idx, y_gold[idx], y[idx], diff);
 			diff = diff / abs(y_gold[idx]);
 			maxDiff = Max(maxDiff, diff);
 			// printf("error: i=%d/%d , a=%g f=%g , error=%g , max_error=%g\n", idx, m, y_gold[idx], y[idx], diff, maxDiff);
@@ -290,10 +291,6 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 	//= Output section.
 	//=============================================================================
 
-	#ifdef PRINT_STATISTICS
-		MF->statistics_print();
-	#endif
-
 	std::stringstream stream;
 	gflops = csr_nnz / time * loop * 2 * 1e-9;    // Use csr_nnz to be sure we have the initial nnz (there is no coo for artificial AM).
 
@@ -319,7 +316,10 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 		i += snprintf(buf + i, buf_n - i, ",%u", MF->nnz);
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / (1024*1024));
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / MF->csr_mem_footprint);
-		i += snprintf(buf + i, buf_n - i, ",%ld", atol(getenv("CSRVC_NUM_PACKET_VALS")));
+		i += snprintf(buf + i, buf_n - i, ",%ld", atol(getenv("CSRCV_NUM_PACKET_VALS")));
+		#ifdef PRINT_STATISTICS
+			i += MF->statistics_print(buf + i, buf_n - i);
+		#endif
 		buf[i] = '\0';
 		fprintf(stderr, "%s\n", buf);
 
@@ -544,8 +544,8 @@ child_proc_label:
 	dimMultipleBlock_y = ((csr_n+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
 	x = (ValueType *) aligned_alloc(64, dimMultipleBlock_y * sizeof(ValueType));
 	#pragma omp parallel for
-	for(int idx=0;idx<dimMultipleBlock_y;++idx)
-		x[idx] = 1.0;
+	for(int i=0;i<dimMultipleBlock_y;++i)
+		x[i] = 1.0;
 	y = (ValueType *) aligned_alloc(64, dimMultipleBlock * sizeof(ValueType));
 	#pragma omp parallel for
 	for(long i=0;i<dimMultipleBlock;i++)
@@ -582,9 +582,9 @@ child_proc_label:
 	filename = strdup(filename);
 	str_path_split_ext(filename, strlen(filename) + 1, buf, buf_n, &filename_base, NULL);
 	filename_base = strdup(filename_base);
-	printf("ploting : %s\n", filename_base);
-	if (1)
+	if (0)
 	{
+		printf("ploting : %s\n", filename_base);
 		csr_plot(filename_base, csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz, 0);
 		return 0;
 	}

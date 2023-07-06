@@ -42,7 +42,7 @@ struct COOArrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	void statistics_print();
+	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -116,8 +116,9 @@ COOArrays::statistics_start()
 }
 
 
-void
-COOArrays::statistics_print()
+int
+COOArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
+	return 0;
 }
 

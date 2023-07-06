@@ -46,7 +46,7 @@
  *     _SC_LEVEL4_CACHE_ASSOC,
  *     _SC_LEVEL4_CACHE_LINESIZE,
  *
- * See all system configuration in the command line: "getconf -a".
+ * See all system configuration with the command: "getconf -a".
  * See all sysconf arguments in '/usr/include/bits/confname.h'.
  */
 

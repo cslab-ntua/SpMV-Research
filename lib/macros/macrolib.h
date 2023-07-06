@@ -220,20 +220,20 @@
 //==========================================================================================================================================
 
 
-/* #define unsafe_cast_to_type(x, trg_type)                                       \
+/* #define cast_to_type_unsafe(x, trg_type)                                       \
 ({                                                                             \
-	__auto_type _unsafe_cast_to_type_x = x;                                \
-	*((typeof(typeof(trg_type) *)) ((char *) &_unsafe_cast_to_type_x));    \
+	__auto_type _cast_to_type_unsafe_x = x;                                \
+	*((typeof(typeof(trg_type) *)) ((char *) &_cast_to_type_unsafe_x));    \
 }) */
 
 
-#define unsafe_cast_to_type(x, trg_type)                                            \
+#define cast_to_type_unsafe(x, trg_type)                                            \
 ({                                                                                  \
-	typeof(x) _unsafe_cast_to_type_x;                                           \
-	typeof(trg_type) * _unsafe_cast_to_type_ptr;                                \
-	_unsafe_cast_to_type_x = x;                                                 \
-	_unsafe_cast_to_type_ptr = (typeof(trg_type) *) &_unsafe_cast_to_type_x;    \
-	*_unsafe_cast_to_type_ptr;                                                  \
+	typeof(x) _cast_to_type_unsafe_x;                                           \
+	typeof(trg_type) * _cast_to_type_unsafe_ptr;                                \
+	_cast_to_type_unsafe_x = x;                                                 \
+	_cast_to_type_unsafe_ptr = (typeof(trg_type) *) &_cast_to_type_unsafe_x;    \
+	*_cast_to_type_unsafe_ptr;                                                  \
 })
 
 

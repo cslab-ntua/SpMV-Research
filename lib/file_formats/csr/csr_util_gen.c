@@ -218,42 +218,42 @@ csr_degrees_bandwidths_scatters(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, lo
 }
 
 
-#undef  csr_groups_per_row
-#define csr_groups_per_row  CSR_UTIL_GEN_EXPAND(csr_groups_per_row)
-void
-csr_groups_per_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, long max_gap_size,
-		long ** groups_per_row_out)
-{
-	long * groups_per_row = (typeof(groups_per_row)) malloc(m * sizeof(*groups_per_row));
-	#pragma omp parallel
-	{
-		long i, j, k, degree;
-		long num_groups;
-		#pragma omp for
-		for (i=0;i<m;i++)
-		{
-			groups_per_row[i] = 0;
-			degree = row_ptr[i+1] - row_ptr[i];
-			if (degree <= 0)
-				continue;
-			j = row_ptr[i];
-			num_groups = 0;
-			while (j < row_ptr[i+1])
-			{
-				k = j + 1;
-				while ((k < row_ptr[i+1]) && (col_idx[k] - col_idx[k-1] <= max_gap_size + 1))   // distance 1 means gap 0
-					k++;
-				num_groups++;
-				j = k;
-			}
-			groups_per_row[i] = num_groups;
-		}
-	}
-	if (groups_per_row_out != NULL)
-		*groups_per_row_out = groups_per_row;
-	else
-		free(groups_per_row);
-}
+// #undef  csr_groups_per_row
+// #define csr_groups_per_row  CSR_UTIL_GEN_EXPAND(csr_groups_per_row)
+// void
+// csr_groups_per_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, long max_gap_size,
+		// long ** groups_per_row_out)
+// {
+	// long * groups_per_row = (typeof(groups_per_row)) malloc(m * sizeof(*groups_per_row));
+	// #pragma omp parallel
+	// {
+		// long i, j, k, degree;
+		// long num_groups;
+		// #pragma omp for
+		// for (i=0;i<m;i++)
+		// {
+			// groups_per_row[i] = 0;
+			// degree = row_ptr[i+1] - row_ptr[i];
+			// if (degree <= 0)
+				// continue;
+			// j = row_ptr[i];
+			// num_groups = 0;
+			// while (j < row_ptr[i+1])
+			// {
+				// k = j + 1;
+				// while ((k < row_ptr[i+1]) && (col_idx[k] - col_idx[k-1] <= max_gap_size + 1))   // distance 1 means gap 0
+					// k++;
+				// num_groups++;
+				// j = k;
+			// }
+			// groups_per_row[i] = num_groups;
+		// }
+	// }
+	// if (groups_per_row_out != NULL)
+		// *groups_per_row_out = groups_per_row;
+	// else
+		// free(groups_per_row);
+// }
 
 
 /* Nonzero column distances are not confined inside each row, meaning for the last nnz of a row
@@ -556,7 +556,7 @@ csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 	// static const uint64_t mask_double_exp  = ((1ULL<<11) - 1) << 52;
 	// static const uint64_t mask_double_frac = (1ULL<<52) - 1;
 	// uint64_t u;
-	// u = unsafe_cast_to_type(f, u);
+	// u = cast_to_type_unsafe(f, u);
 	// *sign_out = (u & mask_double_sign) >> 63;
 	// *exp_out = (u & mask_double_exp) >> 52;
 	// *exp_out -= 1023;
@@ -645,10 +645,10 @@ static inline
 double
 get_double_upper_12_bits(void * A, long i)
 {
-	static const uint64_t mask  = ((1ULL<<12) - 1) << 52;
+	// static const uint64_t mask  = ((1ULL<<12) - 1) << 52;
 	uint64_t u = ((uint64_t *) A)[i];
-	u = (u & mask) >> 52;
-	return u;
+	// u = (u & mask) >> 52;
+	return u >> 52;
 }
 
 
@@ -659,7 +659,7 @@ double
 get_double_trailing_zeros(void * A, long i)
 {
 	uint64_t u = ((uint64_t *) A)[i];
-	return __builtin_ctzl(u);
+	return u == 0 ? 64 : __builtin_ctzl(u);
 }
 
 #undef  reduce_add
@@ -677,13 +677,13 @@ static inline
 double
 get_window_min_ctz_as_double(void * A, long i, long len)
 {
-	uint64_t * vals = &((uint64_t *) A)[i];
 	uint64_t min;
 	uint64_t ctz;
-	min = __builtin_ctzl(vals[0]);
-	for (i=1;i<len;i++)
+	long j;
+	min = get_double_trailing_zeros(A, i);
+	for (j=1;j<len;j++)
 	{
-		ctz = __builtin_ctzl(vals[i]);
+		ctz = get_double_trailing_zeros(A, i + j);
 		if (ctz < min)
 			min = ctz;
 	}
@@ -722,7 +722,7 @@ csr_value_features(char * title_base, __attribute__((unused)) _TYPE_I * row_ptr,
 
 	long window_size;
 	long k;
-	long i, i_s, i_e;
+	__attribute__((unused)) long i, i_s, i_e;
 
 	long ctz_group_size;
 
@@ -1029,6 +1029,7 @@ csr_value_features(char * title_base, __attribute__((unused)) _TYPE_I * row_ptr,
 		free(dist_from_windowed_avg);
 	#endif
 
+	// Sorting.
 	double * vals_diff_sorted_window;
 	double vals_diff_sorted_window_abs_min, vals_diff_sorted_window_abs_max, vals_diff_sorted_window_abs_avg, vals_diff_sorted_window_abs_std, vals_diff_sorted_window_ctz_avg, vals_diff_sorted_window_ctz_std, vals_diff_sorted_window_grouped_ctz_avg;
 	long vals_diff_sorted_window_unique_num, vals_diff_sorted_window_exp_unique_num;
@@ -1038,6 +1039,7 @@ csr_value_features(char * title_base, __attribute__((unused)) _TYPE_I * row_ptr,
 	ctz_corrected_max = 0;
 	best_k = 0;
 	best_ctz_group_size = 1;
+	// k = 21;
 	for (k=4;k<=14;k++)
 	{
 		long num_windows;
@@ -1048,8 +1050,8 @@ csr_value_features(char * title_base, __attribute__((unused)) _TYPE_I * row_ptr,
 		windows_exp_unique_num = (typeof(windows_exp_unique_num)) malloc(num_windows * sizeof(*windows_exp_unique_num));
 		#pragma omp parallel
 		{
-			double window[window_size];
-			int qsort_partitions[window_size];
+			double * window = (typeof(window)) malloc(window_size * sizeof(*window));
+			int * qsort_partitions = (typeof(qsort_partitions)) malloc(window_size * sizeof(*qsort_partitions));
 			long i, j, j_e, k;
 			long exp_table_n = 1<<12;
 			long * exp_table;
@@ -1078,6 +1080,8 @@ csr_value_features(char * title_base, __attribute__((unused)) _TYPE_I * row_ptr,
 				}
 				windows_exp_unique_num[i / window_size] = k;
 			}
+			free(window);
+			free(qsort_partitions);
 			free(exp_table);
 		}
 		array_min_max(vals_diff_sorted_window, nnz, &vals_diff_sorted_window_abs_min, NULL, &vals_diff_sorted_window_abs_max, NULL, get_double_abs);
@@ -1126,6 +1130,8 @@ csr_value_features(char * title_base, __attribute__((unused)) _TYPE_I * row_ptr,
 	fprintf(stderr, "vals_diff_sorted_window best ctz group size = %ld\n", best_ctz_group_size);
 	free(vals_diff_sorted_window);
 
+	// Clustering - Distance from cluster centers.
+	#if 0
 	double * vals_sorted;
 	double * vals_sorted_shifted_by_min;
 	double * vals_cluster_centers_diffs;
@@ -1243,6 +1249,7 @@ csr_value_features(char * title_base, __attribute__((unused)) _TYPE_I * row_ptr,
 	free(vals_sorted_shifted_by_min);
 	free(vals_sorted);
 	free(vals_cluster_centers_diffs);
+	#endif
 
 	free(vals);
 	free(row_idx);

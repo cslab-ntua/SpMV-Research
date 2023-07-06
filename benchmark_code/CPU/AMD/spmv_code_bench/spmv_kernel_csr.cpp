@@ -158,7 +158,7 @@ struct CSRArrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	void statistics_print();
+	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -699,8 +699,8 @@ CSRArrays::statistics_start()
 }
 
 
-void
-CSRArrays::statistics_print()
+int
+CSRArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
 	int num_threads = omp_get_max_threads();
 	double iters_per_t[num_threads];
@@ -778,5 +778,6 @@ CSRArrays::statistics_print()
 	// i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_avg);
 	// i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_std);
 	// i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_balance);
+	return 0;
 }
 

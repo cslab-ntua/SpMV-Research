@@ -108,6 +108,15 @@ autoreconf -vi
 #     In "configure" file, replace following to find the installed boost version (--with-boostlibdir doesn't work for some reason)
 #        #include "$d/include/boost/version.hpp"      ->       #include "${SPARSEX_ROOT_DIR}/boost_1_55_0/bin/include/boost/version.hpp"
 #        BOOST_CPPFLAGS="-I$d/include"                ->       BOOST_CPPFLAGS="-I${SPARSEX_ROOT_DIR}/boost_1_55_0/bin/include/"
+
+# 'configure' uses 'sh' and it fails at 'test 6.0.0 == 6.0.0' at line 17535 because it doesn't support the '==' operator...
+# Just use bash like a normal person.
+sed 's/#!\s*\/bin\/sh/#!\/bin\/bash/' configure > configure.new
+rm configure
+mv configure.new configure
+chmod +x configure
+
+# At long last, configure.
 ./configure --disable-silent-rules  --prefix="${SPARSEX_ROOT_DIR}/build" --with-value=double --with-boostdir="${BOOST_ROOT_DIR}/bin" --with-boostlibdir="${BOOST_ROOT_DIR}/bin/lib" --with-llvm=${LLVM_ROOT_DIR}/build/bin/llvm-config
 
 # Remove "examples" subdirs in variables "SUBDIRS" kai "DIST_SUBDIRS" in src/Makefile (not first level Makefile in sparsex directory)
@@ -119,8 +128,8 @@ mv src/Makefile.new src/Makefile
 #     Also, change everywhere
 #        "AM_DEFAULT_VERBOSITY = 0"     ->     "AM_DEFAULT_VERBOSITY = 1"
 
-make -j
-make -j install
+make -j8
+make -j8 install
 make check
 
 # After building successfully, ready to test it (test_sparsex.c).

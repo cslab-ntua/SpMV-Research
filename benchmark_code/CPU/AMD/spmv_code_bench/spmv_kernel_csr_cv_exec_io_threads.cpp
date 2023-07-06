@@ -360,7 +360,7 @@ struct CSRVCArrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	void statistics_print();
+	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -739,8 +739,8 @@ CSRVCArrays::statistics_start()
 }
 
 
-void
-CSRVCArrays::statistics_print()
+int
+CSRVCArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
 	long num_threads = omp_get_max_threads();
 	// double time_total = 0, time_io = 0, time_decompress = 0, time_exec = 0;
@@ -764,5 +764,6 @@ CSRVCArrays::statistics_print()
 	exec_avg       = array_mean(t_time_exec, num_threads, val_to_double);
 	exec_max       = array_max(t_time_exec, num_threads, NULL, val_to_double);
 	printf("STATISTICS: %lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n", tot_avg, tot_max, io_avg, io_max, decompress_avg, decompress_max, exec_avg, exec_max);
+	return 0;
 }
 

@@ -46,7 +46,7 @@ struct MERGEArrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	void statistics_print();
+	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -323,8 +323,9 @@ MERGEArrays::statistics_start()
 }
 
 
-void
-MERGEArrays::statistics_print()
+int
+MERGEArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
+	return 0;
 }
 

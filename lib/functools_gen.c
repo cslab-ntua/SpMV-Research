@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <math.h>
 #include <omp.h>
 
@@ -166,14 +167,14 @@ reduce(_TYPE_IN * A, long N, _TYPE_OUT zero, const int backwards)
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 
-/* start_from_zero:  First element of P is zero, else it is the first element of A.
+/* exclusive:  First element of P is zero, else it is the first element of A.
  * Notes:
  *     - P could also be A, so we should save/use A[i] before setting P[i].
  */
 #undef  scan_reduce_segment_serial
 #define scan_reduce_segment_serial  FUNCTOOLS_GEN_EXPAND(scan_reduce_segment_serial)
 _TYPE_OUT
-scan_reduce_segment_serial(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end, _TYPE_OUT zero, const int start_from_zero, const int backwards)
+scan_reduce_segment_serial(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end, _TYPE_OUT zero, const int exclusive, const int backwards)
 {
 	_TYPE_OUT partial;
 	_TYPE_OUT val, tmp;
@@ -183,7 +184,7 @@ scan_reduce_segment_serial(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end
 	partial = zero;
 	if (backwards)
 	{
-		if (start_from_zero)
+		if (exclusive)
 			for (i=i_end-1;i>=i_start;i--)
 			{
 				tmp = partial;
@@ -201,7 +202,7 @@ scan_reduce_segment_serial(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end
 	}
 	else
 	{
-		if (start_from_zero)
+		if (exclusive)
 			for (i=i_start;i<i_end;i++)
 			{
 				tmp = partial;
@@ -228,7 +229,7 @@ scan_reduce_segment_serial(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end
 #define scan_reduce_segment_parallel_compute_bound  FUNCTOOLS_GEN_EXPAND(scan_reduce_segment_parallel_compute_bound)
 static
 _TYPE_OUT
-scan_reduce_segment_parallel_compute_bound(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end, _TYPE_OUT zero, const int start_from_zero, const int backwards)
+scan_reduce_segment_parallel_compute_bound(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end, _TYPE_OUT zero, _TYPE_OUT offset, const int exclusive, const int backwards)
 {
 	int num_threads = safe_omp_get_num_threads();
 	int tnum = omp_get_thread_num();
@@ -236,11 +237,20 @@ scan_reduce_segment_parallel_compute_bound(_TYPE_IN * A, _TYPE_OUT * P, long i_s
 	_TYPE_OUT partial;
 	long i_s, i_e;
 	long i;
-	if (i_start >= i_end)
-		return zero;
 	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	partial = scan_reduce_segment_serial(A, P, i_s, i_e, zero, start_from_zero, backwards);
+	partial = scan_reduce_segment_serial(A, P, i_s, i_e, zero, exclusive, backwards);
 	omp_thread_reduce_global(functools_reduce_fun, partial, zero, backwards, &local, &total);
+	// Only after the thread reduce we can add the offset, because else we would add num_threads * offset.
+	if (backwards)
+	{
+		local = functools_reduce_fun(local, offset);
+		total = functools_reduce_fun(total, offset);
+	}
+	else
+	{
+		local = functools_reduce_fun(offset, local);
+		total = functools_reduce_fun(offset, total);
+	}
 	if (backwards)
 		for (i=i_e-1;i>=i_s;i--)
 			P[i] = functools_reduce_fun(local, P[i]);
@@ -253,42 +263,34 @@ scan_reduce_segment_parallel_compute_bound(_TYPE_IN * A, _TYPE_OUT * P, long i_s
 
 
 /* map() has a relatively low cost compared to memory access.
- * Reevaluate instead of storing.
+ * Reevaluate instead of storing intermediate results.
  */
 #undef  scan_reduce_segment_parallel_memory_bound
 #define scan_reduce_segment_parallel_memory_bound  FUNCTOOLS_GEN_EXPAND(scan_reduce_segment_parallel_memory_bound)
 static
 _TYPE_OUT
-scan_reduce_segment_parallel_memory_bound(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end, _TYPE_OUT zero, const int start_from_zero, const int backwards)
+scan_reduce_segment_parallel_memory_bound(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end, _TYPE_OUT zero, _TYPE_OUT offset, const int exclusive, const int backwards)
 {
 	int num_threads = safe_omp_get_num_threads();
 	int tnum = omp_get_thread_num();
 	_TYPE_OUT local, total;
-	_TYPE_OUT partial, val;
+	_TYPE_OUT partial;
 	long i_s, i_e;
-	long i;
-	if (i_start >= i_end)
-		return zero;
 	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
-	partial = zero;
+	partial = reduce_segment_serial(A, i_s, i_e, zero, backwards);
+	omp_thread_reduce_global(functools_reduce_fun, partial, zero, backwards, &local, &total);
+	// Only after the thread reduce we can add the offset, because else we would add num_threads * offset.
 	if (backwards)
 	{
-		for (i=i_e-1;i>=i_s;i--)
-		{
-			val = functools_map_fun(A, i);
-			partial = functools_reduce_fun(val, partial);
-		}
+		local = functools_reduce_fun(local, offset);
+		total = functools_reduce_fun(total, offset);
 	}
 	else
 	{
-		for (i=i_s;i<i_e;i++)
-		{
-			val = functools_map_fun(A, i);
-			partial = functools_reduce_fun(partial, val);
-		}
+		local = functools_reduce_fun(offset, local);
+		total = functools_reduce_fun(offset, total);
 	}
-	omp_thread_reduce_global(functools_reduce_fun, partial, zero, backwards, &local, &total);
-	scan_reduce_segment_serial(A, P, i_s, i_e, local, start_from_zero, backwards);
+	scan_reduce_segment_serial(A, P, i_s, i_e, local, exclusive, backwards);
 	#pragma omp barrier
 	return total;
 }
@@ -297,16 +299,36 @@ scan_reduce_segment_parallel_memory_bound(_TYPE_IN * A, _TYPE_OUT * P, long i_st
 #undef  scan_reduce_segment_parallel
 #define scan_reduce_segment_parallel  FUNCTOOLS_GEN_EXPAND(scan_reduce_segment_parallel)
 _TYPE_OUT
-scan_reduce_segment_parallel(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end, _TYPE_OUT zero, const int start_from_zero, const int backwards)
+scan_reduce_segment_parallel(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end, _TYPE_OUT zero, const int exclusive, const int backwards)
 {
-	long N = i_end - i_start;
 	static long map_is_mem_bound = -1;
+	static long block_size;
+
+	int num_threads = safe_omp_get_num_threads();
+	long N = i_end - i_start;
+
 	assert_omp_nesting_level(1);
+
+	if (i_start >= i_end)
+		return zero;
+
 	if (__builtin_expect(map_is_mem_bound < 0, 0))
 	{
-		static double * t_time_mem, * t_time_map;
-		int num_threads = safe_omp_get_num_threads();
+		#pragma omp single nowait
+		{
+			/* Fit blocks in L1 cache.
+			 * We use the L1 because in some machines (e.g. ARM Neoverse-N1) the L2 is shared.
+			 * The 'omp barrier' is a lot faster than one might fear.
+			 */
+			long l1_cache_size;
+			l1_cache_size = sysconf(_SC_LEVEL1_DCACHE_SIZE);
+			// l1_cache_size = sysconf(_SC_LEVEL2_CACHE_SIZE);
+			// printf("block_size = %ld\n", block_size);
+			block_size = l1_cache_size / sizeof(_TYPE_OUT) * num_threads;
+		}
+
 		int tnum = omp_get_thread_num();
+		static double * t_time_mem, * t_time_map;
 		__attribute__((unused)) volatile _TYPE_OUT tmp;
 		double time=0;
 		// double overhead=HUGE_VAL;
@@ -365,27 +387,52 @@ scan_reduce_segment_parallel(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_e
 		#pragma omp barrier
 	}
 
-	// return scan_reduce_segment_parallel_memory_bound(A, P, i_start, i_end, zero, start_from_zero, backwards);
-	// return scan_reduce_segment_parallel_compute_bound(A, P, i_start, i_end, zero, start_from_zero, backwards);
+	// return scan_reduce_segment_parallel_memory_bound(A, P, i_start, i_end, zero, exclusive, backwards);
+	// return scan_reduce_segment_parallel_compute_bound(A, P, i_start, i_end, zero, exclusive, backwards);
 
-	if (map_is_mem_bound)
-		return scan_reduce_segment_parallel_memory_bound(A, P, i_start, i_end, zero, start_from_zero, backwards);
+	long i, i_s, i_e;
+	_TYPE_OUT partial = zero;
+	if (backwards)
+	{
+		for (i=i_end;i>=i_start;i-=block_size)  // Not from i_end-1 here, because we pass it as non-inclusive boundary.
+		{
+			i_s = i - block_size;
+			if (i_s < i_start)
+				i_s = i_start;
+			if (map_is_mem_bound)
+				partial = scan_reduce_segment_parallel_memory_bound(A, P, i_s, i, zero, partial, exclusive, backwards);
+			else
+				partial = scan_reduce_segment_parallel_compute_bound(A, P, i_s, i, zero, partial, exclusive, backwards);
+		}
+	}
 	else
-		return scan_reduce_segment_parallel_compute_bound(A, P, i_start, i_end, zero, start_from_zero, backwards);
+	{
+		for (i=i_start;i<i_end;i+=block_size)
+		{
+			i_e = i + block_size;
+			if (i_e > i_end)
+				i_e = i_end;
+			if (map_is_mem_bound)
+				partial = scan_reduce_segment_parallel_memory_bound(A, P, i, i_e, zero, partial, exclusive, backwards);
+			else
+				partial = scan_reduce_segment_parallel_compute_bound(A, P, i, i_e, zero, partial, exclusive, backwards);
+		}
+	}
+	return partial;
 }
 
 
 #undef  scan_reduce_segment
 #define scan_reduce_segment  FUNCTOOLS_GEN_EXPAND(scan_reduce_segment)
 _TYPE_OUT
-scan_reduce_segment(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end, _TYPE_OUT zero, const int start_from_zero, const int backwards)
+scan_reduce_segment(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end, _TYPE_OUT zero, const int exclusive, const int backwards)
 {
 	_TYPE_OUT ret = 0;
 	if (omp_get_level() > 0)
-		return scan_reduce_segment_serial(A, P, i_start, i_end, zero, start_from_zero, backwards);
+		return scan_reduce_segment_serial(A, P, i_start, i_end, zero, exclusive, backwards);
 	#pragma omp parallel
 	{
-		_TYPE_OUT val = scan_reduce_segment_parallel(A, P, i_start, i_end, zero, start_from_zero, backwards);
+		_TYPE_OUT val = scan_reduce_segment_parallel(A, P, i_start, i_end, zero, exclusive, backwards);
 		#pragma omp single nowait
 		ret = val;
 	}
@@ -396,24 +443,24 @@ scan_reduce_segment(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i_end, _TYPE
 #undef  scan_reduce_serial
 #define scan_reduce_serial  FUNCTOOLS_GEN_EXPAND(scan_reduce_serial)
 _TYPE_OUT
-scan_reduce_serial(_TYPE_IN * A, _TYPE_OUT * P, long N, _TYPE_OUT zero, const int start_from_zero, const int backwards)
+scan_reduce_serial(_TYPE_IN * A, _TYPE_OUT * P, long N, _TYPE_OUT zero, const int exclusive, const int backwards)
 {
-	return scan_reduce_segment_serial(A, P, 0, N, zero, start_from_zero, backwards);
+	return scan_reduce_segment_serial(A, P, 0, N, zero, exclusive, backwards);
 }
 
 #undef  scan_reduce_parallel
 #define scan_reduce_parallel  FUNCTOOLS_GEN_EXPAND(scan_reduce_parallel)
 _TYPE_OUT
-scan_reduce_parallel(_TYPE_IN * A, _TYPE_OUT * P, long N, _TYPE_OUT zero, const int start_from_zero, const int backwards)
+scan_reduce_parallel(_TYPE_IN * A, _TYPE_OUT * P, long N, _TYPE_OUT zero, const int exclusive, const int backwards)
 {
-	return scan_reduce_segment_parallel(A, P, 0, N, zero, start_from_zero, backwards);
+	return scan_reduce_segment_parallel(A, P, 0, N, zero, exclusive, backwards);
 }
 
 #undef  scan_reduce
 #define scan_reduce  FUNCTOOLS_GEN_EXPAND(scan_reduce)
 _TYPE_OUT
-scan_reduce(_TYPE_IN * A, _TYPE_OUT * P, long N, _TYPE_OUT zero, const int start_from_zero, const int backwards)
+scan_reduce(_TYPE_IN * A, _TYPE_OUT * P, long N, _TYPE_OUT zero, const int exclusive, const int backwards)
 {
-	return scan_reduce_segment(A, P, 0, N, zero, start_from_zero, backwards);
+	return scan_reduce_segment(A, P, 0, N, zero, exclusive, backwards);
 }
 

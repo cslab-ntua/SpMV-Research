@@ -523,7 +523,7 @@ __attribute__((hot)) static inline double gen_cld2d(void * A, long i) { return (
 ({                                                                                       \
 	/* fail for non-simple array types */                                            \
 	gen_assert_type_is_basic_ptr_or_void_ptr((var_ptr),                              \
-		"for non-simple array types a <get-and-cast-to-double> "                 \
+		"for non-simple array types a <get-and-convert-to-double> "              \
 		"function must be provided, of type:  double ()(void * a, int i)"        \
 	);                                                                               \
 	_Generic((var_ptr),                                                              \

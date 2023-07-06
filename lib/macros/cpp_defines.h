@@ -16,6 +16,8 @@
 	#include <typeinfo>
 
 	#define __auto_type  auto
+
+	// This is more correct (decays to pass by value), but needs C++11.
 	// #define typeof(t)  std::decay<decltype(t)>::type
 	#define typeof(t)  decltype(t)
 

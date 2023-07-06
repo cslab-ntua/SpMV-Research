@@ -30,7 +30,7 @@ struct CSR5Arrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	void statistics_print();
+	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -87,8 +87,9 @@ CSR5Arrays::statistics_start()
 }
 
 
-void
-CSR5Arrays::statistics_print()
+int
+CSR5Arrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
+	return 0;
 }
 

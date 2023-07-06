@@ -71,10 +71,10 @@ struct CSRArrays : Matrix_Format
 				_Pragma("omp parallel for")
 				for (long i=0;i<dimMultipleBlock;i++)
 					y[i] = 0.0;
-				long timings_num;
+				// long timings_num;
 				long * timings = (typeof(timings)) malloc((m + 1) * sizeof(*timings));
 				long * prefix_sums = (typeof(prefix_sums)) malloc((m + 1) * sizeof(*prefix_sums));
-				timings_num = m;
+				// timings_num = m;
 				_Pragma("omp parallel")
 				{
 					int tnum = omp_get_thread_num();
@@ -165,7 +165,7 @@ struct CSRArrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	void statistics_print();
+	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -219,6 +219,7 @@ compute_csr_vector_x86(CSRArrays * restrict csr, ValueType * restrict x, ValueTy
 		long i_s, i_e;
 		i_s = thread_i_s[tnum];
 		i_e = thread_i_e[tnum];
+		// subkernel_csr_scalar(csr->ia, csr->ja, csr->a, x, y, i_s, i_e);
 		subkernel_csr_x86_density(csr->ia, csr->ja, csr->a, x, y, i_s, i_e);
 		// subkernel_csr_vector_x86_512d(csr->ia, csr->ja, csr->a, x, y, i_s, i_e);
 	}
@@ -233,7 +234,7 @@ compute_csr_vector_x86(CSRArrays * restrict csr, ValueType * restrict x, ValueTy
 void
 CSRArrays::compute_csr_vector_x86_timings(ValueType * restrict x, ValueType * restrict y, long * timings)
 {
-	int num_threads = omp_get_max_threads();
+	// int num_threads = omp_get_max_threads();
 	#pragma omp parallel
 	{
 		int tnum = omp_get_thread_num();
@@ -542,16 +543,17 @@ CSRArrays::statistics_start()
 }
 
 
-void
-CSRArrays::statistics_print()
+int
+CSRArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
-	int num_threads = omp_get_max_threads();
-	long i, i_s, i_e;
-	for (i=0;i<num_threads;i++)
-	{
-		i_s = thread_i_s[i];
-		i_e = thread_i_e[i];
-		printf("%3ld: i=[%8ld, %8ld] (%8ld) , nnz=%8d\n", i, i_s, i_e, i_e - i_s, ia[i_e] - ia[i_s]);
-	}
+	// int num_threads = omp_get_max_threads();
+	// long i, i_s, i_e;
+	// for (i=0;i<num_threads;i++)
+	// {
+		// i_s = thread_i_s[i];
+		// i_e = thread_i_e[i];
+		// printf("%3ld: i=[%8ld, %8ld] (%8ld) , nnz=%8d\n", i, i_s, i_e, i_e - i_s, ia[i_e] - ia[i_s]);
+	// }
+	return 0;
 }
 

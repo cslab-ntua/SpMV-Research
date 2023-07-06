@@ -127,7 +127,7 @@ matrices_validation=( $(
 
 matrices_compression=(
 
-    spal_004
+    # spal_004
     # ldoor
     # dielFilterV2real
     # nv2
@@ -136,7 +136,7 @@ matrices_compression=(
     # circuit5M
     # Hook_1498
     # Geo_1438
-    # Serena
+    Serena
     # vas_stokes_2M
     # bone010
     # audikw_1
@@ -250,17 +250,18 @@ bench()
 matrices=(
     # "${matrices_openFoam[@]}"
     # "${matrices_validation[@]}"
-    # "${matrices_compression[@]}"
+    "${matrices_compression[@]}"
 
     # "$path_tamu"/matrices/ASIC_680k/ASIC_680k.mtx
     # '682862 682862 5.6699201303 659.8073579974 normal random 0.3746622132 69710.5639935502 0.6690077130 0.8254737741 14 ASIC_680k'
 
     # nr_rows nr_cols avg_nnz_per_row std_nnz_per_row distribution placement bw           skew          avg_num_neighbours cross_row_similarity seed
-    ' 16783   16783   555.5280343204  1233.5202594143 normal       random    1            0             0                  0                    14 gupta3-1'
-    ' 16783   16783   555.5280343204  1233.5202594143 normal       random    0.5718415058 0             0                  0                    14 gupta3-2'
-    ' 16783   16783   555.5280343204  1233.5202594143 normal       random    0.5718415058 25.4109083495 0                  0                    14 gupta3-3'
-    ' 16783   16783   555.5280343204  1233.5202594143 normal       random    0.5718415058 25.4109083495 1.9016586927       0                    14 gupta3-4'
-    ' 16783   16783   555.5280343204  1233.5202594143 normal       random    0.5718415058 25.4109083495 1.9016586927       0.9767488489         14 gupta3-5'
+    # ' 16783   16783   555.5280343204  1233.5202594143 normal       random    1            0             0                  0                    14 gupta3-1'
+    # ' 16783   16783   555.5280343204  1233.5202594143 normal       random    1            25.4109083495 0                  0                    14 gupta3-2'
+    # ' 16783   16783   555.5280343204  1233.5202594143 normal       random    0.5718415058 25.4109083495 0                  0                    14 gupta3-3'
+    # ' 16783   16783   555.5280343204  1233.5202594143 normal       random    0.5718415058 25.4109083495 1.9016586927       0                    14 gupta3-4'
+    # ' 16783   16783   555.5280343204  1233.5202594143 normal       random    0.5718415058 25.4109083495 1.9016586927       0.9767488489         14 gupta3-5'
+    # "${path_validation}"/gupta3.mtx
 
     # "${matrices_validation_artificial_twins[@]}"
     # "${matrices_validation_loop[@]}"
@@ -362,10 +363,10 @@ for format_name in "${!progs[@]}"; do
     p="${progs["$format_name"]}"
 
     if ((output_to_files)); then
-        > "${format_name}.out"
-        exec 1>>"${format_name}.out"
-        > "${format_name}.csv"
-        exec 2>>"${format_name}.csv"
+        > out/"${format_name}.out"
+        exec 1>>out/"${format_name}.out"
+        > out/"${format_name}.csv"
+        exec 2>>out/"${format_name}.csv"
     fi
 
     echo "$config_str"
@@ -381,27 +382,26 @@ for format_name in "${!progs[@]}"; do
 
 
     LEVEL3_CACHE_SIZE="$(getconf LEVEL3_CACHE_SIZE)"
-    csrvc_num_packet_vals=(
+    csrcv_num_packet_vals=(
         # 128 
+        $((2**7))
         # $((2**16))
-        $((2**12))
+        # $((2**12))
         # $((LEVEL3_CACHE_SIZE / 8 / 8 / 16))
     )
-    # if [[ "$p" == *'spmv_csr_vc.exe' ]]; then
-        # csrvc_num_packet_vals=( $( declare -i i; for ((i=64;i<LEVEL3_CACHE_SIZE / 8 / cores / 4;i*=2)); do echo "$i"; done ) )
+    # if [[ "$p" == *'spmv_csr_cv'* ]]; then
+        # csrcv_num_packet_vals=( $( declare -i i; for ((i=64;i<LEVEL3_CACHE_SIZE / 8 / cores / 4;i*=2)); do echo "$i"; done ) )
     # fi
 
     for ((i=0;i<rep;i++)); do
-        export CSRVC_NUM_PACKET_VALS='512'
-
         for a in "${prog_args[@]}"
         do
 
             rep_in=1
             # rep_in=10
 
-            for packet_vals in "${csrvc_num_packet_vals[@]}"; do
-                export CSRVC_NUM_PACKET_VALS="$packet_vals"
+            for packet_vals in "${csrcv_num_packet_vals[@]}"; do
+                export CSRCV_NUM_PACKET_VALS="$packet_vals"
 
                 printf "Temps: " >&1
                 for ((k=0;k<${#temp_labels[@]};k++)); do

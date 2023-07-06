@@ -317,7 +317,9 @@ progs=(
     # ['csr_x86_vector_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_queues.exe"
     # ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
 
-    ['csr_vc']="${script_dir}/spmv_code_bench/spmv_csr_vc.exe"
+    # ['csr_cv']="${script_dir}/spmv_code_bench/spmv_csr_cv.exe"
+    ['csr_cv_stream']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream.exe"
+    # ['csr_cv_stream_vps']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream_vps.exe"
 
     # MKL IE
     # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
