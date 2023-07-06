@@ -54,21 +54,6 @@ int num_procs;
 int process_custom_id;
 
 
-ValueType * mtx_val;
-INT_T * mtx_rowind;
-INT_T * mtx_colind;
-INT_T mtx_m;
-INT_T mtx_n;
-INT_T mtx_nnz;
-
-ValueType * csr_a; // values (of size NNZ)
-INT_T * csr_ia;    // rowptr (of size m+1)
-INT_T * csr_ja;    // colidx of each NNZ (of size nnz)
-INT_T csr_m;
-INT_T csr_n;
-INT_T csr_nnz;
-
-
 // Utils macro
 #define Min(x,y) ((x)<(y)?(x):(y))
 #define Max(x,y) ((x)>(y)?(x):(y))
@@ -205,7 +190,13 @@ get_pinning_position_from_affinity_string(const char * range_string, long len, i
 
 
 void
-compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueType * x, ValueType * y, const int loop = 128)
+compute(char * matrix_name,
+		INT_T * mtx_rowind, INT_T * mtx_colind, ValueType * mtx_val, INT_T mtx_m, __attribute__((unused)) INT_T mtx_n, INT_T mtx_nnz,
+		__attribute__((unused)) INT_T * csr_ia, __attribute__((unused)) INT_T * csr_ja, __attribute__((unused)) ValueType * csr_a, INT_T csr_m, INT_T csr_n, INT_T csr_nnz,
+		struct Matrix_Format * MF,
+		csr_matrix * AM,
+		ValueType * x, ValueType * y,
+		const int loop = 128)
 {
 	int num_threads = omp_get_max_threads();
 	int use_processes = atoi(getenv("USE_PROCESSES"));
@@ -370,13 +361,28 @@ int
 main(int argc, char **argv)
 {
 	__attribute__((unused)) int num_threads;
+
+	ValueType * mtx_val = NULL;
+	INT_T * mtx_rowind = NULL;
+	INT_T * mtx_colind = NULL;
+	INT_T mtx_m = 0;
+	INT_T mtx_n = 0;
+	INT_T mtx_nnz = 0;
+
+	ValueType * csr_a = NULL; // values (of size NNZ)
+	INT_T * csr_ia = NULL;    // rowptr (of size m+1)
+	INT_T * csr_ja = NULL;    // colidx of each NNZ (of size nnz)
+	INT_T csr_m = 0;
+	INT_T csr_n = 0;
+	INT_T csr_nnz = 0;
+
 	struct Matrix_Format * MF;   // Real matrices.
 	csr_matrix * AM = NULL;
 	ValueType * x;
 	ValueType * y;
 	char matrix_name[1000];
 	__attribute__((unused)) double time;
-	long i;
+	__attribute__((unused)) long i, j;
 
 	// Wake omp up from eternal slumber.
 	#pragma omp parallel
@@ -589,16 +595,73 @@ child_proc_label:
 		return 0;
 	}
 
-	MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
+
+	long split_matrix = 0;
+	long nnz_per_row_cutoff = 50;
+
+	ValueType * gpu_csr_a = NULL;
+	INT_T * gpu_csr_ia = NULL;
+	INT_T * gpu_csr_ja = NULL;
+	INT_T gpu_csr_nnz = 0;
+	if (split_matrix)
+	{
+		long k;
+		long degree;
+		gpu_csr_ia = (INT_T *) aligned_alloc(64, (csr_m+1 + VECTOR_ELEM_NUM) * sizeof(INT_T));
+		gpu_csr_a = (ValueType *) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(ValueType));
+		gpu_csr_ja = (INT_T *) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(INT_T));
+		k = 0;
+		gpu_csr_ia[0] = 0;
+		// #pragma omp parallel for
+		for (i=0;i<csr_m+1;i++)
+		{
+			degree = csr_ia[i+1] - csr_ia[i];
+			if (degree > nnz_per_row_cutoff)
+			{
+				for (j=csr_ia[i];j<csr_ia[i+1];j++,k++)
+				{
+					gpu_csr_ja[k] = csr_ja[j];
+					gpu_csr_a[k] = csr_a[j];
+				}
+				gpu_csr_ia[i+1] = k;
+			}
+			else
+			{
+				gpu_csr_ia[i+1] = gpu_csr_ia[i];
+			}
+		}
+		gpu_csr_nnz = k;
+		printf("GPU part nnz = %d (%.2lf%%)\n", gpu_csr_nnz, ((double) gpu_csr_nnz) / csr_nnz * 100);
+	}
+
+	if (split_matrix)
+	{
+		MF = csr_to_format(gpu_csr_ia, gpu_csr_ja, gpu_csr_a, csr_m, csr_n, gpu_csr_nnz);
+	}
+	else
+	{
+		MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
+	}
 
 	prefetch_distance = 1;
 	time = time_it(1,
 		// for (i=0;i<5;i++)
 		{
 			// fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);
-			compute(matrix_name, MF, AM, x, y);
-			// compute(matrix_name, MF, AM, x, y, 1);
-			// compute(matrix_name, MF, AM, x, y, 128 * 10);
+			if (split_matrix)
+			{
+				compute(matrix_name, 
+					mtx_rowind, mtx_colind, mtx_val, mtx_m, mtx_n, mtx_nnz,
+					gpu_csr_ia, gpu_csr_ja, gpu_csr_a, csr_m, csr_n, gpu_csr_nnz,
+					MF, AM, x, y);
+			}
+			else
+			{
+				compute(matrix_name, 
+					mtx_rowind, mtx_colind, mtx_val, mtx_m, mtx_n, mtx_nnz,
+					csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz,
+					MF, AM, x, y);
+			}
 			prefetch_distance++;
 		}
 	);
