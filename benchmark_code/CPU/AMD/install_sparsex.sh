@@ -4,7 +4,8 @@
 set -e
 
 # Change the install root directory for the libraries to what you prefer.
-export ROOT_DIR="<<Insert ROOT_DIR>>"
+# export ROOT_DIR="<<Insert ROOT_DIR>>"
+export ROOT_DIR=/various/pmpakos/icy3_libs
 
 
 export BOOST_ROOT_DIR="${ROOT_DIR}/boost_1_55_0"
@@ -44,7 +45,7 @@ cd "$ROOT_DIR"
 # First, need to build lib-boost
 # Download boost library 1.55 from https://sourceforge.net/projects/boost/files/boost/1.55.0/
 wget https://netix.dl.sourceforge.net/project/boost/boost/1.55.0/boost_1_55_0.tar.gz
-tar -vxf boost_1_55_0.tar.gz
+tar -xf boost_1_55_0.tar.gz
 rm boost_1_55_0.tar.gz
 
 cd ${BOOST_ROOT_DIR}
@@ -66,13 +67,13 @@ cd "$ROOT_DIR"
 # Then, llvm of version 4.0.0 up to 6.0.0 must be used
 # Download llvm-6 and clang source directories from https://releases.llvm.org/6.0.0/
 wget https://releases.llvm.org/6.0.0/llvm-6.0.0.src.tar.xz
-tar -vxf llvm-6.0.0.src.tar.xz
+tar -xf llvm-6.0.0.src.tar.xz
 mv llvm-6.0.0.src llvm-6.0.0
 rm llvm-6.0.0.src.tar.xz
 
 # 'cfe-6.0.0.src' needs to be but in llvm-6.0.0/tools and renamed to 'clang'.
 wget https://releases.llvm.org/6.0.0/cfe-6.0.0.src.tar.xz
-tar -vxf cfe-6.0.0.src.tar.xz
+tar -xf cfe-6.0.0.src.tar.xz
 mv cfe-6.0.0.src llvm-6.0.0/tools/clang
 rm cfe-6.0.0.src.tar.xz
 
@@ -86,9 +87,9 @@ mkdir objdir
 cd objdir
 
 # Run 
-cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="${LLVM_ROOT_DIR}/build" -DCMAKE_BUILD_TYPE=Release "${LLVM_ROOT_DIR}"
-make -j
-make -j install
+time cmake .. -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="${LLVM_ROOT_DIR}/build" -DCMAKE_BUILD_TYPE=Release "${LLVM_ROOT_DIR}"
+time make -j8
+time make -j8 install
 
 
 #==========================================================================================================================================

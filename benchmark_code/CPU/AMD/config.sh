@@ -31,11 +31,12 @@ calc_cpu_pinning()
 }
 
 
-SPARSEX_ROOT_DIR="${HOME}/lib"
+# SPARSEX_ROOT_DIR="${HOME}/lib"
+SPARSEX_ROOT_DIR=/various/pmpakos/icy3_libs/
 # SPARSEX_ROOT_DIR=/various/dgal/epyc1
 # SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
 # SPARSEX_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/sparsex
-
+GHOST_APPS_ROOT_DIR=/various/pmpakos/icy3_libs/spmv_code_sell-C-s
 
 declare -A conf_vars
 conf_vars=(
@@ -63,7 +64,8 @@ conf_vars=(
     # ['max_cores']=256
     # ['max_cores']=128
     # ['max_cores']=64
-    ['max_cores']=96
+    ['max_cores']=16
+    # ['max_cores']=96
     # ['max_cores']=48
     # ['max_cores']=16
     # ['max_cores']=8
@@ -73,11 +75,11 @@ conf_vars=(
     # ['cores']='1 2 4 8 16 32 64 128'
     # ['cores']='64 128'
     # ['cores']=128
-    # ['cores']=64
+    ['cores']=64
     # ['cores']=48
     # ['cores']=32
     # ['cores']=16
-    ['cores']=8
+    # ['cores']=8
     # ['cores']=4
     # ['cores']=2
     # ['cores']=1
@@ -169,8 +171,10 @@ conf_vars=(
 
     # SELL-C-s ecosystem environment variables that have to be set
     # These are environment variables that have to be set for SELL-C-s to work
-    ['GHOST_ROOT_DIR']='/home/pmpakos/ESSEX'
-    ['GHOST_APPS_ROOT_DIR']='/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s'
+    # ['GHOST_ROOT_DIR']='/home/pmpakos/ESSEX'
+    ['GHOST_ROOT_DIR']=${SPARSEX_ROOT_DIR}
+    # ['GHOST_APPS_ROOT_DIR']='/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s'
+    ['GHOST_APPS_ROOT_DIR']=${GHOST_APPS_ROOT_DIR}
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
@@ -322,7 +326,7 @@ progs=(
     # ['csr_cv_stream_vps']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream_vps.exe"
 
     # MKL IE
-    ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
+    # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
 
     # AOCL
     # ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv.exe"
@@ -336,9 +340,10 @@ progs=(
     # sell C sigma
     # ['sell_C_s_d']="${script_dir}/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
     # ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
+    ['sell_C_s_d']="${GHOST_APPS_ROOT_DIR}/build/spmvbench/spmv_sell-C-s.exe"
 
     # sparsex
-    # ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex.exe"
+    ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex.exe"
     # ['sparsex_d']="${script_dir}/spmv_code_sparsex/spmv_sparsex.exe"
     # ['sparsex_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sparsex/spmv_sparsex.exe"
 
