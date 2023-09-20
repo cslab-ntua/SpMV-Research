@@ -4,10 +4,11 @@
 set -e
 
 export CUR_PATH=`pwd`
-# export ROOT_DIR="<<Insert ROOT_DIR>>"
-export ROOT_DIR=/various/pmpakos/icy3_libs
-# export MKL_PATH="<<Insert MKL_PATH>>"
-export MKL_PATH=/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl
+export ROOT_DIR="<<Insert ROOT_DIR>>"
+# export ROOT_DIR=/various/pmpakos/icy3_libs
+# export ROOT_DIR=/various/pmpakos/epyc5_libs
+export MKL_PATH="<<Insert MKL_PATH>>"
+# export MKL_PATH=/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl
 
 #==========================================================================================================================================
 # Install SELL-C-σ prerequisites
@@ -166,10 +167,13 @@ make -j20
 # Finale
 #==========================================================================================================================================
 # now go back to benchmark for CPUs path, and build sell-C-s
-cd "$CUR_PATH"/spmv_code_sell-C-s/
+cp -r "$CUR_PATH"/spmv_code_sell-C-s/ "$ROOT_DIR"/spmv_code_sell-C-s/
+cp "$CUR_PATH"/config.sh "$ROOT_DIR"/config.sh
+cd "$ROOT_DIR"/spmv_code_sell-C-s/
+
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX="$CUR_PATH"/spmv_code_sell-C-s/build -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
+cmake .. -DCMAKE_INSTALL_PREFIX="$ROOT_DIR"/spmv_code_sell-C-s/build -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
 
 # replace placeholders with correct paths and compile sell-C-s
 sed  "s|<<ROOT_DIR>>|${ROOT_DIR}|g; s|<<MKL_PATH>>|${MKL_PATH}|g" ../link.txt > ./link.txt

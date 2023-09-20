@@ -510,13 +510,12 @@ child_proc_label:
 			avg_num_neighbours = atof(argv[i++]);
 			cross_row_similarity = atof(argv[i++]);
 			seed = atoi(argv[i++]);
+			AM = artificial_matrix_generation(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, seed, placement, bw, skew, avg_num_neighbours, cross_row_similarity);
+
 			if (i < argc)
 				snprintf(matrix_name, sizeof(matrix_name), "%s_artificial", argv[i++]);
 			else
 				snprintf(matrix_name, sizeof(matrix_name), "%d_%d_%d_%g_%g_%g_%g", AM->nr_rows, AM->nr_cols, AM->nr_nzeros, AM->avg_bw, AM->std_bw, AM->avg_sc, AM->std_sc);
-
-			AM = artificial_matrix_generation(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, seed, placement, bw, skew, avg_num_neighbours, cross_row_similarity);
-
 		);
 		printf("time generate artificial matrix: %lf\n", time);
 
