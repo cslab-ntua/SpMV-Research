@@ -1,0 +1,494 @@
+SPARSEX_LIB_PATH=/various/pmpakos/icy3_libs//sparsex/build/lib;PRINT_STATISTICS=1;LLVM_INC_PATH=/various/pmpakos/icy3_libs//llvm-6.0.0/build/include;AOCL_PATH=/various/pmpakos/spmv_paper/aocl-sparse/build/release;SPARSEX_INC_PATH=/various/pmpakos/icy3_libs//sparsex/build/include;max_cores=64;LLVM_LIB_PATH=/various/pmpakos/icy3_libs//llvm-6.0.0/build/lib;use_artificial_matrices=0;GHOST_APPS_ROOT_DIR=/various/pmpakos/icy3_libs/spmv_code_sell-C-s;cores=16;BOOST_LIB_PATH=/various/pmpakos/icy3_libs//boost_1_55_0/bin/lib;path_validation=/various/pmpakos/SpMV-Research/validation_matrices;output_to_files=1;force_retry_on_error=0;path_tamu=/home/users/itasou/Data/graphs/tamu;GHOST_ROOT_DIR=/various/pmpakos/icy3_libs/;MKL_PATH=/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl;SPARSEX_CONF_PATH=/various/pmpakos/icy3_libs//sparsex/build/bin;cpu_pinning_group_size=1;cpu_affinity=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15;USE_PROCESSES=0;cpu_pinning_step=1;RAPL_REGISTERS=0;BOOST_INC_PATH=/various/pmpakos/icy3_libs//boost_1_55_0/bin/include;path_openFoam=/various/dgal/graphs/matrices_openFoam;COOLDOWN=0;
+program: /home/users/itasou/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_bench/spmv_mkl_ie.exe
+number of matrices: 53
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 39000  Core 9 40000  Core 10 42000  Core 11 36000  Core 12 36000  Core 13 40000  Core 14 38000  Core 15 37000  Package id 0 43000 Core 0 39000  Core 1 41000  Core 2 39000  Core 3 37000  Core 4 38000  Core 5 38000  Core 6 40000  Core 7 36000  Core 8 34000  Core 9 35000  Core 10 32000  Core 11 34000  Core 12 34000  Core 13 35000  Core 14 33000  Core 15 33000  Package id 1 36000 Core 0 34000  Core 1 36000  Core 2 33000  Core 3 34000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 35000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 16
+time read: 0.401488
+time coo to csr: 0.011114
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0476684
+mkl optimize time = 0.00370459
+Test failed! (2.51071e-07)
+errors spmv: mae=3.27802e-15, max_ae=4.0273e-12, mse=1.20722e-25, mape=inf, smape=1.14573
+/various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx,16,170998,170998,958936,0.014753,16.639914,11.626461,0.000000,0.000000,MKL_IE,170998,170998,958936,11.626461,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 39000  Core 9 40000  Core 10 42000  Core 11 36000  Core 12 36000  Core 13 40000  Core 14 38000  Core 15 37000  Package id 0 43000 Core 0 39000  Core 1 41000  Core 2 39000  Core 3 37000  Core 4 38000  Core 5 38000  Core 6 40000  Core 7 36000  Core 8 34000  Core 9 35000  Core 10 32000  Core 11 34000  Core 12 34000  Core 13 35000  Core 14 33000  Core 15 33000  Package id 1 36000 Core 0 34000  Core 1 36000  Core 2 33000  Core 3 34000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 35000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 16
+time read: 0.548107
+time coo to csr: 0.013247
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0237058
+mkl optimize time = 0.00335863
+Test failed! (5.10218e-08)
+errors spmv: mae=1.70236e-13, max_ae=2.91038e-11, mse=2.24366e-22, mape=2.92549e-15, smape=1.46275e-15
+/various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx,16,206500,206500,1273389,0.009256,35.217508,15.360519,0.000000,0.000000,MKL_IE,206500,206500,1273389,15.360519,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 39000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 37000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 42000 Core 0 40000  Core 1 42000  Core 2 40000  Core 3 37000  Core 4 40000  Core 5 40000  Core 6 40000  Core 7 37000  Core 8 35000  Core 9 36000  Core 10 32000  Core 11 33000  Core 12 35000  Core 13 34000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 35000  Core 1 36000  Core 2 33000  Core 3 34000  Core 4 35000  Core 5 35000  Core 6 31000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 16
+time read: 0.590027
+time coo to csr: 0.014173
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0222898
+mkl optimize time = 0.00416818
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx,16,21200,21200,1488768,0.009375,40.651566,17.118473,0.000000,0.000000,MKL_IE,21200,21200,1488768,17.118473,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 39000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 37000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 42000 Core 0 40000  Core 1 42000  Core 2 40000  Core 3 37000  Core 4 40000  Core 5 40000  Core 6 40000  Core 7 37000  Core 8 35000  Core 9 36000  Core 10 32000  Core 11 33000  Core 12 35000  Core 13 34000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 35000  Core 1 36000  Core 2 33000  Core 3 34000  Core 4 35000  Core 5 35000  Core 6 31000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+max threads 16
+time read: 0.209856
+time coo to csr: 0.019817
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0278987
+mkl optimize time = 0.00643112
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx,16,131072,131072,1457506,0.037775,9.877437,17.179836,0.000000,0.000000,MKL_IE,131072,131072,1457506,17.179836,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 38000  Core 13 42000  Core 14 39000  Core 15 37000  Package id 0 43000 Core 0 40000  Core 1 41000  Core 2 40000  Core 3 37000  Core 4 40000  Core 5 40000  Core 6 41000  Core 7 37000  Core 8 35000  Core 9 36000  Core 10 32000  Core 11 33000  Core 12 35000  Core 13 35000  Core 14 33000  Core 15 33000  Package id 1 36000 Core 0 35000  Core 1 36000  Core 2 33000  Core 3 33000  Core 4 36000  Core 5 35000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 16
+time read: 0.652679
+time coo to csr: 0.015350
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0424397
+mkl optimize time = 0.00219762
+errors spmv: mae=1.06305e-14, max_ae=1.36424e-12, mse=2.02441e-25, mape=6.72194e-14, smape=3.36097e-14
+/various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx,16,38744,38744,1771722,0.016666,27.215317,20.423550,0.000000,0.000000,MKL_IE,38744,38744,1771722,20.423550,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 38000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 43000 Core 0 41000  Core 1 42000  Core 2 40000  Core 3 37000  Core 4 40000  Core 5 40000  Core 6 41000  Core 7 37000  Core 8 35000  Core 9 36000  Core 10 32000  Core 11 33000  Core 12 35000  Core 13 35000  Core 14 33000  Core 15 33000  Package id 1 36000 Core 0 35000  Core 1 36000  Core 2 33000  Core 3 33000  Core 4 35000  Core 5 36000  Core 6 31000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+max threads 16
+time read: 0.601436
+time coo to csr: 0.015510
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0212786
+mkl optimize time = 0.000966027
+errors spmv: mae=4.06609e-15, max_ae=3.55271e-14, mse=3.39632e-27, mape=2.67947e-14, smape=1.33974e-14
+/various/pmpakos/SpMV-Research/validation_matrices/appu.mtx,16,14000,14000,1853104,0.028021,16.930252,21.260502,0.000000,0.000000,MKL_IE,14000,14000,1853104,21.260502,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 38000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 43000 Core 0 41000  Core 1 42000  Core 2 40000  Core 3 37000  Core 4 40000  Core 5 40000  Core 6 40000  Core 7 38000  Core 8 35000  Core 9 35000  Core 10 32000  Core 11 33000  Core 12 35000  Core 13 35000  Core 14 33000  Core 15 33000  Package id 1 36000 Core 0 35000  Core 1 36000  Core 2 33000  Core 3 33000  Core 4 35000  Core 5 36000  Core 6 31000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 16
+time read: 0.674872
+time coo to csr: 0.017780
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0472632
+mkl optimize time = 0.00470073
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx,16,49152,49152,1916928,0.029234,16.786142,22.125004,0.000000,0.000000,MKL_IE,49152,49152,1916928,22.125004,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 38000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 43000 Core 0 40000  Core 1 41000  Core 2 41000  Core 3 37000  Core 4 39000  Core 5 39000  Core 6 40000  Core 7 36000  Core 8 35000  Core 9 35000  Core 10 33000  Core 11 33000  Core 12 35000  Core 13 34000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 35000  Core 1 36000  Core 2 33000  Core 3 33000  Core 4 35000  Core 5 35000  Core 6 31000  Core 7 35000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 16
+time read: 0.545659
+time coo to csr: 0.019095
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0244094
+mkl optimize time = 0.0162334
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx,16,525825,525825,2100225,0.022560,23.831904,26.041035,0.000000,0.000000,MKL_IE,525825,525825,2100225,26.041035,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 38000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 43000 Core 0 40000  Core 1 41000  Core 2 41000  Core 3 37000  Core 4 39000  Core 5 39000  Core 6 40000  Core 7 36000  Core 8 35000  Core 9 35000  Core 10 33000  Core 11 33000  Core 12 35000  Core 13 34000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 35000  Core 1 36000  Core 2 33000  Core 3 33000  Core 4 35000  Core 5 35000  Core 6 31000  Core 7 35000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 16
+time read: 0.683217
+time coo to csr: 0.019945
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0440842
+mkl optimize time = 0.00215925
+Test failed! (0.00895411)
+errors spmv: mae=8.62496e-11, max_ae=2.23517e-08, mse=2.72569e-17, mape=0.000121286, smape=6.07351e-05
+/various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx,16,46835,46835,2374001,0.043848,13.860123,27.346951,0.000000,0.000000,MKL_IE,46835,46835,2374001,27.346951,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 40000  Core 9 40000  Core 10 42000  Core 11 39000  Core 12 37000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 42000 Core 0 40000  Core 1 42000  Core 2 41000  Core 3 38000  Core 4 39000  Core 5 40000  Core 6 41000  Core 7 37000  Core 8 35000  Core 9 35000  Core 10 34000  Core 11 33000  Core 12 34000  Core 13 34000  Core 14 33000  Core 15 33000  Package id 1 36000 Core 0 35000  Core 1 36000  Core 2 33000  Core 3 33000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+max threads 16
+time read: 0.392016
+time coo to csr: 0.037525
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0249768
+mkl optimize time = 0.00548722
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx,16,121192,121192,2624331,0.060023,11.192947,30.495399,0.000000,0.000000,MKL_IE,121192,121192,2624331,30.495399,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 40000  Core 9 40000  Core 10 42000  Core 11 39000  Core 12 37000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 42000 Core 0 40000  Core 1 42000  Core 2 41000  Core 3 38000  Core 4 39000  Core 5 40000  Core 6 41000  Core 7 37000  Core 8 35000  Core 9 35000  Core 10 34000  Core 11 33000  Core 12 34000  Core 13 34000  Core 14 33000  Core 15 33000  Package id 1 36000 Core 0 35000  Core 1 36000  Core 2 33000  Core 3 33000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+max threads 16
+time read: 1.101982
+time coo to csr: 0.022288
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0444858
+mkl optimize time = 0.00844754
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx,16,204316,204316,2846228,0.068309,10.666757,33.351902,0.000000,0.000000,MKL_IE,204316,204316,2846228,33.351902,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 39000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 37000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 43000 Core 0 40000  Core 1 41000  Core 2 40000  Core 3 38000  Core 4 39000  Core 5 40000  Core 6 40000  Core 7 36000  Core 8 36000  Core 9 36000  Core 10 33000  Core 11 33000  Core 12 34000  Core 13 35000  Core 14 32000  Core 15 33000  Package id 1 37000 Core 0 35000  Core 1 35000  Core 2 33000  Core 3 33000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 16
+time read: 0.768821
+time coo to csr: 0.029848
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0444394
+mkl optimize time = 0.0149609
+errors spmv: mae=1.19568e-16, max_ae=6.65068e-12, mse=2.51089e-26, mape=3.53145e-16, smape=1.76573e-16
+/various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx,16,1000005,1000005,3105536,0.092669,8.579120,39.354759,0.000000,0.000000,MKL_IE,1000005,1000005,3105536,39.354759,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 40000  Core 9 42000  Core 10 42000  Core 11 39000  Core 12 37000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 43000 Core 0 40000  Core 1 42000  Core 2 41000  Core 3 39000  Core 4 39000  Core 5 40000  Core 6 42000  Core 7 37000  Core 8 35000  Core 9 36000  Core 10 33000  Core 11 33000  Core 12 34000  Core 13 35000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 35000  Core 1 36000  Core 2 33000  Core 3 34000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 16
+time read: 0.667636
+time coo to csr: 0.034283
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0435794
+mkl optimize time = 0.0103578
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/cant.mtx,16,62451,62451,4007383,0.062860,16.320361,46.099094,0.000000,0.000000,MKL_IE,62451,62451,4007383,46.099094,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 41000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 37000  Core 13 41000  Core 14 38000  Core 15 37000  Package id 0 43000 Core 0 40000  Core 1 42000  Core 2 40000  Core 3 39000  Core 4 39000  Core 5 40000  Core 6 41000  Core 7 38000  Core 8 35000  Core 9 36000  Core 10 33000  Core 11 33000  Core 12 34000  Core 13 34000  Core 14 33000  Core 15 34000  Package id 1 37000 Core 0 35000  Core 1 36000  Core 2 33000  Core 3 33000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 35000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+max threads 16
+time read: 1.492070
+time coo to csr: 0.041368
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0446935
+mkl optimize time = 0.0102137
+Test failed! (5.26311e-07)
+errors spmv: mae=1.2008e-14, max_ae=8.13452e-09, mse=9.69025e-21, mape=4.62447e-10, smape=2.31223e-10
+/various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx,16,682862,682862,3871773,0.134808,7.352474,46.913841,0.000000,0.000000,MKL_IE,682862,682862,3871773,46.913841,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 39000  Core 9 41000  Core 10 42000  Core 11 39000  Core 12 37000  Core 13 41000  Core 14 40000  Core 15 37000  Package id 0 43000 Core 0 40000  Core 1 42000  Core 2 41000  Core 3 38000  Core 4 40000  Core 5 40000  Core 6 41000  Core 7 37000  Core 8 36000  Core 9 36000  Core 10 33000  Core 11 33000  Core 12 34000  Core 13 35000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 36000  Core 1 36000  Core 2 33000  Core 3 34000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+max threads 16
+time read: 0.798261
+time coo to csr: 0.050559
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0455837
+mkl optimize time = 0.0212651
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx,16,1393383,1393383,3843320,0.136501,7.207954,49.298645,0.000000,0.000000,MKL_IE,1393383,1393383,3843320,49.298645,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 39000  Core 12 38000  Core 13 41000  Core 14 40000  Core 15 38000  Package id 0 43000 Core 0 39000  Core 1 42000  Core 2 40000  Core 3 40000  Core 4 39000  Core 5 40000  Core 6 42000  Core 7 37000  Core 8 35000  Core 9 35000  Core 10 33000  Core 11 33000  Core 12 35000  Core 13 34000  Core 14 32000  Core 15 33000  Package id 1 36000 Core 0 35000  Core 1 35000  Core 2 33000  Core 3 33000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 16
+time read: 0.686003
+time coo to csr: 0.041133
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0447194
+mkl optimize time = 0.00155905
+Test failed! (0.000391891)
+errors spmv: mae=2.88832e-14, max_ae=2.51743e-13, mse=1.58154e-25, mape=0.00316189, smape=0.00158094
+/various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx,16,36417,36417,4344765,0.060340,18.433200,49.860813,0.000000,0.000000,MKL_IE,36417,36417,4344765,49.860813,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 38000  Core 13 41000  Core 14 39000  Core 15 38000  Package id 0 43000 Core 0 40000  Core 1 42000  Core 2 41000  Core 3 38000  Core 4 40000  Core 5 40000  Core 6 41000  Core 7 37000  Core 8 35000  Core 9 36000  Core 10 33000  Core 11 34000  Core 12 35000  Core 13 35000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 36000  Core 1 37000  Core 2 34000  Core 3 34000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 16
+time read: 1.450926
+time coo to csr: 0.040777
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0440826
+mkl optimize time = 0.00975598
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx,16,42138,42138,4413449,0.059606,18.955056,50.668663,0.000000,0.000000,MKL_IE,42138,42138,4413449,50.668663,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 40000  Core 9 40000  Core 10 42000  Core 11 38000  Core 12 38000  Core 13 41000  Core 14 38000  Core 15 37000  Package id 0 42000 Core 0 40000  Core 1 41000  Core 2 40000  Core 3 38000  Core 4 38000  Core 5 39000  Core 6 41000  Core 7 36000  Core 8 34000  Core 9 36000  Core 10 32000  Core 11 33000  Core 12 34000  Core 13 35000  Core 14 33000  Core 15 33000  Package id 1 36000 Core 0 35000  Core 1 36000  Core 2 34000  Core 3 33000  Core 4 35000  Core 5 34000  Core 6 31000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 16
+time read: 1.790202
+time coo to csr: 0.047432
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0488973
+mkl optimize time = 0.00622906
+Test failed! (0.000807664)
+errors spmv: mae=1.47169e-12, max_ae=5.96046e-08, mse=5.89857e-18, mape=4.39915e-05, smape=2.19811e-05
+/various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx,16,68121,68121,5377761,0.107226,12.839293,61.803455,0.000000,0.000000,MKL_IE,68121,68121,5377761,61.803455,1.000000,128
+Temps: Composite 49850 Sensor 1 68850  Sensor 2 51850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 39000  Core 12 37000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 43000 Core 0 40000  Core 1 42000  Core 2 41000  Core 3 39000  Core 4 39000  Core 5 39000  Core 6 41000  Core 7 37000  Core 8 35000  Core 9 36000  Core 10 33000  Core 11 33000  Core 12 35000  Core 13 34000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 36000  Core 1 37000  Core 2 34000  Core 3 34000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+max threads 16
+time read: 0.908909
+time coo to csr: 0.044557
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0427962
+mkl optimize time = 0.0130405
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/consph.mtx,16,83334,83334,6010480,0.111058,13.854761,69.102383,0.000000,0.000000,MKL_IE,83334,83334,6010480,69.102383,1.000000,128
+Temps: Composite 48850 Sensor 1 68850  Sensor 2 50850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 39000  Core 12 38000  Core 13 41000  Core 14 39000  Core 15 38000  Package id 0 43000 Core 0 41000  Core 1 42000  Core 2 40000  Core 3 38000  Core 4 39000  Core 5 40000  Core 6 42000  Core 7 37000  Core 8 35000  Core 9 36000  Core 10 32000  Core 11 33000  Core 12 35000  Core 13 34000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 35000  Core 1 35000  Core 2 33000  Core 3 33000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 35000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+max threads 16
+time read: 0.953588
+time coo to csr: 0.072819
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0466189
+mkl optimize time = 0.0205255
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx,16,1134890,1134890,5975248,0.249074,6.141395,72.710552,0.000000,0.000000,MKL_IE,1134890,1134890,5975248,72.710552,1.000000,128
+Temps: Composite 48850 Sensor 1 68850  Sensor 2 50850  Core 8 41000  Core 9 41000  Core 10 42000  Core 11 39000  Core 12 38000  Core 13 41000  Core 14 40000  Core 15 37000  Package id 0 42000 Core 0 40000  Core 1 42000  Core 2 41000  Core 3 37000  Core 4 39000  Core 5 40000  Core 6 42000  Core 7 37000  Core 8 35000  Core 9 35000  Core 10 32000  Core 11 33000  Core 12 35000  Core 13 34000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 34000  Core 1 36000  Core 2 33000  Core 3 33000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+max threads 16
+time read: 2.058325
+time coo to csr: 0.064746
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0430479
+mkl optimize time = 0.00973829
+Test failed! (0.604998)
+errors spmv: mae=6.75856e-14, max_ae=3.96599e-08, mse=2.46071e-19, mape=inf, smape=0.099674
+/various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx,16,643994,643994,6175377,0.162519,9.727479,73.128227,0.000000,0.000000,MKL_IE,643994,643994,6175377,73.128227,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 39000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 38000  Core 13 41000  Core 14 39000  Core 15 38000  Package id 0 43000 Core 0 40000  Core 1 42000  Core 2 41000  Core 3 38000  Core 4 39000  Core 5 40000  Core 6 41000  Core 7 37000  Core 8 35000  Core 9 35000  Core 10 33000  Core 11 33000  Core 12 35000  Core 13 34000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 35000  Core 1 37000  Core 2 34000  Core 3 34000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+max threads 16
+time read: 1.908843
+time coo to csr: 0.052134
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0461609
+mkl optimize time = 0.00590461
+Test failed! (3185.27)
+errors spmv: mae=4.1671e-05, max_ae=1, mse=0.00132621, mape=7.5831, smape=0.11489
+/various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx,16,223104,223104,7637688,0.159593,12.251435,88.257481,0.000000,0.000000,MKL_IE,223104,223104,7637688,88.257481,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 41000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 37000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 42000 Core 0 40000  Core 1 42000  Core 2 40000  Core 3 39000  Core 4 40000  Core 5 40000  Core 6 42000  Core 7 37000  Core 8 36000  Core 9 37000  Core 10 33000  Core 11 34000  Core 12 35000  Core 13 35000  Core 14 34000  Core 15 33000  Package id 1 37000 Core 0 36000  Core 1 37000  Core 2 34000  Core 3 34000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+max threads 16
+time read: 1.402868
+time coo to csr: 0.059024
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0447644
+mkl optimize time = 0.0119421
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx,16,683446,683446,7583376,0.191204,10.153238,89.391994,0.000000,0.000000,MKL_IE,683446,683446,7583376,89.391994,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 37000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 42000 Core 0 40000  Core 1 41000  Core 2 41000  Core 3 38000  Core 4 39000  Core 5 40000  Core 6 41000  Core 7 37000  Core 8 35000  Core 9 36000  Core 10 33000  Core 11 34000  Core 12 35000  Core 13 35000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 34000  Core 1 37000  Core 2 34000  Core 3 34000  Core 4 35000  Core 5 35000  Core 6 32000  Core 7 35000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 16
+time read: 0.947112
+time coo to csr: 0.060298
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0428198
+mkl optimize time = 0.00373997
+Test failed! (506.25)
+errors spmv: mae=1.21177e-05, max_ae=0.00439453, mse=4.15268e-07, mape=inf, smape=8.64295
+/various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx,16,140874,140874,7813404,0.168003,11.905915,89.954708,0.000000,0.000000,MKL_IE,140874,140874,7813404,89.954708,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 39000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 37000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 42000 Core 0 40000  Core 1 41000  Core 2 41000  Core 3 38000  Core 4 39000  Core 5 39000  Core 6 40000  Core 7 37000  Core 8 35000  Core 9 36000  Core 10 32000  Core 11 33000  Core 12 35000  Core 13 35000  Core 14 33000  Core 15 32000  Package id 1 37000 Core 0 35000  Core 1 36000  Core 2 34000  Core 3 34000  Core 4 36000  Core 5 35000  Core 6 32000  Core 7 35000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 16
+time read: 2.909245
+time coo to csr: 0.056257
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0433988
+mkl optimize time = 0.00425563
+Test failed! (7.49222e-06)
+errors spmv: mae=9.88932e-09, max_ae=3.8147e-05, mse=6.69179e-12, mape=6.98651e-09, smape=3.49324e-09
+/various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx,16,161070,161070,8185136,0.171752,12.200150,94.285885,0.000000,0.000000,MKL_IE,161070,161070,8185136,94.285885,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 40000  Core 9 42000  Core 10 42000  Core 11 38000  Core 12 37000  Core 13 40000  Core 14 39000  Core 15 38000  Package id 0 43000 Core 0 41000  Core 1 42000  Core 2 40000  Core 3 38000  Core 4 39000  Core 5 40000  Core 6 41000  Core 7 37000  Core 8 35000  Core 9 36000  Core 10 34000  Core 11 34000  Core 12 35000  Core 13 35000  Core 14 33000  Core 15 33000  Package id 1 37000 Core 0 36000  Core 1 36000  Core 2 33000  Core 3 34000  Core 4 34000  Core 5 34000  Core 6 32000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+max threads 16
+time read: 1.950443
+time coo to csr: 0.076878
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0443011
+mkl optimize time = 0.0201029
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx,16,806529,806529,8921789,0.236460,9.659034,105.178440,0.000000,0.000000,MKL_IE,806529,806529,8921789,105.178440,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 41000  Core 9 41000  Core 10 43000  Core 11 39000  Core 12 38000  Core 13 41000  Core 14 40000  Core 15 38000  Package id 0 43000 Core 0 41000  Core 1 43000  Core 2 41000  Core 3 39000  Core 4 40000  Core 5 40000  Core 6 42000  Core 7 38000  Core 8 37000  Core 9 36000  Core 10 34000  Core 11 34000  Core 12 35000  Core 13 35000  Core 14 33000  Core 15 34000  Package id 1 39000 Core 0 36000  Core 1 37000  Core 2 35000  Core 3 35000  Core 4 36000  Core 5 36000  Core 6 33000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+max threads 16
+time read: 1.077423
+time coo to csr: 0.131367
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0459585
+mkl optimize time = 0.0273006
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx,16,16783,16783,9323427,0.177869,13.418835,106.762180,0.000000,0.000000,MKL_IE,16783,16783,9323427,106.762180,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 38000  Core 12 38000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 43000 Core 0 41000  Core 1 43000  Core 2 40000  Core 3 39000  Core 4 40000  Core 5 40000  Core 6 41000  Core 7 37000  Core 8 36000  Core 9 36000  Core 10 34000  Core 11 34000  Core 12 35000  Core 13 35000  Core 14 33000  Core 15 34000  Package id 1 37000 Core 0 35000  Core 1 37000  Core 2 34000  Core 3 35000  Core 4 36000  Core 5 35000  Core 6 33000  Core 7 37000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 16
+time read: 0.935634
+time coo to csr: 0.095486
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0447377
+mkl optimize time = 0.0222777
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx,16,66463,66463,10352819,0.196864,13.462707,118.732151,0.000000,0.000000,MKL_IE,66463,66463,10352819,118.732151,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 41000  Core 9 42000  Core 10 43000  Core 11 39000  Core 12 39000  Core 13 41000  Core 14 39000  Core 15 38000  Package id 0 43000 Core 0 40000  Core 1 43000  Core 2 41000  Core 3 39000  Core 4 41000  Core 5 40000  Core 6 41000  Core 7 38000  Core 8 37000  Core 9 36000  Core 10 34000  Core 11 34000  Core 12 35000  Core 13 36000  Core 14 34000  Core 15 34000  Package id 1 37000 Core 0 36000  Core 1 37000  Core 2 34000  Core 3 34000  Core 4 36000  Core 5 35000  Core 6 34000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+max threads 16
+time read: 1.819225
+time coo to csr: 0.078394
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0457886
+mkl optimize time = 0.0166797
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx,16,4284,1096894,11284032,0.272753,10.590932,129.151844,0.000000,0.000000,MKL_IE,4284,1096894,11284032,129.151844,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 41000  Core 9 41000  Core 10 43000  Core 11 39000  Core 12 39000  Core 13 41000  Core 14 40000  Core 15 37000  Package id 0 44000 Core 0 41000  Core 1 43000  Core 2 42000  Core 3 39000  Core 4 41000  Core 5 41000  Core 6 41000  Core 7 38000  Core 8 36000  Core 9 36000  Core 10 34000  Core 11 35000  Core 12 35000  Core 13 35000  Core 14 34000  Core 15 33000  Package id 1 37000 Core 0 35000  Core 1 36000  Core 2 34000  Core 3 34000  Core 4 36000  Core 5 35000  Core 6 33000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 16
+time read: 1.930584
+time coo to csr: 0.082785
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0431087
+mkl optimize time = 0.0240134
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx,16,217918,217918,11634424,0.235641,12.639623,133.976711,0.000000,0.000000,MKL_IE,217918,217918,11634424,133.976711,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 40000  Core 9 42000  Core 10 43000  Core 11 39000  Core 12 38000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 44000 Core 0 40000  Core 1 43000  Core 2 42000  Core 3 39000  Core 4 40000  Core 5 41000  Core 6 40000  Core 7 38000  Core 8 36000  Core 9 35000  Core 10 34000  Core 11 34000  Core 12 35000  Core 13 35000  Core 14 34000  Core 15 33000  Package id 1 37000 Core 0 36000  Core 1 37000  Core 2 34000  Core 3 35000  Core 4 35000  Core 5 35000  Core 6 33000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 16
+time read: 1.691736
+time coo to csr: 0.114576
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0434379
+mkl optimize time = 0.00475148
+errors spmv: mae=7.48342e-09, max_ae=7.62939e-05, mse=9.13734e-12, mape=1.09906e-12, smape=5.49528e-13
+/various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx,16,63838,63838,14148858,0.286788,12.629898,162.164356,0.000000,0.000000,MKL_IE,63838,63838,14148858,162.164356,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 41000  Core 9 42000  Core 10 43000  Core 11 40000  Core 12 38000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 43000 Core 0 41000  Core 1 43000  Core 2 41000  Core 3 39000  Core 4 40000  Core 5 40000  Core 6 41000  Core 7 38000  Core 8 37000  Core 9 37000  Core 10 34000  Core 11 35000  Core 12 36000  Core 13 36000  Core 14 34000  Core 15 34000  Package id 1 38000 Core 0 36000  Core 1 37000  Core 2 35000  Core 3 35000  Core 4 36000  Core 5 36000  Core 6 34000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 16
+time read: 2.462428
+time coo to csr: 0.115425
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.022833
+mkl optimize time = 0.0056986
+errors spmv: mae=1.74222e-15, max_ae=4.4853e-14, mse=1.07634e-27, mape=1.14477e-12, smape=5.72384e-13
+/various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx,16,185639,185639,15011265,0.323536,11.877780,172.498455,0.000000,0.000000,MKL_IE,185639,185639,15011265,172.498455,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 41000  Core 9 41000  Core 10 43000  Core 11 39000  Core 12 39000  Core 13 41000  Core 14 40000  Core 15 37000  Package id 0 44000 Core 0 40000  Core 1 43000  Core 2 42000  Core 3 40000  Core 4 39000  Core 5 40000  Core 6 41000  Core 7 38000  Core 8 37000  Core 9 37000  Core 10 33000  Core 11 35000  Core 12 35000  Core 13 35000  Core 14 34000  Core 15 34000  Package id 1 38000 Core 0 36000  Core 1 37000  Core 2 35000  Core 3 35000  Core 4 36000  Core 5 36000  Core 6 32000  Core 7 37000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 16
+time read: 5.369856
+time coo to csr: 0.103415
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0458585
+mkl optimize time = 0.0260246
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx,16,38120,38120,16171169,0.240724,17.197390,185.209763,0.000000,0.000000,MKL_IE,38120,38120,16171169,185.209763,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 39000  Core 12 38000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 43000 Core 0 40000  Core 1 42000  Core 2 40000  Core 3 39000  Core 4 40000  Core 5 40000  Core 6 40000  Core 7 38000  Core 8 35000  Core 9 37000  Core 10 33000  Core 11 35000  Core 12 35000  Core 13 35000  Core 14 33000  Core 15 34000  Package id 1 37000 Core 0 35000  Core 1 37000  Core 2 34000  Core 3 34000  Core 4 35000  Core 5 36000  Core 6 33000  Core 7 37000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+max threads 16
+time read: 3.186965
+time coo to csr: 0.107148
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0512198
+mkl optimize time = 0.0203639
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx,16,1382908,1382908,16917053,0.448140,9.663872,198.875687,0.000000,0.000000,MKL_IE,1382908,1382908,16917053,198.875687,1.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 41000  Core 9 41000  Core 10 43000  Core 11 39000  Core 12 38000  Core 13 42000  Core 14 40000  Core 15 38000  Package id 0 43000 Core 0 41000  Core 1 42000  Core 2 42000  Core 3 39000  Core 4 40000  Core 5 41000  Core 6 41000  Core 7 38000  Core 8 36000  Core 9 37000  Core 10 34000  Core 11 34000  Core 12 35000  Core 13 36000  Core 14 34000  Core 15 34000  Package id 1 37000 Core 0 36000  Core 1 38000  Core 2 34000  Core 3 35000  Core 4 36000  Core 5 36000  Core 6 33000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 16
+time read: 3.562393
+time coo to csr: 0.135315
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0470484
+mkl optimize time = 0.00708486
+Test failed! (3.07708e-09)
+errors spmv: mae=4.99505e-15, max_ae=9.88543e-13, mse=2.24618e-26, mape=2.09842e-11, smape=1.04921e-11
+/various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx,16,268096,268096,18488476,0.419450,11.283948,212.606525,0.000000,0.000000,MKL_IE,268096,268096,18488476,212.606525,1.000000,128
+Temps: Composite 47850 Sensor 1 67850  Sensor 2 49850  Core 8 41000  Core 9 41000  Core 10 43000  Core 11 40000  Core 12 38000  Core 13 41000  Core 14 40000  Core 15 37000  Package id 0 44000 Core 0 40000  Core 1 43000  Core 2 42000  Core 3 39000  Core 4 40000  Core 5 41000  Core 6 41000  Core 7 38000  Core 8 37000  Core 9 37000  Core 10 34000  Core 11 34000  Core 12 37000  Core 13 36000  Core 14 34000  Core 15 34000  Package id 1 38000 Core 0 36000  Core 1 37000  Core 2 35000  Core 3 35000  Core 4 37000  Core 5 37000  Core 6 33000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+max threads 16
+time read: 3.245156
+time coo to csr: 0.111711
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0478437
+mkl optimize time = 0.0164838
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx,16,862664,862664,19235140,0.485182,10.149178,223.419514,0.000000,0.000000,MKL_IE,862664,862664,19235140,223.419514,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 41000  Core 9 41000  Core 10 43000  Core 11 39000  Core 12 39000  Core 13 41000  Core 14 40000  Core 15 37000  Package id 0 43000 Core 0 40000  Core 1 42000  Core 2 41000  Core 3 39000  Core 4 41000  Core 5 41000  Core 6 41000  Core 7 38000  Core 8 37000  Core 9 37000  Core 10 34000  Core 11 35000  Core 12 36000  Core 13 36000  Core 14 34000  Core 15 34000  Package id 1 37000 Core 0 36000  Core 1 37000  Core 2 34000  Core 3 35000  Core 4 35000  Core 5 36000  Core 6 33000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+max threads 16
+time read: 3.281150
+time coo to csr: 0.118762
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0483616
+mkl optimize time = 0.0407784
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx,16,1634989,1634989,19753078,0.693313,7.293659,232.293030,0.000000,0.000000,MKL_IE,1634989,1634989,19753078,232.293030,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 40000  Core 9 41000  Core 10 42000  Core 11 39000  Core 12 38000  Core 13 42000  Core 14 40000  Core 15 37000  Package id 0 43000 Core 0 40000  Core 1 42000  Core 2 40000  Core 3 39000  Core 4 40000  Core 5 40000  Core 6 41000  Core 7 38000  Core 8 37000  Core 9 36000  Core 10 35000  Core 11 34000  Core 12 35000  Core 13 35000  Core 14 34000  Core 15 34000  Package id 1 37000 Core 0 36000  Core 1 36000  Core 2 34000  Core 3 34000  Core 4 36000  Core 5 37000  Core 6 33000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+max threads 16
+time read: 2.047729
+time coo to csr: 0.237672
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.043531
+mkl optimize time = 0.00830255
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx,16,262144,262144,21165908,0.579759,9.346079,243.224598,0.000000,0.000000,MKL_IE,262144,262144,21165908,243.224598,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 40000  Core 9 41000  Core 10 43000  Core 11 39000  Core 12 39000  Core 13 41000  Core 14 40000  Core 15 37000  Package id 0 43000 Core 0 40000  Core 1 43000  Core 2 42000  Core 3 40000  Core 4 40000  Core 5 41000  Core 6 41000  Core 7 38000  Core 8 36000  Core 9 37000  Core 10 35000  Core 11 34000  Core 12 35000  Core 13 35000  Core 14 33000  Core 15 34000  Package id 1 37000 Core 0 36000  Core 1 37000  Core 2 34000  Core 3 35000  Core 4 37000  Core 5 36000  Core 6 33000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+max threads 16
+time read: 6.021968
+time coo to csr: 0.114895
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0448699
+mkl optimize time = 0.0675576
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx,16,4690002,4690002,20316253,0.700885,7.420567,250.392006,0.000000,0.000000,MKL_IE,4690002,4690002,20316253,250.392006,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 42000  Core 9 42000  Core 10 44000  Core 11 40000  Core 12 40000  Core 13 42000  Core 14 40000  Core 15 38000  Package id 0 44000 Core 0 42000  Core 1 44000  Core 2 42000  Core 3 40000  Core 4 41000  Core 5 42000  Core 6 43000  Core 7 40000  Core 8 37000  Core 9 37000  Core 10 35000  Core 11 35000  Core 12 36000  Core 13 36000  Core 14 35000  Core 15 35000  Package id 1 38000 Core 0 37000  Core 1 38000  Core 2 35000  Core 3 35000  Core 4 37000  Core 5 36000  Core 6 34000  Core 7 37000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+max threads 16
+time read: 3.850980
+time coo to csr: 0.294667
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0478598
+mkl optimize time = 0.0139916
+errors spmv: mae=5.58606e-14, max_ae=2.21689e-12, mse=2.23912e-24, mape=6.32358e-14, smape=3.16179e-14
+/various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx,16,22283,22283,24669643,0.504997,12.505867,282.406666,0.000000,0.000000,MKL_IE,22283,22283,24669643,282.406666,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 41000  Core 9 41000  Core 10 43000  Core 11 39000  Core 12 38000  Core 13 41000  Core 14 39000  Core 15 37000  Package id 0 43000 Core 0 41000  Core 1 43000  Core 2 41000  Core 3 40000  Core 4 40000  Core 5 41000  Core 6 42000  Core 7 38000  Core 8 37000  Core 9 37000  Core 10 34000  Core 11 35000  Core 12 36000  Core 13 36000  Core 14 34000  Core 15 34000  Package id 1 37000 Core 0 36000  Core 1 37000  Core 2 35000  Core 3 35000  Core 4 37000  Core 5 37000  Core 6 34000  Core 7 37000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+max threads 16
+time read: 2.778315
+time coo to csr: 0.216589
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0483399
+mkl optimize time = 0.056713
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx,16,4194304,4194304,25165738,1.152904,5.588000,303.999020,0.000000,0.000000,MKL_IE,4194304,4194304,25165738,303.999020,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 43000  Core 9 43000  Core 10 44000  Core 11 42000  Core 12 40000  Core 13 42000  Core 14 41000  Core 15 39000  Package id 0 45000 Core 0 41000  Core 1 44000  Core 2 42000  Core 3 41000  Core 4 41000  Core 5 41000  Core 6 42000  Core 7 40000  Core 8 37000  Core 9 37000  Core 10 35000  Core 11 35000  Core 12 36000  Core 13 36000  Core 14 34000  Core 15 34000  Package id 1 38000 Core 0 36000  Core 1 37000  Core 2 35000  Core 3 35000  Core 4 37000  Core 5 37000  Core 6 34000  Core 7 37000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+max threads 16
+time read: 4.918057
+time coo to csr: 0.147690
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0469836
+mkl optimize time = 0.0781317
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx,16,1437547,1911130,29893084,1.060854,7.213651,347.583008,0.000000,0.000000,MKL_IE,1437547,1911130,29893084,347.583008,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 41000  Core 9 43000  Core 10 43000  Core 11 40000  Core 12 39000  Core 13 43000  Core 14 41000  Core 15 38000  Package id 0 44000 Core 0 41000  Core 1 43000  Core 2 43000  Core 3 40000  Core 4 41000  Core 5 41000  Core 6 42000  Core 7 39000  Core 8 37000  Core 9 38000  Core 10 34000  Core 11 35000  Core 12 36000  Core 13 36000  Core 14 35000  Core 15 35000  Package id 1 39000 Core 0 36000  Core 1 38000  Core 2 36000  Core 3 36000  Core 4 37000  Core 5 36000  Core 6 34000  Core 7 37000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+max threads 16
+time read: 5.585135
+time coo to csr: 0.196787
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0523671
+mkl optimize time = 0.0948953
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx,16,2601977,2601977,36233450,1.523522,6.088369,424.584686,0.000000,0.000000,MKL_IE,2601977,2601977,36233450,424.584686,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 42000  Core 9 43000  Core 10 44000  Core 11 41000  Core 12 40000  Core 13 43000  Core 14 42000  Core 15 39000  Package id 0 45000 Core 0 42000  Core 1 44000  Core 2 42000  Core 3 41000  Core 4 43000  Core 5 41000  Core 6 42000  Core 7 39000  Core 8 37000  Core 9 38000  Core 10 35000  Core 11 35000  Core 12 36000  Core 13 35000  Core 14 34000  Core 15 35000  Package id 1 38000 Core 0 37000  Core 1 37000  Core 2 35000  Core 3 36000  Core 4 36000  Core 5 37000  Core 6 34000  Core 7 37000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+max threads 16
+time read: 8.192875
+time coo to csr: 0.188009
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0482851
+mkl optimize time = 0.0231668
+Test failed! (6331.33)
+errors spmv: mae=0.00206236, max_ae=64.0002, mse=1.10277, mape=1.68299, smape=0.0633733
+/various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx,16,1200611,1200611,38259877,0.973471,10.061448,442.429516,0.000000,0.000000,MKL_IE,1200611,1200611,38259877,442.429516,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 42000  Core 9 41000  Core 10 44000  Core 11 40000  Core 12 39000  Core 13 42000  Core 14 40000  Core 15 38000  Package id 0 44000 Core 0 41000  Core 1 44000  Core 2 42000  Core 3 41000  Core 4 41000  Core 5 41000  Core 6 42000  Core 7 39000  Core 8 36000  Core 9 37000  Core 10 34000  Core 11 35000  Core 12 36000  Core 13 36000  Core 14 34000  Core 15 35000  Package id 1 37000 Core 0 36000  Core 1 37000  Core 2 35000  Core 3 35000  Core 4 36000  Core 5 37000  Core 6 33000  Core 7 36000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+max threads 16
+time read: 0.238455
+time coo to csr: 1.087396
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0671708
+mkl optimize time = 0.232573
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx,16,18571154,18571154,38040320,3.732094,2.609345,506.180248,0.000000,0.000000,MKL_IE,18571154,18571154,38040320,506.180248,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 42000  Core 9 44000  Core 10 44000  Core 11 41000  Core 12 40000  Core 13 43000  Core 14 41000  Core 15 39000  Package id 0 45000 Core 0 41000  Core 1 44000  Core 2 43000  Core 3 41000  Core 4 42000  Core 5 42000  Core 6 43000  Core 7 40000  Core 8 37000  Core 9 37000  Core 10 35000  Core 11 36000  Core 12 37000  Core 13 36000  Core 14 35000  Core 15 35000  Package id 1 39000 Core 0 38000  Core 1 38000  Core 2 36000  Core 3 37000  Core 4 37000  Core 5 37000  Core 6 34000  Core 7 37000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 16
+time read: 0.452221
+time coo to csr: 0.257324
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.042354
+mkl optimize time = 0.0163878
+Test failed! (1.20287e-08)
+errors spmv: mae=2.0679e-10, max_ae=7.45058e-08, mse=1.11396e-16, mape=1.30297e-11, smape=6.51487e-12
+/various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx,16,952203,952203,46522475,1.110341,10.726215,536.039845,0.000000,0.000000,MKL_IE,952203,952203,46522475,536.039845,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 44000  Core 9 46000  Core 10 46000  Core 11 44000  Core 12 43000  Core 13 46000  Core 14 43000  Core 15 42000  Package id 0 47000 Core 0 44000  Core 1 47000  Core 2 45000  Core 3 43000  Core 4 44000  Core 5 44000  Core 6 45000  Core 7 42000  Core 8 38000  Core 9 39000  Core 10 35000  Core 11 36000  Core 12 38000  Core 13 37000  Core 14 36000  Core 15 35000  Package id 1 40000 Core 0 38000  Core 1 39000  Core 2 37000  Core 3 37000  Core 4 39000  Core 5 38000  Core 6 35000  Core 7 38000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+max threads 16
+time read: 0.581670
+time coo to csr: 0.271035
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0420757
+mkl optimize time = 0.0285927
+errors spmv: mae=5.94917e-16, max_ae=4.9738e-14, mse=2.73419e-28, mape=7.87611e-14, smape=3.93805e-14
+/various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx,16,1157456,1157456,48538952,1.152935,10.777690,559.899570,0.000000,0.000000,MKL_IE,1157456,1157456,48538952,559.899570,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 45000  Core 9 46000  Core 10 48000  Core 11 45000  Core 12 44000  Core 13 47000  Core 14 44000  Core 15 42000  Package id 0 49000 Core 0 47000  Core 1 48000  Core 2 47000  Core 3 45000  Core 4 46000  Core 5 45000  Core 6 46000  Core 7 43000  Core 8 38000  Core 9 39000  Core 10 37000  Core 11 36000  Core 12 37000  Core 13 37000  Core 14 36000  Core 15 36000  Package id 1 40000 Core 0 39000  Core 1 39000  Core 2 37000  Core 3 37000  Core 4 39000  Core 5 39000  Core 6 35000  Core 7 38000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 16
+time read: 1.114491
+time coo to csr: 0.302955
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0619321
+mkl optimize time = 0.364283
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx,16,5558326,5558326,59524291,2.914501,5.228414,702.404785,0.000000,0.000000,MKL_IE,5558326,5558326,59524291,702.404785,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 47000  Core 9 48000  Core 10 49000  Core 11 46000  Core 12 45000  Core 13 48000  Core 14 47000  Core 15 45000  Package id 0 49000 Core 0 46000  Core 1 48000  Core 2 47000  Core 3 45000  Core 4 47000  Core 5 46000  Core 6 48000  Core 7 46000  Core 8 37000  Core 9 39000  Core 10 37000  Core 11 36000  Core 12 37000  Core 13 38000  Core 14 37000  Core 15 35000  Package id 1 41000 Core 0 39000  Core 1 39000  Core 2 37000  Core 3 37000  Core 4 38000  Core 5 39000  Core 6 35000  Core 7 38000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+max threads 16
+time read: 0.671179
+time coo to csr: 0.320322
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0518904
+mkl optimize time = 0.115867
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx,16,4847571,4847571,68993773,3.004562,5.878530,808.063091,0.000000,0.000000,MKL_IE,4847571,4847571,68993773,808.063091,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 48000  Core 9 50000  Core 10 50000  Core 11 47000  Core 12 45000  Core 13 49000  Core 14 47000  Core 15 45000  Package id 0 50000 Core 0 48000  Core 1 49000  Core 2 49000  Core 3 46000  Core 4 48000  Core 5 47000  Core 6 49000  Core 7 45000  Core 8 39000  Core 9 39000  Core 10 36000  Core 11 37000  Core 12 37000  Core 13 38000  Core 14 37000  Core 15 36000  Package id 1 40000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 37000  Core 4 39000  Core 5 38000  Core 6 36000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 16
+time read: 0.502707
+time coo to csr: 0.356140
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0225703
+mkl optimize time = 0.102836
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx,16,986703,986703,71666325,1.534845,11.953372,823.919979,0.000000,0.000000,MKL_IE,986703,986703,71666325,823.919979,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 49000  Core 9 50000  Core 10 50000  Core 11 47000  Core 12 46000  Core 13 49000  Core 14 47000  Core 15 45000  Package id 0 51000 Core 0 49000  Core 1 51000  Core 2 49000  Core 3 48000  Core 4 49000  Core 5 48000  Core 6 49000  Core 7 45000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 38000  Core 12 38000  Core 13 38000  Core 14 38000  Core 15 36000  Package id 1 41000 Core 0 39000  Core 1 40000  Core 2 38000  Core 3 38000  Core 4 39000  Core 5 38000  Core 6 36000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+max threads 16
+time read: 0.741574
+time coo to csr: 0.409284
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0469603
+mkl optimize time = 0.0335913
+Test failed! (8.99707e-07)
+errors spmv: mae=4.85661e-10, max_ae=2.93925e-06, mse=5.53957e-15, mape=1.12373e-08, smape=5.61846e-09
+/various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx,16,943695,943695,77651847,1.761721,11.283781,892.254780,0.000000,0.000000,MKL_IE,943695,943695,77651847,892.254780,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 50000  Core 9 50000  Core 10 51000  Core 11 48000  Core 12 46000  Core 13 50000  Core 14 48000  Core 15 45000  Package id 0 52000 Core 0 49000  Core 1 52000  Core 2 49000  Core 3 47000  Core 4 48000  Core 5 48000  Core 6 49000  Core 7 46000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 39000  Core 14 38000  Core 15 36000  Package id 1 41000 Core 0 39000  Core 1 40000  Core 2 38000  Core 3 38000  Core 4 39000  Core 5 38000  Core 6 36000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 16
+time read: 1.364886
+time coo to csr: 0.399225
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0469552
+mkl optimize time = 0.16573
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx,16,5154859,5154859,99199551,2.834079,8.960612,1154.912998,0.000000,0.000000,MKL_IE,5154859,5154859,99199551,1154.912998,1.000000,128
+Temps: Composite 47850 Sensor 1 66850  Sensor 2 49850  Core 8 51000  Core 9 50000  Core 10 52000  Core 11 48000  Core 12 48000  Core 13 51000  Core 14 49000  Core 15 46000  Package id 0 52000 Core 0 50000  Core 1 51000  Core 2 50000  Core 3 49000  Core 4 49000  Core 5 49000  Core 6 50000  Core 7 47000  Core 8 39000  Core 9 40000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 40000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+max threads 16
+time read: 0.644077
+time coo to csr: 0.750197
+mkl mkl_sparse_s_create_csr + mkl_sparse_order time = 0.0506488
+mkl optimize time = 0.570142
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx,16,55042369,55042369,117217600,12.817615,2.341130,1551.418953,0.000000,0.000000,MKL_IE,55042369,55042369,117217600,1551.418953,1.000000,128

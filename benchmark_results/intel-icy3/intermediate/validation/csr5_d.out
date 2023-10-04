@@ -1,0 +1,661 @@
+SPARSEX_LIB_PATH=/various/pmpakos/icy3_libs//sparsex/build/lib;PRINT_STATISTICS=1;LLVM_INC_PATH=/various/pmpakos/icy3_libs//llvm-6.0.0/build/include;AOCL_PATH=/various/pmpakos/spmv_paper/aocl-sparse/build/release;SPARSEX_INC_PATH=/various/pmpakos/icy3_libs//sparsex/build/include;max_cores=64;LLVM_LIB_PATH=/various/pmpakos/icy3_libs//llvm-6.0.0/build/lib;use_artificial_matrices=0;GHOST_APPS_ROOT_DIR=/various/pmpakos/icy3_libs/spmv_code_sell-C-s;cores=16;BOOST_LIB_PATH=/various/pmpakos/icy3_libs//boost_1_55_0/bin/lib;path_validation=/various/pmpakos/SpMV-Research/validation_matrices;output_to_files=1;force_retry_on_error=0;path_tamu=/home/users/itasou/Data/graphs/tamu;GHOST_ROOT_DIR=/various/pmpakos/icy3_libs/;MKL_PATH=/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl;SPARSEX_CONF_PATH=/various/pmpakos/icy3_libs//sparsex/build/bin;cpu_pinning_group_size=1;cpu_affinity=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15;USE_PROCESSES=0;cpu_pinning_step=1;RAPL_REGISTERS=0;BOOST_INC_PATH=/various/pmpakos/icy3_libs//boost_1_55_0/bin/include;path_openFoam=/various/dgal/graphs/matrices_openFoam;COOLDOWN=0;
+program: /home/users/itasou/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_bench/spmv_csr5.exe
+number of matrices: 53
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 50000  Core 9 51000  Core 10 52000  Core 11 50000  Core 12 48000  Core 13 51000  Core 14 49000  Core 15 47000  Package id 0 54000 Core 0 50000  Core 1 53000  Core 2 51000  Core 3 50000  Core 4 50000  Core 5 51000  Core 6 52000  Core 7 48000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 38000  Core 12 38000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 39000  Core 1 40000  Core 2 38000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 16
+time read: 0.031358
+time coo to csr: 0.006176
+omega = 4, sigma = 16. #partition = 14984
+CSR->CSR5 malloc time = 0.019000 ms
+CSR->CSR5 tile_ptr time = 0.123000 ms
+CSR->CSR5 tile_desc time = 0.945000 ms
+CSR->CSR5 transpose time = 0.417000 ms
+Test failed! (3.71278e-07)
+errors spmv: mae=1.19434e-15, max_ae=2.50155e-12, mse=3.12227e-26, mape=inf, smape=0.127347
+/various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx,16,170998,170998,958936,0.022347,10.985270,11.626461,0.000000,0.000000,CSR5,170998,170998,958936,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 66850  Sensor 2 50850  Core 8 50000  Core 9 51000  Core 10 52000  Core 11 50000  Core 12 48000  Core 13 51000  Core 14 49000  Core 15 47000  Package id 0 54000 Core 0 50000  Core 1 53000  Core 2 51000  Core 3 50000  Core 4 50000  Core 5 51000  Core 6 52000  Core 7 48000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 38000  Core 12 38000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 39000  Core 1 40000  Core 2 38000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 16
+time read: 0.037792
+time coo to csr: 0.007177
+omega = 4, sigma = 16. #partition = 19897
+CSR->CSR5 malloc time = 0.021000 ms
+CSR->CSR5 tile_ptr time = 0.159000 ms
+CSR->CSR5 tile_desc time = 0.989000 ms
+CSR->CSR5 transpose time = 0.554000 ms
+Test failed! (2.59483e-08)
+errors spmv: mae=3.21133e-14, max_ae=1.45519e-11, mse=1.52233e-23, mape=8.79886e-16, smape=4.39943e-16
+/various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx,16,206500,206500,1273389,0.019685,16.560179,15.360519,0.000000,0.000000,CSR5,206500,206500,1273389,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 66850  Sensor 2 50850  Core 8 50000  Core 9 51000  Core 10 52000  Core 11 50000  Core 12 48000  Core 13 51000  Core 14 49000  Core 15 47000  Package id 0 54000 Core 0 50000  Core 1 53000  Core 2 51000  Core 3 50000  Core 4 50000  Core 5 51000  Core 6 52000  Core 7 48000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 38000  Core 12 38000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 39000  Core 1 40000  Core 2 38000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 16
+time read: 0.044555
+time coo to csr: 0.009154
+omega = 4, sigma = 16. #partition = 23262
+CSR->CSR5 malloc time = 0.147000 ms
+CSR->CSR5 tile_ptr time = 0.091000 ms
+CSR->CSR5 tile_desc time = 0.960000 ms
+CSR->CSR5 transpose time = 0.493000 ms
+errors spmv: mae=2.16114e-17, max_ae=3.55271e-15, mse=1.67875e-30, mape=3.80438e-16, smape=1.90219e-16
+/various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx,16,21200,21200,1488768,0.009412,40.492716,17.118473,0.000000,0.000000,CSR5,21200,21200,1488768,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 50000  Core 9 51000  Core 10 52000  Core 11 50000  Core 12 48000  Core 13 51000  Core 14 49000  Core 15 47000  Package id 0 54000 Core 0 50000  Core 1 53000  Core 2 51000  Core 3 50000  Core 4 50000  Core 5 51000  Core 6 52000  Core 7 48000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 38000  Core 12 38000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 39000  Core 1 40000  Core 2 38000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+max threads 16
+time read: 0.016780
+time coo to csr: 0.011191
+omega = 4, sigma = 16. #partition = 22774
+CSR->CSR5 malloc time = 0.152000 ms
+CSR->CSR5 tile_ptr time = 0.194000 ms
+CSR->CSR5 tile_desc time = 1.472000 ms
+CSR->CSR5 transpose time = 0.746000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx,16,131072,131072,1457506,0.026609,14.022408,17.179836,0.000000,0.000000,CSR5,131072,131072,1457506,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 66850  Sensor 2 50850  Core 8 52000  Core 9 53000  Core 10 53000  Core 11 51000  Core 12 50000  Core 13 52000  Core 14 50000  Core 15 48000  Package id 0 54000 Core 0 51000  Core 1 53000  Core 2 52000  Core 3 50000  Core 4 52000  Core 5 51000  Core 6 51000  Core 7 48000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 38000  Core 12 40000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 42000  Core 2 38000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 16
+time read: 0.050704
+time coo to csr: 0.010284
+omega = 4, sigma = 16. #partition = 27684
+CSR->CSR5 malloc time = 0.192000 ms
+CSR->CSR5 tile_ptr time = 0.114000 ms
+CSR->CSR5 tile_desc time = 1.106000 ms
+CSR->CSR5 transpose time = 0.567000 ms
+errors spmv: mae=7.83847e-15, max_ae=1.02318e-12, mse=1.33028e-25, mape=5.33832e-14, smape=2.66916e-14
+/various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx,16,38744,38744,1771722,0.013751,32.984081,20.423550,0.000000,0.000000,CSR5,38744,38744,1771722,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 52000  Core 9 53000  Core 10 53000  Core 11 51000  Core 12 50000  Core 13 52000  Core 14 50000  Core 15 48000  Package id 0 54000 Core 0 51000  Core 1 53000  Core 2 52000  Core 3 50000  Core 4 52000  Core 5 51000  Core 6 51000  Core 7 48000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 38000  Core 12 40000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 42000  Core 2 38000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+max threads 16
+time read: 0.051439
+time coo to csr: 0.010480
+omega = 4, sigma = 16. #partition = 28955
+CSR->CSR5 malloc time = 0.204000 ms
+CSR->CSR5 tile_ptr time = 0.096000 ms
+CSR->CSR5 tile_desc time = 0.963000 ms
+CSR->CSR5 transpose time = 0.412000 ms
+errors spmv: mae=3.95817e-15, max_ae=4.26326e-14, mse=3.20956e-27, mape=2.61015e-14, smape=1.30508e-14
+/various/pmpakos/SpMV-Research/validation_matrices/appu.mtx,16,14000,14000,1853104,0.015486,30.634278,21.260502,0.000000,0.000000,CSR5,14000,14000,1853104,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 52000  Core 9 53000  Core 10 53000  Core 11 51000  Core 12 50000  Core 13 52000  Core 14 50000  Core 15 48000  Package id 0 54000 Core 0 51000  Core 1 53000  Core 2 52000  Core 3 50000  Core 4 52000  Core 5 51000  Core 6 51000  Core 7 48000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 38000  Core 12 40000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 42000  Core 2 38000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 16
+time read: 0.051570
+time coo to csr: 0.010631
+omega = 4, sigma = 16. #partition = 29952
+CSR->CSR5 malloc time = 0.206000 ms
+CSR->CSR5 tile_ptr time = 0.128000 ms
+CSR->CSR5 tile_desc time = 1.414000 ms
+CSR->CSR5 transpose time = 0.692000 ms
+errors spmv: mae=4.62172e-16, max_ae=6.21725e-15, mse=4.5341e-29, mape=4.9699e-14, smape=2.48495e-14
+/various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx,16,49152,49152,1916928,0.017838,27.509865,22.125004,0.000000,0.000000,CSR5,49152,49152,1916928,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 66850  Sensor 2 50850  Core 8 52000  Core 9 53000  Core 10 53000  Core 11 51000  Core 12 50000  Core 13 52000  Core 14 50000  Core 15 48000  Package id 0 54000 Core 0 51000  Core 1 53000  Core 2 52000  Core 3 50000  Core 4 52000  Core 5 51000  Core 6 51000  Core 7 48000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 38000  Core 12 40000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 42000  Core 2 38000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 16
+time read: 0.035367
+time coo to csr: 0.012131
+omega = 4, sigma = 16. #partition = 32817
+CSR->CSR5 malloc time = 0.248000 ms
+CSR->CSR5 tile_ptr time = 0.261000 ms
+CSR->CSR5 tile_desc time = 1.770000 ms
+CSR->CSR5 transpose time = 0.921000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx,16,525825,525825,2100225,0.029771,18.059699,26.041035,0.000000,0.000000,CSR5,525825,525825,2100225,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 51000  Core 9 52000  Core 10 54000  Core 11 51000  Core 12 49000  Core 13 52000  Core 14 49000  Core 15 48000  Package id 0 53000 Core 0 51000  Core 1 53000  Core 2 52000  Core 3 50000  Core 4 51000  Core 5 51000  Core 6 51000  Core 7 48000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 38000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 16
+time read: 0.055745
+time coo to csr: 0.013242
+omega = 4, sigma = 16. #partition = 37094
+CSR->CSR5 malloc time = 0.258000 ms
+CSR->CSR5 tile_ptr time = 0.184000 ms
+CSR->CSR5 tile_desc time = 1.648000 ms
+CSR->CSR5 transpose time = 0.870000 ms
+Test failed! (0.0130581)
+errors spmv: mae=6.99078e-11, max_ae=2.23517e-08, mse=2.05271e-17, mape=inf, smape=0.0021969
+/various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx,16,46835,46835,2374001,0.025964,23.407207,27.346951,0.000000,0.000000,CSR5,46835,46835,2374001,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 51000  Core 9 52000  Core 10 54000  Core 11 51000  Core 12 49000  Core 13 52000  Core 14 49000  Core 15 48000  Package id 0 53000 Core 0 51000  Core 1 53000  Core 2 52000  Core 3 50000  Core 4 51000  Core 5 51000  Core 6 51000  Core 7 48000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 38000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+max threads 16
+time read: 0.039851
+time coo to csr: 0.020311
+omega = 4, sigma = 16. #partition = 41006
+CSR->CSR5 malloc time = 0.057000 ms
+CSR->CSR5 tile_ptr time = 0.211000 ms
+CSR->CSR5 tile_desc time = 2.093000 ms
+CSR->CSR5 transpose time = 1.126000 ms
+errors spmv: mae=1.96313e-15, max_ae=1.42109e-13, mse=4.08126e-27, mape=2.55017e-14, smape=1.27509e-14
+/various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx,16,121192,121192,2624331,0.035971,18.676852,30.495399,0.000000,0.000000,CSR5,121192,121192,2624331,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 51000  Core 9 52000  Core 10 54000  Core 11 51000  Core 12 49000  Core 13 52000  Core 14 49000  Core 15 48000  Package id 0 53000 Core 0 51000  Core 1 53000  Core 2 52000  Core 3 50000  Core 4 51000  Core 5 51000  Core 6 51000  Core 7 48000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 38000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+max threads 16
+time read: 0.065443
+time coo to csr: 0.015522
+omega = 4, sigma = 16. #partition = 44473
+CSR->CSR5 malloc time = 0.316000 ms
+CSR->CSR5 tile_ptr time = 0.240000 ms
+CSR->CSR5 tile_desc time = 2.413000 ms
+CSR->CSR5 transpose time = 1.141000 ms
+Test failed! (31)
+errors spmv: mae=1.32494e-05, max_ae=0.000202179, mse=5.43485e-08, mape=inf, smape=1.60895
+/various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx,16,204316,204316,2846228,0.047286,15.409211,33.351902,0.000000,0.000000,CSR5,204316,204316,2846228,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 51000  Core 9 52000  Core 10 54000  Core 11 51000  Core 12 49000  Core 13 52000  Core 14 49000  Core 15 48000  Package id 0 53000 Core 0 50000  Core 1 53000  Core 2 52000  Core 3 50000  Core 4 51000  Core 5 51000  Core 6 52000  Core 7 49000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 37000  Core 12 40000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 39000  Core 1 41000  Core 2 38000  Core 3 39000  Core 4 41000  Core 5 40000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 16
+time read: 0.056850
+time coo to csr: 0.018636
+omega = 4, sigma = 16. #partition = 48524
+CSR->CSR5 malloc time = 0.359000 ms
+CSR->CSR5 tile_ptr time = 0.383000 ms
+CSR->CSR5 tile_desc time = 2.736000 ms
+CSR->CSR5 transpose time = 1.269000 ms
+errors spmv: mae=1.0814e-16, max_ae=7.50333e-12, mse=2.18869e-26, mape=3.47137e-16, smape=1.73569e-16
+/various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx,16,1000005,1000005,3105536,0.089827,8.850492,39.354759,0.000000,0.000000,CSR5,1000005,1000005,3105536,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 51000  Core 9 52000  Core 10 54000  Core 11 51000  Core 12 49000  Core 13 52000  Core 14 49000  Core 15 48000  Package id 0 53000 Core 0 50000  Core 1 53000  Core 2 52000  Core 3 50000  Core 4 51000  Core 5 51000  Core 6 52000  Core 7 49000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 37000  Core 12 40000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 39000  Core 1 41000  Core 2 38000  Core 3 39000  Core 4 41000  Core 5 40000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 16
+time read: 0.053991
+time coo to csr: 0.021306
+omega = 4, sigma = 16. #partition = 62616
+CSR->CSR5 malloc time = 0.450000 ms
+CSR->CSR5 tile_ptr time = 0.243000 ms
+CSR->CSR5 tile_desc time = 2.892000 ms
+CSR->CSR5 transpose time = 1.560000 ms
+errors spmv: mae=5.63743e-13, max_ae=3.2685e-12, mse=5.63387e-23, mape=7.06762, smape=3.56863
+/various/pmpakos/SpMV-Research/validation_matrices/cant.mtx,16,62451,62451,4007383,0.046538,22.044233,46.099094,0.000000,0.000000,CSR5,62451,62451,4007383,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 51000  Core 9 52000  Core 10 54000  Core 11 51000  Core 12 49000  Core 13 52000  Core 14 49000  Core 15 48000  Package id 0 53000 Core 0 50000  Core 1 53000  Core 2 52000  Core 3 50000  Core 4 51000  Core 5 51000  Core 6 52000  Core 7 49000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 37000  Core 12 40000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 39000  Core 1 41000  Core 2 38000  Core 3 39000  Core 4 41000  Core 5 40000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+max threads 16
+time read: 0.078219
+time coo to csr: 0.028823
+omega = 4, sigma = 16. #partition = 60497
+CSR->CSR5 malloc time = 0.428000 ms
+CSR->CSR5 tile_ptr time = 0.434000 ms
+CSR->CSR5 tile_desc time = 3.064000 ms
+CSR->CSR5 transpose time = 1.423000 ms
+Test failed! (4.40538e-07)
+errors spmv: mae=1.3286e-14, max_ae=9.05493e-09, mse=1.20071e-20, mape=1.29027e-10, smape=6.45137e-11
+/various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx,16,682862,682862,3871773,0.088042,11.258000,46.913841,0.000000,0.000000,CSR5,682862,682862,3871773,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 52000  Core 9 53000  Core 10 53000  Core 11 51000  Core 12 49000  Core 13 52000  Core 14 50000  Core 15 48000  Package id 0 55000 Core 0 52000  Core 1 54000  Core 2 53000  Core 3 50000  Core 4 53000  Core 5 51000  Core 6 52000  Core 7 50000  Core 8 40000  Core 9 41000  Core 10 37000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 39000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+max threads 16
+time read: 0.033304
+time coo to csr: 0.026074
+omega = 4, sigma = 16. #partition = 60052
+CSR->CSR5 malloc time = 0.452000 ms
+CSR->CSR5 tile_ptr time = 0.559000 ms
+CSR->CSR5 tile_desc time = 4.068000 ms
+CSR->CSR5 transpose time = 1.695000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx,16,1393383,1393383,3843320,0.153245,6.420391,49.298645,0.000000,0.000000,CSR5,1393383,1393383,3843320,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 52000  Core 9 53000  Core 10 53000  Core 11 51000  Core 12 49000  Core 13 52000  Core 14 50000  Core 15 48000  Package id 0 55000 Core 0 52000  Core 1 54000  Core 2 53000  Core 3 50000  Core 4 53000  Core 5 51000  Core 6 52000  Core 7 50000  Core 8 40000  Core 9 41000  Core 10 37000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 39000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 16
+time read: 0.057078
+time coo to csr: 0.026953
+omega = 4, sigma = 16. #partition = 67887
+CSR->CSR5 malloc time = 0.495000 ms
+CSR->CSR5 tile_ptr time = 0.223000 ms
+CSR->CSR5 tile_desc time = 2.105000 ms
+CSR->CSR5 transpose time = 1.219000 ms
+Test failed! (0.000351573)
+errors spmv: mae=2.62203e-14, max_ae=2.12719e-13, mse=1.29841e-25, mape=0.00286181, smape=0.0014309
+/various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx,16,36417,36417,4344765,0.056338,19.742738,49.860813,0.000000,0.000000,CSR5,36417,36417,4344765,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 52000  Core 9 53000  Core 10 53000  Core 11 51000  Core 12 49000  Core 13 52000  Core 14 50000  Core 15 48000  Package id 0 55000 Core 0 52000  Core 1 54000  Core 2 53000  Core 3 50000  Core 4 53000  Core 5 51000  Core 6 52000  Core 7 50000  Core 8 40000  Core 9 41000  Core 10 37000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 39000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 16
+time read: 0.098236
+time coo to csr: 0.025932
+omega = 4, sigma = 16. #partition = 68961
+CSR->CSR5 malloc time = 0.500000 ms
+CSR->CSR5 tile_ptr time = 0.249000 ms
+CSR->CSR5 tile_desc time = 1.669000 ms
+CSR->CSR5 transpose time = 1.016000 ms
+errors spmv: mae=6.71757e-17, max_ae=2.84217e-13, mse=4.71176e-28, mape=5.95305e-15, smape=2.97653e-15
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx,16,42138,42138,4413449,0.059600,18.957195,50.668663,0.000000,0.000000,CSR5,42138,42138,4413449,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 52000  Core 9 53000  Core 10 54000  Core 11 52000  Core 12 50000  Core 13 51000  Core 14 50000  Core 15 48000  Package id 0 54000 Core 0 52000  Core 1 54000  Core 2 52000  Core 3 51000  Core 4 52000  Core 5 51000  Core 6 53000  Core 7 49000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 37000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 42000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 39000  Core 4 41000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 16
+time read: 0.122751
+time coo to csr: 0.030881
+omega = 4, sigma = 16. #partition = 84028
+CSR->CSR5 malloc time = 0.587000 ms
+CSR->CSR5 tile_ptr time = 0.245000 ms
+CSR->CSR5 tile_desc time = 2.651000 ms
+CSR->CSR5 transpose time = 1.118000 ms
+Test failed! (0.000159244)
+errors spmv: mae=1.44138e-12, max_ae=5.96046e-08, mse=5.89792e-18, mape=8.09596e-06, smape=4.04671e-06
+/various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx,16,68121,68121,5377761,0.091858,14.987280,61.803455,0.000000,0.000000,CSR5,68121,68121,5377761,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 52000  Core 9 53000  Core 10 54000  Core 11 52000  Core 12 50000  Core 13 51000  Core 14 50000  Core 15 48000  Package id 0 54000 Core 0 52000  Core 1 54000  Core 2 52000  Core 3 51000  Core 4 52000  Core 5 51000  Core 6 53000  Core 7 49000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 37000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 42000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 39000  Core 4 41000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+max threads 16
+time read: 0.071609
+time coo to csr: 0.030238
+omega = 4, sigma = 16. #partition = 93914
+CSR->CSR5 malloc time = 0.691000 ms
+CSR->CSR5 tile_ptr time = 0.335000 ms
+CSR->CSR5 tile_desc time = 4.195000 ms
+CSR->CSR5 transpose time = 2.301000 ms
+Test failed! (0.290807)
+errors spmv: mae=1.65406e-12, max_ae=5.02496e-11, mse=1.09954e-21, mape=inf, smape=3.51768
+/various/pmpakos/SpMV-Research/validation_matrices/consph.mtx,16,83334,83334,6010480,0.107691,14.287954,69.102383,0.000000,0.000000,CSR5,83334,83334,6010480,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 52000  Core 9 53000  Core 10 54000  Core 11 52000  Core 12 50000  Core 13 51000  Core 14 50000  Core 15 48000  Package id 0 54000 Core 0 52000  Core 1 54000  Core 2 52000  Core 3 51000  Core 4 52000  Core 5 51000  Core 6 53000  Core 7 49000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 37000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 42000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 39000  Core 4 41000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+max threads 16
+time read: 0.046314
+time coo to csr: 0.046735
+omega = 4, sigma = 16. #partition = 93364
+CSR->CSR5 malloc time = 0.158000 ms
+CSR->CSR5 tile_ptr time = 0.719000 ms
+CSR->CSR5 tile_desc time = 4.765000 ms
+CSR->CSR5 transpose time = 2.218000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx,16,1134890,1134890,5975248,0.277706,5.508221,72.710552,0.000000,0.000000,CSR5,1134890,1134890,5975248,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 54000  Core 9 54000  Core 10 54000  Core 11 52000  Core 12 52000  Core 13 54000  Core 14 52000  Core 15 49000  Package id 0 55000 Core 0 52000  Core 1 55000  Core 2 53000  Core 3 52000  Core 4 53000  Core 5 52000  Core 6 53000  Core 7 51000  Core 8 41000  Core 9 41000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 42000 Core 0 39000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+max threads 16
+time read: 0.121770
+time coo to csr: 0.043044
+omega = 4, sigma = 16. #partition = 96491
+CSR->CSR5 malloc time = 0.693000 ms
+CSR->CSR5 tile_ptr time = 0.586000 ms
+CSR->CSR5 tile_desc time = 4.842000 ms
+CSR->CSR5 transpose time = 2.422000 ms
+Test failed! (0.816252)
+errors spmv: mae=8.51346e-14, max_ae=5.35083e-08, mse=4.44686e-19, mape=inf, smape=0.0322373
+/various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx,16,643994,643994,6175377,0.171863,9.198598,73.128227,0.000000,0.000000,CSR5,643994,643994,6175377,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 54000  Core 9 54000  Core 10 54000  Core 11 52000  Core 12 52000  Core 13 54000  Core 14 52000  Core 15 49000  Package id 0 55000 Core 0 52000  Core 1 55000  Core 2 53000  Core 3 52000  Core 4 53000  Core 5 52000  Core 6 53000  Core 7 51000  Core 8 41000  Core 9 41000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 42000 Core 0 39000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+max threads 16
+time read: 0.118155
+time coo to csr: 0.038961
+omega = 4, sigma = 16. #partition = 119339
+CSR->CSR5 malloc time = 0.880000 ms
+CSR->CSR5 tile_ptr time = 0.570000 ms
+CSR->CSR5 tile_desc time = 5.938000 ms
+CSR->CSR5 transpose time = 3.291000 ms
+Test failed! (60297.5)
+errors spmv: mae=1.43817e-05, max_ae=0.220007, mse=0.00010785, mape=59.4409, smape=0.150445
+/various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx,16,223104,223104,7637688,0.160865,12.154626,88.257481,0.000000,0.000000,CSR5,223104,223104,7637688,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 53000  Core 9 53000  Core 10 54000  Core 11 52000  Core 12 50000  Core 13 53000  Core 14 51000  Core 15 49000  Package id 0 55000 Core 0 53000  Core 1 55000  Core 2 53000  Core 3 52000  Core 4 53000  Core 5 51000  Core 6 53000  Core 7 50000  Core 8 40000  Core 9 41000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 42000 Core 0 39000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+max threads 16
+time read: 0.078322
+time coo to csr: 0.041299
+omega = 4, sigma = 16. #partition = 118491
+CSR->CSR5 malloc time = 0.870000 ms
+CSR->CSR5 tile_ptr time = 0.589000 ms
+CSR->CSR5 tile_desc time = 4.436000 ms
+CSR->CSR5 transpose time = 2.131000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx,16,683446,683446,7583376,0.214191,9.063622,89.391994,0.000000,0.000000,CSR5,683446,683446,7583376,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 53000  Core 9 53000  Core 10 54000  Core 11 52000  Core 12 50000  Core 13 53000  Core 14 51000  Core 15 49000  Package id 0 55000 Core 0 53000  Core 1 55000  Core 2 53000  Core 3 52000  Core 4 53000  Core 5 51000  Core 6 53000  Core 7 50000  Core 8 40000  Core 9 41000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 42000 Core 0 39000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 16
+time read: 0.072279
+time coo to csr: 0.040902
+omega = 4, sigma = 16. #partition = 122085
+CSR->CSR5 malloc time = 0.886000 ms
+CSR->CSR5 tile_ptr time = 0.506000 ms
+CSR->CSR5 tile_desc time = 5.729000 ms
+CSR->CSR5 transpose time = 3.251000 ms
+Test failed! (347546)
+errors spmv: mae=1.1917e-05, max_ae=0.00537109, mse=4.90218e-07, mape=inf, smape=9.23777
+/various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx,16,140874,140874,7813404,0.155267,12.882532,89.954708,0.000000,0.000000,CSR5,140874,140874,7813404,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 53000  Core 9 53000  Core 10 54000  Core 11 52000  Core 12 50000  Core 13 53000  Core 14 51000  Core 15 48000  Package id 0 55000 Core 0 51000  Core 1 55000  Core 2 52000  Core 3 51000  Core 4 52000  Core 5 52000  Core 6 52000  Core 7 50000  Core 8 41000  Core 9 40000  Core 10 38000  Core 11 37000  Core 12 40000  Core 13 38000  Core 14 39000  Core 15 37000  Package id 1 42000 Core 0 41000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 16
+time read: 0.178234
+time coo to csr: 0.041524
+omega = 4, sigma = 16. #partition = 127893
+CSR->CSR5 malloc time = 0.920000 ms
+CSR->CSR5 tile_ptr time = 0.520000 ms
+CSR->CSR5 tile_desc time = 5.887000 ms
+CSR->CSR5 transpose time = 3.474000 ms
+Test failed! (1.22823e-06)
+errors spmv: mae=8.60609e-09, max_ae=2.28882e-05, mse=5.45011e-12, mape=3.34041e-09, smape=1.67021e-09
+/various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx,16,161070,161070,8185136,0.167186,12.533286,94.285885,0.000000,0.000000,CSR5,161070,161070,8185136,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 53000  Core 9 53000  Core 10 54000  Core 11 52000  Core 12 50000  Core 13 53000  Core 14 51000  Core 15 48000  Package id 0 55000 Core 0 51000  Core 1 55000  Core 2 52000  Core 3 51000  Core 4 52000  Core 5 52000  Core 6 52000  Core 7 50000  Core 8 41000  Core 9 40000  Core 10 38000  Core 11 37000  Core 12 40000  Core 13 38000  Core 14 39000  Core 15 37000  Package id 1 42000 Core 0 41000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+max threads 16
+time read: 0.100481
+time coo to csr: 0.051295
+omega = 4, sigma = 16. #partition = 139403
+CSR->CSR5 malloc time = 1.007000 ms
+CSR->CSR5 tile_ptr time = 0.747000 ms
+CSR->CSR5 tile_desc time = 6.574000 ms
+CSR->CSR5 transpose time = 4.011000 ms
+Test failed! (17)
+errors spmv: mae=2.01955e-07, max_ae=7.62939e-06, mse=4.31314e-11, mape=inf, smape=2.71797
+/various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx,16,806529,806529,8921789,0.214323,10.656733,105.178440,0.000000,0.000000,CSR5,806529,806529,8921789,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 54000  Core 9 56000  Core 10 55000  Core 11 52000  Core 12 52000  Core 13 54000  Core 14 53000  Core 15 49000  Package id 0 56000 Core 0 52000  Core 1 56000  Core 2 53000  Core 3 52000  Core 4 54000  Core 5 52000  Core 6 53000  Core 7 52000  Core 8 40000  Core 9 41000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 42000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+max threads 16
+time read: 0.060558
+time coo to csr: 0.082014
+omega = 4, sigma = 16. #partition = 145679
+CSR->CSR5 malloc time = 1.045000 ms
+CSR->CSR5 tile_ptr time = 0.409000 ms
+CSR->CSR5 tile_desc time = 2.594000 ms
+CSR->CSR5 transpose time = 1.052000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx,16,16783,16783,9323427,0.177685,13.432739,106.762180,0.000000,0.000000,CSR5,16783,16783,9323427,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 54000  Core 9 56000  Core 10 55000  Core 11 52000  Core 12 52000  Core 13 54000  Core 14 53000  Core 15 49000  Package id 0 56000 Core 0 52000  Core 1 56000  Core 2 53000  Core 3 52000  Core 4 54000  Core 5 52000  Core 6 53000  Core 7 52000  Core 8 40000  Core 9 41000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 42000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 37000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 16
+time read: 0.064602
+time coo to csr: 0.064584
+omega = 4, sigma = 16. #partition = 161763
+CSR->CSR5 malloc time = 1.166000 ms
+CSR->CSR5 tile_ptr time = 0.492000 ms
+CSR->CSR5 tile_desc time = 3.568000 ms
+CSR->CSR5 transpose time = 2.110000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx,16,66463,66463,10352819,0.210585,12.585493,118.732151,0.000000,0.000000,CSR5,66463,66463,10352819,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 53000  Core 9 53000  Core 10 54000  Core 11 52000  Core 12 50000  Core 13 53000  Core 14 52000  Core 15 48000  Package id 0 56000 Core 0 53000  Core 1 56000  Core 2 53000  Core 3 52000  Core 4 54000  Core 5 52000  Core 6 53000  Core 7 51000  Core 8 41000  Core 9 41000  Core 10 38000  Core 11 38000  Core 12 40000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 39000  Core 4 41000  Core 5 39000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+max threads 16
+time read: 0.104035
+time coo to csr: 0.060559
+omega = 4, sigma = 16. #partition = 176313
+CSR->CSR5 malloc time = 1.278000 ms
+CSR->CSR5 tile_ptr time = 0.202000 ms
+CSR->CSR5 tile_desc time = 2.173000 ms
+CSR->CSR5 transpose time = 0.381000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx,16,4284,1096894,11284032,0.259199,11.144771,129.151844,0.000000,0.000000,CSR5,4284,1096894,11284032,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 53000  Core 9 53000  Core 10 54000  Core 11 52000  Core 12 50000  Core 13 53000  Core 14 52000  Core 15 48000  Package id 0 56000 Core 0 53000  Core 1 56000  Core 2 53000  Core 3 52000  Core 4 54000  Core 5 52000  Core 6 53000  Core 7 51000  Core 8 41000  Core 9 41000  Core 10 38000  Core 11 38000  Core 12 40000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 39000  Core 4 41000  Core 5 39000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 16
+time read: 0.119531
+time coo to csr: 0.062810
+omega = 4, sigma = 16. #partition = 181788
+CSR->CSR5 malloc time = 1.315000 ms
+CSR->CSR5 tile_ptr time = 0.773000 ms
+CSR->CSR5 tile_desc time = 8.620000 ms
+CSR->CSR5 transpose time = 5.014000 ms
+Test failed! (1.5)
+errors spmv: mae=9.18325e-11, max_ae=2.16733e-08, mse=1.00494e-17, mape=0.0356255, smape=0.0111459
+/various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx,16,217918,217918,11634424,0.249916,11.917654,133.976711,0.000000,0.000000,CSR5,217918,217918,11634424,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 54000  Core 9 54000  Core 10 54000  Core 11 52000  Core 12 51000  Core 13 52000  Core 14 51000  Core 15 48000  Package id 0 55000 Core 0 52000  Core 1 55000  Core 2 53000  Core 3 53000  Core 4 53000  Core 5 52000  Core 6 53000  Core 7 51000  Core 8 41000  Core 9 41000  Core 10 38000  Core 11 39000  Core 12 39000  Core 13 40000  Core 14 38000  Core 15 38000  Package id 1 42000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 41000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 16
+time read: 0.117826
+time coo to csr: 0.083557
+omega = 4, sigma = 16. #partition = 221076
+CSR->CSR5 malloc time = 1.255000 ms
+CSR->CSR5 tile_ptr time = 0.733000 ms
+CSR->CSR5 tile_desc time = 5.254000 ms
+CSR->CSR5 transpose time = 3.296000 ms
+errors spmv: mae=7.10537e-09, max_ae=5.34058e-05, mse=4.48739e-12, mape=9.84625e-13, smape=4.92313e-13
+/various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx,16,63838,63838,14148858,0.298519,12.133611,162.164356,0.000000,0.000000,CSR5,63838,63838,14148858,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 54000  Core 9 54000  Core 10 54000  Core 11 52000  Core 12 51000  Core 13 52000  Core 14 51000  Core 15 48000  Package id 0 55000 Core 0 52000  Core 1 55000  Core 2 53000  Core 3 53000  Core 4 53000  Core 5 52000  Core 6 53000  Core 7 51000  Core 8 41000  Core 9 41000  Core 10 38000  Core 11 39000  Core 12 39000  Core 13 40000  Core 14 38000  Core 15 38000  Package id 1 42000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 41000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 16
+time read: 0.164599
+time coo to csr: 0.089536
+omega = 4, sigma = 16. #partition = 234552
+CSR->CSR5 malloc time = 1.334000 ms
+CSR->CSR5 tile_ptr time = 0.904000 ms
+CSR->CSR5 tile_desc time = 6.627000 ms
+CSR->CSR5 transpose time = 5.104000 ms
+errors spmv: mae=1.54173e-15, max_ae=1.82077e-14, mse=4.16811e-28, mape=1.30811e-12, smape=6.54054e-13
+/various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx,16,185639,185639,15011265,0.328627,11.693752,172.498455,0.000000,0.000000,CSR5,185639,185639,15011265,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 54000  Core 9 56000  Core 10 55000  Core 11 52000  Core 12 51000  Core 13 54000  Core 14 51000  Core 15 50000  Package id 0 56000 Core 0 53000  Core 1 56000  Core 2 54000  Core 3 52000  Core 4 54000  Core 5 54000  Core 6 54000  Core 7 52000  Core 8 40000  Core 9 41000  Core 10 39000  Core 11 38000  Core 12 40000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 42000 Core 0 41000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 41000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 16
+time read: 0.315264
+time coo to csr: 0.080020
+omega = 4, sigma = 16. #partition = 252675
+CSR->CSR5 malloc time = 1.515000 ms
+CSR->CSR5 tile_ptr time = 0.458000 ms
+CSR->CSR5 tile_desc time = 3.890000 ms
+CSR->CSR5 transpose time = 1.016000 ms
+Test failed! (4.86673e-10)
+errors spmv: mae=2.39427e-15, max_ae=2.17426e-12, mse=1.98004e-25, mape=1.54974e-11, smape=7.74869e-12
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx,16,38120,38120,16171169,0.332635,12.445530,185.209763,0.000000,0.000000,CSR5,38120,38120,16171169,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 53000  Core 9 54000  Core 10 54000  Core 11 52000  Core 12 51000  Core 13 53000  Core 14 51000  Core 15 49000  Package id 0 56000 Core 0 52000  Core 1 55000  Core 2 53000  Core 3 53000  Core 4 52000  Core 5 51000  Core 6 53000  Core 7 51000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 42000 Core 0 41000  Core 1 41000  Core 2 39000  Core 3 39000  Core 4 41000  Core 5 40000  Core 6 37000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+max threads 16
+time read: 0.166309
+time coo to csr: 0.086204
+omega = 4, sigma = 16. #partition = 264329
+CSR->CSR5 malloc time = 1.034000 ms
+CSR->CSR5 tile_ptr time = 1.455000 ms
+CSR->CSR5 tile_desc time = 13.592000 ms
+CSR->CSR5 transpose time = 6.664000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx,16,1382908,1382908,16917053,0.467608,9.261524,198.875687,0.000000,0.000000,CSR5,1382908,1382908,16917053,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 54000  Core 9 54000  Core 10 55000  Core 11 52000  Core 12 51000  Core 13 53000  Core 14 51000  Core 15 49000  Package id 0 56000 Core 0 52000  Core 1 55000  Core 2 54000  Core 3 53000  Core 4 53000  Core 5 52000  Core 6 54000  Core 7 51000  Core 8 41000  Core 9 41000  Core 10 38000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 42000 Core 0 41000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 40000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 16
+time read: 0.193341
+time coo to csr: 0.107547
+omega = 4, sigma = 16. #partition = 288883
+CSR->CSR5 malloc time = 1.767000 ms
+CSR->CSR5 tile_ptr time = 1.215000 ms
+CSR->CSR5 tile_desc time = 9.536000 ms
+CSR->CSR5 transpose time = 6.392000 ms
+Test failed! (2.35123e-09)
+errors spmv: mae=3.52673e-15, max_ae=8.00693e-13, mse=2.00234e-26, mape=1.29938e-11, smape=6.49688e-12
+/various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx,16,268096,268096,18488476,0.412388,11.477175,212.606525,0.000000,0.000000,CSR5,268096,268096,18488476,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 54000  Core 9 55000  Core 10 55000  Core 11 52000  Core 12 51000  Core 13 53000  Core 14 51000  Core 15 49000  Package id 0 56000 Core 0 52000  Core 1 55000  Core 2 54000  Core 3 52000  Core 4 53000  Core 5 52000  Core 6 54000  Core 7 51000  Core 8 40000  Core 9 41000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 39000  Core 15 37000  Package id 1 42000 Core 0 41000  Core 1 41000  Core 2 40000  Core 3 38000  Core 4 40000  Core 5 40000  Core 6 37000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+max threads 16
+time read: 0.183666
+time coo to csr: 0.131723
+omega = 4, sigma = 16. #partition = 300550
+CSR->CSR5 malloc time = 1.647000 ms
+CSR->CSR5 tile_ptr time = 1.758000 ms
+CSR->CSR5 tile_desc time = 14.149000 ms
+CSR->CSR5 transpose time = 7.999000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx,16,862664,862664,19235140,0.501710,9.814831,223.419514,0.000000,0.000000,CSR5,862664,862664,19235140,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 54000  Core 9 54000  Core 10 55000  Core 11 52000  Core 12 51000  Core 13 53000  Core 14 51000  Core 15 49000  Package id 0 56000 Core 0 52000  Core 1 56000  Core 2 53000  Core 3 53000  Core 4 53000  Core 5 52000  Core 6 54000  Core 7 51000  Core 8 41000  Core 9 40000  Core 10 37000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 39000  Core 15 38000  Package id 1 42000 Core 0 41000  Core 1 41000  Core 2 39000  Core 3 39000  Core 4 40000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+max threads 16
+time read: 0.193095
+time coo to csr: 0.093274
+omega = 4, sigma = 16. #partition = 308642
+CSR->CSR5 malloc time = 1.287000 ms
+CSR->CSR5 tile_ptr time = 1.799000 ms
+CSR->CSR5 tile_desc time = 21.562000 ms
+CSR->CSR5 transpose time = 7.850000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx,16,1634989,1634989,19753078,0.769793,6.569025,232.293030,0.000000,0.000000,CSR5,1634989,1634989,19753078,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 53000  Core 9 54000  Core 10 54000  Core 11 52000  Core 12 52000  Core 13 54000  Core 14 51000  Core 15 50000  Package id 0 56000 Core 0 52000  Core 1 55000  Core 2 53000  Core 3 52000  Core 4 53000  Core 5 52000  Core 6 53000  Core 7 51000  Core 8 41000  Core 9 41000  Core 10 37000  Core 11 39000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 41000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+max threads 16
+time read: 0.111152
+time coo to csr: 0.180651
+omega = 4, sigma = 16. #partition = 330718
+CSR->CSR5 malloc time = 2.058000 ms
+CSR->CSR5 tile_ptr time = 0.850000 ms
+CSR->CSR5 tile_desc time = 8.337000 ms
+CSR->CSR5 transpose time = 3.219000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx,16,262144,262144,21165908,0.568769,9.526665,243.224598,0.000000,0.000000,CSR5,262144,262144,21165908,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 53000  Core 9 54000  Core 10 55000  Core 11 53000  Core 12 51000  Core 13 53000  Core 14 52000  Core 15 49000  Package id 0 57000 Core 0 53000  Core 1 55000  Core 2 53000  Core 3 52000  Core 4 54000  Core 5 52000  Core 6 53000  Core 7 51000  Core 8 41000  Core 9 41000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 40000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 41000  Core 2 39000  Core 3 38000  Core 4 41000  Core 5 39000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+max threads 16
+time read: 0.315295
+time coo to csr: 0.092879
+omega = 4, sigma = 16. #partition = 317442
+CSR->CSR5 malloc time = 1.842000 ms
+CSR->CSR5 tile_ptr time = 2.116000 ms
+CSR->CSR5 tile_desc time = 15.890000 ms
+CSR->CSR5 transpose time = 8.905000 ms
+errors spmv: mae=7.05894e-17, max_ae=1.77636e-15, mse=5.65179e-30, mape=1.342e-12, smape=6.71e-13
+/various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx,16,4690002,4690002,20316253,0.729545,7.129050,250.392006,0.000000,0.000000,CSR5,4690002,4690002,20316253,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 53000  Core 9 55000  Core 10 55000  Core 11 53000  Core 12 52000  Core 13 54000  Core 14 52000  Core 15 50000  Package id 0 56000 Core 0 54000  Core 1 56000  Core 2 54000  Core 3 53000  Core 4 55000  Core 5 54000  Core 6 54000  Core 7 52000  Core 8 41000  Core 9 41000  Core 10 38000  Core 11 39000  Core 12 39000  Core 13 40000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 41000  Core 1 41000  Core 2 39000  Core 3 39000  Core 4 41000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+max threads 16
+time read: 0.237513
+time coo to csr: 0.201217
+omega = 4, sigma = 16. #partition = 385464
+CSR->CSR5 malloc time = 2.083000 ms
+CSR->CSR5 tile_ptr time = 0.549000 ms
+CSR->CSR5 tile_desc time = 5.167000 ms
+CSR->CSR5 transpose time = 1.101000 ms
+errors spmv: mae=5.41029e-14, max_ae=2.27374e-12, mse=2.08893e-24, mape=6.05773e-14, smape=3.02887e-14
+/various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx,16,22283,22283,24669643,0.517527,12.203091,282.406666,0.000000,0.000000,CSR5,22283,22283,24669643,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 54000  Core 9 55000  Core 10 55000  Core 11 52000  Core 12 52000  Core 13 54000  Core 14 52000  Core 15 49000  Package id 0 56000 Core 0 53000  Core 1 56000  Core 2 54000  Core 3 53000  Core 4 54000  Core 5 53000  Core 6 55000  Core 7 52000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 42000 Core 0 41000  Core 1 41000  Core 2 38000  Core 3 38000  Core 4 40000  Core 5 41000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+max threads 16
+time read: 0.154527
+time coo to csr: 0.157567
+omega = 4, sigma = 16. #partition = 393215
+CSR->CSR5 malloc time = 2.123000 ms
+CSR->CSR5 tile_ptr time = 2.542000 ms
+CSR->CSR5 tile_desc time = 19.661000 ms
+CSR->CSR5 transpose time = 10.848000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx,16,4194304,4194304,25165738,1.318996,4.884342,303.999020,0.000000,0.000000,CSR5,4194304,4194304,25165738,0.000000,0.000000,128
+Temps: Composite 48850 Sensor 1 67850  Sensor 2 50850  Core 8 55000  Core 9 57000  Core 10 55000  Core 11 54000  Core 12 53000  Core 13 54000  Core 14 52000  Core 15 50000  Package id 0 56000 Core 0 53000  Core 1 56000  Core 2 55000  Core 3 54000  Core 4 55000  Core 5 53000  Core 6 55000  Core 7 53000  Core 8 40000  Core 9 41000  Core 10 37000  Core 11 38000  Core 12 39000  Core 13 40000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 40000  Core 2 39000  Core 3 38000  Core 4 41000  Core 5 40000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+max threads 16
+time read: 0.300066
+time coo to csr: 0.132537
+omega = 4, sigma = 16. #partition = 467080
+CSR->CSR5 malloc time = 2.550000 ms
+CSR->CSR5 tile_ptr time = 2.292000 ms
+CSR->CSR5 tile_desc time = 24.534000 ms
+CSR->CSR5 transpose time = 13.026000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx,16,1437547,1911130,29893084,1.127413,6.787777,347.583008,0.000000,0.000000,CSR5,1437547,1911130,29893084,0.000000,0.000000,128
+Temps: Composite 49850 Sensor 1 67850  Sensor 2 51850  Core 8 54000  Core 9 56000  Core 10 55000  Core 11 53000  Core 12 52000  Core 13 53000  Core 14 52000  Core 15 50000  Package id 0 56000 Core 0 53000  Core 1 55000  Core 2 54000  Core 3 52000  Core 4 54000  Core 5 52000  Core 6 54000  Core 7 51000  Core 8 41000  Core 9 41000  Core 10 37000  Core 11 38000  Core 12 39000  Core 13 40000  Core 14 39000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 41000  Core 2 38000  Core 3 38000  Core 4 41000  Core 5 39000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+max threads 16
+time read: 0.328336
+time coo to csr: 0.167993
+omega = 4, sigma = 16. #partition = 566148
+CSR->CSR5 malloc time = 3.044000 ms
+CSR->CSR5 tile_ptr time = 3.265000 ms
+CSR->CSR5 tile_desc time = 42.505000 ms
+CSR->CSR5 transpose time = 12.563000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx,16,2601977,2601977,36233450,1.870087,4.960070,424.584686,0.000000,0.000000,CSR5,2601977,2601977,36233450,0.000000,0.000000,128
+Temps: Composite 49850 Sensor 1 67850  Sensor 2 51850  Core 8 54000  Core 9 56000  Core 10 55000  Core 11 53000  Core 12 51000  Core 13 54000  Core 14 52000  Core 15 50000  Package id 0 56000 Core 0 53000  Core 1 56000  Core 2 54000  Core 3 52000  Core 4 54000  Core 5 53000  Core 6 55000  Core 7 52000  Core 8 41000  Core 9 40000  Core 10 37000  Core 11 38000  Core 12 39000  Core 13 38000  Core 14 38000  Core 15 37000  Package id 1 42000 Core 0 39000  Core 1 41000  Core 2 38000  Core 3 38000  Core 4 40000  Core 5 40000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+max threads 16
+time read: 0.549039
+time coo to csr: 0.166633
+omega = 4, sigma = 16. #partition = 597811
+CSR->CSR5 malloc time = 2.568000 ms
+CSR->CSR5 tile_ptr time = 3.017000 ms
+CSR->CSR5 tile_desc time = 28.779000 ms
+CSR->CSR5 transpose time = 16.819000 ms
+Test failed! (46392.7)
+errors spmv: mae=0.000768903, max_ae=32.0001, mse=0.251632, mape=6.77194, smape=0.0516481
+/various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx,16,1200611,1200611,38259877,1.015620,9.643894,442.429516,0.000000,0.000000,CSR5,1200611,1200611,38259877,0.000000,0.000000,128
+Temps: Composite 49850 Sensor 1 67850  Sensor 2 51850  Core 8 54000  Core 9 56000  Core 10 55000  Core 11 53000  Core 12 52000  Core 13 53000  Core 14 53000  Core 15 51000  Package id 0 56000 Core 0 54000  Core 1 56000  Core 2 55000  Core 3 54000  Core 4 54000  Core 5 53000  Core 6 54000  Core 7 52000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 40000  Core 14 39000  Core 15 37000  Package id 1 41000 Core 0 39000  Core 1 41000  Core 2 38000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 36000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+max threads 16
+time read: 0.194803
+time coo to csr: 0.793709
+omega = 4, sigma = 16. #partition = 594380
+CSR->CSR5 malloc time = 3.002000 ms
+CSR->CSR5 tile_ptr time = 5.643000 ms
+CSR->CSR5 tile_desc time = 37.101000 ms
+CSR->CSR5 transpose time = 12.753000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx,16,18571154,18571154,38040320,2.208468,4.409537,506.180248,0.000000,0.000000,CSR5,18571154,18571154,38040320,0.000000,0.000000,128
+Temps: Composite 49850 Sensor 1 67850  Sensor 2 51850  Core 8 53000  Core 9 56000  Core 10 55000  Core 11 52000  Core 12 52000  Core 13 54000  Core 14 52000  Core 15 50000  Package id 0 57000 Core 0 54000  Core 1 56000  Core 2 55000  Core 3 53000  Core 4 53000  Core 5 52000  Core 6 53000  Core 7 50000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 37000  Core 12 39000  Core 13 40000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 41000  Core 1 41000  Core 2 38000  Core 3 39000  Core 4 41000  Core 5 39000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 16
+time read: 0.398332
+time coo to csr: 0.234148
+omega = 4, sigma = 16. #partition = 726914
+CSR->CSR5 malloc time = 3.116000 ms
+CSR->CSR5 tile_ptr time = 3.368000 ms
+CSR->CSR5 tile_desc time = 33.219000 ms
+CSR->CSR5 transpose time = 20.506000 ms
+Test failed! (4.81825e-09)
+errors spmv: mae=2.08466e-10, max_ae=7.45058e-08, mse=1.16262e-16, mape=1.14943e-11, smape=5.74717e-12
+/various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx,16,952203,952203,46522475,1.087773,10.948753,536.039845,0.000000,0.000000,CSR5,952203,952203,46522475,0.000000,0.000000,128
+Temps: Composite 49850 Sensor 1 67850  Sensor 2 51850  Core 8 54000  Core 9 56000  Core 10 55000  Core 11 54000  Core 12 52000  Core 13 55000  Core 14 53000  Core 15 51000  Package id 0 57000 Core 0 54000  Core 1 56000  Core 2 54000  Core 3 53000  Core 4 54000  Core 5 53000  Core 6 55000  Core 7 53000  Core 8 40000  Core 9 40000  Core 10 38000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 41000  Core 2 38000  Core 3 38000  Core 4 41000  Core 5 38000  Core 6 37000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+max threads 16
+time read: 0.511042
+time coo to csr: 0.256195
+omega = 4, sigma = 16. #partition = 758422
+CSR->CSR5 malloc time = 2.941000 ms
+CSR->CSR5 tile_ptr time = 3.436000 ms
+CSR->CSR5 tile_desc time = 34.092000 ms
+CSR->CSR5 transpose time = 20.792000 ms
+Test failed! (6.78628e-10)
+errors spmv: mae=4.74025e-16, max_ae=4.26326e-14, mse=2.00277e-28, mape=3.56343e-14, smape=1.78172e-14
+/various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx,16,1157456,1157456,48538952,1.161658,10.696760,559.899570,0.000000,0.000000,CSR5,1157456,1157456,48538952,0.000000,0.000000,128
+Temps: Composite 49850 Sensor 1 67850  Sensor 2 51850  Core 8 54000  Core 9 55000  Core 10 55000  Core 11 53000  Core 12 52000  Core 13 54000  Core 14 53000  Core 15 50000  Package id 0 57000 Core 0 54000  Core 1 56000  Core 2 54000  Core 3 53000  Core 4 54000  Core 5 53000  Core 6 54000  Core 7 51000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 37000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 40000  Core 1 40000  Core 2 38000  Core 3 38000  Core 4 40000  Core 5 39000  Core 6 36000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 16
+time read: 0.975016
+time coo to csr: 0.298876
+omega = 4, sigma = 16. #partition = 930068
+CSR->CSR5 malloc time = 4.321000 ms
+CSR->CSR5 tile_ptr time = 6.231000 ms
+CSR->CSR5 tile_desc time = 44.416000 ms
+CSR->CSR5 transpose time = 21.611000 ms
+Test failed! (7.94984e-09)
+errors spmv: mae=1.50883e-17, max_ae=5.06348e-12, mse=2.47986e-27, mape=5.5206, smape=0.352688
+/various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx,16,5558326,5558326,59524291,1.875296,8.125766,702.404785,0.000000,0.000000,CSR5,5558326,5558326,59524291,0.000000,0.000000,128
+Temps: Composite 49850 Sensor 1 67850  Sensor 2 51850  Core 8 55000  Core 9 56000  Core 10 56000  Core 11 55000  Core 12 52000  Core 13 54000  Core 14 53000  Core 15 51000  Package id 0 57000 Core 0 54000  Core 1 56000  Core 2 54000  Core 3 53000  Core 4 54000  Core 5 52000  Core 6 54000  Core 7 52000  Core 8 41000  Core 9 40000  Core 10 39000  Core 11 38000  Core 12 39000  Core 13 39000  Core 14 38000  Core 15 36000  Package id 1 42000 Core 0 41000  Core 1 41000  Core 2 38000  Core 3 38000  Core 4 41000  Core 5 39000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+max threads 16
+time read: 0.619410
+time coo to csr: 0.305509
+omega = 4, sigma = 16. #partition = 1078028
+CSR->CSR5 malloc time = 5.279000 ms
+CSR->CSR5 tile_ptr time = 6.937000 ms
+CSR->CSR5 tile_desc time = 92.323000 ms
+CSR->CSR5 transpose time = 28.857000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx,16,4847571,4847571,68993773,3.928502,4.495965,808.063091,0.000000,0.000000,CSR5,4847571,4847571,68993773,0.000000,0.000000,128
+Temps: Composite 49850 Sensor 1 67850  Sensor 2 51850  Core 8 54000  Core 9 55000  Core 10 55000  Core 11 52000  Core 12 50000  Core 13 53000  Core 14 51000  Core 15 49000  Package id 0 56000 Core 0 53000  Core 1 55000  Core 2 53000  Core 3 52000  Core 4 53000  Core 5 52000  Core 6 53000  Core 7 50000  Core 8 40000  Core 9 40000  Core 10 37000  Core 11 37000  Core 12 39000  Core 13 40000  Core 14 38000  Core 15 37000  Package id 1 41000 Core 0 39000  Core 1 40000  Core 2 38000  Core 3 37000  Core 4 40000  Core 5 39000  Core 6 36000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 16
+time read: 0.447131
+time coo to csr: 0.333671
+omega = 4, sigma = 16. #partition = 1119787
+CSR->CSR5 malloc time = 4.554000 ms
+CSR->CSR5 tile_ptr time = 5.277000 ms
+CSR->CSR5 tile_desc time = 48.803000 ms
+CSR->CSR5 transpose time = 27.967000 ms
+Test failed! (5.91172e-08)
+errors spmv: mae=1.86596e-12, max_ae=1.33014e-11, mse=6.94034e-22, mape=3.8933e-07, smape=1.94665e-07
+/various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx,16,986703,986703,71666325,1.671863,10.973735,823.919979,0.000000,0.000000,CSR5,986703,986703,71666325,0.000000,0.000000,128
+Temps: Composite 49850 Sensor 1 67850  Sensor 2 51850  Core 8 55000  Core 9 55000  Core 10 56000  Core 11 53000  Core 12 51000  Core 13 53000  Core 14 52000  Core 15 49000  Package id 0 58000 Core 0 54000  Core 1 56000  Core 2 54000  Core 3 53000  Core 4 55000  Core 5 53000  Core 6 55000  Core 7 52000  Core 8 40000  Core 9 39000  Core 10 37000  Core 11 37000  Core 12 39000  Core 13 39000  Core 14 37000  Core 15 37000  Package id 1 41000 Core 0 39000  Core 1 40000  Core 2 38000  Core 3 37000  Core 4 39000  Core 5 39000  Core 6 36000  Core 7 39000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+max threads 16
+time read: 0.739215
+time coo to csr: 0.392646
+omega = 4, sigma = 16. #partition = 1213311
+CSR->CSR5 malloc time = 4.609000 ms
+CSR->CSR5 tile_ptr time = 5.686000 ms
+CSR->CSR5 tile_desc time = 47.871000 ms
+CSR->CSR5 transpose time = 29.306000 ms
+Test failed! (5.25955e-06)
+errors spmv: mae=4.14559e-10, max_ae=2.38419e-06, mse=2.73777e-15, mape=3.32511e-09, smape=1.66256e-09
+/various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx,16,943695,943695,77651847,1.818107,10.933830,892.254780,0.000000,0.000000,CSR5,943695,943695,77651847,0.000000,0.000000,128
+Temps: Composite 49850 Sensor 1 67850  Sensor 2 51850  Core 8 55000  Core 9 56000  Core 10 56000  Core 11 54000  Core 12 52000  Core 13 55000  Core 14 53000  Core 15 50000  Package id 0 57000 Core 0 53000  Core 1 56000  Core 2 54000  Core 3 53000  Core 4 55000  Core 5 53000  Core 6 55000  Core 7 52000  Core 8 40000  Core 9 39000  Core 10 37000  Core 11 37000  Core 12 38000  Core 13 38000  Core 14 37000  Core 15 36000  Package id 1 41000 Core 0 39000  Core 1 39000  Core 2 38000  Core 3 38000  Core 4 39000  Core 5 39000  Core 6 36000  Core 7 40000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 16
+time read: 1.361414
+time coo to csr: 0.397947
+omega = 4, sigma = 16. #partition = 1549993
+CSR->CSR5 malloc time = 7.216000 ms
+CSR->CSR5 tile_ptr time = 8.913000 ms
+CSR->CSR5 tile_desc time = 73.933000 ms
+CSR->CSR5 transpose time = 42.833000 ms
+errors spmv: mae=6.9535e-17, max_ae=1.11022e-15, mse=1.53962e-30, mape=7.61916e-17, smape=3.80958e-17
+/various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx,16,5154859,5154859,99199551,2.863981,8.867059,1154.912998,0.000000,0.000000,CSR5,5154859,5154859,99199551,0.000000,0.000000,128
+Temps: Composite 49850 Sensor 1 67850  Sensor 2 51850  Core 8 55000  Core 9 56000  Core 10 55000  Core 11 54000  Core 12 52000  Core 13 55000  Core 14 53000  Core 15 51000  Package id 0 56000 Core 0 54000  Core 1 56000  Core 2 54000  Core 3 54000  Core 4 54000  Core 5 53000  Core 6 55000  Core 7 52000  Core 8 38000  Core 9 39000  Core 10 36000  Core 11 37000  Core 12 37000  Core 13 38000  Core 14 37000  Core 15 35000  Package id 1 41000 Core 0 38000  Core 1 38000  Core 2 38000  Core 3 37000  Core 4 39000  Core 5 38000  Core 6 35000  Core 7 38000  
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+max threads 16
+time read: 0.642342
+time coo to csr: 0.753184
+omega = 4, sigma = 16. #partition = 1831525
+CSR->CSR5 malloc time = 8.523000 ms
+CSR->CSR5 tile_ptr time = 16.893000 ms
+CSR->CSR5 tile_desc time = 98.704000 ms
+CSR->CSR5 transpose time = 50.669000 ms
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+/various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx,16,55042369,55042369,117217600,14.615702,2.053114,1551.418953,0.000000,0.000000,CSR5,55042369,55042369,117217600,0.000000,0.000000,128
