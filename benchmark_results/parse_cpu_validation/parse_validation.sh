@@ -29,13 +29,22 @@ data=(
     # "./arm/sell_C_s_d.csv        ./arm_validation_matrices      SELL-32-1      ARM     80"
     # "./arm/sparsex_d.csv         ./arm_validation_matrices      SparseX        ARM     80"
 
-    "./power9/csr_d.csv             ./power9-m100_validation_matrices      Custom_CSR_B       Power9     32"
-    "./power9/csr_naive_d.csv       ./power9-m100_validation_matrices      Naive_CSR_CPU      Power9     32"
-    "./power9/merge_d.csv           ./power9-m100_validation_matrices      MERGE              Power9     32"
-    "./power9/sparsex_d.csv         ./power9-m100_validation_matrices      SparseX            Power9     32"
-    "./power9/xlc_csr_d.csv           ./power9-m100_validation_matrices      Custom_CSR_B       Power9     32"
-    "./power9/xlc_csr_naive_d.csv     ./power9-m100_validation_matrices      Naive_CSR_CPU      Power9     32"
+    # "./power9/csr_d.csv             ./power9-m100_validation_matrices      Custom_CSR_B       Power9     32"
+    # "./power9/csr_naive_d.csv       ./power9-m100_validation_matrices      Naive_CSR_CPU      Power9     32"
+    # "./power9/merge_d.csv           ./power9-m100_validation_matrices      MERGE              Power9     32"
+    # "./power9/sparsex_d.csv         ./power9-m100_validation_matrices      SparseX            Power9     32"
+    # "./power9/xlc_csr_d.csv           ./power9-m100_validation_matrices      Custom_CSR_B       Power9     32"
+    # "./power9/xlc_csr_naive_d.csv     ./power9-m100_validation_matrices      Naive_CSR_CPU      Power9     32"
     # "./power9/csr_vector_d.csv      ./power9-m100_validation_matrices      Custom_CSR_BV      Power9     32"
+
+    "./intel-icy3/intermediate/validation/csr5_d.csv                             ./intel-icy3_validation_matrices CSR5           Icy 16"
+    "./intel-icy3/intermediate/validation/csr_naive_d.csv                        ./intel-icy3_validation_matrices Naive_CSR_CPU  Icy 16"
+    "./intel-icy3/intermediate/validation/csr_vector_d.csv                       ./intel-icy3_validation_matrices Custom_CSR_BV  Icy 16"
+    "./intel-icy3/intermediate/validation/csr_vector_perfect_nnz_balance_d.csv   ./intel-icy3_validation_matrices Custom_CSR_PBV Icy 16"
+    "./intel-icy3/intermediate/validation/merge_d.csv                            ./intel-icy3_validation_matrices MERGE          Icy 16"
+    "./intel-icy3/intermediate/validation/mkl_ie_d.csv                           ./intel-icy3_validation_matrices MKL_IE         Icy 16"
+    "./intel-icy3/intermediate/validation/sell_C_s_d.csv                         ./intel-icy3_validation_matrices SELL-32-1      Icy 16"
+    "./intel-icy3/intermediate/validation/sparsex_d.csv                          ./intel-icy3_validation_matrices SparseX        Icy 16"
 
 )
 
