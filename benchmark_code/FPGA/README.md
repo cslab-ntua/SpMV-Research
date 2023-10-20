@@ -9,5 +9,8 @@ This directory contains Python scripts for conversion of real matrices (stored i
 #### result_parsing
 This directory contains logs of matrix generation, as well as 'dirty' logs of benchmark runs on FPGA. It also contains a Jupyter notebook used to 'clean' these logs. Nothing important here.
 
+#### spmv_code_bench
+This directory contains code to run SpMV benchmarks, more specifically the design that was developed for the OPTIMA project. It is configured as the equivalent CPU directory, with templates to add new kernels. For now, it can be tested on the U280 and U55C Xilinx Alveo cards.
+
 #### vitis_library_code
 This directory contains code to run double-precision [Vitis Sparse Library](https://xilinx.github.io/Vitis_Libraries/sparse/2021.2/user_guide/L2_spmv_double_intro.html) on a Xilinx Alveo U280 FPGA. Modified version of [Vitis Accelerated Libraries](https://github.com/Xilinx/Vitis_Libraries/). Contains bash scripts to build and run the project. Detailed instructions to generate matrices and compile/run the project are provided inside the directory.
