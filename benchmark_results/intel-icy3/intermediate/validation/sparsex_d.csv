@@ -18,9 +18,6 @@
 /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx,16,68121,68121,5377761,0.099415,13.848094,61.803455,0.000000,0.000000,SparseX,68121,68121,5377761,61.803455,1.000000,128
 /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx,16,83334,83334,6010480,0.075365,20.416403,69.102383,0.000000,0.000000,SparseX,83334,83334,6010480,69.102383,1.000000,128
 /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx,16,1134890,1134890,5975248,0.396786,3.855133,72.710552,0.000000,0.000000,SparseX,1134890,1134890,5975248,72.710552,1.000000,128
-./run.sh: line 202: 816381 Aborted                 "$prog" "${prog_args[@]}" 2> 'tmp.err'
-terminate called after throwing an instance of 'std::length_error'
-  what():  vector::reserve
 /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx,16,223104,223104,7637688,0.158481,12.337449,88.257481,0.000000,0.000000,SparseX,223104,223104,7637688,88.257481,1.000000,128
 /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx,16,683446,683446,7583376,0.230969,8.405203,89.391994,0.000000,0.000000,SparseX,683446,683446,7583376,89.391994,1.000000,128
 /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx,16,140874,140874,7813404,0.114934,17.403371,89.954708,0.000000,0.000000,SparseX,140874,140874,7813404,89.954708,1.000000,128
