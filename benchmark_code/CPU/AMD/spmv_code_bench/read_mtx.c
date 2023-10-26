@@ -22,7 +22,7 @@
  */
 void
 create_coo_matrix(const char * market_filename,
-	ValueType ** V_out, INT_T ** R_out, INT_T ** C_out, INT_T * m_ptr, INT_T * n_ptr, INT_T * nnz_ptr)
+	double ** V_out, INT_T ** R_out, INT_T ** C_out, INT_T * m_ptr, INT_T * n_ptr, INT_T * nnz_ptr)
 {
 	int num_threads = omp_get_max_threads();
 	struct File_Atoms * A;
@@ -30,7 +30,7 @@ create_coo_matrix(const char * market_filename,
 
 	INT_T nr_rows=0, nr_cols=0, nr_nnzs=0;
 	INT_T * R = NULL, * C = NULL;
-	ValueType * V = NULL;
+	double * V = NULL;
 	int array = 0;
 	int symmetric = 0;
 	int skew = 0;
@@ -67,7 +67,7 @@ create_coo_matrix(const char * market_filename,
 	{
 		if (symmetric)
 			nr_nnzs *= 2;
-		V = (ValueType *) aligned_alloc(64, nr_nnzs * sizeof(ValueType));
+		V = (double *) aligned_alloc(64, nr_nnzs * sizeof(double));
 		R = (INT_T *) aligned_alloc(64, nr_nnzs * sizeof(INT_T));
 		C = (INT_T *) aligned_alloc(64, nr_nnzs * sizeof(INT_T));
 	}
@@ -85,7 +85,7 @@ create_coo_matrix(const char * market_filename,
 		long i, i_s, i_e, j;
 		long non_diag = 0;
 		INT_T row=1, col=1;
-		ValueType val=1.0;
+		double val=1.0;
 		char * l, * t;
 
 		loop_partitioner_balance_iterations(num_threads, tnum, 0, num_lines, &i_s, &i_e);

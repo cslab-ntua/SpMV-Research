@@ -33,7 +33,7 @@ struct New_Array : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	void statistics_print();
+	int statistics_print_data(char * buf, long buf_n);
 };
 
 void
@@ -61,8 +61,15 @@ New_Array::statistics_start()
 }
 
 
-void
-New_Array::statistics_print()
+int
+statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
+}
+
+
+int
+New_Array::statistics_print_data(char * buf, long buf_n)
 {
 }
 

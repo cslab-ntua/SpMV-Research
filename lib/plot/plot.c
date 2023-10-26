@@ -16,7 +16,7 @@
 #include "parallel_io.h"
 #include "genlib.h"
 #include "array_metrics.h"
-#include "plot/ppm.h"
+#include "storage_formats/ppm.h"
 
 #include "plot.h"
 #include "legend.h"
@@ -133,14 +133,37 @@ out:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+static inline
+int
+test_for_invalid_values(void * x, long N, double (* get_x_as_double)(void * x, long i))
+{
+	long ret = 0;
+	#pragma omp parallel
+	{
+		double v;
+		long i;
+		#pragma omp for
+		for (i=0;i<N;i++)
+		{
+			v = get_x_as_double(x, i);
+			if (isnan(v) || fabs(v) == INFINITY)
+				ret = 1;
+		}
+	}
+	return ret;
+}
+
+
 static
 void
-figure_series_init(struct Figure_Series * s, void * x, void * y, void * z, long N, long M,
+figure_series_init(struct Figure_Series * s, const char * name, void * x, void * y, void * z, long N, long M,
 		double (* get_x_as_double)(void * x, long i),
 		double (* get_y_as_double)(void * y, long i),
 		double (* get_z_as_double)(void * z, long i)
 		)
 {
+	long num_values;
+	s->name = strdup(name);
 	s->N = N;
 	if (M != 0)
 	{
@@ -152,6 +175,7 @@ figure_series_init(struct Figure_Series * s, void * x, void * y, void * z, long 
 		s->cart_prod = 0;
 		s->M = N;
 	}
+	num_values = (s->cart_prod) ? s->M * s->N : s->N;
 
 	s->x = x;
 	s->y = y;
@@ -168,7 +192,14 @@ figure_series_init(struct Figure_Series * s, void * x, void * y, void * z, long 
         s->get_y_as_double = get_y_as_double;
         s->get_z_as_double = get_z_as_double;
 
-	s->color_mapping = figure_color_mapping_heatmap;
+	if (x != NULL && test_for_invalid_values(x, num_values, get_x_as_double))
+		error("A value in x of series %s is invalid.", s->name);
+	if (y != NULL && test_for_invalid_values(y, num_values, get_y_as_double))
+		error("A value in y of series %s is invalid.", s->name);
+	if (z != NULL && test_for_invalid_values(z, num_values, get_z_as_double))
+		error("A value in z of series %s is invalid.", s->name);
+
+	s->color_mapping = figure_color_mapping_normal;
 	s->r = 0x00;
 	s->g = 0x00;
 	s->b = 0x00;
@@ -200,6 +231,7 @@ figure_series_clean(struct Figure_Series * s)
 		free(s->y);
 		free(s->z);
 	}
+	free(s->name);
 	s->x = NULL;
 	s->y = NULL;
 	s->z = NULL;
@@ -254,6 +286,8 @@ figure_add_series_base(struct Figure * fig, void * x, void * y, void * z, long N
 {
 	struct Figure_Series * s;
 	long i, max_num_series;
+	long buf_n = 1000;
+	char buf[buf_n];
 
 	if (fig->num_series == fig->max_num_series)
 	{
@@ -267,8 +301,17 @@ figure_add_series_base(struct Figure * fig, void * x, void * y, void * z, long N
 	}
 	fig->num_series++;
 	s = &fig->series[fig->num_series - 1];
-	figure_series_init(s, x, y, z, N, M, get_x_as_double, get_y_as_double, get_z_as_double);
+	snprintf(buf, buf_n, "%d", fig->num_series);
+	figure_series_init(s, buf, x, y, z, N, M, get_x_as_double, get_y_as_double, get_z_as_double);
 	return s;
+}
+
+
+void
+figure_series_set_name(struct Figure_Series * s, const char * name)
+{
+	free(s->name);
+	s->name = strdup(name);
 }
 
 
@@ -401,14 +444,14 @@ figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int p
 		double ** freq_out)
 {
 	void * values;
-	long values_n;
+	long num_values;
 	double (* get_value_as_double)(void * val, long i);
 	long * freq;
 	double * x, * y;
 	double quantum_size;
 	double min, max;
 
-	values_n = (s->cart_prod) ? s->M * s->N : s->N;
+	num_values = (s->cart_prod) ? s->M * s->N : s->N;
 	if (s->z == NULL)
 	{
 		values = s->y;
@@ -420,7 +463,7 @@ figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int p
 		get_value_as_double = s->get_z_as_double;
 	}
 
-	array_min_max(values, values_n, &min, NULL, &max, NULL, get_value_as_double);
+	array_min_max(values, num_values, &min, NULL, &max, NULL, get_value_as_double);
 
 	if (num_bins == 0)     // Integer mode.
 	{
@@ -445,7 +488,7 @@ figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int p
 		for (i=0;i<num_bins;i++)
 			freq[i] = 0;
 		#pragma omp for
-		for (i=0;i<values_n;i++)
+		for (i=0;i<num_values;i++)
 		{
 			v = get_value_as_double(values, i);
 			pos = (v - min) / quantum_size;
@@ -467,7 +510,7 @@ figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int p
 			x[i] = quantum_size * i + min;
 			y[i] = (double) freq[i];
 			if (plot_percentages)
-				y[i] = y[i] / values_n * 100;
+				y[i] = y[i] / num_values * 100;
 		}
 	}
 
@@ -508,7 +551,6 @@ figure_series_type_barplot_base(struct Figure_Series * s, double max_bar_width, 
 //==========================================================================================================================================
 
 
-// static inline
 void
 figure_color_mapping_geodesics(double val_norm, double val,
 		uint8_t * r_out, uint8_t * g_out, uint8_t * b_out)
@@ -524,8 +566,8 @@ figure_color_mapping_geodesics(double val_norm, double val,
 	else
 	{
 		g = ((double) 0x88) * normal_distribution(0, 1, val_proj);
-		// b = ((double) 0xFF) * normal_distribution(-1, 1, val_proj);
-		b = ((double) 0xFF) * normal_distribution(0, 1, val_proj);
+		b = ((double) 0xFF) * normal_distribution(-1, 1, val_proj);
+		// b = ((double) 0xFF) * normal_distribution(0, 1, val_proj);
 	}
 	*r_out = r;
 	*g_out = g;
@@ -534,10 +576,25 @@ figure_color_mapping_geodesics(double val_norm, double val,
 
 
 void
-figure_color_mapping_heatmap(double val_norm, __attribute__((unused)) double val,
+figure_color_mapping_normal(double val_norm, __attribute__((unused)) double val,
 		uint8_t * r_out, uint8_t * g_out, uint8_t * b_out)
 {
-	double val_proj = (val_norm - 0.5) * 4;
+	double val_proj = (val_norm - 0.5) * 4;    // [-2, 2]
+	*r_out = ((double) 0xFF) * normal_distribution( 1.2, 0.9, val_proj);
+	*g_out = ((double) 0xFF) * normal_distribution( 0, 0.9, val_proj);
+	*b_out = ((double) 0xFF) * normal_distribution(-1.2, 0.9, val_proj);
+	// *r_out = ((double) 0xFF) * normal_distribution( 1, 1, val_proj);
+	// *g_out = ((double) 0xFF) * normal_distribution( 0, 1, val_proj);
+	// *b_out = ((double) 0xFF) * normal_distribution(-1, 1, val_proj);
+}
+
+
+void
+figure_color_mapping_normal_logscale(double val_norm, __attribute__((unused)) double val,
+		uint8_t * r_out, uint8_t * g_out, uint8_t * b_out)
+{
+	double val_proj = log2(((double) 0xFF) * val_norm + 1);  // [0, log2(256)=8]
+	val_proj = (val_proj - 4) / 2;    // [-2, 2]
 	*r_out = ((double) 0xFF) * normal_distribution( 1.2, 0.9, val_proj);
 	*g_out = ((double) 0xFF) * normal_distribution( 0, 0.9, val_proj);
 	*b_out = ((double) 0xFF) * normal_distribution(-1.2, 0.9, val_proj);
@@ -555,6 +612,20 @@ figure_color_mapping_linear(double val_norm, __attribute__((unused)) double val,
 	r = (val_norm > 2.0/3) ? 3*(val_norm - 2.0/3) : 0;
 	g = (val_norm < 0.5) ? 2*val_norm : 2*(1 - val_norm);
 	b = (val_norm < 1.0/3) ? 1 - 3*val_norm: 0;
+	*r_out = ((double) 0xFF) * r;
+	*g_out = ((double) 0xFF) * g;
+	*b_out = ((double) 0xFF) * b;
+}
+
+
+void
+figure_color_mapping_cyclic(double val_norm, __attribute__((unused)) double val,
+		uint8_t * r_out, uint8_t * g_out, uint8_t * b_out)
+{
+	double r, g, b;
+	r = (val_norm > 2.0/3) ? 3*(val_norm - 2.0/3) : (val_norm < 1.0/3) ? 3*(1.0/3 - val_norm) : 0;
+	g = (val_norm > 2.0/3) ? 3*(3.0/3 - val_norm) : (val_norm > 1.0/3) ? 3*(val_norm - 1.0/3) : 0;
+	b = (val_norm < 1.0/3) ? 3*val_norm : (val_norm < 2.0/3) ? 3*(2.0/3 - val_norm) : 0;
 	*r_out = ((double) 0xFF) * r;
 	*g_out = ((double) 0xFF) * g;
 	*b_out = ((double) 0xFF) * b;
@@ -584,32 +655,34 @@ figure_color_mapping_greyscale(double val_norm, __attribute__((unused)) double v
  */  
 
 
-#define find_pixel_coord(num_pixels, val, min, step, flip, q_out)                                                        \
-({                                                                                                                       \
-	long ret = 1;                                                                                                    \
-	q_out = (long) floor((val - min) / step + 0.5);                                                                  \
-	if (flip)                                                                                                        \
-		q_out = num_pixels - 1 - q_out;                                                                          \
-	if ((q_out < 0) || (q_out >= num_pixels)) /* This should logically NEVER happen. */                              \
-	{                                                                                                                \
-		error("find_pixel_coord: pixel coordinate out of bounds: %ld , num_pixels = %ld", q_out, num_pixels);    \
-		ret = 0;                                                                                                 \
-	}                                                                                                                \
-	ret;                                                                                                             \
+#define find_pixel_coord(num_pixels, val, min, step, flip, custom_bounds)                                                                                  \
+({                                                                                                                                                         \
+	long _q = (long) floor((val - min) / step + 0.5);                                                                                                  \
+	if (flip)                                                                                                                                          \
+		_q = num_pixels - 1 - _q;                                                                                                                  \
+	if ((_q < 0) || (_q >= num_pixels))                                                                                                                \
+	{                                                                                                                                                  \
+		if (custom_bounds)                                                                                                                         \
+			_q = -1;   /* Ignore this value. */                                                                                                \
+		else   /* This should logically NEVER happen. */                                                                                           \
+			error("find_pixel_coord: pixel coordinate out of bounds: pixel=%ld , num_pixels=%ld , val=%lf , min=%lf , step=%lf , flip=%ld",    \
+				_q, num_pixels, val, min, step, flip);                                                                                     \
+	}                                                                                                                                                  \
+	_q;                                                                                                                                                \
 })
 
 
-#define find_pixel_coord_x(fig, s, i, q_out)                                                         \
-({                                                                                                   \
-	double x = s->get_x_as_double(s->x, i);                                                      \
-	find_pixel_coord(fig->x_num_pixels, x, fig->x_min, fig->x_step, fig->axes_flip_x, q_out);    \
+#define find_pixel_coord_x(fig, s, i)                                                                                \
+({                                                                                                                   \
+	double _x = s->get_x_as_double(s->x, i);                                                                     \
+	find_pixel_coord(fig->x_num_pixels, _x, fig->x_min, fig->x_step, fig->axes_flip_x, fig->custom_bounds_x);    \
 })
 
 
-#define find_pixel_coord_y(fig, s, i, q_out)                                                          \
-({                                                                                                    \
-	double y = s->get_y_as_double(s->y, i);                                                       \
-	find_pixel_coord(fig->y_num_pixels, y, fig->y_min, fig->y_step, !fig->axes_flip_y, q_out);    \
+#define find_pixel_coord_y(fig, s, i)                                                                                 \
+({                                                                                                                    \
+	double _y = s->get_y_as_double(s->y, i);                                                                      \
+	find_pixel_coord(fig->y_num_pixels, _y, fig->y_min, fig->y_step, !fig->axes_flip_y, fig->custom_bounds_y);    \
 })
 
 
@@ -729,11 +802,13 @@ series_plot(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * 
 			#pragma omp for schedule(static)
 			for (i=0;i<s->M;i++)
 			{
-				if (!find_pixel_coord_y(fig, s, i, y_pix))
+				y_pix = find_pixel_coord_y(fig, s, i);
+				if (y_pix < 0)
 					continue;
 				for (j=0;j<s->N;j++)
 				{
-					if (!find_pixel_coord_x(fig, s, j, x_pix))
+					x_pix = find_pixel_coord_x(fig, s, j);
+					if (x_pix < 0)
 						continue;
 					color_pixels(fig, pa, x_pix, y_pix, s, i*s->N+j);
 				}
@@ -744,9 +819,11 @@ series_plot(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * 
 			#pragma omp for schedule(static)
 			for (i=0;i<s->M;i++)
 			{
-				if (!find_pixel_coord_y(fig, s, i, y_pix))
+				y_pix = find_pixel_coord_y(fig, s, i);
+				if (y_pix < 0)
 					continue;
-				if (!find_pixel_coord_x(fig, s, i, x_pix))
+				x_pix = find_pixel_coord_x(fig, s, i);
+				if (x_pix < 0)
 					continue;
 				color_pixels(fig, pa, x_pix, y_pix, s, i);
 			}
@@ -785,13 +862,15 @@ series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pi
 		#pragma omp for schedule(static)
 		for (i=0;i<s->M;i++)
 		{
-			if (!find_pixel_coord_y(fig, s, i, y_pix))
+			y_pix = find_pixel_coord_y(fig, s, i);
+			if (y_pix < 0)
 				continue;
 			if (s->cart_prod)
 			{
 				for (j=0;j<s->N;j++)
 				{
-					if (!find_pixel_coord_x(fig, s, j, x_pix))
+					x_pix = find_pixel_coord_x(fig, s, j);
+					if (x_pix < 0)
 						continue;
 					pos = y_pix*x_num_pixels + x_pix;
 					__atomic_fetch_add(&counts[pos], 1, __ATOMIC_RELAXED);
@@ -799,7 +878,8 @@ series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pi
 			}
 			else
 			{
-				if (!find_pixel_coord_x(fig, s, i, x_pix))
+				x_pix = find_pixel_coord_x(fig, s, i);
+				if (x_pix < 0)
 					continue;
 				pos = y_pix*x_num_pixels + x_pix;
 				__atomic_fetch_add(&counts[pos], 1, __ATOMIC_RELAXED);
@@ -875,23 +955,32 @@ void
 calc_series_bounds(struct Figure_Series * s)
 {
 	if (s->x != NULL)
+	{
 		array_min_max(s->x, s->N, &s->x_min, NULL, &s->x_max, NULL, s->get_x_as_double);
+		array_mean(s->x, s->N, &s->x_avg, s->get_x_as_double);
+	}
 	else
 	{
 		s->x_min = 0;
 		s->x_max = s->N - 1;
+		s->x_avg = s->N / 2;
 	}
 	if (s->y != NULL)
+	{
 		array_min_max(s->y, s->M, &s->y_min, NULL, &s->y_max, NULL, s->get_y_as_double);
+		array_mean(s->y, s->N, &s->y_avg, s->get_y_as_double);
+	}
 	else
 	{
 		s->y_min = 0;
 		s->y_max = s->M - 1;
+		s->y_avg = s->M / 2;
 	}
 	if (s->z != NULL && !s->type_density_map)
 	{
-		long n = s->cart_prod ? s->M * s->N : s->N;
-		array_min_max(s->z, n, &s->z_min, NULL, &s->z_max, NULL, s->get_z_as_double);
+		long num_values = s->cart_prod ? s->M * s->N : s->N;
+		array_min_max(s->z, num_values, &s->z_min, NULL, &s->z_max, NULL, s->get_z_as_double);
+		array_mean(s->z, s->N, &s->z_avg, s->get_z_as_double);
 	}
 }
 
@@ -915,8 +1004,10 @@ calc_figure_bounds(struct Figure * fig)
 		for (i=0;i<fig->num_series;i++)
 		{
 			s = &fig->series[i];
-			fig->x_min = (s->x_min < fig->x_min) ? s->x_min : fig->x_min;
-			fig->x_max = (s->x_max > fig->x_max) ? s->x_max : fig->x_max;
+			if (s->x_min < fig->x_min)
+				fig->x_min = s->x_min;
+			if (s->x_max > fig->x_max)
+				fig->x_max = s->x_max;
 		}
 	}
 	if (!fig->custom_bounds_y)
@@ -926,8 +1017,10 @@ calc_figure_bounds(struct Figure * fig)
 		for (i=0;i<fig->num_series;i++)
 		{
 			s = &fig->series[i];
-			fig->y_min = (s->y_min < fig->y_min) ? s->y_min : fig->y_min;
-			fig->y_max = (s->y_max > fig->y_max) ? s->y_max : fig->y_max;
+			if (s->y_min < fig->y_min)
+				fig->y_min = s->y_min;
+			if (s->y_max > fig->y_max)
+				fig->y_max = s->y_max;
 		}
 	}
 	fig->z_min = INFINITY;
@@ -937,8 +1030,10 @@ calc_figure_bounds(struct Figure * fig)
 		s = &fig->series[i];
 		if (s->z != NULL && !s->type_density_map)
 		{
-			fig->z_min = (s->z_min < fig->z_min) ? s->z_min : fig->z_min;
-			fig->z_max = (s->z_max > fig->z_max) ? s->z_max : fig->z_max;
+			if (s->z_min < fig->z_min)
+				fig->z_min = s->z_min;
+			if (s->z_max > fig->z_max)
+				fig->z_max = s->z_max;
 		}
 	}
 
@@ -993,6 +1088,8 @@ figure_plot(struct Figure * fig, char * filename)
 	if (y_len == 0)
 		y_len = x_len;
 
+	// printf("fig->x_max = %lf , fig->x_min = %lf, fig->y_max = %lf , fig->y_min = %lf\n", fig->x_max, fig->x_min, fig->y_max, fig->y_min);
+
 	// -1 to fit the max values which are an inclusive boundary, and are at the position of the 'number of pixels' we divide each length by.
 	x_step = x_len / (x_num_pixels - 1);
 	y_step = y_len / (y_num_pixels - 1);
@@ -1015,4 +1112,5 @@ figure_plot(struct Figure * fig, char * filename)
 	pixel_array_destroy(&pa);
 	free(pa);
 }
+
 

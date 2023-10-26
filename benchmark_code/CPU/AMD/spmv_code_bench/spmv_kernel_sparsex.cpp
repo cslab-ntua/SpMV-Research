@@ -23,6 +23,12 @@ extern "C"{
 }
 #endif
 
+#undef binary_search
+#pragma push_macro("ValueType")
+#undef ValueType
+#include <sparsex/internals/CsxUtil.hpp>
+#pragma pop_macro("ValueType")
+
 
 struct CSXArrays : Matrix_Format
 {
@@ -50,7 +56,7 @@ struct CSXArrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
+	int statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -109,6 +115,19 @@ CSXArrays::spmv(ValueType * x, ValueType * y)
 }
 
 
+/* Copied from sparsex/include/sparsex/matvec.c
+ * (not in a header file for some reason)
+ */
+struct matrix {
+  spx_index_t nrows, ncols, nnz;
+  int symmetric;              /**< Flag that indicates whether the symmetric
+				 version of CSX will be used */
+  spx_perm_t *permutation;    /**< The permutation, in case the matrix has
+				 been reordered */
+  void *csx;                  /**< The tuned matrix representation, i.e. the
+				 input matrix transformed to the CSX format */
+};
+
 struct Matrix_Format *
 csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
 {
@@ -155,6 +174,9 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	);
 	printf("time preprocessing: %g\n", time);
 
+	spm_mt_t *spm_mt = (spm_mt_t *) A->csx;
+	csx->mem_footprint = sparsex::csx::CsxSize<INT_T, ValueType>(spm_mt);
+
 	csx->A = A;
 	csx->input = input;
 	csx->parts = parts;
@@ -174,7 +196,14 @@ CSXArrays::statistics_start()
 
 
 int
-CSXArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
+}
+
+
+int
+CSXArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
 	return 0;
 }

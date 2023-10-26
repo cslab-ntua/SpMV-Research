@@ -29,24 +29,133 @@
 #define PRAGMA(...)  _Pragma(STRING(__VA_ARGS__))
 
 
-// __VA_OPT__ replacement (almost, can't use the comma ',' with it).
-#define _OPT_ID(...)  __VA_ARGS__
-#define _OPT_SINK(...)
-#define _OPT_EXPAND(optional, fun, ...)  fun(optional)
-#define OPT(optional, ...)      _OPT_EXPAND(optional, _OPT_ID  , ##__VA_ARGS__ (_OPT_SINK))
-#define OPT_NEG(optional, ...)  _OPT_EXPAND(optional, _OPT_SINK, ##__VA_ARGS__ ()_OPT_ID)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                               Tuples                                                                   -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+/* Tuples are a basic construct and should not depend on any other macros.
+ */
+
+
+#define _T_OPT_ID(...)  __VA_ARGS__
+#define _T_OPT_SINK(...)
+#define _T_OPT_EXPAND(optional, fun, ...)  fun(optional)
+#define _T_OPT(optional, ...)      _T_OPT_EXPAND(optional, _T_OPT_ID  , ##__VA_ARGS__ (_T_OPT_SINK))
+#define _T_OPT_NEG(optional, ...)  _T_OPT_EXPAND(optional, _T_OPT_SINK, ##__VA_ARGS__ ()_T_OPT_ID)
 
 
 //==========================================================================================================================================
-//= Default Argument Values
+//= Unpack
+//==========================================================================================================================================
+
+
+#define _UNPACK_ID(...)  __VA_ARGS__
+// If there is a third argument (i.e. if _UNPACK_TEST_IF_TUPLE was called), args are unpacked with _UNPACK_ID.
+// Else they are returned as is (args where not packed - not a tuple).
+// No space before 'args' for purely aesthetic reasons, so that no space remains when '_T_OPT()' expands to empty (i.e. 'args' was not in a tuple).
+#define _UNPACK(args, one, ...)  _T_OPT(_UNPACK_ID, ##__VA_ARGS__)args
+// Always passed as only 2 arguments, so we pass them again.
+#define _UNPACK_EXPAND(tuple, test_args)  _UNPACK(tuple, test_args)
+#define _UNPACK_TEST_IF_TUPLE(...)  one , two
+
+/* Unpack tuple as arg list.
+ * When not a tuple, leave arguments as they are.
+ *
+ * When 'tuple' is a tuple '_UNPACK_TEST_IF_TUPLE' is called and it returns two arguments.
+ * When 'tuple' is not a tuple it is not called, and the two are counted as one argument (no commas).
+ */
+#define UNPACK(tuple)  _UNPACK_EXPAND(tuple, _UNPACK_TEST_IF_TUPLE tuple)
+
+
+//==========================================================================================================================================
+//= Test If Empty
+//==========================================================================================================================================
+
+
+#define __TUPLE_NOT_EMPTY(...)  _T_OPT_NEG(0, ##__VA_ARGS__) _T_OPT(1, ##__VA_ARGS__)
+#define _TUPLE_NOT_EMPTY(...)   __TUPLE_NOT_EMPTY(__VA_ARGS__)
+#define TUPLE_NOT_EMPTY(t)      _TUPLE_NOT_EMPTY(UNPACK(t))
+
+
+//==========================================================================================================================================
+//= Concat Tuples
+//==========================================================================================================================================
+
+
+#define _CONCAT_TUPLES_BRANCH_0_0(t1, t2)  ()
+#define _CONCAT_TUPLES_BRANCH_0_1(t1, t2)  (UNPACK(t2))
+#define _CONCAT_TUPLES_BRANCH_1_0(t1, t2)  (UNPACK(t1))
+#define _CONCAT_TUPLES_BRANCH_1_1(t1, t2)  (UNPACK(t1), UNPACK(t2))
+
+#define _CONCAT_TUPLES_BRANCH(t1_not_empty, t2_not_empty, t1, t2)  _CONCAT_TUPLES_BRANCH_ ## t1_not_empty ## _ ## t2_not_empty(t1, t2)  
+
+#define _CONCAT_TUPLES_EXPAND(t1_not_empty, t2_not_empty, t1, t2)  _CONCAT_TUPLES_BRANCH(t1_not_empty, t2_not_empty, t1, t2)
+#define CONCAT_TUPLES(t1, t2)  _CONCAT_TUPLES_EXPAND(TUPLE_NOT_EMPTY(t1), TUPLE_NOT_EMPTY(t2), t1, t2)
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                              Optional                                                                  -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+#define _OPT_BRANCH_1(tpl_opt)     UNPACK(tpl_opt)
+#define _OPT_BRANCH_0(tpl_opt)
+#define _OPT_BRANCH(num, tpl_opt)  _OPT_BRANCH_ ## num (tpl_opt)
+#define _OPT_EXPAND(num, tpl_opt)  _OPT_BRANCH(num, tpl_opt)
+#define OPT(tpl_test, tpl_opt)     _OPT_EXPAND(TUPLE_NOT_EMPTY(tpl_test), tpl_opt)
+
+#define _OPT_NEG_BRANCH_1(tpl_opt)
+#define _OPT_NEG_BRANCH_0(tpl_opt)     UNPACK(tpl_opt)
+#define _OPT_NEG_BRANCH(num, tpl_opt)  _OPT_NEG_BRANCH_ ## num (tpl_opt)
+#define _OPT_NEG_EXPAND(num, tpl_opt)  _OPT_NEG_BRANCH(num, tpl_opt)
+#define OPT_NEG(tpl_test, tpl_opt)     _OPT_NEG_EXPAND(TUPLE_NOT_EMPTY(tpl_test), tpl_opt)
+
+
+#define OPT_TERNARY(tpl_test, tpl_opt, tpl_opt_neg)  OPT(tpl_test, tpl_opt) OPT_NEG(tpl_test, tpl_opt_neg)
+
+
+// #define _OPT_BRANCH_1(opt)  opt
+// #define _OPT_BRANCH_0(opt)
+// #define _OPT_BRANCH(opt, num)  _OPT_BRANCH_ ## num (opt)
+// #define _OPT_EXPAND(opt, num)  _OPT_BRANCH(opt, num)
+// #define _OPT(opt, a1, ...)  _OPT_EXPAND(opt, COUNT_ARGS(a1))
+// #define OPT(opt, ...)  _OPT(opt, __VA_ARGS__)
+
+// #define _OPT_NEG_BRANCH_1(opt)
+// #define _OPT_NEG_BRANCH_0(opt)  opt
+// #define _OPT_NEG_BRANCH(opt, num)  _OPT_NEG_BRANCH_ ## num (opt)
+// #define _OPT_NEG_EXPAND(opt, num)  _OPT_NEG_BRANCH(opt, num)
+// #define _OPT_NEG(opt, a1, ...)  _OPT_NEG_EXPAND(opt, COUNT_ARGS(a1))
+// #define OPT_NEG(opt, ...)  _OPT_NEG(opt, __VA_ARGS__)
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                       Default Argument Values                                                          -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//==========================================================================================================================================
+//= 
 //==========================================================================================================================================
 
 
 /* Default function argument mechanism.
  * One can actually use it for ANY macro argument, by simply leaving it empty.
- * Example:
+ * Example 1:
  *     #define macro(arg1, arg2, arg3) fun(arg1, DEFAULT_ARG_1(0, arg2), arg3)
  *     macro(arg1, , arg3);
+ * Example 2:
+ *     #define macro(arg1, ...) fun(arg1, DEFAULT_ARG_1(0, __VA_ARGS__), DEFAULT_ARG_2(0, __VA_ARGS__))
+ *     macro(arg1, arg2, arg3);
+ *     macro(arg1, , arg3);
+ *     macro(arg1, arg2);
+ *     macro(arg1);
  */
 #define _DEF_ARG_1(def, arg)  arg
 #define _DEF_ARG_0(def, arg)  def
@@ -67,62 +176,7 @@
 #define DEFAULT_ARG_2(def, ...)  _DEFAULT_ARG_2(def, __VA_ARGS__, def)
 
 #define _DEFAULT_ARG_1(def, a1, ...)  _DEFAULT_ARG_TEST_EMPTY(def, a1)
-#define DEFAULT_ARG_1(def, ...)  _DEFAULT_ARG_1(def, __VA_ARGS__, def)
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//------------------------------------------------------------------------------------------------------------------------------------------
-//-                                                               Tuples                                                                   -
-//------------------------------------------------------------------------------------------------------------------------------------------
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-//==========================================================================================================================================
-//= Packing / Unpacking
-//==========================================================================================================================================
-
-
-// Pack args in a tuple. 
-#define PACK(...)  (__VA_ARGS__)
-
-// Unpack tuple as arg list, do nothing when not a tuple.
-#define _UNPACK_ID(...)  __VA_ARGS__
-#define _UNPACK_TEST_IF_TUPLE(...)  /* one */, /* two */
-// If there is a third argument (i.e. if _UNPACK_TEST_IF_TUPLE was called), args are unpacked with _UNPACK_ID.
-// Else they are returned as is (args where not packed - not a tuple).
-// No space before 'args' for purely aesthetic reasons, so that no space remains when 'OPT()' expands to empty (i.e. 'args' was not in a tuple).
-#define _UNPACK(args, one, ...)  OPT(_UNPACK_ID, ##__VA_ARGS__)args
-// Always passed as only 2 arguments, so we pass them again.
-#define _UNPACK_EXPAND_ARGS(...)  _UNPACK(__VA_ARGS__)
-// When 'tuple' is a tuple '_UNPACK_TEST_IF_TUPLE' is called and it returns two arguments.
-// When 'tuple' is not a tuple it is not called, and the two are counted as one argument (no commas).
-#define UNPACK(tuple)  _UNPACK_EXPAND_ARGS(tuple, _UNPACK_TEST_IF_TUPLE tuple)
-
-
-//==========================================================================================================================================
-//= Test If Empty
-//==========================================================================================================================================
-
-
-#define __TUPLE_NOT_EMPTY(...)  OPT_NEG(0, ##__VA_ARGS__) OPT(1, ##__VA_ARGS__)
-#define _TUPLE_NOT_EMPTY(...)   __TUPLE_NOT_EMPTY(__VA_ARGS__)
-#define TUPLE_NOT_EMPTY(t)      _TUPLE_NOT_EMPTY(UNPACK(t))
-
-
-//==========================================================================================================================================
-//= Concat Tuples
-//==========================================================================================================================================
-
-
-#define _CONCAT_TUPLES_0_0(t1, t2)  ()
-#define _CONCAT_TUPLES_0_1(t1, t2)  (UNPACK(t2))
-#define _CONCAT_TUPLES_1_0(t1, t2)  (UNPACK(t1))
-#define _CONCAT_TUPLES_1_1(t1, t2)  (UNPACK(t1), UNPACK(t2))
-
-#define _CONCAT_TUPLES_SELECT(t1_not_empty, t2_not_empty, t1, t2)  _CONCAT_TUPLES_ ## t1_not_empty ## _ ## t2_not_empty(t1, t2)  
-
-#define _CONCAT_TUPLES_EXPAND(t1_not_empty, t2_not_empty, t1, t2)  _CONCAT_TUPLES_SELECT(t1_not_empty, t2_not_empty, t1, t2)
-#define CONCAT_TUPLES(t1, t2)  _CONCAT_TUPLES_EXPAND(TUPLE_NOT_EMPTY(t1), TUPLE_NOT_EMPTY(t2), t1, t2)
+#define DEFAULT_ARG_1(def, ...)  _DEFAULT_ARG_1(def, __VA_ARGS__)
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -146,15 +200,12 @@
 #define _FOREACH_EXPAND(expand_ver, i, fun, tpl_prefix, a, tpl_suffix)  expand_ver(i, fun, UNPACK(CONCAT_TUPLES(CONCAT_TUPLES(tpl_prefix, a), tpl_suffix)))
 
 
-// As is.
 #define _FOREACH_AS_IS_0(i, tpl_src_code, expand_ver, fun, tpl_prefix, tpl_suffix)              UNPACK(tpl_src_code)
 #define _FOREACH_AS_IS_REC(i, tpl_src_code, expand_ver, fun, tpl_prefix, tpl_suffix, a, ...)    (UNPACK(tpl_src_code) _FOREACH_EXPAND(expand_ver, i, fun, tpl_prefix, a, tpl_suffix)), expand_ver, fun, tpl_prefix, tpl_suffix, ##__VA_ARGS__
 
-// As semicolon-terminated statements.
 #define _FOREACH_AS_STMT_0(i, tpl_src_code, expand_ver, fun, tpl_prefix, tpl_suffix)            UNPACK(tpl_src_code)
 #define _FOREACH_AS_STMT_REC(i, tpl_src_code, expand_ver, fun, tpl_prefix, tpl_suffix, a, ...)  (UNPACK(tpl_src_code) _FOREACH_EXPAND(expand_ver, i, fun, tpl_prefix, a, tpl_suffix);), expand_ver, fun, tpl_prefix, tpl_suffix, ##__VA_ARGS__
 
-// As a comma-separated list of expressions.
 #define _FOREACH_AS_EXPR_0(i, tpl_src_code, expand_ver, fun, tpl_prefix, tpl_suffix)            UNPACK(tpl_src_code)
 #define _FOREACH_AS_EXPR_REC(i, tpl_src_code, expand_ver, fun, tpl_prefix, tpl_suffix, a, ...)  CONCAT_TUPLES(tpl_src_code, (_FOREACH_EXPAND(expand_ver, i, fun, tpl_prefix, a, tpl_suffix))), expand_ver, fun, tpl_prefix, tpl_suffix, ##__VA_ARGS__
 
@@ -162,11 +213,14 @@
 #define _FOREACH_BASE(foreach_rec, foreach_0, pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)  RECURSION_FORM_ITER(UNPACK(tpl_arg_vals)) (foreach_rec, foreach_0, (, _FOREACH_EXPAND_ ## pass_iter, fun, tpl_prefix, tpl_suffix, UNPACK(tpl_arg_vals)))
 
 
+// As is.
 #define FOREACH_AS_IS(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)              _FOREACH_BASE(_FOREACH_AS_IS_REC, _FOREACH_AS_IS_0, pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)
 
+// As semicolon-terminated statements.
 #define FOREACH_AS_STMT_UNGUARDED(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)  _FOREACH_BASE(_FOREACH_AS_STMT_REC, _FOREACH_AS_STMT_0, pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)
 #define FOREACH_AS_STMT(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)            do { FOREACH_AS_STMT_UNGUARDED(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix) } while (0)
 
+// As a comma-separated list of expressions.
 #define FOREACH_AS_EXPR_UNGUARDED(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)  _FOREACH_BASE(_FOREACH_AS_EXPR_REC, _FOREACH_AS_EXPR_0, pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)
 #define FOREACH_AS_EXPR(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)            ( FOREACH_AS_EXPR_UNGUARDED(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix) )
 
@@ -185,7 +239,7 @@
 // #define FOREACH(fun, ...)            do { FOREACH_UNGUARDED(fun, ##__VA_ARGS__); } while (0)
 
 #define FOREACH_UNGUARDED(fun, ...)  FOREACH_AS_STMT_UNGUARDED(0, fun, , (__VA_ARGS__), )
-#define FOREACH(fun, ...)            FOREACH_AS_STMT(0, fun,  , (__VA_ARGS__), )
+#define FOREACH(fun, ...)            FOREACH_AS_STMT(0, fun, , (__VA_ARGS__), )
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -200,15 +254,22 @@
 //==========================================================================================================================================
 
 
-/* RENAME( list of tupples : (name_initial, name_final, [type]) )
- *     Rename macro arguments to avoid names clashing with macro variables.
- *     Optionally pass the type.
+/* RENAME( list of tuples : (value, name [, [type] [, specifiers]]) )
+ *
+ *     Rename macro arguments, to avoid names clashing with macro variables.
+ *
+ *     value : RHS expression, the initial name of the variable/argument, or otherwise any value / expression.
+ *     name : LHS expression, the final name of the variable.
+ *     type : (optional) The type of the final variable.
+ *     specifiers : (optional) The attributes or any other specifier (e.g. const) of the final variable
+ *                             (the user might not want to declare the type, only the specifiers/attributes).
  */
 
-#define __RENAME_PREFIX __eb320f0c2b6a25b48ca861a120eea902__     // MD5 of "macro" (no reason)
-#define _RENAME_1(a, b, ...)  DEFAULT_ARG_1(__auto_type, __VA_ARGS__) __MACRO_EXCLUSIVE_PREFIX##b = (a);
-// DON'T reuse possible given type for _RENAME_2, the intermediate variables are already the correct type (the given type might be in a 'typeof(var)' format, and the name of 'var' could be shadowed).
-#define _RENAME_2(a, b, ...)  __auto_type b = __MACRO_EXCLUSIVE_PREFIX##b;
+#define _RENAME_PREFIX __eb320f0c2b6a25b48ca861a120eea902__     // MD5 of "macro" (no reason)
+#define _RENAME_1(value, name, ...)  DEFAULT_ARG_1(__auto_type, __VA_ARGS__) _RENAME_PREFIX ## name = (value);
+// DON'T reuse possible given type for _RENAME_2 (the intermediate variables are already the correct type),
+// because the given type might be in a 'typeof(var)' format, and the name of 'var' could be shadowed.
+#define _RENAME_2(value, name, ...)  DEFAULT_ARG_2(, __VA_ARGS__) __auto_type name = _RENAME_PREFIX ## name;
 
 #define RENAME(...)                                     \
 	FOREACH_UNGUARDED(_RENAME_1, ##__VA_ARGS__);    \
@@ -271,7 +332,7 @@
 /* Return '_val' if '_ptr_out' not NULL.
  *
  * It is very dangerous to attempt to guess the type of the pointer '_ptr_out' from the type of '_val' (e.g. _ptr_out: int * , _val: long).
- * If '_ptr_out' ends up of type void * (e.g. with NULL as argument to a macro), then fix your macro by
+ * If '_ptr_out' ends up of type void * (e.g. with NULL as argument to a macro), then you should adapt your macro by
  * enforcing the appropriate type for the pointer.
  */
 #undef  arg_return
@@ -336,6 +397,27 @@ do {                                                 \
 
 
 //==========================================================================================================================================
+//= Max - Min
+//==========================================================================================================================================
+
+
+#undef  MAX
+#define MAX(_v1, _v2)                    \
+({                                       \
+	RENAME((_v1, v1), (_v2, v2));    \
+	(v1 > v2) ? v1 : v2;             \
+})
+
+
+#undef  MIN
+#define MIN(_v1, _v2)                    \
+({                                       \
+	RENAME((_v1, v1), (_v2, v2));    \
+	(v1 < v2) ? v1 : v2;             \
+})
+
+
+//==========================================================================================================================================
 //= Absolute Value
 //==========================================================================================================================================
 
@@ -348,9 +430,11 @@ do {                                                 \
 })
 
 
-//==========================================================================================================================================
-//= Binary Search
-//==========================================================================================================================================
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                            Binary Search                                                               -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 #define _binary_search_default_cmp(target, A, i)           \

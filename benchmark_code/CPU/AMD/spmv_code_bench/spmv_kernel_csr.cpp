@@ -158,7 +158,7 @@ struct CSRArrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
+	int statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -700,9 +700,16 @@ CSRArrays::statistics_start()
 
 
 int
-CSRArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
-	int num_threads = omp_get_max_threads();
+	return 0;
+}
+
+
+int
+CSRArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	/* int num_threads = omp_get_max_threads();
 	double iters_per_t[num_threads];
 	double nnz_per_t[num_threads];
 	__attribute__((unused)) double gflops_per_t[num_threads];
@@ -725,23 +732,23 @@ CSRArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((u
 	}
 
 	array_min_max(iters_per_t, num_threads, &iters_per_t_min, NULL, &iters_per_t_max, NULL, val_to_double);
-	iters_per_t_avg = array_mean(iters_per_t, num_threads, val_to_double);
-	iters_per_t_std = array_std(iters_per_t, num_threads, iters_per_t_avg, val_to_double);
+	array_mean(iters_per_t, num_threads, &iters_per_t_avg, val_to_double);
+	array_std(iters_per_t, num_threads, &iters_per_t_std, val_to_double);
 	iters_per_t_balance = iters_per_t_avg / iters_per_t_max;
 
 	array_min_max(nnz_per_t, num_threads, &nnz_per_t_min, NULL, &nnz_per_t_max, NULL, val_to_double);
-	nnz_per_t_avg = array_mean(nnz_per_t, num_threads, val_to_double);
-	nnz_per_t_std = array_std(nnz_per_t, num_threads, nnz_per_t_avg, val_to_double);
+	array_mean(nnz_per_t, num_threads, &nnz_per_t_avg, val_to_double);
+	array_std(nnz_per_t, num_threads, &nnz_per_t_std, val_to_double);
 	nnz_per_t_balance = nnz_per_t_avg / nnz_per_t_max;
 
 	array_min_max(thread_time_compute, num_threads, &time_per_t_min, NULL, &time_per_t_max, NULL, val_to_double);
-	time_per_t_avg = array_mean(thread_time_compute, num_threads, val_to_double);
-	time_per_t_std = array_std(thread_time_compute, num_threads, time_per_t_avg, val_to_double);
+	array_mean(thread_time_compute, num_threads, &time_per_t_avg, val_to_double);
+	array_std(thread_time_compute, num_threads, &time_per_t_std, val_to_double);
 	time_per_t_balance = time_per_t_avg / time_per_t_max;
 
 	array_min_max(gflops_per_t, num_threads, &gflops_per_t_min, NULL, &gflops_per_t_max, NULL, val_to_double);
-	gflops_per_t_avg = array_mean(gflops_per_t, num_threads, val_to_double);
-	gflops_per_t_std = array_std(gflops_per_t, num_threads, gflops_per_t_avg, val_to_double);
+	array_mean(gflops_per_t, num_threads, &gflops_per_t_avg, val_to_double);
+	array_std(gflops_per_t, num_threads, &gflops_per_t_std, val_to_double);
 	gflops_per_t_balance = gflops_per_t_avg / gflops_per_t_max;
 
 	printf("i:%g,%g,%g,%g,%g\n", iters_per_t_min, iters_per_t_max, iters_per_t_avg, iters_per_t_std, iters_per_t_balance);
@@ -764,7 +771,7 @@ CSRArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((u
 		time_total = time_compute + time_barrier;
 		percent = time_barrier / time_compute * 100;
 		printf("%ld %g %g %g %g %g\n", i, gflops_per_t[i], time_compute, time_barrier, time_total, percent);
-	}
+	} */
 
 	// i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_avg);
 	// i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_std);

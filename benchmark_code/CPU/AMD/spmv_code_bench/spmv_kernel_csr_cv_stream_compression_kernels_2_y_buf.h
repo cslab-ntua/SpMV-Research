@@ -118,12 +118,12 @@ uint64_t * t_total_row_diff_max;
 uint64_t * t_total_col_diff_max;
 double ** t_y_buf;
 
-#include "sort/quicksort_gen_undef.h"
+#include "sort/quicksort/quicksort_gen_undef.h"
 #define QUICKSORT_GEN_TYPE_1  int
 #define QUICKSORT_GEN_TYPE_2  int
 #define QUICKSORT_GEN_TYPE_3  double
 #define QUICKSORT_GEN_SUFFIX  i_i_d
-#include "sort/quicksort_gen.c"
+#include "sort/quicksort/quicksort_gen.c"
 
 static inline
 int

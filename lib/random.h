@@ -63,7 +63,9 @@ double random_normal(struct Random_State * rs, double mean, double std);
  *
  * Notes:
  *     - k:shape , theta:scale
+ *
  *     - k > 0 , theta > 0
+ *
  *     - mean = k * theta    (> 0)
  *     - var = theta^2 / k   (> 0)
  *

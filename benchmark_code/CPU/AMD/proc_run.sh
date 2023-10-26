@@ -239,7 +239,7 @@ matrices=(
 )
 
 
-if ((!use_artificial_matrices)); then
+if ((!USE_ARTIFICIAL_MATRICES)); then
     prog_args=("${matrices[@]}")
 else
     prog_args=()

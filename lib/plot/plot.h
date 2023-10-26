@@ -22,6 +22,8 @@ struct Figure_Legend_Conf {
  * M - lines   (y axis)
  */
 struct Figure_Series {
+	char * name;
+
 	long N;
 	long M;
 	int cart_prod;
@@ -32,10 +34,13 @@ struct Figure_Series {
 
 	double x_min;
 	double x_max;
+	double x_avg;
 	double y_min;
 	double y_max;
+	double y_avg;
 	double z_min;
 	double z_max;
+	double z_avg;
 
 	// The labels will have a percentage sign, if all series are in percentages.
 	int x_in_percentages;
@@ -111,6 +116,8 @@ struct Figure_Series * figure_add_series_base(struct Figure * fig, void * x, voi
 			DEFAULT_ARG_2(gen_functor_convert_basic_type_to_double(y), __VA_ARGS__),                     \
 			DEFAULT_ARG_3(gen_functor_convert_basic_type_to_double(z), __VA_ARGS__))
 
+void figure_series_set_name(struct Figure_Series * s, const char * name);
+
 void figure_axes_flip_x(struct Figure * fig);
 void figure_axes_flip_y(struct Figure * fig);
 void figure_set_bounds_x(struct Figure * fig, double min, double max);
@@ -121,8 +128,10 @@ void figure_series_set_color(struct Figure_Series * s, int16_t r, int16_t g, int
 void figure_series_set_color_mapping(struct Figure_Series * s, void color_mapping(double val_norm, double val, uint8_t * r_out, uint8_t * g_out, uint8_t * b_out));
 void figure_series_set_dot_size_pixels(struct Figure_Series * s, int size);
 void figure_color_mapping_geodesics(double val_norm, double val, uint8_t * r_out, uint8_t * g_out, uint8_t * b_out);
-void figure_color_mapping_heatmap(double val_norm, double val, uint8_t * r_out, uint8_t * g_out, uint8_t * b_out);
+void figure_color_mapping_normal(double val_norm, double val, uint8_t * r_out, uint8_t * g_out, uint8_t * b_out);
+void figure_color_mapping_normal_logscale(double val_norm, double val, uint8_t * r_out, uint8_t * g_out, uint8_t * b_out);
 void figure_color_mapping_linear(double val_norm, double val, uint8_t * r_out, uint8_t * g_out, uint8_t * b_out);
+void figure_color_mapping_cyclic(double val_norm, double val, uint8_t * r_out, uint8_t * g_out, uint8_t * b_out);
 void figure_color_mapping_greyscale(double val_norm, double val, uint8_t * r_out, uint8_t * g_out, uint8_t * b_out);
 
 // Text

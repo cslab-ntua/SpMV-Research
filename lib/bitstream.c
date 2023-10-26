@@ -149,24 +149,6 @@ bitstream_write_flush(struct Bit_Stream * bs)
 
 #if 0
 
-static inline
-uint64_t
-bits_unset_high(uint64_t v, unsigned long pos)
-{
-	static uint64_t width_to_mask_table[64] = {
-		0x0000000000000000, 0x0000000000000001, 0x0000000000000003, 0x0000000000000007, 0x000000000000000f, 0x000000000000001f, 0x000000000000003f, 0x000000000000007f,
-		0x00000000000000ff, 0x00000000000001ff, 0x00000000000003ff, 0x00000000000007ff, 0x0000000000000fff, 0x0000000000001fff, 0x0000000000003fff, 0x0000000000007fff,
-		0x000000000000ffff, 0x000000000001ffff, 0x000000000003ffff, 0x000000000007ffff, 0x00000000000fffff, 0x00000000001fffff, 0x00000000003fffff, 0x00000000007fffff,
-		0x0000000000ffffff, 0x0000000001ffffff, 0x0000000003ffffff, 0x0000000007ffffff, 0x000000000fffffff, 0x000000001fffffff, 0x000000003fffffff, 0x000000007fffffff,
-		0x00000000ffffffff, 0x00000001ffffffff, 0x00000003ffffffff, 0x00000007ffffffff, 0x0000000fffffffff, 0x0000001fffffffff, 0x0000003fffffffff, 0x0000007fffffffff,
-		0x000000ffffffffff, 0x000001ffffffffff, 0x000003ffffffffff, 0x000007ffffffffff, 0x00000fffffffffff, 0x00001fffffffffff, 0x00003fffffffffff, 0x00007fffffffffff,
-		0x0000ffffffffffff, 0x0001ffffffffffff, 0x0003ffffffffffff, 0x0007ffffffffffff, 0x000fffffffffffff, 0x001fffffffffffff, 0x003fffffffffffff, 0x007fffffffffffff,
-		0x00ffffffffffffff, 0x01ffffffffffffff, 0x03ffffffffffffff, 0x07ffffffffffffff, 0x0fffffffffffffff, 0x1fffffffffffffff, 0x3fffffffffffffff, 0x7fffffffffffffff,
-	};
-	return v & width_to_mask_table[pos & 63];
-}
-
-
 inline
 void
 bitstream_read_unsafe(struct Bit_Stream * bs, uint64_t * val_out, long num_bits)
@@ -202,7 +184,7 @@ bitstream_read_unsafe(struct Bit_Stream * bs, uint64_t * val_out, long num_bits)
 	}
 	bs->buf = buf;
 	val = _bzhi_u64(val, num_bits);
-	// val = bits_unset_high(val, num_bits);
+	// val = bits_u64_unset_high(val, num_bits);
 	*val_out = val;
 }
 
@@ -220,14 +202,14 @@ bitstream_read_unsafe(struct Bit_Stream * bs, uint64_t * val_out, long num_bits)
 	if (__builtin_expect(rem > 0, 0))
 		num_bits = 57;
 	val = *((uint64_t *) (&bs->data.c[byte_pos]));
-	res = bits_extract_64(val, bs->len_bits & 7, num_bits);
+	res = bits_u64_extract(val, bs->len_bits & 7, num_bits);
 	// res = (val >> (bs->len_bits & 7)) & ((1 << num_bits) - 1);
 	bs->len_bits += num_bits;
 	if (__builtin_expect(rem > 0, 0))
 	{
 		byte_pos = bs->len_bits >> 3;
 		val = *((uint64_t *) (&bs->data.c[byte_pos]));
-		res |= bits_extract_64(val, bs->len_bits & 7, rem) << 57;
+		res |= bits_u64_extract(val, bs->len_bits & 7, rem) << 57;
 		bs->len_bits += rem;
 	}
 	*val_out = res;
@@ -242,7 +224,7 @@ bitstream_read_unsafe_57_base(struct Bit_Stream * bs, long bit_pos, uint64_t * v
 	long byte_pos = bit_pos >> 3;
 	uint64_t val;
 	val = *((uint64_t *) (&bs->data.c[byte_pos]));
-	*val_out = bits_extract_64(val, bit_pos & 7, num_bits);
+	*val_out = bits_u64_extract(val, bit_pos & 7, num_bits);
 }
 
 // num_bits <= 57

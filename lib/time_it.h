@@ -10,7 +10,7 @@
 
 
 static __attribute__ ((unused))
-uint64_t
+double
 time_it_clock_gettime_overhead()
 {
 	struct timespec t1, t2;
@@ -29,7 +29,7 @@ time_it_clock_gettime_overhead()
 		if (tmp < overhead)
 			overhead = tmp;
 	}
-	return overhead;
+	return ((double) overhead) / 1000000000LL;
 }
 
 #define start_timer(id)                                                          \

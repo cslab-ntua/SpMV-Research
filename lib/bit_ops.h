@@ -4,16 +4,34 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <x86intrin.h>
+
+#ifdef __x86_64__
+	#include <x86intrin.h>
+#endif
 
 #include "macros/cpp_defines.h"
 #include "debug.h"
 
-/* Naive shifting can result problems.
- * Platforms can degrade a shift to a nop instruction.
- * Usually shift amounts are interpreted mod 32/64.
- * e.g. shift by 64 can be a nop, and the result would not be 0!
+/* Notes:
+ *   - Naive shifting can result problems.
+ *     Shifting by variable length is surprisingly slow.
+ *     Also, depending on the platform, a shift can degrade to a nop instruction:
+ *         Usually (not always!) shift amounts are interpreted mod 32/64.
+ *         Shifting by 64 may or may not be a nop, and the result might not be 0!
  */
+
+
+static inline
+uint64_t
+bits_num_bits_to_num_bytes(uint64_t num_bits)
+{
+	return (num_bits + 7ULL) >> 3ULL;
+}
+
+
+//==========================================================================================================================================
+//= Printing
+//==========================================================================================================================================
 
 
 static inline
@@ -33,12 +51,15 @@ bits_print_bytestream(unsigned char * data, long N)
 //= Set / Unset bits
 //==========================================================================================================================================
 
-/* Loading mask from array involves shift and add, but it's done in the Address Generation Unit (AGU) as part of the load pipeline of the CPU.
+
+/* Positions are mod 64.
+ *
+ * Loading mask from array involves shift and add, but it's done in the Address Generation Unit (AGU) as part of the load pipeline of the CPU.
  */
 
 static inline
 uint64_t
-bits_set_high_64(uint64_t v, unsigned long pos)
+bits_u64_set_high(uint64_t v, unsigned long num_bits)
 {
 	static uint64_t width_to_mask_table[64] = {
 		0xffffffffffffffff, 0xfffffffffffffffe, 0xfffffffffffffffc, 0xfffffffffffffff8, 0xfffffffffffffff0, 0xffffffffffffffe0, 0xffffffffffffffc0, 0xffffffffffffff80,
@@ -50,13 +71,13 @@ bits_set_high_64(uint64_t v, unsigned long pos)
 		0xffff000000000000, 0xfffe000000000000, 0xfffc000000000000, 0xfff8000000000000, 0xfff0000000000000, 0xffe0000000000000, 0xffc0000000000000, 0xff80000000000000,
 		0xff00000000000000, 0xfe00000000000000, 0xfc00000000000000, 0xf800000000000000, 0xf000000000000000, 0xe000000000000000, 0xc000000000000000, 0x8000000000000000,
 	};
-	return v | width_to_mask_table[pos % 64];
+	return v | width_to_mask_table[num_bits % 64];
 }
 
 
 static inline
 uint64_t
-bits_unset_high_64(uint64_t v, unsigned long pos)
+bits_u64_unset_high(uint64_t v, unsigned long num_bits)
 {
 	static uint64_t width_to_mask_table[64] = {
 		0x0000000000000000, 0x0000000000000001, 0x0000000000000003, 0x0000000000000007, 0x000000000000000f, 0x000000000000001f, 0x000000000000003f, 0x000000000000007f,
@@ -68,13 +89,13 @@ bits_unset_high_64(uint64_t v, unsigned long pos)
 		0x0000ffffffffffff, 0x0001ffffffffffff, 0x0003ffffffffffff, 0x0007ffffffffffff, 0x000fffffffffffff, 0x001fffffffffffff, 0x003fffffffffffff, 0x007fffffffffffff,
 		0x00ffffffffffffff, 0x01ffffffffffffff, 0x03ffffffffffffff, 0x07ffffffffffffff, 0x0fffffffffffffff, 0x1fffffffffffffff, 0x3fffffffffffffff, 0x7fffffffffffffff,
 	};
-	return v & width_to_mask_table[pos % 64];
+	return v & width_to_mask_table[num_bits % 64];
 }
 
 
 static inline
 uint64_t
-bits_set_low_64(uint64_t v, unsigned long pos)
+bits_u64_set_low(uint64_t v, unsigned long num_bits)
 {
 	static uint64_t width_to_mask_table[64] = {
 		0x0000000000000001, 0x0000000000000003, 0x0000000000000007, 0x000000000000000f, 0x000000000000001f, 0x000000000000003f, 0x000000000000007f, 0x00000000000000ff,
@@ -86,13 +107,13 @@ bits_set_low_64(uint64_t v, unsigned long pos)
 		0x0001ffffffffffff, 0x0003ffffffffffff, 0x0007ffffffffffff, 0x000fffffffffffff, 0x001fffffffffffff, 0x003fffffffffffff, 0x007fffffffffffff, 0x00ffffffffffffff,
 		0x01ffffffffffffff, 0x03ffffffffffffff, 0x07ffffffffffffff, 0x0fffffffffffffff, 0x1fffffffffffffff, 0x3fffffffffffffff, 0x7fffffffffffffff, 0xffffffffffffffff,
 	};
-	return v | width_to_mask_table[pos % 64];
+	return v | width_to_mask_table[num_bits % 64];
 }
 
 
 static inline
 uint64_t
-bits_unset_low_64(uint64_t v, unsigned long pos)
+bits_u64_unset_low(uint64_t v, unsigned long num_bits)
 {
 	static uint64_t width_to_mask_table[64] = {
 		0xfffffffffffffffe, 0xfffffffffffffffc, 0xfffffffffffffff8, 0xfffffffffffffff0, 0xffffffffffffffe0, 0xffffffffffffffc0, 0xffffffffffffff80, 0xffffffffffffff00,
@@ -104,7 +125,7 @@ bits_unset_low_64(uint64_t v, unsigned long pos)
 		0xfffe000000000000, 0xfffc000000000000, 0xfff8000000000000, 0xfff0000000000000, 0xffe0000000000000, 0xffc0000000000000, 0xff80000000000000, 0xff00000000000000,
 		0xfe00000000000000, 0xfc00000000000000, 0xf800000000000000, 0xf000000000000000, 0xe000000000000000, 0xc000000000000000, 0x8000000000000000, 0x0000000000000000,
 	};
-	return v & width_to_mask_table[pos % 64];
+	return v & width_to_mask_table[num_bits % 64];
 }
 
 
@@ -113,20 +134,142 @@ bits_unset_low_64(uint64_t v, unsigned long pos)
 //==========================================================================================================================================
 
 
+/* unsigned __int64 _bextr_u64 (unsigned __int64 a, unsigned int start, unsigned int len)
+ *     Extract contiguous bits from unsigned 64-bit integer a, and store the result in dst.
+ *     Extract the number of bits specified by len, starting at the bit specified by start.
+ *
+ * unsigned int _bextr_u32 (unsigned int a, unsigned int start, unsigned int len)
+ *     Extract contiguous bits from unsigned 32-bit integer a, and store the result in dst.
+ *     Extract the number of bits specified by len, starting at the bit specified by start.
+ */
+
 static inline
 uint64_t
-bits_extract_64(uint64_t v, uint64_t start_pos, uint64_t num_bits)
+bits_u64_extract(uint64_t v, uint64_t start_pos, uint64_t num_bits)
 {
-	// unsigned char c[8];
-	// *((uint64_t *) c) = start_pos;
-	// c[1] = num_bits;
-	// return __builtin_ia32_bextr_u64(val, *((uint64_t *) c));
 
-	// return bits_unset_high_64(v >> (start_pos % 64), num_bits);
-
-	return __builtin_ia32_bextr_u64(v, (num_bits << 8) | start_pos);
+	#ifdef __x86_64__
+		// return __builtin_ia32_bextr_u64(v, (num_bits << 8) | start_pos);
+		return _bextr_u64(v, start_pos, num_bits);
+	#else
+		return bits_u64_unset_high(v >> start_pos, num_bits);
+	#endif
 }
 
+
+static inline
+uint32_t
+bits_u32_extract(uint32_t v, uint64_t start_pos, uint64_t num_bits)
+{
+
+	#ifdef __x86_64__
+		// return __builtin_ia32_bextr_u32(v, (num_bits << 8) | start_pos);
+		return _bextr_u32(v, start_pos, num_bits);
+	#else
+		return bits_u64_unset_high(v >> start_pos, num_bits);
+	#endif
+}
+
+
+//==========================================================================================================================================
+//= Required bits for binary representation of number
+//==========================================================================================================================================
+
+
+/* The required number of bits for the binary representation of the range [0, max_val].
+ *
+ * 'num_bits_out': Number of bits that can represent all values in range [0, max_val].
+ * 
+ * 'pow2_out': First power of 2 strictly bigger than 'max_val', or 0: *num_bits_out = (max_val == 0) ? 0 : 1ULL << (*num_bits_out).
+ *             e.g. if max_val == 2 then pow2_out == 4.
+ */
+static inline
+void
+bits_u64_required_bits_for_binary_representation(uint64_t max_val,
+		uint64_t * num_bits_out, uint64_t * pow2_out)
+{
+	uint64_t num_bits, pow2;
+	if (max_val == 0)
+	{
+		num_bits = 0;
+		pow2 = 0;
+	}
+	else
+	{
+		num_bits = 64 - __builtin_clzl(max_val);
+		pow2 = 1ULL << num_bits;
+	}
+	if (num_bits_out != NULL)
+		*num_bits_out = num_bits;
+	if (pow2_out != NULL)
+		*pow2_out = pow2;
+}
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                       Floating Point Numbers                                                           -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+//==========================================================================================================================================
+//= Floats
+//==========================================================================================================================================
+
+
+//==========================================================================================================================================
+//= Doubles
+//==========================================================================================================================================
+
+
+static inline
+uint64_t
+bits_double_get_sign(double val)
+{
+	union { uint64_t u; double d; } bits;
+	bits.d = val;
+	return bits_u64_extract(bits.u, 63, 1);
+}
+
+static inline
+int64_t
+bits_double_get_exponent(double val)
+{
+	union { uint64_t u; double d; } bits;
+	bits.d = val;
+	bits.u = bits_u64_extract(bits.u, 52, 11);
+	if (bits.u)
+		bits.u -= 1023;
+	return (int64_t) bits.u;
+}
+
+static inline
+uint64_t
+bits_double_get_exponent_bits(double val)
+{
+	union { uint64_t u; double d; } bits;
+	bits.d = val;
+	return bits_u64_extract(bits.u, 52, 11);
+}
+
+static inline
+uint64_t
+bits_double_get_fraction(double val)
+{
+	union { uint64_t u; double d; } bits;
+	bits.d = val;
+	return bits_u64_extract(bits.u, 0, 52);
+}
+
+static inline
+uint64_t
+bits_double_get_upper_12_bits(double val)
+{
+	union { uint64_t u; double d; } bits;
+	bits.d = val;
+	return bits_u64_extract(bits.u, 52, 12);
+}
 
 
 #endif /* BIT_OPS_H */
