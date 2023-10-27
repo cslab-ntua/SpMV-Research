@@ -37,16 +37,18 @@ CC = gcc
 CPP = g++
 # CPP = clang++
 
+ARCH = $(shell uname -m)
 
 CFLAGS = -Wall -Wextra
 # Tells the compiler to use pipes instead of temporary files (faster compilation, but uses more memory).
 CFLAGS += -pipe
 CFLAGS += -fopenmp
-CFLAGS += -mavx2
-CFLAGS += -mbmi
-CFLAGS += -mbmi2
-CFLAGS += -march=native
-
+ifeq ($(ARCH), x86_64)
+    CFLAGS += -mbmi
+    CFLAGS += -mbmi2
+    CFLAGS += -march=native
+	CFLAGS += -mavx2
+endif
 # CFLAGS += -g3 -fno-omit-frame-pointer
 # CFLAGS += -Og
 CFLAGS += -O0

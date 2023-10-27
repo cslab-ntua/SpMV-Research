@@ -2044,6 +2044,111 @@ csr_shuffle_matrix(long m, _TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, 
 	free(row_indices);
 }
 
+#undef  csr_extract_row_cross
+#define csr_extract_row_cross  CSR_UTIL_GEN_EXPAND(csr_extract_row_cross)
+void
+csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, 
+					  int *num_windows_out, _TYPE_I **row_cross_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, _TYPE_V **rc_v_out)
+{
+	int num_windows = (n-1 + window_width) / window_width;
+	// printf("m = %d, n = %d, num_windows = %d\n", m, n, num_windows);
+	long unsigned rc_elements = m * num_windows;
+	_TYPE_I * row_cross = (typeof(row_cross)) calloc(rc_elements, sizeof(*row_cross));
+	double row_cross_mem_foot = (m * 1.0 * num_windows * sizeof(*row_cross))/(1024*1024*1.0);
+	// printf("memory footprint of row_cross = %.2lf MB\n", row_cross_mem_foot);
+
+	int num_threads = omp_get_max_threads();
+
+	_TYPE_I * thread_i_s = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_s));
+	_TYPE_I * thread_i_e = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_e));
+	_TYPE_I * thread_j_s = (_TYPE_I *) malloc(num_threads * sizeof(*thread_j_s));
+	_TYPE_I * thread_j_e = (_TYPE_I *) malloc(num_threads * sizeof(*thread_j_e));
+
+	double time_row_cross = time_it(1,
+	_Pragma("omp parallel")
+	{
+		int tnum = omp_get_thread_num();
+		loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
+		long lower_boundary;
+		binary_search(row_ptr, 0, m, thread_j_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
+		thread_i_s[tnum] = lower_boundary;
+		_Pragma("omp barrier")
+		if (tnum == num_threads - 1)   // If we calculate each thread's boundaries individually some empty rows might be unassigned.
+			thread_i_e[tnum] = m;
+		else
+			thread_i_e[tnum] = thread_i_s[tnum+1] + 1;
+
+		// _Pragma("omp single"){
+		// 	for(int tnum = 0; tnum < num_threads; tnum++)
+		// 		printf("tnum = %2d\trows = %d\t\tnonzeros = %d\n", tnum, thread_i_e[tnum] - thread_i_s[tnum], thread_j_e[tnum] - thread_j_s[tnum]);
+		// }
+
+		for(_TYPE_I i=thread_i_s[tnum]; i<thread_i_e[tnum]; i++){
+			// printf("tnum=%d\ti=%d\n", tnum, i);
+			for(_TYPE_I j=row_ptr[i]; j<row_ptr[i+1]; j++){
+				_TYPE_I cw_loc = col_idx[j] / window_width; // col window location
+				long unsigned rc_ind = i * num_windows + cw_loc;
+				// printf("tnum = %d, i * num_windows + cw_loc = %lu\n", tnum, i * num_windows + cw_loc);
+				row_cross[rc_ind]++;
+			}
+		}
+	}
+	);
+	// printf("time for row_cross = %lf\n", time_row_cross);
+
+	long unsigned rc_elements_nz = 0;
+	#pragma omp parallel for reduction(+:rc_elements_nz)
+	for(int i=0; i<m; i++){
+		for(int j=0; j<num_windows; j++){
+			long unsigned rc_ind = i * num_windows + j;
+			if(row_cross[rc_ind]!=0) 
+				rc_elements_nz++;
+		}
+	}
+	// printf("rc_elements_nz = %lu\n", rc_elements_nz);
+
+	_TYPE_I * rc_r, * rc_c;
+	_TYPE_V * rc_v;
+	// rc_r = (typeof(rc_r)) malloc(rc_elements_nz * sizeof(*rc_r));
+	rc_r = (typeof(rc_r)) malloc((m+1) * sizeof(*rc_r));
+	rc_c = (typeof(rc_c)) malloc(rc_elements_nz * sizeof(*rc_c));
+	rc_v = (typeof(rc_v)) malloc(rc_elements_nz * sizeof(*rc_v));
+	double row_cross_compr_mem_foot = ((m+1) * sizeof(*rc_r) + rc_elements_nz * sizeof(*rc_c) + rc_elements_nz * sizeof(*rc_v))/(1024*1024*1.0);
+	// printf("memory footprint of row_cross (compressed) = %.2lf MB\n", row_cross_compr_mem_foot);
+	// printf("compression ratio = %.2lf%\n", row_cross_compr_mem_foot/row_cross_mem_foot * 100);
+
+	int cnt=0, cnt2=0;
+	rc_r[0] = 0;
+	for(int i=0; i<m; i++){
+		for(int j=0; j<num_windows; j++){
+			long unsigned rc_ind = i * num_windows + j;
+			if(row_cross[rc_ind]!=0){
+				// rc_r[cnt] = i;
+				rc_c[cnt] = j;
+				rc_v[cnt] = row_cross[rc_ind] * 1.0;
+				cnt++;
+			}
+			rc_r[i+1] = cnt;
+		}
+	}
+
+	free(thread_i_s);
+	free(thread_i_e);
+	free(thread_j_s);
+	free(thread_j_e);
+
+	*num_windows_out = num_windows;
+	if (row_cross_out != NULL)
+		*row_cross_out = row_cross;
+	if (rc_r_out != NULL)
+		*rc_r_out = rc_r;
+	if (rc_c_out != NULL)
+		*rc_c_out = rc_c;
+	if (rc_v_out != NULL)
+		*rc_v_out = rc_v;
+}
+
+
 //==========================================================================================================================================
 //= Ploting
 //==========================================================================================================================================
@@ -2058,6 +2163,25 @@ csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__(
 	long num_pixels = 1024;
 	long num_pixels_x = (n < 1024) ? n : num_pixels;
 	long num_pixels_y = (m < 1024) ? m : num_pixels;
+	// I did this for the rail matrix (n >> m), but it did not produce any meaningful result.. just let it go
+	// printf("before: num_pixels_x = %d, num_pixels_y = %d\n", num_pixels_x, num_pixels_y);
+	// double ratio;
+	// if((m > n) && (num_pixels_x == num_pixels_y)){
+	// 	ratio = (m*1.0) / n;
+	// 	if(ratio>25)
+	// 		ratio=25;
+	// 	printf("ratio = %lf\n", ratio);
+	// 	num_pixels_x = num_pixels_x / ratio;
+	// }
+	// else if ((m < n) && (num_pixels_x == num_pixels_y)){
+	// 	ratio = (n*1.0) / m;
+	// 	if(ratio>25)
+	// 		ratio=25;
+	// 	printf("ratio = %lf\n", ratio);
+	// 	num_pixels_y = num_pixels_y / ratio;
+	// }
+	// printf("after : num_pixels_x = %d, num_pixels_y = %d\n", num_pixels_x, num_pixels_y);
+
 	long buf_n = strlen(title_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 

@@ -75,6 +75,11 @@ void csc_col_indexes(_TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long 
 // #define csc_matrix_features_validation  CSC_UTIL_GEN_EXPAND(csc_matrix_features_validation)
 // void csc_matrix_features_validation(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long nnz);
 
+#undef  csc_extract_col_cross
+#define csc_extract_col_cross  CSC_UTIL_GEN_EXPAND(csc_extract_col_cross)
+void csc_extract_col_cross(_TYPE_I *row_idx, _TYPE_I *col_ptr, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, 
+						   int *num_windows_out, _TYPE_I **col_cross_out, _TYPE_I **cc_r_out, _TYPE_I **cc_c_out, _TYPE_V **cc_v_out);
+
 #undef  csc_plot
 #define csc_plot  CSC_UTIL_GEN_EXPAND(csc_plot)
 void csc_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, long m, long n, long nnz, int enable_legend);

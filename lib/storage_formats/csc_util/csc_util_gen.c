@@ -1678,6 +1678,114 @@ csc_col_indexes(__attribute__((unused)) _TYPE_I * row_idx, _TYPE_I * col_ptr, __
 // 	free(row_idx);
 // }
 
+//==========================================================================================================================================
+//= Matrix transformations
+//==========================================================================================================================================
+
+#undef  csc_extract_col_cross
+#define csc_extract_col_cross  CSC_UTIL_GEN_EXPAND(csc_extract_col_cross)
+void
+csc_extract_col_cross(_TYPE_I *row_idx, _TYPE_I *col_ptr, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, 
+					  int *num_windows_out, _TYPE_I **col_cross_out, _TYPE_I **cc_r_out, _TYPE_I **cc_c_out, _TYPE_V **cc_v_out)
+{
+	_TYPE_I * col_cross;
+	int num_windows = (m-1 + window_width) / window_width;
+	// printf("m = %d, n = %d, num_windows = %d\n", m, n, num_windows);
+	long unsigned cc_elements = num_windows * n;
+	col_cross = (typeof(col_cross)) calloc(cc_elements, sizeof(*col_cross));
+	double col_cross_mem_foot = (n * 1.0 * num_windows * sizeof(*col_cross))/(1024*1024*1.0);
+	// printf("memory footprint of col_cross = %.2lf MB\n", col_cross_mem_foot);
+
+	int num_threads = omp_get_max_threads();
+
+	_TYPE_I * thread_j_s = (_TYPE_I *) malloc(num_threads * sizeof(*thread_j_s));
+	_TYPE_I * thread_j_e = (_TYPE_I *) malloc(num_threads * sizeof(*thread_j_e));
+	_TYPE_I * thread_i_s = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_s));
+	_TYPE_I * thread_i_e = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_e));
+
+	double time_col_cross = time_it(1,
+	_Pragma("omp parallel")
+	{
+		int tnum = omp_get_thread_num();
+		loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+		long lower_boundary;
+		binary_search(col_ptr, 0, n, thread_i_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
+		thread_j_s[tnum] = lower_boundary;
+		_Pragma("omp barrier")
+		if (tnum == num_threads - 1)   // If we calculate each thread's boundaries individually some empty rows might be unassigned.
+			thread_j_e[tnum] = n;
+		else
+			thread_j_e[tnum] = thread_j_s[tnum+1] + 1;
+
+		// _Pragma("omp single"){
+		// 	for(int tnum = 0; tnum < num_threads; tnum++)
+		// 		printf("tnum = %2d\trows = %d\t\tnonzeros = %d\n", tnum, thread_j_e[tnum] - thread_j_s[tnum], thread_i_e[tnum] - thread_i_s[tnum]);
+		// }
+
+		for(_TYPE_I i=thread_j_s[tnum]; i<thread_j_e[tnum]; i++){
+			// printf("tnum=%d\ti=%d\n", tnum, i);
+			for(_TYPE_I j=col_ptr[i]; j<col_ptr[i+1]; j++){
+				_TYPE_I cw_loc = row_idx[j] / window_width; // row window location
+				long unsigned cc_ind = i * num_windows + cw_loc;
+				// printf("tnum = %d, i * num_windows + cw_loc = %lu\n", tnum, i * num_windows + cw_loc);
+				col_cross[cc_ind]++;
+			}
+		}
+	}
+	);
+	// printf("time for col_cross = %lf\n", time_col_cross);
+
+	long unsigned cc_elements_nz = 0;
+	#pragma omp parallel for reduction(+:cc_elements_nz)
+	for(int i=0; i<n; i++){
+		for(int j=0; j<num_windows; j++){
+			long unsigned cc_ind = i * num_windows + j;
+			if(col_cross[cc_ind]!=0) 
+				cc_elements_nz++;
+		}
+	}
+	// printf("cc_elements_nz = %lu\n", cc_elements_nz);
+
+	_TYPE_I * cc_r, * cc_c;
+	_TYPE_V * cc_v;
+	cc_r = (typeof(cc_r)) malloc(cc_elements_nz * sizeof(*cc_r));
+	// cc_c = (typeof(cc_c)) malloc(cc_elements_nz * sizeof(*cc_c));
+	cc_c = (typeof(cc_c)) malloc((n+1) * sizeof(*cc_c));
+	cc_v = (typeof(cc_v)) malloc(cc_elements_nz * sizeof(*cc_v));
+	double col_cross_compr_mem_foot = (cc_elements_nz * sizeof(*cc_r) + (n+1) * sizeof(*cc_c) + cc_elements_nz * sizeof(*cc_v))/(1024*1024*1.0);
+	// printf("memory footprint of col_cross (compressed) = %.2lf MB\n", col_cross_compr_mem_foot);
+	// printf("compression ratio = %.2lf%\n", col_cross_compr_mem_foot/col_cross_mem_foot * 100);
+
+	int cnt=0, cnt2=0;
+	cc_c[0] = 0;
+	for(int j=0; j<n; j++){
+		for(int i=0; i<num_windows; i++){
+			long unsigned cc_ind = j * num_windows + i;
+			if(col_cross[cc_ind]!=0){
+				cc_r[cnt] = i;
+				// cc_c[cnt] = j;
+				cc_v[cnt] = col_cross[cc_ind] * 1.0;
+				cnt++;
+			}
+			cc_c[j+1] = cnt;
+		}
+	}
+
+	free(thread_j_s);
+	free(thread_j_e);
+	free(thread_i_s);
+	free(thread_i_e);
+
+	*num_windows_out = num_windows;
+	if (col_cross_out != NULL)
+		*col_cross_out = col_cross;
+	if (cc_r_out != NULL)
+		*cc_r_out = cc_r;
+	if (cc_c_out != NULL)
+		*cc_c_out = cc_c;
+	if (cc_v_out != NULL)
+		*cc_v_out = cc_v;
+}
 
 //==========================================================================================================================================
 //= Ploting
