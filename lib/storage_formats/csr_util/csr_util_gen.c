@@ -160,6 +160,100 @@ csr_row_indexes(_TYPE_I * row_ptr, __attribute__((unused)) _TYPE_I * col_idx, lo
 	*row_idx_out = row_idx;
 }
 
+// Returns how many rows in matrix have less than "nnz_threshold" nonzeros
+#undef  csr_count_short_rows
+#define csr_count_short_rows  CSR_UTIL_GEN_EXPAND(csr_count_short_rows)
+long 
+csr_count_short_rows(_TYPE_I * row_ptr, long m, long nnz_threshold)
+{
+	long count = 0;
+	long count_nnz = 0;
+	// #pragma omp parallel
+	{
+		long i = 0;
+		// #pragma omp for reduction(+:count,count_nnz)
+		for (i=0;i<m;i++){
+			if ((row_ptr[i + 1] - row_ptr[i]) < nnz_threshold){
+				count++;
+				count_nnz+=row_ptr[i + 1] - row_ptr[i];
+			}
+		}
+	}
+	printf("\tout of %d nonzeros, %ld (%.2lf %%) belong to short rows (fewer than %ld nonzeros)\n", row_ptr[m], count_nnz, count_nnz*100.0/row_ptr[m], nnz_threshold);
+	printf("\tout of %ld rows, %ld (%.2lf %%) are short rows (fewer than %ld nonzeros)\n", m, count, count*100.0/m, nnz_threshold);
+	
+	double A_mem_footprint_original = ((m+1) * sizeof(int) + (row_ptr[m]) * (sizeof(int) + sizeof(double)))/(1024.0*1024);
+	double A_mem_footprint_short = ((m+1) * sizeof(int) + (count_nnz) * (sizeof(int) + sizeof(double)))/(1024.0*1024);
+	double A_mem_footprint_big = ((m+1) * sizeof(int) + (row_ptr[m] - count_nnz) * (sizeof(int) + sizeof(double)))/(1024.0*1024);
+	printf("A_mem_footprint_original = %lf MB\n", A_mem_footprint_original);
+	printf("A_mem_footprint_short = %lf MB\n", A_mem_footprint_short);
+	printf("A_mem_footprint_big = %lf MB\n", A_mem_footprint_big);
+	return count;
+}
+
+// Returns how many nonzeros are "distant" from others within same row (depending on "max_distance")
+#undef  csr_count_distant_nonzeros
+#define csr_count_distant_nonzeros  CSR_UTIL_GEN_EXPAND(csr_count_distant_nonzeros)
+long 
+csr_count_distant_nonzeros(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long max_distance)
+{
+	long count = 0;
+	#pragma omp parallel
+	{
+		long i = 0, j = 0, k = 0;
+		#pragma omp for reduction(+:count)
+		for (i=0;i<m;i++){
+			long row_start = row_ptr[i];
+			long row_end = row_ptr[i+1];
+			long row_distance = 0;
+
+			for(j=row_start;j<row_end;j++){
+				// flag whether it is a distant nonzero or not. set to 1 (nnz distant from others)
+				int flag = 1; 
+
+				long min_distance = max_distance + 1; // initialize with maximum distance
+
+				// Check left neighbors
+				for(k = j-1; k >= row_start; k--) {
+					long distance = col_idx[j]-col_idx[k];
+					if(distance <= min_distance){
+						// if element found closer than the maximum distance that is set, then this nonzero is not distant from others. 
+						min_distance = distance;
+						// no need to check other nonzeros, since col_idx is sorted. set flag to 0 and proceed to next nonzero.
+						flag = 0;
+						break;
+					}
+					// if distance is greater than max allowed distance, then this nonzero is distant from its left neighbors.
+					if(distance > max_distance)
+						break;
+				}
+				if(flag==1){
+					// if not yet decided from left neighbors if nonzero is distant, have to check right neighbors too.
+					// Check right neighbors
+					for(k = j+1; k < row_end; k++) {
+						long distance = col_idx[k] - col_idx[j];
+						if(distance <= min_distance){
+							// if element found closer than the maximum distance that is set, then this nonzero is not distant from others. 
+							min_distance = distance;
+							// no need to check other nonzeros, since col_idx is sorted. set flag to 0 and proceed to next nonzero.
+							flag = 0;
+							break;
+						}
+						// if distance is greater than max allowed distance, then this nonzero is distant from its right neighbors.
+						if(distance > max_distance)
+							break;
+					}
+				}
+
+				if(flag)
+					row_distance++;
+			}
+			count += row_distance;
+		}
+	}
+
+	return count;
+}
 
 // Average nnz distances per row is: bandwidths / degrees_rows .
 #undef  csr_degrees_bandwidths_scatters
@@ -495,7 +589,7 @@ csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 #undef  csr_cross_row_neighbours
 #define csr_cross_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_cross_row_neighbours)
 double
-csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, long window_size)
+csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, long window_size, _TYPE_I *crs_row)
 {
 	double * num_neigh = (typeof(num_neigh)) malloc((m) * sizeof(*num_neigh));
 	long total_num_non_empty_rows = 0;
@@ -505,8 +599,10 @@ csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 		long degree, curr_neigh, column_diff;
 		long num_non_empty_rows = 0;
 		#pragma omp for
-		for (i=0;i<m;i++)
+		for (i=0;i<m;i++){
 			num_neigh[i] = 0;
+			crs_row[i] = 0;
+		}
 		#pragma omp for
 		for (i=0;i<m;i++)
 		{
@@ -540,6 +636,7 @@ csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 					}
 				}
 				num_neigh[i] = ((double) curr_neigh) / degree;
+				crs_row[i] = curr_neigh;
 			}
 		}
 		__atomic_fetch_add(&total_num_non_empty_rows, num_non_empty_rows, __ATOMIC_RELAXED);
@@ -846,12 +943,12 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	time = time_it(1,
 		csr_row_indexes(row_ptr, col_idx, m, n, nnz, &row_idx);
 	);
-	printf("time row indexes = %lf\n", time);
+	// printf("time row indexes = %lf\n", time);
 
 	time = time_it(1,
 		csr_degrees_bandwidths_scatters(row_ptr, col_idx, m, n, nnz, &degrees_rows, &degrees_cols, &bandwidths, &scatters);
 	);
-	printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
+	// printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
 
 	/* It's not worth it combining the array metrics, because min-max degrade the total performance of the pipeline,
 	 * and std depends on mean and needs a separete loop either way. */
@@ -875,7 +972,7 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	time = time_it(1,
 		csr_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &num_neigh);
 	);
-	printf("time csr_row_neighbours = %lf\n", time);
+	// printf("time csr_row_neighbours = %lf\n", time);
 
 	array_mean(num_neigh, nnz, &num_neigh_avg);
 
@@ -884,7 +981,7 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	time = time_it(1,
 		cross_row_similarity_avg = csr_cross_row_similarity(row_ptr, col_idx, m, n, nnz, window_size);
 	);
-	printf("time csr_cross_row_similarity = %lf\n", time);
+	// printf("time csr_cross_row_similarity = %lf\n", time);
 
 	/* Matrix features for artificial twins.
 	 * Also print the csr mem footprint for easier sorting.
@@ -1676,6 +1773,276 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 	free(row_idx);
 }
 
+//==========================================================================================================================================
+//= Matrix transformations
+//==========================================================================================================================================
+
+typedef struct {
+	int row_sizes;
+	int original_position;
+} RowInfo;
+
+int compare(const void *a, const void *b) {
+	return ((RowInfo *)b)->row_sizes - ((RowInfo *)a)->row_sizes;
+}
+
+void sort_rows(_TYPE_I *row_ptr, int m, _TYPE_I *sorted_row_sizes, _TYPE_I *original_positions)
+{
+	RowInfo *rows = (RowInfo *)malloc(m * sizeof(RowInfo));
+
+	// Extract row sizes and original positions
+	// #pragma omp parallel for
+	for (int i = 0; i < m; i++) {
+		rows[i].row_sizes = row_ptr[i + 1] - row_ptr[i];
+		rows[i].original_position = i;
+	}
+
+	// Sort rows by descending order of row sizes
+	qsort(rows, m, sizeof(RowInfo), compare);
+
+	// Store sorted row sizes and original positions
+	// #pragma omp parallel for
+	for (int i = 0; i < m; i++) {
+		sorted_row_sizes[i] = rows[i].row_sizes;
+		original_positions[i] = rows[i].original_position;
+	}
+
+	free(rows);
+}
+
+/*
+void sort_rows(_TYPE_I *row_ptr, int m, _TYPE_I *sorted_row_sizes, _TYPE_I *original_positions) {
+	// Extract row sizes and original positions
+	for (int i = 0; i < m; i++) {
+		sorted_row_sizes[i] = row_ptr[i + 1] - row_ptr[i];
+		original_positions[i] = i;
+	}
+
+	// Bubble sort rows by descending order of row sizes
+	for (int i = 0; i < m - 1; i++) {
+		for (int j = 0; j < m - i - 1; j++) {
+			if (sorted_row_sizes[j] < sorted_row_sizes[j + 1]) {
+				// Swap sorted_row_sizes
+				int temp = sorted_row_sizes[j];
+				sorted_row_sizes[j] = sorted_row_sizes[j + 1];
+				sorted_row_sizes[j + 1] = temp;
+
+				// Swap original_positions
+				temp = original_positions[j];
+				original_positions[j] = original_positions[j + 1];
+				original_positions[j + 1] = temp;
+			}
+		}
+	}
+}
+*/
+
+#undef  csr_sort_by_row_size
+#define csr_sort_by_row_size  CSR_UTIL_GEN_EXPAND(csr_sort_by_row_size)
+void
+csr_sort_by_row_size(long m, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, _TYPE_I * row_ptr_s, _TYPE_I * col_idx_s, _TYPE_V * values_s)
+{
+	_TYPE_I *sorted_row_sizes = (_TYPE_I *)malloc(m * sizeof(_TYPE_I));
+	_TYPE_I *original_positions = (_TYPE_I *)malloc(m * sizeof(_TYPE_I));
+
+	sort_rows(row_ptr, m, sorted_row_sizes, original_positions);
+
+	// printf("Sorted Row Sizes = [ ");
+	// for (int i = 0; i < m; i++) printf("%d ", sorted_row_sizes[i]);
+	// printf("]\n");
+
+	// printf("\nOriginal Positions = [ ");
+	// for (int i = 0; i < m; i++) printf("%d ", original_positions[i]);
+	// printf("]\n");
+
+	// Create a temporary array to keep track of row_ptr_s updates
+	_TYPE_I *row_ptr_temp = (_TYPE_I *)malloc((m + 1) * sizeof(_TYPE_I));
+	row_ptr_temp[0] = 0;
+	row_ptr_s[0] = 0;
+
+	// Update row_ptr_s based on sorted row sizes
+	for (int i = 0; i < m; i++) {
+		row_ptr_s[i + 1] = row_ptr_s[i] + sorted_row_sizes[i];
+		row_ptr_temp[i + 1] = row_ptr_s[i + 1];
+	}
+
+	// Rearrange col_idx and val arrays based on original positions
+	for (int i = 0; i < m; i++) {
+		int orig_pos = original_positions[i];
+		for (int j = row_ptr[orig_pos]; j < row_ptr[orig_pos + 1]; j++) {
+			col_idx_s[row_ptr_temp[i]] = col_idx[j];
+			values_s[row_ptr_temp[i]] = values[j];
+			row_ptr_temp[i]++;
+		}
+	}
+
+	free(row_ptr_temp);
+	free(sorted_row_sizes);
+	free(original_positions);
+}
+
+// "distant_mark" is a 0-1 flag matrix, which holds which nonzeros are distant from others, in order to isolate them later
+#undef  csr_mark_distant_nonzeros
+#define csr_mark_distant_nonzeros  CSR_UTIL_GEN_EXPAND(csr_mark_distant_nonzeros)
+long csr_mark_distant_nonzeros(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long max_distance, _TYPE_I * distant_mark)
+{
+	#pragma omp parallel
+	{
+		long i = 0, j = 0, k = 0;
+		#pragma omp for
+		for (i=0;i<m;i++){
+			long row_start = row_ptr[i];
+			long row_end = row_ptr[i+1];
+			long row_distance = 0;
+
+			for(j=row_start;j<row_end;j++){
+				// flag whether it is a distant nonzero or not. set to 1 (nnz distant from others)
+				int flag = 1; 
+
+				long min_distance = max_distance + 1; // initialize with maximum distance
+
+				// Check left neighbors
+				for(k = j-1; k >= row_start; k--) {
+					long distance = col_idx[j]-col_idx[k];
+					if(distance <= min_distance){
+						// if element found closer than the maximum distance that is set, then this nonzero is not distant from others. 
+						min_distance = distance;
+						// no need to check other nonzeros, since col_idx is sorted. set flag to 0 and proceed to next nonzero.
+						flag = 0;
+						break;
+					}
+					// if distance is greater than max allowed distance, then this nonzero is distant from its left neighbors.
+					if(distance > max_distance){
+						distant_mark[j] = 1;
+						break;
+					}
+				}
+				if(flag==1){
+					// if not yet decided from left neighbors if nonzero is distant, have to check right neighbors too.
+					// Check right neighbors
+					for(k = j+1; k < row_end; k++) {
+						long distance = col_idx[k] - col_idx[j];
+						if(distance <= min_distance){
+							// if element found closer than the maximum distance that is set, then this nonzero is not distant from others. 
+							min_distance = distance;
+							// no need to check other nonzeros, since col_idx is sorted. set flag to 0 and proceed to next nonzero.
+							flag = 0;
+							break;
+						}
+						// if distance is greater than max allowed distance, then this nonzero is distant from its right neighbors.
+						if(distance > max_distance){
+							distant_mark[j] = 1;
+							break;
+						}
+					}
+				}
+
+				if(flag)
+					row_distance++;
+				else
+					distant_mark[j] = 0;
+			}
+		}
+	}
+	long count=0;
+	#pragma omp parallel
+	{
+		long i = 0;
+		#pragma omp for reduction(+:count)
+		for(i=0; i<row_ptr[m]; i++)
+			count+=distant_mark[i];
+	}
+	return count;
+}
+
+#undef  csr_separate_close_distant
+#define csr_separate_close_distant  CSR_UTIL_GEN_EXPAND(csr_separate_close_distant)
+void
+csr_separate_close_distant(_TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, _TYPE_I *distant_mark, long nnz, long m, 
+					   _TYPE_I *row_ptr_close, _TYPE_I *col_idx_close, _TYPE_V *values_close, _TYPE_I *row_ptr_distant, _TYPE_I *col_idx_distant, _TYPE_V *values_distant)
+{
+	// Initialize row_ptr for "close" and "distant"
+	row_ptr_close[0] = 0;
+	row_ptr_distant[0] = 0;
+
+	// Distribute elements based on distant_mark
+	int close_idx = 0;
+	int distant_idx = 0;
+
+	for (int i = 0; i < m; i++) {
+		for (int j = row_ptr[i]; j < row_ptr[i + 1]; j++) {
+			if (distant_mark[j] == 0) {
+				// "close" element
+				col_idx_close[close_idx] = col_idx[j];
+				values_close[close_idx] = values[j];
+				close_idx++;
+			} else {
+				// "distant" element
+				col_idx_distant[distant_idx] = col_idx[j];
+				values_distant[distant_idx] = values[j];
+				distant_idx++;
+			}
+		}
+
+		// Update row_ptr for "close" and "distant"
+		row_ptr_close[i + 1] = close_idx;
+		row_ptr_distant[i + 1] = distant_idx;
+	}
+}
+
+#undef  csr_shuffle_matrix
+#define csr_shuffle_matrix  CSR_UTIL_GEN_EXPAND(csr_shuffle_matrix)
+void
+csr_shuffle_matrix(long m, _TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, _TYPE_I *row_ptr_shuffle, _TYPE_I *col_idx_shuffle, _TYPE_V *values_shuffle)
+{
+	_TYPE_I i;
+	// Create an array of indices representing row order
+	_TYPE_I* row_indices = (_TYPE_I*)malloc(sizeof(_TYPE_I) * m);
+	
+	// parallelize as much as possible (not much needed here though...)
+	#pragma omp parallel for
+	for (i = 0; i < m; i++)
+		row_indices[i] = i;
+
+	// Shuffle the row indices using Fisher-Yates shuffle algorithm
+	srand(time(NULL));
+	for (i = m - 1; i > 0; i--) {
+		_TYPE_I j = rand() % (i + 1);
+		_TYPE_I temp = row_indices[i];
+		row_indices[i] = row_indices[j];
+		row_indices[j] = temp;
+	}
+
+	_TYPE_I start_idx = 0;
+	row_ptr_shuffle[0] = 0;
+
+	// cannot parallelize this one, (read from row_ptr_shuffle[new_row], write to row_ptr_shuffle[new_row+1])
+	for(i = 0; i < m; i++) {
+		_TYPE_I old_row = row_indices[i];
+		_TYPE_I new_row = i;
+		_TYPE_I row_size = row_ptr[old_row + 1] - row_ptr[old_row];
+		_TYPE_I start_idx = row_ptr_shuffle[new_row];
+		row_ptr_shuffle[new_row + 1] = start_idx + row_size;
+	}
+
+	// that's why i did it in separate loops, can utilize parallelization here!
+	#pragma omp parallel for
+	for(i = 0; i < m; i++) {
+		_TYPE_I old_row = row_indices[i];
+		_TYPE_I new_row = i;
+		_TYPE_I row_size = row_ptr[old_row + 1] - row_ptr[old_row];
+		_TYPE_I start_old_idx = row_ptr[old_row];
+		_TYPE_I start_idx     = row_ptr_shuffle[new_row];
+		for(_TYPE_I j = 0; j < row_size; j++) {
+			_TYPE_I old_idx = start_old_idx + j;
+			_TYPE_I new_idx = start_idx + j;
+			col_idx_shuffle[new_idx] = col_idx[old_idx];
+			values_shuffle[new_idx] = values[old_idx];
+		}
+		// row_ptr_shuffle[new_row + 1] = start_idx + row_size;
+	}
+	free(row_indices);
+}
 
 //==========================================================================================================================================
 //= Ploting
@@ -1690,7 +2057,7 @@ csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__(
 	_TYPE_I * row_idx;
 	long num_pixels = 1024;
 	long num_pixels_x = (n < 1024) ? n : num_pixels;
-	long num_pixels_y = (n < 1024) ? m : num_pixels;
+	long num_pixels_y = (m < 1024) ? m : num_pixels;
 	long buf_n = strlen(title_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 
@@ -1709,6 +2076,124 @@ csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__(
 	free(row_idx);
 }
 
+#undef  csr_row_size_histogram_plot
+#define csr_row_size_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_row_size_histogram_plot)
+void
+csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int enable_legend)
+{
+	_TYPE_I * degrees_rows;
+	long num_pixels = 1024;
+	long num_pixels_x = (n < 1024) ? n : num_pixels;
+	long num_pixels_y = (n < 1024) ? m : num_pixels;
+	long buf_n = strlen(title_base) + 1 + 1000;
+	char buf[buf_n], buf_title[buf_n];
+
+	degrees_rows = (typeof(degrees_rows)) malloc(m * sizeof(*degrees_rows));
+	#pragma omp parallel for
+	for(int i=0; i<m; i++)
+		degrees_rows[i] = row_ptr[i+1] - row_ptr[i];
+
+	/*	
+	// Degree histogram. this can be commented out
+	double nnz_per_row_min, nnz_per_row_max, nnz_per_row_avg, nnz_per_row_std;
+	array_min_max(degrees_rows, m, &nnz_per_row_min, NULL, &nnz_per_row_max, NULL);
+	printf("nnz_per_row_max = %lf\n", nnz_per_row_max);
+	int *row_size_hist = (int*) calloc((int)nnz_per_row_max+1, sizeof(int));
+	for(int i=0;i<m;i++)
+		row_size_hist[degrees_rows[i]]++;
+	for (int i = 0; i < (int)nnz_per_row_max+1; ++i)
+		printf("%d %d\n", i, row_size_hist[i]);
+	free(row_size_hist);
+	*/
+	
+	snprintf(buf, buf_n, "%s_row_size_distribution.png", title_base);
+	snprintf(buf_title, buf_n, "%s: row size distribution", title_base);
+	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, degrees_rows, NULL, m, 0),
+		figure_enable_legend(_fig);
+		figure_set_title(_fig, buf_title);
+		figure_series_type_histogram(_s, 0, 1);
+		figure_series_type_barplot(_s);
+	);
+
+	free(degrees_rows);
+}
+
+#undef  csr_cross_row_similarity_histogram_plot
+#define csr_cross_row_similarity_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity_histogram_plot)
+void
+csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend)
+{
+	_TYPE_I *crs_row;
+	long num_pixels = 1024;
+	long num_pixels_x = (n < 1024) ? n : num_pixels;
+	long num_pixels_y = (n < 1024) ? m : num_pixels;
+	long buf_n = strlen(title_base) + 1 + 1000;
+	char buf[buf_n], buf_title[buf_n];
+
+	// extract cross_row_similarity per row
+	crs_row = (typeof(crs_row)) malloc(m * sizeof(*crs_row));
+	csr_cross_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, crs_row);
+
+	// cross_row_similarity (per row) histogram. this can be commented out
+	double crs_row_min, crs_row_max, crs_row_avg, crs_row_std;
+	array_min_max(crs_row, m, &crs_row_min, NULL, &crs_row_max, NULL);
+	// printf("crs_row_max = %lf\n", crs_row_max);
+	int *crs_row_hist = (int*) calloc((int)crs_row_max+1, sizeof(int));
+	for(int i=0;i<m;i++)
+		crs_row_hist[crs_row[i]]++;
+	// for (int i = 0; i < (int)crs_row_max+1; ++i)
+	// 	printf("%d: %d (%.3f%)\n", i, crs_row_hist[i], crs_row_hist[i]*100.0/m);
+	free(crs_row_hist);
+
+	snprintf(buf, buf_n, "%s_crs_row_distribution.png", title_base);
+	snprintf(buf_title, buf_n, "%s: crs_row distribution", title_base);
+	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, crs_row, NULL, m, 0),
+		figure_enable_legend(_fig);
+		figure_set_title(_fig, buf_title);
+		figure_series_type_histogram(_s, 0, 1);
+		figure_series_type_barplot(_s);
+	);
+
+	free(crs_row);
+}
+
+#undef  csr_num_neigh_histogram_plot
+#define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
+void
+csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend)
+{
+	_TYPE_I *num_neigh;
+	long num_pixels = 1024;
+	long num_pixels_x = (n < 1024) ? n : num_pixels;
+	long num_pixels_y = (n < 1024) ? m : num_pixels;
+	long buf_n = strlen(title_base) + 1 + 1000;
+	char buf[buf_n], buf_title[buf_n];
+
+	// extract num_neigh per row
+	csr_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &num_neigh);
+
+	// num_neigh (per row) histogram. this can be commented out
+	double num_neigh_min, num_neigh_max, num_neigh_avg, num_neigh_std;
+	array_min_max(num_neigh, m, &num_neigh_min, NULL, &num_neigh_max, NULL);
+	// printf("num_neigh_max = %lf\n", num_neigh_max);
+	int *num_neigh_hist = (int*) calloc((int)num_neigh_max+1, sizeof(int));
+	for(int i=0;i<m;i++)
+		num_neigh_hist[num_neigh[i]]++;
+	// for (int i = 0; i < (int)num_neigh_max+1; ++i)
+	// 	printf("%d: %d (%.3f%)\n", i, num_neigh_hist[i], num_neigh_hist[i]*100.0/m);
+	free(num_neigh_hist);
+
+	snprintf(buf, buf_n, "%s_num_neigh_distribution.png", title_base);
+	snprintf(buf_title, buf_n, "%s: num_neigh distribution", title_base);
+	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, num_neigh, NULL, m, 0),
+		figure_enable_legend(_fig);
+		figure_set_title(_fig, buf_title);
+		figure_series_type_histogram(_s, 0, 1);
+		figure_series_type_barplot(_s);
+	);
+
+	free(num_neigh);
+}
 
 //==========================================================================================================================================
 //= Includes Undefs

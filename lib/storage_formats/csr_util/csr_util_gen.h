@@ -31,6 +31,16 @@ typedef CSR_UTIL_GEN_TYPE_2  _TYPE_I;
 #define csr_row_indexes  CSR_UTIL_GEN_EXPAND(csr_row_indexes)
 void csr_row_indexes(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, _TYPE_I ** row_idx_out);
 
+// Returns how many rows in matrix have less than "nnz_threshold" nonzeros
+#undef  csr_count_short_rows
+#define csr_count_short_rows  CSR_UTIL_GEN_EXPAND(csr_count_short_rows)
+long  csr_count_short_rows(_TYPE_I * row_ptr, long m, long nnz_threshold);
+
+// Returns how many nonzeros are "distant" from others within same row (depending on "max_distance")
+#undef  csr_count_distant_nonzeros
+#define csr_count_distant_nonzeros  CSR_UTIL_GEN_EXPAND(csr_count_distant_nonzeros)
+long csr_count_distant_nonzeros(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long max_distance);
+
 // Average nnz distances per row is: bandwidths / degrees_rows .
 #undef  csr_degrees_bandwidths_scatters
 #define csr_degrees_bandwidths_scatters  CSR_UTIL_GEN_EXPAND(csr_degrees_bandwidths_scatters)
@@ -59,7 +69,7 @@ double csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, lo
 
 #undef  csr_cross_row_neighbours
 #define csr_cross_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_cross_row_neighbours)
-double csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size);
+double csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size, _TYPE_I *crs_row);
 
 
 #undef  csr_value_features
@@ -74,7 +84,35 @@ void csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx
 #define csr_matrix_features_validation  CSR_UTIL_GEN_EXPAND(csr_matrix_features_validation)
 void csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz);
 
+#undef  csr_sort_by_row_size
+#define csr_sort_by_row_size  CSR_UTIL_GEN_EXPAND(csr_sort_by_row_size)
+void csr_sort_by_row_size(long m, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, _TYPE_I * row_ptr_s, _TYPE_I * col_idx_s, _TYPE_V * values_s);
+
+// "distant_mark" is a 0-1 flag matrix, which holds which nonzeros are distant from others, in order to isolate them later
+#undef  csr_mark_distant_nonzeros
+#define csr_mark_distant_nonzeros  CSR_UTIL_GEN_EXPAND(csr_mark_distant_nonzeros)
+long csr_mark_distant_nonzeros(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long max_distance, _TYPE_I * distant_mark);
+
+#undef  csr_separate_close_distant
+#define csr_separate_close_distant  CSR_UTIL_GEN_EXPAND(csr_separate_close_distant)
+void csr_separate_close_distant(_TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, _TYPE_I *distant_mark, long nnz, long m, _TYPE_I *row_ptr_close, _TYPE_I *col_idx_close, _TYPE_V *values_close, _TYPE_I *row_ptr_distant, _TYPE_I *col_idx_distant, _TYPE_V *values_distant);
+
+#undef  csr_shuffle_matrix
+#define csr_shuffle_matrix  CSR_UTIL_GEN_EXPAND(csr_shuffle_matrix)
+void csr_shuffle_matrix(long m, _TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, _TYPE_I *row_ptr_shuffle, _TYPE_I *col_idx_shuffle, _TYPE_V *values_shuffle);
+
 #undef  csr_plot
 #define csr_plot  CSR_UTIL_GEN_EXPAND(csr_plot)
 void csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int enable_legend);
 
+#undef  csr_row_size_histogram_plot
+#define csr_row_size_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_row_size_histogram_plot)
+void csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int enable_legend);
+
+#undef  csr_cross_row_similarity_histogram_plot
+#define csr_cross_row_similarity_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity_histogram_plot)
+void csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend);
+
+#undef  csr_num_neigh_histogram_plot
+#define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
+void csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend);

@@ -1,0 +1,9 @@
+#undef CSC_GEN_TYPE_1
+#undef CSC_GEN_TYPE_2
+#undef CSC_GEN_SUFFIX
+#undef CSC_GEN_H
+#undef CSC_GEN_EXPAND
+#undef _TYPE_V
+#undef _TYPE_I
+#undef csc_sort_rows
+#undef coo_to_csc

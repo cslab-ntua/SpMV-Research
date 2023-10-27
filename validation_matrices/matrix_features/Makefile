@@ -42,6 +42,10 @@ CFLAGS = -Wall -Wextra
 # Tells the compiler to use pipes instead of temporary files (faster compilation, but uses more memory).
 CFLAGS += -pipe
 CFLAGS += -fopenmp
+CFLAGS += -mavx2
+CFLAGS += -mbmi
+CFLAGS += -mbmi2
+CFLAGS += -march=native
 
 # CFLAGS += -g3 -fno-omit-frame-pointer
 # CFLAGS += -Og
@@ -78,14 +82,15 @@ LDFLAGS =
 LDFLAGS += -lm
 
 
-LIB_SRC = read_mtx.cpp pthread_functions.c omp_functions.c string_util.c parallel_io.c hash.c array_metrics.c plot.c csr.c
+LIB_SRC = read_mtx.cpp pthread_functions.c omp_functions.c string_util.c io.c random.c parallel_io.c hash.c array_metrics.c plot.c csr.c csc.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%.o,$(LIB_OBJ))
 LIB_OBJ := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ))
 
 
-EXE = mat_feat.exe
+# EXE = mat_feat.exe
+EXE = mat_feat.exe mat_experiment.exe
 
 all: $(EXE) | $(DIRS)
 
@@ -95,6 +100,8 @@ all: $(EXE) | $(DIRS)
 
 
 $(call Rule_Auto_Dependencies,obj/mat_feat.o,mat_feat.cpp)
+	$(CPP) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/mat_experiment.o,mat_experiment.cpp)
 	$(CPP) $(CFLAGS) -c $< -o $@
 
 
@@ -107,15 +114,21 @@ $(call Rule_Auto_Dependencies,obj/omp_functions.o,$(library)/omp_functions.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/string_util.o,$(library)/string_util.c)
 	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/io.o,$(library)/io.c)
+	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/parallel_io.o,$(library)/parallel_io.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/hash.o,$(library)/hash/hash.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/random.o,$(library)/random.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/array_metrics.o,$(library)/array_metrics.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/plot.o,$(library)/plot/plot.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/csr.o,csr.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/csc.o,csc.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
