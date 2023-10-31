@@ -267,7 +267,8 @@ declare -A progs
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
     # OPTIMA
-    ['optima_d']="${script_dir}/spmv_code_bench/spmv_optima.exe"
+    ['optima_d']="/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe"
+    # ['optima_d']="${script_dir}/spmv_code_bench/spmv_optima.exe"
 )
 
 

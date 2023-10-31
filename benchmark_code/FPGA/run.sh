@@ -73,7 +73,7 @@ matrices_validation=(
     # scircuit.mtx
     # mac_econ_fwd500.mtx
     # raefsky3.mtx
-    # rgg_n_2_17_s0.mtx
+    # rgg_n_2_17_s0.mtx 
     # bbmat.mtx
     # appu.mtx
     # conf5_4-8x8-15.mtx
@@ -84,7 +84,7 @@ matrices_validation=(
     # webbase-1M.mtx
     # cant.mtx
     # ASIC_680k.mtx
-    # roadNet-TX.mtx
+    # roadNet-TX.mtx 
     # pdb1HYS.mtx
     # TSOPF_RS_b300_c3.mtx
     # Chebyshev4.mtx
@@ -92,7 +92,7 @@ matrices_validation=(
     # com-Youtube.mtx
     # rajat30.mtx
     # radiation.mtx
-    # Stanford_Berkeley.mtx
+    # Stanford_Berkeley.mtx 
     # shipsec1.mtx
     # PR02R.mtx
     # CurlCurl_2.mtx
@@ -103,16 +103,16 @@ matrices_validation=(
     # crankseg_2.mtx
     # Si41Ge41H72.mtx
     # TSOPF_RS_b2383.mtx
-    # in-2004.mtx
+    # in-2004.mtx 
     # Ga41As41H72.mtx
     # eu-2005.mtx
-    # wikipedia-20051105.mtx
-    # kron_g500-logn18.mtx
+    # wikipedia-20051105.mtx 
+    # kron_g500-logn18.mtx 
     # rajat31.mtx
     # human_gene1.mtx
     # delaunay_n22.mtx
-    # GL7d20.mtx
-    # sx-stackoverflow.mtx
+    # GL7d20.mtx 
+    # sx-stackoverflow.mtx 
     # dgreen.mtx
     # mawi_201512012345.mtx
     # ldoor.mtx
@@ -250,12 +250,17 @@ bench()
                 # "$prog" 4690000 4 1.6 normal random 1 14  2>'tmp.err'
 
                 # numactl -i all "$prog" "${prog_args[@]}"  2>'tmp.err'
-                "$prog" "${prog_args[@]}"  2>'tmp.err'
+                timeout 420s "$prog" "${prog_args[@]}"  2>'tmp.err'
                 ret="$?"
+                if [[ $ret -eq 124 ]]; then
+                    # Timeout occurred (exit status 124)
+                    echo "Timeout occurred. Resetting the device..."
+                    (echo -ne 'y' ; echo ) | xbutil reset -d 0 
+                fi
             fi
             # cat 'tmp.err'
-            if ((!ret || !force_retry_on_error)); then      # If not retrying then print the error text to be able to notice it.
-                cat 'tmp.err' >&2
+            if ((!ret || !force_retry_on_error )); then      # If not retrying then print the error text to be able to notice it.
+                cat 'tmp.err' >&2           
                 break
             fi
             echo "ERROR: Program exited with error [${ret}], retrying."
