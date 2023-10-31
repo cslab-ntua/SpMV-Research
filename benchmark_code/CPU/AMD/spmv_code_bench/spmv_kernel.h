@@ -17,7 +17,7 @@ struct Matrix_Format
 
 	virtual void spmv(ValueType * x, ValueType * y) = 0;
 	virtual void statistics_start() = 0;
-	virtual int statistics_print(char * buf, long buf_n) = 0;
+	virtual int statistics_print_data(char * buf, long buf_n) = 0;
 
 	Matrix_Format(long m, long n, long nnz) : m(m), n(n), nnz(nnz)
 	{
@@ -27,6 +27,7 @@ struct Matrix_Format
 
 
 struct Matrix_Format * csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz);
+int statistics_print_labels(char * buf, long buf_n);
 
 
 #endif /* SPMV_KERNELS_H */

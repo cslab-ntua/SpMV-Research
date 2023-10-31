@@ -33,7 +33,7 @@ struct DIAArrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
+	int statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -130,7 +130,14 @@ DIAArrays::statistics_start()
 
 
 int
-DIAArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
+}
+
+
+int
+DIAArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
 	return 0;
 }

@@ -1,0 +1,13 @@
+#include "samplesort_gen_undef.h"
+#pragma pop_macro("SAMPLESORT_GEN_TYPE_1")
+#pragma pop_macro("SAMPLESORT_GEN_TYPE_2")
+#pragma pop_macro("SAMPLESORT_GEN_TYPE_3")
+#pragma pop_macro("SAMPLESORT_GEN_TYPE_4")
+#pragma pop_macro("SAMPLESORT_GEN_SUFFIX")
+#pragma pop_macro("SAMPLESORT_GEN_EXPAND")
+#pragma pop_macro("_TYPE_V")
+#pragma pop_macro("_TYPE_I")
+#pragma pop_macro("_TYPE_BUCKET_I")
+#pragma pop_macro("_TYPE_AD")
+#pragma pop_macro("samplesort_concurrent")
+#pragma pop_macro("samplesort")

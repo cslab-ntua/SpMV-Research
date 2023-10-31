@@ -1,0 +1,13 @@
+#undef PARTITION_GEN_TYPE_1
+#undef PARTITION_GEN_TYPE_2
+#undef PARTITION_GEN_TYPE_3
+#undef PARTITION_GEN_SUFFIX
+#undef PARTITION_GEN_EXPAND
+#undef _TYPE_V
+#undef _TYPE_I
+#undef _TYPE_AD
+#undef partition_serial
+#undef partition_auto_serial
+#undef partition_serial_random
+#undef partition_concurrent
+#undef partition_auto_concurrent

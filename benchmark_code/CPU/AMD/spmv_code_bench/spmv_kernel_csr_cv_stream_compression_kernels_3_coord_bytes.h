@@ -423,8 +423,8 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 
 	uint64_t coords;
 	coords = *((uint64_t *) &data_coords[0]);
-	row = bits_extract_64(coords, 0, row_bits) + row_min;
-	col = bits_extract_64(coords, row_bits, col_bits) + col_min;
+	row = bits_u64_extract(coords, 0, row_bits) + row_min;
+	col = bits_u64_extract(coords, row_bits, col_bits) + col_min;
 
 	if (validate)
 		window[0] = val;
@@ -437,8 +437,8 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 	{
 		// uint64_t bits_buf = 0;
 		coords = *((uint64_t *) &data_coords[i*coords_bytes]);
-		row = bits_extract_64(coords, 0, row_bits) + row_min;
-		col = bits_extract_64(coords, row_bits, col_bits) + col_min;
+		row = bits_u64_extract(coords, 0, row_bits) + row_min;
+		col = bits_u64_extract(coords, row_bits, col_bits) + col_min;
 
 		if (!validate)
 		{

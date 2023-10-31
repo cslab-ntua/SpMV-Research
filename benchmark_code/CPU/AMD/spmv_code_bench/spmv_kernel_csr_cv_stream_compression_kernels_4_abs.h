@@ -119,12 +119,12 @@ static int ** t_qsort_partitions;
 uint64_t * t_total_row_diff_max;
 uint64_t * t_total_col_diff_max;
 
-#include "sort/quicksort_gen_undef.h"
+#include "sort/quicksort/quicksort_gen_undef.h"
 #define QUICKSORT_GEN_TYPE_1  int
 #define QUICKSORT_GEN_TYPE_2  int
 #define QUICKSORT_GEN_TYPE_3  double
 #define QUICKSORT_GEN_SUFFIX  i_i_d
-#include "sort/quicksort_gen.c"
+#include "sort/quicksort/quicksort_gen.c"
 
 static inline
 int
@@ -433,8 +433,8 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 
 	uint64_t coords;
 	coords = *((uint64_t *) &data_coords[0]);
-	row = bits_extract_64(coords, 0, row_bits) + row_min;
-	col = bits_extract_64(coords, row_bits, col_bits) + col_min;
+	row = bits_u64_extract(coords, 0, row_bits) + row_min;
+	col = bits_u64_extract(coords, row_bits, col_bits) + col_min;
 
 	len = data_val_lens[0];
 	uint64_t sign = len & 0x80ULL;
@@ -460,8 +460,8 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 	{
 		// uint64_t bits_buf = 0;
 		coords = *((uint64_t *) &data_coords[i*coords_bytes]);
-		row = bits_extract_64(coords, 0, row_bits) + row_min;
-		col = bits_extract_64(coords, row_bits, col_bits) + col_min;
+		row = bits_u64_extract(coords, 0, row_bits) + row_min;
+		col = bits_u64_extract(coords, row_bits, col_bits) + col_min;
 
 		if (!validate)
 		{

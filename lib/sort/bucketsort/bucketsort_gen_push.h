@@ -1,0 +1,13 @@
+#pragma push_macro("BUCKETSORT_GEN_TYPE_1")
+#pragma push_macro("BUCKETSORT_GEN_TYPE_2")
+#pragma push_macro("BUCKETSORT_GEN_TYPE_3")
+#pragma push_macro("BUCKETSORT_GEN_TYPE_4")
+#pragma push_macro("BUCKETSORT_GEN_SUFFIX")
+#pragma push_macro("BUCKETSORT_GEN_EXPAND")
+#pragma push_macro("_TYPE_V")
+#pragma push_macro("_TYPE_I")
+#pragma push_macro("_TYPE_BUCKET_I")
+#pragma push_macro("_TYPE_AD")
+#pragma push_macro("bucketsort_stable_serial")
+#pragma push_macro("bucketsort")
+#include "bucketsort_gen_undef.h"

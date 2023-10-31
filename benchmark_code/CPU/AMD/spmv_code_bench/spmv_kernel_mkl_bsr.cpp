@@ -49,7 +49,7 @@ struct BCSRArrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
+	int statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -160,7 +160,14 @@ BCSRArrays::statistics_start()
 
 
 int
-BCSRArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
+}
+
+
+int
+BCSRArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
 	return 0;
 }

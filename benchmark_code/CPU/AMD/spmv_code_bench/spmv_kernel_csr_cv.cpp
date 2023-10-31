@@ -68,8 +68,8 @@ compress(ValueType * vals, unsigned char * buf, const long num_vals)
 {
 	// return compress_kernel_id(vals, buf, num_vals);
 	// return compress_kernel_float(vals, buf, num_vals);
-	// return compress_kernel_fpc(vals, buf, num_vals);
-	return compress_kernel_sort_diff(vals, buf, num_vals);
+	return compress_kernel_fpc(vals, buf, num_vals);
+	// return compress_kernel_sort_diff(vals, buf, num_vals);
 }
 
 
@@ -79,8 +79,8 @@ decompress(ValueType * vals, unsigned char * buf, long * num_vals_out)
 {
 	// return decompress_kernel_id(vals, buf, num_vals_out);
 	// return decompress_kernel_float(vals, buf, num_vals_out);
-	// return decompress_kernel_fpc(vals, buf, num_vals_out);
-	return decompress_kernel_sort_diff(vals, buf, num_vals_out);
+	return decompress_kernel_fpc(vals, buf, num_vals_out);
+	// return decompress_kernel_sort_diff(vals, buf, num_vals_out);
 }
 
 
@@ -256,7 +256,7 @@ struct CSRCVArrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
+	int statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -362,11 +362,11 @@ CSRCVArrays::calculate_matrix_compression_error(ValueType * a)
 			// if (a[j] != a_new[j])
 				// printf("%d: a=%g != a_new=%g , at pos=%ld : col=%d\n", tnum, a[j], a_new[j], j, ja[j]);
 		double mae, max_ae, mse, mape, smape;
-		mae = array_mae_concurrent(a, a_new, nnz, val_to_double);
-		max_ae = array_max_ae_concurrent(a, a_new, nnz, val_to_double);
-		mse = array_mse_concurrent(a, a_new, nnz, val_to_double);
-		mape = array_mape_concurrent(a, a_new, nnz, val_to_double);
-		smape = array_smape_concurrent(a, a_new, nnz, val_to_double);
+		array_mae_concurrent(a, a_new, nnz, &mae, val_to_double);
+		array_max_ae_concurrent(a, a_new, nnz, &max_ae, val_to_double);
+		array_mse_concurrent(a, a_new, nnz, &mse, val_to_double);
+		array_mape_concurrent(a, a_new, nnz, &mape, val_to_double);
+		array_smape_concurrent(a, a_new, nnz, &smape, val_to_double);
 		#pragma omp single
 		{
 			printf("errors matrix: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g\n", mae, max_ae, mse, mape, smape);
@@ -602,7 +602,14 @@ CSRCVArrays::statistics_start()
 
 
 int
-CSRCVArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
+}
+
+
+int
+CSRCVArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
 	// int num_threads = omp_get_max_threads();
 	// double time_total = 0, time_io = 0, time_decompress = 0, time_exec = 0;

@@ -125,6 +125,91 @@ matrices_validation=( $(
 ) )
 
 
+matrices_paper_csr_rv=(
+
+    ts-palko
+    # neos
+    # stat96v3
+    # stormG2_1000
+    # xenon2
+    # s3dkq4m2
+    # apache2
+    # Si34H36
+    # ecology2
+    # LargeRegFile
+    # largebasis
+    # Goodwin_127
+    # Hamrle3
+    # boneS01
+    # sls
+    # cont1_l
+    # CO
+    # G3_circuit
+    # degme
+    # atmosmodl
+    # SiO2
+    # tp-6
+    # af_shell3
+    # circuit5M_dc
+    # rajat31
+    # CurlCurl_4
+    # cage14
+    # nlpkkt80
+    # ss
+    # boneS10
+
+)
+for ((i=0;i<${#matrices_paper_csr_rv[@]};i++)); do
+    m="${matrices_paper_csr_rv[i]}"
+    matrices_paper_csr_rv[i]="$path_tamu"/matrices/"$m"/"$m".mtx
+done
+
+
+matrices_compression_small=(
+
+    # scircuit
+    # mac_econ_fwd500
+    # raefsky3
+    # bbmat
+    # appu
+    # rma10
+    # cop20k_A
+    # thermomech_dK
+    # webbase-1M
+    # cant
+    # ASIC_680k
+    # pdb1HYS
+    # TSOPF_RS_b300_c3
+    # Chebyshev4
+    # consph
+    # rajat30
+    # radiation
+    # shipsec1
+    # PR02R
+    # CurlCurl_2
+    # pwtk
+    # crankseg_2
+    # Si41Ge41H72
+    # TSOPF_RS_b2383
+    # Ga41As41H72
+    # rajat31
+    # human_gene1
+    # dgreen
+
+    cop20k_A
+    ASIC_680k
+    radiation
+    PR02R
+    crankseg_2
+    human_gene1
+
+)
+for ((i=0;i<${#matrices_compression_small[@]};i++)); do
+    m="${matrices_compression_small[i]}"
+    matrices_compression_small[i]="$path_tamu"/matrices/"$m"/"$m".mtx
+done
+
+
 matrices_compression=(
 
     # spal_004
@@ -158,23 +243,27 @@ matrices_compression=(
     # nlpkkt200
 
 )
-
 for ((i=0;i<${#matrices_compression[@]};i++)); do
     m="${matrices_compression[i]}"
     matrices_compression[i]="$path_tamu"/matrices/"$m"/"$m".mtx
 done
 
-# matrices_compression=( $(
-    # for ((i=0;i<${#matrices_compression[@]};i++)); do
-        # m="${matrices_compression[i]}"
-        # for d in "${validation_dirs[@]}"; do
-            # if [[ -f "${d}/${m}" ]]; then
-                # echo "${d}/${m}"
-                # break
-            # fi
-        # done
-    # done
-# ) )
+
+matrices_M3E=(
+
+    # StocF_1465
+
+    Heel_1138
+    Hook_1498
+    Utemp20m
+    guenda11m
+    agg14m
+
+)
+for ((i=0;i<${#matrices_M3E[@]};i++)); do
+    m="${matrices_M3E[i]}"
+    matrices_M3E[i]="$path_M3E"/"$m"/"$m".mtx
+done
 
 
 matrices_validation_loop=()
@@ -210,7 +299,7 @@ bench()
                 # export GOMP_CPU_AFFINITY_backup="${GOMP_CPU_AFFINITY}"
                 # export GOMP_CPU_AFFINITY="0"
                 # mt_conf=$(seq -s ',' 0 1 "$(($t-1))")
-                # if ((!use_artificial_matrices)); then
+                # if ((!USE_ARTIFICIAL_MATRICES)); then
                     # "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v  2>'tmp.err'
                 # else
                     # prog_args2="${prog_args[@]}"
@@ -219,7 +308,7 @@ bench()
                 # export GOMP_CPU_AFFINITY="${GOMP_CPU_AFFINITY_backup}"
             # elif [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
             if [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
-                if ((!use_artificial_matrices)); then
+                if ((!USE_ARTIFICIAL_MATRICES)); then
                     "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1  2>'tmp.err'
                     ret="$?"
                 else
@@ -249,8 +338,11 @@ bench()
 
 matrices=(
     # "${matrices_openFoam[@]}"
-    "${matrices_validation[@]}"
-    # "${matrices_compression[@]}"
+    # "${matrices_validation[@]}"
+    # "${matrices_paper_csr_rv[@]}"
+    # "${matrices_compression_small[@]}"
+    "${matrices_compression[@]}"
+    # "${matrices_M3E[@]}"
 
     # "$path_tamu"/matrices/ASIC_680k/ASIC_680k.mtx
     # '682862 682862 5.6699201303 659.8073579974 normal random 0.3746622132 69710.5639935502 0.6690077130 0.8254737741 14 ASIC_680k'
@@ -337,7 +429,7 @@ matrices=(
 )
 
 
-if ((!use_artificial_matrices)); then
+if ((!USE_ARTIFICIAL_MATRICES)); then
     prog_args=("${matrices[@]}")
 else
     prog_args=()
@@ -360,7 +452,7 @@ temp_labels=( $(printf "%s\n" /sys/class/hwmon/hwmon*/temp*_label | sort) )
 temp_inputs=( ${temp_labels[@]/label/input} )
 
 for format_name in "${!progs[@]}"; do
-    p="${progs["$format_name"]}"
+    prog="${progs["$format_name"]}"
 
     if ((output_to_files)); then
         > out/"${format_name}.out"
@@ -371,8 +463,10 @@ for format_name in "${!progs[@]}"; do
 
     echo "$config_str"
 
-    echo "program: $p"
+    echo "program: $prog"
     echo "number of matrices: ${#prog_args[@]}"
+
+    "$prog"
 
     rep=1
     # rep=4
@@ -384,13 +478,17 @@ for format_name in "${!progs[@]}"; do
     LEVEL3_CACHE_SIZE="$(getconf LEVEL3_CACHE_SIZE)"
     csrcv_num_packet_vals=(
         # 128 
-        $((2**7))
-        # $((2**16))
+        # $((2**6))
+        # $((2**10))
+        $((2**14))
+        # $((2**17))
+        # $((2**20))
         # $((2**12))
         # $((LEVEL3_CACHE_SIZE / 8 / 8 / 16))
     )
-    # if [[ "$p" == *'spmv_csr_cv'* ]]; then
-        # csrcv_num_packet_vals=( $( declare -i i; for ((i=64;i<LEVEL3_CACHE_SIZE / 8 / cores / 4;i*=2)); do echo "$i"; done ) )
+
+    # if [[ "$prog" == *'spmv_csr_cv'* ]]; then
+        # csrcv_num_packet_vals=( $( declare -i i; for (( i=64;i<=2**24;i*=2 )); do echo "$i"; done ) )
     # fi
 
     for ((i=0;i<rep;i++)); do
@@ -410,7 +508,7 @@ for format_name in "${!progs[@]}"; do
                 echo >&1
 
                 echo "File: $a"
-                bench "$p" $a
+                bench "$prog" $a
 
             done
         done

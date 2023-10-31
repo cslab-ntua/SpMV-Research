@@ -31,12 +31,11 @@ calc_cpu_pinning()
 }
 
 
-# SPARSEX_ROOT_DIR="${HOME}/lib"
-SPARSEX_ROOT_DIR=/various/pmpakos/icy3_libs/
+SPARSEX_ROOT_DIR="${HOME}/lib"
 # SPARSEX_ROOT_DIR=/various/dgal/epyc1
 # SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
 # SPARSEX_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/sparsex
-GHOST_APPS_ROOT_DIR=/various/pmpakos/icy3_libs/spmv_code_sell-C-s
+
 
 declare -A conf_vars
 conf_vars=(
@@ -55,17 +54,23 @@ conf_vars=(
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
 
+    ['VC_TOLERANCE']=0
+    # ['VC_TOLERANCE']='1e-12'
+    # ['VC_TOLERANCE']='1e-9'
+    # ['VC_TOLERANCE']='1e-7'
+    # ['VC_TOLERANCE']='1e-6'
+    # ['VC_TOLERANCE']='1e-3'
+
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    ['use_artificial_matrices']=0
-    # ['use_artificial_matrices']=1
+    ['USE_ARTIFICIAL_MATRICES']=0
+    # ['USE_ARTIFICIAL_MATRICES']=1
 
     # Maximum number of the machine's cores.
     # ['max_cores']=160
     # ['max_cores']=256
     # ['max_cores']=128
     # ['max_cores']=64
-    ['max_cores']=16
-    # ['max_cores']=96
+    ['max_cores']=96
     # ['max_cores']=48
     # ['max_cores']=16
     # ['max_cores']=8
@@ -75,22 +80,20 @@ conf_vars=(
     # ['cores']='1 2 4 8 16 32 64 128'
     # ['cores']='64 128'
     # ['cores']=128
-    ['cores']=64
+    # ['cores']=64
     # ['cores']=48
     # ['cores']=32
+    # ['cores']=24
     # ['cores']=16
-    # ['cores']=8
+    # ['cores']=12
+    ['cores']=8
+    # ['cores']=6
     # ['cores']=4
     # ['cores']=2
     # ['cores']=1
     # ['cores']='1 2 4 8 16 24 48'
     # ['cores']='24 48'
-    # ['cores']=48
-    # ['cores']=24
     # ['cores']='1 2 4 8'
-    # ['cores']=14
-    # ['cores']=12
-    # ['cores']=6
 
     # Cpu pinning distance for contiguous thread ids, 1 means adjacent core numbers.
     ['cpu_pinning_step']=1
@@ -114,6 +117,7 @@ conf_vars=(
     ['MKL_PATH']="$( options=(
                         '/opt/intel/oneapi/mkl/latest'
                         '/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl'
+                        "${HOME}/spack/23.03/0.20.0/intel-oneapi-mkl-2023.1.0-cafkcjc/mkl/latest"
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -121,6 +125,7 @@ conf_vars=(
     ['AOCL_PATH']="$( options=(
                         '/opt/aoclsparse'
                         '/various/pmpakos/spmv_paper/aocl-sparse/build/release'
+                        "${HOME}/aocl-sparse/library"
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -171,10 +176,8 @@ conf_vars=(
 
     # SELL-C-s ecosystem environment variables that have to be set
     # These are environment variables that have to be set for SELL-C-s to work
-    # ['GHOST_ROOT_DIR']='/home/pmpakos/ESSEX'
-    ['GHOST_ROOT_DIR']=${SPARSEX_ROOT_DIR}
-    # ['GHOST_APPS_ROOT_DIR']='/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s'
-    ['GHOST_APPS_ROOT_DIR']=${GHOST_APPS_ROOT_DIR}
+    ['GHOST_ROOT_DIR']='/home/pmpakos/ESSEX'
+    ['GHOST_APPS_ROOT_DIR']='/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s'
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
@@ -196,19 +199,11 @@ conf_vars=(
                 )"
 
     ['path_tamu']="${HOME}/Data/graphs/tamu"
+    ['path_M3E']="${HOME}/Data/graphs/M3E-Matrix-Collection"
 
 )
 
-# conf_vars['cores']=16
-# conf_vars['cores']=8
-# conf_vars['cores']=4
-# conf_vars['cores']=2
 conf_vars['cpu_affinity']="$(calc_cpu_pinning "${conf_vars["cores"]}" "${conf_vars["max_cores"]}" "${conf_vars["cpu_pinning_step"]}" "${conf_vars["cpu_pinning_group_size"]}")"
-
-# conf_vars['cores']=2
-# conf_vars['cpu_affinity']=0,8
-# conf_vars['cpu_affinity']=0,1,2,3,8,9,10,11
-# conf_vars['cores']=1
 
 
 path_artificial="${script_dir}/../../../matrix_generation_parameters"
@@ -221,10 +216,10 @@ artificial_matrices_files=(
     # "$path_artificial"/validation_friends/twins_random.txt
 
     # Validation matrices artificial twins in a +-30% value space of each feature.
-    # "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
+    "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
 
     # The synthetic dataset studied in the paper.
-    "$path_artificial"/synthetic_matrices_small_dataset.txt
+    # "$path_artificial"/synthetic_matrices_small_dataset.txt
     # "$path_artificial"/synthetic_matrices_small_dataset5.txt
 )
 
@@ -316,20 +311,27 @@ progs=(
     # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance.exe"
 
     # Custom csr x86
-    # ['csr_x86_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector.exe"
-    # ['csr_x86_vector_oracle_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_oracle_balance.exe"
-    # ['csr_x86_vector_queues_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_queues.exe"
-    # ['csr_x86_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_x86_vector_perfect_nnz_balance.exe"
+    # ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86.exe"
+    # ['csr_vector_oracle_balance_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_oracle_balance_x86.exe"
+    # ['csr_vector_queues_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_queues_x86.exe"
+    # ['csr_vector_perfect_nnz_balance_x86_d']="${script_dir}/spmv_code_bench/spmv_csr__vector_perfect_nnz_balance_x86.exe"
 
+    # Custom lut
+    # ['csr_vector_lut_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_lut_x86.exe"
+
+    # Custom compressed values
     # ['csr_cv']="${script_dir}/spmv_code_bench/spmv_csr_cv.exe"
-    # ['csr_cv_stream']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream.exe"
-    # ['csr_cv_stream_vps']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream_vps.exe"
+    ['csr_cv_stream']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream.exe"
+    # ['csr_cv_stream_opt_compress']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream_opt_compress.exe"
 
     # MKL IE
     # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie.exe"
 
     # AOCL
     # ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv.exe"
+
+    # CSR-RV
+    # ['csrrv_d']="${script_dir}/spmv_code_bench/spmv_csrrv.exe"
 
     # CSR5
     # ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5.exe"
@@ -340,10 +342,9 @@ progs=(
     # sell C sigma
     # ['sell_C_s_d']="${script_dir}/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
     # ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
-    ['sell_C_s_d']="${GHOST_APPS_ROOT_DIR}/build/spmvbench/spmv_sell-C-s.exe"
 
     # sparsex
-    ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex.exe"
+    # ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex.exe"
     # ['sparsex_d']="${script_dir}/spmv_code_sparsex/spmv_sparsex.exe"
     # ['sparsex_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sparsex/spmv_sparsex.exe"
 

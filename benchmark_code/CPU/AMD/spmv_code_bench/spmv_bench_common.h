@@ -1,6 +1,8 @@
 #ifndef SPMV_BENCH_COMMON_H
 #define SPMV_BENCH_COMMON_H
 
+#include <math.h>
+
 #include "macros/cpp_defines.h"
 
 
@@ -43,7 +45,7 @@ static inline
 double
 val_to_double(void * A, long i)
 {
-	return (double) ((ValueType *) A)[i]; 
+	return (double) ((ValueType *) A)[i];
 }
 
 

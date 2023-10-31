@@ -360,7 +360,7 @@ struct CSRVCArrays : Matrix_Format
 
 	void spmv(ValueType * x, ValueType * y);
 	void statistics_start();
-	int statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
+	int statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -474,11 +474,11 @@ CSRVCArrays::calculate_matrix_compression_error(ValueType * a)
 			// if (a[j] != a_new[j])
 				// printf("%d: a=%g != a_new=%g , at pos=%ld : col=%d\n", tnum, a[j], a_new[j], j, ja[j]);
 		double mae, max_ae, mse, mape, smape;
-		mae = array_mae_concurrent(a, a_new, nnz, val_to_double);
-		max_ae = array_max_ae_concurrent(a, a_new, nnz, val_to_double);
-		mse = array_mse_concurrent(a, a_new, nnz, val_to_double);
-		mape = array_mape_concurrent(a, a_new, nnz, val_to_double);
-		smape = array_smape_concurrent(a, a_new, nnz, val_to_double);
+		array_mae_concurrent(a, a_new, nnz, &mae, val_to_double);
+		array_max_ae_concurrent(a, a_new, nnz, &max_ae, val_to_double);
+		array_mse_concurrent(a, a_new, nnz, &mse, val_to_double);
+		array_mape_concurrent(a, a_new, nnz, &mape, val_to_double);
+		array_smape_concurrent(a, a_new, nnz, &smape, val_to_double);
 		#pragma omp single
 		{
 			printf("errors matrix: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g\n", mae, max_ae, mse, mape, smape);
@@ -740,9 +740,16 @@ CSRVCArrays::statistics_start()
 
 
 int
-CSRVCArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
-	long num_threads = omp_get_max_threads();
+	return 0;
+}
+
+
+int
+CSRVCArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	/* long num_threads = omp_get_max_threads();
 	// double time_total = 0, time_io = 0, time_decompress = 0, time_exec = 0;
 	// long i;
 	// for (i=0;i<num_threads;i++)
@@ -755,15 +762,15 @@ CSRVCArrays::statistics_print(__attribute__((unused)) char * buf, __attribute__(
 	// time_total = time_io + time_decompress + time_exec;
 	// printf("STATISTICS: %lf,%lf,%lf,%lf\n", time_total, time_io, time_decompress, time_exec);
 	double tot_avg, tot_max, io_avg, io_max, decompress_avg, decompress_max, exec_avg, exec_max;
-	tot_avg        = array_mean(t_time_total, num_threads, val_to_double);
-	tot_max        = array_max(t_time_total, num_threads, NULL, val_to_double);
-	io_avg         = array_mean(t_time_io, num_threads, val_to_double);
-	io_max         = array_max(t_time_io, num_threads, NULL, val_to_double);
-	decompress_avg = array_mean(t_time_decompress, num_threads, val_to_double);
-	decompress_max = array_max(t_time_decompress, num_threads, NULL, val_to_double);
-	exec_avg       = array_mean(t_time_exec, num_threads, val_to_double);
-	exec_max       = array_max(t_time_exec, num_threads, NULL, val_to_double);
-	printf("STATISTICS: %lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n", tot_avg, tot_max, io_avg, io_max, decompress_avg, decompress_max, exec_avg, exec_max);
+	array_mean(t_time_total, num_threads, &tot_avg, val_to_double);
+	array_max(t_time_total, num_threads, &tot_max, NULL, val_to_double);
+	array_mean(t_time_io, num_threads, &io_avg, val_to_double);
+	array_max(t_time_io, num_threads, &io_max, NULL, val_to_double);
+	array_mean(t_time_decompress, num_threads, &decompress_avg, val_to_double);
+	array_max(t_time_decompress, num_threads, &decompress_max, NULL, val_to_double);
+	array_mean(t_time_exec, num_threads, &exec_avg, val_to_double);
+	array_max(t_time_exec, num_threads, &exec_max, NULL, val_to_double);
+	printf("STATISTICS: %lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n", tot_avg, tot_max, io_avg, io_max, decompress_avg, decompress_max, exec_avg, exec_max); */
 	return 0;
 }
 
