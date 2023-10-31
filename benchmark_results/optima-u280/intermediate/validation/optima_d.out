@@ -1,0 +1,3210 @@
+RAPL_REGISTERS=0;COOLDOWN=0;XCLBIN_FILENAME=/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv/Hardware/binary_container_1_CU10.xclbin;cpu_pinning_step=1;path_tamu=/home/users/itasou/Data/graphs/tamu;DEV_ID=0000:5e:00.1;cores=14;XILINX_VITIS=/various/common_tools/xilinx_stx/Vitis/2020.2/;XILINX_XRT=/opt/xilinx/xrt;PRINT_STATISTICS=1;path_validation=/various/pmpakos/SpMV-Research/validation_matrices;XILINX_VIVADO=/various/common_tools/xilinx_stx/Vivado/2020.2/;CU=10;LOOPS=128;cpu_affinity=0,1,2,3,4,5,6,7,8,9,10,11,12,13;force_retry_on_error=0;VITIS_PLATFORM=xilinx_u280_xdma_201920_3;XILINX_VITIS_HLS=/various/common_tools/xilinx_stx/Vitis_HLS/2020.2/;USE_PROCESSES=0;KERNEL_NAME=krnl_spmv;cpu_pinning_group_size=1;path_openFoam=/various/dgal/graphs/matrices_openFoam;output_to_files=1;max_cores=14;use_artificial_matrices=0;
+program: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+number of matrices: 53
+File: /various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx
+max threads 14
+time read: 0.045806
+time coo to csr: 0.005494
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 0.395840 seconds
+ROW_BAL: stripe = 0	nrows = 17100	nterm = 151504
+ROW_BAL: stripe = 1	nrows = 17100	nterm = 159608
+ROW_BAL: stripe = 2	nrows = 17100	nterm = 155072
+ROW_BAL: stripe = 3	nrows = 17100	nterm = 149872
+ROW_BAL: stripe = 4	nrows = 17100	nterm = 164240
+ROW_BAL: stripe = 5	nrows = 17100	nterm = 164904
+ROW_BAL: stripe = 6	nrows = 17100	nterm = 166568
+ROW_BAL: stripe = 7	nrows = 17100	nterm = 154688
+ROW_BAL: stripe = 8	nrows = 17099	nterm = 136792
+ROW_BAL: stripe = 9	nrows = 17099	nterm = 136792
+	nt increasing [%]: 60.6 
+buffer_coef[0] 1.156 MB
+buffer_ja[0]   0.578 MB
+buffer_x[0]    1.305 MB
+buffer_y[0]    0.130 MB
+
+buffer_coef[1] 1.218 MB
+buffer_ja[1]   0.609 MB
+buffer_x[1]    1.305 MB
+buffer_y[1]    0.130 MB
+
+buffer_coef[2] 1.183 MB
+buffer_ja[2]   0.592 MB
+buffer_x[2]    1.305 MB
+buffer_y[2]    0.130 MB
+
+buffer_coef[3] 1.143 MB
+buffer_ja[3]   0.572 MB
+buffer_x[3]    1.305 MB
+buffer_y[3]    0.130 MB
+
+buffer_coef[4] 1.253 MB
+buffer_ja[4]   0.627 MB
+buffer_x[4]    1.305 MB
+buffer_y[4]    0.130 MB
+
+buffer_coef[5] 1.258 MB
+buffer_ja[5]   0.629 MB
+buffer_x[5]    1.305 MB
+buffer_y[5]    0.130 MB
+
+buffer_coef[6] 1.271 MB
+buffer_ja[6]   0.635 MB
+buffer_x[6]    1.305 MB
+buffer_y[6]    0.130 MB
+
+buffer_coef[7] 1.180 MB
+buffer_ja[7]   0.590 MB
+buffer_x[7]    1.305 MB
+buffer_y[7]    0.130 MB
+
+buffer_coef[8] 1.044 MB
+buffer_ja[8]   0.522 MB
+buffer_x[8]    1.305 MB
+buffer_y[8]    0.130 MB
+
+buffer_coef[9] 1.044 MB
+buffer_ja[9]   0.522 MB
+buffer_x[9]    1.305 MB
+buffer_y[9]    0.130 MB
+
+Kernel 0 nterm 151504 nrows 17100
+Kernel 1 nterm 159608 nrows 17100
+Kernel 2 nterm 155072 nrows 17100
+Kernel 3 nterm 149872 nrows 17100
+Kernel 4 nterm 164240 nrows 17100
+Kernel 5 nterm 164904 nrows 17100
+Kernel 6 nterm 166568 nrows 17100
+Kernel 7 nterm 154688 nrows 17100
+Kernel 8 nterm 136792 nrows 17099
+Kernel 9 nterm 136792 nrows 17099
+time = 0.142301, gflops = 1.725125
+Test failed! (4.53523e-07)
+errors spmv: mae=4.46734e-15, max_ae=4.0273e-12, mse=1.57277e-25, mape=inf, smape=1.20588
+File: /various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx
+max threads 14
+time read: 0.061059
+time coo to csr: 0.007174
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 0.513708 seconds
+ROW_BAL: stripe = 0	nrows = 20650	nterm = 199024
+ROW_BAL: stripe = 1	nrows = 20650	nterm = 199200
+ROW_BAL: stripe = 2	nrows = 20650	nterm = 199200
+ROW_BAL: stripe = 3	nrows = 20650	nterm = 199200
+ROW_BAL: stripe = 4	nrows = 20650	nterm = 199200
+ROW_BAL: stripe = 5	nrows = 20650	nterm = 199200
+ROW_BAL: stripe = 6	nrows = 20650	nterm = 199200
+ROW_BAL: stripe = 7	nrows = 20650	nterm = 199200
+ROW_BAL: stripe = 8	nrows = 20650	nterm = 199200
+ROW_BAL: stripe = 9	nrows = 20650	nterm = 199200
+	nt increasing [%]: 56.4 
+buffer_coef[0] 1.518 MB
+buffer_ja[0]   0.759 MB
+buffer_x[0]    1.575 MB
+buffer_y[0]    0.158 MB
+
+buffer_coef[1] 1.520 MB
+buffer_ja[1]   0.760 MB
+buffer_x[1]    1.575 MB
+buffer_y[1]    0.158 MB
+
+buffer_coef[2] 1.520 MB
+buffer_ja[2]   0.760 MB
+buffer_x[2]    1.575 MB
+buffer_y[2]    0.158 MB
+
+buffer_coef[3] 1.520 MB
+buffer_ja[3]   0.760 MB
+buffer_x[3]    1.575 MB
+buffer_y[3]    0.158 MB
+
+buffer_coef[4] 1.520 MB
+buffer_ja[4]   0.760 MB
+buffer_x[4]    1.575 MB
+buffer_y[4]    0.158 MB
+
+buffer_coef[5] 1.520 MB
+buffer_ja[5]   0.760 MB
+buffer_x[5]    1.575 MB
+buffer_y[5]    0.158 MB
+
+buffer_coef[6] 1.520 MB
+buffer_ja[6]   0.760 MB
+buffer_x[6]    1.575 MB
+buffer_y[6]    0.158 MB
+
+buffer_coef[7] 1.520 MB
+buffer_ja[7]   0.760 MB
+buffer_x[7]    1.575 MB
+buffer_y[7]    0.158 MB
+
+buffer_coef[8] 1.520 MB
+buffer_ja[8]   0.760 MB
+buffer_x[8]    1.575 MB
+buffer_y[8]    0.158 MB
+
+buffer_coef[9] 1.520 MB
+buffer_ja[9]   0.760 MB
+buffer_x[9]    1.575 MB
+buffer_y[9]    0.158 MB
+
+Kernel 0 nterm 199024 nrows 20650
+Kernel 1 nterm 199200 nrows 20650
+Kernel 2 nterm 199200 nrows 20650
+Kernel 3 nterm 199200 nrows 20650
+Kernel 4 nterm 199200 nrows 20650
+Kernel 5 nterm 199200 nrows 20650
+Kernel 6 nterm 199200 nrows 20650
+Kernel 7 nterm 199200 nrows 20650
+Kernel 8 nterm 199200 nrows 20650
+Kernel 9 nterm 199200 nrows 20650
+time = 0.147408, gflops = 2.211469
+Test failed! (5.10218e-08)
+errors spmv: mae=1.56729e-13, max_ae=2.91038e-11, mse=2.14848e-22, mape=8.36374e-15, smape=4.18187e-15
+File: /various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx
+max threads 14
+time read: 0.081623
+time coo to csr: 0.010024
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 0.267741 seconds
+ROW_BAL: stripe = 0	nrows = 2120	nterm = 142144
+ROW_BAL: stripe = 1	nrows = 2120	nterm = 151488
+ROW_BAL: stripe = 2	nrows = 2120	nterm = 151488
+ROW_BAL: stripe = 3	nrows = 2120	nterm = 151488
+ROW_BAL: stripe = 4	nrows = 2120	nterm = 151488
+ROW_BAL: stripe = 5	nrows = 2120	nterm = 151488
+ROW_BAL: stripe = 6	nrows = 2120	nterm = 151488
+ROW_BAL: stripe = 7	nrows = 2120	nterm = 151488
+ROW_BAL: stripe = 8	nrows = 2120	nterm = 151488
+ROW_BAL: stripe = 9	nrows = 2120	nterm = 134720
+	nt increasing [%]: 0.0 
+buffer_coef[0] 1.084 MB
+buffer_ja[0]   0.542 MB
+buffer_x[0]    0.162 MB
+buffer_y[0]    0.016 MB
+
+buffer_coef[1] 1.156 MB
+buffer_ja[1]   0.578 MB
+buffer_x[1]    0.162 MB
+buffer_y[1]    0.016 MB
+
+buffer_coef[2] 1.156 MB
+buffer_ja[2]   0.578 MB
+buffer_x[2]    0.162 MB
+buffer_y[2]    0.016 MB
+
+buffer_coef[3] 1.156 MB
+buffer_ja[3]   0.578 MB
+buffer_x[3]    0.162 MB
+buffer_y[3]    0.016 MB
+
+buffer_coef[4] 1.156 MB
+buffer_ja[4]   0.578 MB
+buffer_x[4]    0.162 MB
+buffer_y[4]    0.016 MB
+
+buffer_coef[5] 1.156 MB
+buffer_ja[5]   0.578 MB
+buffer_x[5]    0.162 MB
+buffer_y[5]    0.016 MB
+
+buffer_coef[6] 1.156 MB
+buffer_ja[6]   0.578 MB
+buffer_x[6]    0.162 MB
+buffer_y[6]    0.016 MB
+
+buffer_coef[7] 1.156 MB
+buffer_ja[7]   0.578 MB
+buffer_x[7]    0.162 MB
+buffer_y[7]    0.016 MB
+
+buffer_coef[8] 1.156 MB
+buffer_ja[8]   0.578 MB
+buffer_x[8]    0.162 MB
+buffer_y[8]    0.016 MB
+
+buffer_coef[9] 1.028 MB
+buffer_ja[9]   0.514 MB
+buffer_x[9]    0.162 MB
+buffer_y[9]    0.016 MB
+
+Kernel 0 nterm 142144 nrows 2120
+Kernel 1 nterm 151488 nrows 2120
+Kernel 2 nterm 151488 nrows 2120
+Kernel 3 nterm 151488 nrows 2120
+Kernel 4 nterm 151488 nrows 2120
+Kernel 5 nterm 151488 nrows 2120
+Kernel 6 nterm 151488 nrows 2120
+Kernel 7 nterm 151488 nrows 2120
+Kernel 8 nterm 151488 nrows 2120
+Kernel 9 nterm 134720 nrows 2120
+time = 0.110410, gflops = 3.451897
+errors spmv: mae=2.31352e-17, max_ae=2.66454e-15, mse=1.63824e-30, mape=3.41892e-16, smape=1.70946e-16
+File: /various/pmpakos/SpMV-Research/validation_matrices/rgg_n_2_17_s0.mtx
+Timeout occurred. Resetting the device...
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: File: /various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx
+max threads 14
+time read: 0.096043
+time coo to csr: 0.012168
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 0.440530 seconds
+ROW_BAL: stripe = 0	nrows = 3875	nterm = 150736
+ROW_BAL: stripe = 1	nrows = 3875	nterm = 223112
+ROW_BAL: stripe = 2	nrows = 3875	nterm = 227744
+ROW_BAL: stripe = 3	nrows = 3875	nterm = 222080
+ROW_BAL: stripe = 4	nrows = 3874	nterm = 114568
+ROW_BAL: stripe = 5	nrows = 3874	nterm = 116400
+ROW_BAL: stripe = 6	nrows = 3874	nterm = 222168
+ROW_BAL: stripe = 7	nrows = 3874	nterm = 230184
+ROW_BAL: stripe = 8	nrows = 3874	nterm = 214608
+ROW_BAL: stripe = 9	nrows = 3874	nterm = 166320
+	nt increasing [%]: 6.6 
+buffer_coef[0] 1.150 MB
+buffer_ja[0]   0.575 MB
+buffer_x[0]    0.296 MB
+buffer_y[0]    0.030 MB
+
+buffer_coef[1] 1.702 MB
+buffer_ja[1]   0.851 MB
+buffer_x[1]    0.296 MB
+buffer_y[1]    0.030 MB
+
+buffer_coef[2] 1.738 MB
+buffer_ja[2]   0.869 MB
+buffer_x[2]    0.296 MB
+buffer_y[2]    0.030 MB
+
+buffer_coef[3] 1.694 MB
+buffer_ja[3]   0.847 MB
+buffer_x[3]    0.296 MB
+buffer_y[3]    0.030 MB
+
+buffer_coef[4] 0.874 MB
+buffer_ja[4]   0.437 MB
+buffer_x[4]    0.296 MB
+buffer_y[4]    0.030 MB
+
+buffer_coef[5] 0.888 MB
+buffer_ja[5]   0.444 MB
+buffer_x[5]    0.296 MB
+buffer_y[5]    0.030 MB
+
+buffer_coef[6] 1.695 MB
+buffer_ja[6]   0.848 MB
+buffer_x[6]    0.296 MB
+buffer_y[6]    0.030 MB
+
+buffer_coef[7] 1.756 MB
+buffer_ja[7]   0.878 MB
+buffer_x[7]    0.296 MB
+buffer_y[7]    0.030 MB
+
+buffer_coef[8] 1.637 MB
+buffer_ja[8]   0.819 MB
+buffer_x[8]    0.296 MB
+buffer_y[8]    0.030 MB
+
+buffer_coef[9] 1.269 MB
+buffer_ja[9]   0.634 MB
+buffer_x[9]    0.296 MB
+buffer_y[9]    0.030 MB
+
+Kernel 0 nterm 150736 nrows 3875
+Kernel 1 nterm 223112 nrows 3875
+Kernel 2 nterm 227744 nrows 3875
+Kernel 3 nterm 222080 nrows 3875
+Kernel 4 nterm 114568 nrows 3874
+Kernel 5 nterm 116400 nrows 3874
+Kernel 6 nterm 222168 nrows 3874
+Kernel 7 nterm 230184 nrows 3874
+Kernel 8 nterm 214608 nrows 3874
+Kernel 9 nterm 166320 nrows 3874
+time = 0.167260, gflops = 2.711710
+errors spmv: mae=1.11519e-14, max_ae=1.36424e-12, mse=2.215e-25, mape=1.26292e-13, smape=6.31458e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/appu.mtx
+File: /various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx
+max threads 14
+time read: 0.092647
+time coo to csr: 0.012683
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 0.448199 seconds
+ROW_BAL: stripe = 0	nrows = 4916	nterm = 196640
+ROW_BAL: stripe = 1	nrows = 4916	nterm = 196640
+ROW_BAL: stripe = 2	nrows = 4915	nterm = 196600
+ROW_BAL: stripe = 3	nrows = 4915	nterm = 196600
+ROW_BAL: stripe = 4	nrows = 4915	nterm = 196600
+ROW_BAL: stripe = 5	nrows = 4915	nterm = 196600
+ROW_BAL: stripe = 6	nrows = 4915	nterm = 196600
+ROW_BAL: stripe = 7	nrows = 4915	nterm = 196600
+ROW_BAL: stripe = 8	nrows = 4915	nterm = 196600
+ROW_BAL: stripe = 9	nrows = 4915	nterm = 196600
+	nt increasing [%]: 2.6 
+buffer_coef[0] 1.500 MB
+buffer_ja[0]   0.750 MB
+buffer_x[0]    0.375 MB
+buffer_y[0]    0.038 MB
+
+buffer_coef[1] 1.500 MB
+buffer_ja[1]   0.750 MB
+buffer_x[1]    0.375 MB
+buffer_y[1]    0.038 MB
+
+buffer_coef[2] 1.500 MB
+buffer_ja[2]   0.750 MB
+buffer_x[2]    0.375 MB
+buffer_y[2]    0.037 MB
+
+buffer_coef[3] 1.500 MB
+buffer_ja[3]   0.750 MB
+buffer_x[3]    0.375 MB
+buffer_y[3]    0.037 MB
+
+buffer_coef[4] 1.500 MB
+buffer_ja[4]   0.750 MB
+buffer_x[4]    0.375 MB
+buffer_y[4]    0.037 MB
+
+buffer_coef[5] 1.500 MB
+buffer_ja[5]   0.750 MB
+buffer_x[5]    0.375 MB
+buffer_y[5]    0.037 MB
+
+buffer_coef[6] 1.500 MB
+buffer_ja[6]   0.750 MB
+buffer_x[6]    0.375 MB
+buffer_y[6]    0.037 MB
+
+buffer_coef[7] 1.500 MB
+buffer_ja[7]   0.750 MB
+buffer_x[7]    0.375 MB
+buffer_y[7]    0.037 MB
+
+buffer_coef[8] 1.500 MB
+buffer_ja[8]   0.750 MB
+buffer_x[8]    0.375 MB
+buffer_y[8]    0.037 MB
+
+buffer_coef[9] 1.500 MB
+buffer_ja[9]   0.750 MB
+buffer_x[9]    0.375 MB
+buffer_y[9]    0.037 MB
+
+Kernel 0 nterm 196640 nrows 4916
+Kernel 1 nterm 196640 nrows 4916
+Kernel 2 nterm 196600 nrows 4915
+Kernel 3 nterm 196600 nrows 4915
+Kernel 4 nterm 196600 nrows 4915
+Kernel 5 nterm 196600 nrows 4915
+Kernel 6 nterm 196600 nrows 4915
+Kernel 7 nterm 196600 nrows 4915
+Kernel 8 nterm 196600 nrows 4915
+Kernel 9 nterm 196600 nrows 4915
+time = 0.151103, gflops = 3.247675
+errors spmv: mae=4.84657e-16, max_ae=6.21725e-15, mse=4.79369e-29, mape=4.87634e-14, smape=2.43817e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx
+max threads 14
+time read: 0.069172
+time coo to csr: 0.013592
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 1.126682 seconds
+ROW_BAL: stripe = 0	nrows = 52583	nterm = 420664
+ROW_BAL: stripe = 1	nrows = 52583	nterm = 420664
+ROW_BAL: stripe = 2	nrows = 52583	nterm = 420664
+ROW_BAL: stripe = 3	nrows = 52583	nterm = 420664
+ROW_BAL: stripe = 4	nrows = 52583	nterm = 420664
+ROW_BAL: stripe = 5	nrows = 52582	nterm = 420656
+ROW_BAL: stripe = 6	nrows = 52582	nterm = 420656
+ROW_BAL: stripe = 7	nrows = 52582	nterm = 420656
+ROW_BAL: stripe = 8	nrows = 52582	nterm = 420656
+ROW_BAL: stripe = 9	nrows = 52582	nterm = 420656
+	nt increasing [%]: 100.3 
+buffer_coef[0] 3.209 MB
+buffer_ja[0]   1.605 MB
+buffer_x[0]    4.012 MB
+buffer_y[0]    0.401 MB
+
+buffer_coef[1] 3.209 MB
+buffer_ja[1]   1.605 MB
+buffer_x[1]    4.012 MB
+buffer_y[1]    0.401 MB
+
+buffer_coef[2] 3.209 MB
+buffer_ja[2]   1.605 MB
+buffer_x[2]    4.012 MB
+buffer_y[2]    0.401 MB
+
+buffer_coef[3] 3.209 MB
+buffer_ja[3]   1.605 MB
+buffer_x[3]    4.012 MB
+buffer_y[3]    0.401 MB
+
+buffer_coef[4] 3.209 MB
+buffer_ja[4]   1.605 MB
+buffer_x[4]    4.012 MB
+buffer_y[4]    0.401 MB
+
+buffer_coef[5] 3.209 MB
+buffer_ja[5]   1.605 MB
+buffer_x[5]    4.012 MB
+buffer_y[5]    0.401 MB
+
+buffer_coef[6] 3.209 MB
+buffer_ja[6]   1.605 MB
+buffer_x[6]    4.012 MB
+buffer_y[6]    0.401 MB
+
+buffer_coef[7] 3.209 MB
+buffer_ja[7]   1.605 MB
+buffer_x[7]    4.012 MB
+buffer_y[7]    0.401 MB
+
+buffer_coef[8] 3.209 MB
+buffer_ja[8]   1.605 MB
+buffer_x[8]    4.012 MB
+buffer_y[8]    0.401 MB
+
+buffer_coef[9] 3.209 MB
+buffer_ja[9]   1.605 MB
+buffer_x[9]    4.012 MB
+buffer_y[9]    0.401 MB
+
+Kernel 0 nterm 420664 nrows 52583
+Kernel 1 nterm 420664 nrows 52583
+Kernel 2 nterm 420664 nrows 52583
+Kernel 3 nterm 420664 nrows 52583
+Kernel 4 nterm 420664 nrows 52583
+Kernel 5 nterm 420656 nrows 52582
+Kernel 6 nterm 420656 nrows 52582
+Kernel 7 nterm 420656 nrows 52582
+Kernel 8 nterm 420656 nrows 52582
+Kernel 9 nterm 420656 nrows 52582
+time = 0.317926, gflops = 1.691140
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx
+max threads 14
+time read: 0.116148
+time coo to csr: 0.016134
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 0.569099 seconds
+ROW_BAL: stripe = 0	nrows = 4684	nterm = 172376
+ROW_BAL: stripe = 1	nrows = 4684	nterm = 182016
+ROW_BAL: stripe = 2	nrows = 4684	nterm = 208808
+ROW_BAL: stripe = 3	nrows = 4684	nterm = 273744
+ROW_BAL: stripe = 4	nrows = 4684	nterm = 321672
+ROW_BAL: stripe = 5	nrows = 4683	nterm = 254496
+ROW_BAL: stripe = 6	nrows = 4683	nterm = 192592
+ROW_BAL: stripe = 7	nrows = 4683	nterm = 144192
+ROW_BAL: stripe = 8	nrows = 4683	nterm = 378560
+ROW_BAL: stripe = 9	nrows = 4683	nterm = 382848
+	nt increasing [%]: 5.8 
+buffer_coef[0] 1.315 MB
+buffer_ja[0]   0.658 MB
+buffer_x[0]    0.357 MB
+buffer_y[0]    0.036 MB
+
+buffer_coef[1] 1.389 MB
+buffer_ja[1]   0.694 MB
+buffer_x[1]    0.357 MB
+buffer_y[1]    0.036 MB
+
+buffer_coef[2] 1.593 MB
+buffer_ja[2]   0.797 MB
+buffer_x[2]    0.357 MB
+buffer_y[2]    0.036 MB
+
+buffer_coef[3] 2.089 MB
+buffer_ja[3]   1.044 MB
+buffer_x[3]    0.357 MB
+buffer_y[3]    0.036 MB
+
+buffer_coef[4] 2.454 MB
+buffer_ja[4]   1.227 MB
+buffer_x[4]    0.357 MB
+buffer_y[4]    0.036 MB
+
+buffer_coef[5] 1.942 MB
+buffer_ja[5]   0.971 MB
+buffer_x[5]    0.357 MB
+buffer_y[5]    0.036 MB
+
+buffer_coef[6] 1.469 MB
+buffer_ja[6]   0.735 MB
+buffer_x[6]    0.357 MB
+buffer_y[6]    0.036 MB
+
+buffer_coef[7] 1.100 MB
+buffer_ja[7]   0.550 MB
+buffer_x[7]    0.357 MB
+buffer_y[7]    0.036 MB
+
+buffer_coef[8] 2.888 MB
+buffer_ja[8]   1.444 MB
+buffer_x[8]    0.357 MB
+buffer_y[8]    0.036 MB
+
+buffer_coef[9] 2.921 MB
+buffer_ja[9]   1.460 MB
+buffer_x[9]    0.357 MB
+buffer_y[9]    0.036 MB
+
+Kernel 0 nterm 172376 nrows 4684
+Kernel 1 nterm 182016 nrows 4684
+Kernel 2 nterm 208808 nrows 4684
+Kernel 3 nterm 273744 nrows 4684
+Kernel 4 nterm 321672 nrows 4684
+Kernel 5 nterm 254496 nrows 4683
+Kernel 6 nterm 192592 nrows 4683
+Kernel 7 nterm 144192 nrows 4683
+Kernel 8 nterm 378560 nrows 4683
+Kernel 9 nterm 382848 nrows 4683
+time = 0.277119, gflops = 2.193080
+Test failed! (0.00907847)
+errors spmv: mae=8.50073e-11, max_ae=2.23517e-08, mse=2.97167e-17, mape=inf, smape=0.00220578
+File: /various/pmpakos/SpMV-Research/validation_matrices/cop20k_A.mtx
+File: /various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx
+max threads 14
+time read: 0.156638
+time coo to csr: 0.018558
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 0.828035 seconds
+ROW_BAL: stripe = 0	nrows = 20432	nterm = 326176
+ROW_BAL: stripe = 1	nrows = 20432	nterm = 328560
+ROW_BAL: stripe = 2	nrows = 20432	nterm = 329072
+ROW_BAL: stripe = 3	nrows = 20432	nterm = 327840
+ROW_BAL: stripe = 4	nrows = 20432	nterm = 328656
+ROW_BAL: stripe = 5	nrows = 20432	nterm = 327824
+ROW_BAL: stripe = 6	nrows = 20431	nterm = 328960
+ROW_BAL: stripe = 7	nrows = 20431	nterm = 329152
+ROW_BAL: stripe = 8	nrows = 20431	nterm = 328960
+ROW_BAL: stripe = 9	nrows = 20431	nterm = 328448
+	nt increasing [%]: 15.4 
+buffer_coef[0] 2.489 MB
+buffer_ja[0]   1.244 MB
+buffer_x[0]    1.559 MB
+buffer_y[0]    0.156 MB
+
+buffer_coef[1] 2.507 MB
+buffer_ja[1]   1.253 MB
+buffer_x[1]    1.559 MB
+buffer_y[1]    0.156 MB
+
+buffer_coef[2] 2.511 MB
+buffer_ja[2]   1.255 MB
+buffer_x[2]    1.559 MB
+buffer_y[2]    0.156 MB
+
+buffer_coef[3] 2.501 MB
+buffer_ja[3]   1.251 MB
+buffer_x[3]    1.559 MB
+buffer_y[3]    0.156 MB
+
+buffer_coef[4] 2.507 MB
+buffer_ja[4]   1.254 MB
+buffer_x[4]    1.559 MB
+buffer_y[4]    0.156 MB
+
+buffer_coef[5] 2.501 MB
+buffer_ja[5]   1.251 MB
+buffer_x[5]    1.559 MB
+buffer_y[5]    0.156 MB
+
+buffer_coef[6] 2.510 MB
+buffer_ja[6]   1.255 MB
+buffer_x[6]    1.559 MB
+buffer_y[6]    0.156 MB
+
+buffer_coef[7] 2.511 MB
+buffer_ja[7]   1.256 MB
+buffer_x[7]    1.559 MB
+buffer_y[7]    0.156 MB
+
+buffer_coef[8] 2.510 MB
+buffer_ja[8]   1.255 MB
+buffer_x[8]    1.559 MB
+buffer_y[8]    0.156 MB
+
+buffer_coef[9] 2.506 MB
+buffer_ja[9]   1.253 MB
+buffer_x[9]    1.559 MB
+buffer_y[9]    0.156 MB
+
+Kernel 0 nterm 326176 nrows 20432
+Kernel 1 nterm 328560 nrows 20432
+Kernel 2 nterm 329072 nrows 20432
+Kernel 3 nterm 327840 nrows 20432
+Kernel 4 nterm 328656 nrows 20432
+Kernel 5 nterm 327824 nrows 20432
+Kernel 6 nterm 328960 nrows 20431
+Kernel 7 nterm 329152 nrows 20431
+Kernel 8 nterm 328960 nrows 20431
+Kernel 9 nterm 328448 nrows 20431
+time = 0.280369, gflops = 2.598844
+Test failed! (55)
+errors spmv: mae=2.55548e-05, max_ae=0.000217438, mse=1.14169e-07, mape=inf, smape=3.25134
+File: /various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx
+max threads 14
+time read: 0.132804
+time coo to csr: 0.021874
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 2.397717 seconds
+ROW_BAL: stripe = 0	nrows = 100001	nterm = 1198832
+ROW_BAL: stripe = 1	nrows = 100001	nterm = 850512
+ROW_BAL: stripe = 2	nrows = 100001	nterm = 810384
+ROW_BAL: stripe = 3	nrows = 100001	nterm = 820152
+ROW_BAL: stripe = 4	nrows = 100001	nterm = 804080
+ROW_BAL: stripe = 5	nrows = 100000	nterm = 958632
+ROW_BAL: stripe = 6	nrows = 100000	nterm = 934144
+ROW_BAL: stripe = 7	nrows = 100000	nterm = 808296
+ROW_BAL: stripe = 8	nrows = 100000	nterm = 816408
+ROW_BAL: stripe = 9	nrows = 100000	nterm = 801840
+	nt increasing [%]: 183.5 
+buffer_coef[0] 9.146 MB
+buffer_ja[0]   4.573 MB
+buffer_x[0]    7.629 MB
+buffer_y[0]    0.763 MB
+
+buffer_coef[1] 6.489 MB
+buffer_ja[1]   3.244 MB
+buffer_x[1]    7.629 MB
+buffer_y[1]    0.763 MB
+
+buffer_coef[2] 6.183 MB
+buffer_ja[2]   3.091 MB
+buffer_x[2]    7.629 MB
+buffer_y[2]    0.763 MB
+
+buffer_coef[3] 6.257 MB
+buffer_ja[3]   3.129 MB
+buffer_x[3]    7.629 MB
+buffer_y[3]    0.763 MB
+
+buffer_coef[4] 6.135 MB
+buffer_ja[4]   3.067 MB
+buffer_x[4]    7.629 MB
+buffer_y[4]    0.763 MB
+
+buffer_coef[5] 7.314 MB
+buffer_ja[5]   3.657 MB
+buffer_x[5]    7.629 MB
+buffer_y[5]    0.763 MB
+
+buffer_coef[6] 7.127 MB
+buffer_ja[6]   3.563 MB
+buffer_x[6]    7.629 MB
+buffer_y[6]    0.763 MB
+
+buffer_coef[7] 6.167 MB
+buffer_ja[7]   3.083 MB
+buffer_x[7]    7.629 MB
+buffer_y[7]    0.763 MB
+
+buffer_coef[8] 6.229 MB
+buffer_ja[8]   3.114 MB
+buffer_x[8]    7.629 MB
+buffer_y[8]    0.763 MB
+
+buffer_coef[9] 6.118 MB
+buffer_ja[9]   3.059 MB
+buffer_x[9]    7.629 MB
+buffer_y[9]    0.763 MB
+
+Kernel 0 nterm 1198832 nrows 100001
+Kernel 1 nterm 850512 nrows 100001
+Kernel 2 nterm 810384 nrows 100001
+Kernel 3 nterm 820152 nrows 100001
+Kernel 4 nterm 804080 nrows 100001
+Kernel 5 nterm 958632 nrows 100000
+Kernel 6 nterm 934144 nrows 100000
+Kernel 7 nterm 808296 nrows 100000
+Kernel 8 nterm 816408 nrows 100000
+Kernel 9 nterm 801840 nrows 100000
+time = 0.916954, gflops = 0.867020
+errors spmv: mae=1.03462e-16, max_ae=7.44649e-12, mse=1.77814e-26, mape=3.31311e-16, smape=1.65656e-16
+File: /various/pmpakos/SpMV-Research/validation_matrices/cant.mtx
+max threads 14
+time read: 0.113413
+time coo to csr: 0.030253
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 1.025538 seconds
+ROW_BAL: stripe = 0	nrows = 6246	nterm = 429048
+ROW_BAL: stripe = 1	nrows = 6245	nterm = 433496
+ROW_BAL: stripe = 2	nrows = 6245	nterm = 433496
+ROW_BAL: stripe = 3	nrows = 6245	nterm = 434536
+ROW_BAL: stripe = 4	nrows = 6245	nterm = 433528
+ROW_BAL: stripe = 5	nrows = 6245	nterm = 433448
+ROW_BAL: stripe = 6	nrows = 6245	nterm = 434488
+ROW_BAL: stripe = 7	nrows = 6245	nterm = 433544
+ROW_BAL: stripe = 8	nrows = 6245	nterm = 433496
+ROW_BAL: stripe = 9	nrows = 6245	nterm = 413960
+	nt increasing [%]: 7.6 
+buffer_coef[0] 3.273 MB
+buffer_ja[0]   1.637 MB
+buffer_x[0]    0.476 MB
+buffer_y[0]    0.048 MB
+
+buffer_coef[1] 3.307 MB
+buffer_ja[1]   1.654 MB
+buffer_x[1]    0.476 MB
+buffer_y[1]    0.048 MB
+
+buffer_coef[2] 3.307 MB
+buffer_ja[2]   1.654 MB
+buffer_x[2]    0.476 MB
+buffer_y[2]    0.048 MB
+
+buffer_coef[3] 3.315 MB
+buffer_ja[3]   1.658 MB
+buffer_x[3]    0.476 MB
+buffer_y[3]    0.048 MB
+
+buffer_coef[4] 3.308 MB
+buffer_ja[4]   1.654 MB
+buffer_x[4]    0.476 MB
+buffer_y[4]    0.048 MB
+
+buffer_coef[5] 3.307 MB
+buffer_ja[5]   1.653 MB
+buffer_x[5]    0.476 MB
+buffer_y[5]    0.048 MB
+
+buffer_coef[6] 3.315 MB
+buffer_ja[6]   1.657 MB
+buffer_x[6]    0.476 MB
+buffer_y[6]    0.048 MB
+
+buffer_coef[7] 3.308 MB
+buffer_ja[7]   1.654 MB
+buffer_x[7]    0.476 MB
+buffer_y[7]    0.048 MB
+
+buffer_coef[8] 3.307 MB
+buffer_ja[8]   1.654 MB
+buffer_x[8]    0.476 MB
+buffer_y[8]    0.048 MB
+
+buffer_coef[9] 3.158 MB
+buffer_ja[9]   1.579 MB
+buffer_x[9]    0.476 MB
+buffer_y[9]    0.048 MB
+
+Kernel 0 nterm 429048 nrows 6246
+Kernel 1 nterm 433496 nrows 6245
+Kernel 2 nterm 433496 nrows 6245
+Kernel 3 nterm 434536 nrows 6245
+Kernel 4 nterm 433528 nrows 6245
+Kernel 5 nterm 433448 nrows 6245
+Kernel 6 nterm 434488 nrows 6245
+Kernel 7 nterm 433544 nrows 6245
+Kernel 8 nterm 433496 nrows 6245
+Kernel 9 nterm 413960 nrows 6245
+time = 0.304993, gflops = 3.363646
+errors spmv: mae=4.28597e-13, max_ae=1.90425e-12, mse=3.20466e-23, mape=5.78882, smape=2.87777
+File: /various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx
+max threads 14
+time read: 0.213384
+time coo to csr: 0.034793
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 1.907915 seconds
+ROW_BAL: stripe = 0	nrows = 68287	nterm = 654952
+ROW_BAL: stripe = 1	nrows = 68287	nterm = 670344
+ROW_BAL: stripe = 2	nrows = 68286	nterm = 1429296
+ROW_BAL: stripe = 3	nrows = 68286	nterm = 546296
+ROW_BAL: stripe = 4	nrows = 68286	nterm = 671496
+ROW_BAL: stripe = 5	nrows = 68286	nterm = 664536
+ROW_BAL: stripe = 6	nrows = 68286	nterm = 651504
+ROW_BAL: stripe = 7	nrows = 68286	nterm = 651320
+ROW_BAL: stripe = 8	nrows = 68286	nterm = 546336
+ROW_BAL: stripe = 9	nrows = 68286	nterm = 650840
+	nt increasing [%]: 84.3 
+buffer_coef[0] 4.997 MB
+buffer_ja[0]   2.498 MB
+buffer_x[0]    5.210 MB
+buffer_y[0]    0.521 MB
+
+buffer_coef[1] 5.114 MB
+buffer_ja[1]   2.557 MB
+buffer_x[1]    5.210 MB
+buffer_y[1]    0.521 MB
+
+buffer_coef[2] 10.905 MB
+buffer_ja[2]   5.452 MB
+buffer_x[2]    5.210 MB
+buffer_y[2]    0.521 MB
+
+buffer_coef[3] 4.168 MB
+buffer_ja[3]   2.084 MB
+buffer_x[3]    5.210 MB
+buffer_y[3]    0.521 MB
+
+buffer_coef[4] 5.123 MB
+buffer_ja[4]   2.562 MB
+buffer_x[4]    5.210 MB
+buffer_y[4]    0.521 MB
+
+buffer_coef[5] 5.070 MB
+buffer_ja[5]   2.535 MB
+buffer_x[5]    5.210 MB
+buffer_y[5]    0.521 MB
+
+buffer_coef[6] 4.971 MB
+buffer_ja[6]   2.485 MB
+buffer_x[6]    5.210 MB
+buffer_y[6]    0.521 MB
+
+buffer_coef[7] 4.969 MB
+buffer_ja[7]   2.485 MB
+buffer_x[7]    5.210 MB
+buffer_y[7]    0.521 MB
+
+buffer_coef[8] 4.168 MB
+buffer_ja[8]   2.084 MB
+buffer_x[8]    5.210 MB
+buffer_y[8]    0.521 MB
+
+buffer_coef[9] 4.966 MB
+buffer_ja[9]   2.483 MB
+buffer_x[9]    5.210 MB
+buffer_y[9]    0.521 MB
+
+Kernel 0 nterm 654952 nrows 68287
+Kernel 1 nterm 670344 nrows 68287
+Kernel 2 nterm 1429296 nrows 68286
+Kernel 3 nterm 546296 nrows 68286
+Kernel 4 nterm 671496 nrows 68286
+Kernel 5 nterm 664536 nrows 68286
+Kernel 6 nterm 651504 nrows 68286
+Kernel 7 nterm 651320 nrows 68286
+Kernel 8 nterm 546336 nrows 68286
+Kernel 9 nterm 650840 nrows 68286
+time = 1.090493, gflops = 0.908923
+Test failed! (4.40538e-07)
+errors spmv: mae=1.29266e-14, max_ae=8.50196e-09, mse=1.05872e-20, mape=3.87083e-10, smape=1.93541e-10
+File: /various/pmpakos/SpMV-Research/validation_matrices/roadNet-TX.mtx
+Timeout occurred. Resetting the device...
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: File: /various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx
+max threads 14
+time read: 0.110397
+time coo to csr: 0.040013
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 1.072344 seconds
+ROW_BAL: stripe = 0	nrows = 3642	nterm = 427800
+ROW_BAL: stripe = 1	nrows = 3642	nterm = 441136
+ROW_BAL: stripe = 2	nrows = 3642	nterm = 447272
+ROW_BAL: stripe = 3	nrows = 3642	nterm = 438880
+ROW_BAL: stripe = 4	nrows = 3642	nterm = 474712
+ROW_BAL: stripe = 5	nrows = 3642	nterm = 419160
+ROW_BAL: stripe = 6	nrows = 3642	nterm = 458200
+ROW_BAL: stripe = 7	nrows = 3641	nterm = 446296
+ROW_BAL: stripe = 8	nrows = 3641	nterm = 458320
+ROW_BAL: stripe = 9	nrows = 3641	nterm = 461736
+	nt increasing [%]: 3.0 
+buffer_coef[0] 3.264 MB
+buffer_ja[0]   1.632 MB
+buffer_x[0]    0.278 MB
+buffer_y[0]    0.028 MB
+
+buffer_coef[1] 3.366 MB
+buffer_ja[1]   1.683 MB
+buffer_x[1]    0.278 MB
+buffer_y[1]    0.028 MB
+
+buffer_coef[2] 3.412 MB
+buffer_ja[2]   1.706 MB
+buffer_x[2]    0.278 MB
+buffer_y[2]    0.028 MB
+
+buffer_coef[3] 3.348 MB
+buffer_ja[3]   1.674 MB
+buffer_x[3]    0.278 MB
+buffer_y[3]    0.028 MB
+
+buffer_coef[4] 3.622 MB
+buffer_ja[4]   1.811 MB
+buffer_x[4]    0.278 MB
+buffer_y[4]    0.028 MB
+
+buffer_coef[5] 3.198 MB
+buffer_ja[5]   1.599 MB
+buffer_x[5]    0.278 MB
+buffer_y[5]    0.028 MB
+
+buffer_coef[6] 3.496 MB
+buffer_ja[6]   1.748 MB
+buffer_x[6]    0.278 MB
+buffer_y[6]    0.028 MB
+
+buffer_coef[7] 3.405 MB
+buffer_ja[7]   1.702 MB
+buffer_x[7]    0.278 MB
+buffer_y[7]    0.028 MB
+
+buffer_coef[8] 3.497 MB
+buffer_ja[8]   1.748 MB
+buffer_x[8]    0.278 MB
+buffer_y[8]    0.028 MB
+
+buffer_coef[9] 3.523 MB
+buffer_ja[9]   1.761 MB
+buffer_x[9]    0.278 MB
+buffer_y[9]    0.028 MB
+
+Kernel 0 nterm 427800 nrows 3642
+Kernel 1 nterm 441136 nrows 3642
+Kernel 2 nterm 447272 nrows 3642
+Kernel 3 nterm 438880 nrows 3642
+Kernel 4 nterm 474712 nrows 3642
+Kernel 5 nterm 419160 nrows 3642
+Kernel 6 nterm 458200 nrows 3642
+Kernel 7 nterm 446296 nrows 3641
+Kernel 8 nterm 458320 nrows 3641
+Kernel 9 nterm 461736 nrows 3641
+time = 0.346546, gflops = 3.209556
+Test failed! (0.000423085)
+errors spmv: mae=2.66554e-14, max_ae=2.33591e-13, mse=1.33089e-25, mape=0.0029117, smape=0.00145585
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx
+max threads 14
+time read: 0.250651
+time coo to csr: 0.033983
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 1.095852 seconds
+ROW_BAL: stripe = 0	nrows = 4214	nterm = 34792
+ROW_BAL: stripe = 1	nrows = 4214	nterm = 33712
+ROW_BAL: stripe = 2	nrows = 4214	nterm = 33712
+ROW_BAL: stripe = 3	nrows = 4214	nterm = 33712
+ROW_BAL: stripe = 4	nrows = 4214	nterm = 33712
+ROW_BAL: stripe = 5	nrows = 4214	nterm = 833128
+ROW_BAL: stripe = 6	nrows = 4214	nterm = 909672
+ROW_BAL: stripe = 7	nrows = 4214	nterm = 910224
+ROW_BAL: stripe = 8	nrows = 4213	nterm = 909456
+ROW_BAL: stripe = 9	nrows = 4213	nterm = 910008
+	nt increasing [%]: 5.2 
+buffer_coef[0] 0.265 MB
+buffer_ja[0]   0.133 MB
+buffer_x[0]    0.321 MB
+buffer_y[0]    0.032 MB
+
+buffer_coef[1] 0.257 MB
+buffer_ja[1]   0.129 MB
+buffer_x[1]    0.321 MB
+buffer_y[1]    0.032 MB
+
+buffer_coef[2] 0.257 MB
+buffer_ja[2]   0.129 MB
+buffer_x[2]    0.321 MB
+buffer_y[2]    0.032 MB
+
+buffer_coef[3] 0.257 MB
+buffer_ja[3]   0.129 MB
+buffer_x[3]    0.321 MB
+buffer_y[3]    0.032 MB
+
+buffer_coef[4] 0.257 MB
+buffer_ja[4]   0.129 MB
+buffer_x[4]    0.321 MB
+buffer_y[4]    0.032 MB
+
+buffer_coef[5] 6.356 MB
+buffer_ja[5]   3.178 MB
+buffer_x[5]    0.321 MB
+buffer_y[5]    0.032 MB
+
+buffer_coef[6] 6.940 MB
+buffer_ja[6]   3.470 MB
+buffer_x[6]    0.321 MB
+buffer_y[6]    0.032 MB
+
+buffer_coef[7] 6.944 MB
+buffer_ja[7]   3.472 MB
+buffer_x[7]    0.321 MB
+buffer_y[7]    0.032 MB
+
+buffer_coef[8] 6.939 MB
+buffer_ja[8]   3.469 MB
+buffer_x[8]    0.321 MB
+buffer_y[8]    0.032 MB
+
+buffer_coef[9] 6.943 MB
+buffer_ja[9]   3.471 MB
+buffer_x[9]    0.321 MB
+buffer_y[9]    0.032 MB
+
+Kernel 0 nterm 34792 nrows 4214
+Kernel 1 nterm 33712 nrows 4214
+Kernel 2 nterm 33712 nrows 4214
+Kernel 3 nterm 33712 nrows 4214
+Kernel 4 nterm 33712 nrows 4214
+Kernel 5 nterm 833128 nrows 4214
+Kernel 6 nterm 909672 nrows 4214
+Kernel 7 nterm 910224 nrows 4214
+Kernel 8 nterm 909456 nrows 4213
+Kernel 9 nterm 910008 nrows 4213
+time = 0.666223, gflops = 1.695894
+errors spmv: mae=1.80051e-16, max_ae=4.90274e-13, mse=2.51171e-27, mape=inf, smape=0.00711946
+File: /various/pmpakos/SpMV-Research/validation_matrices/Chebyshev4.mtx
+max threads 14
+time read: 0.330281
+time coo to csr: 0.040421
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+****ERROR PAD 1****
+File: /various/pmpakos/SpMV-Research/validation_matrices/consph.mtx
+File: /various/pmpakos/SpMV-Research/validation_matrices/com-Youtube.mtx
+File: /various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx
+max threads 14
+time read: 0.324499
+time coo to csr: 0.048072
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 2.162817 seconds
+ROW_BAL: stripe = 0	nrows = 64400	nterm = 1729552
+ROW_BAL: stripe = 1	nrows = 64400	nterm = 725136
+ROW_BAL: stripe = 2	nrows = 64400	nterm = 701576
+ROW_BAL: stripe = 3	nrows = 64400	nterm = 738784
+ROW_BAL: stripe = 4	nrows = 64399	nterm = 688944
+ROW_BAL: stripe = 5	nrows = 64399	nterm = 705824
+ROW_BAL: stripe = 6	nrows = 64399	nterm = 694208
+ROW_BAL: stripe = 7	nrows = 64399	nterm = 703240
+ROW_BAL: stripe = 8	nrows = 64399	nterm = 821144
+ROW_BAL: stripe = 9	nrows = 64399	nterm = 615536
+	nt increasing [%]: 31.6 
+buffer_coef[0] 13.195 MB
+buffer_ja[0]   6.598 MB
+buffer_x[0]    4.913 MB
+buffer_y[0]    0.491 MB
+
+buffer_coef[1] 5.532 MB
+buffer_ja[1]   2.766 MB
+buffer_x[1]    4.913 MB
+buffer_y[1]    0.491 MB
+
+buffer_coef[2] 5.353 MB
+buffer_ja[2]   2.676 MB
+buffer_x[2]    4.913 MB
+buffer_y[2]    0.491 MB
+
+buffer_coef[3] 5.636 MB
+buffer_ja[3]   2.818 MB
+buffer_x[3]    4.913 MB
+buffer_y[3]    0.491 MB
+
+buffer_coef[4] 5.256 MB
+buffer_ja[4]   2.628 MB
+buffer_x[4]    4.913 MB
+buffer_y[4]    0.491 MB
+
+buffer_coef[5] 5.385 MB
+buffer_ja[5]   2.693 MB
+buffer_x[5]    4.913 MB
+buffer_y[5]    0.491 MB
+
+buffer_coef[6] 5.296 MB
+buffer_ja[6]   2.648 MB
+buffer_x[6]    4.913 MB
+buffer_y[6]    0.491 MB
+
+buffer_coef[7] 5.365 MB
+buffer_ja[7]   2.683 MB
+buffer_x[7]    4.913 MB
+buffer_y[7]    0.491 MB
+
+buffer_coef[8] 6.265 MB
+buffer_ja[8]   3.132 MB
+buffer_x[8]    4.913 MB
+buffer_y[8]    0.491 MB
+
+buffer_coef[9] 4.696 MB
+buffer_ja[9]   2.348 MB
+buffer_x[9]    4.913 MB
+buffer_y[9]    0.491 MB
+
+Kernel 0 nterm 1729552 nrows 64400
+Kernel 1 nterm 725136 nrows 64400
+Kernel 2 nterm 701576 nrows 64400
+Kernel 3 nterm 738784 nrows 64400
+Kernel 4 nterm 688944 nrows 64399
+Kernel 5 nterm 705824 nrows 64399
+Kernel 6 nterm 694208 nrows 64399
+Kernel 7 nterm 703240 nrows 64399
+Kernel 8 nterm 821144 nrows 64399
+Kernel 9 nterm 615536 nrows 64399
+time = 1.260627, gflops = 1.254055
+Test failed! (0.895417)
+errors spmv: mae=9.61172e-14, max_ae=5.86979e-08, mse=5.36053e-19, mape=inf, smape=0.0811655
+File: /various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx
+max threads 14
+time read: 0.344471
+time coo to csr: 0.053193
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 2.360963 seconds
+ROW_BAL: stripe = 0	nrows = 22311	nterm = 637536
+ROW_BAL: stripe = 1	nrows = 22311	nterm = 1098896
+ROW_BAL: stripe = 2	nrows = 22311	nterm = 1107336
+ROW_BAL: stripe = 3	nrows = 22311	nterm = 986808
+ROW_BAL: stripe = 4	nrows = 22310	nterm = 779272
+ROW_BAL: stripe = 5	nrows = 22310	nterm = 791768
+ROW_BAL: stripe = 6	nrows = 22310	nterm = 763584
+ROW_BAL: stripe = 7	nrows = 22310	nterm = 779880
+ROW_BAL: stripe = 8	nrows = 22310	nterm = 790672
+ROW_BAL: stripe = 9	nrows = 22310	nterm = 734136
+	nt increasing [%]: 10.9 
+buffer_coef[0] 4.864 MB
+buffer_ja[0]   2.432 MB
+buffer_x[0]    1.702 MB
+buffer_y[0]    0.170 MB
+
+buffer_coef[1] 8.384 MB
+buffer_ja[1]   4.192 MB
+buffer_x[1]    1.702 MB
+buffer_y[1]    0.170 MB
+
+buffer_coef[2] 8.448 MB
+buffer_ja[2]   4.224 MB
+buffer_x[2]    1.702 MB
+buffer_y[2]    0.170 MB
+
+buffer_coef[3] 7.529 MB
+buffer_ja[3]   3.764 MB
+buffer_x[3]    1.702 MB
+buffer_y[3]    0.170 MB
+
+buffer_coef[4] 5.945 MB
+buffer_ja[4]   2.973 MB
+buffer_x[4]    1.702 MB
+buffer_y[4]    0.170 MB
+
+buffer_coef[5] 6.041 MB
+buffer_ja[5]   3.020 MB
+buffer_x[5]    1.702 MB
+buffer_y[5]    0.170 MB
+
+buffer_coef[6] 5.826 MB
+buffer_ja[6]   2.913 MB
+buffer_x[6]    1.702 MB
+buffer_y[6]    0.170 MB
+
+buffer_coef[7] 5.950 MB
+buffer_ja[7]   2.975 MB
+buffer_x[7]    1.702 MB
+buffer_y[7]    0.170 MB
+
+buffer_coef[8] 6.032 MB
+buffer_ja[8]   3.016 MB
+buffer_x[8]    1.702 MB
+buffer_y[8]    0.170 MB
+
+buffer_coef[9] 5.601 MB
+buffer_ja[9]   2.801 MB
+buffer_x[9]    1.702 MB
+buffer_y[9]    0.170 MB
+
+Kernel 0 nterm 637536 nrows 22311
+Kernel 1 nterm 1098896 nrows 22311
+Kernel 2 nterm 1107336 nrows 22311
+Kernel 3 nterm 986808 nrows 22311
+Kernel 4 nterm 779272 nrows 22310
+Kernel 5 nterm 791768 nrows 22310
+Kernel 6 nterm 763584 nrows 22310
+Kernel 7 nterm 779880 nrows 22310
+Kernel 8 nterm 790672 nrows 22310
+Kernel 9 nterm 734136 nrows 22310
+time = 0.820341, gflops = 2.383457
+Test failed! (1)
+errors spmv: mae=4.32159e-05, max_ae=1, mse=0.00131807, mape=0.122484, smape=0.122417
+File: /various/pmpakos/SpMV-Research/validation_matrices/Stanford_Berkeley.mtx
+Timeout occurred. Resetting the device...
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: File: /various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx
+max threads 14
+time read: 0.158746
+time coo to csr: 0.059602
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 1.818894 seconds
+ROW_BAL: stripe = 0	nrows = 14088	nterm = 788496
+ROW_BAL: stripe = 1	nrows = 14088	nterm = 784608
+ROW_BAL: stripe = 2	nrows = 14088	nterm = 790416
+ROW_BAL: stripe = 3	nrows = 14088	nterm = 808128
+ROW_BAL: stripe = 4	nrows = 14087	nterm = 825496
+ROW_BAL: stripe = 5	nrows = 14087	nterm = 833048
+ROW_BAL: stripe = 6	nrows = 14087	nterm = 830472
+ROW_BAL: stripe = 7	nrows = 14087	nterm = 818632
+ROW_BAL: stripe = 8	nrows = 14087	nterm = 828280
+ROW_BAL: stripe = 9	nrows = 14087	nterm = 806728
+	nt increasing [%]: 3.9 
+buffer_coef[0] 6.016 MB
+buffer_ja[0]   3.008 MB
+buffer_x[0]    1.075 MB
+buffer_y[0]    0.107 MB
+
+buffer_coef[1] 5.986 MB
+buffer_ja[1]   2.993 MB
+buffer_x[1]    1.075 MB
+buffer_y[1]    0.107 MB
+
+buffer_coef[2] 6.030 MB
+buffer_ja[2]   3.015 MB
+buffer_x[2]    1.075 MB
+buffer_y[2]    0.107 MB
+
+buffer_coef[3] 6.166 MB
+buffer_ja[3]   3.083 MB
+buffer_x[3]    1.075 MB
+buffer_y[3]    0.107 MB
+
+buffer_coef[4] 6.298 MB
+buffer_ja[4]   3.149 MB
+buffer_x[4]    1.075 MB
+buffer_y[4]    0.107 MB
+
+buffer_coef[5] 6.356 MB
+buffer_ja[5]   3.178 MB
+buffer_x[5]    1.075 MB
+buffer_y[5]    0.107 MB
+
+buffer_coef[6] 6.336 MB
+buffer_ja[6]   3.168 MB
+buffer_x[6]    1.075 MB
+buffer_y[6]    0.107 MB
+
+buffer_coef[7] 6.246 MB
+buffer_ja[7]   3.123 MB
+buffer_x[7]    1.075 MB
+buffer_y[7]    0.107 MB
+
+buffer_coef[8] 6.319 MB
+buffer_ja[8]   3.160 MB
+buffer_x[8]    1.075 MB
+buffer_y[8]    0.107 MB
+
+buffer_coef[9] 6.155 MB
+buffer_ja[9]   3.077 MB
+buffer_x[9]    1.075 MB
+buffer_y[9]    0.107 MB
+
+Kernel 0 nterm 788496 nrows 14088
+Kernel 1 nterm 784608 nrows 14088
+Kernel 2 nterm 790416 nrows 14088
+Kernel 3 nterm 808128 nrows 14088
+Kernel 4 nterm 825496 nrows 14087
+Kernel 5 nterm 833048 nrows 14087
+Kernel 6 nterm 830472 nrows 14087
+Kernel 7 nterm 818632 nrows 14087
+Kernel 8 nterm 828280 nrows 14087
+Kernel 9 nterm 806728 nrows 14087
+time = 0.621476, gflops = 3.218519
+Test failed! (328.04)
+errors spmv: mae=1.24678e-05, max_ae=0.00439453, mse=4.63038e-07, mape=inf, smape=8.56291
+File: /various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx
+max threads 14
+time read: 0.457398
+time coo to csr: 0.059622
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 2.114191 seconds
+ROW_BAL: stripe = 0	nrows = 16107	nterm = 888088
+ROW_BAL: stripe = 1	nrows = 16107	nterm = 920088
+ROW_BAL: stripe = 2	nrows = 16107	nterm = 920088
+ROW_BAL: stripe = 3	nrows = 16107	nterm = 920088
+ROW_BAL: stripe = 4	nrows = 16107	nterm = 882032
+ROW_BAL: stripe = 5	nrows = 16107	nterm = 888224
+ROW_BAL: stripe = 6	nrows = 16107	nterm = 920088
+ROW_BAL: stripe = 7	nrows = 16107	nterm = 920088
+ROW_BAL: stripe = 8	nrows = 16107	nterm = 920088
+ROW_BAL: stripe = 9	nrows = 16107	nterm = 882032
+	nt increasing [%]: 10.7 
+buffer_coef[0] 6.776 MB
+buffer_ja[0]   3.388 MB
+buffer_x[0]    1.229 MB
+buffer_y[0]    0.123 MB
+
+buffer_coef[1] 7.020 MB
+buffer_ja[1]   3.510 MB
+buffer_x[1]    1.229 MB
+buffer_y[1]    0.123 MB
+
+buffer_coef[2] 7.020 MB
+buffer_ja[2]   3.510 MB
+buffer_x[2]    1.229 MB
+buffer_y[2]    0.123 MB
+
+buffer_coef[3] 7.020 MB
+buffer_ja[3]   3.510 MB
+buffer_x[3]    1.229 MB
+buffer_y[3]    0.123 MB
+
+buffer_coef[4] 6.729 MB
+buffer_ja[4]   3.365 MB
+buffer_x[4]    1.229 MB
+buffer_y[4]    0.123 MB
+
+buffer_coef[5] 6.777 MB
+buffer_ja[5]   3.388 MB
+buffer_x[5]    1.229 MB
+buffer_y[5]    0.123 MB
+
+buffer_coef[6] 7.020 MB
+buffer_ja[6]   3.510 MB
+buffer_x[6]    1.229 MB
+buffer_y[6]    0.123 MB
+
+buffer_coef[7] 7.020 MB
+buffer_ja[7]   3.510 MB
+buffer_x[7]    1.229 MB
+buffer_y[7]    0.123 MB
+
+buffer_coef[8] 7.020 MB
+buffer_ja[8]   3.510 MB
+buffer_x[8]    1.229 MB
+buffer_y[8]    0.123 MB
+
+buffer_coef[9] 6.729 MB
+buffer_ja[9]   3.365 MB
+buffer_x[9]    1.229 MB
+buffer_y[9]    0.123 MB
+
+Kernel 0 nterm 888088 nrows 16107
+Kernel 1 nterm 920088 nrows 16107
+Kernel 2 nterm 920088 nrows 16107
+Kernel 3 nterm 920088 nrows 16107
+Kernel 4 nterm 882032 nrows 16107
+Kernel 5 nterm 888224 nrows 16107
+Kernel 6 nterm 920088 nrows 16107
+Kernel 7 nterm 920088 nrows 16107
+Kernel 8 nterm 920088 nrows 16107
+Kernel 9 nterm 882032 nrows 16107
+time = 0.663315, gflops = 3.158976
+Test failed! (4.17599e-06)
+errors spmv: mae=9.48094e-09, max_ae=3.43323e-05, mse=6.49026e-12, mape=5.51165e-09, smape=2.75582e-09
+File: /various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx
+max threads 14
+time read: 0.263607
+time coo to csr: 0.068530
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 3.359401 seconds
+ROW_BAL: stripe = 0	nrows = 80653	nterm = 1286544
+ROW_BAL: stripe = 1	nrows = 80653	nterm = 1290256
+ROW_BAL: stripe = 2	nrows = 80653	nterm = 1290192
+ROW_BAL: stripe = 3	nrows = 80653	nterm = 1290256
+ROW_BAL: stripe = 4	nrows = 80653	nterm = 1290192
+ROW_BAL: stripe = 5	nrows = 80653	nterm = 1284280
+ROW_BAL: stripe = 6	nrows = 80653	nterm = 1288968
+ROW_BAL: stripe = 7	nrows = 80653	nterm = 1290256
+ROW_BAL: stripe = 8	nrows = 80653	nterm = 1290192
+ROW_BAL: stripe = 9	nrows = 80652	nterm = 1286560
+	nt increasing [%]: 44.5 
+buffer_coef[0] 9.816 MB
+buffer_ja[0]   4.908 MB
+buffer_x[0]    6.153 MB
+buffer_y[0]    0.615 MB
+
+buffer_coef[1] 9.844 MB
+buffer_ja[1]   4.922 MB
+buffer_x[1]    6.153 MB
+buffer_y[1]    0.615 MB
+
+buffer_coef[2] 9.843 MB
+buffer_ja[2]   4.922 MB
+buffer_x[2]    6.153 MB
+buffer_y[2]    0.615 MB
+
+buffer_coef[3] 9.844 MB
+buffer_ja[3]   4.922 MB
+buffer_x[3]    6.153 MB
+buffer_y[3]    0.615 MB
+
+buffer_coef[4] 9.843 MB
+buffer_ja[4]   4.922 MB
+buffer_x[4]    6.153 MB
+buffer_y[4]    0.615 MB
+
+buffer_coef[5] 9.798 MB
+buffer_ja[5]   4.899 MB
+buffer_x[5]    6.153 MB
+buffer_y[5]    0.615 MB
+
+buffer_coef[6] 9.834 MB
+buffer_ja[6]   4.917 MB
+buffer_x[6]    6.153 MB
+buffer_y[6]    0.615 MB
+
+buffer_coef[7] 9.844 MB
+buffer_ja[7]   4.922 MB
+buffer_x[7]    6.153 MB
+buffer_y[7]    0.615 MB
+
+buffer_coef[8] 9.843 MB
+buffer_ja[8]   4.922 MB
+buffer_x[8]    6.153 MB
+buffer_y[8]    0.615 MB
+
+buffer_coef[9] 9.816 MB
+buffer_ja[9]   4.908 MB
+buffer_x[9]    6.153 MB
+buffer_y[9]    0.615 MB
+
+Kernel 0 nterm 1286544 nrows 80653
+Kernel 1 nterm 1290256 nrows 80653
+Kernel 2 nterm 1290192 nrows 80653
+Kernel 3 nterm 1290256 nrows 80653
+Kernel 4 nterm 1290192 nrows 80653
+Kernel 5 nterm 1284280 nrows 80653
+Kernel 6 nterm 1288968 nrows 80653
+Kernel 7 nterm 1290256 nrows 80653
+Kernel 8 nterm 1290192 nrows 80653
+Kernel 9 nterm 1286560 nrows 80652
+time = 0.974557, gflops = 2.343606
+Test failed! (7)
+errors spmv: mae=5.16818e+06, max_ae=2.20694e+10, mse=5.53808e+18, mape=inf, smape=5.6534
+File: /various/pmpakos/SpMV-Research/validation_matrices/gupta3.mtx
+File: /various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx
+max threads 14
+time read: 0.149125
+time coo to csr: 0.099692
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 3.268688 seconds
+ROW_BAL: stripe = 0	nrows = 6647	nterm = 294576
+ROW_BAL: stripe = 1	nrows = 6647	nterm = 521256
+ROW_BAL: stripe = 2	nrows = 6647	nterm = 658776
+ROW_BAL: stripe = 3	nrows = 6646	nterm = 604680
+ROW_BAL: stripe = 4	nrows = 6646	nterm = 762960
+ROW_BAL: stripe = 5	nrows = 6646	nterm = 2338984
+ROW_BAL: stripe = 6	nrows = 6646	nterm = 2926672
+ROW_BAL: stripe = 7	nrows = 6646	nterm = 1329136
+ROW_BAL: stripe = 8	nrows = 6646	nterm = 380112
+ROW_BAL: stripe = 9	nrows = 6646	nterm = 778768
+	nt increasing [%]: 2.3 
+buffer_coef[0] 2.247 MB
+buffer_ja[0]   1.124 MB
+buffer_x[0]    0.507 MB
+buffer_y[0]    0.051 MB
+
+buffer_coef[1] 3.977 MB
+buffer_ja[1]   1.988 MB
+buffer_x[1]    0.507 MB
+buffer_y[1]    0.051 MB
+
+buffer_coef[2] 5.026 MB
+buffer_ja[2]   2.513 MB
+buffer_x[2]    0.507 MB
+buffer_y[2]    0.051 MB
+
+buffer_coef[3] 4.613 MB
+buffer_ja[3]   2.307 MB
+buffer_x[3]    0.507 MB
+buffer_y[3]    0.051 MB
+
+buffer_coef[4] 5.821 MB
+buffer_ja[4]   2.910 MB
+buffer_x[4]    0.507 MB
+buffer_y[4]    0.051 MB
+
+buffer_coef[5] 17.845 MB
+buffer_ja[5]   8.923 MB
+buffer_x[5]    0.507 MB
+buffer_y[5]    0.051 MB
+
+buffer_coef[6] 22.329 MB
+buffer_ja[6]   11.164 MB
+buffer_x[6]    0.507 MB
+buffer_y[6]    0.051 MB
+
+buffer_coef[7] 10.141 MB
+buffer_ja[7]   5.070 MB
+buffer_x[7]    0.507 MB
+buffer_y[7]    0.051 MB
+
+buffer_coef[8] 2.900 MB
+buffer_ja[8]   1.450 MB
+buffer_x[8]    0.507 MB
+buffer_y[8]    0.051 MB
+
+buffer_coef[9] 5.942 MB
+buffer_ja[9]   2.971 MB
+buffer_x[9]    0.507 MB
+buffer_y[9]    0.051 MB
+
+Kernel 0 nterm 294576 nrows 6647
+Kernel 1 nterm 521256 nrows 6647
+Kernel 2 nterm 658776 nrows 6647
+Kernel 3 nterm 604680 nrows 6646
+Kernel 4 nterm 762960 nrows 6646
+Kernel 5 nterm 2338984 nrows 6646
+Kernel 6 nterm 2926672 nrows 6646
+Kernel 7 nterm 1329136 nrows 6646
+Kernel 8 nterm 380112 nrows 6646
+Kernel 9 nterm 778768 nrows 6646
+time = 2.076243, gflops = 1.276499
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/rail4284.mtx
+File: /various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx
+max threads 14
+time read: 0.302842
+time coo to csr: 0.092689
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 2.672383 seconds
+ROW_BAL: stripe = 0	nrows = 21792	nterm = 1203496
+ROW_BAL: stripe = 1	nrows = 21792	nterm = 1232952
+ROW_BAL: stripe = 2	nrows = 21792	nterm = 1219312
+ROW_BAL: stripe = 3	nrows = 21792	nterm = 1219968
+ROW_BAL: stripe = 4	nrows = 21792	nterm = 1195328
+ROW_BAL: stripe = 5	nrows = 21792	nterm = 1217104
+ROW_BAL: stripe = 6	nrows = 21792	nterm = 1218936
+ROW_BAL: stripe = 7	nrows = 21792	nterm = 1218520
+ROW_BAL: stripe = 8	nrows = 21791	nterm = 1184560
+ROW_BAL: stripe = 9	nrows = 21791	nterm = 1186544
+	nt increasing [%]: 4.0 
+buffer_coef[0] 9.182 MB
+buffer_ja[0]   4.591 MB
+buffer_x[0]    1.663 MB
+buffer_y[0]    0.166 MB
+
+buffer_coef[1] 9.407 MB
+buffer_ja[1]   4.703 MB
+buffer_x[1]    1.663 MB
+buffer_y[1]    0.166 MB
+
+buffer_coef[2] 9.303 MB
+buffer_ja[2]   4.651 MB
+buffer_x[2]    1.663 MB
+buffer_y[2]    0.166 MB
+
+buffer_coef[3] 9.308 MB
+buffer_ja[3]   4.654 MB
+buffer_x[3]    1.663 MB
+buffer_y[3]    0.166 MB
+
+buffer_coef[4] 9.120 MB
+buffer_ja[4]   4.560 MB
+buffer_x[4]    1.663 MB
+buffer_y[4]    0.166 MB
+
+buffer_coef[5] 9.286 MB
+buffer_ja[5]   4.643 MB
+buffer_x[5]    1.663 MB
+buffer_y[5]    0.166 MB
+
+buffer_coef[6] 9.300 MB
+buffer_ja[6]   4.650 MB
+buffer_x[6]    1.663 MB
+buffer_y[6]    0.166 MB
+
+buffer_coef[7] 9.297 MB
+buffer_ja[7]   4.648 MB
+buffer_x[7]    1.663 MB
+buffer_y[7]    0.166 MB
+
+buffer_coef[8] 9.037 MB
+buffer_ja[8]   4.519 MB
+buffer_x[8]    1.663 MB
+buffer_y[8]    0.166 MB
+
+buffer_coef[9] 9.053 MB
+buffer_ja[9]   4.526 MB
+buffer_x[9]    1.663 MB
+buffer_y[9]    0.166 MB
+
+Kernel 0 nterm 1203496 nrows 21792
+Kernel 1 nterm 1232952 nrows 21792
+Kernel 2 nterm 1219312 nrows 21792
+Kernel 3 nterm 1219968 nrows 21792
+Kernel 4 nterm 1195328 nrows 21792
+Kernel 5 nterm 1217104 nrows 21792
+Kernel 6 nterm 1218936 nrows 21792
+Kernel 7 nterm 1218520 nrows 21792
+Kernel 8 nterm 1184560 nrows 21791
+Kernel 9 nterm 1186544 nrows 21791
+time = 0.906286, gflops = 3.286395
+Test failed! (1.84974)
+errors spmv: mae=9.00865e-11, max_ae=2.26137e-08, mse=1.24027e-17, mape=0.0257821, smape=0.0150799
+File: /various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx
+max threads 14
+time read: 0.323700
+time coo to csr: 0.138366
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 3.776204 seconds
+ROW_BAL: stripe = 0	nrows = 6384	nterm = 2329240
+ROW_BAL: stripe = 1	nrows = 6384	nterm = 1415288
+ROW_BAL: stripe = 2	nrows = 6384	nterm = 1452544
+ROW_BAL: stripe = 3	nrows = 6384	nterm = 1480912
+ROW_BAL: stripe = 4	nrows = 6384	nterm = 1433472
+ROW_BAL: stripe = 5	nrows = 6384	nterm = 1606472
+ROW_BAL: stripe = 6	nrows = 6384	nterm = 1616440
+ROW_BAL: stripe = 7	nrows = 6384	nterm = 900320
+ROW_BAL: stripe = 8	nrows = 6383	nterm = 998000
+ROW_BAL: stripe = 9	nrows = 6383	nterm = 1138528
+	nt increasing [%]: 1.6 
+buffer_coef[0] 17.771 MB
+buffer_ja[0]   8.885 MB
+buffer_x[0]    0.487 MB
+buffer_y[0]    0.049 MB
+
+buffer_coef[1] 10.798 MB
+buffer_ja[1]   5.399 MB
+buffer_x[1]    0.487 MB
+buffer_y[1]    0.049 MB
+
+buffer_coef[2] 11.082 MB
+buffer_ja[2]   5.541 MB
+buffer_x[2]    0.487 MB
+buffer_y[2]    0.049 MB
+
+buffer_coef[3] 11.298 MB
+buffer_ja[3]   5.649 MB
+buffer_x[3]    0.487 MB
+buffer_y[3]    0.049 MB
+
+buffer_coef[4] 10.937 MB
+buffer_ja[4]   5.468 MB
+buffer_x[4]    0.487 MB
+buffer_y[4]    0.049 MB
+
+buffer_coef[5] 12.256 MB
+buffer_ja[5]   6.128 MB
+buffer_x[5]    0.487 MB
+buffer_y[5]    0.049 MB
+
+buffer_coef[6] 12.332 MB
+buffer_ja[6]   6.166 MB
+buffer_x[6]    0.487 MB
+buffer_y[6]    0.049 MB
+
+buffer_coef[7] 6.869 MB
+buffer_ja[7]   3.434 MB
+buffer_x[7]    0.487 MB
+buffer_y[7]    0.049 MB
+
+buffer_coef[8] 7.614 MB
+buffer_ja[8]   3.807 MB
+buffer_x[8]    0.487 MB
+buffer_y[8]    0.049 MB
+
+buffer_coef[9] 8.686 MB
+buffer_ja[9]   4.343 MB
+buffer_x[9]    0.487 MB
+buffer_y[9]    0.049 MB
+
+Kernel 0 nterm 2329240 nrows 6384
+Kernel 1 nterm 1415288 nrows 6384
+Kernel 2 nterm 1452544 nrows 6384
+Kernel 3 nterm 1480912 nrows 6384
+Kernel 4 nterm 1433472 nrows 6384
+Kernel 5 nterm 1606472 nrows 6384
+Kernel 6 nterm 1616440 nrows 6384
+Kernel 7 nterm 900320 nrows 6384
+Kernel 8 nterm 998000 nrows 6383
+Kernel 9 nterm 1138528 nrows 6383
+time = 1.682772, gflops = 2.152465
+errors spmv: mae=6.88065e-09, max_ae=4.57764e-05, mse=3.30087e-12, mape=8.94465e-13, smape=4.47232e-13
+File: /various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx
+max threads 14
+time read: 0.382543
+time coo to csr: 0.137129
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 4.458983 seconds
+ROW_BAL: stripe = 0	nrows = 18564	nterm = 696016
+ROW_BAL: stripe = 1	nrows = 18564	nterm = 1359168
+ROW_BAL: stripe = 2	nrows = 18564	nterm = 1828048
+ROW_BAL: stripe = 3	nrows = 18564	nterm = 1934040
+ROW_BAL: stripe = 4	nrows = 18564	nterm = 2239728
+ROW_BAL: stripe = 5	nrows = 18564	nterm = 2019304
+ROW_BAL: stripe = 6	nrows = 18564	nterm = 2033552
+ROW_BAL: stripe = 7	nrows = 18564	nterm = 1668160
+ROW_BAL: stripe = 8	nrows = 18564	nterm = 1204312
+ROW_BAL: stripe = 9	nrows = 18563	nterm = 662944
+	nt increasing [%]: 4.2 
+buffer_coef[0] 5.310 MB
+buffer_ja[0]   2.655 MB
+buffer_x[0]    1.416 MB
+buffer_y[0]    0.142 MB
+
+buffer_coef[1] 10.370 MB
+buffer_ja[1]   5.185 MB
+buffer_x[1]    1.416 MB
+buffer_y[1]    0.142 MB
+
+buffer_coef[2] 13.947 MB
+buffer_ja[2]   6.973 MB
+buffer_x[2]    1.416 MB
+buffer_y[2]    0.142 MB
+
+buffer_coef[3] 14.756 MB
+buffer_ja[3]   7.378 MB
+buffer_x[3]    1.416 MB
+buffer_y[3]    0.142 MB
+
+buffer_coef[4] 17.088 MB
+buffer_ja[4]   8.544 MB
+buffer_x[4]    1.416 MB
+buffer_y[4]    0.142 MB
+
+buffer_coef[5] 15.406 MB
+buffer_ja[5]   7.703 MB
+buffer_x[5]    1.416 MB
+buffer_y[5]    0.142 MB
+
+buffer_coef[6] 15.515 MB
+buffer_ja[6]   7.757 MB
+buffer_x[6]    1.416 MB
+buffer_y[6]    0.142 MB
+
+buffer_coef[7] 12.727 MB
+buffer_ja[7]   6.364 MB
+buffer_x[7]    1.416 MB
+buffer_y[7]    0.142 MB
+
+buffer_coef[8] 9.188 MB
+buffer_ja[8]   4.594 MB
+buffer_x[8]    1.416 MB
+buffer_y[8]    0.142 MB
+
+buffer_coef[9] 5.058 MB
+buffer_ja[9]   2.529 MB
+buffer_x[9]    1.416 MB
+buffer_y[9]    0.142 MB
+
+Kernel 0 nterm 696016 nrows 18564
+Kernel 1 nterm 1359168 nrows 18564
+Kernel 2 nterm 1828048 nrows 18564
+Kernel 3 nterm 1934040 nrows 18564
+Kernel 4 nterm 2239728 nrows 18564
+Kernel 5 nterm 2019304 nrows 18564
+Kernel 6 nterm 2033552 nrows 18564
+Kernel 7 nterm 1668160 nrows 18564
+Kernel 8 nterm 1204312 nrows 18564
+Kernel 9 nterm 662944 nrows 18563
+time = 1.675806, gflops = 2.293156
+errors spmv: mae=2.21849e-15, max_ae=3.33067e-14, mse=9.48026e-28, mape=1.7534e-12, smape=8.767e-13
+File: /various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx
+max threads 14
+time read: 0.918345
+time coo to csr: 0.128762
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 5.118026 seconds
+ROW_BAL: stripe = 0	nrows = 3812	nterm = 35864
+ROW_BAL: stripe = 1	nrows = 3812	nterm = 31432
+ROW_BAL: stripe = 2	nrows = 3812	nterm = 30496
+ROW_BAL: stripe = 3	nrows = 3812	nterm = 30496
+ROW_BAL: stripe = 4	nrows = 3812	nterm = 30496
+ROW_BAL: stripe = 5	nrows = 3812	nterm = 1106048
+ROW_BAL: stripe = 6	nrows = 3812	nterm = 3751008
+ROW_BAL: stripe = 7	nrows = 3812	nterm = 3751008
+ROW_BAL: stripe = 8	nrows = 3812	nterm = 3751008
+ROW_BAL: stripe = 9	nrows = 3812	nterm = 3751008
+	nt increasing [%]: 0.6 
+buffer_coef[0] 0.274 MB
+buffer_ja[0]   0.137 MB
+buffer_x[0]    0.291 MB
+buffer_y[0]    0.029 MB
+
+buffer_coef[1] 0.240 MB
+buffer_ja[1]   0.120 MB
+buffer_x[1]    0.291 MB
+buffer_y[1]    0.029 MB
+
+buffer_coef[2] 0.233 MB
+buffer_ja[2]   0.116 MB
+buffer_x[2]    0.291 MB
+buffer_y[2]    0.029 MB
+
+buffer_coef[3] 0.233 MB
+buffer_ja[3]   0.116 MB
+buffer_x[3]    0.291 MB
+buffer_y[3]    0.029 MB
+
+buffer_coef[4] 0.233 MB
+buffer_ja[4]   0.116 MB
+buffer_x[4]    0.291 MB
+buffer_y[4]    0.029 MB
+
+buffer_coef[5] 8.438 MB
+buffer_ja[5]   4.219 MB
+buffer_x[5]    0.291 MB
+buffer_y[5]    0.029 MB
+
+buffer_coef[6] 28.618 MB
+buffer_ja[6]   14.309 MB
+buffer_x[6]    0.291 MB
+buffer_y[6]    0.029 MB
+
+buffer_coef[7] 28.618 MB
+buffer_ja[7]   14.309 MB
+buffer_x[7]    0.291 MB
+buffer_y[7]    0.029 MB
+
+buffer_coef[8] 28.618 MB
+buffer_ja[8]   14.309 MB
+buffer_x[8]    0.291 MB
+buffer_y[8]    0.029 MB
+
+buffer_coef[9] 28.618 MB
+buffer_ja[9]   14.309 MB
+buffer_x[9]    0.291 MB
+buffer_y[9]    0.029 MB
+
+Kernel 0 nterm 35864 nrows 3812
+Kernel 1 nterm 31432 nrows 3812
+Kernel 2 nterm 30496 nrows 3812
+Kernel 3 nterm 30496 nrows 3812
+Kernel 4 nterm 30496 nrows 3812
+Kernel 5 nterm 1106048 nrows 3812
+Kernel 6 nterm 3751008 nrows 3812
+Kernel 7 nterm 3751008 nrows 3812
+Kernel 8 nterm 3751008 nrows 3812
+Kernel 9 nterm 3751008 nrows 3812
+time = 2.652377, gflops = 1.560796
+Test failed! (3.03165e-08)
+errors spmv: mae=1.35918e-14, max_ae=3.95772e-12, mse=1.85986e-24, mape=1.93748e-10, smape=9.68739e-11
+File: /various/pmpakos/SpMV-Research/validation_matrices/in-2004.mtx
+Timeout occurred. Resetting the device...
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: File: /various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx
+max threads 14
+time read: 0.511936
+time coo to csr: 0.163409
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 5.409261 seconds
+ROW_BAL: stripe = 0	nrows = 26810	nterm = 970400
+ROW_BAL: stripe = 1	nrows = 26810	nterm = 1580704
+ROW_BAL: stripe = 2	nrows = 26810	nterm = 2069944
+ROW_BAL: stripe = 3	nrows = 26810	nterm = 2486872
+ROW_BAL: stripe = 4	nrows = 26810	nterm = 2516032
+ROW_BAL: stripe = 5	nrows = 26810	nterm = 2682520
+ROW_BAL: stripe = 6	nrows = 26809	nterm = 2369048
+ROW_BAL: stripe = 7	nrows = 26809	nterm = 2092952
+ROW_BAL: stripe = 8	nrows = 26809	nterm = 1654168
+ROW_BAL: stripe = 9	nrows = 26809	nterm = 970360
+	nt increasing [%]: 4.9 
+buffer_coef[0] 7.404 MB
+buffer_ja[0]   3.702 MB
+buffer_x[0]    2.045 MB
+buffer_y[0]    0.205 MB
+
+buffer_coef[1] 12.060 MB
+buffer_ja[1]   6.030 MB
+buffer_x[1]    2.045 MB
+buffer_y[1]    0.205 MB
+
+buffer_coef[2] 15.792 MB
+buffer_ja[2]   7.896 MB
+buffer_x[2]    2.045 MB
+buffer_y[2]    0.205 MB
+
+buffer_coef[3] 18.973 MB
+buffer_ja[3]   9.487 MB
+buffer_x[3]    2.045 MB
+buffer_y[3]    0.205 MB
+
+buffer_coef[4] 19.196 MB
+buffer_ja[4]   9.598 MB
+buffer_x[4]    2.045 MB
+buffer_y[4]    0.205 MB
+
+buffer_coef[5] 20.466 MB
+buffer_ja[5]   10.233 MB
+buffer_x[5]    2.045 MB
+buffer_y[5]    0.205 MB
+
+buffer_coef[6] 18.074 MB
+buffer_ja[6]   9.037 MB
+buffer_x[6]    2.045 MB
+buffer_y[6]    0.205 MB
+
+buffer_coef[7] 15.968 MB
+buffer_ja[7]   7.984 MB
+buffer_x[7]    2.045 MB
+buffer_y[7]    0.205 MB
+
+buffer_coef[8] 12.620 MB
+buffer_ja[8]   6.310 MB
+buffer_x[8]    2.045 MB
+buffer_y[8]    0.205 MB
+
+buffer_coef[9] 7.403 MB
+buffer_ja[9]   3.702 MB
+buffer_x[9]    2.045 MB
+buffer_y[9]    0.205 MB
+
+Kernel 0 nterm 970400 nrows 26810
+Kernel 1 nterm 1580704 nrows 26810
+Kernel 2 nterm 2069944 nrows 26810
+Kernel 3 nterm 2486872 nrows 26810
+Kernel 4 nterm 2516032 nrows 26810
+Kernel 5 nterm 2682520 nrows 26810
+Kernel 6 nterm 2369048 nrows 26809
+Kernel 7 nterm 2092952 nrows 26809
+Kernel 8 nterm 1654168 nrows 26809
+Kernel 9 nterm 970360 nrows 26809
+time = 2.082942, gflops = 2.272291
+Test failed! (1.35501e-09)
+errors spmv: mae=4.7259e-15, max_ae=8.44547e-13, mse=2.23045e-26, mape=1.50625e-11, smape=7.53123e-12
+File: /various/pmpakos/SpMV-Research/validation_matrices/eu-2005.mtx
+Timeout occurred. Resetting the device...
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: File: /various/pmpakos/SpMV-Research/validation_matrices/wikipedia-20051105.mtx
+Timeout occurred. Resetting the device...
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: File: /various/pmpakos/SpMV-Research/validation_matrices/kron_g500-logn18.mtx
+Timeout occurred. Resetting the device...
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: File: /various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx
+max threads 14
+time read: 1.013121
+time coo to csr: 0.143178
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 10.540052 seconds
+ROW_BAL: stripe = 0	nrows = 469001	nterm = 3753256
+ROW_BAL: stripe = 1	nrows = 469001	nterm = 3752008
+ROW_BAL: stripe = 2	nrows = 469000	nterm = 3752000
+ROW_BAL: stripe = 3	nrows = 469000	nterm = 3752000
+ROW_BAL: stripe = 4	nrows = 469000	nterm = 3752000
+ROW_BAL: stripe = 5	nrows = 469000	nterm = 3752000
+ROW_BAL: stripe = 6	nrows = 469000	nterm = 3752000
+ROW_BAL: stripe = 7	nrows = 469000	nterm = 3752000
+ROW_BAL: stripe = 8	nrows = 469000	nterm = 3752000
+ROW_BAL: stripe = 9	nrows = 469000	nterm = 3752000
+	nt increasing [%]: 84.7 
+buffer_coef[0] 28.635 MB
+buffer_ja[0]   14.318 MB
+buffer_x[0]    35.782 MB
+buffer_y[0]    3.578 MB
+
+buffer_coef[1] 28.626 MB
+buffer_ja[1]   14.313 MB
+buffer_x[1]    35.782 MB
+buffer_y[1]    3.578 MB
+
+buffer_coef[2] 28.625 MB
+buffer_ja[2]   14.313 MB
+buffer_x[2]    35.782 MB
+buffer_y[2]    3.578 MB
+
+buffer_coef[3] 28.625 MB
+buffer_ja[3]   14.313 MB
+buffer_x[3]    35.782 MB
+buffer_y[3]    3.578 MB
+
+buffer_coef[4] 28.625 MB
+buffer_ja[4]   14.313 MB
+buffer_x[4]    35.782 MB
+buffer_y[4]    3.578 MB
+
+buffer_coef[5] 28.625 MB
+buffer_ja[5]   14.313 MB
+buffer_x[5]    35.782 MB
+buffer_y[5]    3.578 MB
+
+buffer_coef[6] 28.625 MB
+buffer_ja[6]   14.313 MB
+buffer_x[6]    35.782 MB
+buffer_y[6]    3.578 MB
+
+buffer_coef[7] 28.625 MB
+buffer_ja[7]   14.313 MB
+buffer_x[7]    35.782 MB
+buffer_y[7]    3.578 MB
+
+buffer_coef[8] 28.625 MB
+buffer_ja[8]   14.313 MB
+buffer_x[8]    35.782 MB
+buffer_y[8]    3.578 MB
+
+buffer_coef[9] 28.625 MB
+buffer_ja[9]   14.313 MB
+buffer_x[9]    35.782 MB
+buffer_y[9]    3.578 MB
+
+Kernel 0 nterm 3753256 nrows 469001
+Kernel 1 nterm 3752008 nrows 469001
+Kernel 2 nterm 3752000 nrows 469000
+Kernel 3 nterm 3752000 nrows 469000
+Kernel 4 nterm 3752000 nrows 469000
+Kernel 5 nterm 3752000 nrows 469000
+Kernel 6 nterm 3752000 nrows 469000
+Kernel 7 nterm 3752000 nrows 469000
+Kernel 8 nterm 3752000 nrows 469000
+Kernel 9 nterm 3752000 nrows 469000
+time = 2.733730, gflops = 1.902514
+errors spmv: mae=5.65892e-16, max_ae=1.77636e-15, mse=5.8506e-29, mape=1.07802e-11, smape=5.39012e-12
+File: /various/pmpakos/SpMV-Research/validation_matrices/human_gene1.mtx
+File: /various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx
+max threads 14
+time read: 0.404305
+time coo to csr: 0.199371
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 9.686012 seconds
+ROW_BAL: stripe = 0	nrows = 419431	nterm = 3487072
+ROW_BAL: stripe = 1	nrows = 419431	nterm = 3486032
+ROW_BAL: stripe = 2	nrows = 419431	nterm = 3485368
+ROW_BAL: stripe = 3	nrows = 419431	nterm = 3485488
+ROW_BAL: stripe = 4	nrows = 419430	nterm = 3486920
+ROW_BAL: stripe = 5	nrows = 419430	nterm = 3487856
+ROW_BAL: stripe = 6	nrows = 419430	nterm = 3484552
+ROW_BAL: stripe = 7	nrows = 419430	nterm = 3486344
+ROW_BAL: stripe = 8	nrows = 419430	nterm = 3485624
+ROW_BAL: stripe = 9	nrows = 419430	nterm = 3485832
+	nt increasing [%]: 38.5 
+buffer_coef[0] 26.604 MB
+buffer_ja[0]   13.302 MB
+buffer_x[0]    32.000 MB
+buffer_y[0]    3.200 MB
+
+buffer_coef[1] 26.596 MB
+buffer_ja[1]   13.298 MB
+buffer_x[1]    32.000 MB
+buffer_y[1]    3.200 MB
+
+buffer_coef[2] 26.591 MB
+buffer_ja[2]   13.296 MB
+buffer_x[2]    32.000 MB
+buffer_y[2]    3.200 MB
+
+buffer_coef[3] 26.592 MB
+buffer_ja[3]   13.296 MB
+buffer_x[3]    32.000 MB
+buffer_y[3]    3.200 MB
+
+buffer_coef[4] 26.603 MB
+buffer_ja[4]   13.302 MB
+buffer_x[4]    32.000 MB
+buffer_y[4]    3.200 MB
+
+buffer_coef[5] 26.610 MB
+buffer_ja[5]   13.305 MB
+buffer_x[5]    32.000 MB
+buffer_y[5]    3.200 MB
+
+buffer_coef[6] 26.585 MB
+buffer_ja[6]   13.293 MB
+buffer_x[6]    32.000 MB
+buffer_y[6]    3.200 MB
+
+buffer_coef[7] 26.599 MB
+buffer_ja[7]   13.299 MB
+buffer_x[7]    32.000 MB
+buffer_y[7]    3.200 MB
+
+buffer_coef[8] 26.593 MB
+buffer_ja[8]   13.297 MB
+buffer_x[8]    32.000 MB
+buffer_y[8]    3.200 MB
+
+buffer_coef[9] 26.595 MB
+buffer_ja[9]   13.297 MB
+buffer_x[9]    32.000 MB
+buffer_y[9]    3.200 MB
+
+Kernel 0 nterm 3487072 nrows 419431
+Kernel 1 nterm 3486032 nrows 419431
+Kernel 2 nterm 3485368 nrows 419431
+Kernel 3 nterm 3485488 nrows 419431
+Kernel 4 nterm 3486920 nrows 419430
+Kernel 5 nterm 3487856 nrows 419430
+Kernel 6 nterm 3484552 nrows 419430
+Kernel 7 nterm 3486344 nrows 419430
+Kernel 8 nterm 3485624 nrows 419430
+Kernel 9 nterm 3485832 nrows 419430
+time = 2.862651, gflops = 2.250512
+errors spmv: mae=0, max_ae=0, mse=0, mape=0, smape=0
+File: /various/pmpakos/SpMV-Research/validation_matrices/GL7d20.mtx
+Timeout occurred. Resetting the device...
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: File: /various/pmpakos/SpMV-Research/validation_matrices/sx-stackoverflow.mtx
+Timeout occurred. Resetting the device...
+All existing processes will be killed.
+Are you sure you wish to proceed? [y/n]: File: /various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx
+max threads 14
+time read: 1.761439
+time coo to csr: 0.286410
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 12.292628 seconds
+ROW_BAL: stripe = 0	nrows = 120062	nterm = 2570992
+ROW_BAL: stripe = 1	nrows = 120061	nterm = 4435944
+ROW_BAL: stripe = 2	nrows = 120061	nterm = 5789760
+ROW_BAL: stripe = 3	nrows = 120061	nterm = 5840576
+ROW_BAL: stripe = 4	nrows = 120061	nterm = 4341552
+ROW_BAL: stripe = 5	nrows = 120061	nterm = 3827904
+ROW_BAL: stripe = 6	nrows = 120061	nterm = 4005736
+ROW_BAL: stripe = 7	nrows = 120061	nterm = 3892072
+ROW_BAL: stripe = 8	nrows = 120061	nterm = 3800256
+ROW_BAL: stripe = 9	nrows = 120061	nterm = 4092816
+	nt increasing [%]: 11.3 
+buffer_coef[0] 19.615 MB
+buffer_ja[0]   9.808 MB
+buffer_x[0]    9.160 MB
+buffer_y[0]    0.916 MB
+
+buffer_coef[1] 33.844 MB
+buffer_ja[1]   16.922 MB
+buffer_x[1]    9.160 MB
+buffer_y[1]    0.916 MB
+
+buffer_coef[2] 44.172 MB
+buffer_ja[2]   22.086 MB
+buffer_x[2]    9.160 MB
+buffer_y[2]    0.916 MB
+
+buffer_coef[3] 44.560 MB
+buffer_ja[3]   22.280 MB
+buffer_x[3]    9.160 MB
+buffer_y[3]    0.916 MB
+
+buffer_coef[4] 33.123 MB
+buffer_ja[4]   16.562 MB
+buffer_x[4]    9.160 MB
+buffer_y[4]    0.916 MB
+
+buffer_coef[5] 29.205 MB
+buffer_ja[5]   14.602 MB
+buffer_x[5]    9.160 MB
+buffer_y[5]    0.916 MB
+
+buffer_coef[6] 30.561 MB
+buffer_ja[6]   15.281 MB
+buffer_x[6]    9.160 MB
+buffer_y[6]    0.916 MB
+
+buffer_coef[7] 29.694 MB
+buffer_ja[7]   14.847 MB
+buffer_x[7]    9.160 MB
+buffer_y[7]    0.916 MB
+
+buffer_coef[8] 28.994 MB
+buffer_ja[8]   14.497 MB
+buffer_x[8]    9.160 MB
+buffer_y[8]    0.916 MB
+
+buffer_coef[9] 31.226 MB
+buffer_ja[9]   15.613 MB
+buffer_x[9]    9.160 MB
+buffer_y[9]    0.916 MB
+
+Kernel 0 nterm 2570992 nrows 120062
+Kernel 1 nterm 4435944 nrows 120061
+Kernel 2 nterm 5789760 nrows 120061
+Kernel 3 nterm 5840576 nrows 120061
+Kernel 4 nterm 4341552 nrows 120061
+Kernel 5 nterm 3827904 nrows 120061
+Kernel 6 nterm 4005736 nrows 120061
+Kernel 7 nterm 3892072 nrows 120061
+Kernel 8 nterm 3800256 nrows 120061
+Kernel 9 nterm 4092816 nrows 120061
+time = 5.347344, gflops = 1.831662
+Test failed! (4764.97)
+errors spmv: mae=0.00208554, max_ae=64.0002, mse=1.10891, mape=1.49208, smape=0.0699463
+File: /various/pmpakos/SpMV-Research/validation_matrices/mawi_201512012345.mtx
+max threads 14
+time read: 0.594042
+time coo to csr: 1.584183
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 45.674112 seconds
+ROW_BAL: stripe = 0	nrows = 1857116	nterm = 15078952
+ROW_BAL: stripe = 1	nrows = 1857116	nterm = 15200416
+ROW_BAL: stripe = 2	nrows = 1857116	nterm = 15245112
+ROW_BAL: stripe = 3	nrows = 1857116	nterm = 15087128
+ROW_BAL: stripe = 4	nrows = 1857115	nterm = 31463784
+ROW_BAL: stripe = 5	nrows = 1857115	nterm = 15049792
+ROW_BAL: stripe = 6	nrows = 1857115	nterm = 15033560
+ROW_BAL: stripe = 7	nrows = 1857115	nterm = 14957640
+ROW_BAL: stripe = 8	nrows = 1857115	nterm = 14902336
+ROW_BAL: stripe = 9	nrows = 1857115	nterm = 14963760
+	nt increasing [%]: 339.0 
+buffer_coef[0] 115.043 MB
+buffer_ja[0]   57.522 MB
+buffer_x[0]    141.687 MB
+buffer_y[0]    14.169 MB
+
+buffer_coef[1] 115.970 MB
+buffer_ja[1]   57.985 MB
+buffer_x[1]    141.687 MB
+buffer_y[1]    14.169 MB
+
+buffer_coef[2] 116.311 MB
+buffer_ja[2]   58.155 MB
+buffer_x[2]    141.687 MB
+buffer_y[2]    14.169 MB
+
+buffer_coef[3] 115.106 MB
+buffer_ja[3]   57.553 MB
+buffer_x[3]    141.687 MB
+buffer_y[3]    14.169 MB
+
+buffer_coef[4] 240.050 MB
+buffer_ja[4]   120.025 MB
+buffer_x[4]    141.687 MB
+buffer_y[4]    14.169 MB
+
+buffer_coef[5] 114.821 MB
+buffer_ja[5]   57.410 MB
+buffer_x[5]    141.687 MB
+buffer_y[5]    14.169 MB
+
+buffer_coef[6] 114.697 MB
+buffer_ja[6]   57.348 MB
+buffer_x[6]    141.687 MB
+buffer_y[6]    14.169 MB
+
+buffer_coef[7] 114.118 MB
+buffer_ja[7]   57.059 MB
+buffer_x[7]    141.687 MB
+buffer_y[7]    14.169 MB
+
+buffer_coef[8] 113.696 MB
+buffer_ja[8]   56.848 MB
+buffer_x[8]    141.687 MB
+buffer_y[8]    14.169 MB
+
+buffer_coef[9] 114.164 MB
+buffer_ja[9]   57.082 MB
+buffer_x[9]    141.687 MB
+buffer_y[9]    14.169 MB
+
+Kernel 0 nterm 15078952 nrows 1857116
+Kernel 1 nterm 15200416 nrows 1857116
+Kernel 2 nterm 15245112 nrows 1857116
+Kernel 3 nterm 15087128 nrows 1857116
+Kernel 4 nterm 31463784 nrows 1857115
+Kernel 5 nterm 15049792 nrows 1857115
+Kernel 6 nterm 15033560 nrows 1857115
+Kernel 7 nterm 14957640 nrows 1857115
+Kernel 8 nterm 14902336 nrows 1857115
+Kernel 9 nterm 14963760 nrows 1857115
+File: /various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx
+max threads 14
+time read: 1.045105
+time coo to csr: 0.393917
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 11.813457 seconds
+ROW_BAL: stripe = 0	nrows = 95221	nterm = 5190112
+ROW_BAL: stripe = 1	nrows = 95221	nterm = 4956840
+ROW_BAL: stripe = 2	nrows = 95221	nterm = 4944128
+ROW_BAL: stripe = 3	nrows = 95220	nterm = 5326064
+ROW_BAL: stripe = 4	nrows = 95220	nterm = 5103680
+ROW_BAL: stripe = 5	nrows = 95220	nterm = 5069544
+ROW_BAL: stripe = 6	nrows = 95220	nterm = 4961936
+ROW_BAL: stripe = 7	nrows = 95220	nterm = 4966344
+ROW_BAL: stripe = 8	nrows = 95220	nterm = 4777216
+ROW_BAL: stripe = 9	nrows = 95220	nterm = 4611336
+	nt increasing [%]: 7.3 
+buffer_coef[0] 39.597 MB
+buffer_ja[0]   19.799 MB
+buffer_x[0]    7.265 MB
+buffer_y[0]    0.726 MB
+
+buffer_coef[1] 37.818 MB
+buffer_ja[1]   18.909 MB
+buffer_x[1]    7.265 MB
+buffer_y[1]    0.726 MB
+
+buffer_coef[2] 37.721 MB
+buffer_ja[2]   18.860 MB
+buffer_x[2]    7.265 MB
+buffer_y[2]    0.726 MB
+
+buffer_coef[3] 40.635 MB
+buffer_ja[3]   20.317 MB
+buffer_x[3]    7.265 MB
+buffer_y[3]    0.726 MB
+
+buffer_coef[4] 38.938 MB
+buffer_ja[4]   19.469 MB
+buffer_x[4]    7.265 MB
+buffer_y[4]    0.726 MB
+
+buffer_coef[5] 38.678 MB
+buffer_ja[5]   19.339 MB
+buffer_x[5]    7.265 MB
+buffer_y[5]    0.726 MB
+
+buffer_coef[6] 37.857 MB
+buffer_ja[6]   18.928 MB
+buffer_x[6]    7.265 MB
+buffer_y[6]    0.726 MB
+
+buffer_coef[7] 37.890 MB
+buffer_ja[7]   18.945 MB
+buffer_x[7]    7.265 MB
+buffer_y[7]    0.726 MB
+
+buffer_coef[8] 36.447 MB
+buffer_ja[8]   18.224 MB
+buffer_x[8]    7.265 MB
+buffer_y[8]    0.726 MB
+
+buffer_coef[9] 35.182 MB
+buffer_ja[9]   17.591 MB
+buffer_x[9]    7.265 MB
+buffer_y[9]    0.726 MB
+
+Kernel 0 nterm 5190112 nrows 95221
+Kernel 1 nterm 4956840 nrows 95221
+Kernel 2 nterm 4944128 nrows 95221
+Kernel 3 nterm 5326064 nrows 95220
+Kernel 4 nterm 5103680 nrows 95220
+Kernel 5 nterm 5069544 nrows 95220
+Kernel 6 nterm 4961936 nrows 95220
+Kernel 7 nterm 4966344 nrows 95220
+Kernel 8 nterm 4777216 nrows 95220
+Kernel 9 nterm 4611336 nrows 95220
+time = 3.981995, gflops = 2.990901
+Test failed! (5.46069e-09)
+errors spmv: mae=2.18031e-10, max_ae=7.45058e-08, mse=1.16697e-16, mape=1.31851e-11, smape=6.59253e-12
+File: /various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx
+max threads 14
+time read: 1.432157
+time coo to csr: 0.422828
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 12.409307 seconds
+ROW_BAL: stripe = 0	nrows = 115746	nterm = 7538144
+ROW_BAL: stripe = 1	nrows = 115746	nterm = 6913216
+ROW_BAL: stripe = 2	nrows = 115746	nterm = 4491992
+ROW_BAL: stripe = 3	nrows = 115746	nterm = 4464760
+ROW_BAL: stripe = 4	nrows = 115746	nterm = 4480496
+ROW_BAL: stripe = 5	nrows = 115746	nterm = 4493472
+ROW_BAL: stripe = 6	nrows = 115745	nterm = 4499992
+ROW_BAL: stripe = 7	nrows = 115745	nterm = 4496728
+ROW_BAL: stripe = 8	nrows = 115745	nterm = 4438592
+ROW_BAL: stripe = 9	nrows = 115745	nterm = 4518608
+	nt increasing [%]: 3.7 
+buffer_coef[0] 57.511 MB
+buffer_ja[0]   28.756 MB
+buffer_x[0]    8.831 MB
+buffer_y[0]    0.883 MB
+
+buffer_coef[1] 52.744 MB
+buffer_ja[1]   26.372 MB
+buffer_x[1]    8.831 MB
+buffer_y[1]    0.883 MB
+
+buffer_coef[2] 34.271 MB
+buffer_ja[2]   17.136 MB
+buffer_x[2]    8.831 MB
+buffer_y[2]    0.883 MB
+
+buffer_coef[3] 34.063 MB
+buffer_ja[3]   17.032 MB
+buffer_x[3]    8.831 MB
+buffer_y[3]    0.883 MB
+
+buffer_coef[4] 34.183 MB
+buffer_ja[4]   17.092 MB
+buffer_x[4]    8.831 MB
+buffer_y[4]    0.883 MB
+
+buffer_coef[5] 34.282 MB
+buffer_ja[5]   17.141 MB
+buffer_x[5]    8.831 MB
+buffer_y[5]    0.883 MB
+
+buffer_coef[6] 34.332 MB
+buffer_ja[6]   17.166 MB
+buffer_x[6]    8.831 MB
+buffer_y[6]    0.883 MB
+
+buffer_coef[7] 34.307 MB
+buffer_ja[7]   17.154 MB
+buffer_x[7]    8.831 MB
+buffer_y[7]    0.883 MB
+
+buffer_coef[8] 33.864 MB
+buffer_ja[8]   16.932 MB
+buffer_x[8]    8.831 MB
+buffer_y[8]    0.883 MB
+
+buffer_coef[9] 34.474 MB
+buffer_ja[9]   17.237 MB
+buffer_x[9]    8.831 MB
+buffer_y[9]    0.883 MB
+
+Kernel 0 nterm 7538144 nrows 115746
+Kernel 1 nterm 6913216 nrows 115746
+Kernel 2 nterm 4491992 nrows 115746
+Kernel 3 nterm 4464760 nrows 115746
+Kernel 4 nterm 4480496 nrows 115746
+Kernel 5 nterm 4493472 nrows 115746
+Kernel 6 nterm 4499992 nrows 115745
+Kernel 7 nterm 4496728 nrows 115745
+Kernel 8 nterm 4438592 nrows 115745
+Kernel 9 nterm 4518608 nrows 115745
+time = 5.659600, gflops = 2.195557
+errors spmv: mae=5.71112e-16, max_ae=4.9738e-14, mse=2.53475e-28, mape=8.96431e-14, smape=4.48216e-14
+File: /various/pmpakos/SpMV-Research/validation_matrices/circuit5M.mtx
+max threads 14
+time read: 3.513433
+time coo to csr: 0.486643
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 22.652681 seconds
+ROW_BAL: stripe = 0	nrows = 555833	nterm = 36900280
+ROW_BAL: stripe = 1	nrows = 555833	nterm = 4446664
+ROW_BAL: stripe = 2	nrows = 555833	nterm = 4446664
+ROW_BAL: stripe = 3	nrows = 555833	nterm = 4446664
+ROW_BAL: stripe = 4	nrows = 555833	nterm = 4446664
+ROW_BAL: stripe = 5	nrows = 555833	nterm = 4446664
+ROW_BAL: stripe = 6	nrows = 555832	nterm = 4446656
+ROW_BAL: stripe = 7	nrows = 555832	nterm = 4446656
+ROW_BAL: stripe = 8	nrows = 555832	nterm = 4446656
+ROW_BAL: stripe = 9	nrows = 555832	nterm = 4446656
+	nt increasing [%]: 29.2 
+buffer_coef[0] 281.527 MB
+buffer_ja[0]   140.763 MB
+buffer_x[0]    42.407 MB
+buffer_y[0]    4.241 MB
+
+buffer_coef[1] 33.925 MB
+buffer_ja[1]   16.963 MB
+buffer_x[1]    42.407 MB
+buffer_y[1]    4.241 MB
+
+buffer_coef[2] 33.925 MB
+buffer_ja[2]   16.963 MB
+buffer_x[2]    42.407 MB
+buffer_y[2]    4.241 MB
+
+buffer_coef[3] 33.925 MB
+buffer_ja[3]   16.963 MB
+buffer_x[3]    42.407 MB
+buffer_y[3]    4.241 MB
+
+buffer_coef[4] 33.925 MB
+buffer_ja[4]   16.963 MB
+buffer_x[4]    42.407 MB
+buffer_y[4]    4.241 MB
+
+buffer_coef[5] 33.925 MB
+buffer_ja[5]   16.963 MB
+buffer_x[5]    42.407 MB
+buffer_y[5]    4.241 MB
+
+buffer_coef[6] 33.925 MB
+buffer_ja[6]   16.963 MB
+buffer_x[6]    42.407 MB
+buffer_y[6]    4.241 MB
+
+buffer_coef[7] 33.925 MB
+buffer_ja[7]   16.963 MB
+buffer_x[7]    42.407 MB
+buffer_y[7]    4.241 MB
+
+buffer_coef[8] 33.925 MB
+buffer_ja[8]   16.963 MB
+buffer_x[8]    42.407 MB
+buffer_y[8]    4.241 MB
+
+buffer_coef[9] 33.925 MB
+buffer_ja[9]   16.963 MB
+buffer_x[9]    42.407 MB
+buffer_y[9]    4.241 MB
+
+Kernel 0 nterm 36900280 nrows 555833
+Kernel 1 nterm 4446664 nrows 555833
+Kernel 2 nterm 4446664 nrows 555833
+File: /various/pmpakos/SpMV-Research/validation_matrices/soc-LiveJournal1.mtx
+max threads 14
+time read: 1.816276
+time coo to csr: 0.505757
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 26.850845 seconds
+ROW_BAL: stripe = 0	nrows = 484758	nterm = 24336960
+ROW_BAL: stripe = 1	nrows = 484757	nterm = 16738321
+ROW_BAL: stripe = 2	nrows = 484757	nterm = 11282239
+ROW_BAL: stripe = 3	nrows = 484757	nterm = 8901064
+ROW_BAL: stripe = 4	nrows = 484757	nterm = 6270688
+ROW_BAL: stripe = 5	nrows = 484757	nterm = 5443680
+ROW_BAL: stripe = 6	nrows = 484757	nterm = 4759296
+ROW_BAL: stripe = 7	nrows = 484757	nterm = 3914993
+ROW_BAL: stripe = 8	nrows = 484757	nterm = 3669816
+ROW_BAL: stripe = 9	nrows = 484757	nterm = 3279135
+	nt increasing [%]: 28.4 
+buffer_coef[0] 185.676 MB
+buffer_ja[0]   92.838 MB
+buffer_x[0]    36.984 MB
+buffer_y[0]    3.698 MB
+
+buffer_coef[1] 127.703 MB
+buffer_ja[1]   63.852 MB
+buffer_x[1]    36.984 MB
+buffer_y[1]    3.698 MB
+
+buffer_coef[2] 86.077 MB
+buffer_ja[2]   43.038 MB
+buffer_x[2]    36.984 MB
+buffer_y[2]    3.698 MB
+
+buffer_coef[3] 67.910 MB
+buffer_ja[3]   33.955 MB
+buffer_x[3]    36.984 MB
+buffer_y[3]    3.698 MB
+
+buffer_coef[4] 47.842 MB
+buffer_ja[4]   23.921 MB
+buffer_x[4]    36.984 MB
+buffer_y[4]    3.698 MB
+
+buffer_coef[5] 41.532 MB
+buffer_ja[5]   20.766 MB
+buffer_x[5]    36.984 MB
+buffer_y[5]    3.698 MB
+
+buffer_coef[6] 36.311 MB
+buffer_ja[6]   18.155 MB
+buffer_x[6]    36.984 MB
+buffer_y[6]    3.698 MB
+
+buffer_coef[7] 29.869 MB
+buffer_ja[7]   14.935 MB
+buffer_x[7]    36.984 MB
+buffer_y[7]    3.698 MB
+
+buffer_coef[8] 27.998 MB
+buffer_ja[8]   13.999 MB
+buffer_x[8]    36.984 MB
+buffer_y[8]    3.698 MB
+
+buffer_coef[9] 25.018 MB
+buffer_ja[9]   12.509 MB
+buffer_x[9]    36.984 MB
+buffer_y[9]    3.698 MB
+
+Kernel 0 nterm 24336960 nrows 484758
+Kernel 1 nterm 16738321 nrows 484757
+Kernel 2 nterm 11282239 nrows 484757
+Kernel 3 nterm 8901064 nrows 484757
+File: /various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx
+max threads 14
+time read: 1.494009
+time coo to csr: 0.592900
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 18.822407 seconds
+ROW_BAL: stripe = 0	nrows = 98671	nterm = 7522752
+ROW_BAL: stripe = 1	nrows = 98671	nterm = 7808352
+ROW_BAL: stripe = 2	nrows = 98671	nterm = 7987776
+ROW_BAL: stripe = 3	nrows = 98670	nterm = 7914672
+ROW_BAL: stripe = 4	nrows = 98670	nterm = 7814232
+ROW_BAL: stripe = 5	nrows = 98670	nterm = 7609104
+ROW_BAL: stripe = 6	nrows = 98670	nterm = 7572096
+ROW_BAL: stripe = 7	nrows = 98670	nterm = 7657776
+ROW_BAL: stripe = 8	nrows = 98670	nterm = 7656096
+ROW_BAL: stripe = 9	nrows = 98670	nterm = 7528488
+	nt increasing [%]: 7.5 
+buffer_coef[0] 57.394 MB
+buffer_ja[0]   28.697 MB
+buffer_x[0]    7.528 MB
+buffer_y[0]    0.753 MB
+
+buffer_coef[1] 59.573 MB
+buffer_ja[1]   29.786 MB
+buffer_x[1]    7.528 MB
+buffer_y[1]    0.753 MB
+
+buffer_coef[2] 60.942 MB
+buffer_ja[2]   30.471 MB
+buffer_x[2]    7.528 MB
+buffer_y[2]    0.753 MB
+
+buffer_coef[3] 60.384 MB
+buffer_ja[3]   30.192 MB
+buffer_x[3]    7.528 MB
+buffer_y[3]    0.753 MB
+
+buffer_coef[4] 59.618 MB
+buffer_ja[4]   29.809 MB
+buffer_x[4]    7.528 MB
+buffer_y[4]    0.753 MB
+
+buffer_coef[5] 58.053 MB
+buffer_ja[5]   29.026 MB
+buffer_x[5]    7.528 MB
+buffer_y[5]    0.753 MB
+
+buffer_coef[6] 57.771 MB
+buffer_ja[6]   28.885 MB
+buffer_x[6]    7.528 MB
+buffer_y[6]    0.753 MB
+
+buffer_coef[7] 58.424 MB
+buffer_ja[7]   29.212 MB
+buffer_x[7]    7.528 MB
+buffer_y[7]    0.753 MB
+
+buffer_coef[8] 58.411 MB
+buffer_ja[8]   29.206 MB
+buffer_x[8]    7.528 MB
+buffer_y[8]    0.753 MB
+
+buffer_coef[9] 57.438 MB
+buffer_ja[9]   28.719 MB
+buffer_x[9]    7.528 MB
+buffer_y[9]    0.753 MB
+
+Kernel 0 nterm 7522752 nrows 98671
+Kernel 1 nterm 7808352 nrows 98671
+Kernel 2 nterm 7987776 nrows 98671
+Kernel 3 nterm 7914672 nrows 98670
+Kernel 4 nterm 7814232 nrows 98670
+Kernel 5 nterm 7609104 nrows 98670
+Kernel 6 nterm 7572096 nrows 98670
+Kernel 7 nterm 7657776 nrows 98670
+Kernel 8 nterm 7656096 nrows 98670
+Kernel 9 nterm 7528488 nrows 98670
+time = 5.878688, gflops = 3.120863
+Test failed! (1)
+errors spmv: mae=4.08027e-07, max_ae=0.0009, mse=2.41775e-08, mape=0.0741868, smape=0.0741866
+File: /various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx
+max threads 14
+time read: 1.891270
+time coo to csr: 0.723296
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 20.870895 seconds
+ROW_BAL: stripe = 0	nrows = 94370	nterm = 17026160
+ROW_BAL: stripe = 1	nrows = 94370	nterm = 9715384
+ROW_BAL: stripe = 2	nrows = 94370	nterm = 6155208
+ROW_BAL: stripe = 3	nrows = 94370	nterm = 6111392
+ROW_BAL: stripe = 4	nrows = 94370	nterm = 7214768
+ROW_BAL: stripe = 5	nrows = 94369	nterm = 7193456
+ROW_BAL: stripe = 6	nrows = 94369	nterm = 7193280
+ROW_BAL: stripe = 7	nrows = 94369	nterm = 7202544
+ROW_BAL: stripe = 8	nrows = 94369	nterm = 7202568
+ROW_BAL: stripe = 9	nrows = 94369	nterm = 7229784
+	nt increasing [%]: 5.9 
+buffer_coef[0] 129.899 MB
+buffer_ja[0]   64.950 MB
+buffer_x[0]    7.200 MB
+buffer_y[0]    0.720 MB
+
+buffer_coef[1] 74.122 MB
+buffer_ja[1]   37.061 MB
+buffer_x[1]    7.200 MB
+buffer_y[1]    0.720 MB
+
+buffer_coef[2] 46.961 MB
+buffer_ja[2]   23.480 MB
+buffer_x[2]    7.200 MB
+buffer_y[2]    0.720 MB
+
+buffer_coef[3] 46.626 MB
+buffer_ja[3]   23.313 MB
+buffer_x[3]    7.200 MB
+buffer_y[3]    0.720 MB
+
+buffer_coef[4] 55.044 MB
+buffer_ja[4]   27.522 MB
+buffer_x[4]    7.200 MB
+buffer_y[4]    0.720 MB
+
+buffer_coef[5] 54.882 MB
+buffer_ja[5]   27.441 MB
+buffer_x[5]    7.200 MB
+buffer_y[5]    0.720 MB
+
+buffer_coef[6] 54.880 MB
+buffer_ja[6]   27.440 MB
+buffer_x[6]    7.200 MB
+buffer_y[6]    0.720 MB
+
+buffer_coef[7] 54.951 MB
+buffer_ja[7]   27.476 MB
+buffer_x[7]    7.200 MB
+buffer_y[7]    0.720 MB
+
+buffer_coef[8] 54.951 MB
+buffer_ja[8]   27.476 MB
+buffer_x[8]    7.200 MB
+buffer_y[8]    0.720 MB
+
+buffer_coef[9] 55.159 MB
+buffer_ja[9]   27.579 MB
+buffer_x[9]    7.200 MB
+buffer_y[9]    0.720 MB
+
+Kernel 0 nterm 17026160 nrows 94370
+Kernel 1 nterm 9715384 nrows 94370
+Kernel 2 nterm 6155208 nrows 94370
+Kernel 3 nterm 6111392 nrows 94370
+Kernel 4 nterm 7214768 nrows 94370
+Kernel 5 nterm 7193456 nrows 94369
+Kernel 6 nterm 7193280 nrows 94369
+Kernel 7 nterm 7202544 nrows 94369
+Kernel 8 nterm 7202568 nrows 94369
+Kernel 9 nterm 7229784 nrows 94369
+time = 12.415271, gflops = 1.601163
+Test failed! (2.6794e-06)
+errors spmv: mae=4.53069e-10, max_ae=4.29153e-06, mse=5.15558e-15, mape=2.64139e-09, smape=1.3207e-09
+File: /various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx
+max threads 14
+time read: 3.982493
+time coo to csr: 0.717684
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 32.781755 seconds
+ROW_BAL: stripe = 0	nrows = 515486	nterm = 8487520
+ROW_BAL: stripe = 1	nrows = 515486	nterm = 10190688
+ROW_BAL: stripe = 2	nrows = 515486	nterm = 10462928
+ROW_BAL: stripe = 3	nrows = 515486	nterm = 11554048
+ROW_BAL: stripe = 4	nrows = 515486	nterm = 11992128
+ROW_BAL: stripe = 5	nrows = 515486	nterm = 11455728
+ROW_BAL: stripe = 6	nrows = 515486	nterm = 12748320
+ROW_BAL: stripe = 7	nrows = 515486	nterm = 12355944
+ROW_BAL: stripe = 8	nrows = 515486	nterm = 13242456
+ROW_BAL: stripe = 9	nrows = 515485	nterm = 14747800
+	nt increasing [%]: 18.2 
+buffer_coef[0] 64.755 MB
+buffer_ja[0]   32.377 MB
+buffer_x[0]    39.328 MB
+buffer_y[0]    3.933 MB
+
+buffer_coef[1] 77.749 MB
+buffer_ja[1]   38.874 MB
+buffer_x[1]    39.328 MB
+buffer_y[1]    3.933 MB
+
+buffer_coef[2] 79.826 MB
+buffer_ja[2]   39.913 MB
+buffer_x[2]    39.328 MB
+buffer_y[2]    3.933 MB
+
+buffer_coef[3] 88.150 MB
+buffer_ja[3]   44.075 MB
+buffer_x[3]    39.328 MB
+buffer_y[3]    3.933 MB
+
+buffer_coef[4] 91.493 MB
+buffer_ja[4]   45.746 MB
+buffer_x[4]    39.328 MB
+buffer_y[4]    3.933 MB
+
+buffer_coef[5] 87.400 MB
+buffer_ja[5]   43.700 MB
+buffer_x[5]    39.328 MB
+buffer_y[5]    3.933 MB
+
+buffer_coef[6] 97.262 MB
+buffer_ja[6]   48.631 MB
+buffer_x[6]    39.328 MB
+buffer_y[6]    3.933 MB
+
+buffer_coef[7] 94.268 MB
+buffer_ja[7]   47.134 MB
+buffer_x[7]    39.328 MB
+buffer_y[7]    3.933 MB
+
+buffer_coef[8] 101.032 MB
+buffer_ja[8]   50.516 MB
+buffer_x[8]    39.328 MB
+buffer_y[8]    3.933 MB
+
+buffer_coef[9] 112.517 MB
+buffer_ja[9]   56.258 MB
+buffer_x[9]    39.328 MB
+buffer_y[9]    3.933 MB
+
+Kernel 0 nterm 8487520 nrows 515486
+Kernel 1 nterm 10190688 nrows 515486
+Kernel 2 nterm 10462928 nrows 515486
+Kernel 3 nterm 11554048 nrows 515486
+Kernel 4 nterm 11992128 nrows 515486
+Kernel 5 nterm 11455728 nrows 515486
+Kernel 6 nterm 12748320 nrows 515486
+Kernel 7 nterm 12355944 nrows 515486
+Kernel 8 nterm 13242456 nrows 515486
+Kernel 9 nterm 14747800 nrows 515485
+time = 12.532104, gflops = 2.026402
+Test failed! (1)
+errors spmv: mae=7.85735e-05, max_ae=1.22222, mse=0.00773954, mape=0.00803126, smape=0.00803126
+File: /various/pmpakos/SpMV-Research/validation_matrices/kmer_V2a.mtx
+max threads 14
+time read: 1.988687
+time coo to csr: 1.220736
+Creating a kernel [krnl_spmv:{krnl_spmv_1}] for CU(0)
+Creating a kernel [krnl_spmv:{krnl_spmv_2}] for CU(1)
+Creating a kernel [krnl_spmv:{krnl_spmv_3}] for CU(2)
+Creating a kernel [krnl_spmv:{krnl_spmv_4}] for CU(3)
+Creating a kernel [krnl_spmv:{krnl_spmv_5}] for CU(4)
+Creating a kernel [krnl_spmv:{krnl_spmv_6}] for CU(5)
+Creating a kernel [krnl_spmv:{krnl_spmv_7}] for CU(6)
+Creating a kernel [krnl_spmv:{krnl_spmv_8}] for CU(7)
+Creating a kernel [krnl_spmv:{krnl_spmv_9}] for CU(8)
+Creating a kernel [krnl_spmv:{krnl_spmv_10}] for CU(9)
+Preprocessing (optima) time: 131.160813 seconds
+ROW_BAL: stripe = 0	nrows = 5504237	nterm = 44121264
+ROW_BAL: stripe = 1	nrows = 5504237	nterm = 44130504
+ROW_BAL: stripe = 2	nrows = 5504237	nterm = 44117160
+ROW_BAL: stripe = 3	nrows = 5504237	nterm = 44122424
+ROW_BAL: stripe = 4	nrows = 5504237	nterm = 44123400
+ROW_BAL: stripe = 5	nrows = 5504237	nterm = 44132632
+ROW_BAL: stripe = 6	nrows = 5504237	nterm = 44120928
+ROW_BAL: stripe = 7	nrows = 5504237	nterm = 44130456
+ROW_BAL: stripe = 8	nrows = 5504237	nterm = 44128096
+ROW_BAL: stripe = 9	nrows = 5504236	nterm = 44100800
+	nt increasing [%]: 276.4 
+buffer_coef[0] 336.619 MB
+buffer_ja[0]   168.309 MB
+buffer_x[0]    419.940 MB
+buffer_y[0]    41.994 MB
+
+buffer_coef[1] 336.689 MB
+buffer_ja[1]   168.345 MB
+buffer_x[1]    419.940 MB
+buffer_y[1]    41.994 MB
+
+buffer_coef[2] 336.587 MB
+buffer_ja[2]   168.294 MB
+buffer_x[2]    419.940 MB
+buffer_y[2]    41.994 MB
+
+buffer_coef[3] 336.627 MB
+buffer_ja[3]   168.314 MB
+buffer_x[3]    419.940 MB
+buffer_y[3]    41.994 MB
+
+buffer_coef[4] 336.635 MB
+buffer_ja[4]   168.317 MB
+buffer_x[4]    419.940 MB
+buffer_y[4]    41.994 MB
+
+buffer_coef[5] 336.705 MB
+buffer_ja[5]   168.353 MB
+buffer_x[5]    419.940 MB
+buffer_y[5]    41.994 MB
+
+buffer_coef[6] 336.616 MB
+buffer_ja[6]   168.308 MB
+buffer_x[6]    419.940 MB
+buffer_y[6]    41.994 MB
+
+buffer_coef[7] 336.689 MB
+buffer_ja[7]   168.344 MB
+buffer_x[7]    419.940 MB
+buffer_y[7]    41.994 MB
+
+buffer_coef[8] 336.671 MB
+buffer_ja[8]   168.335 MB
+buffer_x[8]    419.940 MB
+buffer_y[8]    41.994 MB
+
+buffer_coef[9] 336.462 MB
+buffer_ja[9]   168.231 MB
+buffer_x[9]    419.940 MB
+buffer_y[9]    41.994 MB
+
+Kernel 0 nterm 44121264 nrows 5504237
+Kernel 1 nterm 44130504 nrows 5504237

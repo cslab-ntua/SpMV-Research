@@ -1,0 +1,442 @@
+/various/pmpakos/SpMV-Research/validation_matrices/scircuit.mtx,14,170998,170998,958936,0.142301,1.725125,11.626461,32.208224,4.583273,OPTIMA_SpMV,170998,170998,958936,18.276669,1.571989,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 47652
+UID: 10375
+[Tue Oct 31 12:59:14 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/mac_econ_fwd500.mtx,14,206500,206500,1273389,0.147408,2.211469,15.360519,31.370191,4.624207,OPTIMA_SpMV,206500,206500,1273389,23.582355,1.535258,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 47741
+UID: 10375
+[Tue Oct 31 12:59:16 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/raefsky3.mtx,14,21200,21200,1488768,0.110410,3.451897,17.118473,31.366559,3.463187,OPTIMA_SpMV,21200,21200,1488768,17.118473,1.000000,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 47796
+UID: 10375
+[Tue Oct 31 12:59:18 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/bbmat.mtx,14,38744,38744,1771722,0.167260,2.711710,20.423550,31.280173,5.231924,OPTIMA_SpMV,38744,38744,1771722,21.753330,1.065110,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 20278
+UID: 10375
+[Tue Oct 31 13:06:51 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+./run.sh: line 221: 20371 Segmentation fault      timeout 420s "$prog" "${prog_args[@]}" 2> 'tmp.err'
+timeout: the monitored command dumped core
+/various/pmpakos/SpMV-Research/validation_matrices/conf5_4-8x8-15.mtx,14,49152,49152,1916928,0.151103,3.247675,22.125004,38.495778,5.816830,OPTIMA_SpMV,49152,49152,1916928,22.687504,1.025424,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 20392
+UID: 10375
+[Tue Oct 31 13:06:54 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/mc2depi.mtx,14,525825,525825,2100225,0.317926,1.691140,26.041035,30.916494,9.829161,OPTIMA_SpMV,525825,525825,2100225,50.146584,1.925676,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 20449
+UID: 10375
+[Tue Oct 31 13:06:57 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/rma10.mtx,14,46835,46835,2374001,0.277119,2.193080,27.346951,31.013004,8.594294,OPTIMA_SpMV,46835,46835,2374001,28.918259,1.057458,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 20504
+UID: 10375
+[Tue Oct 31 13:06:59 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+./run.sh: line 221: 20558 Segmentation fault      timeout 420s "$prog" "${prog_args[@]}" 2> 'tmp.err'
+timeout: the monitored command dumped core
+/various/pmpakos/SpMV-Research/validation_matrices/thermomech_dK.mtx,14,204316,204316,2846228,0.280369,2.598844,33.351902,30.514320,8.555257,OPTIMA_SpMV,204316,204316,2846228,38.357777,1.150093,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 20579
+UID: 10375
+[Tue Oct 31 13:07:03 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/webbase-1M.mtx,14,1000005,1000005,3105536,0.916954,0.867020,39.354759,37.599555,34.477072,OPTIMA_SpMV,1000005,1000005,3105536,104.560265,2.656865,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 20634
+UID: 10375
+[Tue Oct 31 13:07:07 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/cant.mtx,14,62451,62451,4007383,0.304993,3.363646,46.099094,38.737720,11.814751,OPTIMA_SpMV,62451,62451,4007383,49.597061,1.075879,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 20720
+UID: 10375
+[Tue Oct 31 13:07:10 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/ASIC_680k.mtx,14,682862,682862,3871773,1.090493,0.908923,46.913841,35.049828,38.221584,OPTIMA_SpMV,682862,682862,3871773,84.280483,1.796495,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 20775
+UID: 10375
+[Tue Oct 31 13:07:14 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/pdb1HYS.mtx,14,36417,36417,4344765,0.346546,3.209556,49.860813,30.468801,10.558853,OPTIMA_SpMV,36417,36417,4344765,51.334206,1.029550,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 49142
+UID: 10375
+[Tue Oct 31 13:14:50 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b300_c3.mtx,14,42138,42138,4413449,0.666223,1.695894,50.668663,33.203995,22.121255,OPTIMA_SpMV,42138,42138,4413449,53.285686,1.051650,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 49232
+UID: 10375
+[Tue Oct 31 13:14:53 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 49317
+UID: 10375
+[Tue Oct 31 13:14:54 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+./run.sh: line 221: 49335 Segmentation fault      timeout 420s "$prog" "${prog_args[@]}" 2> 'tmp.err'
+timeout: the monitored command dumped core
+./run.sh: line 221: 49355 Segmentation fault      timeout 420s "$prog" "${prog_args[@]}" 2> 'tmp.err'
+timeout: the monitored command dumped core
+/various/pmpakos/SpMV-Research/validation_matrices/rajat30.mtx,14,643994,643994,6175377,1.260627,1.254055,73.128227,31.480678,39.685405,OPTIMA_SpMV,643994,643994,6175377,95.427807,1.304938,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 49376
+UID: 10375
+[Tue Oct 31 13:15:02 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/radiation.mtx,14,223104,223104,7637688,0.820341,2.383457,88.257481,33.026723,27.093187,OPTIMA_SpMV,223104,223104,7637688,97.781254,1.107909,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 49492
+UID: 10375
+[Tue Oct 31 13:15:06 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/shipsec1.mtx,14,140874,140874,7813404,0.621476,3.218519,89.954708,31.113777,19.336456,OPTIMA_SpMV,140874,140874,7813404,93.398235,1.038281,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 20819
+UID: 10375
+[Tue Oct 31 13:22:44 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/PR02R.mtx,14,161070,161070,8185136,0.663315,3.158976,94.285885,31.094670,20.625546,OPTIMA_SpMV,161070,161070,8185136,104.308254,1.106298,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 20947
+UID: 10375
+[Tue Oct 31 13:22:48 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/CurlCurl_2.mtx,14,806529,806529,8921789,0.974557,2.343606,105.178440,35.833972,34.922252,OPTIMA_SpMV,806529,806529,8921789,150.564644,1.431516,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 21034
+UID: 10375
+[Tue Oct 31 13:22:55 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+./run.sh: line 221: 21150 Segmentation fault      timeout 420s "$prog" "${prog_args[@]}" 2> 'tmp.err'
+timeout: the monitored command dumped core
+/various/pmpakos/SpMV-Research/validation_matrices/mip1.mtx,14,66463,66463,10352819,2.076243,1.276499,118.732151,32.171184,66.795180,OPTIMA_SpMV,66463,66463,10352819,121.514221,1.023431,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 21171
+UID: 10375
+[Tue Oct 31 13:23:03 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+./run.sh: line 221: 21347 Segmentation fault      timeout 420s "$prog" "${prog_args[@]}" 2> 'tmp.err'
+timeout: the monitored command dumped core
+/various/pmpakos/SpMV-Research/validation_matrices/pwtk.mtx,14,217918,217918,11634424,0.906286,3.286395,133.976711,38.999112,35.344331,OPTIMA_SpMV,217918,217918,11634424,139.267269,1.039489,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 21368
+UID: 10375
+[Tue Oct 31 13:23:10 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/crankseg_2.mtx,14,63838,63838,14148858,1.682772,2.152465,162.164356,36.116775,60.776305,OPTIMA_SpMV,63838,63838,14148858,164.709042,1.015692,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 21455
+UID: 10375
+[Tue Oct 31 13:23:17 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/Si41Ge41H72.mtx,14,185639,185639,15011265,1.675806,2.293156,172.498455,35.506145,59.501398,OPTIMA_SpMV,185639,185639,15011265,179.754089,1.042062,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 21600
+UID: 10375
+[Tue Oct 31 13:23:26 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/TSOPF_RS_b2383.mtx,14,38120,38120,16171169,2.652377,1.560796,185.209763,33.930151,89.995560,OPTIMA_SpMV,38120,38120,16171169,186.327793,1.006037,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 21752
+UID: 10375
+[Tue Oct 31 13:23:36 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/Ga41As41H72.mtx,14,268096,268096,18488476,2.082942,2.272291,212.606525,34.794848,72.475638,OPTIMA_SpMV,268096,268096,18488476,222.957981,1.048688,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 48866
+UID: 10375
+[Tue Oct 31 13:31:17 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/rajat31.mtx,14,4690002,4690002,20316253,2.733730,1.902514,250.392006,37.517138,102.561723,OPTIMA_SpMV,4690002,4690002,20316253,447.287731,1.786350,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 15681
+UID: 10375
+[Tue Oct 31 13:54:01 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+./run.sh: line 221: 15929 Segmentation fault      timeout 420s "$prog" "${prog_args[@]}" 2> 'tmp.err'
+timeout: the monitored command dumped core
+/various/pmpakos/SpMV-Research/validation_matrices/delaunay_n22.mtx,14,4194304,4194304,25165738,2.862651,2.250512,303.999020,36.821211,105.406269,OPTIMA_SpMV,4194304,4194304,25165738,414.953495,1.364983,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 15950
+UID: 10375
+[Tue Oct 31 13:54:18 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/dgreen.mtx,14,1200611,1200611,38259877,5.347344,1.831662,442.429516,36.033965,192.685995,OPTIMA_SpMV,1200611,1200611,38259877,492.070908,1.112202,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 9329
+UID: 10375
+[Tue Oct 31 14:09:41 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+./run.sh: line 221:  9725 Aborted                 timeout 420s "$prog" "${prog_args[@]}" 2> 'tmp.err'
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 9726
+UID: 10375
+[Tue Oct 31 14:10:33 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] ERROR: std::bad_alloc
+[XRT] ERROR: std::bad_alloc
+terminate called after throwing an instance of 'xrt::error'
+  what():  event 4 never submitted
+timeout: the monitored command dumped core
+/various/pmpakos/SpMV-Research/validation_matrices/ldoor.mtx,14,952203,952203,46522475,3.981995,2.990901,536.039845,37.859202,150.755158,OPTIMA_SpMV,952203,952203,46522475,574.774948,1.072262,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 9758
+UID: 10375
+[Tue Oct 31 14:10:53 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/dielFilterV2real.mtx,14,1157456,1157456,48538952,5.659600,2.195557,559.899570,36.394865,205.980368,OPTIMA_SpMV,1157456,1157456,48538952,580.465153,1.036731,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 10025
+UID: 10375
+[Tue Oct 31 14:11:16 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+./run.sh: line 221: 10383 Aborted                 timeout 420s "$prog" "${prog_args[@]}" 2> 'tmp.err'
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 10384
+UID: 10375
+[Tue Oct 31 14:11:45 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] ERROR: std::bad_alloc
+[XRT] ERROR: std::bad_alloc
+[XRT] ERROR: Operation failed due to earlier error 'std::bad_alloc'
+terminate called after throwing an instance of 'xrt::error'
+  what():  event 0 never submitted
+timeout: the monitored command dumped core
+./run.sh: line 221: 10430 Aborted                 timeout 420s "$prog" "${prog_args[@]}" 2> 'tmp.err'
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 10431
+UID: 10375
+[Tue Oct 31 14:12:17 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] ERROR: std::bad_alloc
+[XRT] ERROR: std::bad_alloc
+[XRT] ERROR: Operation failed due to earlier error 'std::bad_alloc'
+terminate called after throwing an instance of 'xrt::error'
+  what():  event 0 never submitted
+timeout: the monitored command dumped core
+/various/pmpakos/SpMV-Research/validation_matrices/bone010.mtx,14,986703,986703,71666325,5.878688,3.120863,823.919979,38.386594,225.662815,OPTIMA_SpMV,986703,986703,71666325,885.775513,1.075075,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 10553
+UID: 10375
+[Tue Oct 31 14:12:47 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/audikw_1.mtx,14,943695,943695,77651847,12.415271,1.601163,892.254780,35.461498,440.264113,OPTIMA_SpMV,943695,943695,77651847,944.814026,1.058906,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 11021
+UID: 10375
+[Tue Oct 31 14:13:27 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+/various/pmpakos/SpMV-Research/validation_matrices/cage15.mtx,14,5154859,5154859,99199551,12.532104,2.026402,1154.912998,36.434058,456.595415,OPTIMA_SpMV,5154859,5154859,99199551,1361.341629,1.178740,128
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 11714
+UID: 10375
+[Tue Oct 31 14:14:22 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] WARNING: Profiling may contain incomplete information. Please ensure all OpenCL objects are released by your host code (e.g., clReleaseProgram()).
+./run.sh: line 221: 12469 Aborted                 timeout 420s "$prog" "${prog_args[@]}" 2> 'tmp.err'
+XRT build version: 2.8.743
+Build hash: 77d5484b5c4daa691a7f78235053fb036829b1e9
+Build date: 2020-11-16 00:19:11
+Git branch: 2020.2
+PID: 12470
+UID: 10375
+[Tue Oct 31 14:16:46 2023 GMT]
+HOST: gold1
+EXE: /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe
+[XRT] ERROR: std::bad_alloc
+[XRT] ERROR: std::bad_alloc
+[XRT] ERROR: std::bad_alloc
+[XRT] ERROR: std::bad_alloc
+[XRT] ERROR: std::bad_alloc
+[XRT] ERROR: std::bad_alloc
+terminate called after throwing an instance of 'xrt::error'
+  what():  event 0 never submitted
+timeout: the monitored command dumped core
