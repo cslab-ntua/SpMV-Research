@@ -1,2 +1,2 @@
-*.csv filter=lfs diff=lfs merge=lfs -text
+# *.csv filter=lfs diff=lfs merge=lfs -text
 *.xclbin filter=lfs diff=lfs merge=lfs -text
