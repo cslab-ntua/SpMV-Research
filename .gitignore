@@ -45,6 +45,8 @@ benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_kernels/Hardware/build
 */package/
 */.Xil/
 */.ipcache/
+.Xil/
+.ipcache/
 *run_summary
 *package_summary
 *profile_summary.csv
