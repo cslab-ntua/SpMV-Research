@@ -54,6 +54,11 @@ power_profile_*.csv
 *timeline_trace.csv
 vitis_analyzer*
 *.log
+*.ltx
+*.mdb
+*.xclbin.info
+*.xclbin.link_summary
+*.xclbin.sh
 
 benchmark_results/amd-epyc1/amd-epyc1_synthetic_t24_d.csv
 benchmark_results/amd-epyc1/amd-epyc1_synthetic_t24_d_large-dataset.csv
