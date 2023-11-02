@@ -1,0 +1,2656 @@
+<ENTRY>
+{
+ "thisFile": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.xclbin.link_summary",
+ "connectId": "",
+ "serverToken": "",
+ "timestamp": "0"
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_CmdStep",
+ "dateTimestamp": "Fri Oct 20 17:20:44 2023",
+ "timestampMillis": "1697811644520",
+ "buildStep": {
+  "cmdId": "aafb2c1b-61a4-42e3-8b10-94325d028544",
+  "name": "v++",
+  "logFile": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/link.steps.log",
+  "commandLine": "/various/common_tools/xilinx_stx/Vitis/2020.2/bin/unwrapped/lnx64.o/v++  --xp \"vivado_prop:run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS}={-directive sdx_optimization_effort_high}\" --xp \"misc:report=type report_timing_summary name impl_report_timing_summary_route_design_summary steps {route_design} runs {impl_1} options {-max_paths 10}\" --xp \"misc:report=type report_timing_summary name impl_report_timing_summary_post_route_phys_opt_design_summary steps {post_route_phys_opt_design} runs {impl_1} options {-max_paths 10}\" --target hw --link --config ../../config_CU10_xilinx_u280_xdma_201920_3.cfg -obinary_container_1.xclbin ../../optima_spmv_kernels/Hardware/build/krnl_spmv.xo ",
+  "args": [
+   "--target",
+   "hw",
+   "--link",
+   "--config",
+   "../../config_CU10_xilinx_u280_xdma_201920_3.cfg",
+   "-obinary_container_1.xclbin",
+   "../../optima_spmv_kernels/Hardware/build/krnl_spmv.xo"
+  ],
+  "iniFiles": [
+   {
+    "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/config_CU10_xilinx_u280_xdma_201920_3.cfg",
+    "content": "platform=xilinx_u280_xdma_201920_3\nsave-temps=1\nmessageDb=binary_container_1.mdb\ntemp_dir=binary_container_1.build\nreport_dir=binary_container_1.build/reports\nlog_dir=binary_container_1.build/logs\n\n[advanced]\nmisc=solution_name=link\n\n[connectivity]\nnk=krnl_spmv:10:krnl_spmv_1.krnl_spmv_2.krnl_spmv_3.krnl_spmv_4.krnl_spmv_5.krnl_spmv_6.krnl_spmv_7.krnl_spmv_8.krnl_spmv_9.krnl_spmv_10\n\n[profile]\ndata=krnl_spmv:krnl_spmv_1:ja:all\ndata=krnl_spmv:krnl_spmv_1:coef:all\ndata=krnl_spmv:krnl_spmv_1:x:all\ndata=krnl_spmv:krnl_spmv_1:b:all\ndata=krnl_spmv:krnl_spmv_2:ja:all\ndata=krnl_spmv:krnl_spmv_2:coef:all\ndata=krnl_spmv:krnl_spmv_2:x:all\ndata=krnl_spmv:krnl_spmv_2:b:all\ndata=krnl_spmv:krnl_spmv_3:ja:all\ndata=krnl_spmv:krnl_spmv_3:coef:all\ndata=krnl_spmv:krnl_spmv_3:x:all\ndata=krnl_spmv:krnl_spmv_3:b:all\ndata=krnl_spmv:krnl_spmv_4:ja:all\ndata=krnl_spmv:krnl_spmv_4:coef:all\ndata=krnl_spmv:krnl_spmv_4:x:all\ndata=krnl_spmv:krnl_spmv_4:b:all\ndata=krnl_spmv:krnl_spmv_5:ja:all\ndata=krnl_spmv:krnl_spmv_5:coef:all\ndata=krnl_spmv:krnl_spmv_5:x:all\ndata=krnl_spmv:krnl_spmv_5:b:all\ndata=krnl_spmv:krnl_spmv_6:ja:all\ndata=krnl_spmv:krnl_spmv_6:coef:all\ndata=krnl_spmv:krnl_spmv_6:x:all\ndata=krnl_spmv:krnl_spmv_6:b:all\ndata=krnl_spmv:krnl_spmv_7:ja:all\ndata=krnl_spmv:krnl_spmv_7:coef:all\ndata=krnl_spmv:krnl_spmv_7:x:all\ndata=krnl_spmv:krnl_spmv_7:b:all\ndata=krnl_spmv:krnl_spmv_8:ja:all\ndata=krnl_spmv:krnl_spmv_8:coef:all\ndata=krnl_spmv:krnl_spmv_8:x:all\ndata=krnl_spmv:krnl_spmv_8:b:all\ndata=krnl_spmv:krnl_spmv_9:ja:all\ndata=krnl_spmv:krnl_spmv_9:coef:all\ndata=krnl_spmv:krnl_spmv_9:x:all\ndata=krnl_spmv:krnl_spmv_9:b:all\ndata=krnl_spmv:krnl_spmv_10:ja:all\ndata=krnl_spmv:krnl_spmv_10:coef:all\ndata=krnl_spmv:krnl_spmv_10:x:all\ndata=krnl_spmv:krnl_spmv_10:b:all\ntrace_memory=FIFO:8K\n\n[connectivity]\nsp=krnl_spmv_1.ja:HBM[1]\nsp=krnl_spmv_1.coef:HBM[1]\nsp=krnl_spmv_1.x:HBM[2]\nsp=krnl_spmv_1.b:HBM[0]\n\nsp=krnl_spmv_2.ja:HBM[4]\nsp=krnl_spmv_2.coef:HBM[4]\nsp=krnl_spmv_2.x:HBM[5]\nsp=krnl_spmv_2.b:HBM[3]\n\nsp=krnl_spmv_3.ja:HBM[7]\nsp=krnl_spmv_3.coef:HBM[7]\nsp=krnl_spmv_3.x:HBM[8]\nsp=krnl_spmv_3.b:HBM[6]\n\nsp=krnl_spmv_4.ja:HBM[10]\nsp=krnl_spmv_4.coef:HBM[10]\nsp=krnl_spmv_4.x:HBM[11]\nsp=krnl_spmv_4.b:HBM[9]\n\nsp=krnl_spmv_5.ja:HBM[13]\nsp=krnl_spmv_5.coef:HBM[13]\nsp=krnl_spmv_5.x:HBM[14]\nsp=krnl_spmv_5.b:HBM[12]\n\nsp=krnl_spmv_6.ja:HBM[17]\nsp=krnl_spmv_6.coef:HBM[17]\nsp=krnl_spmv_6.x:HBM[18]\nsp=krnl_spmv_6.b:HBM[16]\n\nsp=krnl_spmv_7.ja:HBM[20]\nsp=krnl_spmv_7.coef:HBM[20]\nsp=krnl_spmv_7.x:HBM[21]\nsp=krnl_spmv_7.b:HBM[19]\n\nsp=krnl_spmv_8.ja:HBM[23]\nsp=krnl_spmv_8.coef:HBM[23]\nsp=krnl_spmv_8.x:HBM[24]\nsp=krnl_spmv_8.b:HBM[22]\n\nsp=krnl_spmv_9.ja:HBM[26]\nsp=krnl_spmv_9.coef:HBM[26]\nsp=krnl_spmv_9.x:HBM[27]\nsp=krnl_spmv_9.b:HBM[25]\n\nsp=krnl_spmv_10.ja:HBM[29]\nsp=krnl_spmv_10.coef:HBM[29]\nsp=krnl_spmv_10.x:HBM[30]\nsp=krnl_spmv_10.b:HBM[28]\n"
+   }
+  ],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Oct 20 17:20:44 2023",
+ "timestampMillis": "1697811644522",
+ "status": {
+  "cmdId": "aafb2c1b-61a4-42e3-8b10-94325d028544",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_FlowMetaData",
+ "dateTimestamp": "Fri Oct 20 17:21:03 2023",
+ "timestampMillis": "1697811663869",
+ "buildSummary": {
+  "hardwarePlatform": "xilinx_u280_xdma_201920_3.xpfm",
+  "hardwareDsa": "xilinx_u280_xdma_201920_3.xsa",
+  "platformDirectory": "/opt/xilinx/platforms/xilinx_u280_xdma_201920_3",
+  "runtime": "OpenCL",
+  "systemConfig": "Linux",
+  "flow": "BF_LINK",
+  "target": "TT_HW",
+  "binaryContainer": {
+   "base": {
+    "type": "BT_UKNOWN",
+    "name": "binary_container_1",
+    "file": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.xclbin",
+    "reports": [],
+    "uuid": ""
+   },
+   "kernels": []
+  },
+  "kernels": [
+   {
+    "base": {
+     "type": "KERNEL",
+     "name": "krnl_spmv",
+     "file": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_kernels/Hardware/build/krnl_spmv.xo",
+     "reports": [],
+     "uuid": ""
+    },
+    "sources": [
+     "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/xo/krnl_spmv/krnl_spmv/cpu_sources/krnl_spmv.cpp"
+    ],
+    "psSources": [],
+    "cuNames": [
+     "krnl_spmv_1",
+     "krnl_spmv_2",
+     "krnl_spmv_3",
+     "krnl_spmv_4",
+     "krnl_spmv_5",
+     "krnl_spmv_6",
+     "krnl_spmv_7",
+     "krnl_spmv_8",
+     "krnl_spmv_9",
+     "krnl_spmv_10"
+    ],
+    "type": "HLS",
+    "frequency": 0,
+    "freqUnits": ""
+   }
+  ],
+  "toolVersion": "Vitis V++ Compiler Release 2020.2. SW Build (by xbuild) on 2020-11-18-05:13:29"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Fri Oct 20 17:21:05 2023",
+ "timestampMillis": "1697811665467",
+ "buildStep": {
+  "cmdId": "adf8849f-0058-44a6-89fc-26715cae6615",
+  "name": "system_link",
+  "logFile": "",
+  "commandLine": "system_link --xo /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_kernels/Hardware/build/krnl_spmv.xo -keep --config /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/syslinkConfig.ini --xpfm /opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm --target hw --output_dir /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int --temp_dir /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/sys_link",
+  "args": [
+   "--xo",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_kernels/Hardware/build/krnl_spmv.xo",
+   "-keep",
+   "--config",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/syslinkConfig.ini",
+   "--xpfm",
+   "/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm",
+   "--target",
+   "hw",
+   "--output_dir",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int",
+   "--temp_dir",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/sys_link"
+  ],
+  "iniFiles": [
+   {
+    "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/syslinkConfig.ini",
+    "content": "nk=krnl_spmv:10:krnl_spmv_1.krnl_spmv_2.krnl_spmv_3.krnl_spmv_4.krnl_spmv_5.krnl_spmv_6.krnl_spmv_7.krnl_spmv_8.krnl_spmv_9.krnl_spmv_10\nsp=krnl_spmv_1.ja:HBM[1]\nsp=krnl_spmv_1.coef:HBM[1]\nsp=krnl_spmv_1.x:HBM[2]\nsp=krnl_spmv_1.b:HBM[0]\nsp=krnl_spmv_2.ja:HBM[4]\nsp=krnl_spmv_2.coef:HBM[4]\nsp=krnl_spmv_2.x:HBM[5]\nsp=krnl_spmv_2.b:HBM[3]\nsp=krnl_spmv_3.ja:HBM[7]\nsp=krnl_spmv_3.coef:HBM[7]\nsp=krnl_spmv_3.x:HBM[8]\nsp=krnl_spmv_3.b:HBM[6]\nsp=krnl_spmv_4.ja:HBM[10]\nsp=krnl_spmv_4.coef:HBM[10]\nsp=krnl_spmv_4.x:HBM[11]\nsp=krnl_spmv_4.b:HBM[9]\nsp=krnl_spmv_5.ja:HBM[13]\nsp=krnl_spmv_5.coef:HBM[13]\nsp=krnl_spmv_5.x:HBM[14]\nsp=krnl_spmv_5.b:HBM[12]\nsp=krnl_spmv_6.ja:HBM[17]\nsp=krnl_spmv_6.coef:HBM[17]\nsp=krnl_spmv_6.x:HBM[18]\nsp=krnl_spmv_6.b:HBM[16]\nsp=krnl_spmv_7.ja:HBM[20]\nsp=krnl_spmv_7.coef:HBM[20]\nsp=krnl_spmv_7.x:HBM[21]\nsp=krnl_spmv_7.b:HBM[19]\nsp=krnl_spmv_8.ja:HBM[23]\nsp=krnl_spmv_8.coef:HBM[23]\nsp=krnl_spmv_8.x:HBM[24]\nsp=krnl_spmv_8.b:HBM[22]\nsp=krnl_spmv_9.ja:HBM[26]\nsp=krnl_spmv_9.coef:HBM[26]\nsp=krnl_spmv_9.x:HBM[27]\nsp=krnl_spmv_9.b:HBM[25]\nsp=krnl_spmv_10.ja:HBM[29]\nsp=krnl_spmv_10.coef:HBM[29]\nsp=krnl_spmv_10.x:HBM[30]\nsp=krnl_spmv_10.b:HBM[28]\n\n"
+   }
+  ],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Oct 20 17:21:05 2023",
+ "timestampMillis": "1697811665469",
+ "status": {
+  "cmdId": "adf8849f-0058-44a6-89fc-26715cae6615",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Oct 20 17:22:09 2023",
+ "timestampMillis": "1697811729564",
+ "status": {
+  "cmdId": "adf8849f-0058-44a6-89fc-26715cae6615",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Fri Oct 20 17:22:09 2023",
+ "timestampMillis": "1697811729571",
+ "buildStep": {
+  "cmdId": "0124c56b-4985-47d6-9b22-4455b4be4660",
+  "name": "cf2sw",
+  "logFile": "",
+  "commandLine": "cf2sw -sdsl /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/sdsl.dat -rtd /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/cf2sw.rtd -nofilter /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/cf2sw_full.rtd -xclbin /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/xclbin_orig.xml -o /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/xclbin_orig.1.xml",
+  "args": [
+   "-sdsl",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/sdsl.dat",
+   "-rtd",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/cf2sw.rtd",
+   "-nofilter",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/cf2sw_full.rtd",
+   "-xclbin",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/xclbin_orig.xml",
+   "-o",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/xclbin_orig.1.xml"
+  ],
+  "iniFiles": [],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Oct 20 17:22:09 2023",
+ "timestampMillis": "1697811729572",
+ "status": {
+  "cmdId": "0124c56b-4985-47d6-9b22-4455b4be4660",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Oct 20 17:22:33 2023",
+ "timestampMillis": "1697811753536",
+ "status": {
+  "cmdId": "0124c56b-4985-47d6-9b22-4455b4be4660",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Fri Oct 20 17:22:33 2023",
+ "timestampMillis": "1697811753545",
+ "buildStep": {
+  "cmdId": "087551da-4b7a-466d-a1bd-1044a8c2e995",
+  "name": "rtd2_system_diagram",
+  "logFile": "",
+  "commandLine": "rtd2SystemDiagram",
+  "args": [],
+  "iniFiles": [],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Oct 20 17:22:33 2023",
+ "timestampMillis": "1697811753546",
+ "status": {
+  "cmdId": "087551da-4b7a-466d-a1bd-1044a8c2e995",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Fri Oct 20 17:22:37 2023",
+ "timestampMillis": "1697811757068",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/systemDiagramModel.json",
+  "name": "",
+  "fileType": "JSON",
+  "reportType": "SYSTEM_DIAGRAM"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Oct 20 17:22:37 2023",
+ "timestampMillis": "1697811757071",
+ "status": {
+  "cmdId": "087551da-4b7a-466d-a1bd-1044a8c2e995",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Fri Oct 20 17:22:37 2023",
+ "timestampMillis": "1697811757080",
+ "buildStep": {
+  "cmdId": "02e8e76d-ea41-4775-b7cc-166758938cba",
+  "name": "vpl",
+  "logFile": "",
+  "commandLine": "vpl -t hw -f xilinx_u280_xdma_201920_3 --remote_ip_cache /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/.ipcache -s --trace_memory FIFO:8K --output_dir /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int --log_dir /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/logs/link --report_dir /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link --config /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/vplConfig.ini -k /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/kernel_info.dat --webtalk_flag Vitis --temp_dir /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link --no-info --iprepo /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/xo/ip_repo/xilinx_com_hls_krnl_spmv_1_0 --messageDb /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/run_link/vpl.pb /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/dr.bd.tcl",
+  "args": [
+   "-t",
+   "hw",
+   "-f",
+   "xilinx_u280_xdma_201920_3",
+   "--remote_ip_cache",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/.ipcache",
+   "-s",
+   "--trace_memory",
+   "FIFO:8K",
+   "--output_dir",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int",
+   "--log_dir",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/logs/link",
+   "--report_dir",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link",
+   "--config",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/vplConfig.ini",
+   "-k",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/kernel_info.dat",
+   "--webtalk_flag",
+   "Vitis",
+   "--temp_dir",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link",
+   "--no-info",
+   "--iprepo",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/xo/ip_repo/xilinx_com_hls_krnl_spmv_1_0",
+   "--messageDb",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/run_link/vpl.pb",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/dr.bd.tcl"
+  ],
+  "iniFiles": [
+   {
+    "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/vplConfig.ini",
+    "content": "[advanced]\nmisc=report=type report_timing_summary name impl_report_timing_summary_route_design_summary steps {route_design} runs {impl_1} options {-max_paths 10}\nmisc=report=type report_timing_summary name impl_report_timing_summary_post_route_phys_opt_design_summary steps {post_route_phys_opt_design} runs {impl_1} options {-max_paths 10}\nparam=compiler.enablePerformanceTrace=1\nmisc=solution_name=link\nparam=compiler.vppCurrentWorkingDir=/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware\nmisc=BinaryName=binary_container_1\n\n[connectivity]\nnk=krnl_spmv:10:krnl_spmv_1.krnl_spmv_2.krnl_spmv_3.krnl_spmv_4.krnl_spmv_5.krnl_spmv_6.krnl_spmv_7.krnl_spmv_8.krnl_spmv_9.krnl_spmv_10\n\n[vivado]\nprop=run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS}={-directive sdx_optimization_effort_high}\n\n"
+   }
+  ],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Oct 20 17:22:37 2023",
+ "timestampMillis": "1697811757081",
+ "status": {
+  "cmdId": "02e8e76d-ea41-4775-b7cc-166758938cba",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_CmdStep",
+ "dateTimestamp": "Fri Oct 20 17:22:39 2023",
+ "timestampMillis": "1697811759799",
+ "buildStep": {
+  "cmdId": "b1c02ef4-c24c-4394-ad00-c40e4fcba1d5",
+  "name": "vpl",
+  "logFile": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/link.steps.log",
+  "commandLine": "/various/common_tools/xilinx_stx/Vitis/2020.2/bin/unwrapped/lnx64.o/vpl -t hw -f xilinx_u280_xdma_201920_3 --remote_ip_cache /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/.ipcache -s --trace_memory FIFO:8K --output_dir /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int --log_dir /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/logs/link --report_dir /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link --config /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/vplConfig.ini -k /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/kernel_info.dat --webtalk_flag Vitis --temp_dir /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link --no-info --iprepo /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/xo/ip_repo/xilinx_com_hls_krnl_spmv_1_0 --messageDb /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/run_link/vpl.pb /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/dr.bd.tcl ",
+  "args": [],
+  "iniFiles": [],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/run_link"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Oct 20 17:22:39 2023",
+ "timestampMillis": "1697811759800",
+ "status": {
+  "cmdId": "b1c02ef4-c24c-4394-ad00-c40e4fcba1d5",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_VivadoProject",
+ "dateTimestamp": "Fri Oct 20 17:24:33 2023",
+ "timestampMillis": "1697811873351",
+ "vivadoProject": {
+  "openDir": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/vivado/vpl",
+  "openScript": "openprj.tcl",
+  "relativeProject": "prj/prj.xpr"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Fri Oct 20 17:24:33 2023",
+ "timestampMillis": "1697811873371",
+ "buildStep": {
+  "cmdId": "5d11f98f-35c2-4126-a06d-d1cb0453a6ea",
+  "name": "vivado",
+  "logFile": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/vivado/vpl/vivado.log",
+  "commandLine": "vivado -log vivado.log -applog -m64 -messageDb vivado.pb -mode batch -source vpl.tcl -notrace",
+  "args": [
+   "-log",
+   "vivado.log",
+   "-applog",
+   " -m64",
+   "-messageDb",
+   "vivado.pb",
+   "-mode",
+   "batch",
+   "-source",
+   "vpl.tcl",
+   "-notrace"
+  ],
+  "iniFiles": [],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/run_link"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Fri Oct 20 17:24:33 2023",
+ "timestampMillis": "1697811873373",
+ "status": {
+  "cmdId": "5d11f98f-35c2-4126-a06d-d1cb0453a6ea",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Fri Oct 20 17:38:37 2023",
+ "timestampMillis": "1697812717799",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/debug_ip_layout.rtd",
+  "name": "",
+  "fileType": "JSON",
+  "reportType": "DEBUG_IP_LAYOUT"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:07 2023",
+ "timestampMillis": "1697858047299",
+ "status": {
+  "cmdId": "5d11f98f-35c2-4126-a06d-d1cb0453a6ea",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050699",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_slr_util_placed.pb",
+  "name": "",
+  "fileType": "BINARY_PROTOBUF",
+  "reportType": "GLOBAL_SLR_UTIL_PLACED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050703",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_kernel_util_synthed.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "KERNEL_UTILIZATION_SYNTHESIS"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050706",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_slr_util_routed.pb",
+  "name": "",
+  "fileType": "BINARY_PROTOBUF",
+  "reportType": "GLOBAL_SLR_UTIL_ROUTED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050713",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_slr_util_routed.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_SLR_UTIL_ROUTED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050716",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_kernel_util_placed.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "KERNEL_UTILIZATION_PLACEMENT"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050741",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_kernel_util_routed.xutil",
+  "name": "",
+  "fileType": "XUTIL",
+  "reportType": "KERNEL_UTILIZATION_ROUTE"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050745",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_slr_util_placed.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_SLR_UTIL_PLACED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050748",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_kernel_util_placed.xutil",
+  "name": "",
+  "fileType": "XUTIL",
+  "reportType": "KERNEL_UTILIZATION_PLACEMENT"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050751",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_full_util_routed.pb",
+  "name": "",
+  "fileType": "BINARY_PROTOBUF",
+  "reportType": "GLOBAL_UTILIZATION_ROUTE"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050754",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_kernel_util_synthed.xutil",
+  "name": "",
+  "fileType": "XUTIL",
+  "reportType": "KERNEL_UTILIZATION_SYNTHESIS"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050757",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_kernel_util_routed.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "KERNEL_UTILIZATION_ROUTE"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050761",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_full_util_routed.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_UTILIZATION_ROUTE"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050764",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_full_util_synthed.pb",
+  "name": "",
+  "fileType": "BINARY_PROTOBUF",
+  "reportType": "GLOBAL_UTILIZATION_SYNTHESIS"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:10 2023",
+ "timestampMillis": "1697858050768",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_full_util_synthed.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_UTILIZATION_SYNTHESIS"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051022",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_logic_reset_op_0_synth_1_pfm_dynamic_logic_reset_op_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051045",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_control_0_synth_1_pfm_dynamic_psreset_gate_pr_control_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051049",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_data_0_synth_1_pfm_dynamic_psreset_gate_pr_data_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051052",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_dataclk_0_synth_1_pfm_dynamic_psreset_gate_pr_dataclk_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051056",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_kernel_0_synth_1_pfm_dynamic_psreset_gate_pr_kernel_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051059",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_kernel2_0_synth_1_pfm_dynamic_psreset_gate_pr_kernel2_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051062",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_util_and2_hbm_0_synth_1_pfm_dynamic_util_and2_hbm_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051066",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_axi_gpio_null_slr1_0_synth_1_pfm_dynamic_axi_gpio_null_slr1_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051069",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_control_1_synth_1_pfm_dynamic_psreset_gate_pr_control_1_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051072",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_data_1_synth_1_pfm_dynamic_psreset_gate_pr_data_1_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051076",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_dataclk_1_synth_1_pfm_dynamic_psreset_gate_pr_dataclk_1_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051080",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_kernel_1_synth_1_pfm_dynamic_psreset_gate_pr_kernel_1_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051084",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_kernel2_1_synth_1_pfm_dynamic_psreset_gate_pr_kernel2_1_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051089",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_logic_reset_op_1_synth_1_pfm_dynamic_logic_reset_op_1_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051095",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_control_2_synth_1_pfm_dynamic_psreset_gate_pr_control_2_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051099",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_data_2_synth_1_pfm_dynamic_psreset_gate_pr_data_2_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051103",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_dataclk_2_synth_1_pfm_dynamic_psreset_gate_pr_dataclk_2_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051108",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_kernel_2_synth_1_pfm_dynamic_psreset_gate_pr_kernel_2_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051111",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_axi_vip_ctrl_hbm_mgntpf_0_synth_1_pfm_dynamic_axi_vip_ctrl_hbm_mgntpf_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051115",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_axi_vip_ctrl_mgntpf_0_synth_1_pfm_dynamic_axi_vip_ctrl_mgntpf_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051119",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_axi_vip_data_0_synth_1_pfm_dynamic_axi_vip_data_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051122",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_axilite_user_input_reg_0_synth_1_pfm_dynamic_axilite_user_input_reg_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051125",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_debug_bridge_xsdbm_0_synth_1_pfm_dynamic_debug_bridge_xsdbm_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051156",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_hmss_0_0_synth_1_pfm_dynamic_hmss_0_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051247",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_regslice_pipe_ctrl_hbm_mgntpf_0_synth_1_pfm_dynamic_regslice_pipe_ctrl_hbm_mgntpf_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051250",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_psreset_gate_pr_kernel2_2_synth_1_pfm_dynamic_psreset_gate_pr_kernel2_2_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051253",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_freq_counter_0_0_synth_1_pfm_dynamic_freq_counter_0_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051257",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_xdma_smartconnect_0_synth_1_pfm_dynamic_xdma_smartconnect_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051260",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_cdc_0_synth_1_pfm_dynamic_dpa_cdc_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051264",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_xbar_6_synth_1_pfm_dynamic_xbar_6_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051267",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_xbar_2_synth_1_pfm_dynamic_xbar_2_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051271",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_krnl_spmv_7_0_synth_1_pfm_dynamic_krnl_spmv_7_0_utilization_synth.rpt",
+  "name": "krnl_spmv",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051275",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_xbar_4_synth_1_pfm_dynamic_xbar_4_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051278",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_ebbe_xsdbm_0_synth_1_bd_ebbe_xsdbm_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051281",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_ebbe_lut_buffer_0_synth_1_bd_ebbe_lut_buffer_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051286",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_hub_0_synth_1_pfm_dynamic_dpa_hub_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051290",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_fifo_0_synth_1_pfm_dynamic_dpa_fifo_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051293",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon0_0_synth_1_pfm_dynamic_dpa_mon0_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051296",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon1_0_synth_1_pfm_dynamic_dpa_mon1_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051299",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon10_0_synth_1_pfm_dynamic_dpa_mon10_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051303",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon27_0_synth_1_pfm_dynamic_dpa_mon27_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051306",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon28_0_synth_1_pfm_dynamic_dpa_mon28_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051310",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon29_0_synth_1_pfm_dynamic_dpa_mon29_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051313",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon3_0_synth_1_pfm_dynamic_dpa_mon3_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051316",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon30_0_synth_1_pfm_dynamic_dpa_mon30_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051320",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon31_0_synth_1_pfm_dynamic_dpa_mon31_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051323",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon4_0_synth_1_pfm_dynamic_dpa_mon4_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051327",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon5_0_synth_1_pfm_dynamic_dpa_mon5_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051352",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon6_0_synth_1_pfm_dynamic_dpa_mon6_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051356",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon7_0_synth_1_pfm_dynamic_dpa_mon7_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051359",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon8_0_synth_1_pfm_dynamic_dpa_mon8_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051362",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon9_0_synth_1_pfm_dynamic_dpa_mon9_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051366",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_reg_slice_0_synth_1_pfm_dynamic_dpa_reg_slice_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051369",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon11_0_synth_1_pfm_dynamic_dpa_mon11_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051372",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon12_0_synth_1_pfm_dynamic_dpa_mon12_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051376",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon13_0_synth_1_pfm_dynamic_dpa_mon13_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051379",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon14_0_synth_1_pfm_dynamic_dpa_mon14_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051382",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon15_0_synth_1_pfm_dynamic_dpa_mon15_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051386",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon16_0_synth_1_pfm_dynamic_dpa_mon16_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051389",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon17_0_synth_1_pfm_dynamic_dpa_mon17_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051393",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon18_0_synth_1_pfm_dynamic_dpa_mon18_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051396",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon19_0_synth_1_pfm_dynamic_dpa_mon19_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051400",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon2_0_synth_1_pfm_dynamic_dpa_mon2_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051403",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon20_0_synth_1_pfm_dynamic_dpa_mon20_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051407",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon21_0_synth_1_pfm_dynamic_dpa_mon21_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051410",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon22_0_synth_1_pfm_dynamic_dpa_mon22_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051413",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon23_0_synth_1_pfm_dynamic_dpa_mon23_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051416",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon24_0_synth_1_pfm_dynamic_dpa_mon24_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051419",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon25_0_synth_1_pfm_dynamic_dpa_mon25_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051423",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_dpa_mon26_0_synth_1_pfm_dynamic_dpa_mon26_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051426",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_auto_cc_28_synth_1_pfm_dynamic_auto_cc_28_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051430",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_m19_regslice_0_synth_1_pfm_dynamic_m19_regslice_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051433",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_auto_cc_29_synth_1_pfm_dynamic_auto_cc_29_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051437",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_m22_regslice_0_synth_1_pfm_dynamic_m22_regslice_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051445",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_auto_cc_4_synth_1_pfm_dynamic_auto_cc_4_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051470",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_m06_regslice_2_synth_1_pfm_dynamic_m06_regslice_2_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051475",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_s00_regslice_17_synth_1_pfm_dynamic_s00_regslice_17_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051478",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_m00_regslice_5_synth_1_pfm_dynamic_m00_regslice_5_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051482",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_hbm_inst_0_synth_1_bd_5dca_hbm_inst_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051486",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_slice17_17_0_synth_1_bd_5dca_slice17_17_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051489",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect18_18_0_synth_1_bd_5dca_interconnect18_18_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051493",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_auto_cc_11_synth_1_pfm_dynamic_auto_cc_11_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051526",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect28_28_0_synth_1_bd_5dca_interconnect28_28_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051530",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect27_27_0_synth_1_bd_5dca_interconnect27_27_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051533",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect9_7_0_synth_1_bd_5dca_interconnect9_7_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051537",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect26_26_0_synth_1_bd_5dca_interconnect26_26_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051541",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect17_17_0_synth_1_bd_5dca_interconnect17_17_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051544",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_tier2_xbar_0_0_synth_1_pfm_dynamic_tier2_xbar_0_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051548",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_tier2_xbar_1_0_synth_1_pfm_dynamic_tier2_xbar_1_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051551",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_tier2_xbar_2_0_synth_1_pfm_dynamic_tier2_xbar_2_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051554",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_tier2_xbar_3_0_synth_1_pfm_dynamic_tier2_xbar_3_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051558",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_tier2_xbar_4_0_synth_1_pfm_dynamic_tier2_xbar_4_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051561",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_m00_regslice_6_synth_1_pfm_dynamic_m00_regslice_6_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051565",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_auto_cc_10_synth_1_pfm_dynamic_auto_cc_10_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051568",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/pfm_dynamic_m01_regslice_13_synth_1_pfm_dynamic_m01_regslice_13_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051574",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect14_13_0_synth_1_bd_5dca_interconnect14_13_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051577",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_util_vector_logic_0_synth_1_bd_5dca_util_vector_logic_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051581",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect1_0_0_synth_1_bd_5dca_interconnect1_0_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051584",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect25_25_0_synth_1_bd_5dca_interconnect25_25_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051588",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_slice0_15_0_synth_1_bd_5dca_slice0_15_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051591",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect16_16_0_synth_1_bd_5dca_interconnect16_16_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051595",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect5_5_0_synth_1_bd_5dca_interconnect5_5_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051598",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect4_4_0_synth_1_bd_5dca_interconnect4_4_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051602",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect6_3_0_synth_1_bd_5dca_interconnect6_3_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051605",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect3_2_0_synth_1_bd_5dca_interconnect3_2_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051609",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect2_1_0_synth_1_bd_5dca_interconnect2_1_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051612",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect15_14_0_synth_1_bd_5dca_interconnect15_14_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051616",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_hbm_reset_sync_SLR0_0_synth_1_bd_5dca_hbm_reset_sync_SLR0_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051619",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_vip_S01_0_synth_1_bd_5dca_vip_S01_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051628",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_axi_apb_bridge_inst_0_synth_1_bd_5dca_axi_apb_bridge_inst_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051631",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect0_15_0_synth_1_bd_5dca_interconnect0_15_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051635",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect7_6_0_synth_1_bd_5dca_interconnect7_6_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051639",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect8_8_0_synth_1_bd_5dca_interconnect8_8_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051642",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect21_19_0_synth_1_bd_5dca_interconnect21_19_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051646",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect12_11_0_synth_1_bd_5dca_interconnect12_11_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051649",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect30_30_0_synth_1_bd_5dca_interconnect30_30_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051653",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect22_22_0_synth_1_bd_5dca_interconnect22_22_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051657",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect24_23_0_synth_1_bd_5dca_interconnect24_23_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051660",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect13_12_0_synth_1_bd_5dca_interconnect13_12_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051664",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect23_24_0_synth_1_bd_5dca_interconnect23_24_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051667",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_init_reduce_0_synth_1_bd_5dca_init_reduce_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051671",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect29_29_0_synth_1_bd_5dca_interconnect29_29_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051675",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect20_21_0_synth_1_bd_5dca_interconnect20_21_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051679",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect11_10_0_synth_1_bd_5dca_interconnect11_10_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051682",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect19_20_0_synth_1_bd_5dca_interconnect19_20_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051686",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/syn/bd_5dca_interconnect10_9_0_synth_1_bd_5dca_interconnect10_9_0_utilization_synth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_UTILIZATION"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:11 2023",
+ "timestampMillis": "1697858051886",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_xilinx_u280_xdma_201920_3_bb_locked_timing_summary_routed.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_REPORT_TIMING_SUMMARY"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:12 2023",
+ "timestampMillis": "1697858052071",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/imp/impl_1_xilinx_u280_xdma_201920_3_bb_locked_timing_summary_routed.rpx",
+  "name": "",
+  "fileType": "BINARY_PROTOBUF",
+  "reportType": "GLOBAL_REPORT_TIMING_SUMMARY"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:12 2023",
+ "timestampMillis": "1697858052368",
+ "status": {
+  "cmdId": "b1c02ef4-c24c-4394-ad00-c40e4fcba1d5",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:12 2023",
+ "timestampMillis": "1697858052522",
+ "status": {
+  "cmdId": "02e8e76d-ea41-4775-b7cc-166758938cba",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Sat Oct 21 06:14:12 2023",
+ "timestampMillis": "1697858052799",
+ "buildStep": {
+  "cmdId": "25cd35d0-5b1d-4580-84c0-9ccb41ad7a36",
+  "name": "rtdgen",
+  "logFile": "",
+  "commandLine": "rtdgen",
+  "args": [],
+  "iniFiles": [],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:12 2023",
+ "timestampMillis": "1697858052800",
+ "status": {
+  "cmdId": "25cd35d0-5b1d-4580-84c0-9ccb41ad7a36",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:12 2023",
+ "timestampMillis": "1697858052832",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1_xml.rtd",
+  "name": "",
+  "fileType": "JSON",
+  "reportType": "XCLBIN_INFO"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Sat Oct 21 06:14:12 2023",
+ "timestampMillis": "1697858052853",
+ "buildStep": {
+  "cmdId": "df4ebd0b-a666-4fc1-83e4-d3b12772e189",
+  "name": "cf2sw",
+  "logFile": "",
+  "commandLine": "cf2sw -a /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/address_map.xml -sdsl /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/sdsl.dat -xclbin /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/xclbin_orig.xml -rtd /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1.rtd -o /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1.xml",
+  "args": [
+   "-a",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/address_map.xml",
+   "-sdsl",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/sdsl.dat",
+   "-xclbin",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/xclbin_orig.xml",
+   "-rtd",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1.rtd",
+   "-o",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1.xml"
+  ],
+  "iniFiles": [],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:12 2023",
+ "timestampMillis": "1697858052854",
+ "status": {
+  "cmdId": "df4ebd0b-a666-4fc1-83e4-d3b12772e189",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:34 2023",
+ "timestampMillis": "1697858074852",
+ "status": {
+  "cmdId": "df4ebd0b-a666-4fc1-83e4-d3b12772e189",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:34 2023",
+ "timestampMillis": "1697858074864",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/systemDiagramModelSlrBaseAddress.json",
+  "name": "",
+  "fileType": "JSON",
+  "reportType": "SYSTEM_DIAGRAM_PLUS"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Sat Oct 21 06:14:34 2023",
+ "timestampMillis": "1697858074865",
+ "buildStep": {
+  "cmdId": "e7a033d2-62cb-411f-bcde-305247b00351",
+  "name": "rtdgen",
+  "logFile": "",
+  "commandLine": "writeSystemDiagram",
+  "args": [
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1.rtd",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/systemDiagramModelSlrBaseAddress.json"
+  ],
+  "iniFiles": [],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:34 2023",
+ "timestampMillis": "1697858074866",
+ "status": {
+  "cmdId": "e7a033d2-62cb-411f-bcde-305247b00351",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:34 2023",
+ "timestampMillis": "1697858074868",
+ "status": {
+  "cmdId": "e7a033d2-62cb-411f-bcde-305247b00351",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:34 2023",
+ "timestampMillis": "1697858074870",
+ "status": {
+  "cmdId": "25cd35d0-5b1d-4580-84c0-9ccb41ad7a36",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Sat Oct 21 06:14:34 2023",
+ "timestampMillis": "1697858074879",
+ "buildStep": {
+  "cmdId": "5a90531d-c99a-4b7d-9b8b-6f794e97d7c0",
+  "name": "xclbinutil",
+  "logFile": "",
+  "commandLine": "xclbinutil --add-section DEBUG_IP_LAYOUT:JSON:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/debug_ip_layout.rtd --add-section BITSTREAM:RAW:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/partial.bit --force --target hw --key-value SYS:dfx_enable:true --add-section :JSON:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1.rtd --append-section :JSON:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/appendSection.rtd --add-section CLOCK_FREQ_TOPOLOGY:JSON:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1_xml.rtd --add-section BUILD_METADATA:JSON:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1_build.rtd --add-section EMBEDDED_METADATA:RAW:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1.xml --add-section SYSTEM_METADATA:RAW:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/systemDiagramModelSlrBaseAddress.json --output /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.xclbin",
+  "args": [
+   "--add-section",
+   "DEBUG_IP_LAYOUT:JSON:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/debug_ip_layout.rtd",
+   "--add-section",
+   "BITSTREAM:RAW:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/partial.bit",
+   "--force",
+   "--target",
+   "hw",
+   "--key-value",
+   "SYS:dfx_enable:true",
+   "--add-section",
+   ":JSON:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1.rtd",
+   "--append-section",
+   ":JSON:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/appendSection.rtd",
+   "--add-section",
+   "CLOCK_FREQ_TOPOLOGY:JSON:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1_xml.rtd",
+   "--add-section",
+   "BUILD_METADATA:JSON:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1_build.rtd",
+   "--add-section",
+   "EMBEDDED_METADATA:RAW:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/binary_container_1.xml",
+   "--add-section",
+   "SYSTEM_METADATA:RAW:/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link/int/systemDiagramModelSlrBaseAddress.json",
+   "--output",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.xclbin"
+  ],
+  "iniFiles": [],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:34 2023",
+ "timestampMillis": "1697858074880",
+ "status": {
+  "cmdId": "5a90531d-c99a-4b7d-9b8b-6f794e97d7c0",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:36 2023",
+ "timestampMillis": "1697858076034",
+ "status": {
+  "cmdId": "5a90531d-c99a-4b7d-9b8b-6f794e97d7c0",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Sat Oct 21 06:14:36 2023",
+ "timestampMillis": "1697858076040",
+ "buildStep": {
+  "cmdId": "675628a4-096e-4843-8fb4-928edc69b694",
+  "name": "xclbinutilinfo",
+  "logFile": "",
+  "commandLine": "xclbinutil --quiet --force --info /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.xclbin.info --input /various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.xclbin",
+  "args": [
+   "--quiet",
+   "--force",
+   "--info",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.xclbin.info",
+   "--input",
+   "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.xclbin"
+  ],
+  "iniFiles": [],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:36 2023",
+ "timestampMillis": "1697858076041",
+ "status": {
+  "cmdId": "675628a4-096e-4843-8fb4-928edc69b694",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:39 2023",
+ "timestampMillis": "1697858079064",
+ "status": {
+  "cmdId": "675628a4-096e-4843-8fb4-928edc69b694",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Sat Oct 21 06:14:39 2023",
+ "timestampMillis": "1697858079071",
+ "buildStep": {
+  "cmdId": "12eb9633-afe9-4ebf-9105-05e3f7b7cf96",
+  "name": "generate_sc_driver",
+  "logFile": "",
+  "commandLine": "",
+  "args": [],
+  "iniFiles": [],
+  "cwd": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:39 2023",
+ "timestampMillis": "1697858079072",
+ "status": {
+  "cmdId": "12eb9633-afe9-4ebf-9105-05e3f7b7cf96",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:39 2023",
+ "timestampMillis": "1697858079088",
+ "status": {
+  "cmdId": "12eb9633-afe9-4ebf-9105-05e3f7b7cf96",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:39 2023",
+ "timestampMillis": "1697858079588",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/system_estimate_binary_container_1.xtxt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "GLOBAL_SYSTEM_ESTIMATE"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:40 2023",
+ "timestampMillis": "1697858080080",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/reports/link/link_guidance.html",
+  "name": "",
+  "fileType": "HTML",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:40 2023",
+ "timestampMillis": "1697858080081",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/link_guidance.pb",
+  "name": "",
+  "fileType": "BINARY_PROTOBUF",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Oct 21 06:14:40 2023",
+ "timestampMillis": "1697858080143",
+ "report": {
+  "path": "/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/optima/optima_spmv_system_hw_link/Hardware/binary_container_1.build/logs/optraceViewer.html",
+  "name": "",
+  "fileType": "HTML",
+  "reportType": "OPERATION_TRACE"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Oct 21 06:14:40 2023",
+ "timestampMillis": "1697858080183",
+ "status": {
+  "cmdId": "aafb2c1b-61a4-42e3-8b10-94325d028544",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>

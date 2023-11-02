@@ -25,8 +25,9 @@ extern "C"{
 
 	#include "string_util.h"
 	#include "parallel_io.h"
-	#include "file_formats/openfoam/openfoam_matrix.h"
-	#include "aux/csr_converter.h"
+	#include "storage_formats/openfoam/openfoam_matrix.h"
+	#include "aux/csr_converter_double.h"
+	// #include "aux/csr_converter.h"
 	#include "aux/csr_util.h"
 
 	#include "monitoring/power/rapl.h"
@@ -114,16 +115,16 @@ CheckAccuracy(ValueType * val, INT_T * rowind, INT_T * colind, INT_T m, INT_T nn
 	if(maxDiff > epsilon)
 		std::cout << "Test failed! (" << maxDiff << ")\n";
 	#pragma omp parallel
-	{
-		double mae, max_ae, mse, mape, smape;
-		mae = array_mae_concurrent(y_gold, y, m, val_to_double);
-		max_ae = array_max_ae_concurrent(y_gold, y, m, val_to_double);
-		mse = array_mse_concurrent(y_gold, y, m, val_to_double);
-		mape = array_mape_concurrent(y_gold, y, m, val_to_double);
-		smape = array_smape_concurrent(y_gold, y, m, val_to_double);
-		#pragma omp single
-		printf("errors spmv: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g\n", mae, max_ae, mse, mape, smape);
-	}
+	// {
+	// 	double mae, max_ae, mse, mape, smape;
+	// 	mae = array_mae_concurrent(y_gold, y, m, val_to_double);
+	// 	max_ae = array_max_ae_concurrent(y_gold, y, m, val_to_double);
+	// 	mse = array_mse_concurrent(y_gold, y, m, val_to_double);
+	// 	mape = array_mape_concurrent(y_gold, y, m, val_to_double);
+	// 	smape = array_smape_concurrent(y_gold, y, m, val_to_double);
+	// 	#pragma omp single
+	// 	printf("errors spmv: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g\n", mae, max_ae, mse, mape, smape);
+	// }
 	delete[] y_gold;
 }
 

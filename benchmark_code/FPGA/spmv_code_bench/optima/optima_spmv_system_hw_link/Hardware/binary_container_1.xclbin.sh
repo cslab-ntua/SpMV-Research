@@ -1,0 +1,1 @@
+/various/common_tools/xilinx_stx/Vitis/2020.2//bin/v++ --target hw --link --config ../../config_CU10_xilinx_u280_xdma_201920_3.cfg -obinary_container_1.xclbin ../../optima_spmv_kernels/Hardware/build/krnl_spmv.xo

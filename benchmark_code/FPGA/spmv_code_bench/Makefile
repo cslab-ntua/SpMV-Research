@@ -125,7 +125,7 @@ LDFLAGS =
 LDFLAGS += -lm
 
 
-LIB_SRC = pthread_functions.c omp_functions.c topology.c bitstream.c bytestream.c array_metrics.c string_util.c parallel_io.c hash.c plot.c openfoam_matrix.c rapl.c read_mtx.cpp csr_converter.c csr_util.c artificial_matrix_generation.c ordered_set.c
+LIB_SRC = pthread_functions.c omp_functions.c topology.c hash.c random.c hashtable.c bitstream.c bytestream.c array_metrics.c string_util.c io.c parallel_io.c plot.c openfoam_matrix.c rapl.c read_mtx.cpp csr_converter.c csr_converter_double.c csr_util.c artificial_matrix_generation.c ordered_set.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%.o,$(LIB_OBJ))
@@ -176,6 +176,12 @@ $(call Rule_Auto_Dependencies,obj/omp_functions.o,$(library)/omp_functions.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/topology.o,$(library)/topology.c)
 	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/hash.o,$(library)/hash/hash.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/random.o,$(library)/random.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/hashtable.o,$(library)/aux/hashtable.c)
+	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/bitstream.o,$(library)/bitstream.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/bytestream.o,$(library)/bytestream.c)
@@ -184,17 +190,19 @@ $(call Rule_Auto_Dependencies,obj/array_metrics.o,$(library)/array_metrics.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/string_util.o,$(library)/string_util.c)
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,obj/parallel_io.o,$(library)/parallel_io.c)
+$(call Rule_Auto_Dependencies,obj/io.o,$(library)/io.c)
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,obj/hash.o,$(library)/hash/hash.c)
+$(call Rule_Auto_Dependencies,obj/parallel_io.o,$(library)/parallel_io.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/plot.o,$(library)/plot/plot.c)
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,obj/openfoam_matrix.o,$(library)/file_formats/openfoam/openfoam_matrix.c)
+$(call Rule_Auto_Dependencies,obj/openfoam_matrix.o,$(library)/storage_formats/openfoam/openfoam_matrix.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/rapl.o,$(library)/monitoring/power/rapl.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/csr_converter.o,$(library)/aux/csr_converter.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/csr_converter_double.o,$(library)/aux/csr_converter_double.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/csr_util.o,$(library)/aux/csr_util.c)
 	$(CC) $(CFLAGS) -c $< -o $@
