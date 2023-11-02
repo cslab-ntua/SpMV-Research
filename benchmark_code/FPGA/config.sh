@@ -31,15 +31,6 @@ calc_cpu_pinning()
 }
 
 
-# SPARSEX_ROOT_DIR="${HOME}/lib"
-# SPARSEX_ROOT_DIR=/various/pmpakos/icy3_libs/
-SPARSEX_ROOT_DIR=/various/pmpakos/epyc5_libs/
-# SPARSEX_ROOT_DIR=/various/dgal/epyc1
-# SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
-# SPARSEX_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/sparsex
-# GHOST_APPS_ROOT_DIR=/various/pmpakos/icy3_libs/spmv_code_sell-C-s
-GHOST_APPS_ROOT_DIR=/various/pmpakos/epyc5_libs/spmv_code_sell-C-s
-
 declare -A conf_vars
 conf_vars=(
     # ['PRINT_STATISTICS']=0
@@ -58,8 +49,8 @@ conf_vars=(
     # ['COOLDOWN']=1
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    ['use_artificial_matrices']=0
-    # ['use_artificial_matrices']=1
+    # ['USE_ARTIFICIAL_MATRICES']=0
+    ['USE_ARTIFICIAL_MATRICES']=1
 
     # Maximum number of the machine's cores.
     # ['max_cores']=160
@@ -111,6 +102,9 @@ conf_vars=(
     ['RAPL_REGISTERS']='0'         # 1 socket : Epyc1, Gold
     # ['RAPL_REGISTERS']='0,1'       # 2 sockets: Epyc1, Gold
 
+    # this needs to be set because gold1 has a very old gcc version... thanks @dgal for the help
+    ['GCC_COMPILER_PATH']='/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/' 
+
     # Path for the validation matrices.
     ['path_validation']="$( options=(
                         "$HOME/Data/graphs/validation_matrices"
@@ -132,6 +126,7 @@ conf_vars=(
                 )"
 
     ['path_tamu']="${HOME}/Data/graphs/tamu"
+    ['path_M3E']="${HOME}/Data/graphs/M3E-Matrix-Collection"
 
     ['LOOPS']=128
 
@@ -185,7 +180,7 @@ artificial_matrices_files=(
 
     # The synthetic dataset studied in the paper.
     # "$path_artificial"/synthetic_matrices_small_dataset.txt
-    "$path_artificial"/synthetic_matrices_medium_dataset2.txt
+    "$path_artificial"/synthetic_matrices_medium_dataset.txt
     # "$path_artificial"/synthetic_matrices_small_dataset5.txt
 )
 
@@ -267,8 +262,7 @@ declare -A progs
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
     # OPTIMA
-    ['optima_d']="/various/pmpakos/SpMV-Research/benchmark_code/FPGA/spmv_code_bench/spmv_optima.exe"
-    # ['optima_d']="${script_dir}/spmv_code_bench/spmv_optima.exe"
+    ['optima_d']="${script_dir}/spmv_code_bench/spmv_optima.exe"
 )
 
 
