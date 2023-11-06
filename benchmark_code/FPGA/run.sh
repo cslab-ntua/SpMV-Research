@@ -26,7 +26,8 @@ export MKL_DEBUG_CPU_TYPE=5
 
 export LD_LIBRARY_PATH="${AOCL_PATH}/lib:${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${SPARSEX_LIB_PATH}"
-
+# new addition for gold1
+export LD_LIBRARY_PATH=:${LD_LIBRARY_PATH}:${GCC_COMPILER_PATH}/lib64
 
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'

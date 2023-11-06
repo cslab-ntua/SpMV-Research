@@ -45,12 +45,12 @@ AMG_PATH = ../../../artificial-matrix-generator
 # CC = gcc
 # CC = clang
 # CC = xlc
-CC = $(GCC_COMPILER_PATH)/gcc
+CC = $(GCC_COMPILER_PATH)/bin/gcc
 
 # CPP = g++
 # CPP = clang++
 # CPP = xlc++
-CPP = $(GCC_COMPILER_PATH)/g++
+CPP = $(GCC_COMPILER_PATH)/bin/g++
 
 
 ARCH = $(shell uname -m)

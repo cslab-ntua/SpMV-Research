@@ -42,15 +42,15 @@ conf_vars=(
     ['force_retry_on_error']=0
     # ['force_retry_on_error']=1
 
-    # ['output_to_files']=0
-    ['output_to_files']=1
+    ['output_to_files']=0
+    # ['output_to_files']=1
 
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
 
     # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    # ['USE_ARTIFICIAL_MATRICES']=0
-    ['USE_ARTIFICIAL_MATRICES']=1
+    ['USE_ARTIFICIAL_MATRICES']=0
+    # ['USE_ARTIFICIAL_MATRICES']=1
 
     # Maximum number of the machine's cores.
     # ['max_cores']=160
@@ -103,7 +103,7 @@ conf_vars=(
     # ['RAPL_REGISTERS']='0,1'       # 2 sockets: Epyc1, Gold
 
     # this needs to be set because gold1 has a very old gcc version... thanks @dgal for the help
-    ['GCC_COMPILER_PATH']='/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/' 
+    ['GCC_COMPILER_PATH']='/various/dgal/gcc/gcc-12.2.0/gcc_bin/' 
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
