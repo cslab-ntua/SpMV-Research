@@ -26,11 +26,14 @@ struct Figure_Series {
 
 	long N;
 	long M;
+	long L;
 	int cart_prod;
 
 	void * x;
 	void * y;
 	void * z;
+
+	int ignore_invalid_values;
 
 	double x_min;
 	double x_max;
@@ -62,13 +65,16 @@ struct Figure_Series {
 	// Histogram.
 	int type_histogram;
 	long histogram_num_bins;
-	int histogram_in_percentages;
 
 	// Barplot.
 	int type_barplot;
 	double barplot_bar_width_fraction;
 	double barplot_max_bar_width;
 	double barplot_bar_width;
+
+	// Bounded median curve.
+	int type_bounded_median_curve;
+	int bounded_median_curve_axis;
 
 	int deallocate_data;     // Whether to free x, y, z at destructor.
 };
@@ -116,6 +122,8 @@ struct Figure_Series * figure_add_series_base(struct Figure * fig, void * x, voi
 			DEFAULT_ARG_2(gen_functor_convert_basic_type_to_double(y), __VA_ARGS__),                     \
 			DEFAULT_ARG_3(gen_functor_convert_basic_type_to_double(z), __VA_ARGS__))
 
+void figure_series_ignore_invalid_values(struct Figure_Series * s);
+
 void figure_series_set_name(struct Figure_Series * s, const char * name);
 
 void figure_axes_flip_x(struct Figure * fig);
@@ -156,6 +164,8 @@ void figure_series_type_barplot_base(struct Figure_Series * s, double max_bar_wi
 do {                                                                                                           \
 	figure_series_type_barplot_base(s, DEFAULT_ARG_1(0, __VA_ARGS__), DEFAULT_ARG_2(0.6, __VA_ARGS__));    \
 } while (0)
+
+void figure_series_type_bounded_median_curve(struct Figure_Series * s, int axis);
 
 
 // Simple Plot

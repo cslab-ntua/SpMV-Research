@@ -127,6 +127,11 @@ void feature_plot_store_matrix(char *file_in, const char *replace_str, int plot,
 	int buf_n = 1000;
 	char buf[buf_n];
 	char * filename;
+
+	long num_pixels = 1024;
+	long num_pixels_x = (n < num_pixels) ? n : num_pixels;
+	long num_pixels_y = (m < num_pixels) ? m : num_pixels;
+
 	str_path_split_path(file_in, strlen(file_in) + 1, buf, buf_n, NULL, &filename);
 	if(replace_str == NULL || replace_str[0] == '\0')
 		replace_substring(filename, ".mtx", "");
@@ -139,7 +144,7 @@ void feature_plot_store_matrix(char *file_in, const char *replace_str, int plot,
 
 	if(plot){
 		char * file_fig = fig_name_gen(file_in, replace_str);
-		csr_plot_f(file_fig, row_ptr, col_idx, val, m, n, nnz, 0);
+		csr_plot_f(file_fig, row_ptr, col_idx, val, m, n, nnz, 0, num_pixels_x, num_pixels_y);
 
 		// several other plotting options are here...
 		// csr_row_size_histogram_plot(file_fig, row_ptr, col_idx, val, m, n, nnz, 0);
@@ -254,14 +259,20 @@ int main(int argc, char **argv)
 	if(argc>10)
 		artificial = atoi(argv[i++]);
 
+	long num_pixels = 1024;
+	long num_pixels_x = num_pixels;
+	long num_pixels_y = num_pixels;
+
 	if(!artificial) {
 		file_in = argv[1];
 		create_coo_matrix(file_in, &mtx_val, &mtx_rowind, &mtx_colind, &m, &n, &nnz);
+		num_pixels_x = (n < num_pixels) ? n : num_pixels;
+		num_pixels_y = (m < num_pixels) ? m : num_pixels;
 		row_ptr = (typeof(row_ptr)) malloc((m+1) * sizeof(*row_ptr));
 		col_idx = (typeof(col_idx)) malloc(nnz * sizeof(*col_idx));
 		val = (typeof(val)) malloc(nnz * sizeof(*val));
 		coo_to_csr(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_ptr, col_idx, val, 1);
-		csr_plot_f(fig_name_gen(file_in, ""),  row_ptr, col_idx, val, m, n, nnz, 0);
+		csr_plot_f(fig_name_gen(file_in, ""),  row_ptr, col_idx, val, m, n, nnz, 0, num_pixels_x, num_pixels_y);
 
 		/********************************************************************************************************************************/
 		_TYPE_I * row_idx; //for CSC format
@@ -287,7 +298,7 @@ int main(int argc, char **argv)
 		double time_row_cross = time_it(1,
 		csr_extract_row_cross(row_ptr, col_idx, val, m, n, nnz, window_width, &num_windows_row, &row_cross, &rc_r, &rc_c, &rc_v);
 		);
-		csr_plot_f(fig_name_gen(file_in, "row_cross"),  rc_r, rc_c, rc_v, m, num_windows_row, rc_r[m], 0);
+		csr_plot_f(fig_name_gen(file_in, "row_cross"),  rc_r, rc_c, rc_v, m, num_windows_row, rc_r[m], 0, num_pixels_x, num_pixels_y);
 
 		double time_col_cross = time_it(1,
 		csc_extract_col_cross(row_idx, col_ptr, val_c, m, n, nnz, window_width, &num_windows_col, &col_cross, &cc_r, &cc_c, &cc_v);
@@ -338,6 +349,9 @@ int main(int argc, char **argv)
 
 		file_in = filename;
 	}
+
+	num_pixels_x = (n < num_pixels) ? n : num_pixels;
+	num_pixels_y = (m < num_pixels) ? m : num_pixels;
 
 	feature_plot_store_matrix(file_in, "", plot, 0, m, n, nnz, row_ptr, col_idx, val);
 	printf("mem footprint %lf\n", (sizeof(_TYPE_I)*(m+1) + (sizeof(_TYPE_V)+sizeof(_TYPE_I))*nnz)/(1024.0*1024));

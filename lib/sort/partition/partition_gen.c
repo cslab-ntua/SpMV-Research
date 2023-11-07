@@ -17,6 +17,16 @@
 // static long exit_after_one = 1;
 
 
+/* The exported functions take an exclusive 'i_end' index.
+ *
+ * Partitioning outcome, for i_start <= i < i_end:
+ *     i <  return_index  :  A[i] <= pivot
+ *     i >= return_index  :  A[i] >= pivot
+ *
+ * The return_index will always be a valid position, so the right part (i >= return_index) will always be non-empty.
+ */
+
+
 //==========================================================================================================================================
 //= User Functions Declarations
 //==========================================================================================================================================
@@ -73,15 +83,10 @@ typedef PARTITION_GEN_TYPE_3  _TYPE_AD;
 //==========================================================================================================================================
 
 
-/* 'i_end' end index is inclusive.
- *
- * Expected partitioning outcome,
- * for i_start <= i <= i_end:
- *     i <  i_s  :  A[i] <= pivot
- *     i >= i_s  :  A[i] >= pivot
- */
-
 #if 0
+
+/* 'i_end' end index is inclusive.
+ */
 #undef  partition_serial_base
 #define partition_serial_base  PARTITION_GEN_EXPAND(partition_serial_base)
 __attribute__((always_inline))
@@ -133,9 +138,11 @@ partition_serial_base(_TYPE_V pivot, _TYPE_V * A, long i_start, long i_end, _TYP
 
 	return i_s;
 }
-#endif
 
+#else
 
+/* 'i_end' end index is inclusive.
+ */
 #undef  partition_serial_base
 #define partition_serial_base  PARTITION_GEN_EXPAND(partition_serial_base)
 __attribute__((always_inline))
@@ -153,6 +160,11 @@ partition_serial_base(_TYPE_V pivot, _TYPE_V * A, long i_start, long i_end, _TYP
 	i_s = i_start;
 	i_e = i_end;
 
+	/* By always swapping and not ignoring equal to pivot values we escape the algorithmic
+	 * complexity degradation (of O(N^2)) when nearly all the values are the same.
+	 *
+	 * Testing showed this is generally faster than balancing the equal to pivot values.
+	 */
 	while (1)
 	{
 		while ((i_s < i_e) && (partition_cmp(A[i_s], pivot, aux_data) < 0))
@@ -166,13 +178,16 @@ partition_serial_base(_TYPE_V pivot, _TYPE_V * A, long i_start, long i_end, _TYP
 		i_e--;
 	}
 
-	// If i_s == i_e then this element has not been examined.
-	// If all elements are lower than the pivot then return a position after the last one.
+	/* If i_s == i_e then this element has not been examined.
+	 * If all elements are lower than the pivot then return a position after the last one.
+	 */
 	if (partition_cmp(A[i_s], pivot, aux_data) < 0)
 		i_s++;
 
 	return i_s;
 }
+
+#endif
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -191,6 +206,8 @@ partition_serial(_TYPE_V pivot, _TYPE_V * A, long i_start, long i_end, _TYPE_AD 
 	return partition_serial_base(pivot, A, i_start, i_end, aux_data);
 }
 
+
+#if 0
 
 /* 'i_end' end index is exclusive.
  */
@@ -227,59 +244,55 @@ partition_auto_serial(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_data
 
 	m = partition_serial_base(pivot, A, i_start+1, i_end, aux_data);
 
-	/* Since the position at 'm' always be the first of the right part,
-	 * we swap the reserved pivot at the beginning with the position m-1, for when the pivot is the max value and the right part is empty.
-	 */
-	SWAP(&A[i_start], &A[m-1]);
+	/* The pivot can be the max value, so we have to place it as the last element of the left segment. */
+	SWAP(&A[i_start], &A[m-1]);   // m-1 >= i_start
 
-	/* Since the value at 'm' always belongs to the right part,
-	 * if the pivot is the max value we have to swap with it for when there are only two values in the segment.
-	 */
-	// if (m > i_end)
-		// m--;
-	// if (partition_cmp(A[m], pivot, aux_data) < 0)
-		// SWAP(&A[i_start], &A[m]);
 	return m;
 }
 
+#else
 
 /* 'i_end' end index is exclusive.
+ *
+ * The return_index will always be a valid position, so the right part (i >= return_index) will always be non-empty.
  */
-#if 0
-#undef  partition_serial_random
-#define partition_serial_random  PARTITION_GEN_EXPAND(partition_serial_random)
+#undef  partition_auto_serial
+#define partition_auto_serial  PARTITION_GEN_EXPAND(partition_auto_serial)
 long
-partition_serial_random(struct random_data * state, _TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_data)
+partition_auto_serial(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_data)
 {
-	int32_t pivot_pos;
-	long m;
-	_TYPE_V pivot;
+	static __thread struct Random_State * rs = NULL;
+
+	long pivot_pos;
 
 	if (i_start >= i_end)
 		error("empty range, i_start >= i_end : %ld > %ld", i_start, i_end);
 
+	if (__builtin_expect(rs == NULL, 0))
+		rs = random_new(0);
+
+	if (i_end - i_start == 1)
+		return i_start;
+	else if (i_end - i_start == 2)
+	{
+		if (partition_cmp(A[i_start], A[i_start+1], aux_data) > 0)
+			SWAP(&A[i_start], &A[i_start+1]);
+		return i_start + 1;
+	}
+
 	i_end--;  // Make 'i_end' inclusive.
 
-	random_r(state, &pivot_pos);
-	pivot_pos %= i_end - i_start;
-	pivot_pos += i_start;
+	pivot_pos = (i_start+i_end)/2;    // A somewhat better pivot than simply the first element. Also works well when already sorted.
 
-
-	/* In order for the left part to be non-empty we always at least advance by an element equal to the pivot by reserving it at the left.
-	 * In order for the right part to be non-empty, if the pivot is the maximum value we swap the reserved element at the end.
-	 */
-	pivot = A[pivot_pos];
-	SWAP(&A[i_start], &A[pivot_pos]);
-
-	m = partition_serial_base(pivot, A, i_start+1, i_end, aux_data);
-
-	/* Since the position at 'm' always be the first of the right part,
-	 * we swap the reserved pivot at the beginning with the position m-1, for when the pivot is the max value and the right part is empty.
-	 */
-	SWAP(&A[i_start], &A[m-1]);
-
-	return m;
+	if (partition_cmp(A[i_start], A[i_end], aux_data) > 0)
+		SWAP(&A[i_start], &A[i_end]);
+	if (partition_cmp(A[i_start], A[pivot_pos], aux_data) > 0)
+		SWAP(&A[i_start], &A[pivot_pos]);
+	if (partition_cmp(A[pivot_pos], A[i_end], aux_data) > 0)
+		SWAP(&A[pivot_pos], &A[i_end]);
+	return partition_serial_base(A[pivot_pos], A, i_start+1, i_end-1, aux_data);
 }
+
 #endif
 
 
@@ -319,11 +332,6 @@ partition_concurrent_non_equal(_TYPE_V pivot, _TYPE_V * A, _TYPE_V * buf, long i
 
 
 /* 'i_end' end index is inclusive.
- *
- * Expected partitioning outcome,
- * for i_start <= i <= i_end:
- *     i <  m  :  buf[i] <= pivot
- *     i >= m  :  buf[i] >= pivot
  */
 #undef  partition_concurrent_base
 #define partition_concurrent_base  PARTITION_GEN_EXPAND(partition_concurrent_base)
@@ -454,6 +462,17 @@ partition_concurrent_base(_TYPE_V pivot, _TYPE_V * A, _TYPE_V * buf, long i_star
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 
+/* 'i_end' end index is inclusive.
+ *
+ * This version of inplace partitioning moves more data than a version with block by block progression,
+ * where each thread atomically takes a block from the beginning and the end and processes them.
+ * At worst case, it passes all the data one more time.
+ * On average, it passes half the data one more time.
+ *
+ * Nevertheless, it also utilizes all the memory channels, instead of one/two at a time,
+ * so it can have 4x or more the memory bandwidth (8 vs 2 channels).
+ * It also has better NUMA properties.
+ */
 #undef  partition_concurrent_inplace_base
 #define partition_concurrent_inplace_base  PARTITION_GEN_EXPAND(partition_concurrent_inplace_base)
 __attribute__((always_inline))
@@ -557,60 +576,10 @@ partition_concurrent_inplace_base(_TYPE_V pivot, _TYPE_V * A, long i_start, long
 			g_realoc_num_l += t_l_e[i] - t_l_s[i];
 			g_realoc_num_h += t_h_e[i] - t_h_s[i];
 		}
-
-		// if (do_print)
-		// {
-			// printf("g_realoc_num_l=%ld , g_realoc_num_h=%ld\n", g_realoc_num_l, g_realoc_num_h);
-		// }
-
 		// if (g_h - i_start != i_end - i_start)
 			// error("g_h - g_l : %ld != %ld", g_h - g_l, i_end - i_start);
 		if (g_realoc_num_l != g_realoc_num_h)
 			error("low != high : %ld != %ld", g_realoc_num_l, g_realoc_num_h);
-
-		// if (do_print)
-		// {
-			// printf("pivot=%d\n", pivot);
-			// printf("g_l=%ld\n", g_l);
-			// long tmp_l = 0;
-			// long tmp_h = 0;
-			// for (long i=0;i<num_threads;i++)
-			// {
-				// printf("%2ld: %10ld %10ld %10ld - l=[%10ld, %10ld] , h=[%10ld, %10ld]\n", i, t_s[i], t_m[i], t_e[i], t_l_s[i], t_l_e[i], t_h_s[i], t_h_e[i]);
-				// tmp_l += t_m[i] - t_s[i];
-				// tmp_h += t_e[i] - t_m[i];
-			// }
-			// printf("l_all=%ld h_all=%ld total_all=%ld\n", tmp_l, tmp_h, tmp_l+tmp_h);
-			// tmp_l = 0;
-			// tmp_h = 0;
-			// for (long i=0;i<num_threads;i++)
-			// {
-				// tmp_l += t_l_e[i] - t_l_s[i];
-				// tmp_h += t_h_e[i] - t_h_s[i];
-			// }
-			// printf("l=%ld h=%ld total=%ld\n", tmp_l, tmp_h, tmp_l+tmp_h);
-		// }
-
-		// if (do_print)
-		// {
-			// printf("AFTER LOCAL REORDER\n");
-			// long N = atoi(getenv("N"));
-			// printf("g_l = %ld\n", g_l);
-			// printf(" ");
-			// for (long i=0;i<N;i++)
-			// {
-				// printf("%2ld  ", i);
-			// }
-			// printf("\n");
-			// printf("[");
-			// for (long i=0;i<N;i++)
-			// {
-				// printf("%2d, ", A[i]);
-			// }
-			// printf("]\n");
-			// printf("\n");
-		// }
-
 	}
 
 	#pragma omp barrier
@@ -623,11 +592,16 @@ partition_concurrent_inplace_base(_TYPE_V pivot, _TYPE_V * A, long i_start, long
 	loop_partitioner_balance_iterations(num_threads, tnum, 0, g_realoc_num_l, &rel_pos_s, &rel_pos_e);
 	realoc_num = rel_pos_e - rel_pos_s;
 
+	if (realoc_num == 0)
+		goto partition_concurrent_out;
+
 	i = 0;
 	sum = t_l_e[i] - t_l_s[i];
 	while (sum <= rel_pos_s)
 	{
 		i++;
+		if (i >= num_threads)
+			error("exceeded available realoc boundaries, lower part");
 		sum += t_l_e[i] - t_l_s[i];
 	}
 	l_s = t_l_e[i] - (sum - rel_pos_s);
@@ -638,6 +612,8 @@ partition_concurrent_inplace_base(_TYPE_V pivot, _TYPE_V * A, long i_start, long
 	while (sum <= rel_pos_s)
 	{
 		j++;
+		if (j >= num_threads)
+			error("exceeded available realoc boundaries, higher part");
 		sum += t_h_e[j] - t_h_s[j];
 	}
 	h_s = t_h_e[j] - (sum - rel_pos_s);
@@ -680,6 +656,7 @@ partition_concurrent_inplace_base(_TYPE_V pivot, _TYPE_V * A, long i_start, long
 			realoc_num--;
 		}
 	}
+
 	partition_concurrent_out:;
 
 	#pragma omp barrier
@@ -709,16 +686,17 @@ partition_concurrent(_TYPE_V pivot, _TYPE_V * A, long i_start, long i_end, _TYPE
 
 
 /* 'i_end' end index is exclusive.
+ *
+ * The return_index will always be a valid position, so the right part (i >= return_index) will always be non-empty.
  */
 #undef  partition_auto_concurrent
 #define partition_auto_concurrent  PARTITION_GEN_EXPAND(partition_auto_concurrent)
 long
-partition_auto_concurrent(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_data, const int non_empty_left_seg, const int inplace, _TYPE_V * buf)
+partition_auto_concurrent(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_data, const int inplace, _TYPE_V * buf)
 {
 	static __thread struct Random_State * rs = NULL;
 
-	long m, pivot_pos;
-	_TYPE_V pivot;
+	long pivot_pos;
 
 	if (!inplace && buf == NULL)
 		error("for non-inplace partitioning a buffer must be provided");
@@ -729,51 +707,38 @@ partition_auto_concurrent(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_
 	if (__builtin_expect(rs == NULL, 0))
 		rs = random_new(0);
 
+	if (i_end - i_start == 1)
+		return i_start;
+	else if (i_end - i_start == 2)
+	{
+		#pragma omp single nowait
+		{
+			if (partition_cmp(A[i_start], A[i_start+1], aux_data) > 0)
+				SWAP(&A[i_start], &A[i_start+1]);
+		}
+		#pragma omp barrier
+		return i_start + 1;
+	}
+
 	i_end--;  // Make 'i_end' inclusive.
 
 	pivot_pos = (i_start+i_end)/2;    // A somewhat better pivot than simply the first element. Also works well when already sorted.
-	// pivot_pos = random_uniform_integer_32bit(rs, i_start, i_end);
-	// pivot_pos = random_xs_uniform_integer_64bit(rs, i_start, i_end);
-	pivot = A[pivot_pos];
 
-	if (!non_empty_left_seg)
-	{
-		if (!inplace)
-			return partition_concurrent_base(pivot, A, buf, i_start, i_end, aux_data);
-		else
-			return partition_concurrent_inplace_base(pivot, A, i_start, i_end, aux_data);
-	}
-
-	/* In order for the left part to be non-empty we always at least advance by an element equal to the pivot by reserving it at the left.
-	 * In order for the right part to be non-empty, if the pivot is the maximum value we swap the reserved element at the end.
-	 */
-	#pragma omp barrier
 	#pragma omp single nowait
 	{
-		SWAP(&A[i_start], &A[pivot_pos]);
+		if (partition_cmp(A[i_start], A[i_end], aux_data) > 0)
+			SWAP(&A[i_start], &A[i_end]);
+		if (partition_cmp(A[i_start], A[pivot_pos], aux_data) > 0)
+			SWAP(&A[i_start], &A[pivot_pos]);
+		if (partition_cmp(A[pivot_pos], A[i_end], aux_data) > 0)
+			SWAP(&A[pivot_pos], &A[i_end]);
 	}
+
 	#pragma omp barrier
 
 	if (!inplace)
-		m = partition_concurrent_base(pivot, A, buf, i_start+1, i_end, aux_data);
+		return partition_concurrent_base(A[pivot_pos], A, buf, i_start+1, i_end-1, aux_data);
 	else
-		m = partition_concurrent_inplace_base(pivot, A, i_start+1, i_end, aux_data);
-
-	/* Since the value at 'm' always belongs to the right part,
-	 * if the pivot is the max value we have to swap with it for when there are only two values in the segment.
-	 */
-	// if (m > i_end)
-		// m--;
-
-	#pragma omp barrier
-	#pragma omp single nowait
-	{
-		SWAP(&A[i_start], &A[m-1]);
-		// if (partition_cmp(A[m], pivot, aux_data) < 0)
-			// SWAP(&A[i_start], &A[m]);
-	}
-	#pragma omp barrier
-
-	return m;
+		return partition_concurrent_inplace_base(A[pivot_pos], A, i_start+1, i_end-1, aux_data);
 }
 

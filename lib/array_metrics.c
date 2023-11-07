@@ -282,8 +282,8 @@ ARRAY_METRICS_min_init(__attribute__((unused)) int concurrent, struct ARRAY_METR
 	s->A = A;
 	s->i_start = i_start;
 	s->i_end = i_end;
-	s->min = get_val_as_double(s->A, 0);
-	s->min_idx = 0;
+	s->min = get_val_as_double(s->A, i_start);
+	s->min_idx = i_start;
 	s->min_out = min_out;
 	s->min_idx_out = min_idx_out;
 }
@@ -350,8 +350,8 @@ ARRAY_METRICS_max_init(__attribute__((unused)) int concurrent, struct ARRAY_METR
 	s->A = A;
 	s->i_start = i_start;
 	s->i_end = i_end;
-	s->max = get_val_as_double(s->A, 0);
-	s->max_idx = 0;
+	s->max = get_val_as_double(s->A, i_start);
+	s->max_idx = i_start;
 	s->max_out = max_out;
 	s->max_idx_out = max_idx_out;
 }
@@ -418,12 +418,12 @@ ARRAY_METRICS_min_max_init(__attribute__((unused)) int concurrent, struct ARRAY_
 	s->A = A;
 	s->i_start = i_start;
 	s->i_end = i_end;
-	s->min = get_val_as_double(s->A, 0);
-	s->min_idx = 0;
+	s->min = get_val_as_double(s->A, i_start);
+	s->min_idx = i_start;
 	s->min_out = min_out;
 	s->min_idx_out = min_idx_out;
-	s->max = get_val_as_double(s->A, 0);
-	s->max_idx = 0;
+	s->max = get_val_as_double(s->A, i_start);
+	s->max_idx = i_start;
 	s->max_out = max_out;
 	s->max_idx_out = max_idx_out;
 }
@@ -967,7 +967,7 @@ ARRAY_METRICS_quantile_method(const char * method, long N, double q, long * idx_
 	else if (!strcmp(method, "averaged_inverted_cdf"))   // 2: (discontinuous) average
 		m = 0;
 	else if (!strcmp(method, "closest_observation"))   // 3: (discontinuous) nearest
-		m = -1/2;
+		m = -1.0/2;
 	else if (!strcmp(method, "interpolated_inverted_cdf"))   // 4: (continuous) interpolate the step function of method 1
 		m = 0;
 	else if (!strcmp(method, "hazen"))   // 5: (continuous) Hazen
@@ -984,15 +984,14 @@ ARRAY_METRICS_quantile_method(const char * method, long N, double q, long * idx_
 		error("unknown quantile calculation method");
 
 	virt_idx = (N - 1) * q + m;
-	idx = virt_idx;
+	idx = (long) virt_idx;
 
 	diff = virt_idx - floor(virt_idx);
-	// zero_threshold = 1.0e-9;
 	zero_threshold = 10 * DBL_EPSILON;
 	if (!strcmp(method, "inverted_cdf"))   // 1
 		frac = (diff < zero_threshold) ? 0 : 1;
 	else if (!strcmp(method, "averaged_inverted_cdf"))   // 2
-		frac = (diff < zero_threshold) ? 1/2 : 1;
+		frac = (diff < zero_threshold) ? 1.0/2 : 1;
 	else if (!strcmp(method, "closest_observation"))   // 3
 		frac = ((diff < zero_threshold) && (idx % 2 == 0)) ? 0 : 1;
 	else // continuous
@@ -1004,124 +1003,105 @@ ARRAY_METRICS_quantile_method(const char * method, long N, double q, long * idx_
 
 
 void
-ARRAY_METRICS_quantile_serial_reference(void * A, long i_start, long i_end, double q, const char * method, double * val_out, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_quantile_serial_reference(void * A, long i_start, long i_end, double q, const char * method, double * result_out, double (* get_val_as_double)(void * A, long i))
 {
 	double * vals;
 	long N = i_end - i_start;
 	double g;
-	double val;
-	long i, j;
-	if (val_out == NULL)
-		error("'val_out' return parameter is NULL");
-	ARRAY_METRICS_quantile_method(method, N, q, &j, &g);
-	j += i_start;
-	if (j == N - 1)
+	double quantile;
+	double val_l, val_r;
+	long i, target_idx;
+	if (result_out == NULL)
+		error("'result_out' return parameter is NULL");
+	ARRAY_METRICS_quantile_method(method, N, q, &target_idx, &g);
+	if (target_idx >= N - 1)
 	{
-		ARRAY_METRICS_max_serial(A, i_start, i_end, val_out, NULL, get_val_as_double);
+		ARRAY_METRICS_max_serial(A, i_start, i_end, result_out, NULL, get_val_as_double);
 		return;
 	}
 	vals = (typeof(vals)) malloc(N * sizeof(*vals));
-	for (i=i_start;i<i_end;i++)
+	for (i=0;i<N;i++)
 	{
-		vals[i-i_start] = get_val_as_double(A, i);
+		vals[i] = get_val_as_double(A, i+i_start);
 	}
 	quicksort(vals, N, NULL);
-	val = (1 - g) * vals[j] + g * vals[(j + 1) < N ? j + 1 : j];
-	*val_out = val;
+	val_l = vals[target_idx];
+	val_r = vals[target_idx + 1];
+	quantile = (1 - g) * val_l + g * val_r;
+	*result_out = quantile;
 	free(vals);
 }
 
 
 void
-ARRAY_METRICS_quantile_serial(void * A, long i_start, long i_end, double q, const char * method, double * val_out, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_quantile_serial(void * A, long i_start, long i_end, double q, const char * method, double * result_out, double (* get_val_as_double)(void * A, long i))
 {
 	double * vals;
 	long N = i_end - i_start;
 	double g;
-	double val;
-	double min, max;
-	long i, j, m;
-	if (val_out == NULL)
-		error("'val_out' return parameter is NULL");
-	ARRAY_METRICS_quantile_method(method, N, q, &j, &g);
-	j += i_start;
-	if (j == N - 1)
+	double quantile;
+	double val_l, val_r;
+	long i, target_idx, m, pos;
+	if (result_out == NULL)
+		error("'result_out' return parameter is NULL");
+	ARRAY_METRICS_quantile_method(method, N, q, &target_idx, &g);
+	if (target_idx >= N - 1)
 	{
-		ARRAY_METRICS_max_serial(A, i_start, i_end, val_out, NULL, get_val_as_double);
+		ARRAY_METRICS_max_serial(A, i_start, i_end, result_out, NULL, get_val_as_double);
 		return;
 	}
 	vals = (typeof(vals)) malloc(N * sizeof(*vals));
-	for (i=i_start;i<i_end;i++)
+	for (i=0;i<N;i++)
 	{
-		vals[i-i_start] = get_val_as_double(A, i);
+		vals[i] = get_val_as_double(A, i+i_start);
 	}
-	long i_s = i_start;
-	long i_e = i_end;
+	long i_s = 0;
+	long i_e = N;
+	long i_e_prev = N;
 	while (1)
 	{
-		m = partition_auto_serial(vals, i_s, i_e, NULL, 1);   // 'm' is the position of the first element of the right part, if it exists.
-		if (m == j+1)
+		m = partition_auto_serial(vals, i_s, i_e, NULL);   // 'm' is the position of the first element of the right part, if it exists.
+		if (target_idx == m)
 		{
-			if (m == i_s)   // Left part has at least one element.
-				error("m == i_s");
-			if (m == i_e)   // Right part has at least one element.
-				error("m == i_e");
-			ARRAY_METRICS_max_serial(vals, i_s, m, &max, NULL, gen_d2d);
-			ARRAY_METRICS_min_serial(vals, m, i_e, &min, NULL, gen_d2d);
-			// printf("test j+1: i:[%ld,%ld,%ld], j=%ld, min=%g, max=%g, g=%g\n", i_s, m, i_e, j, min, max, g);
-			val = (1 - g) * max + g * min;
+			ARRAY_METRICS_min_serial(vals, m, i_e, &val_l, &pos, gen_d2d);
+			SWAP(&vals[m], &vals[pos]);
+			ARRAY_METRICS_min_serial(vals, m+1, i_e_prev, &val_r, NULL, gen_d2d);
+			quantile = (1 - g) * val_l + g * val_r;
 			break;
 		}
-		if (j < m)
+		if (target_idx < m)
 		{
-			if (m == i_s)   // Left part has at least one element.
-				error("m == i_s");
-			if (m == i_s + 1)
-			{
-				ARRAY_METRICS_min_serial(vals, m, i_e, &min, NULL, gen_d2d);
-				val = (1 - g) * vals[i_s] + g * min;
-				break;
-			}
+			i_e_prev = i_e;
 			i_e = m;
-			continue;
 		}
 		else
 		{
-			if (m == i_e)   // Right part has at least one element.
-				error("m == i_e");
-			if (m == i_e - 1)
-			{
-				ARRAY_METRICS_max_serial(vals, i_s, m, &max, NULL, gen_d2d);
-				val = (1 - g) * max + g * vals[m];
-				break;
-			}
 			i_s = m;
 		}
 	}
-	*val_out = val;
+	*result_out = quantile;
 	free(vals);
 }
 
 
 void
-ARRAY_METRICS_quantile_concurrent(void * A, long i_start, long i_end, double q, const char * method, double * val_out, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_quantile_concurrent(void * A, long i_start, long i_end, double q, const char * method, double * result_out, double (* get_val_as_double)(void * A, long i))
 {
 	static double * vals;
 	// static double * buf;
 	long N = i_end - i_start;
 	double g;
-	double val;
-	double min, max;
-	long i, j, m;
-	if (val_out == NULL)
-		error("'val_out' return parameter is NULL");
+	double quantile;
+	double val_l, val_r;
+	long i, target_idx, m, pos;
+	if (result_out == NULL)
+		error("'result_out' return parameter is NULL");
 
-	ARRAY_METRICS_quantile_method(method, N, q, &j, &g);
-	j += i_start;
+	ARRAY_METRICS_quantile_method(method, N, q, &target_idx, &g);
 
-	if (j == N - 1)
+	if (target_idx >= N - 1)
 	{
-		ARRAY_METRICS_max_concurrent(A, i_start, i_end, val_out, NULL, get_val_as_double);
+		ARRAY_METRICS_max_concurrent(A, i_start, i_end, result_out, NULL, get_val_as_double);
 		return;
 	}
 
@@ -1130,97 +1110,78 @@ ARRAY_METRICS_quantile_concurrent(void * A, long i_start, long i_end, double q, 
 		vals = (typeof(vals)) malloc(N * sizeof(*vals));
 		// buf = (typeof(buf)) malloc(N * sizeof(*buf));
 	}
+
 	#pragma omp barrier
 
 	#pragma omp for
-	for (i=i_start;i<i_end;i++)
-	{
-		vals[i-i_start] = get_val_as_double(A, i);
-	}
+	for (i=0;i<N;i++)
+		vals[i] = get_val_as_double(A, i+i_start);
 
 	// samplesort_concurrent(vals, N, NULL);
-	// val = (1 - g) * vals[j] + g * vals[(j + 1) < N ? j + 1 : j];
+	// quantile = (1 - g) * vals[target_idx] + g * vals[(target_idx + 1) < N ? target_idx + 1 : target_idx];
 
-	long i_s = i_start;
-	long i_e = i_end;
+	long i_s = 0;
+	long i_e = N;
+	long i_e_prev = N;
 	while (1)
 	{
-		// m = partition_auto_concurrent(vals, i_s, i_e, NULL, 1, 0, buf);   // 'm' is the position of the first element of the right part, if it exists.
-		m = partition_auto_concurrent(vals, i_s, i_e, NULL, 1, 1, NULL);   // 'm' is the position of the first element of the right part, if it exists.
-
-		// #pragma omp single
-		// {
-			// printf("i:[%10ld,%10ld,%10ld], j=%10ld, pivot=%g\n", i_s, m, i_e, j, vals[m]);
-		// }
-		if (m == j+1)
+		// m = partition_auto_concurrent(vals, i_s, i_e, NULL, 0, buf);   // 'm' is the position of the first element of the right part, if it exists.
+		m = partition_auto_concurrent(vals, i_s, i_e, NULL, 1, NULL);   // 'm' is the position of the first element of the right part, if it exists.
+		if (target_idx == m)
 		{
-			if (m == i_s)   // Left part has at least one element.
-				error("m == i_s");
-			if (m == i_e)   // Right part has at least one element.
-				error("m == i_e");
-			ARRAY_METRICS_max_concurrent(vals, i_s, m, &max, NULL, gen_d2d);
-			ARRAY_METRICS_min_concurrent(vals, m, i_e, &min, NULL, gen_d2d);
-			// printf("test j+1: i:[%ld,%ld,%ld], j=%ld, min=%g, max=%g, g=%g\n", i_s, m, i_e, j, min, max, g);
-			val = (1 - g) * max + g * min;
+			ARRAY_METRICS_min_concurrent(vals, m, i_e, &val_l, &pos, gen_d2d);
+			#pragma omp barrier
+			#pragma omp single nowait
+			{
+				SWAP(&vals[m], &vals[pos]);
+			}
+			#pragma omp barrier
+			ARRAY_METRICS_min_concurrent(vals, m+1, i_e_prev, &val_r, NULL, gen_d2d);
+			quantile = (1 - g) * val_l + g * val_r;
 			break;
 		}
-		if (j < m)
+		if (target_idx < m)
 		{
-			if (m == i_s)   // Left part has at least one element.
-				error("m == i_s");
-			if (m == i_s + 1)
-			{
-				ARRAY_METRICS_min_concurrent(vals, m, i_e, &min, NULL, gen_d2d);
-				val = (1 - g) * vals[i_s] + g * min;
-				break;
-			}
+			i_e_prev = i_e;
 			i_e = m;
-			continue;
 		}
 		else
 		{
-			if (m == i_e)   // Right part has at least one element.
-				error("m == i_e");
-			if (m == i_e - 1)
-			{
-				ARRAY_METRICS_max_concurrent(vals, i_s, m, &max, NULL, gen_d2d);
-				val = (1 - g) * max + g * vals[m];
-				break;
-			}
 			i_s = m;
 		}
 	}
-
-	*val_out = val;
+	*result_out = quantile;
 
 	#pragma omp barrier
+
 	#pragma omp single nowait
 	{
 		free(vals);
 		// free(buf);
 	}
+
 	#pragma omp barrier
 }
 
 
 void
-ARRAY_METRICS_quantile(void * A, long i_start, long i_end, double q, const char * method, double * val_out, double (* get_val_as_double)(void * A, long i))
+ARRAY_METRICS_quantile(void * A, long i_start, long i_end, double q, const char * method, double * result_out, double (* get_val_as_double)(void * A, long i))
 {
-	if (val_out == NULL)
-		error("'val_out' return parameter is NULL");
+	if (result_out == NULL)
+		error("'result_out' return parameter is NULL");
 	if (omp_get_level() > 0)
 	{
-		ARRAY_METRICS_quantile_serial(A, i_start, i_end, q, method, val_out, get_val_as_double);
+		ARRAY_METRICS_quantile_serial(A, i_start, i_end, q, method, result_out, get_val_as_double);
 	}
 	else
 	{
 		_Pragma("omp parallel")
 		{
-			double val;
-			ARRAY_METRICS_quantile_concurrent(A, i_start, i_end, q, method, &val, get_val_as_double);
+			double quantile;
+			ARRAY_METRICS_quantile_concurrent(A, i_start, i_end, q, method, &quantile, get_val_as_double);
 			_Pragma("omp single nowait")
 			{
-				*val_out = val;
+				*result_out = quantile;
 			}
 		}
 	}

@@ -727,34 +727,34 @@ void ARRAY_METRICS_rms(void * A, long i_start, long i_end, double * result_out, 
 //==========================================================================================================================================
 
 
-void ARRAY_METRICS_quantile_serial_reference(void * A, long i_start, long i_end, double q, const char * method, double * val_out, double (* get_val_as_double)(void * A, long i));
-void ARRAY_METRICS_quantile_serial(void * A, long i_start, long i_end, double q, const char * method, double * val_out, double (* get_val_as_double)(void * A, long i));
-void ARRAY_METRICS_quantile_concurrent(void * A, long i_start, long i_end, double q, const char * method, double * val_out, double (* get_val_as_double)(void * A, long i));
-void ARRAY_METRICS_quantile(void * A, long i_start, long i_end, double q, const char * method, double * val_out, double (* get_val_as_double)(void * A, long i));
+void ARRAY_METRICS_quantile_serial_reference(void * A, long i_start, long i_end, double q, const char * method, double * result_out, double (* get_val_as_double)(void * A, long i));
+void ARRAY_METRICS_quantile_serial(void * A, long i_start, long i_end, double q, const char * method, double * result_out, double (* get_val_as_double)(void * A, long i));
+void ARRAY_METRICS_quantile_concurrent(void * A, long i_start, long i_end, double q, const char * method, double * result_out, double (* get_val_as_double)(void * A, long i));
+void ARRAY_METRICS_quantile(void * A, long i_start, long i_end, double q, const char * method, double * result_out, double (* get_val_as_double)(void * A, long i));
 
-#define array_seg_quantile_serial_reference(A, i_start, i_end, q, method, val_out, ... /* get_val_as_double() */)    \
-	ARRAY_METRICS_quantile_serial_reference(A, i_start, i_end, q, method, val_out, DEFAULT_ARG_1(gen_functor_convert_basic_type_to_double(A), ##__VA_ARGS__))
+#define array_seg_quantile_serial_reference(A, i_start, i_end, q, method, result_out, ... /* get_val_as_double() */)    \
+	ARRAY_METRICS_quantile_serial_reference(A, i_start, i_end, q, method, result_out, DEFAULT_ARG_1(gen_functor_convert_basic_type_to_double(A), ##__VA_ARGS__))
 
-#define array_quantile_serial_reference(A, N, q, method, val_out, ... /* get_val_as_double() */)    \
-	array_seg_quantile_serial_reference(A, 0, N, q, method, val_out, ##__VA_ARGS__)
+#define array_quantile_serial_reference(A, N, q, method, result_out, ... /* get_val_as_double() */)    \
+	array_seg_quantile_serial_reference(A, 0, N, q, method, result_out, ##__VA_ARGS__)
 
-#define array_seg_quantile_serial(A, i_start, i_end, q, method, val_out, ... /* get_val_as_double() */)    \
-	ARRAY_METRICS_quantile_serial(A, i_start, i_end, q, method, val_out, DEFAULT_ARG_1(gen_functor_convert_basic_type_to_double(A), ##__VA_ARGS__))
+#define array_seg_quantile_serial(A, i_start, i_end, q, method, result_out, ... /* get_val_as_double() */)    \
+	ARRAY_METRICS_quantile_serial(A, i_start, i_end, q, method, result_out, DEFAULT_ARG_1(gen_functor_convert_basic_type_to_double(A), ##__VA_ARGS__))
 
-#define array_quantile_serial(A, N, q, method, val_out, ... /* get_val_as_double() */)    \
-	array_seg_quantile_serial(A, 0, N, q, method, val_out, ##__VA_ARGS__)
+#define array_quantile_serial(A, N, q, method, result_out, ... /* get_val_as_double() */)    \
+	array_seg_quantile_serial(A, 0, N, q, method, result_out, ##__VA_ARGS__)
 
-#define array_seg_quantile_concurrent(A, i_start, i_end, q, method, val_out, ... /* get_val_as_double() */)    \
-	ARRAY_METRICS_quantile_concurrent(A, i_start, i_end, q, method, val_out, DEFAULT_ARG_1(gen_functor_convert_basic_type_to_double(A), ##__VA_ARGS__))
+#define array_seg_quantile_concurrent(A, i_start, i_end, q, method, result_out, ... /* get_val_as_double() */)    \
+	ARRAY_METRICS_quantile_concurrent(A, i_start, i_end, q, method, result_out, DEFAULT_ARG_1(gen_functor_convert_basic_type_to_double(A), ##__VA_ARGS__))
 
-#define array_quantile_concurrent(A, N, q, method, val_out, ... /* get_val_as_double() */)    \
-	array_seg_quantile_concurrent(A, 0, N, q, method, val_out, ##__VA_ARGS__)
+#define array_quantile_concurrent(A, N, q, method, result_out, ... /* get_val_as_double() */)    \
+	array_seg_quantile_concurrent(A, 0, N, q, method, result_out, ##__VA_ARGS__)
 
-#define array_seg_quantile(A, i_start, i_end, q, method, val_out, ... /* get_val_as_double() */)    \
-	ARRAY_METRICS_quantile(A, i_start, i_end, q, method, val_out, DEFAULT_ARG_1(gen_functor_convert_basic_type_to_double(A), ##__VA_ARGS__))
+#define array_seg_quantile(A, i_start, i_end, q, method, result_out, ... /* get_val_as_double() */)    \
+	ARRAY_METRICS_quantile(A, i_start, i_end, q, method, result_out, DEFAULT_ARG_1(gen_functor_convert_basic_type_to_double(A), ##__VA_ARGS__))
 
-#define array_quantile(A, N, q, method, val_out, ... /* get_val_as_double() */)    \
-	array_seg_quantile(A, 0, N, q, method, val_out, ##__VA_ARGS__)
+#define array_quantile(A, N, q, method, result_out, ... /* get_val_as_double() */)    \
+	array_seg_quantile(A, 0, N, q, method, result_out, ##__VA_ARGS__)
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

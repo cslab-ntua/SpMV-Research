@@ -47,7 +47,7 @@ ifeq ($(ARCH), x86_64)
     CFLAGS += -mbmi
     CFLAGS += -mbmi2
     CFLAGS += -march=native
-	CFLAGS += -mavx2
+    CFLAGS += -mavx2
 endif
 # CFLAGS += -g3 -fno-omit-frame-pointer
 # CFLAGS += -Og

@@ -75,16 +75,42 @@ pixel_array_destroy(struct Pixel_Array ** pa_ptr)
 
 static inline
 void
-pixel_array_reset_locks(struct Pixel_Array * pa)
+pixel_array_reset_locks_serial(struct Pixel_Array * pa)
 {
 	long n = pa->width * pa->height;
 	long i;
-	#pragma omp parallel
+	for (i=0;i<n;i++)
 	{
-		#pragma omp for
-		for (i=0;i<n;i++)
+		__atomic_store_n(&(pa->locks[i]), 0, __ATOMIC_RELAXED);
+	}
+}
+
+static inline
+void
+pixel_array_reset_locks_concurrent(struct Pixel_Array * pa)
+{
+	long n = pa->width * pa->height;
+	long i;
+	#pragma omp for
+	for (i=0;i<n;i++)
+	{
+		__atomic_store_n(&(pa->locks[i]), 0, __ATOMIC_RELAXED);
+	}
+}
+
+static inline
+void
+pixel_array_reset_locks(struct Pixel_Array * pa)
+{
+	if (omp_get_level() > 0)
+	{
+		pixel_array_reset_locks_serial(pa);
+	}
+	else
+	{
+		_Pragma("omp parallel")
 		{
-			__atomic_store_n(&(pa->locks[i]), 0, __ATOMIC_RELAXED);
+			pixel_array_reset_locks_concurrent(pa);
 		}
 	}
 }
@@ -194,7 +220,7 @@ do {                                                                  \
 } while (0)
 
 
-#define load_pbm_image_gen(T, pa)                            \
+#define load_ppm_image_gen(T, pa)                            \
 do {                                                         \
 	_Pragma("omp parallel")                              \
 	{                                                    \
@@ -219,7 +245,7 @@ do {                                                         \
  */
 static __attribute__((unused))
 struct Pixel_Array *
-load_pbm_image(char * filename)
+load_ppm_image(char * filename)
 {
 	struct File_Atoms * A;
 	int width, height, max_value;
@@ -255,16 +281,16 @@ load_pbm_image(char * filename)
 	pixel_array_init(pa, width, height, max_value);
 
 	if (max_value > 255)
-		load_pbm_image_gen(struct Pixel_16, pa);
+		load_ppm_image_gen(struct Pixel_16, pa);
 	else
-		load_pbm_image_gen(struct Pixel_8, pa);
+		load_ppm_image_gen(struct Pixel_8, pa);
 
 	file_atoms_destroy(&A);
 	return pa;
 }
 
 
-#define save_pbm_image_gen(T, pa)                             \
+#define save_ppm_image_gen(T, pa)                             \
 do {                                                          \
 	_Pragma("omp parallel")                               \
 	{                                                     \
@@ -285,11 +311,11 @@ do {                                                          \
 
 
 /*
- * Saves the image in regular pbm format.
+ * Saves the image in regular ppm format.
  */
 static __attribute__((unused))
 void
-save_pbm_image(struct Pixel_Array * pa, int fd)
+save_ppm_image(struct Pixel_Array * pa, int fd)
 {
 	char buf[1000];
 	char * data;
@@ -306,9 +332,9 @@ save_pbm_image(struct Pixel_Array * pa, int fd)
 	len = snprintf(buf, sizeof(buf), "%d %d %d\n", pa->width, pa->height, pa->max_value);
 	safe_write(fd, buf, len);
 	if (pa->max_value > 255)
-		save_pbm_image_gen(struct Pixel_16, pa);
+		save_ppm_image_gen(struct Pixel_16, pa);
 	else
-		save_pbm_image_gen(struct Pixel_8, pa);
+		save_ppm_image_gen(struct Pixel_8, pa);
 	safe_write(fd, data, size);
 	free(data);
 }
@@ -319,7 +345,7 @@ save_pbm_image(struct Pixel_Array * pa, int fd)
  */
 static __attribute__((unused))
 void
-print_pbm_image(struct Pixel_Array * pa)
+print_ppm_image(struct Pixel_Array * pa)
 {
 	struct Pixel_8 * pixels_8, * p8;
 	struct Pixel_16 * pixels_16, * p16;

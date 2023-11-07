@@ -21,9 +21,9 @@ time_it_clock_gettime_overhead()
 	for (i=0;i<repeat;i++)
 	{
 		
-		clock_gettime(CLOCK_MONOTONIC, &t1);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
 		asm volatile("");
-		clock_gettime(CLOCK_MONOTONIC, &t2);
+		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
 		tmp = (t2.tv_sec-t1.tv_sec) * 1000000000LL + t2.tv_nsec - t1.tv_nsec;
 		
 		if (tmp < overhead)
@@ -32,28 +32,28 @@ time_it_clock_gettime_overhead()
 	return ((double) overhead) / 1000000000LL;
 }
 
-#define start_timer(id)                                                          \
-	struct timespec __##id##t1, __##id##t2;                                  \
-	do clock_gettime(CLOCK_MONOTONIC, &__##id##t1); while (0)
+#define start_timer(id)                            \
+	struct timespec __##id##t1, __##id##t2;    \
+	do clock_gettime(CLOCK_MONOTONIC_RAW, &__##id##t1); while (0)
 
 #define stop_timer(id)                                                                                                                 \
 ({                                                                                                                                     \
-	clock_gettime(CLOCK_MONOTONIC, &__##id##t2);                                                                                   \
+	clock_gettime(CLOCK_MONOTONIC_RAW, &__##id##t2);                                                                               \
 	((double) ((__##id##t2.tv_sec-__##id##t1.tv_sec) * 1000000000LL + __##id##t2.tv_nsec - __##id##t1.tv_nsec)) / 1000000000LL;    \
 })
 
 
-#define time_it(times, ...)                            \
-({                                                     \
-	__auto_type __times = times;                   \
-	typeof(__times) __i;                           \
-	                                               \
-	start_timer(time_it);                          \
-	for (__i=0;__i<__times;__i++)                  \
-	{                                              \
-		__VA_ARGS__                            \
-	}                                              \
-	stop_timer(time_it);                           \
+#define time_it(times, ...)              \
+({                                       \
+	__auto_type __times = times;     \
+	typeof(__times) __i;             \
+                                         \
+	start_timer(time_it);            \
+	for (__i=0;__i<__times;__i++)    \
+	{                                \
+		__VA_ARGS__              \
+	}                                \
+	stop_timer(time_it);             \
 })
 
 

@@ -133,8 +133,8 @@ find_splitters(_TYPE_V * A, long N, _TYPE_V * splitters, long num_splitters, _TY
 		samples[j] = samples[i];
 	}
 	num_samples = j;
-	if (num_samples <= 1)
-		error("too few samples");
+	if (num_samples <= 0)
+		error("no samples remaining");
 	if (num_samples <= num_splitters)
 		num_splitters = num_samples - 1;
 	samples_per_bucket = num_samples / num_splitters;
@@ -196,11 +196,26 @@ samplesort_concurrent(_TYPE_V * A, long N, _TYPE_AD * aux_data)
 	#pragma omp single nowait
 	{
 		num_splitters = num_splitters_default;
-
 		splitters = (typeof(splitters)) malloc(num_splitters * sizeof(*splitters));
-
-		// printf("splitters: %ld\n", num_splitters);
 		num_splitters = find_splitters(A, N, splitters, num_splitters, aux_data);
+	}
+
+	#pragma omp barrier
+
+	if (num_splitters <= 1)
+	{
+		#pragma omp single nowait
+		{
+			quicksort(A, N, aux_data);
+		}
+		#pragma omp barrier
+		return;
+	}
+
+	#pragma omp barrier
+
+	#pragma omp single nowait
+	{
 		// for (long i=0;i<num_splitters;i++)
 		// {
 			// printf("%g, ", splitters[i]);

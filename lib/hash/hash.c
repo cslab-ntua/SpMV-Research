@@ -130,7 +130,7 @@ static const unsigned int R[][3] = {
 
 
 /* Operators:
- *     Multiplication has the good property that every bit of the arguments affect all the bits of the result.
+ *     Multiplication has the good property that every bit of the arguments affects all the bits of the result.
  *     But it has the bad property that the commonly used 0 always results 0,
  *     no matter the other argument (bad for random number generators).
  *
@@ -147,7 +147,7 @@ static const unsigned int R[][3] = {
  * Multiplication modulo n is a fair mapping if the constant factor is coprime to n (therefor a generator).
  * But we also want it to be as fair as possible also for small sets, not just for the whole Z.
  * e.g. x*p mod n with small p will give the multiples of p first before exceeding n and cycling over.
- * Therefore it maybe be better to select big coprimes, that frequently cycle n.
+ * Therefore it may be better to select big coprimes, that frequently cycle n.
  */
 uint64_t
 xorshift64_int(const uint64_t v, uint64_t seed, int variant)

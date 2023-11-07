@@ -69,13 +69,17 @@ int main(int argc, char **argv)
 	val = (typeof(val)) malloc(nnz * sizeof(*val));
 
 
+	long num_pixels = 1024;
+	long num_pixels_x = (n < num_pixels) ? n : num_pixels;
+	long num_pixels_y = (m < num_pixels) ? m : num_pixels;
+
 	time = time_it(1,
 		coo_to_csr(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_ptr, col_idx, val, 1);
 	);
 	printf("time coo_to_csr = %lf\n", time);
 
 	time = time_it(1,
-		csr_plot_f(file_fig, row_ptr, col_idx, val, m, n, nnz, 0);
+		csr_plot_f(file_fig, row_ptr, col_idx, val, m, n, nnz, 0, num_pixels_x, num_pixels_y);
 	);
 	printf("time plot = %lf\n", time);
 

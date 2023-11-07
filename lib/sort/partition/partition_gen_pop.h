@@ -9,6 +9,5 @@
 #pragma pop_macro("_TYPE_AD")
 #pragma pop_macro("partition_serial")
 #pragma pop_macro("partition_auto_serial")
-#pragma pop_macro("partition_serial_random")
 #pragma pop_macro("partition_concurrent")
 #pragma pop_macro("partition_auto_concurrent")

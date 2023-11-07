@@ -38,7 +38,7 @@ long partition_serial(_TYPE_V pivot, _TYPE_V * A, long i_start, long i_end, _TYP
 
 #undef  partition_auto_serial
 #define partition_auto_serial  PARTITION_GEN_EXPAND(partition_auto_serial)
-long partition_auto_serial(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_data, const int non_empty_left_seg);
+long partition_auto_serial(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_data);
 
 
 #undef  partition_concurrent
@@ -47,5 +47,5 @@ long partition_concurrent(_TYPE_V pivot, _TYPE_V * A, long i_start, long i_end, 
 
 #undef  partition_auto_concurrent
 #define partition_auto_concurrent  PARTITION_GEN_EXPAND(partition_auto_concurrent)
-long partition_auto_concurrent(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_data, const int non_empty_left_seg, const int inplace, _TYPE_V * buf);
+long partition_auto_concurrent(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_data, const int inplace, _TYPE_V * buf);
 

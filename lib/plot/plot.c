@@ -22,6 +22,49 @@
 #include "legend.h"
 
 
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Functools - Reduce Add
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+#include "functools/functools_gen_push.h"
+#define FUNCTOOLS_GEN_TYPE_1  int
+#define FUNCTOOLS_GEN_TYPE_2  int
+#define FUNCTOOLS_GEN_SUFFIX  _plot_i_i
+#include "functools/functools_gen.c"
+__attribute__((pure))
+static inline
+int
+functools_map_fun(int * A, long i)
+{
+	return A[i];
+}
+__attribute__((pure))
+static inline
+int
+functools_reduce_fun(int a, int b)
+{
+	return a + b;
+}
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Partition
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+// #include "sort/partition/partition_gen_push.h"
+// #define PARTITION_GEN_TYPE_1  double
+// #define PARTITION_GEN_TYPE_2  int
+// #define PARTITION_GEN_TYPE_3  void
+// #define PARTITION_GEN_SUFFIX  _plot_d_i_v
+// #include "sort/partition/partition_gen.c"
+// static inline
+// int
+// partition_cmp(_TYPE_V a, _TYPE_V b, _TYPE_AD * aux_data)
+// {
+	// return quicksort_cmp(a, b, aux_data);
+// }
+
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                             Utilities                                                                  -
@@ -91,7 +134,7 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 		fig->legend_conf.title = strdup(f_conv);       // Better to immediately understand that it's just the file name, than try to extract a possibly non-existent meaning from it, so keep extension.
 
 	fd = safe_open(f_ppm, O_WRONLY | O_TRUNC | O_CREAT);
-	save_pbm_image(pa, fd);
+	save_ppm_image(pa, fd);
 	safe_close(fd);
 
 	if (system("hash convert"))
@@ -133,37 +176,16 @@ out:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-static inline
-int
-test_for_invalid_values(void * x, long N, double (* get_x_as_double)(void * x, long i))
-{
-	long ret = 0;
-	#pragma omp parallel
-	{
-		double v;
-		long i;
-		#pragma omp for
-		for (i=0;i<N;i++)
-		{
-			v = get_x_as_double(x, i);
-			if (isnan(v) || fabs(v) == INFINITY)
-				ret = 1;
-		}
-	}
-	return ret;
-}
-
-
+/* Change only the affected fields, so that it can be used on an already initialized series.
+ */
 static
 void
-figure_series_init(struct Figure_Series * s, const char * name, void * x, void * y, void * z, long N, long M,
+figure_series_init_base(struct Figure_Series * s, void * x, void * y, void * z, long N, long M,
 		double (* get_x_as_double)(void * x, long i),
 		double (* get_y_as_double)(void * y, long i),
 		double (* get_z_as_double)(void * z, long i)
 		)
 {
-	long num_values;
-	s->name = strdup(name);
 	s->N = N;
 	if (M != 0)
 	{
@@ -175,14 +197,11 @@ figure_series_init(struct Figure_Series * s, const char * name, void * x, void *
 		s->cart_prod = 0;
 		s->M = N;
 	}
-	num_values = (s->cart_prod) ? s->M * s->N : s->N;
+	s->L = (s->cart_prod) ? s->M * s->N : s->N;
 
 	s->x = x;
 	s->y = y;
 	s->z = z;
-
-	s->x_in_percentages = 0;
-	s->y_in_percentages = 0;
 
 	if (get_x_as_double == NULL)
 		get_x_as_double = id;
@@ -191,13 +210,24 @@ figure_series_init(struct Figure_Series * s, const char * name, void * x, void *
 	s->get_x_as_double = get_x_as_double;
         s->get_y_as_double = get_y_as_double;
         s->get_z_as_double = get_z_as_double;
+}
 
-	if (x != NULL && test_for_invalid_values(x, num_values, get_x_as_double))
-		error("A value in x of series %s is invalid.", s->name);
-	if (y != NULL && test_for_invalid_values(y, num_values, get_y_as_double))
-		error("A value in y of series %s is invalid.", s->name);
-	if (z != NULL && test_for_invalid_values(z, num_values, get_z_as_double))
-		error("A value in z of series %s is invalid.", s->name);
+
+static
+void
+figure_series_init(struct Figure_Series * s, const char * name, void * x, void * y, void * z, long N, long M,
+		double (* get_x_as_double)(void * x, long i),
+		double (* get_y_as_double)(void * y, long i),
+		double (* get_z_as_double)(void * z, long i)
+		)
+{
+	s->name = strdup(name);
+	figure_series_init_base(s, x, y, z, N, M, get_x_as_double, get_y_as_double, get_z_as_double);
+
+	s->ignore_invalid_values = 0;
+
+	s->x_in_percentages = 0;
+	s->y_in_percentages = 0;
 
 	s->color_mapping = figure_color_mapping_normal;
 	s->r = 0x00;
@@ -209,13 +239,13 @@ figure_series_init(struct Figure_Series * s, const char * name, void * x, void *
 
 	s->type_histogram = 0;
 	s->histogram_num_bins = 0;
-	s->histogram_in_percentages = 0;
-	s->histogram_in_percentages = 0;
 
 	s->type_barplot = 0;
 	s->barplot_bar_width_fraction = 0.6;
 	s->barplot_max_bar_width = 0;
 	s->barplot_bar_width = 0;
+
+	s->type_bounded_median_curve = 0;
 
 	s->deallocate_data = 0;
 }
@@ -307,12 +337,9 @@ figure_add_series_base(struct Figure * fig, void * x, void * y, void * z, long N
 }
 
 
-void
-figure_series_set_name(struct Figure_Series * s, const char * name)
-{
-	free(s->name);
-	s->name = strdup(name);
-}
+//==========================================================================================================================================
+//= Figure Options
+//==========================================================================================================================================
 
 
 void
@@ -348,6 +375,41 @@ figure_set_bounds_y(struct Figure * fig, double min, double max)
 
 
 void
+figure_enable_legend(struct Figure * fig)
+{
+	fig->legend_conf.legend_enabled = 1;
+}
+
+
+void
+figure_set_title(struct Figure * fig, char * title)
+{
+	free(fig->legend_conf.title);
+	fig->legend_conf.title = strdup(title);
+}
+
+
+//==========================================================================================================================================
+//= Figure Series Options
+//==========================================================================================================================================
+
+
+void
+figure_series_ignore_invalid_values(struct Figure_Series * s)
+{
+	s->ignore_invalid_values = 1;
+}
+
+
+void
+figure_series_set_name(struct Figure_Series * s, const char * name)
+{
+	free(s->name);
+	s->name = strdup(name);
+}
+
+
+void
 figure_series_set_color(struct Figure_Series * s, int16_t r, int16_t g, int16_t b)
 {
 	s->r = r;
@@ -371,21 +433,6 @@ void
 figure_series_set_dot_size_pixels(struct Figure_Series * s, int size)
 {
 	s->dot_size_pixels = size > 0 ? size : 1;
-}
-
-
-void
-figure_enable_legend(struct Figure * fig)
-{
-	fig->legend_conf.legend_enabled = 1;
-}
-
-
-void
-figure_set_title(struct Figure * fig, char * title)
-{
-	free(fig->legend_conf.title);
-	fig->legend_conf.title = strdup(title);
 }
 
 
@@ -451,14 +498,15 @@ figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int p
 	double quantum_size;
 	double min, max;
 
-	num_values = (s->cart_prod) ? s->M * s->N : s->N;
 	if (s->z == NULL)
 	{
+		num_values = s->M;
 		values = s->y;
 		get_value_as_double = s->get_y_as_double;
 	}
 	else
 	{
+		num_values = s->L;
 		values = s->z;
 		get_value_as_double = s->get_z_as_double;
 	}
@@ -516,20 +564,23 @@ figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int p
 
 	free(freq);
 
-	s->N = num_bins;
-	s->M = s->N;
-	s->cart_prod = 0;
-	s->x = x;
-	s->y = y;
-	s->z = NULL;
+	/* User might have set various things already, so we can't just use figure_series_init().
+	 */
+	figure_series_init_base(s, x, y, NULL, num_bins, 0, gen_d2d, gen_d2d, NULL);
+	// s->N = num_bins;
+	// s->M = num_bins;
+	// s->L = s->N;
+	// s->cart_prod = 0;
+	// s->x = x;
+	// s->y = y;
+	// s->z = NULL;
 	if (plot_percentages)
 		s->y_in_percentages = 1;
-	s->get_x_as_double = gen_d2d;
-	s->get_y_as_double = gen_d2d;
-	s->get_z_as_double = NULL;
+	// s->get_x_as_double = gen_d2d;
+	// s->get_y_as_double = gen_d2d;
+	// s->get_z_as_double = NULL;
 	s->type_histogram = 1;
 	s->histogram_num_bins = num_bins;
-	s->histogram_in_percentages = plot_percentages;
 	s->deallocate_data = 1;
 	if (freq_out != NULL)
 		*freq_out = y;
@@ -543,6 +594,14 @@ figure_series_type_barplot_base(struct Figure_Series * s, double max_bar_width, 
 	s->type_barplot = 1;
 	s->barplot_max_bar_width = max_bar_width;
 	s->barplot_bar_width_fraction = bar_width_fraction;
+}
+
+
+void
+figure_series_type_bounded_median_curve(struct Figure_Series * s, int axis)
+{
+	s->type_bounded_median_curve = 1;
+	s->bounded_median_curve_axis = axis;
 }
 
 
@@ -649,21 +708,52 @@ figure_color_mapping_greyscale(double val_norm, __attribute__((unused)) double v
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+//==========================================================================================================================================
+//= Find Value Pixel Coordinates
+//==========================================================================================================================================
+
+
 /* 
  * - User can set custom (value) bounds, which might not fit all data.
  * - Inline functions somehow are slower.
  */  
 
 
-#define find_pixel_coord(num_pixels, val, min, step, flip, custom_bounds)                                                                                  \
+/* Virtual coordinates, can be outside the user custom boundaries. */
+
+#define find_pixel_coord_virtual(num_pixels, val, min, step, flip)    \
+({                                                                    \
+	long _q = (long) floor((val - min) / step + 0.5);             \
+	if (flip)                                                     \
+		_q = num_pixels - 1 - _q;                             \
+	_q;                                                           \
+})
+
+#define find_pixel_coord_virtual_x(fig, s, i)                                                          \
+({                                                                                                     \
+	double _x = s->get_x_as_double(s->x, i);                                                       \
+	find_pixel_coord_virtual(fig->x_num_pixels, _x, fig->x_min, fig->x_step, fig->axes_flip_x);    \
+})
+
+
+#define find_pixel_coord_virtual_y(fig, s, i)                                                           \
+({                                                                                                      \
+	double _y = s->get_y_as_double(s->y, i);                                                        \
+	find_pixel_coord_virtual(fig->y_num_pixels, _y, fig->y_min, fig->y_step, !fig->axes_flip_y);    \
+})
+
+
+/* Actual coordinates, respecting the user custom boundaries.
+ * floor(): If x is integral, +0, -0, NaN, or an infinity, x itself is returned.
+ */
+
+#define find_pixel_coord(num_pixels, val, min, step, flip, custom_bounds, ignore_invalid_values)                                                           \
 ({                                                                                                                                                         \
-	long _q = (long) floor((val - min) / step + 0.5);                                                                                                  \
-	if (flip)                                                                                                                                          \
-		_q = num_pixels - 1 - _q;                                                                                                                  \
-	if ((_q < 0) || (_q >= num_pixels))                                                                                                                \
+	long _q = find_pixel_coord_virtual(num_pixels, val, min, step, flip);                                                                              \
+	if ((_q < 0) || (_q >= num_pixels))  /* Check if value outside the pixel boundaries. */                                                            \
 	{                                                                                                                                                  \
-		if (custom_bounds)                                                                                                                         \
-			_q = -1;   /* Ignore this value. */                                                                                                \
+		if (custom_bounds || ignore_invalid_values)                                                                                                \
+			_q = (_q < 0) ? -1 : -2;    /* Custom bounds give no error. */                                                                     \
 		else   /* This should logically NEVER happen. */                                                                                           \
 			error("find_pixel_coord: pixel coordinate out of bounds: pixel=%ld , num_pixels=%ld , val=%lf , min=%lf , step=%lf , flip=%ld",    \
 				_q, num_pixels, val, min, step, flip);                                                                                     \
@@ -671,29 +761,37 @@ figure_color_mapping_greyscale(double val_norm, __attribute__((unused)) double v
 	_q;                                                                                                                                                \
 })
 
-
-#define find_pixel_coord_x(fig, s, i)                                                                                \
-({                                                                                                                   \
-	double _x = s->get_x_as_double(s->x, i);                                                                     \
-	find_pixel_coord(fig->x_num_pixels, _x, fig->x_min, fig->x_step, fig->axes_flip_x, fig->custom_bounds_x);    \
+#define find_pixel_coord_x(fig, s, i)                                                                                                          \
+({                                                                                                                                             \
+	double _x = s->get_x_as_double(s->x, i);                                                                                               \
+	find_pixel_coord(fig->x_num_pixels, _x, fig->x_min, fig->x_step, fig->axes_flip_x, fig->custom_bounds_x, s->ignore_invalid_values);    \
 })
 
-
-#define find_pixel_coord_y(fig, s, i)                                                                                 \
-({                                                                                                                    \
-	double _y = s->get_y_as_double(s->y, i);                                                                      \
-	find_pixel_coord(fig->y_num_pixels, _y, fig->y_min, fig->y_step, !fig->axes_flip_y, fig->custom_bounds_y);    \
+#define find_pixel_coord_y(fig, s, i)                                                                                                           \
+({                                                                                                                                              \
+	double _y = s->get_y_as_double(s->y, i);                                                                                                \
+	find_pixel_coord(fig->y_num_pixels, _y, fig->y_min, fig->y_step, !fig->axes_flip_y, fig->custom_bounds_y, s->ignore_invalid_values);    \
 })
 
 
 //==========================================================================================================================================
-//= Series Plot
+//= Color Pixels
 //==========================================================================================================================================
 
 
 static inline
+double
+normalize_value(double val, double min, double max)
+{
+	double val_norm;  // value normalized to [0, 1].
+	val_norm = (min == max) ? 0.5 : (val - min) / (max - min);   // If min == max then return the mid value, i.e., 0.5.
+	return val_norm;
+}
+
+
+static inline
 void
-color_pixels(struct Figure * fig, struct Pixel_Array * pa, long x_pix, long y_pix, struct Figure_Series * s, long z_pos)
+color_pixels(struct Pixel_Array * pa, long x_pix, long y_pix, struct Figure * fig, struct Figure_Series * s, double val, int immediate_color, uint8_t r_imm, uint8_t g_imm, uint8_t b_imm)
 {
 	struct Pixel_8 * pixels = pa->pixels;
 	long x_num_pixels = pa->width;
@@ -701,19 +799,29 @@ color_pixels(struct Figure * fig, struct Pixel_Array * pa, long x_pix, long y_pi
 	double x_pix_left, x_pix_right;
 	double y_pix_down, y_pix_up;
 	long pos;
-	double val;
 	double val_norm;  // value normalized to [0, 1].
 	uint8_t r, g, b;
 	long dot_size_pixels;
 	struct Pixel_8 * p;
 	long i, j;
 
+	if (x_pix < 0 || x_pix >= x_num_pixels)
+		return;
+	if (y_pix < 0 || y_pix >= y_num_pixels)
+		return;
+
 	dot_size_pixels = s->dot_size_pixels;
 
 	pos = y_pix*x_num_pixels + x_pix;
 	if ((dot_size_pixels <= 1) && !pixel_array_lock_pixel(pa, pos))
 		return;
-	if (s->z == NULL)
+	if (immediate_color)
+	{
+		r = r_imm;
+		g = g_imm;
+		b = b_imm;
+	}
+	else if (s->z == NULL)
 	{
 		r = s->r;
 		g = s->g;
@@ -721,8 +829,8 @@ color_pixels(struct Figure * fig, struct Pixel_Array * pa, long x_pix, long y_pi
 	}
 	else
 	{
-		val = s->get_z_as_double(s->z, z_pos); 
-		val_norm = (val - s->z_min) / (s->z_max - s->z_min);
+		// val_norm = normalize_value(val, s->z_min, s->z_max);
+		val_norm = normalize_value(val, fig->z_min, fig->z_max);
 		s->color_mapping(val_norm, val, &r, &g, &b);
 	}
 
@@ -758,7 +866,7 @@ color_pixels(struct Figure * fig, struct Pixel_Array * pa, long x_pix, long y_pi
 			}
 		}
 	}
-	else
+	else if (dot_size_pixels > 1)
 	{
 		y_pix_down = y_pix - dot_size_pixels/2;
 		y_pix_up = y_pix + (dot_size_pixels-1)/2;
@@ -789,6 +897,11 @@ color_pixels(struct Figure * fig, struct Pixel_Array * pa, long x_pix, long y_pi
 }
 
 
+//==========================================================================================================================================
+//= Series Plot
+//==========================================================================================================================================
+
+
 static
 void
 series_plot(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * pa)
@@ -796,10 +909,11 @@ series_plot(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * 
 	#pragma omp parallel
 	{
 		long x_pix, y_pix;
+		double val;
 		long i, j;
 		if (s->cart_prod)
 		{
-			#pragma omp for schedule(static)
+			#pragma omp for
 			for (i=0;i<s->M;i++)
 			{
 				y_pix = find_pixel_coord_y(fig, s, i);
@@ -810,13 +924,14 @@ series_plot(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * 
 					x_pix = find_pixel_coord_x(fig, s, j);
 					if (x_pix < 0)
 						continue;
-					color_pixels(fig, pa, x_pix, y_pix, s, i*s->N+j);
+					val = (s->z != NULL) ? s->get_z_as_double(s->z, i*s->N+j) : 0;
+					color_pixels(pa, x_pix, y_pix, fig, s, val, 0, 0, 0, 0);
 				}
 			}
 		}
 		else
 		{
-			#pragma omp for schedule(static)
+			#pragma omp for
 			for (i=0;i<s->M;i++)
 			{
 				y_pix = find_pixel_coord_y(fig, s, i);
@@ -825,7 +940,8 @@ series_plot(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * 
 				x_pix = find_pixel_coord_x(fig, s, i);
 				if (x_pix < 0)
 					continue;
-				color_pixels(fig, pa, x_pix, y_pix, s, i);
+				val = (s->z != NULL) ? s->get_z_as_double(s->z, i) : 0;
+				color_pixels(pa, x_pix, y_pix, fig, s, val, 0, 0, 0, 0);
 			}
 		}
 	}
@@ -837,7 +953,12 @@ series_plot(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * 
 //==========================================================================================================================================
 
 
-// Must be done in the end, right before plotting, so that the plotting parameters like image size have been finalized.
+/* Must be done in the end, right before plotting,
+ * so that the plotting parameters like image size have been finalized.
+ *
+ * Doesn't change the bounds of the series, so it doesn't affect the bounds of the figure.
+ */
+
 static
 void
 series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * pa)
@@ -856,10 +977,10 @@ series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pi
 	{
 		long i, j, pos;
 		long x_pix, y_pix;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<counts_n;i++)
 			counts[i] = 0;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<s->M;i++)
 		{
 			y_pix = find_pixel_coord_y(fig, s, i);
@@ -894,7 +1015,7 @@ series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pi
 		struct Pixel_8 * p;
 		double val, val_norm;
 		long i, j, pos;
-		#pragma omp for schedule(static)
+		#pragma omp for
 		for (i=0;i<y_num_pixels;i++)
 		{
 			for (j=0;j<x_num_pixels;j++)
@@ -904,13 +1025,211 @@ series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pi
 				if (val == 0)    // Only plot existing points of the series.
 					continue;
 				p = &pixels[pos];
-				val_norm = (val - min) / (max - min);
+				val_norm = normalize_value(val, min, max);
 				s->color_mapping(val_norm, val, &p->r, &p->g, &p->b);
 			}
 		}
 	}
 
 	free(counts);
+}
+
+
+//==========================================================================================================================================
+//= Series Plot Bounded Median Curve
+//==========================================================================================================================================
+
+
+/* Must be done in the end, right before plotting,
+ * so that the plotting parameters like image size have been finalized.
+ *
+ * Doesn't change the bounds of the series, so it doesn't affect the bounds of the figure.
+ */
+
+static
+void
+series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * pa)
+{
+	long x_num_pixels = fig->x_num_pixels;
+	long y_num_pixels = fig->y_num_pixels;
+	long num_buckets;
+	// long bucket_size;
+	int * offsets;
+	int * indexes;
+
+	if (s->bounded_median_curve_axis == 0)
+	{
+		num_buckets = x_num_pixels;
+		// bucket_size = y_num_pixels;
+	}
+	else
+	{
+		num_buckets = y_num_pixels;
+		// bucket_size = x_num_pixels;
+	}
+
+	offsets = malloc((num_buckets+1) * sizeof(*offsets));
+	indexes = malloc(s->L * sizeof(*indexes));
+
+	/* Create a CSR structure that describes the colored pixels of each x column or y row (primary axis), depending on bounded_median_curve_axis value.
+	 */
+
+	#pragma omp parallel
+	{
+		// int tnum = omp_get_thread_num();
+		long i, j, pos;
+		long x_pix, y_pix;
+		long step;
+		long degree;
+
+		#pragma omp for
+		for (i=0;i<num_buckets+1;i++)
+			offsets[i] = 0;
+		#pragma omp for
+		for (i=0;i<s->L;i++)
+			indexes[i] = 0;
+
+		// Find offsets, i.e., primary axis pixel slices (y:rows or x:columns).
+		step = (s->cart_prod) ? ((s->bounded_median_curve_axis == 0) ? s->M : s->N) : 1;
+		if (s->bounded_median_curve_axis == 0)
+		{
+			#pragma omp for
+			for (i=0;i<s->N;i++)
+			{
+				x_pix = find_pixel_coord_virtual_x(fig, s, i);
+				if (x_pix >= 0 && x_pix < x_num_pixels)
+					__atomic_fetch_add(&offsets[x_pix], step, __ATOMIC_RELAXED);
+			}
+		}
+		else
+		{
+			#pragma omp for
+			for (i=0;i<s->M;i++)
+			{
+				y_pix = find_pixel_coord_virtual_y(fig, s, i);
+				if (y_pix >= 0 && y_pix < y_num_pixels)
+					__atomic_fetch_add(&offsets[y_pix], step, __ATOMIC_RELAXED);
+			}
+		}
+
+		scan_reduce_concurrent(offsets, offsets, num_buckets+1, 0, 0, 0);
+
+		// Place indexes, i.e., colored pixel secondary axis coordinates.
+		#pragma omp for
+		for (i=0;i<s->M;i++)
+		{
+			y_pix = find_pixel_coord_virtual_y(fig, s, i);
+			if (s->cart_prod)
+			{
+				for (j=0;j<s->N;j++)
+				{
+					x_pix = find_pixel_coord_virtual_x(fig, s, j);
+					if (s->bounded_median_curve_axis == 0)
+					{
+						if (x_pix < 0 || x_pix >= x_num_pixels)
+							continue;
+						pos = __atomic_sub_fetch(&offsets[x_pix], 1, __ATOMIC_RELAXED);
+						indexes[pos] = y_pix;
+					}
+					else
+					{
+						if (y_pix < 0 || y_pix >= y_num_pixels)
+							continue;
+						pos = __atomic_sub_fetch(&offsets[y_pix], 1, __ATOMIC_RELAXED);
+						indexes[pos] = x_pix;
+					}
+				}
+			}
+			else
+			{
+				x_pix = find_pixel_coord_virtual_x(fig, s, i);
+				if (s->bounded_median_curve_axis == 0)
+				{
+					if (x_pix < 0 || x_pix >= x_num_pixels)
+						continue;
+					pos = __atomic_sub_fetch(&offsets[x_pix], 1, __ATOMIC_RELAXED);
+					indexes[pos] = y_pix;
+				}
+				else
+				{
+					if (y_pix < 0 || y_pix >= y_num_pixels)
+						continue;
+					pos = __atomic_sub_fetch(&offsets[y_pix], 1, __ATOMIC_RELAXED);
+					indexes[pos] = x_pix;
+				}
+			}
+		}
+
+		// For each primary axis slice find and color the min, max and median pixels.
+		int reverse_order = (s->bounded_median_curve_axis == 0 && !fig->axes_flip_y) || (s->bounded_median_curve_axis == 1 && fig->axes_flip_x);
+		double min, max, mean, quantile;
+		#pragma omp for
+		for (i=0;i<num_buckets;i++)
+		{
+			degree = offsets[i+1] - offsets[i];
+			if (degree < 0)
+				error("degree < 0");
+			if (reverse_order)
+				array_min_max_serial(&indexes[offsets[i]], degree, &max, NULL, &min, NULL, gen_i2d);
+			else
+				array_min_max_serial(&indexes[offsets[i]], degree, &min, NULL, &max, NULL, gen_i2d);
+			array_mean_serial(&indexes[offsets[i]], degree, &mean, gen_i2d);
+			if (s->bounded_median_curve_axis == 0)
+			{
+				color_pixels(pa, i, min, fig, s, 0, 1, 0x00, 0x00, 0xDD);
+				color_pixels(pa, i, max, fig, s, 0, 1, 0xDD, 0x00, 0x00);
+				color_pixels(pa, i, mean, fig, s, 0, 1, 0x00, 0x00, 0x00);
+			}
+			else
+			{
+				color_pixels(pa, min, i, fig, s, 0, 1, 0x00, 0x00, 0xDD);
+				color_pixels(pa, max, i, fig, s, 0, 1, 0xDD, 0x00, 0x00);
+				color_pixels(pa, mean, i, fig, s, 0, 1, 0x00, 0x00, 0x00);
+			}
+		}
+		pixel_array_reset_locks_concurrent(pa);
+		#pragma omp for
+		for (i=0;i<num_buckets;i++)
+		{
+			degree = offsets[i+1] - offsets[i];
+			array_quantile_serial(&indexes[offsets[i]], degree, (reverse_order) ? 0.75 : 0.25, "", &quantile, gen_i2d);
+			if (s->bounded_median_curve_axis == 0)
+			{
+				color_pixels(pa, i, quantile, fig, s, 0, 1, 0x00, 0xDD, 0xDD);
+			}
+			else
+			{
+				color_pixels(pa, quantile, i, fig, s, 0, 1, 0x00, 0xDD, 0xDD);
+			}
+			array_quantile_serial(&indexes[offsets[i]], degree, (reverse_order) ? 0.25 : 0.75, "", &quantile, gen_i2d);
+			if (s->bounded_median_curve_axis == 0)
+			{
+				color_pixels(pa, i, quantile, fig, s, 0, 1, 0xDD, 0xDD, 0x00);
+			}
+			else
+			{
+				color_pixels(pa, quantile, i, fig, s, 0, 1, 0xDD, 0xDD, 0x00);
+			}
+		}
+		pixel_array_reset_locks_concurrent(pa);
+		#pragma omp for
+		for (i=0;i<num_buckets;i++)
+		{
+			degree = offsets[i+1] - offsets[i];
+			array_quantile_serial(&indexes[offsets[i]], degree, 0.5, "", &quantile, gen_i2d);
+			if (s->bounded_median_curve_axis == 0)
+			{
+				color_pixels(pa, i, quantile, fig, s, 0, 1, 0x00, 0xDD, 0x00);
+			}
+			else
+			{
+				color_pixels(pa, quantile, i, fig, s, 0, 1, 0x00, 0xDD, 0x00);
+			}
+		}
+	}
+
+	free(offsets);
+	free(indexes);
 }
 
 
@@ -951,9 +1270,40 @@ closest_pair_distance(void * A, long N, double (* get_val_as_double)(void * A, l
 
 
 static inline
+int
+test_for_invalid_values(void * x, long N, double (* get_as_double)(void * x, long i))
+{
+	long ret = 0;
+	#pragma omp parallel
+	{
+		double v;
+		long i;
+		#pragma omp for
+		for (i=0;i<N;i++)
+		{
+			v = get_as_double(x, i);
+			if (isnan(v) || fabs(v) == INFINITY)
+				ret = 1;
+		}
+	}
+	return ret;
+}
+
+
+static inline
 void
 calc_series_bounds(struct Figure_Series * s)
 {
+	if (!s->ignore_invalid_values)
+	{
+		if ((s->x != NULL) && test_for_invalid_values(s->x, s->N, s->get_x_as_double))
+			error("A value in x of series %s is invalid.", s->name);
+		if ((s->y != NULL) && test_for_invalid_values(s->y, s->M, s->get_y_as_double))
+			error("A value in y of series %s is invalid.", s->name);
+		if ((s->z != NULL) && test_for_invalid_values(s->z, s->L, s->get_z_as_double))
+			error("A value in z of series %s is invalid.", s->name);
+	}
+
 	if (s->x != NULL)
 	{
 		array_min_max(s->x, s->N, &s->x_min, NULL, &s->x_max, NULL, s->get_x_as_double);
@@ -978,8 +1328,7 @@ calc_series_bounds(struct Figure_Series * s)
 	}
 	if (s->z != NULL && !s->type_density_map)
 	{
-		long num_values = s->cart_prod ? s->M * s->N : s->N;
-		array_min_max(s->z, num_values, &s->z_min, NULL, &s->z_max, NULL, s->get_z_as_double);
+		array_min_max(s->z, s->L, &s->z_min, NULL, &s->z_max, NULL, s->get_z_as_double);
 		array_mean(s->z, s->N, &s->z_avg, s->get_z_as_double);
 	}
 }
@@ -1103,6 +1452,8 @@ figure_plot(struct Figure * fig, char * filename)
 		s = &fig->series[i];
 		if (s->type_density_map == 1)
 			series_plot_density_map(fig, s, pa);
+		else if (s->type_bounded_median_curve == 1)
+			series_plot_bounded_median_curve(fig, s, pa);
 		else
 			series_plot(fig, s, pa);
 	}
@@ -1112,5 +1463,4 @@ figure_plot(struct Figure * fig, char * filename)
 	pixel_array_destroy(&pa);
 	free(pa);
 }
-
 

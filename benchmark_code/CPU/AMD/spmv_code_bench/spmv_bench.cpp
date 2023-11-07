@@ -663,7 +663,7 @@ child_proc_label:
 			_Pragma("omp parallel for")
 			for (long i=0;i<mtx_m+1 + VECTOR_ELEM_NUM;i++)
 				csr_ia[i] = 0;
-			coo_to_csr(mtx_rowind, mtx_colind, mtx_val, mtx_m, mtx_n, mtx_nnz, csr_ia, csr_ja, csr_a_ref, 1);
+			coo_to_csr(mtx_rowind, mtx_colind, mtx_val, mtx_m, mtx_n, mtx_nnz, csr_ia, csr_ja, csr_a_ref, 1, 0);
 			_Pragma("omp parallel for")
 			for (long i=0;i<mtx_nnz + VECTOR_ELEM_NUM;i++)
 				csr_a[i] = (ValueType) csr_a_ref[i];
@@ -775,8 +775,12 @@ child_proc_label:
 	filename_base = strdup(filename_base);
 	if (0)
 	{
+		long num_pixels = 1024;
+		long num_pixels_x = (csr_n < num_pixels) ? csr_n : num_pixels;
+		long num_pixels_y = (csr_m < num_pixels) ? csr_m : num_pixels;
+
 		printf("ploting : %s\n", filename_base);
-		csr_plot(filename_base, csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz, 0);
+		csr_plot(filename_base, csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz, 0, num_pixels_x, num_pixels_y);
 		return 0;
 	}
 

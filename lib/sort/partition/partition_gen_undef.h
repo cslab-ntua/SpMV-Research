@@ -8,6 +8,5 @@
 #undef _TYPE_AD
 #undef partition_serial
 #undef partition_auto_serial
-#undef partition_serial_random
 #undef partition_concurrent
 #undef partition_auto_concurrent

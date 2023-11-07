@@ -119,8 +119,7 @@ quicksort_no_malloc(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitio
 			e--;
 			s = partitions[i];
 		}
-		m = partition_auto_serial(A, s, e+1, aux_data, 1);
-		// m = partition_auto_serial_random(&buf, A, s, e+1, aux_data);
+		m = partition_auto_serial(A, s, e+1, aux_data);
 		partitions[i++] = s;
 		s = m;
 	}
@@ -210,15 +209,15 @@ quicksort_no_malloc_parallel(_TYPE_V * A, __attribute__((unused)) _TYPE_V * buf,
 			#pragma omp parallel
 			{
 				if (buf == NULL)
-					m = partition_auto_concurrent(A, s, e+1, aux_data, 1, 1, NULL);
+					m = partition_auto_concurrent(A, s, e+1, aux_data, 1, NULL);
 				else
-					m = partition_auto_concurrent(A, s, e+1, aux_data, 1, 0, buf);
+					m = partition_auto_concurrent(A, s, e+1, aux_data, 0, buf);
 			}
 
 		}
 		else
 		{
-			m = partition_auto_serial(A, s, e+1, aux_data, 1);
+			m = partition_auto_serial(A, s, e+1, aux_data);
 		}
 
 		// if (do_print)
