@@ -11,6 +11,7 @@
 #include "plot/plot.h"
 #include "time_it.h"
 
+#include <sys/time.h>
 #include "csr_util_gen.h"
 
 
@@ -2026,6 +2027,7 @@ csr_shuffle_matrix(long m, _TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, 
 	}
 
 	// that's why i did it in separate loops, can utilize parallelization here!
+	// Increased parallelization opportunity here (with the loop partitioner of dgal!) Perhaps I will do it one day...
 	#pragma omp parallel for
 	for(i = 0; i < m; i++) {
 		_TYPE_I old_row = row_indices[i];
@@ -2048,14 +2050,14 @@ csr_shuffle_matrix(long m, _TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, 
 #define csr_extract_row_cross  CSR_UTIL_GEN_EXPAND(csr_extract_row_cross)
 void
 csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, 
-					  int *num_windows_out, _TYPE_I **row_cross_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, _TYPE_V **rc_v_out)
+					  int *num_windows_out, float **row_cross_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out)
 {
 	int num_windows = (n-1 + window_width) / window_width;
-	// printf("m = %d, n = %d, num_windows = %d\n", m, n, num_windows);
+	printf("m = %d, n = %d, num_windows = %d\n", m, n, num_windows);
 	long unsigned rc_elements = m * num_windows;
-	_TYPE_I * row_cross = (typeof(row_cross)) calloc(rc_elements, sizeof(*row_cross));
+	float * row_cross = (typeof(row_cross)) calloc(rc_elements, sizeof(*row_cross));
 	double row_cross_mem_foot = (m * 1.0 * num_windows * sizeof(*row_cross))/(1024*1024*1.0);
-	// printf("memory footprint of row_cross = %.2lf MB\n", row_cross_mem_foot);
+	printf("memory footprint of row_cross = %.2lf MB\n", row_cross_mem_foot);
 
 	int num_threads = omp_get_max_threads();
 
@@ -2089,15 +2091,18 @@ csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)
 				_TYPE_I cw_loc = col_idx[j] / window_width; // col window location
 				long unsigned rc_ind = i * num_windows + cw_loc;
 				// printf("tnum = %d, i * num_windows + cw_loc = %lu\n", tnum, i * num_windows + cw_loc);
-				row_cross[rc_ind]++;
+				row_cross[rc_ind]+=1.0;
 			}
 		}
 	}
 	);
-	// printf("time for row_cross = %lf\n", time_row_cross);
+	printf("time for row_cross = %lf\n", time_row_cross);
 
 	long unsigned rc_elements_nz = 0;
-	#pragma omp parallel for reduction(+:rc_elements_nz)
+	double time_reduction = time_it(1,
+	_Pragma("omp parallel")
+	{
+	_Pragma("omp for reduction(+:rc_elements_nz)")
 	for(int i=0; i<m; i++){
 		for(int j=0; j<num_windows; j++){
 			long unsigned rc_ind = i * num_windows + j;
@@ -2105,32 +2110,40 @@ csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)
 				rc_elements_nz++;
 		}
 	}
-	// printf("rc_elements_nz = %lu\n", rc_elements_nz);
+	}
+	);
+	printf("time for row_cross_reduction = %lf\n", time_reduction);
+	printf("rc_elements_nz = %lu\n", rc_elements_nz);
 
 	_TYPE_I * rc_r, * rc_c;
-	_TYPE_V * rc_v;
+	float * rc_v;
 	// rc_r = (typeof(rc_r)) malloc(rc_elements_nz * sizeof(*rc_r));
 	rc_r = (typeof(rc_r)) malloc((m+1) * sizeof(*rc_r));
 	rc_c = (typeof(rc_c)) malloc(rc_elements_nz * sizeof(*rc_c));
 	rc_v = (typeof(rc_v)) malloc(rc_elements_nz * sizeof(*rc_v));
 	double row_cross_compr_mem_foot = ((m+1) * sizeof(*rc_r) + rc_elements_nz * sizeof(*rc_c) + rc_elements_nz * sizeof(*rc_v))/(1024*1024*1.0);
-	// printf("memory footprint of row_cross (compressed) = %.2lf MB\n", row_cross_compr_mem_foot);
+	printf("memory footprint of row_cross (compressed) = %.2lf MB\n", row_cross_compr_mem_foot);
 	// printf("compression ratio = %.2lf%\n", row_cross_compr_mem_foot/row_cross_mem_foot * 100);
 
-	int cnt=0, cnt2=0;
+	// in order to make it faster, perhaps calculate rc_r beforehand and use the dgal partitioner for rc_c, rc_v
+	int cnt=0;
 	rc_r[0] = 0;
+	double time_final = time_it(1,
 	for(int i=0; i<m; i++){
 		for(int j=0; j<num_windows; j++){
 			long unsigned rc_ind = i * num_windows + j;
 			if(row_cross[rc_ind]!=0){
 				// rc_r[cnt] = i;
 				rc_c[cnt] = j;
-				rc_v[cnt] = row_cross[rc_ind] * 1.0;
+				rc_v[cnt] = row_cross[rc_ind];
 				cnt++;
 			}
 			rc_r[i+1] = cnt;
 		}
 	}
+	);
+	printf("time_final = %lf\n", time_final);
+
 
 	free(thread_i_s);
 	free(thread_i_e);
@@ -2233,7 +2246,8 @@ csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_
 	snprintf(buf, buf_n, "%s_row_size_distribution.png", title_base);
 	snprintf(buf_title, buf_n, "%s: row size distribution", title_base);
 	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, degrees_rows, NULL, m, 0),
-		figure_enable_legend(_fig);
+		if (enable_legend)
+			figure_enable_legend(_fig);
 		figure_set_title(_fig, buf_title);
 		figure_series_type_histogram(_s, 0, 1);
 		figure_series_type_barplot(_s);
@@ -2272,7 +2286,8 @@ csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _T
 	snprintf(buf, buf_n, "%s_crs_row_distribution.png", title_base);
 	snprintf(buf_title, buf_n, "%s: crs_row distribution", title_base);
 	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, crs_row, NULL, m, 0),
-		figure_enable_legend(_fig);
+		if (enable_legend)
+			figure_enable_legend(_fig);
 		figure_set_title(_fig, buf_title);
 		figure_series_type_histogram(_s, 0, 1);
 		figure_series_type_barplot(_s);
@@ -2310,7 +2325,8 @@ csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col
 	snprintf(buf, buf_n, "%s_num_neigh_distribution.png", title_base);
 	snprintf(buf_title, buf_n, "%s: num_neigh distribution", title_base);
 	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, num_neigh, NULL, m, 0),
-		figure_enable_legend(_fig);
+		if (enable_legend)
+			figure_enable_legend(_fig);
 		figure_set_title(_fig, buf_title);
 		figure_series_type_histogram(_s, 0, 1);
 		figure_series_type_barplot(_s);

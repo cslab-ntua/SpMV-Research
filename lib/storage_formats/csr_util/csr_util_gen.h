@@ -104,7 +104,7 @@ void csr_shuffle_matrix(long m, _TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *val
 #undef  csr_extract_row_cross
 #define csr_extract_row_cross  CSR_UTIL_GEN_EXPAND(csr_extract_row_cross)
 void csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, 
-						   int *num_windows_out, _TYPE_I **row_cross_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, _TYPE_V **rc_v_out);
+						   int *num_windows_out, float **row_cross_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
 #undef  csr_plot
 #define csr_plot  CSR_UTIL_GEN_EXPAND(csr_plot)
 void csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int enable_legend);
