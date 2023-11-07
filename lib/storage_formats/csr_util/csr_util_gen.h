@@ -22,14 +22,22 @@ typedef CSR_UTIL_GEN_TYPE_2  _TYPE_I;
 
 
 //==========================================================================================================================================
-//= Functions
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                              Functions                                                                 -
+//------------------------------------------------------------------------------------------------------------------------------------------
 //==========================================================================================================================================
 
 
-// Expand row indexes.
-#undef  csr_row_indexes
-#define csr_row_indexes  CSR_UTIL_GEN_EXPAND(csr_row_indexes)
-void csr_row_indexes(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, _TYPE_I ** row_idx_out);
+
+//==========================================================================================================================================
+//= Structural Features
+//==========================================================================================================================================
+
+
+// Expand row indices.
+#undef  csr_row_indices
+#define csr_row_indices  CSR_UTIL_GEN_EXPAND(csr_row_indices)
+void csr_row_indices(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, _TYPE_I ** row_idx_out);
 
 // Returns how many rows in matrix have less than "nnz_threshold" nonzeros
 #undef  csr_count_short_rows
@@ -47,10 +55,6 @@ long csr_count_distant_nonzeros(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, lo
 void csr_degrees_bandwidths_scatters(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz,
 		_TYPE_I ** degrees_rows_out, _TYPE_I ** degrees_cols_out, double ** bandwidths_out, double ** scatters_out);
 
-
-// #undef  csr_groups_per_row
-// #define csr_groups_per_row  CSR_UTIL_GEN_EXPAND(csr_groups_per_row)
-// void csr_groups_per_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long max_gap_size, long ** groups_per_row_out);
 
 #undef  csr_column_distances_and_groupping
 #define csr_column_distances_and_groupping  CSR_UTIL_GEN_EXPAND(csr_column_distances_and_groupping)
@@ -72,9 +76,10 @@ double csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, lo
 double csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size, _TYPE_I * crs_row);
 
 
-#undef  csr_value_features
-#define csr_value_features  CSR_UTIL_GEN_EXPAND(csr_value_features)
-void csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y);
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Structural Features - Print
+//------------------------------------------------------------------------------------------------------------------------------------------
+
 
 #undef  csr_matrix_features
 #define csr_matrix_features  CSR_UTIL_GEN_EXPAND(csr_matrix_features)
@@ -83,6 +88,16 @@ void csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx
 #undef  csr_matrix_features_validation
 #define csr_matrix_features_validation  CSR_UTIL_GEN_EXPAND(csr_matrix_features_validation)
 void csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz);
+
+
+//==========================================================================================================================================
+//= Value Features
+//==========================================================================================================================================
+
+
+#undef  csr_value_features
+#define csr_value_features  CSR_UTIL_GEN_EXPAND(csr_value_features)
+void csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y);
 
 
 //==========================================================================================================================================
@@ -109,8 +124,8 @@ void csr_shuffle_matrix(long m, _TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *val
 
 #undef  csr_extract_row_cross
 #define csr_extract_row_cross  CSR_UTIL_GEN_EXPAND(csr_extract_row_cross)
-void csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, 
-						   int *num_windows_out, float **row_cross_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
+void csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width,
+		int *num_windows_out, float **row_cross_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
 
 
 //==========================================================================================================================================

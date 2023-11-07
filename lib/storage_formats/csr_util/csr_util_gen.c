@@ -140,11 +140,11 @@ typedef CSR_UTIL_GEN_TYPE_2  _TYPE_I;
 //==========================================================================================================================================
 
 
-// Expand row indexes.
-#undef  csr_row_indexes
-#define csr_row_indexes  CSR_UTIL_GEN_EXPAND(csr_row_indexes)
+// Expand row indices.
+#undef  csr_row_indices
+#define csr_row_indices  CSR_UTIL_GEN_EXPAND(csr_row_indices)
 void
-csr_row_indexes(_TYPE_I * row_ptr, __attribute__((unused)) _TYPE_I * col_idx, long m, __attribute__((unused)) long n, long nnz,
+csr_row_indices(_TYPE_I * row_ptr, __attribute__((unused)) _TYPE_I * col_idx, long m, __attribute__((unused)) long n, long nnz,
 		_TYPE_I ** row_idx_out)
 {
 	_TYPE_I * row_idx;
@@ -321,44 +321,6 @@ csr_degrees_bandwidths_scatters(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, lo
 	else
 		free(scatters);
 }
-
-
-// #undef  csr_groups_per_row
-// #define csr_groups_per_row  CSR_UTIL_GEN_EXPAND(csr_groups_per_row)
-// void
-// csr_groups_per_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, long max_gap_size,
-		// long ** groups_per_row_out)
-// {
-	// long * groups_per_row = (typeof(groups_per_row)) malloc(m * sizeof(*groups_per_row));
-	// #pragma omp parallel
-	// {
-		// long i, j, k, degree;
-		// long num_groups;
-		// #pragma omp for
-		// for (i=0;i<m;i++)
-		// {
-			// groups_per_row[i] = 0;
-			// degree = row_ptr[i+1] - row_ptr[i];
-			// if (degree <= 0)
-				// continue;
-			// j = row_ptr[i];
-			// num_groups = 0;
-			// while (j < row_ptr[i+1])
-			// {
-				// k = j + 1;
-				// while ((k < row_ptr[i+1]) && (col_idx[k] - col_idx[k-1] <= max_gap_size + 1))   // distance 1 means gap 0
-					// k++;
-				// num_groups++;
-				// j = k;
-			// }
-			// groups_per_row[i] = num_groups;
-		// }
-	// }
-	// if (groups_per_row_out != NULL)
-		// *groups_per_row_out = groups_per_row;
-	// else
-		// free(groups_per_row);
-// }
 
 
 /* Nonzero column distances are not confined inside each row, meaning for the last nnz of a row
@@ -690,9 +652,9 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	double time;
 
 	time = time_it(1,
-		csr_row_indexes(row_ptr, col_idx, m, n, nnz, &row_idx);
+		csr_row_indices(row_ptr, col_idx, m, n, nnz, &row_idx);
 	);
-	printf("time row indexes = %lf\n", time);
+	printf("time row indices = %lf\n", time);
 	// Matrix structure, density map.
 	if (do_plot)
 	{
@@ -939,9 +901,9 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	double time;
 
 	time = time_it(1,
-		csr_row_indexes(row_ptr, col_idx, m, n, nnz, &row_idx);
+		csr_row_indices(row_ptr, col_idx, m, n, nnz, &row_idx);
 	);
-	printf("time row indexes = %lf\n", time);
+	printf("time row indices = %lf\n", time);
 
 	time = time_it(1,
 		csr_degrees_bandwidths_scatters(row_ptr, col_idx, m, n, nnz, &degrees_rows, &degrees_cols, &bandwidths, &scatters);
@@ -1654,7 +1616,7 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 	if (nnz == 0)
 		error("empty array");
 
-	csr_row_indexes(row_ptr, col_idx, m, n, nnz, &row_idx);
+	csr_row_indices(row_ptr, col_idx, m, n, nnz, &row_idx);
 
 	vals = (typeof(vals)) malloc(nnz * sizeof(*vals));
 	vals_sorted = (typeof(vals_sorted)) malloc(nnz * sizeof(*vals_sorted));
@@ -2364,7 +2326,7 @@ csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__(
 	long buf_n = strlen(title_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 
-	csr_row_indexes(row_ptr, col_idx, m, n, nnz, &row_idx);
+	csr_row_indices(row_ptr, col_idx, m, n, nnz, &row_idx);
 	snprintf(buf, buf_n, "%s.png", title_base);
 	snprintf(buf_title, buf_n, "%s", title_base);
 	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (col_idx, row_idx, NULL, nnz, 0),
