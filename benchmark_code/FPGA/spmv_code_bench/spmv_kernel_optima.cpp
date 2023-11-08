@@ -178,7 +178,7 @@ struct OPTIMAArrays : Matrix_Format
 					bool find_icol = true;
 					while(find_icol) {
 						icol++;
-						if ( icol > m-1 ) {
+						if ( icol > n + padding_factor -1 ) {
 							printf("****ERROR PAD 1****\n");
 							exit(-1);
 						}
@@ -208,7 +208,7 @@ struct OPTIMAArrays : Matrix_Format
 					bool find_icol = true;
 					while(find_icol) {
 						icol--;
-						if ( icol > m-1 ) {
+						if ( icol < 0 ) {
 							printf("****ERROR PAD 2****\n");
 							exit(-2);
 						}
@@ -445,9 +445,17 @@ struct OPTIMAArrays : Matrix_Format
 	void copy_to_device(ValueType * x)
 	{
 		cl_int err;
+		int padding_factor = 64 / sizeof(ValueType); // 64 is 512-bits, which is the width of the HBM interface
+		ValueType *x_padded = (typeof(x)) OOPS_malloc((size_t)((n+padding_factor)*sizeof(ValueType)));
+		for(int i=0;i<n;i++){
+			x_padded[i] = x[i];
+		}
+		for(int i=n; i<n+padding_factor; i++){
+			x_padded[i] = 0;
+		}
 		for (int i = 0; i < nstripe; i++) {
 			if(stripe_nterm[i]!=0){
-				OCL_CHECK(err, buffer_x[i] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,    n*sizeof(ValueType), x, &err));
+				OCL_CHECK(err, buffer_x[i] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,    (n+padding_factor)*sizeof(ValueType), x_padded, &err));
 				OCL_CHECK(err, buffer_y[i] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_WRITE_ONLY,   stripe_nrows[i]*sizeof(ValueType), _y[i], &err));
 				OCL_CHECK(err, buffer_coef[i] = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, stripe_nterm[i]*sizeof(ValueType), _coef[i], &err));
 				OCL_CHECK(err, buffer_ja[i]   = cl::Buffer(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, stripe_nterm[i]*sizeof(ColType), _ja[i], &err));
