@@ -76,7 +76,8 @@ struct OPTIMAArrays : Matrix_Format
 	cl::Context context;
 	cl::CommandQueue queue; // Command Queue for selected device
 	cl::Program program;
-	cl::Kernel *kernels;
+	// cl::Kernel *kernels;
+	std::vector<cl::Kernel> kernels;
 
 	ValueType** _coef;
 	ValueType** _y;
@@ -111,8 +112,8 @@ struct OPTIMAArrays : Matrix_Format
 		// printf("coef_padded %p\n\n", (void*)coef_padded);
 
 		// program_device_start(&queue, &context, &program);
-		kernels = (cl::Kernel *)OOPS_malloc((size_t)(nstripe * sizeof(cl::Kernel)));
-		program_device(&queue, &context, &program, kernels);
+		// kernels = (cl::Kernel *)OOPS_malloc((size_t)(nstripe * sizeof(cl::Kernel)));
+		kernels = program_device(&queue, &context, &program);
 
 		/*******************************************************************************************/
 		_coef = (ValueType**) OOPS_malloc((size_t)(nstripe * sizeof(ValueType*)));

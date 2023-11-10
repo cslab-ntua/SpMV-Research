@@ -66,7 +66,7 @@ void program_device_start(cl::CommandQueue *queue, cl::Context *context, cl::Pro
 
 /****************************************************/
 // function that programs device with xclbin file
-void program_device(cl::CommandQueue *queue, cl::Context *context, cl::Program *program, cl::Kernel *kernels)
+std::vector<cl::Kernel> program_device(cl::CommandQueue *queue, cl::Context *context, cl::Program *program, cl::Kernel *kernels)
 {
 	std::vector<cl::Device> devices;
 	cl::Device device;
@@ -131,11 +131,13 @@ void program_device(cl::CommandQueue *queue, cl::Context *context, cl::Program *
 	// std::string krnl_name = "krnl_spmv";
 	std::string krnl_name = getenv("KERNEL_NAME");
 	int nstripe = atoi(getenv("CU"));
+	std::vector<cl::Kernel> kernels(nstripe);
 	for (int i = 0; i < nstripe; i++) {
 		std::string krnl_name_full = krnl_name + ":{" + krnl_name + "_" + std::to_string(i + 1) + "}";
 		printf("Creating a kernel [%s] for CU(%d)\n", krnl_name_full.c_str(), i);
 		OCL_CHECK(err, kernels[i] = cl::Kernel(*program, krnl_name_full.c_str(), &err));
 	}
+	return kernels;
 }
 
 /****************************************************/
