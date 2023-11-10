@@ -206,6 +206,63 @@ bits_u64_required_bits_for_binary_representation(uint64_t max_val,
 }
 
 
+//==========================================================================================================================================
+//= Hamming Distance
+//==========================================================================================================================================
+
+
+static inline
+long
+bits_u64_popcnt(uint64_t v)
+{
+	#ifdef __x86_64__
+		return __builtin_popcountll(v);
+	#else
+		long num = 0;
+		uint64_t mask = 1;
+		long i;
+		for (i=0;i<64;i++)
+		{
+			if (mask & v)
+				num++;
+			mask <<= 1ULL;
+		}
+		return num;
+	#endif
+}
+
+
+static inline
+long
+bits_hamming_distance(unsigned char * str1, unsigned char * str2, long N)
+{
+	long i;
+	long div = N / 8;
+	long rem = N % 8;
+	uint64_t x, v1, v2;
+	long dist = 0;
+	for (i=0;i<div;i++)
+	{
+		v1 = ((uint64_t *) str1)[i];
+		v2 = ((uint64_t *) str2)[i];
+		x = v1 ^ v2;
+		dist += bits_u64_popcnt(x);
+	}
+	x = 0;
+	switch (rem) {
+	case 7: x ^= (uint64_t) (str1[div*8 + 6] ^ str2[div*8 + 6]) << 48; /* fallthrough */
+	case 6: x ^= (uint64_t) (str1[div*8 + 5] ^ str2[div*8 + 5]) << 40; /* fallthrough */
+	case 5: x ^= (uint64_t) (str1[div*8 + 4] ^ str2[div*8 + 4]) << 32; /* fallthrough */
+	case 4: x ^= (uint64_t) (str1[div*8 + 3] ^ str2[div*8 + 3]) << 24; /* fallthrough */
+	case 3: x ^= (uint64_t) (str1[div*8 + 2] ^ str2[div*8 + 2]) << 16; /* fallthrough */
+	case 2: x ^= (uint64_t) (str1[div*8 + 1] ^ str2[div*8 + 1]) << 8;  /* fallthrough */
+	case 1: x ^= (uint64_t) (str1[div*8 + 0] ^ str2[div*8 + 0]);
+	}
+	dist += bits_u64_popcnt(x);
+	return dist;
+}
+
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                       Floating Point Numbers                                                           -

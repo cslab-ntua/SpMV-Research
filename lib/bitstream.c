@@ -12,9 +12,13 @@
 
 
 void
-bitstream_init_write(struct Bit_Stream * bs, unsigned char * data)
+bitstream_init_write(struct Bit_Stream * bs, unsigned char * data, long size)
 {
 	bs->data.c = data;
+	bs->size = size;
+	bs->size_u = size / 8;
+	if (size % 8)
+		error("size of 'data' array should be divisible by 8");
 	bs->len_bits = 0;
 	bs->pos = 0;
 
@@ -34,9 +38,13 @@ bitstream_init_write(struct Bit_Stream * bs, unsigned char * data)
 
 
 void
-bitstream_init_read(struct Bit_Stream * bs, unsigned char * data)
+bitstream_init_read(struct Bit_Stream * bs, unsigned char * data, long size)
 {
 	bs->data.c = data;
+	bs->size = size;
+	bs->size_u = size / 8;
+	if (size % 8)
+		error("size of 'data' array should be divisible by 8");
 	bs->len_bits = 0;
 	bs->pos = 0;
 
@@ -44,41 +52,6 @@ bitstream_init_read(struct Bit_Stream * bs, unsigned char * data)
 	bs->buf_bit_pos = 64;
 }
 
-
-#if 0
-
-inline
-void
-bitstream_write_unsafe(struct Bit_Stream * bs, uint64_t val, long num_bits)
-{
-	uint64_t buf = bs->buf;
-	long rem;
-	buf |= val << bs->buf_bit_pos;
-	bs->buf_bit_pos += num_bits;
-	// if (bs->buf_bit_pos >= 64)
-	if (__builtin_expect(bs->buf_bit_pos >= 64, 0))
-	{
-		bs->data.u[bs->pos] = buf;
-		buf = 0;
-		bs->pos++;
-		rem = bs->buf_bit_pos & 63;
-		if (rem)
-			buf = val >> (num_bits - rem);
-		bs->buf_bit_pos = rem;
-	}
-	bs->buf = buf;
-	bs->len_bits += num_bits;
-}
-
-
-// It is safe to resume writing after flushing the buffer.
-void
-bitstream_write_flush(struct Bit_Stream * bs)
-{
-	bs->data.u[bs->pos] = bs->buf;
-}
-
-#else
 
 inline
 void
@@ -90,29 +63,21 @@ bitstream_write_unsafe(struct Bit_Stream * bs, uint64_t val, long num_bits)
 	long i;
 	// if (num_bits == 0)
 		// return;
-	// if (tnum == 0) fprintf(stdout, "val = %064lb\n", val);
 	buf |= val << bs->buf_bit_pos;
 	bs->buf_bit_pos += num_bits;
-	// if (bs->buf_bit_pos >= 64)
 	if (__builtin_expect(bs->buf_bit_pos >= 64, 0))
 	{
 		bs->buf_w[bs->buf_w_pos] = buf;
 		bs->buf_w_pos++;
-		// if (bs->buf_w_pos >= 8)
 		if (__builtin_expect(bs->buf_w_pos >= 8, 0))
 		{
-			// if (__builtin_expect(bs->pos+8 > bs->size, 0))
-				// error("OOM");
+			if (__builtin_expect(bs->pos+8 > bs->size_u, 0))
+				error("no space in 'data' array");
 			for (i=0;i<8;i++)
 			{
 				bs->data.u[bs->pos++] = bs->buf_w[i];
 				bs->buf_w[i] = 0;
 			}
-			// _mm256_storeu_pd((double *) &bs->data.u[bs->pos], *((__m256d *) &bs->buf_w[0]));
-			// _mm256_storeu_pd((double *) &bs->data.u[bs->pos + 4], *((__m256d *) &bs->buf_w[4]));
-			// _mm256_storeu_pd((double *) &bs->buf_w[0], _mm256_set_pd(0, 0, 0, 0));
-			// _mm256_storeu_pd((double *) &bs->buf_w[4], _mm256_set_pd(0, 0, 0, 0));
-			// bs->pos += 8;
 			bs->buf_w_pos = 0;
 		}
 		buf = 0;
@@ -124,9 +89,6 @@ bitstream_write_unsafe(struct Bit_Stream * bs, uint64_t val, long num_bits)
 	}
 	bs->buf = buf;
 	bs->len_bits += num_bits;
-	// if (tnum == 0) fprintf(stdout, "buf = %064lb\n", buf);
-	// if (tnum == 0) bits_print_bytestream((unsigned char *) bs->buf_w, 64);
-	// if (tnum == 0) bits_print_bytestream((unsigned char *) &bs->data.u[bs->pos-8], 64);
 }
 
 
@@ -136,6 +98,8 @@ bitstream_write_flush(struct Bit_Stream * bs)
 {
 	long i;
 	bs->buf_w[bs->buf_w_pos] = bs->buf;
+	if (__builtin_expect(bs->pos + bs->buf_w_pos > bs->size_u, 0))
+		error("no space in 'data' array");
 	for (i=0;i<bs->buf_w_pos;i++)
 	{
 		bs->data.u[bs->pos + i] = bs->buf_w[i];
@@ -144,51 +108,15 @@ bitstream_write_flush(struct Bit_Stream * bs)
 		bs->data.u[bs->pos + bs->buf_w_pos] = bs->buf_w[i];
 }
 
-#endif
-
-
-#if 0
 
 inline
 void
-bitstream_read_unsafe(struct Bit_Stream * bs, uint64_t * val_out, long num_bits)
+bitstream_write(struct Bit_Stream * bs, uint64_t val, long num_bits)
 {
-	uint64_t buf = bs->buf;
-	uint64_t val = 0;
-	long rem, buf_bit_pos_prev;
-	// if (num_bits == 0)
-	// {
-		// *val_out = 0;
-		// return;
-	// }
-	val = buf;
-	buf >>= num_bits;
-	buf_bit_pos_prev = bs->buf_bit_pos;
-	bs->buf_bit_pos -= num_bits;
-	// if (bs->buf_bit_pos <= 0)
-	if (__builtin_expect(bs->buf_bit_pos <= 0, 0))
-	{
-		// printf("test %ld\n", bs->buf_bit_pos);
-		// if (__builtin_expect(bs->pos >= bs->size, 0))
-			// error("OOM");
-		rem = -bs->buf_bit_pos;
-		bs->pos++;
-		buf = bs->data.u[bs->pos];
-		// if (rem)
-		if (__builtin_expect(rem & 63, 0))
-		{
-			val |= buf << buf_bit_pos_prev;
-			buf >>= rem;
-		}
-		bs->buf_bit_pos = 64 - rem;
-	}
-	bs->buf = buf;
-	val = _bzhi_u64(val, num_bits);
-	// val = bits_u64_unset_high(val, num_bits);
-	*val_out = val;
+	if (num_bits > 64)
+		error("can't write more than 64 bits at once");
+	bitstream_write_unsafe(bs, val, num_bits);
 }
-
-#else
 
 
 inline
@@ -238,6 +166,45 @@ bitstream_read_unsafe_57(struct Bit_Stream * bs, uint64_t * val_out, long num_bi
 
 
 /* inline
+inline
+void
+bitstream_read_unsafe(struct Bit_Stream * bs, uint64_t * val_out, long num_bits)
+{
+	uint64_t buf = bs->buf;
+	uint64_t val = 0;
+	long rem, buf_bit_pos_prev;
+	// if (num_bits == 0)
+	// {
+		// *val_out = 0;
+		// return;
+	// }
+	val = buf;
+	buf >>= num_bits;
+	buf_bit_pos_prev = bs->buf_bit_pos;
+	bs->buf_bit_pos -= num_bits;
+	// if (bs->buf_bit_pos <= 0)
+	if (__builtin_expect(bs->buf_bit_pos <= 0, 0))
+	{
+		// printf("test %ld\n", bs->buf_bit_pos);
+		// if (__builtin_expect(bs->pos >= bs->size_u, 0))
+			// error("OOM");
+		rem = -bs->buf_bit_pos;
+		bs->pos++;
+		buf = bs->data.u[bs->pos];
+		// if (rem)
+		if (__builtin_expect(rem & 63, 0))
+		{
+			val |= buf << buf_bit_pos_prev;
+			buf >>= rem;
+		}
+		bs->buf_bit_pos = 64 - rem;
+	}
+	bs->buf = buf;
+	val = _bzhi_u64(val, num_bits);
+	// val = bits_u64_unset_high(val, num_bits);
+	*val_out = val;
+}
+
 void
 bitstream_read_unsafe(struct Bit_Stream * bs, uint64_t * val_out, long num_bits)
 {
@@ -292,6 +259,4 @@ bitstream_read_unsafe(struct Bit_Stream * bs, uint64_t * val_out, long num_bits)
 	bs->len_bits += num_bits;
 	*val_out = res;
 } */
-
-#endif
 

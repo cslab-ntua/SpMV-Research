@@ -1845,34 +1845,101 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 			// );
 		// }
 
-		snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs.png", title_base);
-		snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute", title_base);
-		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff_fraction_abs, NULL, nnz, 0),
-			figure_enable_legend(_fig);
-			figure_set_title(_fig, buf_title);
-		);
-		snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_bounded_median_curve.png", title_base);
-		snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute - bounded median curve", title_base);
-		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff_fraction_abs, NULL, nnz, 0),
-			figure_enable_legend(_fig);
-			figure_set_title(_fig, buf_title);
-			figure_series_set_dot_size_pixels(_s, 4);
-			figure_series_type_bounded_median_curve(_s, 0);
-		);
-		snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2.png", title_base);
-		snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2", title_base);
-		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff_fraction_abs, NULL, nnz, 0, , get_double_abs_log2),
-			figure_enable_legend(_fig);
-			figure_set_title(_fig, buf_title);
-		);
-		snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2_bounded_median_curve.png", title_base);
-		snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2 - bounded median curve", title_base);
-		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff_fraction_abs, NULL, nnz, 0, , get_double_abs_log2),
-			figure_enable_legend(_fig);
-			figure_set_title(_fig, buf_title);
-			figure_series_set_dot_size_pixels(_s, 4);
-			figure_series_type_bounded_median_curve(_s, 0);
-		);
+		k = 14;
+		long window_size = 1ULL << k;
+		double * window = (typeof(window)) malloc(window_size * sizeof(*window));
+		long size, gap;
+		gap = nnz / 10;
+		for (l=0;l<10;l++)
+		{
+			double val, val_prev;
+			i = l * gap;
+			size = (window_size < nnz - i) ?  window_size : nnz - i;
+			window[0] = 0;
+			for (j=1;j<size;j++)
+			{
+				val = vals[i+j];
+				val_prev = vals[i+j-1];
+				if (val == 0 || val_prev == 0)
+					window[j] = 0;
+				else
+				{
+					window[j] = fabs(val / val_prev);
+				}
+			}
+			quicksort(window, size, NULL);
+			snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_window_%ld.png", title_base, l);
+			snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - window [%ld, %ld)", title_base, i, i+size);
+			figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
+				figure_enable_legend(_fig);
+				figure_set_title(_fig, buf_title);
+			);
+		}
+		free(window);
+
+
+		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs.png", title_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute", title_base);
+		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff_fraction_abs, NULL, nnz, 0),
+			// figure_enable_legend(_fig);
+			// figure_set_title(_fig, buf_title);
+		// );
+		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_bounded_median_curve.png", title_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute - bounded median curve", title_base);
+		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff_fraction_abs, NULL, nnz, 0),
+			// figure_enable_legend(_fig);
+			// figure_set_title(_fig, buf_title);
+			// figure_series_set_dot_size_pixels(_s, 4);
+			// figure_series_type_bounded_median_curve(_s, 0);
+		// );
+		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2.png", title_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2", title_base);
+		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff_fraction_abs, NULL, nnz, 0, , get_double_abs_log2),
+			// figure_enable_legend(_fig);
+			// figure_set_title(_fig, buf_title);
+		// );
+		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2_bounded_median_curve.png", title_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2 - bounded median curve", title_base);
+		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff_fraction_abs, NULL, nnz, 0, , get_double_abs_log2),
+			// figure_enable_legend(_fig);
+			// figure_set_title(_fig, buf_title);
+			// figure_series_set_dot_size_pixels(_s, 4);
+			// figure_series_type_bounded_median_curve(_s, 0);
+		// );
+
+		// k = 14;
+		// long window_size = 1ULL << k;
+		// double * window = (typeof(window)) malloc(window_size * sizeof(*window));
+		// long size, gap;
+		// gap = nnz / 10;
+		// for (l=0;l<10;l++)
+		// {
+			// double val, val_prev, diff;
+			// i = l * gap;
+			// size = (window_size < nnz - i) ?  window_size : nnz - i;
+			// window[0] = 0;
+			// for (j=1;j<size;j++)
+			// {
+				// val = vals[i+j];
+				// val_prev = vals[i+j-1];
+				// diff = val - val_prev;
+				// if (diff == 0 || val_prev == 0)
+					// window[j] = 0;
+				// else
+				// {
+					// window[j] = fabs(diff / val_prev);
+				// }
+			// }
+			// quicksort(window, size, NULL);
+			// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2_window_%ld.png", title_base, l);
+			// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2 - window [%ld, %ld)", title_base, i, i+size);
+			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
+				// figure_enable_legend(_fig);
+				// figure_set_title(_fig, buf_title);
+			// );
+		// }
+		// free(window);
+
 
 		/* k = 14;
 		long window_size = 1ULL << k;

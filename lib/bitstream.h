@@ -15,6 +15,7 @@ struct Bit_Stream {
 		unsigned char * c;
 	} data;
 	long size;
+	long size_u;
 	long len_bits;
 
 	long pos;           // 64 bit
@@ -23,49 +24,44 @@ struct Bit_Stream {
 	long buf_bit_pos;
 
 	long buf_w_pos;
-	uint64_t buf_w[8];
+	uint64_t buf_w[8] __attribute__((aligned(64)));   // A cache line.
 };
 
 
-void bitstream_init_write(struct Bit_Stream * bs, unsigned char * data);
-void bitstream_init_read(struct Bit_Stream * bs, unsigned char * data);
+void bitstream_init_write(struct Bit_Stream * bs, unsigned char * data, long size);
+void bitstream_init_read(struct Bit_Stream * bs, unsigned char * data, long size);
 
+
+/* Unsafe:
+ *	- assumes num_bits <= 64
+ */
 void bitstream_write_unsafe(struct Bit_Stream * bs, uint64_t val, long num_bits);
-#define bitstream_write_unsafe_cast(bs, val, num_bits)                 \
-do {                                                                   \
-	__auto_type _val = val;                                        \
-	void * _ptr = &_val;                                           \
-	_Static_assert(sizeof(val) == 8);                              \
-	bitstream_write_unsafe(bs, *((uint64_t *) _ptr), num_bits);    \
-} while (0)
 
-// It is safe to resume writing after flushing the buffer.
+/* It is safe to resume writing after flushing the buffer. */
 void bitstream_write_flush(struct Bit_Stream * bs);
 
+/* Safe variation of write. */
+void bitstream_write(struct Bit_Stream * bs, uint64_t val, long num_bits);
+
+/* Unsafe:
+ *	- doesn't check for 'data' array boundaries
+ *	- assumes num_bits <= 64
+ */
 void bitstream_read_unsafe(struct Bit_Stream * bs, uint64_t * val_out, long num_bits);
-#define bitstream_read_unsafe_cast(bs, val_out, num_bits)          \
-do {                                                               \
-	void * _ptr = val_out;                                     \
-	_Static_assert(sizeof(*val_out) == 8);                     \
-	bitstream_read_unsafe(bs, (uint64_t *) _ptr, num_bits);    \
-} while (0)
 
 
+/* Unsafe:
+ *	- doesn't check for 'data' array boundaries
+ *	- assumes num_bits <= 57
+ */
 void bitstream_read_unsafe_57_base(struct Bit_Stream * bs, long bit_pos, uint64_t * val_out, long num_bits);
-#define bitstream_read_unsafe_57_base_cast(bs, bit_pos, val_out, num_bits)          \
-do {                                                                                \
-	void * _ptr = val_out;                                                      \
-	_Static_assert(sizeof(*val_out) == 8);                                      \
-	bitstream_read_unsafe_57_base(bs, bit_pos, (uint64_t *) _ptr, num_bits);    \
-} while (0)
 
+/* Unsafe:
+ *	- doesn't check for 'data' array boundaries
+ *	- assumes num_bits <= 57
+ */
 void bitstream_read_unsafe_57(struct Bit_Stream * bs, uint64_t * val_out, long num_bits);
-#define bitstream_read_unsafe_57_cast(bs, val_out, num_bits)          \
-do {                                                                  \
-	void * _ptr = val_out;                                        \
-	_Static_assert(sizeof(*val_out) == 8);                        \
-	bitstream_read_unsafe_57(bs, (uint64_t *) _ptr, num_bits);    \
-} while (0)
+
 
 #endif /* BITSTREAM_H */
 
