@@ -148,14 +148,19 @@ struct OPTIMAArrays : Matrix_Format
 			// get number of new adding for each row
 			for (int i = 0; i < m; i++) {
 				int nt_row = ia[i+1]-ia[i];
-				int resto  = nt_row%padding_factor;
-				int mult   = int(nt_row/padding_factor);
-				if ( resto == 0 ) {
-					nt_add[i] = 0;
-				} else {
-					int nt_row_p  = (mult+1)*padding_factor;
-					nt_add[i] = nt_row_p - nt_row;
-					// printf("nt_add %d %d %d %d %d\n",i,nt_row,resto,mult,nt_add[i]);
+				if(nt_row != 0){
+					int resto  = nt_row%padding_factor;
+					int mult   = int(nt_row/padding_factor);
+					if ( resto == 0 ) {
+						nt_add[i] = 0;
+					} else {
+						int nt_row_p  = (mult+1)*padding_factor;
+						nt_add[i] = nt_row_p - nt_row;
+						// printf("nt_add %d %d %d %d %d\n",i,nt_row,resto,mult,nt_add[i]);
+					}
+				}
+				else{
+					nt_add[i] = padding_factor;
 				}
 			}
 
@@ -190,7 +195,7 @@ struct OPTIMAArrays : Matrix_Format
 					// add zero term on icol-col of i-row
 					int jj = ia[i]+padding_factor*i+nt_row+j;
 					irow_padded[jj] = i;
-					ja_padded[jj].range(0,30)   = icol;
+					ja_padded_int[jj]  = icol;
 					coef_padded[jj] = 0.;
 				}
 
@@ -257,9 +262,10 @@ struct OPTIMAArrays : Matrix_Format
 						ja_padded[i-1].range(31,31) = 1;
 						j++;
 					}
-					else{
-						ja_padded[i-1].range(31,31) = 0;
-					}
+					// else{
+					// 	ja_padded[i-1].range(31,31) = 0;
+					// }
+				 ja_padded[i].range(31,31) = 0;
 				}
 			}
 			ia_padded[m] = ntermA_wp;
