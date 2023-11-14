@@ -210,13 +210,17 @@ struct OPTIMAArrays : Matrix_Format
 			for (int i = m-1; i >= m/2; i--) {
 				int nt_row = ia[i+1]-ia[i];
 				int icol = i;
+				int icol_right=n-1;
 				for (int j = 0; j < nt_add[i]; j++) {
 					bool find_icol = true;
 					while(find_icol) {
 						icol--;
 						if ( icol < 0 ) {
-							printf("****ERROR PAD 2****\n");
-							exit(-2);
+							// printf("****ERROR PAD 2****\n");
+							// exit(-2);
+							icol_right++;
+							int pos = bin_search(icol_right,nt_row,&(ja[ia[i]]));
+							if (icol_right != ja[ia[i]+pos] ) find_icol = false;
 						}
 						// check if icol is already in the i-row
 						int pos = bin_search(icol,nt_row,&(ja[ia[i]]));
@@ -226,7 +230,12 @@ struct OPTIMAArrays : Matrix_Format
 					// add zero term on icol-col of i-row
 					int jj = ia[i]+padding_factor*i+nt_row+j;
 					irow_padded[jj] = i;
-					ja_padded_int[jj]   = icol;
+					if(icol<0){
+						ja_padded_int[jj]   = icol_right;
+					}
+					else{
+						ja_padded_int[jj]   = icol;
+					}
 					coef_padded[jj] = 0.;
 				}
 				// sorting
