@@ -96,6 +96,7 @@ validation_matrices/v2_dgal
 validation_matrices/digital_twins
 validation_matrices/features
 validation_matrices/matrix_features/figures
+validation_matrices/matrix_features/matrices
 validation_matrices/dcomex
 validation_matrices/images
 validation_matrices/new_matrices/

@@ -165,11 +165,12 @@ csc_col_indexes(__attribute__((unused)) _TYPE_I * row_idx, _TYPE_I * col_ptr, __
 //= Matrix transformations
 //==========================================================================================================================================
 
+/*
 #undef  csc_extract_col_cross
 #define csc_extract_col_cross  CSC_UTIL_GEN_EXPAND(csc_extract_col_cross)
 void
 csc_extract_col_cross(_TYPE_I *row_idx, _TYPE_I *col_ptr, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, 
-					  int *num_windows_out, float **col_cross_out, _TYPE_I **cc_r_out, _TYPE_I **cc_c_out, float **cc_v_out)
+					  int *num_windows_out, float **col_cross_out, int plot, _TYPE_I **cc_r_out, _TYPE_I **cc_c_out, float **cc_v_out)
 {
 	int num_windows = (m-1 + window_width) / window_width;
 	printf("m = %d, n = %d, num_windows = %d\n", m, n, num_windows);
@@ -182,26 +183,17 @@ csc_extract_col_cross(_TYPE_I *row_idx, _TYPE_I *col_ptr, __attribute__((unused)
 
 	_TYPE_I * thread_j_s = (_TYPE_I *) malloc(num_threads * sizeof(*thread_j_s));
 	_TYPE_I * thread_j_e = (_TYPE_I *) malloc(num_threads * sizeof(*thread_j_e));
-	_TYPE_I * thread_i_s = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_s));
-	_TYPE_I * thread_i_e = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_e));
 
 	double time_col_cross = time_it(1,
 	_Pragma("omp parallel")
 	{
 		int tnum = omp_get_thread_num();
-		loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
-		long lower_boundary;
-		binary_search(col_ptr, 0, n, thread_i_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
-		thread_j_s[tnum] = lower_boundary;
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, col_ptr, n, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
 		_Pragma("omp barrier")
-		if (tnum == num_threads - 1)   // If we calculate each thread's boundaries individually some empty rows might be unassigned.
-			thread_j_e[tnum] = n;
-		else
-			thread_j_e[tnum] = thread_j_s[tnum+1] + 1;
 
 		// _Pragma("omp single"){
 		// 	for(int tnum = 0; tnum < num_threads; tnum++)
-		// 		printf("tnum = %2d\trows = %d\t\tnonzeros = %d\n", tnum, thread_j_e[tnum] - thread_j_s[tnum], thread_i_e[tnum] - thread_i_s[tnum]);
+		// 		printf("tnum = %2d\trows = %d\t\tnonzeros = %d\n", tnum, thread_j_e[tnum] - thread_j_s[tnum], col_ptr[thread_j_e[tnum]] - col_ptr[thread_j_s[tnum]]);
 		// }
 
 		for(_TYPE_I i=thread_j_s[tnum]; i<thread_j_e[tnum]; i++){
@@ -217,21 +209,111 @@ csc_extract_col_cross(_TYPE_I *row_idx, _TYPE_I *col_ptr, __attribute__((unused)
 	);
 	printf("time for col_cross = %lf\n", time_col_cross);
 
-	long unsigned cc_elements_nz = 0;
-	double time_reduction = time_it(1,
+	if(plot){
+		long unsigned cc_elements_nz = 0;
+		double time_reduction = time_it(1,
+		_Pragma("omp parallel")
+		{
+		_Pragma("omp for reduction(+:cc_elements_nz)")
+		for(int i=0; i<n; i++){
+			for(int j=0; j<num_windows; j++){
+				long unsigned cc_ind = i * num_windows + j;
+				if(col_cross[cc_ind]!=0) 
+					cc_elements_nz++;
+			}
+		}
+		}
+		);
+		printf("time for col_cross_reduction = %lf\n", time_reduction);
+		printf("cc_elements_nz = %lu\n", cc_elements_nz);
+
+		_TYPE_I * cc_r, * cc_c;
+		float * cc_v;
+		cc_r = (typeof(cc_r)) malloc(cc_elements_nz * sizeof(*cc_r));
+		// cc_c = (typeof(cc_c)) malloc(cc_elements_nz * sizeof(*cc_c));
+		cc_c = (typeof(cc_c)) malloc((n+1) * sizeof(*cc_c));
+		cc_v = (typeof(cc_v)) malloc(cc_elements_nz * sizeof(*cc_v));
+		double col_cross_compr_mem_foot = (cc_elements_nz * sizeof(*cc_r) + (n+1) * sizeof(*cc_c) + cc_elements_nz * sizeof(*cc_v))/(1024*1024*1.0);
+		printf("memory footprint of col_cross (compressed) = %.2lf MB\n", col_cross_compr_mem_foot);
+		// printf("compression ratio = %.2lf%\n", col_cross_compr_mem_foot/col_cross_mem_foot * 100);
+
+		// in order to make it faster, perhaps calculate cc_c beforehand and use the dgal partitioner for cc_r, cc_v
+		int cnt=0;
+		cc_c[0] = 0;
+		double time_final = time_it(1,
+		for(int j=0; j<n; j++){
+			for(int i=0; i<num_windows; i++){
+				long unsigned cc_ind = j * num_windows + i;
+				if(col_cross[cc_ind]!=0){
+					cc_r[cnt] = i;
+					// cc_c[cnt] = j;
+					cc_v[cnt] = col_cross[cc_ind] * 1.0;
+					cnt++;
+				}
+				cc_c[j+1] = cnt;
+			}
+		}
+		);
+		printf("time_final = %lf\n", time_final);
+		if (cc_r_out != NULL)
+			*cc_r_out = cc_r;
+		if (cc_c_out != NULL)
+			*cc_c_out = cc_c;
+		if (cc_v_out != NULL)
+			*cc_v_out = cc_v;
+	}
+	free(thread_j_s);
+	free(thread_j_e);
+
+	*num_windows_out = num_windows;
+	if (col_cross_out != NULL)
+		*col_cross_out = col_cross;
+}
+*/
+
+#undef  csc_extract_col_cross2
+#define csc_extract_col_cross2  CSC_UTIL_GEN_EXPAND(csc_extract_col_cross2)
+void
+csc_extract_col_cross2(_TYPE_I *row_idx, _TYPE_I *col_ptr, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, 
+					  int *num_windows_out, _TYPE_I **cc_r_out, _TYPE_I **cc_c_out, float **cc_v_out)
+{
+	int num_windows = (m-1 + window_width) / window_width;
+	printf("m = %d, n = %d, num_windows = %d\n", m, n, num_windows);
+	int num_threads = omp_get_max_threads();
+
+	_TYPE_I * thread_j_s = (_TYPE_I *) malloc(num_threads * sizeof(*thread_j_s));
+	_TYPE_I * thread_j_e = (_TYPE_I *) malloc(num_threads * sizeof(*thread_j_e));
+	long unsigned  * thread_cc_elements_nz = (long unsigned  *) malloc(num_threads * sizeof(*thread_cc_elements_nz));
+
+	double time_col_cross = time_it(1,
 	_Pragma("omp parallel")
 	{
-	_Pragma("omp for reduction(+:cc_elements_nz)")
-	for(int i=0; i<n; i++){
-		for(int j=0; j<num_windows; j++){
-			long unsigned cc_ind = i * num_windows + j;
-			if(col_cross[cc_ind]!=0) 
-				cc_elements_nz++;
+		int tnum = omp_get_thread_num();
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, col_ptr, n, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
+		_Pragma("omp barrier")
+		thread_cc_elements_nz[tnum] = 0;
+		for(_TYPE_I i=thread_j_s[tnum]; i<thread_j_e[tnum]; i++){
+			long unsigned * local_col_cross = (typeof(local_col_cross)) calloc(num_windows, sizeof(*local_col_cross));
+			for(_TYPE_I j=col_ptr[i]; j<col_ptr[i+1]; j++){
+				_TYPE_I rw_loc = row_idx[j] / window_width; // row window location
+				local_col_cross[rw_loc] = 1; // if already found in rw_loc, just overwrite it, no problem with that... we just want to identify how many windows for sparse struct later
+			}
+			for(int k=0;k<num_windows; k++)
+				thread_cc_elements_nz[tnum] += local_col_cross[k];
+			free(local_col_cross);
 		}
 	}
-	}
 	);
-	printf("time for col_cross_reduction = %lf\n", time_reduction);
+	printf("time for col_cross = %lf\n", time_col_cross);
+	long unsigned cc_elements_nz = 0;
+	_Pragma("omp parallel")
+	{
+		_Pragma("omp for reduction(+:cc_elements_nz)")
+		for(int k=0;k<num_threads;k++){
+			// printf("thread_cc_elements_nz[%d] = %lu\n", k, thread_cc_elements_nz[k]);
+			cc_elements_nz += thread_cc_elements_nz[k];
+		}
+	}
 	printf("cc_elements_nz = %lu\n", cc_elements_nz);
 
 	_TYPE_I * cc_r, * cc_c;
@@ -242,41 +324,40 @@ csc_extract_col_cross(_TYPE_I *row_idx, _TYPE_I *col_ptr, __attribute__((unused)
 	cc_v = (typeof(cc_v)) malloc(cc_elements_nz * sizeof(*cc_v));
 	double col_cross_compr_mem_foot = (cc_elements_nz * sizeof(*cc_r) + (n+1) * sizeof(*cc_c) + cc_elements_nz * sizeof(*cc_v))/(1024*1024*1.0);
 	printf("memory footprint of col_cross (compressed) = %.2lf MB\n", col_cross_compr_mem_foot);
-	// printf("compression ratio = %.2lf%\n", col_cross_compr_mem_foot/col_cross_mem_foot * 100);
 
 	// in order to make it faster, perhaps calculate cc_c beforehand and use the dgal partitioner for cc_r, cc_v
 	int cnt=0;
 	cc_c[0] = 0;
 	double time_final = time_it(1,
 	for(int j=0; j<n; j++){
-		for(int i=0; i<num_windows; i++){
-			long unsigned cc_ind = j * num_windows + i;
-			if(col_cross[cc_ind]!=0){
-				cc_r[cnt] = i;
-				// cc_c[cnt] = j;
-				cc_v[cnt] = col_cross[cc_ind] * 1.0;
+		long unsigned * local_col_cross = (typeof(local_col_cross)) calloc(num_windows, sizeof(*local_col_cross));
+		for(_TYPE_I i=col_ptr[j]; i<col_ptr[j+1]; i++){
+			_TYPE_I rw_loc = row_idx[i] / window_width; // col window location
+			local_col_cross[rw_loc]++; // if already found in rw_loc, just overwrite it, no problem with that... we just want to identify how many windows for sparse struct later
+		}
+		for(int k=0;k<num_windows; k++){
+			if(local_col_cross[k] != 0){
+				cc_r[cnt] = k;
+				cc_v[cnt] = local_col_cross[k];
 				cnt++;
 			}
-			cc_c[j+1] = cnt;
 		}
+		cc_c[j+1] = cnt;
+		free(local_col_cross);
 	}
 	);
-	printf("time_final = %lf\n", time_final);
-
-	free(thread_j_s);
-	free(thread_j_e);
-	free(thread_i_s);
-	free(thread_i_e);
-
+	// printf("time_final = %lf\n", time_final);
 	*num_windows_out = num_windows;
-	if (col_cross_out != NULL)
-		*col_cross_out = col_cross;
 	if (cc_r_out != NULL)
 		*cc_r_out = cc_r;
 	if (cc_c_out != NULL)
 		*cc_c_out = cc_c;
 	if (cc_v_out != NULL)
 		*cc_v_out = cc_v;
+
+	free(thread_j_s);
+	free(thread_j_e);
+
 }
 
 //==========================================================================================================================================
@@ -287,12 +368,9 @@ csc_extract_col_cross(_TYPE_I *row_idx, _TYPE_I *col_ptr, __attribute__((unused)
 #undef  csc_plot
 #define csc_plot  CSC_UTIL_GEN_EXPAND(csc_plot)
 void
-csc_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int enable_legend)
+csc_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y)
 {
 	_TYPE_I * col_idx;
-	long num_pixels = 1024;
-	long num_pixels_x = (n < 1024) ? n : num_pixels;
-	long num_pixels_y = (m < 1024) ? m : num_pixels;
 	long buf_n = strlen(title_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 

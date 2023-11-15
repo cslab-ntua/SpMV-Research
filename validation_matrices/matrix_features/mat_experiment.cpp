@@ -13,6 +13,9 @@ extern "C"{
 	#include "string_util.h"
 	#include "csr.h"
 	#include "csc.h"
+	#include "kmeans.h"
+	#include "kmeans_char.h"
+	#include "bit_ops.h"
 #ifdef __cplusplus
 }
 #endif
@@ -116,6 +119,26 @@ void save_csr_to_mtx(const int* row_ptr, const int* col_idx, const double* val, 
 	for (int i = 0; i < num_rows; i++) {
 		for (int j = row_ptr[i]; j < row_ptr[i + 1]; j++) {
 			fprintf(file, "%d %d %.15g\n", i + 1, col_idx[j] + 1, val[j]);
+		}
+	}
+	fclose(file);
+}
+
+void save_csc_to_mtx(const int* row_idx, const int* col_ptr, const double* val, int num_rows, int num_cols, const char* filename) 
+{
+	printf("Storing: %s\n", filename);
+	FILE* file;
+	file = fopen(filename, "w");
+	if (file == NULL) {
+		printf("Error opening file %s\n", filename);
+		return;
+	}
+
+	fprintf(file, "%%%%MatrixMarket matrix coordinate real general\n");
+	fprintf(file, "%d %d %d\n", num_rows, num_cols, col_ptr[num_cols]);
+	for (int j = 0; j < num_cols; j++) {
+		for (int i = col_ptr[j]; i < col_ptr[j + 1]; i++) {
+			fprintf(file, "%d %d %.15g\n", row_idx[i] + 1, j + 1, val[i]);
 		}
 	}
 	fclose(file);
@@ -225,8 +248,234 @@ void generate_high_only_same_col_ind_matrix(int nr_rows, int nr_cols, int high_n
 		}
 	// }
 }
+void read_array_from_file(const char* filename, int* array, size_t arraySize)
+{
+	FILE* file = fopen(filename, "r");
+	if (file == NULL) {
+		perror("Error opening the file");
+		return;
+	}
+
+	for (size_t i = 0; i < arraySize; i++) {
+		if (fscanf(file, "%d,", &array[i]) != 1) {
+			perror("Error reading from the file");
+			fclose(file);
+			return;
+		}
+	}
+
+	fclose(file);
+}
+
+void write_array_to_file(const int *array, size_t size, const char *filename)
+{
+	FILE *file = fopen(filename, "w"); // Open the file for writing
+
+	if (file == NULL) {
+		perror("Error opening the file");
+		return;
+	}
+
+	for (size_t i = 0; i < size; i++) {
+		fprintf(file, "%d", array[i]); // Write the integer to the file
+
+		// Add a comma and space unless it's the last element
+		if (i < size - 1) {
+			fprintf(file, ", ");
+		}
+	}
+
+	fclose(file); // Close the file
+}
 
 
+typedef struct {
+    int row;
+    int family_id;
+} RowFamily;
+
+int compareRowFamily(const void *a, const void *b) {
+    return ((RowFamily *)a)->family_id - ((RowFamily *)b)->family_id;
+}
+
+void reorder_matrix_by_row(int m, int n, int nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
+					int * membership, _TYPE_I * row_ptr_reorder, _TYPE_I * col_idx_reorder, _TYPE_V * val_reorder)
+{
+	// Create an auxiliary array to store row indices and family IDs
+	RowFamily* row_families = (RowFamily*)malloc(m * sizeof(RowFamily));
+
+	for (int i = 0; i < m; i++) {
+		row_families[i].row = i;
+		row_families[i].family_id = membership[i];
+	}
+
+    // Sort the auxiliary array based on family IDs
+    double time_qsort_membership = time_it(1,
+    qsort(row_families, m, sizeof(RowFamily), compareRowFamily);
+	);
+	// printf("time_qsort_membership = %lf\n", time_qsort_membership);
+
+	row_ptr_reorder[0] = 0;
+    int cnt = 0;
+
+    for (int i = 0; i < m; i++) {
+        int original_row = row_families[i].row;
+        // printf("row: %d, membership; %d\n", row_families[i].row, row_families[i].family_id);
+        
+        for (int j = row_ptr[original_row]; j < row_ptr[original_row + 1]; j++) {
+            col_idx_reorder[cnt] = col_idx[j];
+            val_reorder[cnt] = val[j];
+            cnt++;
+        }
+        row_ptr_reorder[i+1] = cnt;
+    }
+}
+
+typedef struct {
+    int col;
+    int family_id;
+} ColFamily;
+
+int compareColFamily(const void *a, const void *b) {
+    return ((ColFamily *)a)->family_id - ((ColFamily *)b)->family_id;
+}
+
+void reorder_matrix_by_col(int m, int n, int nnz, _TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, 
+					int * membership, _TYPE_I * row_idx_reorder, _TYPE_I * col_ptr_reorder, _TYPE_V * val_reorder)
+{
+	// Create an auxiliary array to store row indices and family IDs
+	ColFamily* col_families = (ColFamily*)malloc(n * sizeof(ColFamily));
+
+	for (int i = 0; i < n; i++) {
+		col_families[i].col = i;
+		col_families[i].family_id = membership[i];
+	}
+
+    // Sort the auxiliary array based on family IDs
+    double time_qsort_membership = time_it(1,
+    qsort(col_families, n, sizeof(ColFamily), compareColFamily);
+	);
+	printf("time_qsort_membership = %lf\n", time_qsort_membership);
+
+	col_ptr_reorder[0] = 0;
+    int cnt = 0;
+
+    for (int i = 0; i < n; i++) {
+        int original_row = col_families[i].col;
+        // printf("row: %d, membership; %d\n", col_families[i].col, col_families[i].family_id);
+        
+        for (int j = col_ptr[original_row]; j < col_ptr[original_row + 1]; j++) {
+            row_idx_reorder[cnt] = row_idx[j];
+            val_reorder[cnt] = val[j];
+            cnt++;
+        }
+        col_ptr_reorder[i+1] = cnt;
+    }
+}
+
+void random_selection(float * start_array, float *target_array, int numObjs, int numClusters, int numCoords)
+{
+	int * indices = (int *) malloc(numObjs * sizeof(int));
+	for(int i = 0; i < numObjs; i++)
+		indices[i] = i;
+	srand(14);
+	for(int i = 0; i < numClusters ; i++) {
+		int k = rand() % (numObjs - i);
+		for(int j = 0; j < numCoords; j++)
+			target_array[i * numCoords + j] = start_array[indices[k] * numCoords + j];
+		indices[k] = indices[numCoords - i - 1];
+	}
+	free(indices);
+}
+
+void random_selection_char(unsigned char * start_array, unsigned char *target_array, int numObjs, int numClusters, int numCoords)
+{
+	int * indices = (int *) malloc(numObjs * sizeof(int));
+	for(int i = 0; i < numObjs; i++)
+		indices[i] = i;
+	srand(14);
+	for(int i = 0; i < numClusters ; i++) {
+		int k = rand() % (numObjs - i);
+		for(int j = 0; j < numCoords; j++)
+			target_array[i * numCoords + j] = start_array[indices[k] * numCoords + j];
+		indices[k] = indices[numCoords - i - 1];
+	}
+	free(indices);
+}
+
+
+typedef struct {
+    char *binary_string;
+    int id;
+} binary_string_with_id;
+
+char* convert_to_binary_string(float* row, int numCols) {
+	char* binary_string = (char*)malloc(numCols + 1); // +1 for the null terminator
+	if (binary_string == NULL) {
+		fprintf(stderr, "Memory allocation failed.\n");
+		exit(1);
+	}
+
+	for (int j = 0; j < numCols; j++) {
+		binary_string[j] = (row[j] != 0.0) ? '1' : '0';
+	}
+	binary_string[numCols] = '\0'; // Null-terminate the string
+
+	return binary_string;
+}
+
+char* convert_to_binary_string2(unsigned char* row, int numCols) {
+	char* binary_string = (char*)malloc(numCols + 1); // +1 for the null terminator
+	if (binary_string == NULL) {
+		fprintf(stderr, "Memory allocation failed.\n");
+		exit(1);
+	}
+
+	for (int j = 0; j < numCols; j++) {
+		binary_string[j] = row[j];
+	}
+	binary_string[numCols] = '\0'; // Null-terminate the string
+
+	return binary_string;
+}
+// // Comparison function for qsort
+// int compare_binary_strings(const void *a, const void *b) { // ascending order
+// 	return strcmp(*(const char **)a, *(const char **)b);
+// }
+
+// Comparison function for qsort
+int compare_binary_strings_descending(const void *a, const void *b) { // descending order
+    return strcmp(((binary_string_with_id *)b)->binary_string, ((binary_string_with_id *)a)->binary_string);
+}
+
+
+typedef struct {
+	unsigned char *cluster_char;
+    int cluster_id;
+} cluster_char_with_id;
+
+unsigned char* assign_to_cluster_struct(unsigned char* row, int numCols) {
+	unsigned char* cluster_string = (typeof(cluster_string))malloc((numCols + 1) * sizeof(*cluster_string)); // +1 for the null terminator
+	if (cluster_string == NULL) {
+		fprintf(stderr, "Memory allocation failed.\n");
+		exit(1);
+	}
+	for (int j = 0; j < numCols; j++){
+		// before:0 or 1, now: '0' or '1'. Why do I do this? 
+		// In order to be able to really sort rows effectively otherwise, strcmp did not work effectively
+		if(row[j]==0)
+			cluster_string[j] = '0';
+		else
+			cluster_string[j] = '1';
+	}
+	cluster_string[numCols] = '\0'; // Null-terminate the string
+	return cluster_string;
+}
+
+// Comparison function for qsort
+int compare_unsigned_char_strings_descending(const void *a, const void *b) { // descending order
+    return strcmp((char*)((cluster_char_with_id *)b)->cluster_char, (char*)((cluster_char_with_id *)a)->cluster_char);
+}
 
 int main(int argc, char **argv)
 {
@@ -256,7 +505,7 @@ int main(int argc, char **argv)
 	int shuffle = atoi(argv[i++]);
 
 	int artificial = 0;
-	if(argc>10)
+	if(argc>16)
 		artificial = atoi(argv[i++]);
 
 	long num_pixels = 1024;
@@ -271,7 +520,7 @@ int main(int argc, char **argv)
 		row_ptr = (typeof(row_ptr)) malloc((m+1) * sizeof(*row_ptr));
 		col_idx = (typeof(col_idx)) malloc(nnz * sizeof(*col_idx));
 		val = (typeof(val)) malloc(nnz * sizeof(*val));
-		coo_to_csr(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_ptr, col_idx, val, 1);
+		coo_to_csr(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_ptr, col_idx, val, 1, 0);
 		csr_plot_f(fig_name_gen(file_in, ""),  row_ptr, col_idx, val, m, n, nnz, 0, num_pixels_x, num_pixels_y);
 
 		/********************************************************************************************************************************/
@@ -283,39 +532,381 @@ int main(int argc, char **argv)
 		col_ptr = (typeof(col_ptr)) malloc((n+1) * sizeof(*col_ptr));
 		val_c = (typeof(val_c)) malloc(nnz * sizeof(*val_c));
 		coo_to_csc(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_idx, col_ptr, val_c, 1);
-		csc_plot_f(fig_name_gen(file_in, "csc"),  row_idx, col_ptr, val_c, m, n, nnz, 0);
+		// csc_plot_f(fig_name_gen(file_in, "csc"),  row_idx, col_ptr, val_c, m, n, nnz, 0, num_pixels_x, num_pixels_y););
 
-		_TYPE_I * row_cross;
+		// float * row_cross;
+		// _TYPE_I * rc_r1, * rc_c1;
+		// float * rc_v1;
+		
+		// float * col_cross;
+		// _TYPE_I * cc_r1, * cc_c1;
+		// float * cc_v1;
+
 		_TYPE_I * rc_r, * rc_c;
-		_TYPE_V * rc_v;
-		_TYPE_I * col_cross;
-		_TYPE_I * cc_r, * cc_c;
-		_TYPE_V * cc_v;
+		float * rc_v;
+
+		// _TYPE_I * cc_r, * cc_c;
+		// float * cc_v;
 
 		int num_windows_row, num_windows_col, window_width;
-		window_width = 8192;
+		window_width = atoi(argv[i++]);
 
-		double time_row_cross = time_it(1,
-		csr_extract_row_cross(row_ptr, col_idx, val, m, n, nnz, window_width, &num_windows_row, &row_cross, &rc_r, &rc_c, &rc_v);
+		int plot_extra = 1;
+		// printf("------------------------------------------------------------------------\n");
+		// double time_row_cross = time_it(1,
+		// csr_extract_row_cross(row_ptr, col_idx, val, m, n, nnz, window_width, &num_windows_row, &row_cross, plot_extra, &rc_r1, &rc_c1, &rc_v1);
+		// );
+		// printf("time_row_cross = %lf s\n", time_row_cross);
+		// csr_plot_f(fig_name_gen(file_in, "row_cross1"),  rc_r1, rc_c1, (_TYPE_V *) rc_v1, m, num_windows_row, rc_r1[m], 1, num_pixels_x, num_pixels_y);
+
+		// double time_col_cross = time_it(1,
+		// csc_extract_col_cross(row_idx, col_ptr, val_c, m, n, nnz, window_width, &num_windows_col, &col_cross, plot_extra, &cc_r1, &cc_c1, &cc_v1);
+		// );
+		// csc_plot_f(fig_name_gen(file_in, "col_cross1"),  cc_r1, cc_c1, (_TYPE_V *) cc_v1, num_windows_col, n, cc_c1[n], 0, num_pixels_x, num_pixels_y);
+		// printf("time_col_cross = %lf s\n", time_col_cross);
+
+		double time_row_cross2 = time_it(1,
+		csr_extract_row_cross2(row_ptr, col_idx, val, m, n, nnz, window_width, &num_windows_row, &rc_r, &rc_c, &rc_v);
 		);
-		csr_plot_f(fig_name_gen(file_in, "row_cross"),  rc_r, rc_c, rc_v, m, num_windows_row, rc_r[m], 0, num_pixels_x, num_pixels_y);
+		csr_plot_f(fig_name_gen(file_in, "row_cross"),  rc_r, rc_c, (_TYPE_V *) rc_v, m, num_windows_row, rc_r[m], 1, num_pixels_x, num_pixels_y);
+		printf("time_row_cross2 = %lf s\n", time_row_cross2);
 
-		double time_col_cross = time_it(1,
-		csc_extract_col_cross(row_idx, col_ptr, val_c, m, n, nnz, window_width, &num_windows_col, &col_cross, &cc_r, &cc_c, &cc_v);
-		);
-		csc_plot_f(fig_name_gen(file_in, "col_cross"),  cc_r, cc_c, cc_v, num_windows_col, n, cc_c[n], 0);
+		
+		// double time_col_cross2 = time_it(1,
+		// csc_extract_col_cross2(row_idx, col_ptr, val_c, m, n, nnz, window_width, &num_windows_col, &cc_r, &cc_c, &cc_v);
+		// );
+		// csc_plot_f(fig_name_gen(file_in, "col_cross"),  cc_r, cc_c, (_TYPE_V *) cc_v, num_windows_col, n, cc_c[n], 0, num_pixels_x, num_pixels_y);
+		// printf("time_col_cross2 = %lf s\n", time_col_cross2);
 
-		printf("time_row_cross = %lf s, time_col_cross = %lf s\n", time_row_cross, time_col_cross);
+		return 0;
 
+		/************************************************/
+		// kmeans_char reordering
+		/*
+		if(1)
+		{
+			unsigned char * row_cross_char;
+			// _TYPE_I * rc_r_char, * rc_c_char;
+			// float * rc_v_char;
+			double time_row_cross_char = time_it(1,
+			csr_extract_row_cross_char(row_ptr, col_idx, val, m, n, nnz, window_width, &num_windows_row, &row_cross_char, 0, NULL, NULL, NULL);
+			);
+			// csr_plot_f(fig_name_gen(file_in, "row_cross_char"),  rc_r_char, rc_c_char, (_TYPE_V *) rc_v_char, m, num_windows_row, rc_r_char[m], 0, num_pixels_x, num_pixels_y);
+			printf("time_row_cross_char = %lf s\n", time_row_cross_char);
+
+			for(int i=0;i<10;i++){
+				unsigned char * row = (typeof(row)) malloc((num_windows_row) * sizeof(*row));
+				for(int j=0;j<num_windows_row;j++)
+					row[j] = row_cross_char[i*num_windows_row + j];
+				// printf("row[%d] = %s\n", i, row);
+
+				unsigned char * row2 = (typeof(row)) malloc((num_windows_row) * sizeof(*row));
+				for(int j=0;j<num_windows_row;j++)
+					row2[j] = row_cross_char[(i+1)*num_windows_row + j];
+				// printf("row2[%d] = %s\n", i, row);
+
+				printf("row[%d]  = ", i);
+				for(int j=0;j<num_windows_row;j++){
+					printf("%d", row_cross_char[i*num_windows_row+j]);
+				}
+				printf("\n");
+				printf("row2[%d] = ", i);
+				for(int j=0;j<num_windows_row;j++){
+					printf("%d", row_cross_char[(i+1)*num_windows_row+j]);
+				}
+				printf("\n");
+
+				long bhd = bits_hamming_distance(row, row2, num_windows_row);
+				printf("bhd is %lu\n", bhd);
+				printf("\n");
+
+				free(row);
+				free(row2);
+			}
+			for(int i=0;i<5;i++){
+				printf("row = %d\t", i);
+				for(int j=row_ptr[i]; j<row_ptr[i+1]; j++){
+					printf("%d ", col_idx[j]);
+				}
+				printf("\n");
+			}
+			
+			int numObjs = m;
+			int numClusters = atoi(argv[i++]);
+			float threshold = 0.001;
+			// float threshold = 0.1;
+			long loop_threshold = 150;
+			int * membership = (typeof(membership)) malloc(m * sizeof(*membership));
+			int * membership_backup = (typeof(membership)) malloc(m * sizeof(*membership));
+			int numCoords = num_windows_row;
+
+			unsigned char * clusters_char = (typeof(clusters_char)) malloc(numClusters * numCoords * sizeof(*clusters_char));
+			// for(int i = 0; i < numClusters ; i++)
+			// 	for(int j = 0; j < numCoords; j++)
+			// 		clusters_char[i * numCoords + j] = row_cross_char[i * numCoords + j];
+			random_selection_char(row_cross_char, clusters_char, numObjs, numClusters, numCoords);
+
+
+			int type = 0; // hamming distance
+			double time_kmeans_char = time_it(1,
+			kmeans_char(row_cross_char, numCoords, numObjs, numClusters, threshold, loop_threshold, membership, clusters_char, type);
+			);
+			printf("\ntime_kmeans_char = %lf (numObjs = %d, numCoords = %d, numClusters = %d)\n", time_kmeans_char, numObjs, numCoords, numClusters);
+
+			
+			int * clusterSize = (typeof(clusterSize)) calloc(numClusters, sizeof(*clusterSize));
+			for(int i=0; i<m; i++)
+				clusterSize[membership[i]]++;
+			for(int i = 0; i < numClusters; i++){
+				printf("cluster[%3d]\t%.4lf\%\t", i, (clusterSize[i]*1.0)/m*100);
+				// for(int j = 0; j < numCoords; j++)
+				// 	printf("%d", clusters_char[i * numCoords + j]);
+				printf("\n");
+			}
+			free(clusterSize);
+			
+
+			char * membership_suffix = (typeof(membership_suffix)) malloc(100*sizeof(*membership_suffix));
+
+			_TYPE_I * row_ptr_reorder; //for CSR format
+			_TYPE_I * col_idx_reorder;
+			_TYPE_V * val_reorder;
+
+			row_ptr_reorder = (typeof(row_ptr_reorder)) malloc((m+1) * sizeof(*row_ptr_reorder));
+			col_idx_reorder = (typeof(col_idx_reorder)) malloc(nnz * sizeof(*col_idx_reorder));
+			val_reorder = (typeof(val_reorder)) malloc(nnz * sizeof(*val_reorder));
+
+			double time_reorder_matrix_by_row = time_it(1,
+			reorder_matrix_by_row(m, n, nnz, row_ptr, col_idx, val, 
+								  membership, row_ptr_reorder, col_idx_reorder, val_reorder);
+			);
+			printf("time reorder_matrix_by_row = %lf\n", time_reorder_matrix_by_row);
+
+			sprintf(membership_suffix, "member_row_%d_window_%d_%d_CHAR.txt", numClusters, window_width, numClusters);
+
+			csr_plot_f(fig_name_gen(file_in, membership_suffix),  row_ptr_reorder, col_idx_reorder, val_reorder, m, n, nnz, 0, num_pixels_x, num_pixels_y);
+			feature_plot_store_matrix(file_in, membership_suffix, plot, 0, m, n, nnz, row_ptr_reorder, col_idx_reorder, val_reorder);
+
+			cluster_char_with_id clusters_struct[numClusters];
+
+			for(int i = 0; i < numClusters; i++){
+				// pass all clusters along with their ID to the cluster_char_with_id struct
+				clusters_struct[i].cluster_char = assign_to_cluster_struct(&clusters_char[i * numCoords], numCoords);
+				clusters_struct[i].cluster_id   = i;
+			}
+
+			// // Display the binary strings
+			// for (int i = 0; i < numClusters; i++){
+			// 	printf("cluster_c[%3d]: ", i);
+			// 	for(int j = 0; j < numCoords; j++)
+			// 		printf("%d", clusters_struct[i].cluster_char[j]);
+			// 	printf("\n");
+			// }
+
+			// Sort the array of strings
+			qsort(clusters_struct, numClusters, sizeof(cluster_char_with_id), compare_unsigned_char_strings_descending);
+
+			// printf("after sorting...\n");
+			// for (int i = 0; i < numClusters; i++){
+			// 	printf("cluster_c[%3d]: ", i);
+			// 	for(int j = 0; j < numCoords; j++)
+			// 		printf("%d", clusters_struct[i].cluster_char[j]);
+			// 	printf("(%d)\n", clusters_struct[i].cluster_id);
+			// }
+
+			// Free the dynamically allocated memory
+			for (int i = 0; i < numClusters; i++)
+				free(clusters_struct[i].cluster_char);
+
+			// for (int i = 0; i < numClusters; i++)
+			// 	printf("%d -> %d\n", i, clusters_struct[i].cluster_id);
+
+			int * membership2 = (typeof(membership2)) malloc(numClusters * sizeof(*membership2));
+			for (int i = 0; i < numClusters; i++)
+				membership2[clusters_struct[i].cluster_id] = i;
+
+			for(int i = 0; i < m; i++){
+				membership_backup[i] = membership[i];
+				membership[i] = membership2[membership[i]];
+				// membership[i] = membership2[membership[i]];
+			}
+
+			double time_reorder_matrix_by_row2_2 = time_it(1,
+			reorder_matrix_by_row(m, n, nnz, row_ptr, col_idx, val, 
+								  membership, row_ptr_reorder, col_idx_reorder, val_reorder);
+			);
+			printf("time reorder_matrix_by_row2_2 = %lf\n", time_reorder_matrix_by_row2_2);
+
+			sprintf(membership_suffix, "member_row_%d_window_%d_%d_CHAR_v2.txt", numClusters, window_width, numClusters);
+			csr_plot_f(fig_name_gen(file_in, membership_suffix),  row_ptr_reorder, col_idx_reorder, val_reorder, m, n, nnz, 0, num_pixels_x, num_pixels_y);
+			feature_plot_store_matrix(file_in, membership_suffix, plot, 1, m, n, nnz, row_ptr_reorder, col_idx_reorder, val_reorder);
+
+
+			free(membership2);
+
+
+			free(row_ptr_reorder);
+			free(col_idx_reorder);
+			free(val_reorder);
+
+			free(membership);
+			free(clusters_char);
+
+			// free(membership2);
+			// free(clusters2);
+
+			free(row_cross_char);
+			// free(rc_r_char);
+			// free(rc_c_char);
+			// free(rc_v_char);
+		}
+		*/
+		/************************************************/
+
+
+		int reorder_mode = 0;
+		// if(reorder_mode == 0)
+		// if(1)
+		// {
+		// 	int numObjs = m;
+		// 	// int numClusters = 256;
+		// 	int numClusters = atoi(argv[i++]);
+		// 	float threshold = 0.001;
+		// 	// float threshold = 0.1;
+		// 	long loop_threshold = 300;
+		// 	int * membership = (typeof(membership)) malloc(m * sizeof(*membership));
+		// 	int * membership_backup = (typeof(membership)) malloc(m * sizeof(*membership));
+		// 	int numCoords = num_windows_row;
+
+		// 	float * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
+		// 	random_selection(row_cross, clusters, numObjs, numClusters, numCoords);
+		// 	// for (int i=0; i<numClusters; i++)
+		// 	// 	for (int j=0; j<numCoords; j++)
+		// 	// 		clusters[i*numCoords + j] = row_cross[i*numCoords + j];
+
+		// 	int type = 1; // cosine similarity
+		// 	double time_kmeans = time_it(1,
+		// 	kmeans(row_cross, numCoords, numObjs, numClusters, threshold, loop_threshold, membership, clusters, type);
+		// 	);
+		// 	printf("\ntime_kmeans = %lf (numObjs = %d, numCoords = %d, numClusters = %d)\n", time_kmeans, numObjs, numCoords, numClusters);
+
+
+		// 	int numClusters2 = atoi(argv[i++]);
+		// 	int * membership2 = (typeof(membership2)) malloc(numClusters * sizeof(*membership2));
+		// 	float * clusters2 = (typeof(clusters2)) malloc(numClusters2 * numCoords * sizeof(*clusters2));
+
+		// 	random_selection(clusters, clusters2, numClusters, numClusters2, numCoords);
+		// 	type = 1; // cosine similarity
+		// 	double time_kmeans2 = time_it(1,
+		// 	kmeans(clusters, numCoords, numClusters, numClusters2, threshold, loop_threshold, membership2, clusters2, type);
+		// 	);
+		// 	printf("\ntime_kmeans2 = %lf (numObjs = %d, numCoords = %d, numClusters = %d)\n", time_kmeans2, numClusters, numCoords, numClusters2);
+
+		// 	int * clusterSize2 = (typeof(clusterSize2)) calloc(numClusters2, sizeof(*clusterSize2));
+		// 	for(int i=0; i<numClusters; i++)
+		// 		clusterSize2[membership2[i]]++;
+		// 	for(int i = 0; i < numClusters2; i++){
+		// 		if(clusterSize2[i]!=0)
+		// 			printf("cluster2[%3d]\t%.4lf\%\t", i, (clusterSize2[i]*1.0)/numClusters*100);
+		// 		else
+		// 			printf("cluster2[%3d]\t \t", i);
+		// 		for(int j = 0; j < numCoords; j++){
+		// 			if(clusters2[i * numCoords + j] != 0.0)
+		// 				printf("%.2lf\t", clusters2[i * numCoords + j]);
+		// 			else
+		// 				printf(" \t");
+		// 		}
+		// 		printf("\n");
+		// 	}
+		// 	free(clusterSize2);
+
+
+		// 	// char * binary_string[numClusters];
+		// 	binary_string_with_id clusters_binary[numClusters];
+
+		// 	for(int i = 0; i < numClusters; i++){
+		// 		clusters_binary[i].binary_string = convert_to_binary_string(&clusters[i * numCoords], numCoords);
+		// 		clusters_binary[i].id = i;
+		// 		// binary_string[i] = convert_to_binary_string(&clusters[i * numCoords], numCoords);
+		// 	}
+
+		// 	// Display the binary strings
+		// 	for (int i = 0; i < numClusters; i++){
+		// 		printf("cluster_b[%3d]: %s\n", i, clusters_binary[i].binary_string);
+		// 	}
+
+
+		// 	// Sort the array of binary strings
+		// 	// qsort(binary_string, numClusters, sizeof(const char *), compare_binary_strings);
+		// 	qsort(clusters_binary, numClusters, sizeof(binary_string_with_id), compare_binary_strings_descending);
+
+		// 	printf("after sorting...\n");
+		// 	// Display the binary strings
+		// 	for (int i = 0; i < numClusters; i++)
+		// 		printf("cluster_b[%3d]: %s (%d)\n", i, clusters_binary[i].binary_string, clusters_binary[i].id);
+
+		// 	// Free the dynamically allocated memory
+		// 	for (int i = 0; i < numClusters; i++)
+		// 		free(clusters_binary[i].binary_string);
+
+		// 	// Free the dynamically allocated memory
+		// 	for (int i = 0; i < numClusters; i++)
+		// 		printf("%d -> %d\n", i, clusters_binary[i].id);
+
+		// 	int * membership2_2 = (typeof(membership2_2)) malloc(numClusters * sizeof(*membership2_2));
+		// 	for (int i = 0; i < numClusters; i++){
+		// 		membership2_2[clusters_binary[i].id] = i;
+		// 	}
+
+		// 	char * membership_suffix = (typeof(membership_suffix)) malloc(100*sizeof(*membership_suffix));
+		// 	// printf("reading from file %s\n", fig_name_gen(file_in, membership_suffix));
+		// 	// read_array_from_file(fig_name_gen(file_in, membership_suffix), membership, m);
+
+		// 	_TYPE_I * row_ptr_reorder; //for CSR format
+		// 	_TYPE_I * col_idx_reorder;
+		// 	_TYPE_V * val_reorder;
+
+		// 	row_ptr_reorder = (typeof(row_ptr_reorder)) malloc((m+1) * sizeof(*row_ptr_reorder));
+		// 	col_idx_reorder = (typeof(col_idx_reorder)) malloc(nnz * sizeof(*col_idx_reorder));
+		// 	val_reorder = (typeof(val_reorder)) malloc(nnz * sizeof(*val_reorder));
+
+
+		// 	double time_reorder_matrix_by_row = time_it(1,
+		// 	reorder_matrix_by_row(m, n, nnz, row_ptr, col_idx, val, 
+		// 						  membership, row_ptr_reorder, col_idx_reorder, val_reorder);
+		// 	);
+		// 	printf("time reorder_matrix_by_row = %lf\n", time_reorder_matrix_by_row);
+
+		// 	sprintf(membership_suffix, "member_row_%d_window_%d_%d.txt", numClusters, window_width, numClusters);
+
+		// 	csr_plot_f(fig_name_gen(file_in, membership_suffix),  row_ptr_reorder, col_idx_reorder, val_reorder, m, n, nnz, 0, num_pixels_x, num_pixels_y);
+		// 	feature_plot_store_matrix(file_in, membership_suffix, plot, 0, m, n, nnz, row_ptr_reorder, col_idx_reorder, val_reorder);
+
+		// 	free(row_ptr_reorder);
+		// 	free(col_idx_reorder);
+		// 	free(val_reorder);
+
+		// 	free(membership);
+		// 	free(clusters);
+		// 	free(membership2);
+		// 	free(clusters2);
+
+		// }
+		
 		free(rc_r);
 		free(rc_c);
 		free(rc_v);
-		free(cc_r);
-		free(cc_c);
-		free(cc_v);
+		// free(cc_r);
+		// free(cc_c);
+		// free(cc_v);
 
-		free(row_cross);
-		free(col_cross);
+		// free(row_cross);
+		// free(col_cross);
+
+		// free(cross_row_ptr);
+		// free(cross_col_idx);
+		// free(cross_val);
+		// free(cross_dense);
 
 		free(row_idx);
 		free(col_ptr);

@@ -122,10 +122,21 @@ void csr_separate_close_distant(_TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *val
 #define csr_shuffle_matrix  CSR_UTIL_GEN_EXPAND(csr_shuffle_matrix)
 void csr_shuffle_matrix(long m, _TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, _TYPE_I *row_ptr_shuffle, _TYPE_I *col_idx_shuffle, _TYPE_V *values_shuffle);
 
-#undef  csr_extract_row_cross
-#define csr_extract_row_cross  CSR_UTIL_GEN_EXPAND(csr_extract_row_cross)
-void csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width,
-		int *num_windows_out, float **row_cross_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
+// #undef  csr_extract_row_cross
+// #define csr_extract_row_cross  CSR_UTIL_GEN_EXPAND(csr_extract_row_cross)
+// void csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width,
+// 		int *num_windows_out, float **row_cross_out, int plot, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
+
+#undef  csr_extract_row_cross2
+#define csr_extract_row_cross2  CSR_UTIL_GEN_EXPAND(csr_extract_row_cross2)
+void
+csr_extract_row_cross2(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, 
+		int *num_windows_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
+
+#undef  csr_extract_row_cross_char
+#define csr_extract_row_cross_char  CSR_UTIL_GEN_EXPAND(csr_extract_row_cross_char)
+void csr_extract_row_cross_char(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width,
+		int *num_windows_out, unsigned char **row_cross_out, int plot, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
 
 
 //==========================================================================================================================================

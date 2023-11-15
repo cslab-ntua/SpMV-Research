@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 	long num_pixels_y = (m < num_pixels) ? m : num_pixels;
 
 	time = time_it(1,
-		coo_to_csr(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_ptr, col_idx, val, 1);
+		coo_to_csr(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_ptr, col_idx, val, 1, 0);
 	);
 	printf("time coo_to_csr = %lf\n", time);
 
