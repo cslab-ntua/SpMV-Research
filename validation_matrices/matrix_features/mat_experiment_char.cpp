@@ -362,7 +362,7 @@ int main(int argc, char **argv)
 		// float * cc_v1;
 
 		_TYPE_I * rc_r, * rc_c;
-		float * rc_v;
+		unsigned char * rc_v;
 		// _TYPE_I * cc_r, * cc_c;
 		// float * cc_v;
 
@@ -391,7 +391,7 @@ int main(int argc, char **argv)
 		// free(cc_v);
 
 		double time_row_cross2 = time_it(1,
-		csr_extract_row_cross2_batch(row_ptr, col_idx, val, m, n, nnz, window_width, batch, &num_windows_row, &rc_r, &rc_c, &rc_v);
+		csr_extract_row_cross_char2_batch(row_ptr, col_idx, val, m, n, nnz, window_width, batch, &num_windows_row, &rc_r, &rc_c, &rc_v);
 		);
 		// csr_plot_f(fig_name_gen(file_in, "row_cross"),  rc_r, rc_c, (_TYPE_V *) rc_v, m, num_windows_row, rc_r[m], 0, num_pixels_x, num_pixels_y);
 		printf("time_row_cross2 = %lf s\n", time_row_cross2);
@@ -418,7 +418,7 @@ int main(int argc, char **argv)
 		float threshold = atof(argv[i++]);;
 		int loop_threshold = 150;
 		double time_row_reorder = time_it(1,
-		csr_kmeans_reorder_row_batch(row_ptr, col_idx, val, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r, &original_row_positions, m, n, nnz, batch, numClusters, threshold, loop_threshold, num_windows_row, rc_r, rc_c, rc_v);
+		csr_kmeans_char_reorder_row_batch(row_ptr, col_idx, val, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r, &original_row_positions, m, n, nnz, batch, numClusters, threshold, loop_threshold, num_windows_row, rc_r, rc_c, rc_v);
 		);
 		printf("time_row_reorder (total) = %lf\n", time_row_reorder);
 		free(rc_r);
@@ -451,10 +451,10 @@ int main(int argc, char **argv)
 
 		int num_windows_col;
 		_TYPE_I * cc_r, * cc_c;
-		float * cc_v;
+		unsigned char * cc_v;
 
 		double time_col_cross2 = time_it(1,
-		csc_extract_col_cross2_batch(row_idx_reorder_r, col_ptr_reorder_r, val_c_reorder_r, m, n, nnz, window_width, batch, &num_windows_col, &cc_r, &cc_c, &cc_v);
+		csc_extract_col_cross_char2_batch(row_idx_reorder_r, col_ptr_reorder_r, val_c_reorder_r, m, n, nnz, window_width, batch, &num_windows_col, &cc_r, &cc_c, &cc_v);
 		);
 		// csc_plot_f(fig_name_gen(file_in, "col_cross_reorder"),  cc_r, cc_c, (_TYPE_V *) cc_v, num_windows_col, n, cc_c[n], 0, num_pixels_x, num_pixels_y);
 		printf("time_col_cross2 = %lf s\n", time_col_cross2);
@@ -464,13 +464,13 @@ int main(int argc, char **argv)
 		_TYPE_I * col_ptr_reorder_rc;
 		_TYPE_V * val_c_reorder_rc;
 		_TYPE_I * original_col_positions; // this will be used to reorder input (x) vector elements, in order to produce same result as pre-reordered matrix
-		
+
 		row_idx_reorder_rc = (typeof(row_idx_reorder_rc)) malloc(nnz * sizeof(*row_idx_reorder_rc));
 		col_ptr_reorder_rc = (typeof(col_ptr_reorder_rc)) malloc((n+1) * sizeof(*col_ptr_reorder_rc));
 		val_c_reorder_rc = (typeof(val_c_reorder_rc)) malloc(nnz * sizeof(*val_c_reorder_rc));
 
 		double time_col_reorder = time_it(1,
-		csc_kmeans_reorder_col_batch(row_idx_reorder_r, col_ptr_reorder_r, val_c_reorder_r, row_idx_reorder_rc, col_ptr_reorder_rc, val_c_reorder_rc, &original_col_positions, m, n, nnz, batch, numClusters, threshold, loop_threshold, num_windows_col, cc_r, cc_c, cc_v);
+		csc_kmeans_char_reorder_col_batch(row_idx_reorder_r, col_ptr_reorder_r, val_c_reorder_r, row_idx_reorder_rc, col_ptr_reorder_rc, val_c_reorder_rc, &original_col_positions, m, n, nnz, batch, numClusters, threshold, loop_threshold, num_windows_col, cc_r, cc_c, cc_v);
 		);
 		printf("time_col_reorder (total) = %lf\n", time_col_reorder);
 		free(cc_r);

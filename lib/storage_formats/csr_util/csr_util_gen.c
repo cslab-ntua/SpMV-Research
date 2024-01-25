@@ -10,32 +10,34 @@
 #include "bit_ops.h"
 #include "plot/plot.h"
 #include "time_it.h"
+#include "kmeans.h"
+#include "kmeans_char.h"
 
 #include "csr_util_gen.h"
 
 
 /* Notes: 
- *     - We assume that the matrix is FULLY sorted, i.e. both rows and columns.
+ *	 - We assume that the matrix is FULLY sorted, i.e. both rows and columns.
  */
 
 /* features_all = ['A_mem_footprint',
- *              'avg_nz_row',
- *              'skew_coeff',
- *              'avg_num_neighbours',
- *              'avg_cross_row_similarity',
+ *			  'avg_nz_row',
+ *			  'skew_coeff',
+ *			  'avg_num_neighbours',
+ *			  'avg_cross_row_similarity',
  *
- *              'm','n','nz',
- *              'density',
- *              'min_nz_row', 'max_nz_row', 'std_nz_row',
- *              'min_nz_col', 'max_nz_col', 'avg_nz_col', 'std_nz_col',
- *              'min_bandwidth', 'max_bandwidth', 'avg_bandwidth', 'std_bandwidth',
- *              'min_scattering', 'max_scattering', 'avg_scattering', 'std_scattering',
- *              'min_ngroups', 'max_ngroups', 'avg_ngroups', 'std_ngroups',
- *              'min_dis', 'max_dis', 'avg_dis', 'std_dis',
- *              'min_clustering', 'max_clustering', 'avg_clustering', 'std_clustering',
- *              'min_num_neighbours','max_num_neighbours', 'std_num_neighbours',
- *              'min_cross_row_similarity', 'max_cross_row_similarity', 'std_cross_row_similarity'
- *         ]
+ *			  'm','n','nz',
+ *			  'density',
+ *			  'min_nz_row', 'max_nz_row', 'std_nz_row',
+ *			  'min_nz_col', 'max_nz_col', 'avg_nz_col', 'std_nz_col',
+ *			  'min_bandwidth', 'max_bandwidth', 'avg_bandwidth', 'std_bandwidth',
+ *			  'min_scattering', 'max_scattering', 'avg_scattering', 'std_scattering',
+ *			  'min_ngroups', 'max_ngroups', 'avg_ngroups', 'std_ngroups',
+ *			  'min_dis', 'max_dis', 'avg_dis', 'std_dis',
+ *			  'min_clustering', 'max_clustering', 'avg_clustering', 'std_clustering',
+ *			  'min_num_neighbours','max_num_neighbours', 'std_num_neighbours',
+ *			  'min_cross_row_similarity', 'max_cross_row_similarity', 'std_cross_row_similarity'
+ *		 ]
  */
 
 //==========================================================================================================================================
@@ -130,7 +132,7 @@ typedef CSR_UTIL_GEN_TYPE_2  _TYPE_I;
 
 //==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
-//-                                                              Templates                                                                 -
+//-															  Templates																 -
 //------------------------------------------------------------------------------------------------------------------------------------------
 //==========================================================================================================================================
 
@@ -445,7 +447,7 @@ csr_column_distances_and_groupping(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m,
 
 
 /* Notes: 
- *     - 'window_size': Distance from left and right.
+ *	 - 'window_size': Distance from left and right.
  */
 #undef  csr_row_neighbours
 #define csr_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_row_neighbours)
@@ -508,7 +510,7 @@ csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 			degree = row_ptr[i+1] - row_ptr[i];
 			if (degree <= 0)
 				continue;
-			for (l=i+1;l<m;l++)       // Find next non-empty row.
+			for (l=i+1;l<m;l++)	   // Find next non-empty row.
 				if (row_ptr[l+1] - row_ptr[l] > 0)
 					break;
 			num_non_empty_rows++;
@@ -537,7 +539,7 @@ csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 				row_similarity += ((double) num_similarities) / degree;
 			}
 		}
-		__atomic_store(&t_row_similarity[tnum], &row_similarity, __ATOMIC_RELAXED);    // '__atomic_store_n' is for integer types only.
+		__atomic_store(&t_row_similarity[tnum], &row_similarity, __ATOMIC_RELAXED);	// '__atomic_store_n' is for integer types only.
 		__atomic_fetch_add(&total_num_non_empty_rows, num_non_empty_rows, __ATOMIC_RELAXED);
 	}
 	if (total_num_non_empty_rows == 0)
@@ -572,7 +574,7 @@ csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 			degree = row_ptr[i+1] - row_ptr[i];
 			if (degree <= 0)
 				continue;
-			for (l=i+1;l<m;l++)       // Find next non-empty row.
+			for (l=i+1;l<m;l++)	   // Find next non-empty row.
 				if (row_ptr[l+1] - row_ptr[l] > 0)
 					break;
 			num_non_empty_rows++;
@@ -649,12 +651,12 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 
 	long buf_n = strlen(title_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
-	double time;
+	__attribute__((unused)) double time;
 
 	time = time_it(1,
 		csr_row_indices(row_ptr, col_idx, m, n, nnz, &row_idx);
 	);
-	printf("time row indices = %lf\n", time);
+	// printf("time row indices = %lf\n", time);
 	// Matrix structure, density map.
 	if (do_plot)
 	{
@@ -673,7 +675,7 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	time = time_it(1,
 		csr_degrees_bandwidths_scatters(row_ptr, col_idx, m, n, nnz, &degrees_rows, &degrees_cols, &bandwidths, &scatters);
 	);
-	printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
+	// printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
 
 	/* It's not worth it combining the array metrics, because min-max degrade the total performance of the pipeline,
 	 * and std depends on mean and needs a separete loop either way. */
@@ -720,7 +722,7 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	time = time_it(1,
 		csr_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &num_neigh);
 	);
-	printf("time csr_row_neighbours = %lf\n", time);
+	// printf("time csr_row_neighbours = %lf\n", time);
 
 	array_min_max(num_neigh, nnz, &num_neigh_min, NULL, &num_neigh_max, NULL);
 	array_mean(num_neigh, nnz, &num_neigh_avg);
@@ -744,13 +746,13 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	time = time_it(1,
 		cross_row_similarity_avg = csr_cross_row_similarity(row_ptr, col_idx, m, n, nnz, window_size);
 	);
-	printf("time csr_cross_row_similarity = %lf\n", time);
+	// printf("time csr_cross_row_similarity = %lf\n", time);
 
 	max_gap_size = 0;
 	time = time_it(1,
 		num_groups = csr_column_distances_and_groupping(row_ptr, col_idx, m, n, nnz, max_gap_size, &nnz_col_dist, &group_col_dist, &group_sizes, &groups_per_row);
 	);
-	printf("time csr_column_distances_and_groupping = %lf\n", time);
+	// printf("time csr_column_distances_and_groupping = %lf\n", time);
 
 	array_min_max(nnz_col_dist, nnz, &nnz_col_dist_min, NULL, &nnz_col_dist_max, NULL);
 	array_mean(nnz_col_dist, nnz, &nnz_col_dist_avg);
@@ -898,17 +900,17 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	double num_neigh_avg;
 	double cross_row_similarity_avg;
 
-	double time;
+	__attribute__((unused)) double time;
 
 	time = time_it(1,
 		csr_row_indices(row_ptr, col_idx, m, n, nnz, &row_idx);
 	);
-	printf("time row indices = %lf\n", time);
+	// printf("time row indices = %lf\n", time);
 
 	time = time_it(1,
 		csr_degrees_bandwidths_scatters(row_ptr, col_idx, m, n, nnz, &degrees_rows, &degrees_cols, &bandwidths, &scatters);
 	);
-	printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
+	// printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
 
 	/* It's not worth it combining the array metrics, because min-max degrade the total performance of the pipeline,
 	 * and std depends on mean and needs a separete loop either way. */
@@ -932,7 +934,7 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	time = time_it(1,
 		csr_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &num_neigh);
 	);
-	printf("time csr_row_neighbours = %lf\n", time);
+	// printf("time csr_row_neighbours = %lf\n", time);
 
 	array_mean(num_neigh, nnz, &num_neigh_avg);
 
@@ -941,7 +943,7 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	time = time_it(1,
 		cross_row_similarity_avg = csr_cross_row_similarity(row_ptr, col_idx, m, n, nnz, window_size);
 	);
-	printf("time csr_cross_row_similarity = %lf\n", time);
+	// printf("time csr_cross_row_similarity = %lf\n", time);
 
 	/* Matrix features for artificial twins.
 	 * Also print the csr mem footprint for easier sorting.
@@ -1460,7 +1462,7 @@ csr_value_distances_from_cluster_centers(char * title_base, double * vals, doubl
 	long buf_n = strlen(title_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 	// long num_bins = 1024;
-	double time;
+	__attribute__((unused)) double time;
 
 	double vals_min;
 	// double vals_grouped_ctz_avg;
@@ -2251,7 +2253,7 @@ csr_shuffle_matrix(long m, _TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, 
 		_TYPE_I new_row = i;
 		_TYPE_I row_size = row_ptr[old_row + 1] - row_ptr[old_row];
 		_TYPE_I start_old_idx = row_ptr[old_row];
-		_TYPE_I start_idx     = row_ptr_shuffle[new_row];
+		_TYPE_I start_idx	 = row_ptr_shuffle[new_row];
 		for(_TYPE_I j = 0; j < row_size; j++) {
 			_TYPE_I old_idx = start_old_idx + j;
 			_TYPE_I new_idx = start_idx + j;
@@ -2271,7 +2273,7 @@ csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)
 					  int *num_windows_out, float **row_cross_out, int plot, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out)
 {
 	int num_windows = (n-1 + window_width) / window_width;
-	printf("m = %d, n = %d, num_windows = %d\n", m, n, num_windows);
+	printf("m = %d, n = %d, window_width = %d\n", m, n, window_width);
 	long unsigned rc_elements = m * num_windows;
 	float * row_cross = (typeof(row_cross)) calloc(rc_elements, sizeof(*row_cross));
 	double row_cross_mem_foot = (m * 1.0 * num_windows * sizeof(*row_cross))/(1024*1024*1.0);
@@ -2306,7 +2308,7 @@ csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)
 		}
 	}
 	);
-	printf("time for row_cross = %lf\n", time_row_cross);
+	// printf("time for row_cross = %lf\n", time_row_cross);
 
 	if(plot){
 		long unsigned rc_elements_nz = 0;
@@ -2323,7 +2325,6 @@ csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)
 		}
 		}
 		);
-		printf("time for row_cross_reduction = %lf\n", time_reduction);
 		printf("rc_elements_nz = %lu\n", rc_elements_nz);
 
 		_TYPE_I * rc_r, * rc_c;
@@ -2333,7 +2334,7 @@ csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)
 		rc_c = (typeof(rc_c)) malloc(rc_elements_nz * sizeof(*rc_c));
 		rc_v = (typeof(rc_v)) malloc(rc_elements_nz * sizeof(*rc_v));
 		double row_cross_compr_mem_foot = ((m+1) * sizeof(*rc_r) + rc_elements_nz * sizeof(*rc_c) + rc_elements_nz * sizeof(*rc_v))/(1024*1024*1.0);
-		printf("memory footprint of row_cross (compressed) = %.2lf MB\n", row_cross_compr_mem_foot);
+		// printf("memory footprint of row_cross (compressed) = %.2lf MB\n", row_cross_compr_mem_foot);
 		// printf("compression ratio = %.2lf%\n", row_cross_compr_mem_foot/row_cross_mem_foot * 100);
 
 		// in order to make it faster, perhaps calculate rc_r beforehand and use the dgal partitioner for rc_c, rc_v
@@ -2353,7 +2354,7 @@ csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)
 			}
 		}
 		);
-		printf("time_final = %lf\n", time_final);
+		// printf("time_final = %lf\n", time_final);
 		if (rc_r_out != NULL)
 			*rc_r_out = rc_r;
 		if (rc_c_out != NULL)
@@ -2378,14 +2379,14 @@ csr_extract_row_cross2(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused
 					   int *num_windows_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out)
 {
 	int num_windows = (n-1 + window_width) / window_width;
-	printf("m = %d, n = %d, num_windows = %d\n", m, n, num_windows);
+	printf("m = %d, n = %d, window_width = %d\n", m, n, window_width);
 	int num_threads = omp_get_max_threads();
 
 	_TYPE_I * thread_i_s = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_s));
 	_TYPE_I * thread_i_e = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_e));
 	long unsigned  * thread_rc_elements_nz = (long unsigned  *) malloc(num_threads * sizeof(*thread_rc_elements_nz));
+	long unsigned  * rc_r_elem = (long unsigned  *) calloc(m, sizeof(*rc_r_elem));
 
-	double time_row_cross = time_it(1,
 	_Pragma("omp parallel")
 	{
 		int tnum = omp_get_thread_num();
@@ -2398,57 +2399,59 @@ csr_extract_row_cross2(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused
 				_TYPE_I cw_loc = col_idx[j] / window_width; // col window location
 				local_row_cross[cw_loc] = 1; // if already found in cw_loc, just overwrite it, no problem with that... we just want to identify how many windows for sparse struct later
 			}
-			for(int k=0;k<num_windows; k++)
+			for(int k=0;k<num_windows; k++){
 				thread_rc_elements_nz[tnum] += local_row_cross[k];
+				rc_r_elem[i] += local_row_cross[k];
+			}
 			free(local_row_cross);
 		}
 	}
-	);
-	printf("time for row_cross = %lf\n", time_row_cross);
 	long unsigned rc_elements_nz = 0;
-	_Pragma("omp parallel")
-	{
-		_Pragma("omp for reduction(+:rc_elements_nz)")
-		for(int k=0;k<num_threads;k++){
-			// printf("thread_rc_elements_nz[%d] = %lu\n", k, thread_rc_elements_nz[k]);
-			rc_elements_nz += thread_rc_elements_nz[k];
-		}
-	}
-	printf("rc_elements_nz = %lu\n", rc_elements_nz);
+	_Pragma("omp parallel for reduction(+:rc_elements_nz)")
+	for(int k=0;k<num_threads;k++)
+		rc_elements_nz += thread_rc_elements_nz[k];
 
 	_TYPE_I * rc_r, * rc_c;
 	float * rc_v;
-	// rc_r = (typeof(rc_r)) malloc(rc_elements_nz * sizeof(*rc_r));
 	rc_r = (typeof(rc_r)) malloc((m+1) * sizeof(*rc_r));
 	rc_c = (typeof(rc_c)) malloc(rc_elements_nz * sizeof(*rc_c));
 	rc_v = (typeof(rc_v)) malloc(rc_elements_nz * sizeof(*rc_v));
-	double row_cross_compr_mem_foot = ((m+1) * sizeof(*rc_r) + rc_elements_nz * sizeof(*rc_c) + rc_elements_nz * sizeof(*rc_v))/(1024*1024*1.0);
-	printf("memory footprint of row_cross (compressed) = %.2lf MB\n", row_cross_compr_mem_foot);
+	// double row_cross_compr_mem_foot = ((m+1) * sizeof(*rc_r) + rc_elements_nz * sizeof(*rc_c) + rc_elements_nz * sizeof(*rc_v))/(1024*1024*1.0);
+	// printf("memory footprint of row_cross (compressed) = %.2lf MB\n", row_cross_compr_mem_foot);
 
-	// in order to make it faster, perhaps calculate rc_r beforehand and use the dgal partitioner for rc_c, rc_v
-	int cnt=0;
-	rc_r[0] = 0;
-	double time_final = time_it(1,
-	for(int i=0; i<m; i++){
-		long unsigned * local_row_cross = (typeof(local_row_cross)) calloc(num_windows, sizeof(*local_row_cross));
-		for(_TYPE_I j=row_ptr[i]; j<row_ptr[i+1]; j++){
-			_TYPE_I cw_loc = col_idx[j] / window_width; // col window location
-			local_row_cross[cw_loc]++; // if already found in cw_loc, just overwrite it, no problem with that... we just want to identify how many windows for sparse struct later
-		}
-		for(int k=0;k<num_windows; k++){
-			if(local_row_cross[k] != 0){
-				rc_c[cnt] = k;
-				if(rc_c[cnt] > num_windows)
-					printf("rc_c[%d] = %d\n", cnt, rc_c[cnt]);
-				rc_v[cnt] = local_row_cross[k];
-				cnt++;
+	rc_r[0]=0;
+	for(int i=1;i<m+1;i++)
+		rc_r[i] = rc_r[i-1]+rc_r_elem[i-1];
+	free(rc_r_elem);
+
+	_Pragma("omp parallel")
+	{
+		int tnum = omp_get_thread_num();
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, rc_r, m, rc_r[m], &thread_i_s[tnum], &thread_i_e[tnum]);
+		_Pragma("omp barrier")
+		// _Pragma("omp single")
+		// {
+		// 	for(int tnum = 0; tnum < num_threads; tnum++)
+		// 		printf("tnum = %2d\trows = (%d-%d) %d\t\tnonzeros = %d\n", tnum, thread_i_s[tnum], thread_i_e[tnum], thread_i_e[tnum] - thread_i_s[tnum], rc_r[thread_i_e[tnum]] - rc_r[thread_i_s[tnum]]);
+		// }
+		for(_TYPE_I i=thread_i_s[tnum]; i<thread_i_e[tnum]; i++){
+			long unsigned * local_row_cross = (typeof(local_row_cross)) calloc(num_windows, sizeof(*local_row_cross));
+			for(_TYPE_I j=row_ptr[i]; j<row_ptr[i+1]; j++){
+				_TYPE_I cw_loc = col_idx[j] / window_width; // col window location
+				local_row_cross[cw_loc]++; // if already found in cw_loc, just overwrite it, no problem with that... we just want to identify how many windows for sparse struct later
 			}
+			int row_offset = rc_r[i];
+			int cnt = 0;
+			for(int k=0;k<num_windows; k++){
+				if(local_row_cross[k] != 0){
+					rc_c[row_offset + cnt] = k;
+					rc_v[row_offset + cnt] = local_row_cross[k];
+					cnt++;
+				}
+			}
+			free(local_row_cross);
 		}
-		rc_r[i+1] = cnt;
-		free(local_row_cross);
 	}
-	);
-	// printf("time_final = %lf\n", time_final);
 	*num_windows_out = num_windows;
 	if (rc_r_out != NULL)
 		*rc_r_out = rc_r;
@@ -2459,7 +2462,118 @@ csr_extract_row_cross2(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused
 
 	free(thread_i_s);
 	free(thread_i_e);
+}
 
+#undef  csr_extract_row_cross2_batch
+#define csr_extract_row_cross2_batch  CSR_UTIL_GEN_EXPAND(csr_extract_row_cross2_batch)
+void
+csr_extract_row_cross2_batch(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, int batch, 
+							 int *num_windows_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out)
+{
+	int num_windows = (n-1 + window_width) / window_width;
+	printf("m = %d, n = %d, window_width = %d, batch = %d\n", m, n, window_width, batch);
+	int num_threads = omp_get_max_threads();
+
+	_TYPE_I * thread_i_s = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_s));
+	_TYPE_I * thread_i_e = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_e));
+	long unsigned  * thread_rc_elements_nz = (long unsigned  *) malloc(num_threads * sizeof(*thread_rc_elements_nz));
+	int m_batch = (m-1 + batch) / batch; 
+	long unsigned  * rc_r_elem = (long unsigned  *) calloc(m_batch, sizeof(*rc_r_elem));
+
+	// batched-rows row_ptr array. it will be used for loop partitioner only, so that rows with same batch-index are not assigned to different threads, causing conflict on rc_r_elem array.
+	_TYPE_I * row_ptr_b = (_TYPE_I *) malloc((m_batch+1) * sizeof(*row_ptr_b));
+	row_ptr_b[0] = 0;
+	_Pragma("omp parallel for")
+	for(int i=0;i<m+1;i+=batch)
+		row_ptr_b[i/batch] = row_ptr[i];
+	row_ptr_b[m_batch] = row_ptr[m];
+
+	_Pragma("omp parallel")
+	{
+		int tnum = omp_get_thread_num();
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr_b, m_batch, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+		_Pragma("omp barrier")
+		// _Pragma("omp single")
+		// {
+		// 	for(int tnum = 0; tnum < num_threads; tnum++)
+		// 		printf("tnum = %2d\trows = (%d-%d) %d\n", tnum, thread_i_s[tnum], thread_i_e[tnum], thread_i_e[tnum] - thread_i_s[tnum]);
+		// }
+		thread_rc_elements_nz[tnum] = 0;
+		for(_TYPE_I i=thread_i_s[tnum]; i<thread_i_e[tnum]; i++){
+			long unsigned * local_row_cross = (typeof(local_row_cross)) calloc(num_windows, sizeof(*local_row_cross));
+			// printf("i = %d, start = %d, end = %d\n", i, i*batch, ((i+1)*batch < m) ? (i+1)*batch-1 : m-1);
+			for(_TYPE_I ii=i*batch; ii < (i+1)*batch && ii < m; ii++){
+				for(_TYPE_I j=row_ptr[ii]; j<row_ptr[ii+1]; j++){
+					_TYPE_I cw_loc = col_idx[j] / window_width; // col window location
+					local_row_cross[cw_loc] = 1; // if already found in cw_loc, just overwrite it, no problem with that... we just want to identify how many windows for sparse struct later
+				}
+			}
+			for(int k=0;k<num_windows; k++){
+				thread_rc_elements_nz[tnum] += local_row_cross[k];
+				rc_r_elem[i] += local_row_cross[k];
+			}
+			free(local_row_cross);
+		}
+	}
+	free(row_ptr_b);
+	long unsigned rc_elements_nz = 0;
+	_Pragma("omp parallel for reduction(+:rc_elements_nz)")
+	for(int k=0;k<num_threads;k++)
+		rc_elements_nz += thread_rc_elements_nz[k];
+
+	_TYPE_I * rc_r, * rc_c;
+	float * rc_v;
+	rc_r = (typeof(rc_r)) malloc((m_batch+1) * sizeof(*rc_r));
+	rc_c = (typeof(rc_c)) malloc(rc_elements_nz * sizeof(*rc_c));
+	rc_v = (typeof(rc_v)) malloc(rc_elements_nz * sizeof(*rc_v));
+	// double row_cross_compr_mem_foot = ((m_batch+1) * sizeof(*rc_r) + rc_elements_nz * sizeof(*rc_c) + rc_elements_nz * sizeof(*rc_v))/(1024*1024*1.0);
+	// printf("memory footprint of row_cross (compressed) = %.2lf MB\n", row_cross_compr_mem_foot);
+
+	rc_r[0]=0;
+	for(int i=1;i<m_batch+1;i++)
+		rc_r[i] = rc_r[i-1]+rc_r_elem[i-1];
+	free(rc_r_elem);
+
+	_Pragma("omp parallel")
+	{
+		int tnum = omp_get_thread_num();
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, rc_r, m_batch, rc_r[m_batch], &thread_i_s[tnum], &thread_i_e[tnum]);
+		_Pragma("omp barrier")
+		// _Pragma("omp single")
+		// {
+		// 	for(int tnum = 0; tnum < num_threads; tnum++)
+		// 		printf("tnum = %2d\trows = (%d-%d) %d\t\tnonzeros = %d\n", tnum, thread_i_s[tnum], thread_i_e[tnum], thread_i_e[tnum] - thread_i_s[tnum], rc_r[thread_i_e[tnum]] - rc_r[thread_i_s[tnum]]);
+		// }
+		for(_TYPE_I i=thread_i_s[tnum]; i<thread_i_e[tnum]; i++){
+			long unsigned * local_row_cross = (typeof(local_row_cross)) calloc(num_windows, sizeof(*local_row_cross));
+			for(_TYPE_I ii=i*batch; ii < (i+1)*batch && ii < m; ii++){
+				for(_TYPE_I j=row_ptr[ii]; j<row_ptr[ii+1]; j++){
+					_TYPE_I cw_loc = col_idx[j] / window_width; // col window location
+					local_row_cross[cw_loc]++; // if already found in cw_loc, just overwrite it, no problem with that... we just want to identify how many windows for sparse struct later
+				}
+			}
+			int row_offset = rc_r[i];
+			int cnt = 0;
+			for(int k=0;k<num_windows; k++){
+				if(local_row_cross[k] != 0){
+					rc_c[row_offset + cnt] = k;
+					rc_v[row_offset + cnt] = local_row_cross[k];
+					cnt++;
+				}
+			}
+			free(local_row_cross);
+		}
+	}
+	*num_windows_out = num_windows;
+	if (rc_r_out != NULL)
+		*rc_r_out = rc_r;
+	if (rc_c_out != NULL)
+		*rc_c_out = rc_c;
+	if (rc_v_out != NULL)
+		*rc_v_out = rc_v;
+
+	free(thread_i_s);
+	free(thread_i_e);
 }
 
 #undef  csr_extract_row_cross_char
@@ -2472,16 +2586,15 @@ csr_extract_row_cross_char(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((un
 	printf("m = %d, n = %d, num_windows = %d\n", m, n, num_windows);
 	long unsigned rc_elements = m * num_windows;
 	unsigned char * row_cross = (typeof(row_cross)) calloc(rc_elements, sizeof(*row_cross));
-	double row_cross_mem_foot = (m * 1.0 * num_windows * sizeof(*row_cross))/(1024*1024*1.0);
-	printf("memory footprint of row_cross = %.2lf MB\n", row_cross_mem_foot);
+	// double row_cross_mem_foot = (m * 1.0 * num_windows * sizeof(*row_cross))/(1024*1024*1.0);
+	// printf("memory footprint of row_cross = %.2lf MB\n", row_cross_mem_foot);
 
 	int num_threads = omp_get_max_threads();
 
 	_TYPE_I * thread_i_s = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_s));
 	_TYPE_I * thread_i_e = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_e));
 	
-	unsigned char * row_data = malloc(m);
-	double time_row_cross = time_it(1,
+	
 	_Pragma("omp parallel")
 	{
 		// struct BitStream * bs;
@@ -2502,30 +2615,19 @@ csr_extract_row_cross_char(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((un
 			}
 		}
 		for(_TYPE_I i=thread_i_s[tnum]; i<thread_i_e[tnum]; i++){
-			// printf("tnum=%d\ti=%d\n", tnum, i);
-			// int shit[num_windows];
-			// int * calloc (shi)
 			for(_TYPE_I j=row_ptr[i]; j<row_ptr[i+1]; j++){
 				_TYPE_I cw_loc = col_idx[j] / window_width; // col window location
 				long unsigned rc_ind = i * num_windows + cw_loc;
-				// printf("tnum = %d, i * num_windows + cw_loc = %lu\n", tnum, i * num_windows + cw_loc, cnt);
 				// row_cross[rc_ind] = 1;
 				row_cross[rc_ind] = '1';
 			}
-			// unsigned char * tmp_row_data = malloc((num_windows+7)/8);
-			// bitstream_init_write(bs, tmp_row_data, (num_windows+7)/8);
-			// for(j=0;j<num_windows;j++){
-			// 	bitstream_write(bs, shit[j], 1);
-			// }
-			// row_data[i] = tmp_row_data;
 		}
 	}
-	);
+	// );
 	// printf("time for row_cross = %lf\n", time_row_cross);
 
 	if(plot){
 		long unsigned rc_elements_nz = 0;
-		double time_reduction = time_it(1,
 		_Pragma("omp parallel")
 		{
 		_Pragma("omp for reduction(+:rc_elements_nz)")
@@ -2537,9 +2639,6 @@ csr_extract_row_cross_char(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((un
 			}
 		}
 		}
-		);
-		printf("time for row_cross_reduction = %lf\n", time_reduction);
-		printf("rc_elements_nz = %lu\n", rc_elements_nz);
 
 		_TYPE_I * rc_r, * rc_c;
 		float * rc_v;
@@ -2547,14 +2646,13 @@ csr_extract_row_cross_char(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((un
 		rc_r = (typeof(rc_r)) malloc((m+1) * sizeof(*rc_r));
 		rc_c = (typeof(rc_c)) malloc(rc_elements_nz * sizeof(*rc_c));
 		rc_v = (typeof(rc_v)) malloc(rc_elements_nz * sizeof(*rc_v));
-		double row_cross_compr_mem_foot = ((m+1) * sizeof(*rc_r) + rc_elements_nz * sizeof(*rc_c) + rc_elements_nz * sizeof(*rc_v))/(1024*1024*1.0);
-		printf("memory footprint of row_cross (compressed) = %.2lf MB\n", row_cross_compr_mem_foot);
+		// double row_cross_compr_mem_foot = ((m+1) * sizeof(*rc_r) + rc_elements_nz * sizeof(*rc_c) + rc_elements_nz * sizeof(*rc_v))/(1024*1024*1.0);
+		// printf("memory footprint of row_cross (compressed) = %.2lf MB\n", row_cross_compr_mem_foot);
 		// printf("compression ratio = %.2lf%\n", row_cross_compr_mem_foot/row_cross_mem_foot * 100);
 
 		// in order to make it faster, perhaps calculate rc_r beforehand and use the dgal partitioner for rc_c, rc_v
 		int cnt=0;
 		rc_r[0] = 0;
-		double time_final = time_it(1,
 		for(int i=0; i<m; i++){
 			for(int j=0; j<num_windows; j++){
 				long unsigned rc_ind = i * num_windows + j;
@@ -2567,8 +2665,6 @@ csr_extract_row_cross_char(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((un
 				rc_r[i+1] = cnt;
 			}
 		}
-		);
-		printf("time_final = %lf\n", time_final);
 		if (rc_r_out != NULL)
 			*rc_r_out = rc_r;
 		if (rc_c_out != NULL)
@@ -2585,6 +2681,660 @@ csr_extract_row_cross_char(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((un
 		*row_cross_out = row_cross;
 }
 
+#undef  csr_extract_row_cross_char2
+#define csr_extract_row_cross_char2  CSR_UTIL_GEN_EXPAND(csr_extract_row_cross_char2)
+void
+csr_extract_row_cross_char2(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, 
+							int *num_windows_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, unsigned char **rc_v_out)
+{
+	int num_windows = (n-1 + window_width) / window_width;
+	printf("m = %d, n = %d, window_width = %d\n", m, n, window_width);
+	int num_threads = omp_get_max_threads();
+
+	_TYPE_I * thread_i_s = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_s));
+	_TYPE_I * thread_i_e = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_e));
+	long unsigned  * thread_rc_elements_nz = (long unsigned  *) malloc(num_threads * sizeof(*thread_rc_elements_nz));
+	long unsigned  * rc_r_elem = (long unsigned  *) calloc(m, sizeof(*rc_r_elem));
+	
+	_Pragma("omp parallel")
+	{
+		int tnum = omp_get_thread_num();
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+		_Pragma("omp barrier")
+		thread_rc_elements_nz[tnum] = 0;
+		for(_TYPE_I i=thread_i_s[tnum]; i<thread_i_e[tnum]; i++){
+			long unsigned * local_row_cross = (typeof(local_row_cross)) calloc(num_windows, sizeof(*local_row_cross));
+			for(_TYPE_I j=row_ptr[i]; j<row_ptr[i+1]; j++){
+				_TYPE_I cw_loc = col_idx[j] / window_width; // col window location
+				local_row_cross[cw_loc] = 1; // if already found in cw_loc, just overwrite it, no problem with that... we just want to identify how many windows for sparse struct later
+			}
+			for(int k=0;k<num_windows; k++){
+				thread_rc_elements_nz[tnum] += local_row_cross[k];
+				rc_r_elem[i] += local_row_cross[k];
+			}
+			free(local_row_cross);
+		}
+	}
+	long unsigned rc_elements_nz = 0;
+	_Pragma("omp parallel for reduction(+:rc_elements_nz)")
+	for(int k=0;k<num_threads;k++)
+		rc_elements_nz += thread_rc_elements_nz[k];
+
+	_TYPE_I * rc_r, * rc_c;
+	unsigned char * rc_v;
+	rc_r = (typeof(rc_r)) malloc((m+1) * sizeof(*rc_r));
+	rc_c = (typeof(rc_c)) malloc(rc_elements_nz * sizeof(*rc_c));
+	rc_v = (typeof(rc_v)) malloc(rc_elements_nz * sizeof(*rc_v));
+	// double row_cross_compr_mem_foot = ((m+1) * sizeof(*rc_r) + rc_elements_nz * sizeof(*rc_c) + rc_elements_nz * sizeof(*rc_v))/(1024*1024*1.0);
+	// printf("memory footprint of row_cross (compressed) = %.2lf MB\n", row_cross_compr_mem_foot);
+
+	rc_r[0]=0;
+	for(int i=1;i<m+1;i++)
+		rc_r[i] = rc_r[i-1]+rc_r_elem[i-1];
+	free(rc_r_elem);
+
+	_Pragma("omp parallel")
+	{
+		int tnum = omp_get_thread_num();
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, rc_r, m, rc_r[m], &thread_i_s[tnum], &thread_i_e[tnum]);
+		_Pragma("omp barrier")
+		// _Pragma("omp single")
+		// {
+		// 	for(int tnum = 0; tnum < num_threads; tnum++)
+		// 		printf("tnum = %2d\trows = (%d-%d) %d\t\tnonzeros = %d\n", tnum, thread_i_s[tnum], thread_i_e[tnum], thread_i_e[tnum] - thread_i_s[tnum], rc_r[thread_i_e[tnum]] - rc_r[thread_i_s[tnum]]);
+		// }
+		for(_TYPE_I i=thread_i_s[tnum]; i<thread_i_e[tnum]; i++){
+			long unsigned * local_row_cross = (typeof(local_row_cross)) calloc(num_windows, sizeof(*local_row_cross));
+			for(_TYPE_I j=row_ptr[i]; j<row_ptr[i+1]; j++){
+				_TYPE_I cw_loc = col_idx[j] / window_width; // col window location
+				local_row_cross[cw_loc]++; // if already found in cw_loc, just overwrite it, no problem with that... we just want to identify how many windows for sparse struct later
+			}
+			int row_offset = rc_r[i];
+			int cnt = 0;
+			for(int k=0;k<num_windows; k++){
+				if(local_row_cross[k] != 0){
+					rc_c[row_offset + cnt] = k;
+					rc_v[row_offset + cnt] = 1; // local_row_cross[k]; // let's check how it performs when using - update: shit
+					cnt++;
+				}
+			}
+			free(local_row_cross);
+		}
+	}
+	*num_windows_out = num_windows;
+	if (rc_r_out != NULL)
+		*rc_r_out = rc_r;
+	if (rc_c_out != NULL)
+		*rc_c_out = rc_c;
+	if (rc_v_out != NULL)
+		*rc_v_out = rc_v;
+
+	free(thread_i_s);
+	free(thread_i_e);
+}
+
+#undef  csr_extract_row_cross_char2_batch
+#define csr_extract_row_cross_char2_batch  CSR_UTIL_GEN_EXPAND(csr_extract_row_cross_char2_batch)
+void
+csr_extract_row_cross_char2_batch(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, int batch, 
+								  int *num_windows_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, unsigned char **rc_v_out)
+{
+	int num_windows = (n-1 + window_width) / window_width;
+	printf("m = %d, n = %d, window_width = %d, batch = %d\n", m, n, window_width, batch);
+	int num_threads = omp_get_max_threads();
+
+	_TYPE_I * thread_i_s = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_s));
+	_TYPE_I * thread_i_e = (_TYPE_I *) malloc(num_threads * sizeof(*thread_i_e));
+	long unsigned  * thread_rc_elements_nz = (long unsigned  *) malloc(num_threads * sizeof(*thread_rc_elements_nz));
+	int m_batch = (m-1 + batch) / batch; 
+	long unsigned  * rc_r_elem = (long unsigned  *) calloc(m_batch, sizeof(*rc_r_elem));
+
+	// batched-rows row_ptr array. it will be used for loop partitioner only, so that rows with same batch-index are not assigned to different threads, causing conflict on rc_r_elem array.
+	_TYPE_I * row_ptr_b = (_TYPE_I *) malloc((m_batch+1) * sizeof(*row_ptr_b));
+	row_ptr_b[0] = 0;
+	_Pragma("omp parallel for")
+	for(int i=0;i<m+1;i+=batch)
+		row_ptr_b[i/batch] = row_ptr[i];
+	row_ptr_b[m_batch] = row_ptr[m];
+
+	_Pragma("omp parallel")
+	{
+		int tnum = omp_get_thread_num();
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr_b, m_batch, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+		_Pragma("omp barrier")
+		// _Pragma("omp single")
+		// {
+		// 	for(int tnum = 0; tnum < num_threads; tnum++)
+		// 		printf("tnum = %2d\trows = (%d-%d) %d\n", tnum, thread_i_s[tnum], thread_i_e[tnum], thread_i_e[tnum] - thread_i_s[tnum]);
+		// }
+		thread_rc_elements_nz[tnum] = 0;
+		for(_TYPE_I i=thread_i_s[tnum]; i<thread_i_e[tnum]; i++){
+			long unsigned * local_row_cross = (typeof(local_row_cross)) calloc(num_windows, sizeof(*local_row_cross));
+			// printf("i = %d, start = %d, end = %d\n", i, i*batch, ((i+1)*batch < m) ? (i+1)*batch-1 : m-1);
+			for(_TYPE_I ii=i*batch; ii < (i+1)*batch && ii < m; ii++){
+				for(_TYPE_I j=row_ptr[ii]; j<row_ptr[ii+1]; j++){
+					_TYPE_I cw_loc = col_idx[j] / window_width; // col window location
+					local_row_cross[cw_loc] = 1; // if already found in cw_loc, just overwrite it, no problem with that... we just want to identify how many windows for sparse struct later
+				}
+			}
+			for(int k=0;k<num_windows; k++){
+				thread_rc_elements_nz[tnum] += local_row_cross[k];
+				rc_r_elem[i] += local_row_cross[k];
+			}
+			free(local_row_cross);
+		}
+	}
+	free(row_ptr_b);
+	long unsigned rc_elements_nz = 0;
+	_Pragma("omp parallel for reduction(+:rc_elements_nz)")
+	for(int k=0;k<num_threads;k++)
+		rc_elements_nz += thread_rc_elements_nz[k];
+
+	_TYPE_I * rc_r, * rc_c;
+	unsigned char * rc_v;
+	rc_r = (typeof(rc_r)) malloc((m_batch+1) * sizeof(*rc_r));
+	rc_c = (typeof(rc_c)) malloc(rc_elements_nz * sizeof(*rc_c));
+	rc_v = (typeof(rc_v)) malloc(rc_elements_nz * sizeof(*rc_v));
+	// double row_cross_compr_mem_foot = ((m_batch+1) * sizeof(*rc_r) + rc_elements_nz * sizeof(*rc_c) + rc_elements_nz * sizeof(*rc_v))/(1024*1024*1.0);
+	// printf("memory footprint of row_cross (compressed) = %.2lf MB\n", row_cross_compr_mem_foot);
+
+	rc_r[0]=0;
+	for(int i=1;i<m_batch+1;i++)
+		rc_r[i] = rc_r[i-1]+rc_r_elem[i-1];
+	free(rc_r_elem);
+
+	_Pragma("omp parallel")
+	{
+		int tnum = omp_get_thread_num();
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, rc_r, m_batch, rc_r[m_batch], &thread_i_s[tnum], &thread_i_e[tnum]);
+		_Pragma("omp barrier")
+		// _Pragma("omp single")
+		// {
+		// 	for(int tnum = 0; tnum < num_threads; tnum++)
+		// 		printf("tnum = %2d\trows = (%d-%d) %d\t\tnonzeros = %d\n", tnum, thread_i_s[tnum], thread_i_e[tnum], thread_i_e[tnum] - thread_i_s[tnum], rc_r[thread_i_e[tnum]] - rc_r[thread_i_s[tnum]]);
+		// }
+		for(_TYPE_I i=thread_i_s[tnum]; i<thread_i_e[tnum]; i++){
+			long unsigned * local_row_cross = (typeof(local_row_cross)) calloc(num_windows, sizeof(*local_row_cross));
+			for(_TYPE_I ii=i*batch; ii < (i+1)*batch && ii < m; ii++){
+				for(_TYPE_I j=row_ptr[ii]; j<row_ptr[ii+1]; j++){
+					_TYPE_I cw_loc = col_idx[j] / window_width; // col window location
+					local_row_cross[cw_loc]++; // if already found in cw_loc, just overwrite it, no problem with that... we just want to identify how many windows for sparse struct later
+				}
+			}
+			int row_offset = rc_r[i];
+			int cnt = 0;
+			for(int k=0;k<num_windows; k++){
+				if(local_row_cross[k] != 0){
+					rc_c[row_offset + cnt] = k;
+					rc_v[row_offset + cnt] = 1; // local_row_cross[k]; // let's check how it performs when using - update: shit
+					cnt++;
+				}
+			}
+			free(local_row_cross);
+		}
+	}
+	*num_windows_out = num_windows;
+	if (rc_r_out != NULL)
+		*rc_r_out = rc_r;
+	if (rc_c_out != NULL)
+		*rc_c_out = rc_c;
+	if (rc_v_out != NULL)
+		*rc_v_out = rc_v;
+
+	free(thread_i_s);
+	free(thread_i_e);
+}
+
+typedef struct {
+	int row;
+	int family_id;
+} RowFamily;
+
+int compareRowFamily(const void *a, const void *b) {
+	return ((RowFamily *)a)->family_id - ((RowFamily *)b)->family_id;
+}
+
+#undef  csr_reorder_matrix_by_row
+#define csr_reorder_matrix_by_row  CSR_UTIL_GEN_EXPAND(csr_reorder_matrix_by_row)
+void
+csr_reorder_matrix_by_row(int m, __attribute__((unused)) int n, __attribute__((unused)) int nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
+					int * membership, _TYPE_I * row_ptr_reorder, _TYPE_I * col_idx_reorder, _TYPE_V * val_reorder, _TYPE_I * original_row_positions)
+{
+	// Create an auxiliary array to store row indices and family IDs
+	RowFamily* row_families = (RowFamily*)malloc(m * sizeof(RowFamily));
+
+	for (int i = 0; i < m; i++) {
+		row_families[i].row = i;
+		row_families[i].family_id = membership[i];
+	}
+
+	// Sort the auxiliary array based on family IDs
+	qsort(row_families, m, sizeof(RowFamily), compareRowFamily);
+
+	row_ptr_reorder[0] = 0;
+	int cnt = 0;
+
+	for (int i = 0; i < m; i++) {
+		int original_row = row_families[i].row;
+		original_row_positions[i] = original_row;
+		// if(i<10) printf("row: %d, membership; %d\n", row_families[i].row, row_families[i].family_id);
+		
+		for (int j = row_ptr[original_row]; j < row_ptr[original_row + 1]; j++) {
+			col_idx_reorder[cnt] = col_idx[j];
+			val_reorder[cnt] = val[j];
+			cnt++;
+		}
+		row_ptr_reorder[i+1] = cnt;
+	}
+	free(row_families);
+}
+
+#undef  csr_reorder_matrix_by_row_batch
+#define csr_reorder_matrix_by_row_batch  CSR_UTIL_GEN_EXPAND(csr_reorder_matrix_by_row_batch)
+void
+csr_reorder_matrix_by_row_batch(int m, __attribute__((unused)) int n, __attribute__((unused)) int nnz, int batch, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
+								int * membership, _TYPE_I * row_ptr_reorder, _TYPE_I * col_idx_reorder, _TYPE_V * val_reorder, _TYPE_I * original_row_positions)
+{
+	int m_batch = (m-1 + batch) / batch; 
+	// Create an auxiliary array to store row indices and family IDs
+	RowFamily* row_families = (RowFamily*)malloc(m_batch * sizeof(RowFamily));
+
+	for (int i = 0; i < m_batch; i++) {
+		row_families[i].row = i;
+		row_families[i].family_id = membership[i];
+	}
+
+	// Sort the auxiliary array based on family IDs
+	qsort(row_families, m_batch, sizeof(RowFamily), compareRowFamily);
+
+	row_ptr_reorder[0] = 0;
+	int cnt = 0, cnt2 = 0;
+
+	for (int ii = 0; ii < m_batch; ii++) {
+		int original_row = row_families[ii].row;
+		// printf("ii: %d, row: %d ( %d - %d ), membership: %d\n", ii, original_row, original_row*batch, ((original_row+1)*batch  < m) ? (original_row+1)*batch-1 : m-1, row_families[ii].family_id);
+		for(int i = original_row*batch; i < (original_row+1)*batch && i < m; i++)
+		{
+			for (int j = row_ptr[i]; j < row_ptr[i + 1]; j++) {
+				col_idx_reorder[cnt] = col_idx[j];
+				val_reorder[cnt] = val[j];
+				cnt++;
+			}
+			row_ptr_reorder[cnt2+1] = cnt;
+			original_row_positions[cnt2] = i;
+			// printf("finished with row = %d, nnz = %d\n", cnt2, cnt);
+			cnt2++;
+		}
+	}
+	free(row_families);
+}
+
+/*****************************************/
+/* csr_kmeans_reorder_row util functions */
+void random_selection_csr(_TYPE_I * start_rc_r, _TYPE_I * start_rc_c, float * start_rc_v, float * target_array, int numObjs, int numClusters, int numCoords)
+{
+	int * indices = (int *) malloc(numObjs * sizeof(int));
+	for(int i = 0; i < numObjs; i++)
+		indices[i] = i;
+	srand(14);
+	for(int i = 0; i < numClusters ; i++) {
+		int k = rand() % (numObjs - i);
+		float *start_array = (typeof(start_array)) calloc(numCoords, sizeof(*start_array));
+		for(int j = start_rc_r[indices[k]]; j < start_rc_r[indices[k]+1]; j++)
+			start_array[start_rc_c[j]] = start_rc_v[j];
+
+		for(int j = 0; j < numCoords; j++)
+			target_array[i * numCoords + j] = start_array[j];
+			// target_array[i * numCoords + j] = start_array[indices[k] * numCoords + j];
+		indices[k] = indices[numCoords - i - 1];
+		free(start_array);
+	}
+	free(indices);
+	// for (int i=0; i<numClusters; i++){
+	// 	printf("cluster[%3d] = [ ", i);
+	// 	for (int j=0; j<numCoords; j++)
+	// 		printf("%2.0f ", target_array[i*numCoords + j]);
+	// 	printf("]\n");
+	// }
+}
+
+#undef  csr_kmeans_reorder_row
+#define csr_kmeans_reorder_row  CSR_UTIL_GEN_EXPAND(csr_kmeans_reorder_row)
+void
+csr_kmeans_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
+					   _TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions,
+					   int m, int n, int nnz, 
+					   int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v)
+{
+	int numObjs = m;
+	int numCoords = num_windows;
+	int * membership = (typeof(membership)) malloc(numObjs * sizeof(*membership));
+
+	float * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
+	random_selection_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords);
+
+	int type = 0; // cosine similarity
+	double time_kmeans2_csr = time_it(1,
+	// kmeans(row_cross, numCoords, numObjs, numClusters, threshold, loop_threshold, membership, clusters, type);
+	kmeans2_csr(rc_r, rc_c, rc_v, numCoords, numObjs, numClusters, threshold, loop_threshold, membership, clusters, type);
+	);
+	printf("\ntime_kmeans2_csr = %lf (numObjs = %d, numCoords = %d, numClusters = %d)\n", time_kmeans2_csr, numObjs, numCoords, numClusters);
+
+	// for (int i=0; i<numClusters; i++){
+	// 	printf("cluster[%3d] = [ ", i);
+	// 	for (int j=0; j<numCoords; j++)
+	// 		printf("%2.0f ", clusters[i*numCoords + j]);
+	// 	printf("]\n");
+	// }
+
+	// char * binary_string[numClusters];
+	binary_string_with_id clusters_binary[numClusters];
+
+	for(int i = 0; i < numClusters; i++){
+		clusters_binary[i].binary_string = convert_float_to_binary_string(&clusters[i * numCoords], numCoords);
+		clusters_binary[i].id = i;
+		// printf("cluster_b[%3d]: %s\n", i, clusters_binary[i].binary_string);
+	}
+	free(clusters);
+
+	// Sort the array of binary strings
+	qsort(clusters_binary, numClusters, sizeof(binary_string_with_id), compare_binary_strings);
+
+	// printf("after sorting...\n");
+	// for (int i = 0; i < numClusters; i++)
+	// 	printf("cluster_b[%3d]: %s (%d)\n", i, clusters_binary[i].binary_string, clusters_binary[i].id);
+
+	for (int i = 0; i < numClusters; i++)
+		free(clusters_binary[i].binary_string);
+
+	int * ordered_membership = (typeof(ordered_membership)) malloc(numClusters * sizeof(*ordered_membership));
+	for (int i = 0; i < numClusters; i++)
+		ordered_membership[clusters_binary[i].id] = i;
+
+	for(int i = 0; i < numObjs; i++)
+		membership[i] = ordered_membership[membership[i]];
+	free(ordered_membership);
+
+	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
+	csr_reorder_matrix_by_row(m, n, nnz, row_ptr, col_idx, val, membership, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r, *original_row_positions);
+
+	free(membership);
+}
+
+#undef  csr_kmeans_reorder_by_file
+#define csr_kmeans_reorder_by_file  CSR_UTIL_GEN_EXPAND(csr_kmeans_reorder_by_file)
+void
+csr_kmeans_reorder_by_file(char* reorder_file, 
+						   _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
+						   _TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions,
+						   int m, int n, int nnz, 
+						   int numClusters, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v)
+{
+	int numObjs = m;
+	int * membership = (typeof(membership)) malloc(numObjs * sizeof(*membership));
+  	
+  	FILE *file;
+	file = fopen(reorder_file, "r");
+	for (int i = 0; i < m; ++i)
+		fscanf(file, "%d", &membership[i]);
+
+	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
+	csr_reorder_matrix_by_row(m, n, nnz, row_ptr, col_idx, val, membership, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r, *original_row_positions);
+
+	free(membership);
+}
+
+#undef  csr_kmeans_reorder_row_batch
+#define csr_kmeans_reorder_row_batch  CSR_UTIL_GEN_EXPAND(csr_kmeans_reorder_row_batch)
+void
+csr_kmeans_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
+							 _TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions,
+							 int m, int n, int nnz, int batch, 
+							 int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v)
+{
+	int m_batch = (m-1 + batch) / batch; 
+	int numObjs = m_batch;
+	int numCoords = num_windows;
+	int * membership = (typeof(membership)) malloc(numObjs * sizeof(*membership));
+
+	float * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
+	random_selection_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords);
+
+	int type = 0; // cosine similarity
+	double time_kmeans2_csr = time_it(1,
+	// kmeans(row_cross, numCoords, numObjs, numClusters, threshold, loop_threshold, membership, clusters, type);
+	kmeans2_csr(rc_r, rc_c, rc_v, numCoords, numObjs, numClusters, threshold, loop_threshold, membership, clusters, type);
+	);
+	printf("\ntime_kmeans2_csr = %lf (numObjs = %d, numCoords = %d, numClusters = %d)\n", time_kmeans2_csr, numObjs, numCoords, numClusters);
+
+	// for (int i=0; i<numClusters; i++){
+	// 	printf("cluster[%3d] = [ ", i);
+	// 	for (int j=0; j<numCoords; j++)
+	// 		printf("%2.0f ", clusters[i*numCoords + j]);
+	// 	printf("]\n");
+	// }
+
+	// char * binary_string[numClusters];
+	binary_string_with_id clusters_binary[numClusters];
+
+	for(int i = 0; i < numClusters; i++){
+		clusters_binary[i].binary_string = convert_float_to_binary_string(&clusters[i * numCoords], numCoords);
+		clusters_binary[i].id = i;
+		// printf("cluster_b[%3d]: %s\n", i, clusters_binary[i].binary_string);
+	}
+	free(clusters);
+
+	// Sort the array of binary strings
+	qsort(clusters_binary, numClusters, sizeof(binary_string_with_id), compare_binary_strings);
+
+	// printf("after sorting...\n");
+	// for (int i = 0; i < numClusters; i++)
+	// 	printf("cluster_b[%3d]: %s (%d)\n", i, clusters_binary[i].binary_string, clusters_binary[i].id);
+
+	for (int i = 0; i < numClusters; i++)
+		free(clusters_binary[i].binary_string);
+
+	int * ordered_membership = (typeof(ordered_membership)) malloc(numClusters * sizeof(*ordered_membership));
+	for (int i = 0; i < numClusters; i++)
+		ordered_membership[clusters_binary[i].id] = i;
+
+	for(int i = 0; i < numObjs; i++)
+		membership[i] = ordered_membership[membership[i]];
+	free(ordered_membership);
+
+	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
+	double time_row_reorder = time_it(1,
+	csr_reorder_matrix_by_row_batch(m, n, nnz, batch, row_ptr, col_idx, val, membership, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r, *original_row_positions);
+	);
+	printf("time_reorder_by_row = %lf\n", time_row_reorder);
+
+	free(membership);
+}
+
+/* csr_kmeans_reorder_row util functions */
+void random_selection_char_csr(_TYPE_I * start_rc_r, _TYPE_I * start_rc_c, unsigned char * start_rc_v, unsigned char * target_array, int numObjs, int numClusters, int numCoords)
+{
+	int * indices = (int *) malloc(numObjs * sizeof(int));
+	for(int i = 0; i < numObjs; i++)
+		indices[i] = i;
+	srand(14);
+	for(int i = 0; i < numClusters ; i++) {
+		int k = rand() % (numObjs - i);
+		unsigned char *start_array = (typeof(start_array)) calloc(numCoords, sizeof(*start_array));
+		for(int j = start_rc_r[indices[k]]; j < start_rc_r[indices[k]+1]; j++)
+			start_array[start_rc_c[j]] = start_rc_v[j];
+
+		for(int j = 0; j < numCoords; j++)
+			target_array[i * numCoords + j] = start_array[j];
+			// target_array[i * numCoords + j] = start_array[indices[k] * numCoords + j];
+		indices[k] = indices[numCoords - i - 1];
+		free(start_array);
+	}
+	free(indices);
+	// for (int i=0; i<numClusters; i++){
+	// 	printf("cluster[%3d] = [ ", i);
+	// 	for (int j=0; j<numCoords; j++)
+	// 		printf("%2.0f ", target_array[i*numCoords + j]);
+	// 	printf("]\n");
+	// }
+}
+
+#undef  csr_kmeans_char_reorder_row
+#define csr_kmeans_char_reorder_row  CSR_UTIL_GEN_EXPAND(csr_kmeans_char_reorder_row)
+void
+csr_kmeans_char_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
+							_TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions,
+							int m, int n, int nnz, 
+							int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * rc_r, _TYPE_I * rc_c, unsigned char * rc_v)
+{
+	int numObjs = m;
+	int numCoords = num_windows;
+	int * membership = (typeof(membership)) malloc(numObjs * sizeof(*membership));
+
+	unsigned char * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
+	random_selection_char_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords);
+
+	int type = 0; // cosine similarity
+	double time_kmeans2_csr = time_it(1,
+	// kmeans(row_cross, numCoords, numObjs, numClusters, threshold, loop_threshold, membership, clusters, type);
+	kmeans_char2_csr(rc_r, rc_c, rc_v, numCoords, numObjs, numClusters, threshold, loop_threshold, membership, clusters, type);
+	);
+	printf("\ntime_kmeans2_csr = %lf (numObjs = %d, numCoords = %d, numClusters = %d)\n", time_kmeans2_csr, numObjs, numCoords, numClusters);
+
+	// for (int i=0; i<numClusters; i++){
+	// 	printf("cluster[%3d] = [ ", i);
+	// 	for (int j=0; j<numCoords; j++)
+	// 		printf("%2.0f ", clusters[i*numCoords + j]);
+	// 	printf("]\n");
+	// }
+
+	// char * binary_string[numClusters];
+	binary_string_with_id clusters_binary[numClusters];
+
+	for(int i = 0; i < numClusters; i++){
+		clusters_binary[i].binary_string = convert_unsigned_char_to_binary_string(&clusters[i * numCoords], numCoords);
+		clusters_binary[i].id = i;
+		// printf("cluster_b[%3d]: %s\n", i, clusters_binary[i].binary_string);
+	}
+	free(clusters);
+
+	// Sort the array of binary strings
+	qsort(clusters_binary, numClusters, sizeof(binary_string_with_id), compare_binary_strings);
+
+	// printf("after sorting...\n");
+	// for (int i = 0; i < numClusters; i++)
+	// 	printf("cluster_b[%3d]: %s (%d)\n", i, clusters_binary[i].binary_string, clusters_binary[i].id);
+
+	for (int i = 0; i < numClusters; i++)
+		free(clusters_binary[i].binary_string);
+
+	int * ordered_membership = (typeof(ordered_membership)) malloc(numClusters * sizeof(*ordered_membership));
+	for (int i = 0; i < numClusters; i++)
+		ordered_membership[clusters_binary[i].id] = i;
+
+	for(int i = 0; i < numObjs; i++)
+		membership[i] = ordered_membership[membership[i]];
+	free(ordered_membership);
+
+	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
+	double time_row_reorder = time_it(1,
+	csr_reorder_matrix_by_row(m, n, nnz, row_ptr, col_idx, val, membership, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r, *original_row_positions);
+	);
+	printf("time_reorder_by_row = %lf\n", time_row_reorder);
+
+	free(membership);
+}
+
+#undef  csr_kmeans_char_reorder_row_batch
+#define csr_kmeans_char_reorder_row_batch  CSR_UTIL_GEN_EXPAND(csr_kmeans_char_reorder_row_batch)
+void
+csr_kmeans_char_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
+								  _TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions,
+								  int m, int n, int nnz, int batch, 
+								  int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * rc_r, _TYPE_I * rc_c, unsigned char * rc_v)
+{
+	int m_batch = (m-1 + batch) / batch; 
+	int numObjs = m_batch;
+	int numCoords = num_windows;
+	int * membership = (typeof(membership)) malloc(numObjs * sizeof(*membership));
+
+	unsigned char * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
+	random_selection_char_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords);
+
+	int type = 0; // cosine similarity
+	double time_kmeans2_csr = time_it(1,
+	// kmeans(row_cross, numCoords, numObjs, numClusters, threshold, loop_threshold, membership, clusters, type);
+	kmeans_char2_csr(rc_r, rc_c, rc_v, numCoords, numObjs, numClusters, threshold, loop_threshold, membership, clusters, type);
+	);
+	printf("\ntime_kmeans2_csr = %lf (numObjs = %d, numCoords = %d, numClusters = %d)\n", time_kmeans2_csr, numObjs, numCoords, numClusters);
+
+	// for (int i=0; i<numClusters; i++){
+	// 	printf("cluster[%3d] = [ ", i);
+	// 	for (int j=0; j<numCoords; j++)
+	// 		printf("%2.0f ", clusters[i*numCoords + j]);
+	// 	printf("]\n");
+	// }
+
+	// char * binary_string[numClusters];
+	binary_string_with_id clusters_binary[numClusters];
+
+	for(int i = 0; i < numClusters; i++){
+		clusters_binary[i].binary_string = convert_unsigned_char_to_binary_string(&clusters[i * numCoords], numCoords);
+		clusters_binary[i].id = i;
+		// printf("cluster_b[%3d]: %s\n", i, clusters_binary[i].binary_string);
+	}
+	free(clusters);
+
+	// Sort the array of binary strings
+	qsort(clusters_binary, numClusters, sizeof(binary_string_with_id), compare_binary_strings);
+
+	// printf("after sorting...\n");
+	// for (int i = 0; i < numClusters; i++)
+	// 	printf("cluster_b[%3d]: %s (%d)\n", i, clusters_binary[i].binary_string, clusters_binary[i].id);
+
+	for (int i = 0; i < numClusters; i++)
+		free(clusters_binary[i].binary_string);
+
+	int * ordered_membership = (typeof(ordered_membership)) malloc(numClusters * sizeof(*ordered_membership));
+	for (int i = 0; i < numClusters; i++)
+		ordered_membership[clusters_binary[i].id] = i;
+
+	for(int i = 0; i < numObjs; i++)
+		membership[i] = ordered_membership[membership[i]];
+	free(ordered_membership);
+
+	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
+	double time_row_reorder = time_it(1,
+	csr_reorder_matrix_by_row_batch(m, n, nnz, batch, row_ptr, col_idx, val, membership, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r, *original_row_positions);
+	);
+	printf("time_reorder_by_row = %lf\n", time_row_reorder);
+
+	free(membership);
+}
+
+
+#undef  csr_save_to_mtx
+#define csr_save_to_mtx  CSR_UTIL_GEN_EXPAND(csr_save_to_mtx)
+void
+csr_save_to_mtx(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int num_rows, int num_cols, const char* filename)
+{
+	printf("Storing: %s\n", filename);
+	FILE* file;
+	file = fopen(filename, "w");
+	if (file == NULL) {
+		printf("Error opening file %s\n", filename);
+		return;
+	}
+
+	fprintf(file, "%%%%MatrixMarket matrix coordinate real general\n");
+	fprintf(file, "%d %d %d\n", num_rows, num_cols, row_ptr[num_rows]);
+	for (int i = 0; i < num_rows; i++) {
+		for (int j = row_ptr[i]; j < row_ptr[i + 1]; j++) {
+			fprintf(file, "%d %d %.15g\n", i + 1, col_idx[j] + 1, val[j]);
+		}
+	}
+	fclose(file);
+}
 
 //==========================================================================================================================================
 //= Ploting

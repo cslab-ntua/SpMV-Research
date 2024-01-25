@@ -50,6 +50,45 @@ str_check_mem_overlap(const char * s1, long s1_n, const char * s2, long s2_n)
 
 
 //==========================================================================================================================================
+//= Binary String Utilities
+//==========================================================================================================================================
+
+typedef struct {
+	char *binary_string;
+	int id;
+} binary_string_with_id;
+
+static inline char* convert_float_to_binary_string(float* sequence, int size) {
+	char* binary_string = (char*)malloc(size + 1); // +1 for the null terminator
+	if (binary_string == NULL) {
+		printf("Memory allocation failed.\n");
+		exit(1);
+	}
+	for (int j = 0; j < size; j++)
+		binary_string[j] = (sequence[j] != 0.0) ? '1' : '0';
+	binary_string[size] = '\0'; // Null-terminate the string
+	return binary_string;
+}
+
+static inline char* convert_unsigned_char_to_binary_string(unsigned char* sequence, int size) {
+	char* binary_string = (char*)malloc(size + 1); // +1 for the null terminator
+	if (binary_string == NULL) {
+		printf("Memory allocation failed.\n");
+		exit(1);
+	}
+	for (int j = 0; j < size; j++)
+		binary_string[j] = (sequence[j] != 0) ? '1' : '0';
+	binary_string[size] = '\0'; // Null-terminate the string
+	return binary_string;
+}
+
+static inline int compare_binary_strings(const void *a, const void *b) {
+	// return strcmp(((binary_string_with_id *)a)->binary_string, ((binary_string_with_id *)b)->binary_string); // ascending order
+	return strcmp(((binary_string_with_id *)b)->binary_string, ((binary_string_with_id *)a)->binary_string); // descending order
+}
+
+
+//==========================================================================================================================================
 //= Character Groups
 //==========================================================================================================================================
 

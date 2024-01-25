@@ -11,7 +11,7 @@ path_validation='/various/pmpakos/SpMV-Research/validation_matrices'
 cores=24
 max_cores=${cores}
 export OMP_NUM_THREADS="$cores"
-export GOMP_CPU_AFFINITY="0-$((max_cores-1))"
+export GOMP_CPU_AFFINITY="24-47"
 # export GOMP_CPU_AFFINITY="0-23,48-71"
 
 
@@ -145,19 +145,19 @@ matrices_validation=(
     #########################
     #### "good" matrices ####
     #########################
-    12month1.mtx
-    as-Skitter.mtx
-    wiki-topcats.mtx
-    rgg_n_2_21_s0.mtx
-    coPapersDBLP.mtx
-    soc-Pokec.mtx
-    coPapersCiteseer.mtx
-    # mycielskian16.mtx
-    # rgg_n_2_22_s0.mtx
-    # ljournal-2008.mtx
-    # mycielskian17.mtx
-    # hollywood-2009.mtx
-    # rgg_n_2_23_s0.mtx
+    # 12month1.mtx
+    # as-Skitter.mtx
+    # wiki-topcats.mtx
+    # rgg_n_2_21_s0.mtx
+    # coPapersDBLP.mtx
+    # soc-Pokec.mtx
+    # coPapersCiteseer.mtx
+    mycielskian16.mtx
+    rgg_n_2_22_s0.mtx
+    ljournal-2008.mtx
+    mycielskian17.mtx
+    hollywood-2009.mtx
+    rgg_n_2_23_s0.mtx
     #########################
 )
 

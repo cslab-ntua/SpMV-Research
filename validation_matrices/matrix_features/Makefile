@@ -91,7 +91,8 @@ LIB_OBJ := $(patsubst %.c,obj/%.o,$(LIB_OBJ))
 LIB_OBJ := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ))
 
 
-EXE = mat_feat.exe mat_experiment.exe # mat_run_kmeans.exe
+EXE = mat_feat.exe mat_experiment.exe mat_experiment_char.exe mat_reorder.exe 
+# EXE = mat_experiment.exe mat_experiment_char.exe
 
 all: $(EXE) | $(DIRS)
 
@@ -104,7 +105,11 @@ $(call Rule_Auto_Dependencies,obj/mat_feat.o,mat_feat.cpp)
 	$(CPP) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/mat_experiment.o,mat_experiment.cpp)
 	$(CPP) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/mat_experiment_char.o,mat_experiment_char.cpp)
+	$(CPP) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/mat_run_kmeans.o,mat_run_kmeans.cpp)
+	$(CPP) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/mat_reorder.o,mat_reorder.cpp)
 	$(CPP) $(CFLAGS) -c $< -o $@
 
 
@@ -133,9 +138,9 @@ $(call Rule_Auto_Dependencies,obj/csr.o,csr.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/csc.o,csc.c)
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,obj/kmeans.o,kmeans.c)
+$(call Rule_Auto_Dependencies,obj/kmeans.o,$(library)/kmeans.c)
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,obj/kmeans_char.o,kmeans_char.c)
+$(call Rule_Auto_Dependencies,obj/kmeans_char.o,$(library)/kmeans_char.c)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(DIRS): %:
