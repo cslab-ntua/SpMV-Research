@@ -231,9 +231,10 @@ int main(int argc, char **argv)
 	int separate=atoi(argv[i++]);
 	int max_distance = atoi(argv[i++]);
 	int shuffle = atoi(argv[i++]);
-
+	int seed = atoi(argv[i++]);
+	
 	int artificial = 0;
-	if(argc>14)
+	if(argc>15)
 		artificial = atoi(argv[i++]);
 
 	long num_pixels = 1024;
@@ -286,124 +287,29 @@ int main(int argc, char **argv)
 				strcat(file_in, "_shuffle.mtx");
 		}
 		
-		// column shuffling...
-		/*
-		if(shuffle){
-			_TYPE_I * row_idx; //for CSC format
-			_TYPE_I * col_ptr;
-			_TYPE_V * val_c;
-
-			row_idx = (typeof(row_idx)) malloc(nnz * sizeof(*row_idx));
-			col_ptr = (typeof(col_ptr)) malloc((n+1) * sizeof(*col_ptr));
-			val_c = (typeof(val_c)) malloc(nnz * sizeof(*val_c));
-			coo_to_csc(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_idx, col_ptr, val_c, 1);
-
-			_TYPE_I * row_idx_shuffle2;
-			_TYPE_I * col_ptr_shuffle2;
-			_TYPE_V * val_c_shuffle2;
-
-			row_idx_shuffle2 = (typeof(row_idx_shuffle2)) malloc(nnz * sizeof(*row_idx_shuffle2));
-			col_ptr_shuffle2 = (typeof(col_ptr_shuffle2)) malloc((n+1) * sizeof(*col_ptr_shuffle2));
-			val_c_shuffle2 = (typeof(val_c_shuffle2)) malloc(nnz * sizeof(*val_c_shuffle2));
-			csc_shuffle_matrix(n, row_idx, col_ptr, val_c, row_idx_shuffle2, col_ptr_shuffle2, val_c_shuffle2);
-			free(row_idx);
-			free(col_ptr);
-			free(val_c);
-
-			_TYPE_I * col_indices_shuffle2;
-			col_indices_shuffle2 = (typeof(col_indices_shuffle2)) malloc(nnz * sizeof(*col_indices_shuffle2));
-			csc_col_indices(row_idx_shuffle2, col_ptr_shuffle2, m, n, nnz, &col_indices_shuffle2);
-			free(col_ptr_shuffle2);
-			
-			_TYPE_I * row_ptr_shuffle2; //for CSR format
-			_TYPE_I * col_idx_shuffle2;
-			_TYPE_V * val_shuffle2;
-
-			row_ptr_shuffle2 = (typeof(row_ptr_shuffle2)) malloc((m+1) * sizeof(*row_ptr_shuffle2));
-			col_idx_shuffle2 = (typeof(col_idx_shuffle2)) malloc(nnz * sizeof(*col_idx_shuffle2));
-			val_shuffle2 = (typeof(val_shuffle2)) malloc(nnz * sizeof(*val_shuffle2));
-
-			coo_to_csr(row_idx_shuffle2, col_indices_shuffle2, val_c_shuffle2, m, n, nnz, row_ptr_shuffle2, col_idx_shuffle2, val_shuffle2, 1, 0);
-			free(row_idx_shuffle2);
-			free(col_indices_shuffle2);
-			free(val_c_shuffle2);
-
-			feature_plot_store_matrix(file_in, "col", 1, 0, m, n, nnz, row_ptr_shuffle2, col_idx_shuffle2, val_shuffle2);
-
-			row_ptr = row_ptr_shuffle2;
-			col_idx = col_idx_shuffle2;
-			val     = val_shuffle2;
-
-			// expand file_in to contain "shuffle" string too
-			char *dot = strrchr(file_in, '.');
-			if(dot != NULL)
-				strcpy(dot, "_shuffle_col.mtx");
-			else
-				strcat(file_in, "_shuffle_col.mtx");
-		}
-		*/
-
 		/********************************************************************************************************************************/
-		// _TYPE_I * row_idx; //for CSC format
-		// _TYPE_I * col_ptr;
-		// _TYPE_V * val_c;
 
-		// row_idx = (typeof(row_idx)) malloc(nnz * sizeof(*row_idx));
-		// col_ptr = (typeof(col_ptr)) malloc((n+1) * sizeof(*col_ptr));
-		// val_c = (typeof(val_c)) malloc(nnz * sizeof(*val_c));
-		// coo_to_csc(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_idx, col_ptr, val_c, 1);
-		// csc_plot_f(fig_name_gen(file_in, "csc"),  row_idx, col_ptr, val_c, m, n, nnz, 0, num_pixels_x, num_pixels_y););
 
-		// float * row_cross;
-		// _TYPE_I * rc_r1, * rc_c1;
-		// float * rc_v1;
-		// float * col_cross;
-		// _TYPE_I * cc_r1, * cc_c1;
-		// float * cc_v1;
+
+
+
+
+
+
+
 
 		_TYPE_I * rc_r, * rc_c;
 		float * rc_v;
-		// _TYPE_I * cc_r, * cc_c;
-		// float * cc_v;
 
 		int window_width;
 		int num_windows_row;
 		window_width = atoi(argv[i++]);
 		int batch = atoi(argv[i++]);
 
-		// printf("------------------------------------------------------------------------\n");
-		// int plot_extra = 1;
-		// double time_row_cross = time_it(1,
-		// csr_extract_row_cross(row_ptr, col_idx, val, m, n, nnz, window_width, &num_windows_row, &row_cross, plot_extra, &rc_r1, &rc_c1, &rc_v1);
-		// );
-		// printf("time_row_cross = %lf s\n", time_row_cross);
-		// csr_plot_f(fig_name_gen(file_in, "row_cross1"),  rc_r1, rc_c1, (_TYPE_V *) rc_v1, m, num_windows_row, rc_r1[m], 0, num_pixels_x, num_pixels_y);
-
-		// int num_windows_col;
-		// double time_col_cross = time_it(1,
-		// csc_extract_col_cross(row_idx, col_ptr, val_c, m, n, nnz, window_width, &num_windows_col, &col_cross, plot_extra, &cc_r1, &cc_c1, &cc_v1);
-		// );
-		// csc_plot_f(fig_name_gen(file_in, "col_cross1"),  cc_r1, cc_c1, (_TYPE_V *) cc_v1, num_windows_col, n, cc_c1[n], 0, num_pixels_x, num_pixels_y);
-		// printf("time_col_cross = %lf s\n", time_col_cross);
-		// free(col_cross);
-		// free(cc_r);
-		// free(cc_c);
-		// free(cc_v);
-
 		double time_row_cross2 = time_it(1,
 		csr_extract_row_cross2_batch(row_ptr, col_idx, val, m, n, nnz, window_width, batch, &num_windows_row, &rc_r, &rc_c, &rc_v);
 		);
-		// csr_plot_f(fig_name_gen(file_in, "row_cross"),  rc_r, rc_c, (_TYPE_V *) rc_v, m, num_windows_row, rc_r[m], 0, num_pixels_x, num_pixels_y);
-		printf("time_row_cross2 = %lf s\n", time_row_cross2);
-
-		// double time_col_cross2 = time_it(1,
-		// csc_extract_col_cross2(row_idx, col_ptr, val_c, m, n, nnz, window_width, &num_windows_col, &cc_r, &cc_c, &cc_v);
-		// );
-		// csc_plot_f(fig_name_gen(file_in, "col_cross"),  cc_r, cc_c, (_TYPE_V *) cc_v, num_windows_col, n, cc_c[n], 0, num_pixels_x, num_pixels_y);
-		// printf("time_col_cross2 = %lf s\n", time_col_cross2);
-		// free(row_idx);
-		// free(col_ptr);
-		// free(val_c);
+		printf("time_row_cross2 = %lf\n", time_row_cross2);
 
 		_TYPE_I * row_ptr_reorder_r; //for CSR format
 		_TYPE_I * col_idx_reorder_r;
@@ -418,20 +324,42 @@ int main(int argc, char **argv)
 		float threshold = atof(argv[i++]);;
 		int loop_threshold = 150;
 		double time_row_reorder = time_it(1,
-		csr_kmeans_reorder_row_batch(row_ptr, col_idx, val, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r, &original_row_positions, m, n, nnz, batch, numClusters, threshold, loop_threshold, num_windows_row, rc_r, rc_c, rc_v);
+		csr_kmeans_reorder_row_batch(row_ptr, col_idx, val, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r, &original_row_positions, m, n, nnz, batch, numClusters, threshold, loop_threshold, num_windows_row, seed, rc_r, rc_c, rc_v);
 		);
 		printf("time_row_reorder (total) = %lf\n", time_row_reorder);
 		free(rc_r);
 		free(rc_c);
 		free(rc_v);
 
+
+
+
+
+
 		// for(int i=0;i<10;i++)
 		// 	printf("original_row_positions %d -> %d\n", i, original_row_positions[i]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		char * membership_suffix;
 		membership_suffix = (typeof(membership_suffix)) malloc(100*sizeof(*membership_suffix));
 		sprintf(membership_suffix, "row_reordered_window_%d_batch_%d_clusters_%d", window_width, batch, numClusters);
-		feature_plot_store_matrix(file_in, membership_suffix, 1, 0, m, n, nnz, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r);
+		feature_plot_store_matrix(file_in, membership_suffix, 1, store, m, n, nnz, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r);
 		free(membership_suffix);
 
 		_TYPE_I * row_indices_reorder_r; //for CSC format
@@ -441,13 +369,15 @@ int main(int argc, char **argv)
 
 		row_indices_reorder_r = (typeof(row_indices_reorder_r)) malloc(nnz * sizeof(*row_indices_reorder_r));
 		csr_row_indices(row_ptr_reorder_r, col_idx_reorder_r, m, n, nnz, &row_indices_reorder_r);
+		free(row_ptr_reorder_r);
 
 		row_idx_reorder_r = (typeof(row_idx_reorder_r)) malloc(nnz * sizeof(*row_idx_reorder_r));
 		col_ptr_reorder_r = (typeof(col_ptr_reorder_r)) malloc((n+1) * sizeof(*col_ptr_reorder_r));
 		val_c_reorder_r = (typeof(val_c_reorder_r)) malloc(nnz * sizeof(*val_c_reorder_r));
 		coo_to_csc(row_indices_reorder_r, col_idx_reorder_r, val_reorder_r, m, n, nnz, row_idx_reorder_r, col_ptr_reorder_r, val_c_reorder_r, 1);
 		free(row_indices_reorder_r);
-		// csc_plot_f(fig_name_gen(file_in, "row_reordered_csc"),  row_idx_reorder_r, col_ptr_reorder_r, val_c_reorder_r, m, n, nnz, 0, num_pixels_x, num_pixels_y);
+		free(col_idx_reorder_r);
+		free(val_reorder_r);
 
 		int num_windows_col;
 		_TYPE_I * cc_r, * cc_c;
@@ -456,8 +386,7 @@ int main(int argc, char **argv)
 		double time_col_cross2 = time_it(1,
 		csc_extract_col_cross2_batch(row_idx_reorder_r, col_ptr_reorder_r, val_c_reorder_r, m, n, nnz, window_width, batch, &num_windows_col, &cc_r, &cc_c, &cc_v);
 		);
-		// csc_plot_f(fig_name_gen(file_in, "col_cross_reorder"),  cc_r, cc_c, (_TYPE_V *) cc_v, num_windows_col, n, cc_c[n], 0, num_pixels_x, num_pixels_y);
-		printf("time_col_cross2 = %lf s\n", time_col_cross2);
+		printf("time_col_cross2 = %lf\n", time_col_cross2);
 
 		_TYPE_I * row_idx_reorder_rc; //for CSC format
 		_TYPE_I * col_indices_reorder_rc; 
@@ -590,10 +519,6 @@ int main(int argc, char **argv)
 		free(row_ptr_reorder_rc);
 		free(col_idx_reorder_rc);
 		free(val_reorder_rc);
-		
-		free(row_ptr_reorder_r);
-		free(col_idx_reorder_r);
-		free(val_reorder_r);
 
 		free(original_row_positions);
 		free(original_col_positions);
@@ -631,8 +556,8 @@ int main(int argc, char **argv)
 	num_pixels_x = (n < num_pixels) ? n : num_pixels;
 	num_pixels_y = (m < num_pixels) ? m : num_pixels;
 
-	// feature_plot_store_matrix(file_in, "", plot, 0, m, n, nnz, row_ptr, col_idx, val);
-	// printf("mem footprint %lf\n", (sizeof(_TYPE_I)*(m+1) + (sizeof(_TYPE_V)+sizeof(_TYPE_I))*nnz)/(1024.0*1024));
+	feature_plot_store_matrix(file_in, "", plot, 0, m, n, nnz, row_ptr, col_idx, val);
+	printf("mem footprint %lf\n", (sizeof(_TYPE_I)*(m+1) + (sizeof(_TYPE_V)+sizeof(_TYPE_I))*nnz)/(1024.0*1024));
 
 	/*********************************************************************************************/
 	if(0){

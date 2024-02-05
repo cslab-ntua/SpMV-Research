@@ -10,8 +10,8 @@
 #include "bit_ops.h"
 #include "plot/plot.h"
 #include "time_it.h"
-#include "kmeans.h"
-#include "kmeans_char.h"
+#include "kmeans/kmeans.h"
+#include "kmeans/kmeans_char.h"
 
 #include "csc_util_gen.h"
 
@@ -547,7 +547,6 @@ csc_extract_col_cross_char2(_TYPE_I *row_idx, _TYPE_I *col_ptr, __attribute__((u
 	long unsigned  * thread_cc_elements_nz = (long unsigned  *) malloc(num_threads * sizeof(*thread_cc_elements_nz));
 	long unsigned  * cc_c_elem = (long unsigned  *) calloc(n, sizeof(*cc_c_elem));
 
-	// double time_col_cross = time_it(1,
 	_Pragma("omp parallel")
 	{
 		int tnum = omp_get_thread_num();
@@ -567,15 +566,10 @@ csc_extract_col_cross_char2(_TYPE_I *row_idx, _TYPE_I *col_ptr, __attribute__((u
 			free(local_col_cross);
 		}
 	}
-	// );
-	// printf("time for col_cross = %lf\n", time_col_cross);
 	long unsigned cc_elements_nz = 0;
 	_Pragma("omp parallel for reduction(+:cc_elements_nz)")
-	for(int k=0;k<num_threads;k++){
-		// printf("thread_cc_elements_nz[%d] = %lu\n", k, thread_cc_elements_nz[k]);
+	for(int k=0;k<num_threads;k++)
 		cc_elements_nz += thread_cc_elements_nz[k];
-	}
-	printf("cc_elements_nz = %lu (%.3f %)\n", cc_elements_nz, ((cc_elements_nz*1.0)/nnz)*100);
 
 	_TYPE_I * cc_r, * cc_c;
 	unsigned char * cc_v;
@@ -911,8 +905,14 @@ csc_kmeans_reorder_col(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val,
 	for (int i = 0; i < numClusters; i++)
 		ordered_membership[clusters_binary[i].id] = i;
 
-	for(int i = 0; i < numObjs; i++)
+	for(int i = 0; i < numObjs; i++){
 		membership[i] = ordered_membership[membership[i]];
+		ordered_membership[membership[i]] = 0;
+	}
+	for(int i=0;i<numObjs;i++)
+		ordered_membership[membership[i]]++;
+	for(int i=0;i<numClusters;i++)
+		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_col_positions = (typeof(*original_col_positions)) malloc(n * sizeof(**original_col_positions));
@@ -978,8 +978,14 @@ csc_kmeans_reorder_col_batch(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val
 	for (int i = 0; i < numClusters; i++)
 		ordered_membership[clusters_binary[i].id] = i;
 
-	for(int i = 0; i < numObjs; i++)
+	for(int i = 0; i < numObjs; i++){
 		membership[i] = ordered_membership[membership[i]];
+		ordered_membership[membership[i]] = 0;
+	}
+	for(int i=0;i<numObjs;i++)
+		ordered_membership[membership[i]]++;
+	for(int i=0;i<numClusters;i++)
+		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_col_positions = (typeof(*original_col_positions)) malloc(n * sizeof(**original_col_positions));
@@ -1072,8 +1078,14 @@ csc_kmeans_char_reorder_col(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val,
 	for (int i = 0; i < numClusters; i++)
 		ordered_membership[clusters_binary[i].id] = i;
 
-	for(int i = 0; i < numObjs; i++)
+	for(int i = 0; i < numObjs; i++){
 		membership[i] = ordered_membership[membership[i]];
+		ordered_membership[membership[i]] = 0;
+	}
+	for(int i=0;i<numObjs;i++)
+		ordered_membership[membership[i]]++;
+	for(int i=0;i<numClusters;i++)
+		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_col_positions = (typeof(*original_col_positions)) malloc(n * sizeof(**original_col_positions));
@@ -1139,8 +1151,14 @@ csc_kmeans_char_reorder_col_batch(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V 
 	for (int i = 0; i < numClusters; i++)
 		ordered_membership[clusters_binary[i].id] = i;
 
-	for(int i = 0; i < numObjs; i++)
+	for(int i = 0; i < numObjs; i++){
 		membership[i] = ordered_membership[membership[i]];
+		ordered_membership[membership[i]] = 0;
+	}
+	for(int i=0;i<numObjs;i++)
+		ordered_membership[membership[i]]++;
+	for(int i=0;i<numClusters;i++)
+		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_col_positions = (typeof(*original_col_positions)) malloc(n * sizeof(**original_col_positions));

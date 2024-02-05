@@ -235,82 +235,72 @@ int main(int argc, char **argv)
 	long num_pixels_x = num_pixels;
 	long num_pixels_y = num_pixels;
 
-	if(!artificial) {
-		file_in_init = argv[1];
-		create_coo_matrix(file_in_init, &mtx_val, &mtx_rowind, &mtx_colind, &m, &n, &nnz);
-		num_pixels_x = (n < num_pixels) ? n : num_pixels;
-		num_pixels_y = (m < num_pixels) ? m : num_pixels;
-		// row_ptr = (typeof(row_ptr)) malloc((m+1) * sizeof(*row_ptr));
-		// col_idx = (typeof(col_idx)) malloc(nnz * sizeof(*col_idx));
-		// val = (typeof(val)) malloc(nnz * sizeof(*val));
-		row_ptr_init = (typeof(row_ptr_init)) malloc((m+1) * sizeof(*row_ptr_init));
-		col_idx_init = (typeof(col_idx_init)) malloc(nnz * sizeof(*col_idx_init));
-		val_init = (typeof(val_init)) malloc(nnz * sizeof(*val_init));
+	file_in_init = argv[1];
+	create_coo_matrix(file_in_init, &mtx_val, &mtx_rowind, &mtx_colind, &m, &n, &nnz);
+	num_pixels_x = (n < num_pixels) ? n : num_pixels;
+	num_pixels_y = (m < num_pixels) ? m : num_pixels;
+	// row_ptr = (typeof(row_ptr)) malloc((m+1) * sizeof(*row_ptr));
+	// col_idx = (typeof(col_idx)) malloc(nnz * sizeof(*col_idx));
+	// val = (typeof(val)) malloc(nnz * sizeof(*val));
+	row_ptr_init = (typeof(row_ptr_init)) malloc((m+1) * sizeof(*row_ptr_init));
+	col_idx_init = (typeof(col_idx_init)) malloc(nnz * sizeof(*col_idx_init));
+	val_init = (typeof(val_init)) malloc(nnz * sizeof(*val_init));
 
-		// coo_to_csr(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_ptr, col_idx, val, 1, 0);
-		// csr_plot_f(fig_name_gen(file_in_init, ""),  row_ptr, col_idx, val, m, n, nnz, 0, num_pixels_x, num_pixels_y);
-		coo_to_csr(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_ptr_init, col_idx_init, val_init, 1, 0);
-		csr_plot_f(fig_name_gen(file_in_init, ""),  row_ptr_init, col_idx_init, val_init, m, n, nnz, 0, num_pixels_x, num_pixels_y);
+	// coo_to_csr(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_ptr, col_idx, val, 1, 0);
+	// csr_plot_f(fig_name_gen(file_in_init, ""),  row_ptr, col_idx, val, m, n, nnz, 0, num_pixels_x, num_pixels_y);
+	coo_to_csr(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_ptr_init, col_idx_init, val_init, 1, 0);
+	csr_plot_f(fig_name_gen(file_in_init, ""),  row_ptr_init, col_idx_init, val_init, m, n, nnz, 0, num_pixels_x, num_pixels_y);
 
-		row_ptr = row_ptr_init;
-		col_idx = col_idx_init;
-		val     = val_init;
-		strcpy(file_in, file_in_init);
+	row_ptr = row_ptr_init;
+	col_idx = col_idx_init;
+	val     = val_init;
+	strcpy(file_in, file_in_init);
 
 
-		_TYPE_I * rc_r, * rc_c;
-		float * rc_v;
-		// _TYPE_I * cc_r, * cc_c;
-		// float * cc_v;
+	_TYPE_I * row_ptr_reorder_r; //for CSR format
+	_TYPE_I * col_idx_reorder_r;
+	_TYPE_V * val_reorder_r;
+	_TYPE_I * original_row_positions; // this will be used to reorder output (y) vector elements, in order to produce same result as pre-reordered matrix
 
-		_TYPE_I * row_ptr_reorder_r; //for CSR format
-		_TYPE_I * col_idx_reorder_r;
-		_TYPE_V * val_reorder_r;
-		_TYPE_I * original_row_positions; // this will be used to reorder output (y) vector elements, in order to produce same result as pre-reordered matrix
+	row_ptr_reorder_r = (typeof(row_ptr_reorder_r)) malloc((m+1) * sizeof(*row_ptr_reorder_r));
+	col_idx_reorder_r = (typeof(col_idx_reorder_r)) malloc(nnz * sizeof(*col_idx_reorder_r));
+	val_reorder_r = (typeof(val_reorder_r)) malloc(nnz * sizeof(*val_reorder_r));
 
-		row_ptr_reorder_r = (typeof(row_ptr_reorder_r)) malloc((m+1) * sizeof(*row_ptr_reorder_r));
-		col_idx_reorder_r = (typeof(col_idx_reorder_r)) malloc(nnz * sizeof(*col_idx_reorder_r));
-		val_reorder_r = (typeof(val_reorder_r)) malloc(nnz * sizeof(*val_reorder_r));
+	long buf_n = 1000;
+	char buf[buf_n];
 
-		long buf_n = 1000;
-		char buf[buf_n];
+	char * path;
+	str_path_split_path(file_in, strlen(file_in) + 1, buf, buf_n, &path, &filename);
+	replace_substring(filename, ".mtx", "");
 
-		char * path, * filename, * filename_base;
-		str_path_split_path(file_in, strlen(file_in) + 1, buf, buf_n, &path, &filename);
-		replace_substring(filename, ".mtx", "");
+	int numClusters = atoi(argv[i++]);
+	int method = atoi(argv[i++]);
 
-		int numClusters = atoi(argv[i++]);
-		int method = atoi(argv[i++]);
+	char reorder_file[buf_n];
+	if(method==0) // PaToH
+		sprintf(reorder_file, "/various/pmpakos/sparcity-reordering/Matrix-Partitioning-Utility-master/PaToH/reorderings/PaToH_%s.mtx_cutpart_k%d_speed_s14_partvec.txt", filename, numClusters);
+	else // METIS
+		sprintf(reorder_file, "/various/pmpakos/sparcity-reordering/Matrix-Partitioning-Utility-master/METIS/reorderings/%s_metis_edge-cut_part%d.txt", filename, numClusters);
+	
+	csr_kmeans_reorder_by_file(reorder_file, row_ptr, col_idx, val, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r, &original_row_positions, m, n, nnz);
 
-		char reorder_file[buf_n];
-		if(method==0) // PaToH
-			sprintf(reorder_file, "/various/pmpakos/sparcity-reordering/Matrix-Partitioning-Utility-master/PaToH/reorderings/PaToH_%s.mtx_cutpart_k%d_speed_s14_partvec.txt", filename, numClusters);
-		else // METIS
-			sprintf(reorder_file, "/various/pmpakos/sparcity-reordering/Matrix-Partitioning-Utility-master/METIS/reorderings/%s_metis_edge-cut_part%d.txt", filename, numClusters);
-		
-		csr_kmeans_reorder_by_file(reorder_file, row_ptr, col_idx, val, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r, &original_row_positions, m, n, nnz, numClusters, rc_r, rc_c, rc_v);
-		free(rc_r);
-		free(rc_c);
-		free(rc_v);
+	char * membership_suffix;
+	membership_suffix = (typeof(membership_suffix)) malloc(100*sizeof(*membership_suffix));
+	if(method==0) // PaToH
+		sprintf(membership_suffix, "patoh_%d", numClusters);
+	else // METIS
+		sprintf(membership_suffix, "metis_%d", numClusters);
+	feature_plot_store_matrix(file_in, membership_suffix, 1, store, m, n, nnz, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r);
+	free(membership_suffix);
 
-		char * membership_suffix;
-		membership_suffix = (typeof(membership_suffix)) malloc(100*sizeof(*membership_suffix));
-		if(method==0) // PaToH
-			sprintf(membership_suffix, "patoh_%d", numClusters);
-		else // METIS
-			sprintf(membership_suffix, "metis_%d", numClusters);
-		feature_plot_store_matrix(file_in, membership_suffix, 1, store, m, n, nnz, row_ptr_reorder_r, col_idx_reorder_r, val_reorder_r);
-		free(membership_suffix);
+	free(row_ptr_reorder_r);
+	free(col_idx_reorder_r);
+	free(val_reorder_r);
 
-		free(row_ptr_reorder_r);
-		free(col_idx_reorder_r);
-		free(val_reorder_r);
-
-		/********************************************************************************************************************************/
-		free(mtx_rowind);
-		free(mtx_colind);
-		filename = file_in;
-	}
+	/********************************************************************************************************************************/
+	free(mtx_rowind);
+	free(mtx_colind);
+	filename = file_in;
 	
 	num_pixels_x = (n < num_pixels) ? n : num_pixels;
 	num_pixels_y = (m < num_pixels) ? m : num_pixels;

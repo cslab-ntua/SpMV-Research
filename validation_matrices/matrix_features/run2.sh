@@ -145,13 +145,13 @@ matrices_validation=(
     #########################
     #### "good" matrices ####
     #########################
-    12month1.mtx
-    as-Skitter.mtx
-    wiki-topcats.mtx
-    rgg_n_2_21_s0.mtx
-    coPapersDBLP.mtx
-    soc-Pokec.mtx
-    coPapersCiteseer.mtx
+    # 12month1.mtx
+    # as-Skitter.mtx
+    # wiki-topcats.mtx
+    # rgg_n_2_21_s0.mtx
+    # coPapersDBLP.mtx
+    # soc-Pokec.mtx
+    # coPapersCiteseer.mtx
     # mycielskian16.mtx
     # rgg_n_2_22_s0.mtx
     # ljournal-2008.mtx
@@ -159,6 +159,9 @@ matrices_validation=(
     # hollywood-2009.mtx
     # rgg_n_2_23_s0.mtx
     #########################
+
+    kmer_V2a.mtx
+
 )
 
 plot=0
@@ -170,9 +173,10 @@ sort_rows=0
 separate=0
 max_distance=10
 
-batch=32
 numClusters=8
 threshold=0.01
+
+seed=14
 
 echo "plot          " $plot
 echo "store         " $store
@@ -182,20 +186,36 @@ echo "sort_rows     " $sort_rows
 echo "separate      " $separate
 echo "max_distance  " $max_distance
 echo "shuffle       " $shuffle
-echo "window_width  " $window_width
-echo "numClusters   " $numClusters
 echo "threshold     " $threshold
 
-for matrix in "${matrices_validation[@]}"; do
-    IFS=" " read -ra matrix_parts <<< "$matrix"
-    matrix_name="${matrix_parts[0]}"
+programs=(
+    # ./mat_experiment.exe
+    # ./mat_experiment_inverse.exe
+    ./mat_experiment_char.exe
+    # ./mat_experiment_char_inverse.exe
+    # ./mat_general.exe
+)
 
-    for window_width in 64 128; do
-        echo "matrix_name   " $matrix_name
-        ./mat_experiment_char.exe $path_validation/$matrix_name $plot $store $nnz_threshold $split_matrix $sort_rows $separate $max_distance $shuffle $window_width $batch $numClusters $threshold
-        echo '---'
+for program in "${programs[@]}"; do
+    for numClusters in 32; do 
+        for batch in 32; do # 32 64; do
+            for window_width in 32; do # 64 128
+
+                for matrix in "${matrices_validation[@]}"; do
+                    IFS=" " read -ra matrix_parts <<< "$matrix"
+                    matrix_name="${matrix_parts[0]}"
+
+                    echo "program       " $program
+                    echo "matrix_name   " $matrix_name
+                    echo "window_width  " $window_width
+                    echo "batch         " $batch
+                    echo "numClusters   " $numClusters
+                    echo "seed          " $seed
+
+                    $program $path_validation/$matrix_name $plot $store $nnz_threshold $split_matrix $sort_rows $separate $max_distance $shuffle $seed $window_width $batch $numClusters $threshold
+                    echo '---'
+                done
+            done
+        done
     done
 done
-# rgg_n_2_17_s0.mtx cop20k_A.mtx roadNet-TX.mtx com-Youtube.mtx shipsec1.mtx pdb1HYS.mtx cant.mtx gupta3.mtx mip1.mtx consph.mtx CurlCurl_2.mtx crankseg_2.mtx pwtk.mtx kron_g500-logn18.mtx delaunay_n22.mtx Si41Ge41H72.mtx Ga41As41H72.mtx human_gene1.mtx bone010.mtx ldoor.mtx dielFilterV2real.mtx audikw_1.mtx circuit5M.mtx 
-# rgg_n_2_17_s0_rcm.mtx cop20k_A_rcm.mtx roadNet-TX_rcm.mtx com-Youtube_rcm.mtx shipsec1_rcm.mtx pdb1HYS_rcm.mtx cant_rcm.mtx gupta3_rcm.mtx mip1_rcm.mtx consph_rcm.mtx CurlCurl_2_rcm.mtx crankseg_2_rcm.mtx pwtk_rcm.mtx kron_g500-logn18_rcm.mtx delaunay_n22_rcm.mtx Si41Ge41H72_rcm.mtx Ga41As41H72_rcm.mtx human_gene1_rcm.mtx bone010_rcm.mtx ldoor_rcm.mtx dielFilterV2real_rcm.mtx audikw_1_rcm.mtx circuit5M_rcm.mtx
-# GL7d19.mtx GL7d20.mtx GL7d18.mtx GL7d21.mtx GL7d17.mtx GL7d16.mtx rgg_n_2_24_s0.mtx kron_g500-logn21.mtx rgg_n_2_23_s0.mtx patents.mtx cit-Patents.mtx kron_g500-logn20.mtx rgg_n_2_22_s0.mtx kron_g500-logn19.mtx rgg_n_2_21_s0.mtx kron_g500-logn18.mtx rgg_n_2_20_s0.mtx kron_g500-logn17.mtx wikipedia-20070206.mtx wikipedia-20060925.mtx wikipedia-20061104.mtx soc-Pokec.mtx wikipedia-20051105.mtx com-Orkut.mtx kmer_U1a.mtx higgs-twitter.mtx nv2.mtx kmer_P1a.mtx kmer_V2a.mtx sx-stackoverflow.mtx road_central.mtx test1.mtx 12month1.mtx dgreen.mtx mouse_gene.mtx spal_004.mtx GAP-road.mtx road_usa.mtx JP.mtx tp-6.mtx AS365.mtx rail4284.mtx wiki-topcats.mtx M6.mtx com-LiveJournal.mtx NLR.mtx soc-LiveJournal1.mtx human_gene1.mtx relat9.mtx rel9.mtx hugebubbles-00010.mtx human_gene2.mtx flickr.mtx hugebubbles-00020.mtx hugetric-00010.mtx hugetric-00020.mtx ljournal-2008.mtx gsm_106857.mtx

@@ -72,6 +72,16 @@ int main(int argc, char **argv)
 	long num_pixels = 1024;
 	long num_pixels_x = (n < num_pixels) ? n : num_pixels;
 	long num_pixels_y = (m < num_pixels) ? m : num_pixels;
+	if(m!=n) {
+		double ratio = n*1.0 / m;
+		if((ratio>16.0) || (ratio<(1/16.0)))
+			ratio=16.0;
+		// in order to keep both below 1024
+		if(ratio>1) // n > m
+			num_pixels_y = (1/ratio) * num_pixels_x;
+		else // m > n
+			num_pixels_x = ratio * num_pixels_y;
+	}
 
 	time = time_it(1,
 		coo_to_csr(mtx_rowind, mtx_colind, mtx_val, m, n, nnz, row_ptr, col_idx, val, 1, 0);
@@ -84,7 +94,6 @@ int main(int argc, char **argv)
 	printf("time plot = %lf\n", time);
 
 	csr_matrix_features_validation(filename_base, row_ptr, col_idx, m, n, nnz);
-	// free(buf);
 
 	return 0;
 }

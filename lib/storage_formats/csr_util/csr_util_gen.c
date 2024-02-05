@@ -10,8 +10,8 @@
 #include "bit_ops.h"
 #include "plot/plot.h"
 #include "time_it.h"
-#include "kmeans.h"
-#include "kmeans_char.h"
+#include "kmeans/kmeans.h"
+#include "kmeans/kmeans_char.h"
 
 #include "csr_util_gen.h"
 
@@ -2971,12 +2971,12 @@ csr_reorder_matrix_by_row_batch(int m, __attribute__((unused)) int n, __attribut
 
 /*****************************************/
 /* csr_kmeans_reorder_row util functions */
-void random_selection_csr(_TYPE_I * start_rc_r, _TYPE_I * start_rc_c, float * start_rc_v, float * target_array, int numObjs, int numClusters, int numCoords)
+void random_selection_csr(_TYPE_I * start_rc_r, _TYPE_I * start_rc_c, float * start_rc_v, float * target_array, int numObjs, int numClusters, int numCoords, int seed)
 {
 	int * indices = (int *) malloc(numObjs * sizeof(int));
 	for(int i = 0; i < numObjs; i++)
 		indices[i] = i;
-	srand(14);
+	srand(seed);
 	for(int i = 0; i < numClusters ; i++) {
 		int k = rand() % (numObjs - i);
 		float *start_array = (typeof(start_array)) calloc(numCoords, sizeof(*start_array));
@@ -3004,14 +3004,14 @@ void
 csr_kmeans_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
 					   _TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions,
 					   int m, int n, int nnz, 
-					   int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v)
+					   int numClusters, float threshold, int loop_threshold, int num_windows, int seed, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v)
 {
 	int numObjs = m;
 	int numCoords = num_windows;
 	int * membership = (typeof(membership)) malloc(numObjs * sizeof(*membership));
 
 	float * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
-	random_selection_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords);
+	random_selection_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords, seed);
 
 	int type = 0; // cosine similarity
 	double time_kmeans2_csr = time_it(1,
@@ -3051,8 +3051,14 @@ csr_kmeans_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val,
 	for (int i = 0; i < numClusters; i++)
 		ordered_membership[clusters_binary[i].id] = i;
 
-	for(int i = 0; i < numObjs; i++)
+	for(int i = 0; i < numObjs; i++){
 		membership[i] = ordered_membership[membership[i]];
+		ordered_membership[membership[i]] = 0;
+	}
+	for(int i=0;i<numObjs;i++)
+		ordered_membership[membership[i]]++;
+	for(int i=0;i<numClusters;i++)
+		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
@@ -3067,8 +3073,7 @@ void
 csr_kmeans_reorder_by_file(char* reorder_file, 
 						   _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
 						   _TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions,
-						   int m, int n, int nnz, 
-						   int numClusters, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v)
+						   int m, int n, int nnz)
 {
 	int numObjs = m;
 	int * membership = (typeof(membership)) malloc(numObjs * sizeof(*membership));
@@ -3090,7 +3095,7 @@ void
 csr_kmeans_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
 							 _TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions,
 							 int m, int n, int nnz, int batch, 
-							 int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v)
+							 int numClusters, float threshold, int loop_threshold, int num_windows, int seed, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v)
 {
 	int m_batch = (m-1 + batch) / batch; 
 	int numObjs = m_batch;
@@ -3098,7 +3103,7 @@ csr_kmeans_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val
 	int * membership = (typeof(membership)) malloc(numObjs * sizeof(*membership));
 
 	float * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
-	random_selection_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords);
+	random_selection_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords, seed);
 
 	int type = 0; // cosine similarity
 	double time_kmeans2_csr = time_it(1,
@@ -3138,8 +3143,14 @@ csr_kmeans_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val
 	for (int i = 0; i < numClusters; i++)
 		ordered_membership[clusters_binary[i].id] = i;
 
-	for(int i = 0; i < numObjs; i++)
+	for(int i = 0; i < numObjs; i++){
 		membership[i] = ordered_membership[membership[i]];
+		ordered_membership[membership[i]] = 0;
+	}
+	for(int i=0;i<numObjs;i++)
+		ordered_membership[membership[i]]++;
+	for(int i=0;i<numClusters;i++)
+		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
@@ -3152,12 +3163,12 @@ csr_kmeans_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val
 }
 
 /* csr_kmeans_reorder_row util functions */
-void random_selection_char_csr(_TYPE_I * start_rc_r, _TYPE_I * start_rc_c, unsigned char * start_rc_v, unsigned char * target_array, int numObjs, int numClusters, int numCoords)
+void random_selection_char_csr(_TYPE_I * start_rc_r, _TYPE_I * start_rc_c, unsigned char * start_rc_v, unsigned char * target_array, int numObjs, int numClusters, int numCoords, int seed)
 {
 	int * indices = (int *) malloc(numObjs * sizeof(int));
 	for(int i = 0; i < numObjs; i++)
 		indices[i] = i;
-	srand(14);
+	srand(seed);
 	for(int i = 0; i < numClusters ; i++) {
 		int k = rand() % (numObjs - i);
 		unsigned char *start_array = (typeof(start_array)) calloc(numCoords, sizeof(*start_array));
@@ -3185,14 +3196,14 @@ void
 csr_kmeans_char_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
 							_TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions,
 							int m, int n, int nnz, 
-							int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * rc_r, _TYPE_I * rc_c, unsigned char * rc_v)
+							int numClusters, float threshold, int loop_threshold, int num_windows, int seed, _TYPE_I * rc_r, _TYPE_I * rc_c, unsigned char * rc_v)
 {
 	int numObjs = m;
 	int numCoords = num_windows;
 	int * membership = (typeof(membership)) malloc(numObjs * sizeof(*membership));
 
 	unsigned char * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
-	random_selection_char_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords);
+	random_selection_char_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords, seed);
 
 	int type = 0; // cosine similarity
 	double time_kmeans2_csr = time_it(1,
@@ -3232,8 +3243,14 @@ csr_kmeans_char_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val,
 	for (int i = 0; i < numClusters; i++)
 		ordered_membership[clusters_binary[i].id] = i;
 
-	for(int i = 0; i < numObjs; i++)
+	for(int i = 0; i < numObjs; i++){
 		membership[i] = ordered_membership[membership[i]];
+		ordered_membership[membership[i]] = 0;
+	}
+	for(int i=0;i<numObjs;i++)
+		ordered_membership[membership[i]]++;
+	for(int i=0;i<numClusters;i++)
+		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
@@ -3251,7 +3268,7 @@ void
 csr_kmeans_char_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
 								  _TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions,
 								  int m, int n, int nnz, int batch, 
-								  int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * rc_r, _TYPE_I * rc_c, unsigned char * rc_v)
+								  int numClusters, float threshold, int loop_threshold, int num_windows, int seed, _TYPE_I * rc_r, _TYPE_I * rc_c, unsigned char * rc_v)
 {
 	int m_batch = (m-1 + batch) / batch; 
 	int numObjs = m_batch;
@@ -3259,7 +3276,7 @@ csr_kmeans_char_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V 
 	int * membership = (typeof(membership)) malloc(numObjs * sizeof(*membership));
 
 	unsigned char * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
-	random_selection_char_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords);
+	random_selection_char_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords, seed);
 
 	int type = 0; // cosine similarity
 	double time_kmeans2_csr = time_it(1,
@@ -3299,8 +3316,14 @@ csr_kmeans_char_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V 
 	for (int i = 0; i < numClusters; i++)
 		ordered_membership[clusters_binary[i].id] = i;
 
-	for(int i = 0; i < numObjs; i++)
+	for(int i = 0; i < numObjs; i++){
 		membership[i] = ordered_membership[membership[i]];
+		ordered_membership[membership[i]] = 0;
+	}
+	for(int i=0;i<numObjs;i++)
+		ordered_membership[membership[i]]++;
+	for(int i=0;i<numClusters;i++)
+		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));

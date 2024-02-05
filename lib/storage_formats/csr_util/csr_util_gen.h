@@ -167,36 +167,35 @@ void csr_reorder_matrix_by_row_batch(int m, __attribute__((unused)) int n, __att
 void csr_kmeans_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
 							_TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions,
 							int m, int n, int nnz, 
-							int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v);
+							int numClusters, float threshold, int loop_threshold, int num_windows, int seed, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v);
 
 #undef  csr_kmeans_reorder_by_file
 #define csr_kmeans_reorder_by_file  CSR_UTIL_GEN_EXPAND(csr_kmeans_reorder_by_file)
 void csr_kmeans_reorder_by_file(char* reorder_file, 
 								_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
 								_TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions,
-								int m, int n, int nnz, 
-								int numClusters, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v);
+								int m, int n, int nnz);
 
 #undef  csr_kmeans_reorder_row_batch
 #define csr_kmeans_reorder_row_batch  CSR_UTIL_GEN_EXPAND(csr_kmeans_reorder_row_batch)
 void csr_kmeans_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
 								  _TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions, 
 								  int m, int n, int nnz, int batch, 
-								  int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v);
+								  int numClusters, float threshold, int loop_threshold, int num_windows, int seed, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v);
 
 #undef  csr_kmeans_char_reorder_row
 #define csr_kmeans_char_reorder_row  CSR_UTIL_GEN_EXPAND(csr_kmeans_char_reorder_row)
 void csr_kmeans_char_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
 								 _TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions, 
 								 int m, int n, int nnz, 
-								 int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * rc_r, _TYPE_I * rc_c, unsigned char * rc_v);
+								 int numClusters, float threshold, int loop_threshold, int num_windows, int seed, _TYPE_I * rc_r, _TYPE_I * rc_c, unsigned char * rc_v);
 
 #undef  csr_kmeans_char_reorder_row_batch
 #define csr_kmeans_char_reorder_row_batch  CSR_UTIL_GEN_EXPAND(csr_kmeans_char_reorder_row_batch)
 void csr_kmeans_char_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
 									   _TYPE_I * row_ptr_reorder_r, _TYPE_I * col_idx_reorder_r, _TYPE_V * val_reorder_r, _TYPE_I ** original_row_positions, 
 									   int m, int n, int nnz, int batch, 
-									   int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * rc_r, _TYPE_I * rc_c, unsigned char * rc_v);
+									   int numClusters, float threshold, int loop_threshold, int num_windows, int seed, _TYPE_I * rc_r, _TYPE_I * rc_c, unsigned char * rc_v);
 
 #undef  csr_save_to_mtx
 #define csr_save_to_mtx  CSR_UTIL_GEN_EXPAND(csr_save_to_mtx)
