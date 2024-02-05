@@ -118,12 +118,18 @@ static int ** t_qsort_partitions;
 uint64_t * t_total_row_diff_max;
 uint64_t * t_total_col_diff_max;
 
-#include "sort/quicksort/quicksort_gen_undef.h"
-#define QUICKSORT_GEN_TYPE_1  int
-#define QUICKSORT_GEN_TYPE_2  int
-#define QUICKSORT_GEN_TYPE_3  double
-#define QUICKSORT_GEN_SUFFIX  i_i_d
-#include "sort/quicksort/quicksort_gen.c"
+#ifdef __cplusplus
+extern "C"{
+#endif
+	#include "sort/quicksort/quicksort_gen_undef.h"
+	#define QUICKSORT_GEN_TYPE_1  int
+	#define QUICKSORT_GEN_TYPE_2  int
+	#define QUICKSORT_GEN_TYPE_3  double
+	#define QUICKSORT_GEN_SUFFIX  i_i_d
+	#include "sort/quicksort/quicksort_gen.c"
+#ifdef __cplusplus
+}
+#endif
 
 static inline
 int
@@ -167,7 +173,7 @@ compress_init_sort_diff(__attribute__((unused)) ValueType * vals, __attribute__(
 	// exp_table = (typeof(exp_table)) malloc(exp_table_n * sizeof(*exp_table));
 	// for (j=0;j<num_vals;j++)
 		// t_window[j] = vals[j];
-	// quicksort_no_malloc(t_window, num_vals, NULL, t_qsort_partitions);
+	// quicksort(t_window, num_vals, NULL, t_qsort_partitions);
 	// vals_diff_sorted_window[0] = t_window[0];
 	// for (j=1;j<num_vals;j++)
 		// vals_diff_sorted_window[j] = t_window[j] - t_window[j-1];
@@ -214,7 +220,7 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals, long i_s, lo
 	long i, j, k;
 	for (k=0;k<num_vals;k++)
 		permutation[k] = k;
-	quicksort_no_malloc(permutation, num_vals, vals, t_qsort_partitions[tnum]);
+	quicksort(permutation, num_vals, vals, t_qsort_partitions[tnum]);
 	for (k=0;k<num_vals;k++)
 		rev_permutation[permutation[k]] = k;
 	col_min = ja[j_s];

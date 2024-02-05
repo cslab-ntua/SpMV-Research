@@ -104,6 +104,8 @@ typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
 	// for (i=0;i<N;i++)
 	// {
 		// b = bucketsort_find_bucket(A[i], aux_data);
+		// if (b < 0 || b >= num_buckets)
+			// error("bucket id out of bounds");
 		// A_bucket_id[i] = b;
 		// offsets[b]++;
 		// permutation_out[i] = 0;
@@ -139,6 +141,8 @@ bucketsort_stable_serial(_TYPE_V * restrict A, long N, _TYPE_BUCKET_I num_bucket
 	for (i=0;i<N;i++)
 	{
 		b = bucketsort_find_bucket(A[i], aux_data);
+		if (b < 0 || b >= num_buckets)
+			error("bucket id out of bounds");
 		A_bucket_id[i] = b;
 		offsets[b]++;
 	}
@@ -177,6 +181,8 @@ bucketsort(_TYPE_V * restrict A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * 
 		for (i=0;i<N;i++)
 		{
 			b = bucketsort_find_bucket(A[i], aux_data);
+			if (b < 0 || b >= num_buckets)
+				error("bucket id out of bounds");
 			A_bucket_id[i] = b;
 			__atomic_fetch_add(&offsets[b], 1, __ATOMIC_RELAXED);
 			// offsets[b]++;
@@ -256,6 +262,8 @@ bucketsort_stable(_TYPE_V * restrict A, long N, _TYPE_BUCKET_I num_buckets, _TYP
 		for (i=0;i<N;i++)
 		{
 			b = bucketsort_find_bucket(A[i], aux_data);
+			if (b < 0 || b >= num_buckets)
+				error("bucket id out of bounds");
 			A_bucket_id[i] = b;
 			__atomic_fetch_add(&offsets[b], 1, __ATOMIC_RELAXED);
 		}

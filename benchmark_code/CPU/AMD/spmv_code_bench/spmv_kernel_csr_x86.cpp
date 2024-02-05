@@ -29,7 +29,7 @@ INT_T * thread_i_e;
 INT_T * thread_j_s;
 INT_T * thread_j_e;
 
-ValueType * thread_v_s;
+// ValueType * thread_v_s;
 ValueType * thread_v_e;
 
 extern int prefetch_distance;
@@ -51,7 +51,7 @@ struct CSRArrays : Matrix_Format
 		thread_i_e = (INT_T *) malloc(num_threads * sizeof(*thread_i_e));
 		thread_j_s = (INT_T *) malloc(num_threads * sizeof(*thread_j_s));
 		thread_j_e = (INT_T *) malloc(num_threads * sizeof(*thread_j_e));
-		thread_v_s = (ValueType *) malloc(num_threads * sizeof(*thread_v_s));
+		// thread_v_s = (ValueType *) malloc(num_threads * sizeof(*thread_v_s));
 		thread_v_e = (ValueType *) malloc(num_threads * sizeof(*thread_v_e));
 		time_balance = time_it(1,
 			#ifdef CUSTOM_X86_VECTOR_ORACLE_BALANCE
@@ -159,7 +159,7 @@ struct CSRArrays : Matrix_Format
 		free(thread_i_e);
 		free(thread_j_s);
 		free(thread_j_e);
-		free(thread_v_s);
+		// free(thread_v_s);
 		free(thread_v_e);
 	}
 
@@ -397,89 +397,7 @@ compute_csr_vector_x86_queues(CSRArrays * restrict csr, ValueType * restrict x, 
 //==========================================================================================================================================
 
 
-#if 0
-__attribute__((hot,pure))
-static inline
-double
-compute_csr_line_case_default(CSRArrays * csr, ValueType * x, INT_T j_s, INT_T j_e)
-{
-	long j;
-	__m256d v_a, v_x, v_sum;
-	ValueType x256d0, x256d1, x256d2, x256d3;
-	v_sum = _mm256_setzero_pd();
-	for (j=j_s;j<j_e;j+=4)
-	{
-		v_a = _mm256_loadu_pd(&csr->a[j]);
-		x256d0 = x[csr->ja[j]];
-		x256d1 = x[csr->ja[j + 1]];
-		x256d2 = x[csr->ja[j + 2]];
-		x256d3 = x[csr->ja[j + 3]];
-		v_x = _mm256_set_pd(x256d3, x256d2, x256d1, x256d0);
-		v_sum = _mm256_fmadd_pd(v_a, v_x, v_sum);
-	}
-	return hsum256_pd(v_sum);
-}
-
-
-__attribute__((hot,pure))
-static inline
-double
-compute_csr_line_case(CSRArrays * restrict csr, ValueType * restrict x, INT_T j_s, INT_T j_e)
-{
-
-	__label__ OUT_LABEL, CASE1_LABEL, CASE2_LABEL, CASE3_LABEL;
-	static const void * jump_table[4] = {
-		[0] = &&OUT_LABEL,
-		[1] = &&CASE1_LABEL,
-		[2] = &&CASE2_LABEL,
-		[3] = &&CASE3_LABEL,
-	};
-
-	const long mask = ~(((long) 4) - 1); // Minimum number of elements for the vectorized code (power of 2).
-	ValueType sum, sum_v;
-	long j, j_e_vector, degree_rem;
-	ValueType * a;
-	INT_T * ja;
-
-	sum = 0;
-	sum_v = 0;
-
-	j_e_vector = j_s + ((j_e - j_s) & mask);
-	degree_rem = j_e - j_e_vector;
-
-	if (j_s != j_e_vector)
-		sum_v = compute_csr_line_case_default(csr, x, j_s, j_e_vector);
-
-	for (j=j_e_vector;j<j_e;j++)
-		sum += csr->a[j] * x[csr->ja[j]];
-
-	a = &csr->a[j_e_vector];
-	ja = &csr->ja[j_e_vector];
-
-	goto *jump_table[degree_rem];
-	CASE3_LABEL:
-		sum += a[2]*x[ja[2]];
-	CASE2_LABEL:
-		sum += a[1]*x[ja[1]];
-	CASE1_LABEL:
-		sum += a[0]*x[ja[0]];
-	OUT_LABEL:
-
-	return sum + sum_v;
-}
-
-
-__attribute__((hot,pure))
-static inline
-double
-compute_csr_line(CSRArrays * csr, ValueType * x, INT_T j_s, INT_T j_e)
-{
-	return compute_csr_line_case(csr, x, j_s, j_e);
-}
-#endif
-
-
-void
+/* void
 compute_csr_vector_x86_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
 {
 	int num_threads = omp_get_max_threads();
@@ -527,6 +445,82 @@ compute_csr_vector_x86_perfect_nnz_balance(CSRArrays * restrict csr, ValueType *
 	{
 		y[thread_i_s[t]] += thread_v_s[t];
 		if (thread_i_e[t] - 1 > thread_i_s[t])
+			y[thread_i_e[t] - 1] += thread_v_e[t];
+	}
+} */
+
+
+void
+compute_csr_vector_x86_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
+{
+	int num_threads = omp_get_max_threads();
+	long t;
+	#pragma omp parallel
+	{
+		int tnum = omp_get_thread_num();
+		long i, i_s, i_e, j, j_s, j_e;
+
+		i_s = thread_i_s[tnum];
+		i_e = thread_i_e[tnum];
+
+		if (i_e - 1 >= 0)
+			y[i_e - 1] = 0;
+
+		#pragma omp barrier
+
+		ValueType sum;
+		j_s = thread_j_s[tnum];
+
+		j = j_s;
+		for (i=i_s;i<i_e-1;i++)
+		{
+			j_e = csr->ia[i+1];
+			// sum = 0;
+			// for (;j<j_e;j++)
+			// {
+				// sum += csr->a[j] * x[csr->ja[j]];
+			// }
+			// y[i] = sum;
+
+			// y[i] = subkernel_row_csr_scalar(csr, x, j, j_e);
+			// y[i] = subkernel_row_csr_vector_x86_512d(csr->ja, csr->a, x, j, j_e);
+
+			long degree = j_e - j;
+			if (degree < 4)
+			{
+				y[i] = subkernel_row_csr_scalar(csr->ja, csr->a, x, j, j_e);
+			}
+			else if (degree < 8)
+			{
+				y[i] = subkernel_row_csr_vector_x86_128d(csr->ja, csr->a, x, j, j_e);
+			}
+			else if (degree < 16)
+			{
+				y[i] = subkernel_row_csr_vector_x86_256d(csr->ja, csr->a, x, j, j_e);
+			}
+			else
+			{
+				y[i] = subkernel_row_csr_vector_x86_512d(csr->ja, csr->a, x, j, j_e);
+			}
+
+			j = j_e;
+		}
+
+		i = i_e - 1;
+		j =  csr->ia[i];
+		if (j_s > j)
+			j = j_s;
+		j_e = thread_j_e[tnum];
+		sum = 0;
+		for (;j<j_e;j++)
+		{
+			sum += csr->a[j] * x[csr->ja[j]];
+		}
+		thread_v_e[tnum] = sum;
+	}
+	for (t=0;t<num_threads;t++)
+	{
+		if (thread_i_e[t] - 1 < csr->m)
 			y[thread_i_e[t] - 1] += thread_v_e[t];
 	}
 }

@@ -263,6 +263,127 @@ bits_hamming_distance(unsigned char * str1, unsigned char * str2, long N)
 }
 
 
+//==========================================================================================================================================
+//= Mean
+//==========================================================================================================================================
+
+
+static inline
+void
+bits_mean(unsigned char * matrix, long N, long M, unsigned char * mean)
+{
+	unsigned int * mean_u;
+	unsigned char c;
+	long i, j;
+	mean_u = (typeof(mean_u)) malloc(N * 8 * sizeof(*mean_u));
+	for (i=0;i<N;i++)
+		mean_u[i] = 0;
+	for (i=0;i<M;i++)
+	{
+		unsigned char * str = &matrix[i*N];
+		for (j=0;j<N;j++)
+		{
+			c = str[j];
+
+			mean_u[j*8 + 0] += _bextr_u64(c, 0, 1);
+			mean_u[j*8 + 1] += _bextr_u64(c, 1, 1);
+			mean_u[j*8 + 2] += _bextr_u64(c, 2, 1);
+			mean_u[j*8 + 3] += _bextr_u64(c, 3, 1);
+			mean_u[j*8 + 4] += _bextr_u64(c, 4, 1);
+			mean_u[j*8 + 5] += _bextr_u64(c, 5, 1);
+			mean_u[j*8 + 6] += _bextr_u64(c, 6, 1);
+			mean_u[j*8 + 7] += _bextr_u64(c, 7, 1);
+
+			// const __m256i mask = _mm256_set_epi32(0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U);
+			// const __m256i shift = _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0);
+			// __m256i c_v = _mm256_set1_epi32(c);
+			// __m256i sum_v = _mm256_loadu_si256((__m256i *) &mean_u[j*8]);
+			// c_v = _mm256_and_si256(c_v, mask);
+			// c_v = _mm256_srlv_epi32(c_v, shift);
+			// sum_v = _mm256_add_epi32(sum_v, c_v);
+			// _mm256_storeu_si256((__m256i *) &mean_u[j*8], sum_v);
+
+			// const __m256i mask = _mm256_set_epi32(0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U);
+			// const __m256i shift = _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0);
+			// __m256i c_v = _mm256_set1_epi32(c);
+			// __m256i sum_v = _mm256_loadu_si256((__m256i *) &mean_u[j*8]);
+			// c_v = _mm256_and_si256(c_v, mask);
+			// c_v = _mm256_cmpeq_epi32(c_v, mask);
+			// sum_v = _mm256_sub_epi32(sum_v, c_v);
+			// _mm256_storeu_si256((__m256i *) &mean_u[j*8], sum_v);
+
+			// mean_u[j*8 + 0] += (c & 0x01U) >> 0;
+			// mean_u[j*8 + 1] += (c & 0x02U) >> 1;
+			// mean_u[j*8 + 2] += (c & 0x04U) >> 2;
+			// mean_u[j*8 + 3] += (c & 0x08U) >> 3;
+			// mean_u[j*8 + 4] += (c & 0x10U) >> 4;
+			// mean_u[j*8 + 5] += (c & 0x20U) >> 5;
+			// mean_u[j*8 + 6] += (c & 0x40U) >> 6;
+			// mean_u[j*8 + 7] += (c & 0x80U) >> 7;
+
+			// if (c & 0x01U)
+				// mean_u[j*8 + 0]++;
+			// if (c & 0x02U)
+				// mean_u[j*8 + 1]++;
+			// if (c & 0x04U)
+				// mean_u[j*8 + 2]++;
+			// if (c & 0x08U)
+				// mean_u[j*8 + 3]++;
+			// if (c & 0x10U)
+				// mean_u[j*8 + 4]++;
+			// if (c & 0x20U)
+				// mean_u[j*8 + 5]++;
+			// if (c & 0x40U)
+				// mean_u[j*8 + 6]++;
+			// if (c & 0x80U)
+				// mean_u[j*8 + 7]++;
+
+			// mean_u[j*8 + 0] += (c & 0x01U) != 0;
+			// mean_u[j*8 + 1] += (c & 0x02U) != 0;
+			// mean_u[j*8 + 2] += (c & 0x04U) != 0;
+			// mean_u[j*8 + 3] += (c & 0x08U) != 0;
+			// mean_u[j*8 + 4] += (c & 0x10U) != 0;
+			// mean_u[j*8 + 5] += (c & 0x20U) != 0;
+			// mean_u[j*8 + 6] += (c & 0x40U) != 0;
+			// mean_u[j*8 + 7] += (c & 0x80U) != 0;
+
+		}
+	}
+	for (j=0;j<N;j++)
+	{
+		c = 0;
+
+		c |= ((2 * mean_u[j*8 + 0]) / M) << 0;
+		c |= ((2 * mean_u[j*8 + 1]) / M) << 1;
+		c |= ((2 * mean_u[j*8 + 2]) / M) << 2;
+		c |= ((2 * mean_u[j*8 + 3]) / M) << 3;
+		c |= ((2 * mean_u[j*8 + 4]) / M) << 4;
+		c |= ((2 * mean_u[j*8 + 5]) / M) << 5;
+		c |= ((2 * mean_u[j*8 + 6]) / M) << 6;
+		c |= ((2 * mean_u[j*8 + 7]) / M) << 7;
+		// c |= (2 * mean_u[j*8 + 0]) / (M << 0);
+		// c |= (2 * mean_u[j*8 + 1]) / (M << 1);
+		// c |= (2 * mean_u[j*8 + 2]) / (M << 2);
+		// c |= (2 * mean_u[j*8 + 3]) / (M << 3);
+		// c |= (2 * mean_u[j*8 + 4]) / (M << 4);
+		// c |= (2 * mean_u[j*8 + 5]) / (M << 5);
+		// c |= (2 * mean_u[j*8 + 6]) / (M << 6);
+		// c |= (2 * mean_u[j*8 + 7]) / (M << 7);
+
+		mean[j] = c;
+	}
+	// for (i=0;i<N;i++)
+		// mean[i] = mean_u[i];
+	if (N < 20)
+	{
+		for (i=N-1;i>=0;i--)
+			printf("%d%d%d%d%d%d%d%d", mean_u[i*8+7], mean_u[i*8+6], mean_u[i*8+5], mean_u[i*8+4], mean_u[i*8+3], mean_u[i*8+2], mean_u[i*8+1], mean_u[i*8+0]);
+		printf("\n");
+	}
+	free(mean_u);
+}
+
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                       Floating Point Numbers                                                           -

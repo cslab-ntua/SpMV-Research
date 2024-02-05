@@ -6,6 +6,7 @@
 #undef _TYPE_V
 #undef _TYPE_I
 #undef _TYPE_AD
-#undef quicksort_no_malloc
 #undef quicksort
+#undef quicksort_parallel
+#undef quicksort_parallel_inplace
 #undef insertionsort

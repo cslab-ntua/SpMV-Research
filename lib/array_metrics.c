@@ -1024,7 +1024,7 @@ ARRAY_METRICS_quantile_serial_reference(void * A, long i_start, long i_end, doub
 	{
 		vals[i] = get_val_as_double(A, i+i_start);
 	}
-	quicksort(vals, N, NULL);
+	quicksort(vals, N, NULL, NULL);
 	val_l = vals[target_idx];
 	val_r = vals[target_idx + 1];
 	quantile = (1 - g) * val_l + g * val_r;

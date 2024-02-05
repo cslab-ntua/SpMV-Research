@@ -11,6 +11,7 @@
 #include "parallel_util.h"
 #include "string_util.h"
 #include "parallel_io.h"
+#include "time_it.h"
 
 #include "spmv_bench_common.h"
 
@@ -41,7 +42,10 @@ create_coo_matrix(const char * market_filename,
 	long i;
 
 	A = (typeof(A)) malloc(sizeof(*A));
+	// double time = time_it(1,
 	file_to_lines(A, market_filename, 0);
+	// );
+	// printf("t_read = %lf\n", time);
 	lines = A->atoms;
 
 	i = 0;
@@ -87,9 +91,11 @@ create_coo_matrix(const char * market_filename,
 		INT_T row=1, col=1;
 		double val=1.0;
 		char * l, * t;
+		// double time;
 
 		loop_partitioner_balance_iterations(num_threads, tnum, 0, num_lines, &i_s, &i_e);
 
+		// time = time_it(1,
 		// Parse nonzero (note: using strtol and strtod is 2x faster than sscanf or istream parsing)
 		for (i=i_s;i<i_e;i++)
 		{
@@ -115,7 +121,11 @@ create_coo_matrix(const char * market_filename,
 			if (symmetric && (row != col))
 				non_diag++;
 		}
+		// );
+		// if (tnum == 0)
+			// printf("t1 = %lf\n", time);
 
+		// time = time_it(1,
 		if (symmetric)
 		{
 			__atomic_fetch_add(&non_diag_total, non_diag, __ATOMIC_RELAXED);
@@ -151,6 +161,9 @@ create_coo_matrix(const char * market_filename,
 				}
 			}
 		}
+		// );
+		// if (tnum == 0)
+			// printf("t2 = %lf\n", time);
 	}
 
 	*V_out = V;

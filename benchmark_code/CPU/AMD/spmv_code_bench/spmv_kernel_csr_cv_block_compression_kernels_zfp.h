@@ -12,78 +12,14 @@
 extern "C"{
 #endif
 	#include "bitstream.h"
+
+	// #include "zfp.h"
 #ifdef __cplusplus
 }
 #endif
 
 
-//==========================================================================================================================================
-//= Id
-//==========================================================================================================================================
-
-
-static inline
-long
-compress_kernel_id(ValueType * vals, unsigned char * buf, const long num_vals)
-{
-	long i;
-	*((int *) buf) = num_vals;
-	buf += sizeof(int);
-	for (i=0;i<num_vals;i++)
-		((ValueType *) buf)[i] = vals[i];
-	return sizeof(int) + num_vals * sizeof(ValueType);
-}
-
-
-static inline
-long
-decompress_kernel_id(ValueType * vals, unsigned char * buf, long * num_vals_out)
-{
-	long i;
-	long num_vals = *((int *) buf);
-	buf += sizeof(int);
-	for (i=0;i<num_vals;i++)
-		vals[i] = ((ValueType *) buf)[i];
-	*num_vals_out = num_vals;
-	return sizeof(int) + num_vals * sizeof(ValueType);
-}
-
-
-//==========================================================================================================================================
-//= Float Casting
-//==========================================================================================================================================
-
-
-static inline
-long
-compress_kernel_float(ValueType * vals, unsigned char * buf, const long num_vals)
-{
-	long i;
-	*((int *) buf) = num_vals;
-	buf += sizeof(int);
-	for (i=0;i<num_vals;i++)
-		((float *) buf)[i] = (float) vals[i];
-	return sizeof(int) + num_vals * sizeof(float);
-}
-
-
-static inline
-long
-decompress_kernel_float(ValueType * vals, unsigned char * buf, long * num_vals_out)
-{
-	long i;
-	long num_vals = *((int *) buf);
-	buf += sizeof(int);
-	for (i=0;i<num_vals;i++)
-		vals[i] = (ValueType) ((float *) buf)[i];
-	*num_vals_out = num_vals;
-	return sizeof(int) + num_vals * sizeof(float);
-}
-
-
-//==========================================================================================================================================
-//= FPC
-//==========================================================================================================================================
+#define FORMAT_SUBNAME  "ZFP"
 
 
 // #define PREDSIZEM1_LOG  8
@@ -103,7 +39,7 @@ static const unsigned long long mask[8] = {
 
 static inline
 long
-compress_kernel_fpc(double * vals, unsigned char * buf, const long num_vals)
+compress_kernel(double * vals, unsigned char * buf, const long num_vals)
 {
 	uint64_t * data_buf = (typeof(data_buf)) vals;
 	long i, out, hash, dhash, code, bcode = 0;
@@ -238,7 +174,7 @@ compress_kernel_fpc(double * vals, unsigned char * buf, const long num_vals)
 
 static inline
 long
-decompress_kernel_fpc(double * vals, unsigned char * buf, long * num_vals_out)
+decompress_kernel(double * vals, unsigned char * buf, long * num_vals_out)
 {
 	uint64_t * data_buf = (typeof(data_buf)) vals;
 	long i, in, num_vals, hash, dhash, code, bcode, predsizem1_log, predsizem1, tmp;
@@ -369,12 +305,18 @@ static double ** t_window;
 static int ** t_indexes;
 static int ** t_qsort_partitions;
 
-#include "sort/quicksort/quicksort_gen_undef.h"
-#define QUICKSORT_GEN_TYPE_1  int
-#define QUICKSORT_GEN_TYPE_2  int
-#define QUICKSORT_GEN_TYPE_3  double
-#define QUICKSORT_GEN_SUFFIX  i_i_d
-#include "sort/quicksort/quicksort_gen.c"
+#ifdef __cplusplus
+extern "C"{
+#endif
+	#include "sort/quicksort/quicksort_gen_undef.h"
+	#define QUICKSORT_GEN_TYPE_1  int
+	#define QUICKSORT_GEN_TYPE_2  int
+	#define QUICKSORT_GEN_TYPE_3  double
+	#define QUICKSORT_GEN_SUFFIX  i_i_d
+	#include "sort/quicksort/quicksort_gen.c"
+#ifdef __cplusplus
+}
+#endif
 
 static inline
 int
@@ -453,32 +395,32 @@ compress_kernel_sort_diff(ValueType * vals, unsigned char * buf, const long num_
 	{
 		indexes[i] = i;
 	}
-	quicksort_no_malloc(indexes, num_vals, vals, t_qsort_partitions[tnum]);
+	quicksort(indexes, num_vals, vals, t_qsort_partitions[tnum]);
 	for (i=0;i<num_vals;i++)
 	{
 		window[i] = vals[indexes[i]];
 	}
 
-	bitstream_init_write(&bs, buf);
+	bitstream_init_write(&bs, buf, 2 * sizeof(ValueType) * num_vals);
 
-	bitstream_write_unsafe_cast(&bs, num_vals, 32);
+	bitstream_write_unsafe(&bs, num_vals, 32);
 	num_bits += 32;
 
 	index = indexes[0];
-	bitstream_write_unsafe_cast(&bs, index, window_size_bits);
+	bitstream_write_unsafe(&bs, index, window_size_bits);
 	num_bits += window_size_bits;
-	bitstream_write_unsafe_cast(&bs, window[0], 64);
+	bitstream_write_unsafe(&bs, window[0], 64);
 	num_bits += 64;
 	for (i=1;i<num_vals;i++)
 	{
 		index = indexes[i];
-		bitstream_write_unsafe_cast(&bs, index, window_size_bits);
+		bitstream_write_unsafe(&bs, index, window_size_bits);
 		num_bits += window_size_bits;
 
 		diff = window[i] - window[i-1];
 		if (diff == 0)
 		{
-			bitstream_write_unsafe_cast(&bs, 53ULL, 6);   // Special 'len' code for zero value.
+			bitstream_write_unsafe(&bs, 53ULL, 6);   // Special 'len' code for zero value.
 			num_bits += 6;
 		}
 		else
@@ -488,18 +430,18 @@ compress_kernel_sort_diff(ValueType * vals, unsigned char * buf, const long num_
 			trailing_zeros = __builtin_ctzl(bits);
 			if (trailing_zeros >= 52)
 			{
-				bitstream_write_unsafe_cast(&bs, 0ULL, 6);
+				bitstream_write_unsafe(&bs, 0ULL, 6);
 				num_bits += 6;
-				bitstream_write_unsafe_cast(&bs, bits >> 52, 12);
+				bitstream_write_unsafe(&bs, bits >> 52, 12);
 				num_bits += 12;
 			}
 			else
 			{
 				len = 52 - trailing_zeros;        // 64 can't be represented with a 6-bit number.
-				bitstream_write_unsafe_cast(&bs, len, 6);
+				bitstream_write_unsafe(&bs, len, 6);
 				num_bits += 6;
 				bits >>= trailing_zeros;
-				bitstream_write_unsafe_cast(&bs, bits, 12 + len);
+				bitstream_write_unsafe(&bs, bits, 12 + len);
 				bits <<= 64 - len - 12;
 				num_bits += 12 + len;
 			}
@@ -508,7 +450,7 @@ compress_kernel_sort_diff(ValueType * vals, unsigned char * buf, const long num_
 	if (num_bits & 7)
 	{
 		len = 8 - (num_bits & 7);
-		bitstream_write_unsafe_cast(&bs, 0ULL, len);
+		bitstream_write_unsafe(&bs, 0ULL, len);
 		num_bits += len;
 	}
 	bitstream_write_flush(&bs);
@@ -543,20 +485,20 @@ decompress_kernel_sort_diff(ValueType * vals, unsigned char * buf, long * num_va
 	void * ptr;
 	long i;
 
-	bitstream_init_read(&bs, buf);
+	bitstream_init_read(&bs, buf, 2 * sizeof(ValueType) * num_vals);
 
-	bitstream_read_unsafe_cast(&bs, &num_vals, 32);
+	bitstream_read_unsafe(&bs, (uint64_t *) &num_vals, 32);
 	num_bits += 32;
 
-	bitstream_read_unsafe_cast(&bs, &index, window_size_bits);
-	bitstream_read_unsafe_cast(&bs, &val_prev, 64);
+	bitstream_read_unsafe(&bs, &index, window_size_bits);
+	bitstream_read_unsafe(&bs, (uint64_t *) &val_prev, 64);
 	num_bits += 64;
 	vals[index] = val_prev;
 
 	for (i=1;i<num_vals;i++)
 	{
-		bitstream_read_unsafe_cast(&bs, &index, window_size_bits);
-		bitstream_read_unsafe_cast(&bs, &len, 6);
+		bitstream_read_unsafe(&bs, &index, window_size_bits);
+		bitstream_read_unsafe(&bs, &len, 6);
 		if (len == 53)   // Special 'len' code for zero value.
 		{
 			vals[index] = val_prev;
@@ -564,7 +506,7 @@ decompress_kernel_sort_diff(ValueType * vals, unsigned char * buf, long * num_va
 		else
 		{
 			len += 12;
-			bitstream_read_unsafe_cast(&bs, &bits, len);
+			bitstream_read_unsafe(&bs, &bits, len);
 			num_bits += len;
 			bits <<= 64 - len;
 			ptr = &bits;

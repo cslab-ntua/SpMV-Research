@@ -47,6 +47,27 @@ functools_reduce_fun(int a, int b)
 }
 
 
+#include "functools/functools_gen_push.h"
+#define FUNCTOOLS_GEN_TYPE_1  long
+#define FUNCTOOLS_GEN_TYPE_2  long
+#define FUNCTOOLS_GEN_SUFFIX  _plot_l_l
+#include "functools/functools_gen.c"
+__attribute__((pure))
+static inline
+long
+functools_map_fun(long * A, long i)
+{
+	return A[i];
+}
+__attribute__((pure))
+static inline
+long
+functools_reduce_fun(long a, long b)
+{
+	return a + b;
+}
+
+
 //------------------------------------------------------------------------------------------------------------------------------------------
 //- Partition
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -131,7 +152,7 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 	snprintf(buf, buf_n, "%s.%s", base, ext);
 	f_conv = strdup(buf);
 	if (fig->legend_conf.title == NULL)
-		fig->legend_conf.title = strdup(f_conv);       // Better to immediately understand that it's just the file name, than try to extract a possibly non-existent meaning from it, so keep extension.
+		fig->legend_conf.title = strdup(f_conv);       // Better for the viewer to immediately understand that it's just the file name, than try to extract a possibly non-existent meaning from it, so keep extension.
 
 	fd = safe_open(f_ppm, O_WRONLY | O_TRUNC | O_CREAT);
 	save_ppm_image(pa, fd);
@@ -356,6 +377,7 @@ figure_axes_flip_y(struct Figure * fig)
 }
 
 
+// Bounds are inclusive.
 void
 figure_set_bounds_x(struct Figure * fig, double min, double max)
 {
@@ -365,6 +387,7 @@ figure_set_bounds_x(struct Figure * fig, double min, double max)
 }
 
 
+// Bounds are inclusive.
 void
 figure_set_bounds_y(struct Figure * fig, double min, double max)
 {
@@ -487,8 +510,7 @@ figure_series_type_density_map(struct Figure_Series * s)
  *     We can't know which mode is appropriate (integer / float), so user has to select via the 'num_bins' argument.
  */
 long
-figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int plot_percentages,
-		double ** freq_out)
+figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, double ** freq_out, int plot_percentages, int cumulative_sum)
 {
 	void * values;
 	long num_values;
@@ -551,6 +573,9 @@ figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int p
 			}
 			__atomic_fetch_add(&freq[pos], 1, __ATOMIC_RELAXED);
 		}
+
+		if (cumulative_sum)   // Calculate cumulative sum from the integer frequencies, with no floating-point errors.
+			scan_reduce_concurrent_plot_l_l(freq, freq, num_bins, 0, 0, 0);
 
 		#pragma omp for
 		for (i=0;i<num_bins;i++)
@@ -1112,7 +1137,7 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 			}
 		}
 
-		scan_reduce_concurrent(offsets, offsets, num_buckets+1, 0, 0, 0);
+		scan_reduce_concurrent_plot_i_i(offsets, offsets, num_buckets+1, 0, 0, 0);
 
 		// Place indexes, i.e., colored pixel secondary axis coordinates.
 		#pragma omp for
@@ -1283,7 +1308,9 @@ test_for_invalid_values(void * x, long N, double (* get_as_double)(void * x, lon
 		{
 			v = get_as_double(x, i);
 			if (isnan(v) || fabs(v) == INFINITY)
+			{
 				ret = 1;
+			}
 		}
 	}
 	return ret;

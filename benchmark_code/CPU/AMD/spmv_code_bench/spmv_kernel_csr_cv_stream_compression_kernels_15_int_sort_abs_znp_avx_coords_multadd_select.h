@@ -46,12 +46,18 @@ uint64_t * t_row_bits_accum;
 uint64_t * t_col_bits_accum;
 uint64_t * t_row_col_bytes_accum;
 
-#include "sort/quicksort/quicksort_gen_undef.h"
-#define QUICKSORT_GEN_TYPE_1  int
-#define QUICKSORT_GEN_TYPE_2  int
-#define QUICKSORT_GEN_TYPE_3  double
-#define QUICKSORT_GEN_SUFFIX  i_i_d
-#include "sort/quicksort/quicksort_gen.c"
+#ifdef __cplusplus
+extern "C"{
+#endif
+	#include "sort/quicksort/quicksort_gen_undef.h"
+	#define QUICKSORT_GEN_TYPE_1  int
+	#define QUICKSORT_GEN_TYPE_2  int
+	#define QUICKSORT_GEN_TYPE_3  double
+	#define QUICKSORT_GEN_SUFFIX  i_i_d
+	#include "sort/quicksort/quicksort_gen.c"
+#ifdef __cplusplus
+}
+#endif
 
 // static inline
 // int
@@ -256,7 +262,7 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 
 	for (k=0;k<num_vals_padded;k++)
 		permutation_orig[k] = k;
-	quicksort_no_malloc(permutation_orig, num_vals_padded, vals, t_qsort_partitions[tnum]);
+	quicksort(permutation_orig, num_vals_padded, vals, t_qsort_partitions[tnum]);
 	for (k=0;k<num_vals_padded;k++)
 	{
 		l = (k % 4) * div_padded + k / 4;   // interleave index
@@ -595,7 +601,7 @@ gather_coords_sparse_r0_c4(long i, unsigned char * data_coords, __attribute__((u
 {
 	// error("test 0,4");
 	__m128i col_rel;
-	col_rel = _mm_set_epi32(*((uint32_t *) &data_coords[(i+3)*4]), *((uint32_t *) &data_coords[(i+2)*4]), *((uint32_t *) &data_coords[(i+1)*4]), *((uint32_t *) &data_coords[i*4]));
+	col_rel = _mm256_set_epi64x(*((uint32_t *) &data_coords[(i+3)*4]), *((uint32_t *) &data_coords[(i+2)*4]), *((uint32_t *) &data_coords[(i+1)*4]), *((uint32_t *) &data_coords[i*4]));
 	*row_rel_out = _mm_set1_epi32(0);
 	*col_rel_out = col_rel;
 }

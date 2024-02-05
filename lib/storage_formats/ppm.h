@@ -34,7 +34,7 @@ struct Pixel_Array {
 	int width;
 	int height;
 	int max_value;
-	void * pixels;  // Actually a 2D array.
+	void * pixels;  // The 2D pixel array, first element is the top-left pixel.
 	char * locks;
 };
 

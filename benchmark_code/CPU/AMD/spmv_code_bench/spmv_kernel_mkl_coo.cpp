@@ -71,9 +71,9 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 		#pragma omp for
 		for (i=0;i<nnz;i++)
 		{
-			coo->rowind = 0;
-			coo->colind = 0;
-			coo->val = 0;
+			coo->rowind[i] = 0;
+			coo->colind[i] = 0;
+			coo->val[i] = 0;
 		}
 		#pragma omp for
 		for (i=0;i<m;i++)

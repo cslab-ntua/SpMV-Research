@@ -36,26 +36,18 @@ typedef QUICKSORT_GEN_TYPE_3  _TYPE_AD;
 //- Quicksort
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-#undef  quicksort_no_malloc
-#define quicksort_no_malloc  QUICKSORT_GEN_EXPAND(quicksort_no_malloc)
-void quicksort_no_malloc(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitions);
-
 #undef  quicksort
 #define quicksort  QUICKSORT_GEN_EXPAND(quicksort)
-void quicksort(_TYPE_V * A, long N, _TYPE_AD * aux_data);
+void quicksort(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitions_buf);
 
-
-#undef  quicksort_no_malloc_parallel
-#define quicksort_no_malloc_parallel  QUICKSORT_GEN_EXPAND(quicksort_no_malloc_parallel)
-void quicksort_no_malloc_parallel(_TYPE_V * A, __attribute__((unused)) _TYPE_V * buf, long N, _TYPE_AD * aux_data, _TYPE_I * partitions);
 
 #undef  quicksort_parallel
 #define quicksort_parallel  QUICKSORT_GEN_EXPAND(quicksort_parallel)
-void quicksort_parallel(_TYPE_V * A, long N, _TYPE_AD * aux_data);
+void quicksort_parallel(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitions_buf);
 
 #undef  quicksort_parallel_inplace
 #define quicksort_parallel_inplace  QUICKSORT_GEN_EXPAND(quicksort_parallel_inplace)
-void quicksort_parallel_inplace(_TYPE_V * A, long N, _TYPE_AD * aux_data);
+void quicksort_parallel_inplace(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitions_buf);
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------

@@ -23,7 +23,12 @@ extern "C"{
 }
 #endif
 
-#include "spmv_kernel_csr_cv_compression_kernels.h"
+
+#if defined(COMPRESSION_KERNEL_FPC)
+	#include "spmv_kernel_csr_cv_block_compression_kernels_fpc.h"
+#elif defined(COMPRESSION_KERNEL_ZFP)
+	#include "spmv_kernel_csr_cv_block_compression_kernels_zfp.h"
+#endif
 
 
 // Account for a fraction of the cache to leave space for indeces, etc.
@@ -68,8 +73,8 @@ compress(ValueType * vals, unsigned char * buf, const long num_vals)
 {
 	// return compress_kernel_id(vals, buf, num_vals);
 	// return compress_kernel_float(vals, buf, num_vals);
-	return compress_kernel_fpc(vals, buf, num_vals);
 	// return compress_kernel_sort_diff(vals, buf, num_vals);
+	return compress_kernel(vals, buf, num_vals);
 }
 
 
@@ -79,8 +84,8 @@ decompress(ValueType * vals, unsigned char * buf, long * num_vals_out)
 {
 	// return decompress_kernel_id(vals, buf, num_vals_out);
 	// return decompress_kernel_float(vals, buf, num_vals_out);
-	return decompress_kernel_fpc(vals, buf, num_vals_out);
 	// return decompress_kernel_sort_diff(vals, buf, num_vals_out);
+	return decompress_kernel(vals, buf, num_vals_out);
 }
 
 
@@ -229,7 +234,6 @@ struct CSRCVArrays : Matrix_Format
 		mem_footprint = compr_data_size + nnz * sizeof(INT_T) + (m+1) * sizeof(INT_T);
 
 		calculate_matrix_compression_error(a);
-		// validate_grouping_method(a);
 	}
 
 	~CSRCVArrays()
@@ -264,7 +268,7 @@ struct Matrix_Format *
 csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
 {
 	struct CSRCVArrays * csr = new CSRCVArrays(row_ptr, col_ind, values, m, n, nnz);
-	csr->format_name = (char *) "CSR_CV";
+	csr->format_name = (char *) "CSR_CV_BLOCK_" FORMAT_SUBNAME;
 	return csr;
 }
 
@@ -272,67 +276,6 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 //==========================================================================================================================================
 //= Method Validation - Errors
 //==========================================================================================================================================
-
-
-void
-CSRCVArrays::validate_grouping_method(ValueType * a)
-{
-	ValueType * a_new;
-	a_new = (typeof(a_new)) aligned_alloc(64, nnz * sizeof(*a_new));
-	#pragma omp parallel
-	{
-		int tnum = omp_get_thread_num();
-		long num_packet_vals = get_num_uncompressed_packet_vals();
-		long num_vals;
-		long num_packets = t_num_packets[tnum];
-		unsigned char * data = t_compr_data[tnum];
-		struct packet_info_s * packet_info = t_packet_info[tnum];
-		long pos, p, i, i_s, i_e, j, j_e, j_packet_e, k;
-		ValueType * vals;
-		vals = (typeof(vals)) aligned_alloc(64, num_packet_vals * sizeof(*vals));
-		i_s = thread_i_s[tnum];
-		i_e = thread_i_e[tnum];
-		i = i_s;
-		j = ia[i_s];
-		pos = 0;
-		for (p=0;p<num_packets;p++)
-		{
-			pos += decompress(vals, &(data[pos]), &num_vals);
-			// printf("%d: p=%ld , num_vals=%ld , packet_i=[%d, %d] (%d) , data_pos=%ld (%ld nnz)\n", tnum, p, num_vals, packet_i_s[p], packet_i_e[p], packet_i_e[p] - packet_i_s[p], pos, (pos-sizeof(int)*num_packets)/sizeof(ValueType));
-			i_e = packet_info[p].i_e;
-			k = 0;
-			j_packet_e = j + num_vals;
-			if (j > ia[i])   // Partial first row.
-			{
-				j_e = ia[i+1];
-				if (j_e > j_packet_e)
-					j_e = j_packet_e;
-				a_new[j] = vals[k];
-				// if (vals[k] != a[j]) printf("%d: a=%g != a_new=%g , at pos=%ld : row=%ld  col=%d\n", tnum, a[j], vals[k], j, i, ja[j]);
-				i++;
-			}
-			for (;i<i_e-1;i++)  // Except last row.
-			{
-				j_e = ia[i+1];
-				a_new[j] = vals[k];
-				// if (vals[k] != a[j]) printf("%d: a=%g != a_new=%g , at pos=%ld : row=%ld  col=%d\n", tnum, a[j], vals[k], j, i, ja[j]);
-			}
-			// Last row might be partial.
-			for (;j<j_packet_e;j++,k++)
-			{
-				a_new[j] = vals[k];
-				// if (vals[k] != a[j]) printf("%d: a=%g != a_new=%g , at pos=%ld : row=%ld  col=%d\n", tnum, a[j], vals[k], j, i, ja[j]);
-			}
-		}
-		free(vals);
-		#pragma omp barrier
-		#pragma omp for
-		for (j=0;j<nnz;j++)
-			if (a[j] != a_new[j])
-				printf("%d: a=%g != a_new=%g , at pos=%ld : col=%d\n", tnum, a[j], a_new[j], j, ja[j]);
-	}
-	free(a_new);
-}
 
 
 void
@@ -362,14 +305,18 @@ CSRCVArrays::calculate_matrix_compression_error(ValueType * a)
 			// if (a[j] != a_new[j])
 				// printf("%d: a=%g != a_new=%g , at pos=%ld : col=%d\n", tnum, a[j], a_new[j], j, ja[j]);
 		double mae, max_ae, mse, mape, smape;
+		double lnQ_error, mlare, gmare;
 		array_mae_concurrent(a, a_new, nnz, &mae, val_to_double);
 		array_max_ae_concurrent(a, a_new, nnz, &max_ae, val_to_double);
 		array_mse_concurrent(a, a_new, nnz, &mse, val_to_double);
 		array_mape_concurrent(a, a_new, nnz, &mape, val_to_double);
 		array_smape_concurrent(a, a_new, nnz, &smape, val_to_double);
+		array_lnQ_error_concurrent(a, a_new, nnz, &lnQ_error, val_to_double);
+		array_mlare_concurrent(a, a_new, nnz, &mlare, val_to_double);
+		array_gmare_concurrent(a, a_new, nnz, &gmare, val_to_double);
 		#pragma omp single
 		{
-			printf("errors matrix: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g\n", mae, max_ae, mse, mape, smape);
+			printf("errors matrix: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g, lnQ_error=%g, mlare=%g, gmare=%g\n", mae, max_ae, mse, mape, smape, lnQ_error, mlare, gmare);
 		}
 	}
 	// for (long z=0;z<nnz;z++)

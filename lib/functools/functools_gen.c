@@ -114,7 +114,7 @@ reduce_segment_concurrent(_TYPE_IN * A, long i_start, long i_end, _TYPE_OUT zero
 		return zero;
 	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
 	val = reduce_segment_serial(A, i_s, i_e, zero, backwards);
-	omp_thread_reduce_global(functools_reduce_fun, val, zero, 1, backwards, NULL, &total);
+	omp_thread_reduce_global(functools_reduce_fun, val, zero, 1, backwards, , &total);   // Better leave argument empty than NULL, because C++ doesn't like it.
 	return total;
 }
 

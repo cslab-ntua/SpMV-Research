@@ -128,8 +128,8 @@ void figure_series_set_name(struct Figure_Series * s, const char * name);
 
 void figure_axes_flip_x(struct Figure * fig);
 void figure_axes_flip_y(struct Figure * fig);
-void figure_set_bounds_x(struct Figure * fig, double min, double max);
-void figure_set_bounds_y(struct Figure * fig, double min, double max);
+void figure_set_bounds_x(struct Figure * fig, double min, double max);   // Bounds are inclusive.
+void figure_set_bounds_y(struct Figure * fig, double min, double max);   // Bounds are inclusive.
 
 // Color
 void figure_series_set_color(struct Figure_Series * s, int16_t r, int16_t g, int16_t b);
@@ -153,10 +153,10 @@ void figure_series_type_density_map(struct Figure_Series * s);
 
 // Returns the number of bins.
 // Through 'freq_out' it returns the bins frequencies as doubles.
-long figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, int plot_percentages, double ** freq_out);
-#define figure_series_type_histogram(s, num_bins, ... /* plot_percentages, freq_out */)                                     \
-({                                                                                                                          \
-	figure_series_type_histogram_base(s, num_bins, DEFAULT_ARG_1(0, __VA_ARGS__), DEFAULT_ARG_2(NULL, __VA_ARGS__));    \
+long figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, double ** freq_out, int plot_percentages, int cumulative_sum);
+#define figure_series_type_histogram(s, num_bins, ... /* freq_out, plot_percentages, cumulative_sum */)                                                    \
+({                                                                                                                                                         \
+	figure_series_type_histogram_base(s, num_bins, DEFAULT_ARG_1(NULL, __VA_ARGS__), DEFAULT_ARG_2(0, __VA_ARGS__), DEFAULT_ARG_3(0, __VA_ARGS__));    \
 })
 
 void figure_series_type_barplot_base(struct Figure_Series * s, double max_bar_width, double bar_width_fraction);

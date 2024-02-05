@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "macros/cpp_defines.h"
 #include "debug.h"
@@ -26,7 +27,7 @@
 //==========================================================================================================================================
 
 
-#define str_assert_string_compliance(str, N)          \
+#define str_assert_string_compliance(str, N)           \
 do {                                                   \
 	if (str == NULL)                               \
 		error("NULL char pointer");            \
@@ -37,6 +38,7 @@ do {                                                   \
 } while (0)
 
 
+__attribute__((always_inline))
 static inline
 long
 str_check_mem_overlap(const char * s1, long s1_n, const char * s2, long s2_n)
@@ -50,49 +52,11 @@ str_check_mem_overlap(const char * s1, long s1_n, const char * s2, long s2_n)
 
 
 //==========================================================================================================================================
-//= Binary String Utilities
-//==========================================================================================================================================
-
-typedef struct {
-	char *binary_string;
-	int id;
-} binary_string_with_id;
-
-static inline char* convert_float_to_binary_string(float* sequence, int size) {
-	char* binary_string = (char*)malloc(size + 1); // +1 for the null terminator
-	if (binary_string == NULL) {
-		printf("Memory allocation failed.\n");
-		exit(1);
-	}
-	for (int j = 0; j < size; j++)
-		binary_string[j] = (sequence[j] != 0.0) ? '1' : '0';
-	binary_string[size] = '\0'; // Null-terminate the string
-	return binary_string;
-}
-
-static inline char* convert_unsigned_char_to_binary_string(unsigned char* sequence, int size) {
-	char* binary_string = (char*)malloc(size + 1); // +1 for the null terminator
-	if (binary_string == NULL) {
-		printf("Memory allocation failed.\n");
-		exit(1);
-	}
-	for (int j = 0; j < size; j++)
-		binary_string[j] = (sequence[j] != 0) ? '1' : '0';
-	binary_string[size] = '\0'; // Null-terminate the string
-	return binary_string;
-}
-
-static inline int compare_binary_strings(const void *a, const void *b) {
-	// return strcmp(((binary_string_with_id *)a)->binary_string, ((binary_string_with_id *)b)->binary_string); // ascending order
-	return strcmp(((binary_string_with_id *)b)->binary_string, ((binary_string_with_id *)a)->binary_string); // descending order
-}
-
-
-//==========================================================================================================================================
 //= Character Groups
 //==========================================================================================================================================
 
 
+__attribute__((always_inline))
 static inline
 int
 str_char_is_ws(const char c)
@@ -105,12 +69,15 @@ str_char_is_ws(const char c)
 	// };
 	// #pragma GCC diagnostic pop
 	// return t[(unsigned char) c];
-	switch (c) {
-		case ' ': case '\t': case '\n': case '\r': case '\0':
-			return 1;
-		default:
-			return 0;
-	}
+
+	/* We also consider the '\0' character as whitespace. */
+	// switch (c) {
+		// case ' ': case '\f': case '\n': case '\r': case '\t': case '\v': case '\0':
+			// return 1;
+		// default:
+			// return 0;
+	// }
+	return isspace(c) || (c == '\0');
 }
 
 
@@ -120,10 +87,13 @@ str_char_is_ws(const char c)
 
 
 // Returns the number of chars written.
+__attribute__((always_inline))
 static inline
 long
-str_char_hex_to_bin_unsafe(const char c_hex, char * buf)
+str_char_hex_to_bin(const char c_hex, char * buf, long N)
 {
+	if (N < 4)
+		error("buffer size needs to be at least 4 bytes");
 	switch (c_hex) {
 		case '0':           buf[0] = '0'; buf[1] = '0'; buf[2] = '0'; buf[3] = '0'; break;
 		case '1':           buf[0] = '0'; buf[1] = '0'; buf[2] = '0'; buf[3] = '1'; break;
@@ -153,6 +123,7 @@ str_char_hex_to_bin_unsafe(const char c_hex, char * buf)
 //==========================================================================================================================================
 
 
+__attribute__((always_inline))
 static inline
 long
 str_find_char_from_start(const char * str, long N, char c)
@@ -165,6 +136,7 @@ str_find_char_from_start(const char * str, long N, char c)
 }
 
 
+__attribute__((always_inline))
 static inline
 long
 str_find_char_from_end(const char * str, long N, char c)
@@ -177,6 +149,7 @@ str_find_char_from_end(const char * str, long N, char c)
 }
 
 
+__attribute__((always_inline))
 static inline
 long
 str_find_ws(const char * str, long N)
@@ -189,6 +162,7 @@ str_find_ws(const char * str, long N)
 }
 
 
+__attribute__((always_inline))
 static inline
 long
 str_find_non_ws(const char * str, long N)
@@ -201,6 +175,7 @@ str_find_non_ws(const char * str, long N)
 }
 
 
+__attribute__((always_inline))
 static inline
 long
 str_find_eol(const char * str, long N)
@@ -213,6 +188,7 @@ str_find_eol(const char * str, long N)
 }
 
 
+__attribute__((always_inline))
 static inline
 long
 str_next_word(const char * str, long N)
@@ -545,6 +521,55 @@ str_path_strip_ext(char * str, long N)
 		return str + N - 1;
 	str[i] = 0;
 	return str + i + 1;
+}
+
+
+//==========================================================================================================================================
+//= Binary String Utilities
+//==========================================================================================================================================
+
+
+typedef struct {
+	char *binary_string;
+	int id;
+} binary_string_with_id;
+
+static inline
+char *
+convert_float_to_binary_string(float* sequence, int size)
+{
+	char* binary_string = (char*)malloc(size + 1); // +1 for the null terminator
+	if (binary_string == NULL) {
+		printf("Memory allocation failed.\n");
+		exit(1);
+	}
+	for (int j = 0; j < size; j++)
+		binary_string[j] = (sequence[j] != 0.0) ? '1' : '0';
+	binary_string[size] = '\0'; // Null-terminate the string
+	return binary_string;
+}
+
+static inline
+char *
+convert_unsigned_char_to_binary_string(unsigned char* sequence, int size)
+{
+	char* binary_string = (char*)malloc(size + 1); // +1 for the null terminator
+	if (binary_string == NULL) {
+		printf("Memory allocation failed.\n");
+		exit(1);
+	}
+	for (int j = 0; j < size; j++)
+		binary_string[j] = (sequence[j] != 0) ? '1' : '0';
+	binary_string[size] = '\0'; // Null-terminate the string
+	return binary_string;
+}
+
+static inline
+int
+compare_binary_strings(const void *a, const void *b)
+{
+	// return strcmp(((binary_string_with_id *)a)->binary_string, ((binary_string_with_id *)b)->binary_string); // ascending order
+	return strcmp(((binary_string_with_id *)b)->binary_string, ((binary_string_with_id *)a)->binary_string); // descending order
 }
 
 

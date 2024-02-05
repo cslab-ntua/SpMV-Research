@@ -1,0 +1,152 @@
+
+$(call Rule_Auto_Dependencies,obj/spmv_bench.o,spmv_bench.cpp)
+	$(CPP) $(CPPFLAGS_D) -c $< -o $@
+
+$(call Rule_Auto_Dependencies,obj/artificial_matrix_generation.o,$(AMG_PATH)/artificial_matrix_generation.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/ordered_set.o,$(AMG_PATH)/ordered_set.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+
+$(call Rule_Auto_Dependencies,obj/pthread_functions.o,$(library)/pthread_functions.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/omp_functions.o,$(library)/omp_functions.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/topology.o,$(library)/topology.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/hash.o,$(library)/hash/hash.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/random.o,$(library)/random.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/hashtable.o,$(library)/aux/hashtable.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/bitstream.o,$(library)/bitstream.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/bytestream.o,$(library)/bytestream.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/array_metrics.o,$(library)/array_metrics.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/string_util.o,$(library)/string_util.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/io.o,$(library)/io.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/parallel_io.o,$(library)/parallel_io.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/plot.o,$(library)/plot/plot.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/read_mtx.o,read_mtx.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/matrix_market.o,$(library)/storage_formats/matrix_market/matrix_market.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/openfoam_matrix.o,$(library)/storage_formats/openfoam/openfoam_matrix.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/rapl.o,$(library)/monitoring/power/rapl.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/csr_converter.o,$(library)/aux/csr_converter.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/csr_converter_double.o,$(library)/aux/csr_converter_double.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/csr_util.o,$(library)/aux/csr_util.c)
+	$(CC) $(CFLAGS_D) -c $< -o $@
+
+
+
+$(call Rule_Auto_Dependencies,obj_f/spmv_bench.o,spmv_bench.cpp)
+	$(CPP) $(CPPFLAGS_F) -c $< -o $@
+
+$(call Rule_Auto_Dependencies,obj_f/artificial_matrix_generation.o,$(AMG_PATH)/artificial_matrix_generation.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/ordered_set.o,$(AMG_PATH)/ordered_set.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+
+$(call Rule_Auto_Dependencies,obj_f/pthread_functions.o,$(library)/pthread_functions.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/omp_functions.o,$(library)/omp_functions.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/topology.o,$(library)/topology.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/hash.o,$(library)/hash/hash.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/random.o,$(library)/random.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/hashtable.o,$(library)/aux/hashtable.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/bitstream.o,$(library)/bitstream.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/bytestream.o,$(library)/bytestream.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/array_metrics.o,$(library)/array_metrics.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/string_util.o,$(library)/string_util.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/io.o,$(library)/io.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/parallel_io.o,$(library)/parallel_io.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/plot.o,$(library)/plot/plot.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/read_mtx.o,read_mtx.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/matrix_market.o,$(library)/storage_formats/matrix_market/matrix_market.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/openfoam_matrix.o,$(library)/storage_formats/openfoam/openfoam_matrix.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/rapl.o,$(library)/monitoring/power/rapl.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/csr_converter.o,$(library)/aux/csr_converter.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/csr_converter_double.o,$(library)/aux/csr_converter_double.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_f/csr_util.o,$(library)/aux/csr_util.c)
+	$(CC) $(CFLAGS_F) -c $< -o $@
+
+
+
+$(call Rule_Auto_Dependencies,obj_cuda/spmv_bench.o,spmv_bench.cpp)
+	$(CPP) $(CPPFLAGS_CUDA) -c $< -o $@
+
+$(call Rule_Auto_Dependencies,obj_cuda/artificial_matrix_generation.o,$(AMG_PATH)/artificial_matrix_generation.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/ordered_set.o,$(AMG_PATH)/ordered_set.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+
+$(call Rule_Auto_Dependencies,obj_cuda/pthread_functions.o,$(library)/pthread_functions.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/omp_functions.o,$(library)/omp_functions.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/topology.o,$(library)/topology.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/hash.o,$(library)/hash/hash.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/random.o,$(library)/random.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/hashtable.o,$(library)/aux/hashtable.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/bitstream.o,$(library)/bitstream.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/bytestream.o,$(library)/bytestream.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/array_metrics.o,$(library)/array_metrics.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/string_util.o,$(library)/string_util.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/io.o,$(library)/io.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/parallel_io.o,$(library)/parallel_io.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/plot.o,$(library)/plot/plot.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/read_mtx.o,read_mtx.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/matrix_market.o,$(library)/storage_formats/matrix_market/matrix_market.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/openfoam_matrix.o,$(library)/storage_formats/openfoam/openfoam_matrix.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/rapl.o,$(library)/monitoring/power/rapl.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/csr_converter.o,$(library)/aux/csr_converter.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/csr_converter_double.o,$(library)/aux/csr_converter_double.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj_cuda/csr_util.o,$(library)/aux/csr_util.c)
+	$(CC) $(CFLAGS_CUDA) -c $< -o $@
+

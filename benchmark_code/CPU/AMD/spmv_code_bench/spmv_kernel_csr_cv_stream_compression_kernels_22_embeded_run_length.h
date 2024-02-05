@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <float.h>
 #include <string.h>
 #include <assert.h>
 #include <omp.h>
@@ -25,10 +24,6 @@ extern "C"{
 //==========================================================================================================================================
 
 
-//------------------------------------------------------------------------------------------------------------------------------------------
-//- Quicksort
-//------------------------------------------------------------------------------------------------------------------------------------------
-
 static uint64_t window_size_bits;
 static uint64_t window_size;
 static double ** t_vals;
@@ -47,12 +42,23 @@ uint64_t * t_row_bits_accum;
 uint64_t * t_col_bits_accum;
 uint64_t * t_row_col_bytes_accum;
 
-#include "sort/quicksort/quicksort_gen_undef.h"
-#define QUICKSORT_GEN_TYPE_1  int
-#define QUICKSORT_GEN_TYPE_2  int
-#define QUICKSORT_GEN_TYPE_3  double
-#define QUICKSORT_GEN_SUFFIX  i_i_d
-#include "sort/quicksort/quicksort_gen.c"
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Quicksort
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+	#include "sort/quicksort/quicksort_gen_undef.h"
+	#define QUICKSORT_GEN_TYPE_1  int
+	#define QUICKSORT_GEN_TYPE_2  int
+	#define QUICKSORT_GEN_TYPE_3  double
+	#define QUICKSORT_GEN_SUFFIX  i_i_d
+	#include "sort/quicksort/quicksort_gen.c"
+#ifdef __cplusplus
+}
+#endif
 
 // static inline
 // int
@@ -222,14 +228,15 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 	ValueType * rows = t_rows[tnum];
 	double * window = t_window[tnum];
 	unsigned char ** data_val_lanes = t_data_lanes[tnum];
-	int * data_val_lanes_len;
+	int * data_val_lens_size;
+	int * data_val_lanes_size;
 	unsigned int * rows_diff = t_rows_diff[tnum];
 	unsigned int * cols = t_cols[tnum];
 	int * permutation_orig = t_permutation_orig[tnum];
 	int * permutation = t_permutation[tnum];
 	int * rev_permutation = t_rev_permutation[tnum];
 	struct Byte_Stream Bs[4];
-	uint64_t leading_sign_bits = 0;
+	uint64_t leading_zeros = 0;
 	uint64_t trailing_zeros = 0;
 	uint64_t trailing_zero_bits_div4 = 0;
 	uint64_t len_bits = 0;
@@ -241,11 +248,7 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 	uint64_t row_min, row_max, row_diff = 0, row_diff_max = 0, col = 0, col_min = 0, col_max = 0, col_diff = 0, col_diff_max = 0;   // row_max is the last row (i.e., inclusive: num_rows = row_max + 1 - i_s)
 	uint64_t row_bits = 0, col_bits = 0;
 	uint64_t row_col_bytes = 0;
-	long i, i_block_e, i_lane_block_s, i_lane_block_e, j, k, l, b;
-
-	double tolerance = atof(getenv("VC_TOLERANCE"));
-
-	long max_block_size = 64;   // Must be a multiple of 4.
+	long i, j, k, l;
 
 	long force_row_index_lte_1_byte = 1;
 	long force_row_index_rounding = 0;
@@ -270,7 +273,7 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 
 	for (k=0;k<num_vals_padded;k++)
 		permutation_orig[k] = k;
-	quicksort_no_malloc(permutation_orig, num_vals_padded, vals, t_qsort_partitions[tnum]);
+	quicksort(permutation_orig, num_vals_padded, vals, t_qsort_partitions[tnum]);
 	for (k=0;k<num_vals_padded;k++)
 	{
 		l = (k % 4) * div_padded + k / 4;   // interleave index
@@ -375,19 +378,17 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 	*((double *) &data_intro[data_intro_bytes]) = window[3];
 	data_intro_bytes += 8;
 
-	data_val_lanes_len = (typeof(data_val_lanes_len)) &(data_intro[data_intro_bytes]);
-	data_intro_bytes += 4 * sizeof(*data_val_lanes_len);
+	data_val_lens_size = (typeof(data_val_lens_size)) &(data_intro[data_intro_bytes]);
+	data_intro_bytes += sizeof(*data_val_lens_size);
+
+	data_val_lanes_size = (typeof(data_val_lanes_size)) &(data_intro[data_intro_bytes]);
+	data_intro_bytes += 4 * sizeof(*data_val_lanes_size);
 
 	unsigned char * data_coords = &data_intro[data_intro_bytes];
 	const uint64_t coords_bytes = row_col_bytes;
 	const uint64_t data_coords_bytes = coords_bytes * num_vals_padded;
 
-	double * data_ratios = (double *) &data_coords[data_coords_bytes];
-	uint64_t num_blocks = (num_vals_padded + max_block_size - 1) / max_block_size;
-	const uint64_t data_ratios_bytes = num_blocks * sizeof(*data_ratios);
-
-	unsigned char * data_val_lens = &((unsigned char *) data_ratios)[data_ratios_bytes];
-	const uint64_t data_val_lens_bytes = num_vals_padded;
+	unsigned char * data_val_lens = &data_coords[data_coords_bytes];
 
 	for (i=0;i<num_vals_padded;i++)
 	{
@@ -403,193 +404,162 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 	bytestream_init_write(&Bs[2], data_val_lanes[2]);
 	bytestream_init_write(&Bs[3], data_val_lanes[3]);
 
+	double tolerance = atof(getenv("VC_TOLERANCE"));
 	union {
 		double d;
 		uint64_t u;
-	} val_prev[4], val, val_predicted;
+	} val_prev[4], val;
 	val_prev[0].d = window[0];
 	val_prev[1].d = window[1];
 	val_prev[2].d = window[2];
 	val_prev[3].d = window[3];
-	// for (j=4;j<num_vals_padded;j+=4*max_block_size)
+
+	uint64_t lens_i = 0;
+
+	uint64_t zero_lens_i[4] = {0, 0, 0, 0};
+	uint64_t zero_lens_counter[4] = {0, 0, 0, 0};
+	uint64_t cnt;
+
 	for (i=4;i<num_vals_padded;i++)
 	{
-		double lane_ratios[4] = {1.0, 1.0, 1.0, 1.0};
-#if 0
-		b = j / max_block_size;
-		i_block_e = (j + 4*max_block_size < num_vals_padded) ? j + 4*max_block_size : num_vals_padded;
-		for (l=0;l<4;l++)
+		val.d = window[i];
+		diff.u = val.u - val_prev[i%4].u;
+
+		if (tolerance > 0)
 		{
-			i_lane_block_s = j + l;
-			i_lane_block_e = i_block_e - 3 + l;   // 'num_vals_padded' is divisible by 4.
-			long num_block_vals_lane = (i_lane_block_e - i_lane_block_s) / 4;
-			double avg_diff = (window[i_lane_block_e] - window[i_lane_block_s]) / num_block_vals_lane;
-			double avg_diff_from_predicted;
-			double avg_ratio = 0.0;
-			k = 0;
-			for (i=i_lane_block_s;i<i_lane_block_e;i+=4)
-			{
-				if (fabs(window[i]) <= 10*DBL_EPSILON)
-					k++;
-				else if (fabs(window[i-4]) > 10*DBL_EPSILON)
-				{
-					avg_ratio += window[i] / window[i-4];
-					k++;
-				}
-			}
-			avg_ratio /= k;
-			/* Test if avg diff is bigger than avg diff from predicted value. */
-			avg_diff_from_predicted = 0;
-			for (i=i_lane_block_s;i<i_lane_block_e;i+=4)
-			{
-				avg_diff_from_predicted += (avg_ratio * window[i-4]) - window[i-4];
-			}
-			avg_diff_from_predicted /= num_block_vals_lane;
-
-			// lane_ratios[l] = (avg_diff_from_predicted < avg_diff) ? avg_ratio : 1.0;
-			lane_ratios[l] = 1.0;
-
-			data_ratios[b+l] = lane_ratios[l];
+			diff.u = compress_diff_lossy(window[i], val_prev[i%4].d, diff.d, tolerance);
 		}
-#endif
 
-		// for (i=j;i<i_block_e;i++)
+		/* Instead of setting to 'window[i]', we emulate the procedure of the decompression.
+		 * This accounts for the accumulation of the error that is being passed down.
+		 *
+		 * Note:
+		 *     Maybe check if this is optimized out (e.g. -ffast-math, but if user has such flags, it doesn't really make a difference).
+		 */
+		val_prev[i%4].u += diff.u;
+		double error = fabs(val.d - val_prev[i%4].d) / fabs(val.d);
+		if (error > tolerance)
+			error("error tolerance exceeded");
+
+		cnt = zero_lens_counter[i%4];
+		if (diff.u == 0)
 		{
-			val.d = window[i];
-			val_predicted.d = lane_ratios[i%4] * val_prev[i%4].u;
-			diff.u = val.u - val_predicted.u;
-
-			if (tolerance > 0)
+			len = 0;
+			if (cnt > 15)
 			{
-				diff.u = compress_diff_lossy(window[i], val_predicted.d, diff.d, tolerance);
-			}
-
-			/* Instead of setting to 'window[i]', we emulate the procedure of the decompression.
-			 * This accounts for the accumulation of the error that is being passed down.
-			 *
-			 * Note:
-			 *     Maybe check if this is optimized out (e.g. -ffast-math, but if user has such flags, it doesn't really make a difference).
-			 */
-			val_prev[i%4].u = val_predicted.u + diff.u;
-			double error = fabs(val.d - val_prev[i%4].d) / fabs(val.d);
-			if (error > tolerance)
-				error("error > tolerance: %lf > %lf", error, tolerance);
-
-			if (diff.u == 0)
-			{
-				len = 0;
-				data_val_lens[i] = 0;
+				data_val_lens[zero_lens_i[i%4]] = (cnt - 1) << 4ULL;
+				zero_lens_counter[i%4] = 1;
+				zero_lens_i[i%4] = lens_i;
+				lens_i++;
 			}
 			else
 			{
-				/* For the length values (0-8) 4 bits are needed.
-				 *
-				 * For the trailing zero bits values (0-63, 64 isn't needed) 6 bits are needed, but we only have 4 bits space remaining.
-				 * so we keep shifts in strides of 4 (0, 4, 8, 12, ..., 60).
-				 */
-				uint64_t rem_tz;
-				uint64_t buf_diff = diff.u;
-				// leading_sign_bits = __builtin_clrsbl(diff.u);   // Number of leading redundant sign bits, i.e., without counting the first sign bit.
-				leading_sign_bits = __builtin_clzl(diff.u);
-				trailing_zeros = __builtin_ctzl(diff.u);
-				rem_tz = trailing_zeros & 3ULL;
-
-				len_bits = 64ULL - leading_sign_bits - trailing_zeros;
-				len = (len_bits + 7ULL) >> 3ULL;
-				uint64_t rem = (len << 3ULL) - len_bits;
-
-				if (rem >= rem_tz)
+				if (cnt == 0)
 				{
-					rem -= rem_tz;
-					trailing_zeros -= rem_tz;
+					zero_lens_i[i%4] = lens_i;
+					lens_i++;
 				}
-
-				if (rem <= leading_sign_bits)
-				{
-					leading_sign_bits -= rem;
-					rem = 0;
-				}
-				else
-				{
-					rem -= leading_sign_bits;
-					leading_sign_bits = 0;
-				}
-				trailing_zeros -= rem;
-
-				trailing_zero_bits_div4 = trailing_zeros >> 2ULL;
-				trailing_zeros = trailing_zero_bits_div4 << 2ULL;
-
-				len_bits = 64ULL - leading_sign_bits - trailing_zeros;
-				len = (len_bits + 7ULL) >> 3ULL;
-				if (len > 8)
-					error("len > 8");
-
-				// diff.u = ((int64_t) diff.u) >> trailing_zeros;   // Arithmetic shift right.
-				diff.u = diff.u >> trailing_zeros;   // Arithmetic shift right.
-				bytestream_write_unsafe_cast(&Bs[i%4], diff.u, len);
-				len |=  (trailing_zero_bits_div4 << 4ULL);
-				data_val_lens[i] = len;
-
-				// Test.
-				uint64_t shift = (len >> 2ULL) & (~3ULL);
-				if (shift != trailing_zeros)
-					error("shift: %ld %ld %ld", len, shift, trailing_zero_bits_div4);
-				len &= 15ULL;
-				len_bits = len << 3ULL;
-
-				uint64_t mask = (1ULL << (len << 3ULL)) - 1ULL;
-				diff.u &= mask;
-				diff.u <<= shift;
-				if (diff.u != buf_diff)
-					error("test");
-
-				// uint64_t pow2 = (1ULL << len_bits);
-				// if (len_bits == 64)
-					// pow2 = 0;
-				// uint64_t msb = pow2 >> 1ULL;
-				// uint64_t sign = (~(diff.u & msb)) + 1ULL;
-				// uint64_t mask = pow2 - 1ULL;
-				// diff.u &= mask;
-				// diff.u = diff.u | sign;
-				// diff.u <<= shift;
-
-
-				// if (diff.u != buf_diff)
-				// {
-					// error("diff.u != buf_diff: %064lb != %064lb\n%ld, %ld, %ld, %ld\n%064lb\n%064lb\n%064lb\n%064lb\n%064lb\n", diff.u, buf_diff, len, len_bits, leading_sign_bits, trailing_zeros,
-							// buf_diff,
-							// pow2,
-							// mask,
-							// msb,
-							// sign);
-				// }
-
+				zero_lens_counter[i%4]++;
 			}
 		}
-	}
-	data_val_lanes_len[0] = Bs[0].len;
-	data_val_lanes_len[1] = Bs[1].len;
-	data_val_lanes_len[2] = Bs[2].len;
-	data_val_lanes_len[3] = Bs[3].len;
+		else
+		{
+			if (cnt > 0)
+			{
+				data_val_lens[zero_lens_i[i%4]] = (cnt - 1) << 4ULL;
+				zero_lens_counter[i%4] = 0;
+			}
 
-	unsigned char * bytestream = &data_val_lens[data_val_lens_bytes];
-	for (i=0;i<Bs[0].len;i++)
-		bytestream[i] = data_val_lanes[0][i];
-	bytestream += Bs[0].len;
-	for (i=0;i<Bs[1].len;i++)
-		bytestream[i] = data_val_lanes[1][i];
-	bytestream += Bs[1].len;
-	for (i=0;i<Bs[2].len;i++)
-		bytestream[i] = data_val_lanes[2][i];
-	bytestream += Bs[2].len;
-	for (i=0;i<Bs[3].len;i++)
-		bytestream[i] = data_val_lanes[3][i];
-	bytestream += Bs[3].len;
+			/* Differences  can actually be negative due to the rounding errors (when lossy)!
+			 *
+			 * For the length values (0-8) 4 bits are needed.
+			 *
+			 * For the trailing zero bits values (0-63, 64 isn't needed) 6 bits are needed, but we only have 4 bits space remaining.
+			 * so we keep shifts in strides of 4 (0, 4, 8, 12, ..., 60).
+			 */
+			uint64_t rem_tz;
+			uint64_t buf_diff = diff.u;
+			leading_zeros = __builtin_clzl(diff.u);
+			trailing_zeros = __builtin_ctzl(diff.u);
+			rem_tz = trailing_zeros & 3ULL;
+
+			len_bits = 64ULL - leading_zeros - trailing_zeros;
+			len = (len_bits + 7ULL) >> 3ULL;
+			uint64_t rem = (len << 3ULL) - len_bits;
+
+			if (rem >= rem_tz)
+			{
+				rem -= rem_tz;
+				trailing_zeros -= rem_tz;
+			}
+
+			if (rem <= leading_zeros)
+			{
+				leading_zeros -= rem;
+				rem = 0;
+			}
+			else
+			{
+				rem -= leading_zeros;
+				leading_zeros = 0;
+			}
+			trailing_zeros -= rem;
+
+			trailing_zero_bits_div4 = trailing_zeros >> 2ULL;
+			trailing_zeros = trailing_zero_bits_div4 << 2ULL;
+
+			len_bits = 64ULL - leading_zeros - trailing_zeros;
+			len = (len_bits + 7ULL) >> 3ULL;
+			if (len > 8)
+				error("len > 8");
+
+			diff.u >>= trailing_zeros;
+			bytestream_write_unsafe_cast(&Bs[i%4], diff.u, len);
+			len |=  (trailing_zero_bits_div4 << 4ULL);
+			data_val_lens[lens_i] = len;
+			lens_i++;
+
+			uint64_t tz = (len >> 2ULL) & (~3ULL);
+			if (tz != trailing_zeros)
+				error("tz: %ld %ld %ld", len, tz, trailing_zero_bits_div4);
+			len &= 15ULL;
+			uint64_t mask = (1ULL << (len << 3ULL)) - 1ULL;
+			diff.u &= mask;
+			diff.u <<= tz;
+			if (diff.u != buf_diff)
+				error("test");
+		}
+	}
+	for (i=0;i<4;i++)
+	{
+		cnt = zero_lens_counter[i%4];
+		if (cnt > 0)
+		{
+			data_val_lens[zero_lens_i[i%4]] = (cnt - 1) << 4ULL;
+			zero_lens_counter[i%4] = 0;
+		}
+	}
+	*data_val_lens_size = lens_i;
+	data_val_lanes_size[0] = Bs[0].len;
+	data_val_lanes_size[1] = Bs[1].len;
+	data_val_lanes_size[2] = Bs[2].len;
+	data_val_lanes_size[3] = Bs[3].len;
+
+	unsigned char * ptr = &data_val_lens[*data_val_lens_size];
+	memcpy(ptr, data_val_lanes[0], Bs[0].len);
+	ptr += Bs[0].len;
+	memcpy(ptr, data_val_lanes[1], Bs[1].len);
+	ptr += Bs[1].len;
+	memcpy(ptr, data_val_lanes[2], Bs[2].len);
+	ptr += Bs[2].len;
+	memcpy(ptr, data_val_lanes[3], Bs[3].len);
+	ptr += Bs[3].len;
+	const uint64_t data_val_lanes_bytes = Bs[0].len + Bs[1].len + Bs[2].len + Bs[3].len;
 
 	if (num_vals_out != NULL)
 		*num_vals_out = num_vals;
 
-	return data_intro_bytes + data_coords_bytes + data_ratios_bytes + data_val_lens_bytes + Bs[0].len + Bs[1].len + Bs[2].len + Bs[3].len;
+	return data_intro_bytes + data_coords_bytes + *data_val_lens_size + data_val_lanes_bytes;
 }
 
 
@@ -725,7 +695,7 @@ gather_coords_sparse_r0_c4(long i, unsigned char * data_coords, __attribute__((u
 {
 	// error("test 0,4");
 	__m256i col_rel;
-	col_rel = _mm256_set_epi64x(*((uint64_t *) &data_coords[(i+3)*4]), *((uint64_t *) &data_coords[(i+2)*4]), *((uint64_t *) &data_coords[(i+1)*4]), *((uint64_t *) &data_coords[i*4]));
+	col_rel = _mm256_set_epi64x(*((uint32_t *) &data_coords[(i+3)*4]), *((uint32_t *) &data_coords[(i+2)*4]), *((uint32_t *) &data_coords[(i+1)*4]), *((uint32_t *) &data_coords[i*4]));
 	*row_rel_out = _mm256_set1_epi64x(0);
 	*col_rel_out = col_rel;
 }
@@ -791,7 +761,7 @@ gather_coords_sparse_r1_c4(long i, unsigned char * data_coords, __attribute__((u
 	// error("test 4");
 	__m256i row_rel, col_rel;
 	row_rel = _mm256_set_epi64x(data_coords[(i+3)*5], data_coords[(i+2)*5], data_coords[(i+1)*5], data_coords[i*5]);
-	col_rel = _mm256_set_epi64x(*((uint64_t *) &data_coords[(i+3)*5 + 1]), *((uint64_t *) &data_coords[(i+2)*5 + 1]), *((uint64_t *) &data_coords[(i+1)*5 + 1]), *((uint64_t *) &data_coords[i*5 + 1]));
+	col_rel = _mm256_set_epi64x(*((uint32_t *) &data_coords[(i+3)*5 + 1]), *((uint32_t *) &data_coords[(i+2)*5 + 1]), *((uint32_t *) &data_coords[(i+1)*5 + 1]), *((uint32_t *) &data_coords[i*5 + 1]));
 	*row_rel_out = row_rel;
 	*col_rel_out = col_rel;
 }
@@ -909,7 +879,7 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 	ValueType * y_rel;
 	double * window = t_window[tnum];
 	__m256i row_rel, col_rel;
-	__m256i len, len_bits;
+	__m256i len;
 	long num_vals;
 	uint64_t row_min, col_min;
 	long num_rows;
@@ -917,16 +887,13 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 	union {
 		__m256d d;
 		__m256i u;
-	} diff, sign;
-	long i, i_block_e, j, b;
+	} diff;
+	long i;
 	// __m256d mult_add_r0_res = {0, 0, 0, 0};
 	double mult_add_r0_res = 0;
 
 	unsigned char * data_intro = buf;
 	uint64_t data_intro_bytes = 0;
-
-	long max_block_size = 64;   // Must be a multiple of 4.
-
 
 	row_bits = data_intro[data_intro_bytes];
 	data_intro_bytes += 1;
@@ -950,7 +917,6 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 
 	double * y_buf = t_y_buf[tnum];
 
-	__m256d ratios;
 	union {
 		__m256d d;
 		__m256i u;
@@ -958,26 +924,25 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 	val.d = _mm256_loadu_pd((double *) &data_intro[data_intro_bytes]);
 	data_intro_bytes += 4*8;
 
-	int * data_val_lanes_len;
-	data_val_lanes_len = (typeof(data_val_lanes_len)) &(data_intro[data_intro_bytes]);
-	data_intro_bytes += 4 * sizeof(*data_val_lanes_len);
+	int * data_val_lens_size = (typeof(data_val_lens_size)) &(data_intro[data_intro_bytes]);
+	data_intro_bytes += sizeof(*data_val_lens_size);
+
+	int * data_val_lanes_size;
+	data_val_lanes_size = (typeof(data_val_lanes_size)) &(data_intro[data_intro_bytes]);
+	data_intro_bytes += 4 * sizeof(*data_val_lanes_size);
 
 	unsigned char * data_coords = &data_intro[data_intro_bytes];
 	const uint64_t coords_bytes = (row_bits + col_bits + 7) >> 3;
 	const uint64_t data_coords_bytes = coords_bytes * num_vals_padded;
 
-	double * data_ratios = (double *) &data_coords[data_coords_bytes];
-	uint64_t num_blocks = (num_vals_padded + max_block_size - 1) / max_block_size;
-	const uint64_t data_ratios_bytes = num_blocks * sizeof(*data_ratios);
-
-	unsigned char * data_val_lens = &((unsigned char *) data_ratios)[data_ratios_bytes];
-	const uint64_t data_val_lens_bytes = num_vals_padded;
+	unsigned char * data_val_lens = &data_coords[data_coords_bytes];
 
 	__m256i data_val_lanes;
-	data_val_lanes[0] = (long long) &data_val_lens[data_val_lens_bytes];
-	data_val_lanes[1] = data_val_lanes[0] + data_val_lanes_len[0];
-	data_val_lanes[2] = data_val_lanes[1] + data_val_lanes_len[1];
-	data_val_lanes[3] = data_val_lanes[2] + data_val_lanes_len[2];
+	data_val_lanes[0] = (long long) &data_val_lens[*data_val_lens_size];
+	data_val_lanes[1] = data_val_lanes[0] + data_val_lanes_size[0];
+	data_val_lanes[2] = data_val_lanes[1] + data_val_lanes_size[1];
+	data_val_lanes[3] = data_val_lanes[2] + data_val_lanes_size[2];
+	const uint64_t data_val_lanes_bytes = data_val_lanes_size[0] + data_val_lanes_size[1] + data_val_lanes_size[2] + data_val_lanes_size[3];
 
 	i = 0;
 	gather_coords(i, data_coords, coords_bytes, row_bits, col_bits, &row_rel, &col_rel);
@@ -993,93 +958,77 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 		}
 	}
 
-	const __m256i one = _mm256_set1_epi64x(1ULL);
+	__m256i lens_i, test, flag, inc, counter;
+	long idx;
+	counter = _mm256_set1_epi64x(0ULL);
+	idx = 0;
 	for (i=4;i<num_vals_padded;i+=4)
-	// for (j=4,b=0; j<num_vals_padded; j+=4*max_block_size,b++)
 	{
-		// i_block_e = (j + 4*max_block_size <= num_vals_padded) ? j + 4*max_block_size : num_vals_padded;
-		// ratios = _mm256_loadu_pd(&data_ratios[b]);
-		// if (ratios[0] != 1.0 || ratios[1] != 1.0 || ratios[2] != 1.0 || ratios[3] != 1.0)
-			// error("test");
-		// for (i=j;i<i_block_e;i+=4)
+		gather_coords(i, data_coords, coords_bytes, row_bits, col_bits, &row_rel, &col_rel);
+
+		if (!validate)
 		{
-			// val.d = val.d * ratios;
-			// val.d = _mm256_mul_pd(val.d, ratios);
+			// v_x = _mm256_set_pd(x_rel[col_rel[3]], x_rel[col_rel[2]], x_rel[col_rel[1]], x_rel[col_rel[0]]);
+			// v_x = _mm256_i64gather_pd(x_rel, col_rel, 8);
+		}
 
-			gather_coords(i, data_coords, coords_bytes, row_bits, col_bits, &row_rel, &col_rel);
+		// flag = (counter > 0) ? -1 : 0;
+		flag = _mm256_cmpgt_epi64(counter, _mm256_xor_si256(flag, flag));
+		// inc = flag + 1;
+		inc = _mm256_add_epi64(flag, _mm256_set1_epi64x(1ULL));
 
-			if (!validate)
-			{
-				// v_x = _mm256_set_pd(x_rel[col_rel[3]], x_rel[col_rel[2]], x_rel[col_rel[1]], x_rel[col_rel[0]]);
-				// v_x = _mm256_i64gather_pd(x_rel, col_rel, 8);
-			}
+		len[0] = data_val_lens[idx];
+		idx += inc[0];
+		len[1] = data_val_lens[idx];
+		idx += inc[1];
+		len[2] = data_val_lens[idx];
+		idx += inc[2];
+		len[3] = data_val_lens[idx];
+		idx += inc[3];
 
-			len = _mm256_set_epi64x(data_val_lens[i+3], data_val_lens[i+2], data_val_lens[i+1], data_val_lens[i+0]);
-			/* __m256i _mm_loadu_si64 (void const* mem_addr)
-			 *     Load unaligned 64-bit integer from memory into the first element of dst.
-			 *
-			 * __m256i _mm256_cvtepu8_epi64 (__m256i a)
-			 *     Zero extend packed unsigned 8-bit integers in the low 8 bytes of a to packed 64-bit integers, and store the results in dst.
-			 */
-			// len = _mm256_cvtepu8_epi64(_mm_loadu_si64(&data_val_lens[i]));
+		// __m256i tz = (len >> 2ULL) & (~3ULL);
+		__m256i tz = _mm256_and_si256(_mm256_srli_epi64(len, 2ULL), _mm256_set1_epi64x(~3ULL));
 
-			// __m256i shift = (len >> 2ULL) & (~3ULL);
-			__m256i shift = _mm256_and_si256(_mm256_srli_epi64(len, 2ULL), _mm256_set1_epi64x(~3ULL));
-			// len &= 15ULL;
-			len = _mm256_and_si256(len, _mm256_set1_epi64x(15ULL));
-			// len_bits = len << 3ULL;
-			len_bits = _mm256_slli_epi64(len, 3ULL);
+		// len = (~flag) & len;
+		len = _mm256_andnot_si256(flag, len);
+		// len &= 15ULL;
+		len = _mm256_and_si256(len, _mm256_set1_epi64x(15ULL));
+		// len_bits = len << 3ULL;
+		__m256i len_bits = _mm256_slli_epi64(len, 3ULL);
 
-			diff.u = _mm256_set_epi64x(*((uint64_t *) data_val_lanes[3]), *((uint64_t *) data_val_lanes[2]), *((uint64_t *) data_val_lanes[1]), *((uint64_t *) data_val_lanes[0]));
+		// test = ((len | counter) == 0) ? -1 : 0;
+		test = _mm256_cmpeq_epi64(_mm256_or_si256(len, counter), _mm256_xor_si256(test, test));
+		// counter = counter | (tz & test);
+		counter |= tz & test;   // 'tz & test' is not zero only if: len | counter == 0
 
-			// data_val_lanes = data_val_lanes + len;
-			data_val_lanes = _mm256_add_epi64(data_val_lanes, len);
-
-
-			// __m256i mask = (1ULL << (len << 3ULL)) - 1ULL;
-			__m256i mask = _mm256_sub_epi64(_mm256_sllv_epi64(_mm256_set1_epi64x(1ULL), _mm256_slli_epi64(len, 3ULL)), _mm256_set1_epi64x(1ULL));
-			// diff.u &= mask;
-			diff.u = _mm256_and_si256(diff.u, mask);
-			// diff.u <<= shift;
-			diff.u = _mm256_sllv_epi64(diff.u, shift);
-
-
-
-			/* // __m256i pow2 = (1ULL << len_bits);
-			__m256i pow2 = _mm256_sllv_epi64(one, len_bits);
-
-			// __m256i msb = pow2 >> 1ULL;
-			__m256i msb = _mm256_srli_epi64(pow2, 1ULL);
-			// sign.u = ~((diff.u & msb) - 1ULL);  // =>  sign.u = (~(diff.u & msb)) + 1ULL;  There is no NOT, so we have to use nand.
-			sign.u = _mm256_add_epi64(_mm256_andnot_si256(diff.u, msb), one);
-
-			// __m256i mask = pow2 - 1ULL;
-			__m256i mask = _mm256_sub_epi64(pow2, one);
-			// diff.u &= mask;
-			diff.u = _mm256_and_si256(diff.u, mask);
-
-			// diff.u = diff.u | sign.u;   // AFTER mask, BEFORE shift.
-			// diff.u = _mm256_or_si256(diff.u, sign.u);
-
-			// diff.u <<= shift;
-			diff.u = _mm256_sllv_epi64(diff.u, shift); */
+		counter = _mm256_add_epi64(counter, flag);   // Saturated sub 1, i.e., until counter reaches 0.
 
 
 
 
+		diff.u = _mm256_set_epi64x(*((uint64_t *) data_val_lanes[3]), *((uint64_t *) data_val_lanes[2]), *((uint64_t *) data_val_lanes[1]), *((uint64_t *) data_val_lanes[0]));
 
-			// val.u = val.u + diff.u;
-			val.u = _mm256_add_epi64(val.u, diff.u);
+		// data_val_lanes = data_val_lanes + len;
+		data_val_lanes = _mm256_add_epi64(data_val_lanes, len);
 
-			if (validate)
-				_mm256_storeu_pd(&window[i], val.d);
-			else
-			{
-				switch (mult_add_select) {
-					case 0: mult_add_serial(x_rel, y_rel, val.d, row_rel, col_rel); break;
-					case 1: mult_add_r0_res = mult_add_r0(mult_add_r0_res, x_rel, val.d, col_rel); break;
-					case 2: mult_add_ybuf(num_rows, y_buf, x_rel, val.d, row_rel, col_rel); break;
-				}
+		// __m256i mask = (1ULL << len_bits) - 1ULL;
+		__m256i mask = _mm256_sub_epi64(_mm256_sllv_epi64(_mm256_set1_epi64x(1ULL), len_bits), _mm256_set1_epi64x(1ULL));
+		// diff.u &= mask;
+		diff.u = _mm256_and_si256(diff.u, mask);
+		// diff.u <<= tz;
+		diff.u = _mm256_sllv_epi64(diff.u, tz);
+
+		// val.u = val.u + diff.u;
+		val.u = _mm256_add_epi64(val.u, diff.u);
+
+		if (validate)
+			_mm256_storeu_pd(&window[i], val.d);
+		else
+		{
+			switch (mult_add_select) {
+				case 0: mult_add_serial(x_rel, y_rel, val.d, row_rel, col_rel); break;
+				case 1: mult_add_r0_res = mult_add_r0(mult_add_r0_res, x_rel, val.d, col_rel); break;
+				case 2: mult_add_ybuf(num_rows, y_buf, x_rel, val.d, row_rel, col_rel); break;
 			}
 		}
 	}
@@ -1094,7 +1043,7 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 
 	if (num_vals_out != NULL)
 		*num_vals_out = num_vals;
-	return data_intro_bytes + data_coords_bytes + data_ratios_bytes + data_val_lens_bytes + data_val_lanes_len[0] + data_val_lanes_len[1] + data_val_lanes_len[2] + data_val_lanes_len[3];
+	return data_intro_bytes + data_coords_bytes + *data_val_lens_size + data_val_lanes_bytes;
 }
 
 

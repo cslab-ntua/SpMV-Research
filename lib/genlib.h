@@ -10,6 +10,7 @@
 #include <tgmath.h>
 #include <string.h>
 #include <limits.h>   // for CHAR_BIT
+#include <ctype.h>
 
 #include "debug.h"
 #include "macros/macrolib.h"
@@ -20,9 +21,6 @@
  *     The C programming language, as of C99, supports complex number math with the three built-in types double _Complex, float _Complex, and long double _Complex (see _Complex).
  *     When the header <complex.h> is included, the three complex number types are also accessible as double complex, float complex, long double complex.
  */
-
-
-#define GENLIB_is_ws(c)  (c == ' ' || c == '\n' || c == '\r' || c == '\t')
 
 
 #define GENLIB_rule_expand_storage_classes(type, ...)    \
@@ -338,36 +336,37 @@ do {                                                                            
 //==========================================================================================================================================
 
 
+__attribute__((always_inline))
 static inline
 int
 GENLIB_find_ws(char * str, int len)
 {
-	int i = 0;
-	while (i < len)
+	int i;
+	for (i=0;i<len;i++)
 	{
-		if (GENLIB_is_ws(str[i]))
+		if (isspace(str[i]))
 			break;
-		i++;
 	}
 	return i;
 }
 
 
+__attribute__((always_inline))
 static inline
 int
 GENLIB_find_non_ws(char * str, int len)
 {
-	int i = 0;
-	while (i < len)
+	int i;
+	for (i=0;i<len;i++)
 	{
-		if (!GENLIB_is_ws(str[i]))
+		if (!isspace(str[i]))
 			break;
-		i++;
 	}
 	return i;
 }
 
 
+__attribute__((always_inline))
 static inline
 int
 GENLIB_find_next_token(char * str, int len)
@@ -379,6 +378,7 @@ GENLIB_find_next_token(char * str, int len)
 }
 
 
+__attribute__((always_inline))
 static inline
 void
 GENLIB_cpy(char * restrict src, char * restrict dst, int N)
@@ -393,6 +393,9 @@ GENLIB_cpy(char * restrict src, char * restrict dst, int N)
  * So we need to explicitly cast to 'double' or 'complex double' to avoid warnings when the type is different (e.g. float).
  *
  * We define the concrete inline functions because otherwise the compilation is unacceptably slow.
+ *
+ * The string input can be just a character array and not NULL terminated.
+ * This means we need to copy the string and put an extra NULL at the end for safety, because strtox functions expect it.
  */
 
 #define GENLIB_safe_strtox(strtox, _str, _N, _len_ptr, _base...)                                                                         \
@@ -401,10 +404,14 @@ GENLIB_cpy(char * restrict src, char * restrict dst, int N)
 	char * endptr;                                                                                                                   \
 	int len;                                                                                                                         \
 	long i = 0;                                                                                                                      \
-	i += GENLIB_find_non_ws(str + i, N - i);                                                                                         \
-	len = GENLIB_find_ws(str + i, N - i);                                                                                            \
+	len = N;                                                                                                                         \
+	if (N > 100) /* It is faster to copy the whole string than search for whitespace. */                                             \
+	{                                                                                                                                \
+		i += GENLIB_find_non_ws(str + i, N - i);                                                                                 \
+		len = GENLIB_find_ws(str + i, N - i);                                                                                    \
+	}                                                                                                                                \
 	char buf[len + 1];                                                                                                               \
-	strncpy(buf, str + i, len);                                                                                                      \
+	memcpy(buf, str + i, len);                                                                                                       \
 	buf[len] = '\0';                                                                                                                 \
 	errno = 0;                                                                                                                       \
 	__auto_type ret = OPT_TERNARY((_base),                                                                                           \
@@ -412,7 +419,11 @@ GENLIB_cpy(char * restrict src, char * restrict dst, int N)
 			strtox(buf, &endptr));                                                                                           \
 	if (errno != 0)                                                                                                                  \
 		error(STRING(strtox));                                                                                                   \
-	*len_ptr = i + len;                                                                                                              \
+	len = endptr - buf;                                                                                                              \
+	if (len == 0)                                                                                                                    \
+		*len_ptr = 0;                                                                                                            \
+	else                                                                                                                             \
+		*len_ptr = i + len;                                                                                                      \
 	ret;                                                                                                                             \
 })
 
@@ -484,9 +495,12 @@ GENLIB_safe_strtold_complex(char * str, long N, long * len_ptr)
 }
 
 
-#define gen_strtonum(_str, _N, _var_ptr, _base...)                                                                       \
+/* Returns the number of characters parsed.
+ * If zero, then the initial part of the string did not contain a valid number.
+ */
+#define gen_strtonum(_str, _N, _var_ptr, ... /* base */)                                                                 \
 ({                                                                                                                       \
-	RENAME((_str, __str), (_N, N, long), (_var_ptr, var_ptr), (DEFAULT_ARG_1(10, _base), base));                     \
+	RENAME((_str, __str), (_N, N, long), (_var_ptr, var_ptr), (DEFAULT_ARG_1(10, __VA_ARGS__), base));               \
 	char * str = __str;                                                                                              \
 	long len;                                                                                                        \
 	gen_assert_type_is_basic(*var_ptr, "gen_strtonum");                                                              \

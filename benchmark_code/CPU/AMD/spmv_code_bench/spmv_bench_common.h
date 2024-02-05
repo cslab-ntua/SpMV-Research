@@ -1,6 +1,7 @@
 #ifndef SPMV_BENCH_COMMON_H
 #define SPMV_BENCH_COMMON_H
 
+#include <stdint.h>
 #include <math.h>
 
 #include "macros/cpp_defines.h"

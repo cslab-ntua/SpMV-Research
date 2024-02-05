@@ -134,7 +134,7 @@ csr_sort_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m,
 			}
 			else
 			{
-				quicksort_no_malloc(&permutation[row_ptr[i]], degree, col_idx, qsort_partitions);
+				quicksort(&permutation[row_ptr[i]], degree, col_idx, qsort_partitions);
 				for (j=row_ptr[i];j<row_ptr[i+1];j++)
 				{
 					pos = permutation[j];

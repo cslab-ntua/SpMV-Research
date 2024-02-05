@@ -25,7 +25,9 @@ extern "C"{
 
 	#include "string_util.h"
 	#include "parallel_io.h"
+	#include "storage_formats/matrix_market/matrix_market.h"
 	#include "storage_formats/openfoam/openfoam_matrix.h"
+	#include "read_mtx.h"
 
 	#include "aux/csr_converter_double.h"
 
@@ -34,8 +36,6 @@ extern "C"{
 	#include "monitoring/power/rapl.h"
 
 	#include "artificial_matrix_generation.h"
-
-	#include "read_mtx.h"
 
 #ifdef __cplusplus
 }
@@ -99,6 +99,7 @@ reference_to_double(void * A, long i)
 void
 CheckAccuracy(INT_T * csr_ia, INT_T * csr_ja, double * csr_a_ref, INT_T csr_m, __attribute__((unused)) INT_T csr_n, __attribute__((unused)) INT_T csr_nnz, double * x_ref, ValueType * y)
 {
+	__attribute__((unused)) ReferenceType epsilon_relaxed = 1e-4;
 	#if DOUBLE == 0
 		ReferenceType epsilon = 1e-7;
 	#elif DOUBLE == 1
@@ -146,13 +147,11 @@ CheckAccuracy(INT_T * csr_ia, INT_T * csr_ja, double * csr_a_ref, INT_T csr_m, _
 		// maxDiff = Max(maxDiff, diff);
 		if (y_gold[i] > epsilon)
 		{
-			// printf("i=%d, y_gold=%lf , y_test=%lf, diff = %lf\n", i, y_gold[i], y_test[i], diff);
 			diff = diff / abs(y_gold[i]);
 			maxDiff = Max(maxDiff, diff);
-			// printf("error: i=%d/%d , a=%g f=%g , error=%g , max_error=%g\n", i, csr_m, y_gold[i], y_test[i], diff, maxDiff);
 		}
-		// if (diff > epsilon)
-			// printf("error: i=%d/%d , a=%g f=%g\n", i, csr_m, y_gold[i], y_test[i]);
+		// if (diff > epsilon_relaxed)
+			// printf("error: i=%ld/%d , a=%.10g f=%.10g\n", i, csr_m-1, (double) y_gold[i], (double) y_test[i]);
 		// std::cout << i << ": " << y_gold[i]-y_test[i] << "\n";
 		// if (y_gold[i] != 0.0)
 		// {
@@ -528,6 +527,7 @@ main(int argc, char **argv)
 {
 	__attribute__((unused)) int num_threads;
 
+	struct Matrix_Market * MTX;
 	double * mtx_val = NULL;
 	INT_T * mtx_rowind = NULL;
 	INT_T * mtx_colind = NULL;
@@ -643,7 +643,45 @@ child_proc_label:
 				free(colind);
 			}
 			else
-				create_coo_matrix(file_in, &mtx_val, &mtx_rowind, &mtx_colind, &mtx_m, &mtx_n, &mtx_nnz);
+			{
+
+				// create_coo_matrix(file_in, &mtx_val, &mtx_rowind, &mtx_colind, &mtx_m, &mtx_n, &mtx_nnz);
+				long expand_symmetry = 1;
+				long pattern_dummy_vals = 1;
+				MTX = mtx_read(file_in, expand_symmetry, pattern_dummy_vals);
+				mtx_rowind = MTX->R;
+				mtx_colind = MTX->C;
+				mtx_m = MTX->m;
+				mtx_n = MTX->n;
+				mtx_nnz = MTX->nnz;
+				if (!strcmp(MTX->field, "integer"))
+				{
+					mtx_val = (typeof(mtx_val)) malloc(mtx_nnz * sizeof(*mtx_val));
+					_Pragma("omp parallel for")
+					for (long i=0;i<mtx_nnz;i++)
+					{
+						mtx_val[i] = ((int *) MTX->V)[i];
+					}
+					free(MTX->V);
+				}
+				else if (!strcmp(MTX->field, "complex"))
+				{
+					mtx_val = (typeof(mtx_val)) malloc(mtx_nnz * sizeof(*mtx_val));
+					_Pragma("omp parallel for")
+					for (long i=0;i<mtx_nnz;i++)
+					{
+						#if DOUBLE == 0
+							mtx_val[i] = cabsf(((complex ValueType *) MTX->V)[i]);
+						#else
+							mtx_val[i] = cabs(((complex ValueType *) MTX->V)[i]);
+						#endif
+					}
+					free(MTX->V);
+				}
+				else
+					mtx_val = (double *) MTX->V;
+
+			}
 		);
 		printf("time read: %lf\n", time);
 		time = time_it(1,
@@ -758,9 +796,9 @@ child_proc_label:
 			_Pragma("omp parallel for")
 			for (i=0;i<csr_nnz;i++)
 			{
-				// csr_ja[i] = 0;                      // idx0 - Remove X access pattern dependency.
+				csr_ja[i] = 0;                      // idx0 - Remove X access pattern dependency.
 				// csr_ja[i] = i % csr_n;              // idx_serial - Remove X access pattern dependency.
-				csr_ja[i] = i_s + (i % i_per_t);    // idx_t_local - Remove X access pattern dependency.
+				// csr_ja[i] = i_s + (i % i_per_t);    // idx_t_local - Remove X access pattern dependency.
 			}
 		}
 	#endif

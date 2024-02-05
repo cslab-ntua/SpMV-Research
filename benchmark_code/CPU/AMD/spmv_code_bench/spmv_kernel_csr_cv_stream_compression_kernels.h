@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <float.h>
 #include <string.h>
 #include <assert.h>
 #include <omp.h>
@@ -15,29 +14,12 @@ extern "C"{
 	#include "bit_ops.h"
 	#include "bitstream.h"
 	#include "bytestream.h"
+	#include "macros/permutation.h"
+
+	#include "spmv_kernel_csr_cv_stream_gather_coords.h"
 #ifdef __cplusplus
 }
 #endif
-
-#define MAX_BLOCK_SIZE  64
-// #define MAX_BLOCK_SIZE  128
-// #define MAX_BLOCK_SIZE  256
-
-
-static inline
-double
-d2d(void * A, long i)
-{
-	return ((double *) A)[i];
-}
-
-
-static inline
-double
-d2fabsd(void * A, long i)
-{
-	return fabs(((double *) A)[i]);
-}
 
 
 //==========================================================================================================================================
@@ -47,13 +29,22 @@ d2fabsd(void * A, long i)
 
 static uint64_t window_size_bits;
 static uint64_t window_size;
-static double ** t_vals;
+static double ** t_vals_buf;
 static double ** t_rows;
 static double ** t_window;
+static double ** t_window_buf;
+static int ** t_window_rf;
+static int ** t_window_rf_buf;
 static unsigned char *** t_data_lanes;
-static int ** t_permutation_orig;
 static int ** t_permutation;
 static int ** t_rev_permutation;
+static int ** t_permutation_buf;
+static int ** t_rev_permutation_buf;
+static int ** t_permutation_buf_2;
+static int ** t_rev_permutation_buf_2;
+static int ** t_offsets_rf;
+static int ** t_rfs;
+static int ** t_num_unique_vals_per_rf;
 static unsigned int ** t_rows_diff;
 static unsigned int ** t_cols;
 static int ** t_qsort_partitions;
@@ -68,12 +59,18 @@ uint64_t * t_row_col_bytes_accum;
 //- Quicksort
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-#include "sort/quicksort/quicksort_gen_undef.h"
-#define QUICKSORT_GEN_TYPE_1  int
-#define QUICKSORT_GEN_TYPE_2  int
-#define QUICKSORT_GEN_TYPE_3  double
-#define QUICKSORT_GEN_SUFFIX  i_i_d
-#include "sort/quicksort/quicksort_gen.c"
+#ifdef __cplusplus
+extern "C"{
+#endif
+	#include "sort/quicksort/quicksort_gen_undef.h"
+	#define QUICKSORT_GEN_TYPE_1  int
+	#define QUICKSORT_GEN_TYPE_2  int
+	#define QUICKSORT_GEN_TYPE_3  double
+	#define QUICKSORT_GEN_SUFFIX  i_i_d
+	#include "sort/quicksort/quicksort_gen.c"
+#ifdef __cplusplus
+}
+#endif
 
 // static inline
 // int
@@ -103,6 +100,26 @@ quicksort_cmp(int a, int b, double * vals)
 }
 
 
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Bucketsort
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+#include "sort/bucketsort/bucketsort_gen_undef.h"
+#define BUCKETSORT_GEN_TYPE_1  int
+#define BUCKETSORT_GEN_TYPE_2  int
+#define BUCKETSORT_GEN_TYPE_3  int
+#define BUCKETSORT_GEN_TYPE_4  void
+#define BUCKETSORT_GEN_SUFFIX  _i_i_i_v
+#include "sort/bucketsort/bucketsort_gen.c"
+
+static inline
+int
+bucketsort_find_bucket(int a, __attribute__((unused)) void * unused)
+{
+	return a;
+}
+
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                             Compression                                                                -
@@ -118,13 +135,22 @@ compress_init_sort_diff(__attribute__((unused)) ValueType * vals, __attribute__(
 
 	bits_u64_required_bits_for_binary_representation(packet_size - 1, &window_size_bits, &window_size);    // Maximum representable number we want is 'packet_size - 1'.
 	printf("window_size = %ld , window_size_bits = %ld\n", window_size, window_size_bits);
-	t_vals = (typeof(t_vals)) malloc(num_threads * sizeof(*t_vals));
+	t_vals_buf = (typeof(t_vals_buf)) malloc(num_threads * sizeof(*t_vals_buf));
 	t_rows = (typeof(t_rows)) malloc(num_threads * sizeof(*t_rows));
 	t_window = (typeof(t_window)) malloc(num_threads * sizeof(*t_window));
+	t_window_buf = (typeof(t_window_buf)) malloc(num_threads * sizeof(*t_window_buf));
+	t_window_rf = (typeof(t_window_rf)) malloc(num_threads * sizeof(*t_window_rf));
+	t_window_rf_buf = (typeof(t_window_rf_buf)) malloc(num_threads * sizeof(*t_window_rf_buf));
 	t_data_lanes = (typeof(t_data_lanes)) malloc(num_threads * sizeof(*t_data_lanes));
-	t_permutation_orig = (typeof(t_permutation_orig)) malloc(num_threads * sizeof(*t_permutation_orig));
 	t_permutation = (typeof(t_permutation)) malloc(num_threads * sizeof(*t_permutation));
 	t_rev_permutation = (typeof(t_rev_permutation)) malloc(num_threads * sizeof(*t_rev_permutation));
+	t_permutation_buf = (typeof(t_permutation_buf)) malloc(num_threads * sizeof(*t_permutation_buf));
+	t_rev_permutation_buf = (typeof(t_rev_permutation_buf)) malloc(num_threads * sizeof(*t_rev_permutation_buf));
+	t_permutation_buf_2 = (typeof(t_permutation_buf_2)) malloc(num_threads * sizeof(*t_permutation_buf_2));
+	t_rev_permutation_buf_2 = (typeof(t_rev_permutation_buf_2)) malloc(num_threads * sizeof(*t_rev_permutation_buf_2));
+	t_offsets_rf = (typeof(t_offsets_rf)) malloc(num_threads * sizeof(*t_offsets_rf));
+	t_rfs = (typeof(t_rfs)) malloc(num_threads * sizeof(*t_rfs));
+	t_num_unique_vals_per_rf = (typeof(t_num_unique_vals_per_rf)) malloc(num_threads * sizeof(*t_num_unique_vals_per_rf));
 	t_rows_diff = (typeof(t_rows_diff)) malloc(num_threads * sizeof(*t_rows_diff));
 	t_cols = (typeof(t_cols)) malloc(num_threads * sizeof(*t_cols));
 	t_qsort_partitions = (typeof(t_qsort_partitions)) malloc(num_threads * sizeof(*t_qsort_partitions));
@@ -136,17 +162,26 @@ compress_init_sort_diff(__attribute__((unused)) ValueType * vals, __attribute__(
 	{
 		int tnum = omp_get_thread_num();
 		long i;
-		t_vals[tnum] = (typeof(&(**t_vals))) malloc(window_size * sizeof(**t_vals));
+		t_vals_buf[tnum] = (typeof(&(**t_vals_buf))) malloc(window_size * sizeof(**t_vals_buf));
 		t_rows[tnum] = (typeof(&(**t_rows))) malloc(window_size * sizeof(**t_rows));
 		t_window[tnum] = (typeof(&(**t_window))) malloc(window_size * sizeof(**t_window));
+		t_window_buf[tnum] = (typeof(&(**t_window_buf))) malloc(window_size * sizeof(**t_window_buf));
+		t_window_rf[tnum] = (typeof(&(**t_window_rf))) malloc(window_size * sizeof(**t_window_rf));
+		t_window_rf_buf[tnum] = (typeof(&(**t_window_rf_buf))) malloc(window_size * sizeof(**t_window_rf_buf));
 		t_data_lanes[tnum] = (typeof(&(**t_data_lanes))) malloc(4 * sizeof(**t_data_lanes));
 		for (i=0;i<4;i++)
 		{
 			t_data_lanes[tnum][i] = (typeof(&(**t_data_lanes[i]))) malloc(8*window_size * sizeof(**t_data_lanes[i]));
 		}
-		t_permutation_orig[tnum] = (typeof(&(**t_permutation_orig))) malloc(window_size * sizeof(**t_permutation_orig));
 		t_permutation[tnum] = (typeof(&(**t_permutation))) malloc(window_size * sizeof(**t_permutation));
 		t_rev_permutation[tnum] = (typeof(&(**t_rev_permutation))) malloc(window_size * sizeof(**t_rev_permutation));
+		t_permutation_buf[tnum] = (typeof(&(**t_permutation_buf))) malloc(window_size * sizeof(**t_permutation_buf));
+		t_rev_permutation_buf[tnum] = (typeof(&(**t_rev_permutation_buf))) malloc(window_size * sizeof(**t_rev_permutation_buf));
+		t_permutation_buf_2[tnum] = (typeof(&(**t_permutation_buf_2))) malloc(window_size * sizeof(**t_permutation_buf_2));
+		t_rev_permutation_buf_2[tnum] = (typeof(&(**t_rev_permutation_buf_2))) malloc(window_size * sizeof(**t_rev_permutation_buf_2));
+		t_offsets_rf[tnum] = (typeof(&(**t_offsets_rf))) malloc((window_size + 1) * sizeof(**t_offsets_rf));   // These are offsets, so we need + 1.
+		t_rfs[tnum] = (typeof(&(**t_rfs))) malloc(window_size * sizeof(**t_rfs));
+		t_num_unique_vals_per_rf[tnum] = (typeof(&(**t_num_unique_vals_per_rf))) malloc(window_size * sizeof(**t_num_unique_vals_per_rf));
 		t_rows_diff[tnum] = (typeof(&(**t_rows_diff))) malloc(window_size * sizeof(**t_rows_diff));
 		t_cols[tnum] = (typeof(&(**t_cols))) malloc(window_size * sizeof(**t_cols));
 		t_qsort_partitions[tnum] = (typeof(&(**t_qsort_partitions))) malloc(window_size * sizeof(**t_qsort_partitions));
@@ -231,26 +266,61 @@ compress_diff_lossy(double val_d, double val_prev_d, double diff_d, double toler
 }
 
 
+void
+test_permutation(long num_vals, ValueType * vals, ValueType * window, int * rev_permutation, char * msg)
+{
+	int tnum = omp_get_thread_num();
+	long i, j;
+	for (j=0;j<num_vals;j++)
+	{
+		if (rev_permutation[j] < 0 || rev_permutation[j] > num_vals)
+			error("permutation values out of bounds");
+		if (window[j] != vals[rev_permutation[j]])
+		{
+			if (tnum == 0)
+			{
+				for (i=0;i<num_vals;i++)
+				{
+					printf("% 30.20g  % 30.20g\n", window[i], vals[rev_permutation[i]]);
+				}
+				printf("\n");
+			}
+			error("wrong permutation: %s", msg);
+		}
+	}
+}
+
+
 /*
  * 'i_s' is certain to be the first non-empty row.
  */
 static inline
 long
-compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, long i_s, long j_s, unsigned char * buf, long num_vals, long * num_vals_out)
+compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals, long i_s, long j_s, unsigned char * buf, long num_vals, long * num_vals_out)
 {
 	int tnum = omp_get_thread_num();
-	ValueType * vals = t_vals[tnum];
+	long num_vals_unique;
+	ValueType * vals_buf = t_vals_buf[tnum];
 	ValueType * rows = t_rows[tnum];
 	double * window = t_window[tnum];
+	double * window_buf = t_window_buf[tnum];
+	int * window_rf = t_window_rf[tnum];
+	int * window_rf_buf = t_window_rf_buf[tnum];
 	unsigned char ** data_val_lanes = t_data_lanes[tnum];
-	int * data_val_lanes_len;
+	int * data_val_lanes_size;
 	unsigned int * rows_diff = t_rows_diff[tnum];
 	unsigned int * cols = t_cols[tnum];
-	int * permutation_orig = t_permutation_orig[tnum];
 	int * permutation = t_permutation[tnum];
 	int * rev_permutation = t_rev_permutation[tnum];
+	int * permutation_buf = t_permutation_buf[tnum];
+	int * rev_permutation_buf = t_rev_permutation_buf[tnum];
+	int * permutation_buf_2 = t_permutation_buf_2[tnum];
+	int * rev_permutation_buf_2 = t_rev_permutation_buf_2[tnum];
+	int * offsets_rf = t_offsets_rf[tnum];
+	int * rfs = t_rfs[tnum];
+	int * num_unique_vals_per_rf = t_num_unique_vals_per_rf[tnum];
 	struct Byte_Stream Bs[4];
-	uint64_t leading_sign_bits = 0;
+	uint64_t leading_zeros = 0;
 	uint64_t trailing_zeros = 0;
 	uint64_t trailing_zero_bits_div4 = 0;
 	uint64_t len_bits = 0;
@@ -262,11 +332,11 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 	uint64_t row_min, row_max, row_diff = 0, row_diff_max = 0, col = 0, col_min = 0, col_max = 0, col_diff = 0, col_diff_max = 0;   // row_max is the last row (i.e., inclusive: num_rows = row_max + 1 - i_s)
 	uint64_t row_bits = 0, col_bits = 0;
 	uint64_t row_col_bytes = 0;
-	long i, i_block_e, i_lane_block_s, i_lane_block_e, j, k, l, b;
-
-	double tolerance = atof(getenv("VC_TOLERANCE"));
-
-	const long max_block_size = MAX_BLOCK_SIZE;   // Must be a multiple of 4.
+	long num_rfs;
+	long num_elems, num_elems_unique;
+	long i, j, k, k_s, l, l_s, l_e;
+	long rf;
+	long lane_id;
 
 	long force_row_index_lte_1_byte = 1;
 	long force_row_index_rounding = 0;
@@ -275,48 +345,128 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 
 	num_vals = select_num_vals(ia, row_min, j_s, num_vals, force_row_index_lte_1_byte);
 
-	long div_padded = (num_vals + 3) / 4;
-	long num_vals_padded = div_padded * 4;
+	if (num_vals == 0)
+		error("empty packet");
 
 	for (k=0,i=row_min,j=j_s; k<num_vals; k++,j++)
 	{
 		if (j >= ia[i+1])
 			i++;
-		vals[k] = vals_unpadded[k];
 		rows[k] = i;
 	}
 	row_max = i;
-	for (;k<num_vals_padded;k++)
-		vals[k] = 0;
 
-	for (k=0;k<num_vals_padded;k++)
-		permutation_orig[k] = k;
-	quicksort_no_malloc(permutation_orig, num_vals_padded, vals, t_qsort_partitions[tnum]);
-	for (k=0;k<num_vals_padded;k++)
+	for (k=0;k<num_vals;k++)
+		rev_permutation[k] = k;
+	quicksort(rev_permutation, num_vals, vals, t_qsort_partitions[tnum]);
+	for (k=0;k<num_vals;k++)
+		window[k] = vals[rev_permutation[k]];
+
+	test_permutation(num_vals, vals, window, rev_permutation, (char *) "quicksort");
+
+	/* Find replication factors, but keep all duplicates (needed because each one has different coordinates). */
+	// long rf_threshold_max = (1ULL<<16) - 1;
+	// long rf_threshold_min = 4;
+	long max_rf = 1;
+	num_vals_unique = 0;
+	k = 0;
+	j = 0;
+	while (j<num_vals)
 	{
-		l = (k % 4) * div_padded + k / 4;   // interleave index
-		permutation[k] = permutation_orig[l];
+		rf = 1;
+		j++;
+		for (;j<num_vals;j++)
+		{
+			if (window[j] != window[j-1])
+				break;
+			// if (k - j > rf_threshold_max)
+				// break;
+			rf++;
+		}
+		// if (rf < rf_threshold_min)
+		// {
+			// num_vals_unique += rf - 1;
+			// rf = 1;
+		// }
+		for (l=k;l<j;l++)
+		{
+			window_rf[l] = rf;
+		}
+		if (rf > max_rf)
+			max_rf = rf;
+		k = j;
+		num_vals_unique++;
 	}
-	for (k=0;k<num_vals_padded;k++)
-		rev_permutation[permutation[k]] = k;
+
+	/* Stable sort by replication factors. */
+	long num_buckets = max_rf + 1;
+	bucketsort_stable_serial(window_rf, num_vals, num_buckets, NULL, permutation_buf_2, offsets_rf, NULL);
+	for (i=0;i<num_vals;i++)
+		rev_permutation_buf_2[permutation_buf_2[i]] = i;
+
+	for (k=0;k<num_vals;k++)
+	{
+		rev_permutation_buf[permutation_buf_2[k]] = rev_permutation[k];
+		window_buf[permutation_buf_2[k]] = window[k];
+		window_rf_buf[permutation_buf_2[k]] = window_rf[k];
+	}
+	SWAP(&rev_permutation, &rev_permutation_buf);
+	SWAP(&window, &window_buf);
+	SWAP(&window_rf, &window_rf_buf);
+
+	test_permutation(num_vals, vals, window, rev_permutation, (char *) "bucketsort");
+
+	/* Filter out duplicate values. */
+	k = 0;
+	j = 0;
+	while (j<num_vals)
+	{
+		window[k] = window[j];
+		rf = window_rf[j];
+		window_rf[k] = rf;
+		k++;
+		j += rf;
+	}
+
+	/* For each replication factor, split to lanes. */
+	num_rfs = 0;
+	k = 0;
+	for (i=0;i<max_rf+1;i++)
+	{
+		rf = i;
+		l_s = offsets_rf[i];
+		l_e = offsets_rf[i+1];
+		num_elems = l_e - l_s;
+		if (num_elems == 0)
+			continue;
+		rfs[num_rfs] = rf;
+		num_elems_unique = num_elems / rf;
+		num_unique_vals_per_rf[num_rfs] = num_elems_unique;
+		num_rfs++;
+
+		permutation_interleave(window + k, window_buf + k, num_elems_unique, 4, 1, 0, 1);
+		permutation_interleave(window_rf + k, window_rf_buf + k, num_elems_unique, 4, 1, 0, 1);
+		permutation_interleave(rev_permutation + l_s, rev_permutation_buf + l_s, num_elems, 4, rf, 0, 1);
+
+		k += num_elems_unique;
+	}
+	SWAP(&rev_permutation, &rev_permutation_buf);
+	SWAP(&window, &window_buf);
+	SWAP(&window_rf, &window_rf_buf);
+
+	for (k=0;k<num_vals;k++)
+		permutation[rev_permutation[k]] = k;
 	col_min = ja[j_s];
 	col_max = ja[j_s];
 	for (k=0,j=j_s;k<num_vals;k++,j++)
 	{
-		window[rev_permutation[k]] = vals[k];
-		rows_diff[rev_permutation[k]] = rows[k] - row_min;
+		rows_diff[permutation[k]] = rows[k] - row_min;
 		col = ja[j];
-		cols[rev_permutation[k]] = col;
+		cols[permutation[k]] = col;
 		if (col < col_min)
 			col_min = col;
 		if (col > col_max)
 			col_max = col;
-	}
-	for (;k<num_vals_padded;k++)   // fake nnz in the last row
-	{
-		window[rev_permutation[k]] = 0;   // zero values
-		rows_diff[rev_permutation[k]] = row_max - row_min;   // in the last row
-		cols[rev_permutation[k]] = col_min;   // use col_min so that we don't change col_diff_max
 	}
 	row_diff_max = row_max - row_min;
 	bits_u64_required_bits_for_binary_representation(row_diff_max, &row_bits, NULL);
@@ -355,29 +505,28 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 	t_col_bits_accum[tnum] += col_bits;
 	t_row_col_bytes_accum[tnum] += row_col_bytes;
 
-	for (k=0;k<num_vals_padded;k++)
+	for (k=0;k<num_vals;k++)
 	{
-		if (window[k] != vals[permutation[k]])
-			error("wrong");
 		if (rows_diff[k] + row_min > row_max)
 			error("row index");
-		if (permutation[k] >= num_vals) // extra fake values
+		if (rev_permutation[k] >= num_vals) // extra fake values
 			continue;
-		if (cols[k] != (unsigned int) ja[j_s+permutation[k]])
+		if (cols[k] != (unsigned int) ja[j_s+rev_permutation[k]])
 			error("col index");
 	}
-	// if (tnum == 0) fprintf(stderr, "i=[%ld, %ld], j_s=[%ld, %ld], row_diff_max=%ld , row_bits=%ld , col_diff_max=%ld , col_bits=%ld\n", row_min, row_max, j_s, j, row_diff_max, row_bits, col_diff_max, col_bits);
 
 	unsigned char * data_intro = buf;
 	uint64_t data_intro_bytes = 0;
 
-	// Should always be the first data in the packet.
+	/* Should always be the first data in the packet. */
 	data_intro[data_intro_bytes] = row_bits;
 	data_intro_bytes += 1;
 	data_intro[data_intro_bytes] = col_bits;
 	data_intro_bytes += 1;
 
 	*((uint32_t *) &data_intro[data_intro_bytes]) = num_vals;
+	data_intro_bytes += 4;
+	*((uint32_t *) &data_intro[data_intro_bytes]) = num_vals_unique;
 	data_intro_bytes += 4;
 	*((uint32_t *) &data_intro[data_intro_bytes]) = row_diff_max + 1;   // Number of rows.
 	data_intro_bytes += 4;
@@ -387,30 +536,32 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 	*((uint32_t *) &data_intro[data_intro_bytes]) = col_min;
 	data_intro_bytes += 4;
 
-	*((double *) &data_intro[data_intro_bytes]) = window[0];
-	data_intro_bytes += 8;
-	*((double *) &data_intro[data_intro_bytes]) = window[1];
-	data_intro_bytes += 8;
-	*((double *) &data_intro[data_intro_bytes]) = window[2];
-	data_intro_bytes += 8;
-	*((double *) &data_intro[data_intro_bytes]) = window[3];
-	data_intro_bytes += 8;
+	*((uint32_t *) &data_intro[data_intro_bytes]) = num_rfs;
+	data_intro_bytes += 4;
 
-	data_val_lanes_len = (typeof(data_val_lanes_len)) &(data_intro[data_intro_bytes]);
-	data_intro_bytes += 4 * sizeof(*data_val_lanes_len);
+	data_val_lanes_size = (typeof(data_val_lanes_size)) &(data_intro[data_intro_bytes]);
+	data_intro_bytes += 4 * sizeof(*data_val_lanes_size);
 
-	unsigned char * data_coords = &data_intro[data_intro_bytes];
+	uint32_t * data_rfs = (uint32_t *) &data_intro[data_intro_bytes];
+	const uint64_t data_rfs_bytes = sizeof(*data_rfs) * num_rfs;
+
+	uint32_t * data_num_unique_vals_per_rf = (uint32_t *) &((unsigned char *) data_rfs)[data_rfs_bytes];
+	const uint64_t data_num_unique_vals_per_rf_bytes = sizeof(*data_num_unique_vals_per_rf) * num_rfs;
+
+	for (i=0;i<num_rfs;i++)
+	{
+		data_rfs[i] = rfs[i];
+		data_num_unique_vals_per_rf[i] = num_unique_vals_per_rf[i];
+	}
+
+	unsigned char * data_coords = &((unsigned char *) data_num_unique_vals_per_rf)[data_num_unique_vals_per_rf_bytes];
 	const uint64_t coords_bytes = row_col_bytes;
-	const uint64_t data_coords_bytes = coords_bytes * num_vals_padded;
+	const uint64_t data_coords_bytes = coords_bytes * num_vals;
 
-	double * data_ratios = (double *) &data_coords[data_coords_bytes];
-	uint64_t num_blocks = 4 * (((num_vals_padded - 4) + (4*max_block_size) - 1) / (4*max_block_size));
-	const uint64_t data_ratios_bytes = num_blocks * sizeof(*data_ratios);
+	unsigned char * data_val_lens = &data_coords[data_coords_bytes];
+	const uint64_t data_val_lens_bytes = num_vals_unique;
 
-	unsigned char * data_val_lens = &((unsigned char *) data_ratios)[data_ratios_bytes];
-	const uint64_t data_val_lens_bytes = num_vals_padded;
-
-	for (i=0;i<num_vals_padded;i++)
+	for (i=0;i<num_vals;i++)
 	{
 		uint64_t coords;
 		row_diff = rows_diff[i];
@@ -424,126 +575,63 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 	bytestream_init_write(&Bs[2], data_val_lanes[2]);
 	bytestream_init_write(&Bs[3], data_val_lanes[3]);
 
+	double tolerance = atof(getenv("VC_TOLERANCE"));
 	union {
 		double d;
 		uint64_t u;
-	} val_prev[4], val, val_predicted;
-	val_prev[0].d = window[0];
-	val_prev[1].d = window[1];
-	val_prev[2].d = window[2];
-	val_prev[3].d = window[3];
-	for (j=4,b=0; j<num_vals_padded; j+=4*max_block_size,b+=4)
+	} val_prev[4], val;
+	k_s = 0;
+	for (l=0;l<num_rfs;l++)
 	{
-		double lane_ratios[4] = {1.0, 1.0, 1.0, 1.0};
-		i_block_e = j + 4*max_block_size;
-		if (i_block_e > num_vals_padded)
-			i_block_e = num_vals_padded;
-		if ((i_block_e - j) % 4 != 0)
-			error("block not divisible by 4");
-		long num_block_vals_lane = (i_block_e - j) / 4;
-		for (l=0;l<4;l++)
+		rf = rfs[l];
+		num_elems_unique = num_unique_vals_per_rf[l];
+		val_prev[0].d = 0;
+		val_prev[1].d = 0;
+		val_prev[2].d = 0;
+		val_prev[3].d = 0;
+		for (i=0;i<num_elems_unique;i++)
 		{
-			i_lane_block_s = j + l;
-			i_lane_block_e = i_block_e - 3 + l;   // 'num_vals_padded' is divisible by 4.
-			double avg_diff = 0.0;
-			double avg_diff_from_predicted;
-			double avg, median, min;
-			long pos;
-			double predictor = 0.0;
-			double block_buf[max_block_size];
-			k = 0;
-			for (i=i_lane_block_s;i<i_lane_block_e;i+=4)
-			{
-				avg_diff += fabs(window[i] - window[i-4]);
-				if (fabs(window[i]) <= 10*DBL_EPSILON)
-				{
-					block_buf[k] = 0;
-					k++;
-				}
-				else if (fabs(window[i-4]) > 10*DBL_EPSILON)
-				{
-					// block_buf[k] = fabs(window[i] / window[i-4]);
-					block_buf[k] = window[i] - window[i-4];
-					k++;
-				}
-			}
-			avg_diff /= num_block_vals_lane;
-			// predictor /= k;
-			array_mean_serial(block_buf, k, &avg, d2d);
-			array_quantile_serial(block_buf, k, 0.5, "", &median, d2d);
-			array_min_serial(block_buf, k, NULL, &pos, d2fabsd);
-			min = block_buf[pos];
-
-			// predictor = avg;
-			// predictor = median;
-			predictor = min;
-			// long bits_keep = 12 + 4;
-			// *((uint64_t *) &predictor) &= ((1ULL << bits_keep) - 1ULL) << (64 - bits_keep);
-			// printf("predictor=%g\n", predictor);
-			// predictor = fabs(1-avg) < fabs(1-median) ? avg : median;
-
-			/* Test if avg diff is bigger than avg diff from predicted value. */
-			avg_diff_from_predicted = 0;
-			for (i=i_lane_block_s;i<i_lane_block_e;i+=4)
-			{
-				avg_diff_from_predicted += fabs((predictor * window[i-4]) - window[i-4]);
-			}
-			avg_diff_from_predicted /= num_block_vals_lane;
-
-			lane_ratios[l] = predictor;
-			// lane_ratios[l] = 1.0;
-			lane_ratios[l] = 0.0;
-			// lane_ratios[l] = (avg_diff_from_predicted < avg_diff) ? predictor : 1.0;
-			// if (avg_diff_from_predicted > avg_diff)
-				// printf("%lf %lf\n", avg_diff_from_predicted, avg_diff);
-			// lane_ratios[l] = 1.0;
-
-			data_ratios[b+l] = lane_ratios[l];
-		}
-
-		for (i=j;i<i_block_e;i++)
-		{
-			val.d = window[i];
-			// val_predicted.d = lane_ratios[i%4] * val_prev[i%4].d;
-			val_predicted.d = lane_ratios[i%4] + val_prev[i%4].d;
-			diff.u = val.u - val_predicted.u;
-
+			k = k_s + i;
+			lane_id = i % 4;
+			val.d = window[k];
+			diff.u = val.u - val_prev[lane_id].u;
 			if (tolerance > 0)
 			{
-				diff.u = compress_diff_lossy(window[i], val_predicted.d, diff.d, tolerance);
+				diff.u = compress_diff_lossy(window[k], val_prev[lane_id].d, diff.d, tolerance);
 			}
 
-			/* Instead of setting to 'window[i]', we emulate the procedure of the decompression.
+			/* Instead of setting to 'window[k]', we emulate the procedure of the decompression.
 			 * This accounts for the accumulation of the error that is being passed down.
 			 *
 			 * Note:
 			 *     Maybe check if this is optimized out (e.g. -ffast-math, but if user has such flags, it doesn't really make a difference).
 			 */
-			val_prev[i%4].u = val_predicted.u + diff.u;
-			double error = fabs(val.d - val_prev[i%4].d) / fabs(val.d);
+			val_prev[lane_id].u += diff.u;
+			double error = fabs(val.d - val_prev[lane_id].d) / fabs(val.d);
 			if (error > tolerance)
-				error("error > tolerance: %lf > %lf", error, tolerance);
+				error("error tolerance exceeded");
 
 			if (diff.u == 0)
 			{
 				len = 0;
-				data_val_lens[i] = 0;
+				data_val_lens[k] = 0;
 			}
 			else
 			{
-				/* For the length values (0-8) 4 bits are needed.
+				/* Differences  can actually be negative due to the rounding errors (when lossy)!
+				 *
+				 * For the length values (0-8) 4 bits are needed.
 				 *
 				 * For the trailing zero bits values (0-63, 64 isn't needed) 6 bits are needed, but we only have 4 bits space remaining.
 				 * so we keep shifts in strides of 4 (0, 4, 8, 12, ..., 60).
 				 */
 				uint64_t rem_tz;
 				uint64_t buf_diff = diff.u;
-				leading_sign_bits = __builtin_clrsbl(diff.u);   // Number of leading redundant sign bits, i.e., without counting the first sign bit.
-				// leading_sign_bits = __builtin_clzl(diff.u);
+				leading_zeros = __builtin_clzl(diff.u);
 				trailing_zeros = __builtin_ctzl(diff.u);
 				rem_tz = trailing_zeros & 3ULL;
 
-				len_bits = 64ULL - leading_sign_bits - trailing_zeros;
+				len_bits = 64ULL - leading_zeros - trailing_zeros;
 				len = (len_bits + 7ULL) >> 3ULL;
 				uint64_t rem = (len << 3ULL) - len_bits;
 
@@ -553,140 +641,64 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 					trailing_zeros -= rem_tz;
 				}
 
-				if (rem <= leading_sign_bits)
+				if (rem <= leading_zeros)
 				{
-					leading_sign_bits -= rem;
+					leading_zeros -= rem;
 					rem = 0;
 				}
 				else
 				{
-					rem -= leading_sign_bits;
-					leading_sign_bits = 0;
+					rem -= leading_zeros;
+					leading_zeros = 0;
 				}
 				trailing_zeros -= rem;
 
 				trailing_zero_bits_div4 = trailing_zeros >> 2ULL;
 				trailing_zeros = trailing_zero_bits_div4 << 2ULL;
 
-				len_bits = 64ULL - leading_sign_bits - trailing_zeros;
+				len_bits = 64ULL - leading_zeros - trailing_zeros;
 				len = (len_bits + 7ULL) >> 3ULL;
 				if (len > 8)
 					error("len > 8");
 
-				diff.u = ((int64_t) diff.u) >> trailing_zeros;   // Arithmetic shift right.
-				bytestream_write_unsafe_cast(&Bs[i%4], diff.u, len);
+				diff.u >>= trailing_zeros;
+				bytestream_write_unsafe_cast(&Bs[lane_id], diff.u, len);
 				len |=  (trailing_zero_bits_div4 << 4ULL);
-				data_val_lens[i] = len;
+				data_val_lens[k] = len;
 
-				// Test.
 				uint64_t tz = (len >> 2ULL) & (~3ULL);
 				if (tz != trailing_zeros)
 					error("tz: %ld %ld %ld", len, tz, trailing_zero_bits_div4);
 				len &= 15ULL;
-				len_bits = len << 3ULL;
-
-				// uint64_t mask = (1ULL << (len << 3ULL)) - 1ULL;
-				// diff.u &= mask;
-				// diff.u <<= tz;
-				// if (diff.u != buf_diff)
-					// error("test");
-
-				uint64_t pow2 = (1ULL << len_bits);
-				if (len_bits == 64)
-					pow2 = 0;
-				uint64_t msb = pow2 >> 1ULL;
-				uint64_t sign = ~((diff.u & msb) - 1ULL);
-				uint64_t mask = pow2 - 1ULL;
-				// diff.u &= mask;
-				// diff.u = diff.u | sign;
-				// diff.u <<= tz;
-
-				{
-					const __m256i one = _mm256_set1_epi64x(1ULL);
-					union {
-						__m256d d;
-						__m256i u;
-					} v_diff;
-					__m256i v_sign;
-					v_diff.u = _mm256_set1_epi64x(diff.u);
-					__m256i v_len_bits;
-					v_len_bits = _mm256_set1_epi64x(len_bits);
-					__m256i v_shift;
-					v_shift = _mm256_set1_epi64x(tz);
-
-
-					// __m256i v_pow2 = (1ULL << v_len_bits);
-					__m256i v_pow2 = _mm256_sllv_epi64(one, v_len_bits);
-
-					// __m256i v_msb = v_pow2 >> 1ULL;
-					__m256i v_msb = _mm256_srli_epi64(v_pow2, 1ULL);
-					// v_sign = ~((v_diff.u & v_msb) - 1ULL);
-					v_sign = _mm256_and_si256(v_diff.u, v_msb);
-					v_sign = _mm256_sub_epi64(v_sign, one);
-					v_sign = _mm256_xor_si256(v_sign, _mm256_cmpeq_epi32(v_sign, v_sign));
-
-					// __m256i v_mask = v_pow2 - 1ULL;
-					__m256i v_mask = _mm256_sub_epi64(v_pow2, one);
-					// v_diff.u &= v_mask;
-					v_diff.u = _mm256_and_si256(v_diff.u, v_mask);
-
-					// v_diff.u = v_diff.u | v_sign;   // AFTER v_mask, BEFORE v_shift.
-					v_diff.u = _mm256_or_si256(v_diff.u, v_sign);
-
-					// v_diff.u <<= v_shift;
-					v_diff.u = _mm256_sllv_epi64(v_diff.u, v_shift);
-
-					if (pow2 != (uint64_t) v_pow2[0])
-						error("pow2 != v_pow2[0] : %064lb != %064lb", pow2, v_pow2[0]);
-					if (mask != (uint64_t) v_mask[0])
-						error("mask != v_mask[0] : %064lb != %064lb", mask, v_mask[0]);
-					if (msb != (uint64_t) v_msb[0])
-						error("msb != v_msb[0] : %064lb != %064lb", msb, v_msb[0]);
-					if (sign != (uint64_t) v_sign[0])
-						error("sign != v_sign[0] : %064lb != %064lb", sign, v_sign[0]);
-					diff.u = v_diff.u[0];
-					pow2 = v_pow2[0];
-					mask = v_mask[0];
-					msb = v_msb[0];
-					sign = v_sign[0];
-				}
-
-
-				// if (trailing_zeros)
-					// error("diff.u != buf_diff: %064lb != %064lb\n%ld, %ld, %ld\n", diff.u, buf_diff, len, len_bits, trailing_zeros);
-
+				uint64_t mask = (1ULL << (len << 3ULL)) - 1ULL;
+				diff.u &= mask;
+				diff.u <<= tz;
 				if (diff.u != buf_diff)
-				{
-					error("diff.u != buf_diff: %064lb != %064lb\n%ld, %ld, %ld, %ld\n%064lb\n%064lb\n%064lb\n%064lb\n%064lb\n", diff.u, buf_diff, len, len_bits, leading_sign_bits, trailing_zeros,
-							buf_diff,
-							pow2,
-							mask,
-							msb,
-							sign);
-				}
-
+					error("diff.u != buf_diff");
 			}
 		}
+		k_s += num_elems_unique;
 	}
-	data_val_lanes_len[0] = Bs[0].len;
-	data_val_lanes_len[1] = Bs[1].len;
-	data_val_lanes_len[2] = Bs[2].len;
-	data_val_lanes_len[3] = Bs[3].len;
+	data_val_lanes_size[0] = Bs[0].len;
+	data_val_lanes_size[1] = Bs[1].len;
+	data_val_lanes_size[2] = Bs[2].len;
+	data_val_lanes_size[3] = Bs[3].len;
 
-	unsigned char * bytestream = &data_val_lens[data_val_lens_bytes];
-	memcpy(bytestream, data_val_lanes[0], Bs[0].len);
-	bytestream += Bs[0].len;
-	memcpy(bytestream, data_val_lanes[1], Bs[1].len);
-	bytestream += Bs[1].len;
-	memcpy(bytestream, data_val_lanes[2], Bs[2].len);
-	bytestream += Bs[2].len;
-	memcpy(bytestream, data_val_lanes[3], Bs[3].len);
-	bytestream += Bs[3].len;
+	unsigned char * ptr = &data_val_lens[data_val_lens_bytes];
+	memcpy(ptr, data_val_lanes[0], Bs[0].len);
+	ptr += Bs[0].len;
+	memcpy(ptr, data_val_lanes[1], Bs[1].len);
+	ptr += Bs[1].len;
+	memcpy(ptr, data_val_lanes[2], Bs[2].len);
+	ptr += Bs[2].len;
+	memcpy(ptr, data_val_lanes[3], Bs[3].len);
+	ptr += Bs[3].len;
+	const uint64_t data_val_lanes_bytes = Bs[0].len + Bs[1].len + Bs[2].len + Bs[3].len;
 
 	if (num_vals_out != NULL)
 		*num_vals_out = num_vals;
 
-	return data_intro_bytes + data_coords_bytes + data_ratios_bytes + data_val_lens_bytes + Bs[0].len + Bs[1].len + Bs[2].len + Bs[3].len;
+	return data_intro_bytes + data_rfs_bytes + data_num_unique_vals_per_rf_bytes + data_coords_bytes + data_val_lens_bytes + data_val_lanes_bytes;
 }
 
 
@@ -695,203 +707,6 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals_unpadded, lon
 //-                                                            Decompression                                                               -
 //------------------------------------------------------------------------------------------------------------------------------------------
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-//==========================================================================================================================================
-//= Gather Coordinates
-//==========================================================================================================================================
-
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_dense(long i, unsigned char * data_coords, const uint64_t coords_bytes, uint64_t row_bits, uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	/* The row + col bytes can be more than 4 in total, so we need uint64_t.
-	 */
-	const __m256i row_bits_mask = _mm256_set1_epi64x((1ULL<<row_bits) - 1);   // here '-' has precedence over '<<'!
-	__m256i coords;
-	coords = _mm256_set_epi64x(*((uint64_t *) &data_coords[(i+3)*coords_bytes]), *((uint64_t *) &data_coords[(i+2)*coords_bytes]), *((uint64_t *) &data_coords[(i+1)*coords_bytes]), *((uint64_t *) &data_coords[i*coords_bytes]));
-	// *row_rel_out = coords & row_bits_mask;
-	*row_rel_out = _mm256_and_si256(coords, row_bits_mask);
-	*col_rel_out = _mm256_set_epi64x(_bextr_u64(coords[3], row_bits, col_bits), _bextr_u64(coords[2], row_bits, col_bits), _bextr_u64(coords[1], row_bits, col_bits), _bextr_u64(coords[0], row_bits, col_bits));
-}
-
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_dense_1(long i, unsigned char * data_coords, __attribute__((unused)) const uint64_t coords_bytes, uint64_t row_bits, uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	const __m256i row_bits_mask = _mm256_set1_epi64x((1ULL<<row_bits) - 1);   // here '-' has precedence over '<<'!
-	__m256i coords;
-	coords = _mm256_set_epi64x(*((uint64_t *) &data_coords[(i+3)*1]), *((uint64_t *) &data_coords[(i+2)*1]), *((uint64_t *) &data_coords[(i+1)*1]), *((uint64_t *) &data_coords[i*1]));
-	// *row_rel_out = coords & row_bits_mask;
-	*row_rel_out = _mm256_and_si256(coords, row_bits_mask);
-	*col_rel_out = _mm256_set_epi64x(_bextr_u64(coords[3], row_bits, col_bits), _bextr_u64(coords[2], row_bits, col_bits), _bextr_u64(coords[1], row_bits, col_bits), _bextr_u64(coords[0], row_bits, col_bits));
-}
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_dense_2(long i, unsigned char * data_coords, __attribute__((unused)) const uint64_t coords_bytes, uint64_t row_bits, uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	const __m256i row_bits_mask = _mm256_set1_epi64x((1ULL<<row_bits) - 1);   // here '-' has precedence over '<<'!
-	__m256i coords;
-	coords = _mm256_set_epi64x(*((uint64_t *) &data_coords[(i+3)*2]), *((uint64_t *) &data_coords[(i+2)*2]), *((uint64_t *) &data_coords[(i+1)*2]), *((uint64_t *) &data_coords[i*2]));
-	// *row_rel_out = coords & row_bits_mask;
-	*row_rel_out = _mm256_and_si256(coords, row_bits_mask);
-	*col_rel_out = _mm256_set_epi64x(_bextr_u64(coords[3], row_bits, col_bits), _bextr_u64(coords[2], row_bits, col_bits), _bextr_u64(coords[1], row_bits, col_bits), _bextr_u64(coords[0], row_bits, col_bits));
-}
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_dense_3(long i, unsigned char * data_coords, __attribute__((unused)) const uint64_t coords_bytes, uint64_t row_bits, uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	const __m256i row_bits_mask = _mm256_set1_epi64x((1ULL<<row_bits) - 1);   // here '-' has precedence over '<<'!
-	__m256i coords;
-	coords = _mm256_set_epi64x(*((uint64_t *) &data_coords[(i+3)*3]), *((uint64_t *) &data_coords[(i+2)*3]), *((uint64_t *) &data_coords[(i+1)*3]), *((uint64_t *) &data_coords[i*3]));
-	// *row_rel_out = coords & row_bits_mask;
-	*row_rel_out = _mm256_and_si256(coords, row_bits_mask);
-	*col_rel_out = _mm256_set_epi64x(_bextr_u64(coords[3], row_bits, col_bits), _bextr_u64(coords[2], row_bits, col_bits), _bextr_u64(coords[1], row_bits, col_bits), _bextr_u64(coords[0], row_bits, col_bits));
-}
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_dense_4(long i, unsigned char * data_coords, __attribute__((unused)) const uint64_t coords_bytes, uint64_t row_bits, uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	const __m256i row_bits_mask = _mm256_set1_epi64x((1ULL<<row_bits) - 1);   // here '-' has precedence over '<<'!
-	__m256i coords;
-	coords = _mm256_set_epi64x(*((uint64_t *) &data_coords[(i+3)*4]), *((uint64_t *) &data_coords[(i+2)*4]), *((uint64_t *) &data_coords[(i+1)*4]), *((uint64_t *) &data_coords[i*4]));
-	// *row_rel_out = coords & row_bits_mask;
-	*row_rel_out = _mm256_and_si256(coords, row_bits_mask);
-	*col_rel_out = _mm256_set_epi64x(_bextr_u64(coords[3], row_bits, col_bits), _bextr_u64(coords[2], row_bits, col_bits), _bextr_u64(coords[1], row_bits, col_bits), _bextr_u64(coords[0], row_bits, col_bits));
-}
-
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_sparse_r0(long i, unsigned char * data_coords, const uint64_t coords_bytes, __attribute__((unused)) uint64_t row_bits, __attribute__((unused)) uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	// error("test 0");
-	const __m256i col_bits_mask = _mm256_set1_epi64x((1ULL<<col_bits) - 1);
-	__m256i col_rel;
-	col_rel = _mm256_set_epi64x(data_coords[(i+3)*coords_bytes], data_coords[(i+2)*coords_bytes], data_coords[(i+1)*coords_bytes], data_coords[i*coords_bytes]);
-	// col_rel = col_rel & col_bits_mask;
-	col_rel = _mm256_and_si256(col_rel, col_bits_mask);
-	*row_rel_out = _mm256_set1_epi64x(0);
-	*col_rel_out = col_rel;
-}
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_sparse_r0_c1(long i, unsigned char * data_coords, __attribute__((unused)) const uint64_t coords_bytes, __attribute__((unused)) uint64_t row_bits, __attribute__((unused)) uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	// error("test 0,1");
-	__m256i col_rel;
-	col_rel = _mm256_set_epi64x(data_coords[(i+3)*1], data_coords[(i+2)*1], data_coords[(i+1)*1], data_coords[i*1]);
-	*row_rel_out = _mm256_set1_epi64x(0);
-	*col_rel_out = col_rel;
-}
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_sparse_r0_c2(long i, unsigned char * data_coords, __attribute__((unused)) const uint64_t coords_bytes, __attribute__((unused)) uint64_t row_bits, __attribute__((unused)) uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	// error("test 0,2");
-	__m256i col_rel;
-	col_rel = _mm256_set_epi64x(*((uint16_t *) &data_coords[(i+3)*2]), *((uint16_t *) &data_coords[(i+2)*2]), *((uint16_t *) &data_coords[(i+1)*2]), *((uint16_t *) &data_coords[i*2]));
-	*row_rel_out = _mm256_set1_epi64x(0);
-	*col_rel_out = col_rel;
-}
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_sparse_r0_c3(long i, unsigned char * data_coords, __attribute__((unused)) const uint64_t coords_bytes, __attribute__((unused)) uint64_t row_bits, __attribute__((unused)) uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	// error("test 0,3");
-	const __m256i col_bits_mask = _mm256_set1_epi64x((1ULL<<24) - 1);
-	__m256i col_rel;
-	col_rel = _mm256_set_epi64x(data_coords[(i+3)*3], data_coords[(i+2)*3], data_coords[(i+1)*3], data_coords[i*3]);
-	// col_rel = col_rel & col_bits_mask;
-	col_rel = _mm256_and_si256(col_rel, col_bits_mask);
-	*row_rel_out = _mm256_set1_epi64x(0);
-	*col_rel_out = col_rel;
-}
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_sparse_r0_c4(long i, unsigned char * data_coords, __attribute__((unused)) const uint64_t coords_bytes, __attribute__((unused)) uint64_t row_bits, __attribute__((unused)) uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	// error("test 0,4");
-	__m256i col_rel;
-	col_rel = _mm256_set_epi64x(*((uint64_t *) &data_coords[(i+3)*4]), *((uint64_t *) &data_coords[(i+2)*4]), *((uint64_t *) &data_coords[(i+1)*4]), *((uint64_t *) &data_coords[i*4]));
-	*row_rel_out = _mm256_set1_epi64x(0);
-	*col_rel_out = col_rel;
-}
-
-
-/* static __attribute__((always_inline)) inline
-void
-gather_coords_sparse_r1(long i, unsigned char * data_coords, const uint64_t coords_bytes, __attribute__((unused)) uint64_t row_bits, uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	const __m256i col_bits_mask = _mm256_set1_epi64x((1ULL<<col_bits) - 1);
-	__m256i row_rel, col_rel;
-	row_rel = _mm256_set_epi64x(data_coords[(i+3)*coords_bytes], data_coords[(i+2)*coords_bytes], data_coords[(i+1)*coords_bytes], data_coords[i*coords_bytes]);
-	col_rel = _mm256_set_epi64x(*((uint64_t *) &data_coords[(i+3)*coords_bytes + 1]), *((uint64_t *) &data_coords[(i+2)*coords_bytes + 1]), *((uint64_t *) &data_coords[(i+1)*coords_bytes + 1]), *((uint64_t *) &data_coords[i*coords_bytes + 1]));
-	// col_rel = col_rel & col_bits_mask;
-	col_rel = _mm256_and_si256(col_rel, col_bits_mask);
-	*row_rel_out = row_rel;
-	*col_rel_out = col_rel;
-} */
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_sparse_r1_c1(long i, unsigned char * data_coords, __attribute__((unused)) const uint64_t coords_bytes, __attribute__((unused)) uint64_t row_bits, __attribute__((unused)) uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	// error("test 1\n");
-	__m256i row_rel, col_rel;
-	row_rel = _mm256_set_epi64x(data_coords[(i+3)*2], data_coords[(i+2)*2], data_coords[(i+1)*2], data_coords[i*2]);
-	col_rel = _mm256_set_epi64x(data_coords[(i+3)*2 + 1], data_coords[(i+2)*2 + 1], data_coords[(i+1)*2 + 1], data_coords[i*2 + 1]);
-	*row_rel_out = row_rel;
-	*col_rel_out = col_rel;
-}
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_sparse_r1_c2(long i, unsigned char * data_coords, __attribute__((unused)) const uint64_t coords_bytes, __attribute__((unused)) uint64_t row_bits, __attribute__((unused)) uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	// error("test 2");
-	__m256i row_rel, col_rel;
-	row_rel = _mm256_set_epi64x(data_coords[(i+3)*3], data_coords[(i+2)*3], data_coords[(i+1)*3], data_coords[i*3]);
-	col_rel = _mm256_set_epi64x(*((uint16_t *) &data_coords[(i+3)*3 + 1]), *((uint16_t *) &data_coords[(i+2)*3 + 1]), *((uint16_t *) &data_coords[(i+1)*3 + 1]), *((uint16_t *) &data_coords[i*3 + 1]));
-	*row_rel_out = row_rel;
-	*col_rel_out = col_rel;
-}
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_sparse_r1_c3(long i, unsigned char * data_coords, __attribute__((unused)) const uint64_t coords_bytes, __attribute__((unused)) uint64_t row_bits, __attribute__((unused)) uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	// error("test 3");
-	const __m256i col_bits_mask = _mm256_set1_epi64x((1ULL<<24) - 1);
-	__m256i row_rel, col_rel;
-	row_rel = _mm256_set_epi64x(data_coords[(i+3)*4], data_coords[(i+2)*4], data_coords[(i+1)*4], data_coords[i*4]);
-	col_rel = _mm256_set_epi64x(*((uint64_t *) &data_coords[(i+3)*4 + 1]), *((uint64_t *) &data_coords[(i+2)*4 + 1]), *((uint64_t *) &data_coords[(i+1)*4 + 1]), *((uint64_t *) &data_coords[i*4 + 1]));
-	// col_rel = col_rel & col_bits_mask;
-	col_rel = _mm256_and_si256(col_rel, col_bits_mask);
-	*row_rel_out = row_rel;
-	*col_rel_out = col_rel;
-}
-
-static __attribute__((always_inline)) inline
-void
-gather_coords_sparse_r1_c4(long i, unsigned char * data_coords, __attribute__((unused)) const uint64_t coords_bytes, __attribute__((unused)) uint64_t row_bits, __attribute__((unused)) uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out)
-{
-	// error("test 4");
-	__m256i row_rel, col_rel;
-	row_rel = _mm256_set_epi64x(data_coords[(i+3)*5], data_coords[(i+2)*5], data_coords[(i+1)*5], data_coords[i*5]);
-	col_rel = _mm256_set_epi64x(*((uint64_t *) &data_coords[(i+3)*5 + 1]), *((uint64_t *) &data_coords[(i+2)*5 + 1]), *((uint64_t *) &data_coords[(i+1)*5 + 1]), *((uint64_t *) &data_coords[i*5 + 1]));
-	*row_rel_out = row_rel;
-	*col_rel_out = col_rel;
-}
 
 
 //==========================================================================================================================================
@@ -997,34 +812,27 @@ mult_add_ybuf_finalize(long num_rows, double * y_buf_in, ValueType * y_rel)
 static __attribute__((always_inline)) inline
 long
 decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, ValueType * restrict x, ValueType * restrict y, long * restrict num_vals_out, const int validate,
-		void (* gather_coords)(long i, unsigned char * data_coords, const uint64_t coords_bytes, uint64_t row_bits, uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out),
+		void (* gather_coords)(long i, unsigned char * data_coords, const uint64_t coords_bytes, uint64_t row_bits, uint64_t col_bits, uint64_t * row_rel_out, uint64_t * col_rel_out),
+		void (* gather_coords_v4)(long i, unsigned char * data_coords, const uint64_t coords_bytes, uint64_t row_bits, uint64_t col_bits, __m256i * row_rel_out, __m256i * col_rel_out),
 		const int mult_add_select
 		)
 {
 	int tnum = omp_get_thread_num();
 	ValueType * x_rel;
 	ValueType * y_rel;
+	double * y_buf = t_y_buf[tnum];
 	double * window = t_window[tnum];
-	__m256i row_rel, col_rel;
-	__m256i len, len_bits;
 	long num_vals;
+	long num_vals_unique;
 	uint64_t row_min, col_min;
 	long num_rows;
 	uint64_t row_bits, col_bits;
-	union {
-		__m256d d;
-		__m256i u;
-	} diff;
-	__m256i sign;
-	long i, i_block_e, j, b;
+	long i, j, k, l;
 	// __m256d mult_add_r0_res = {0, 0, 0, 0};
 	double mult_add_r0_res = 0;
 
 	unsigned char * data_intro = buf;
 	uint64_t data_intro_bytes = 0;
-
-	const long max_block_size = MAX_BLOCK_SIZE;   // Must be a multiple of 4.
-
 
 	row_bits = data_intro[data_intro_bytes];
 	data_intro_bytes += 1;
@@ -1033,11 +841,10 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 
 	num_vals = *((uint32_t *) &data_intro[data_intro_bytes]);
 	data_intro_bytes += 4;
+	num_vals_unique = *((uint32_t *) &data_intro[data_intro_bytes]);
+	data_intro_bytes += 4;
 	num_rows = *((uint32_t *) &data_intro[data_intro_bytes]);
 	data_intro_bytes += 4;
-
-	long div_padded = (num_vals + 3) / 4;
-	long num_vals_padded = div_padded * 4;
 
 	row_min = *((uint32_t *) &data_intro[data_intro_bytes]);
 	y_rel = y + row_min;
@@ -1046,73 +853,54 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 	x_rel = x + col_min;
 	data_intro_bytes += 4;
 
-	double * y_buf = t_y_buf[tnum];
+	long num_rfs = *((uint32_t *) &data_intro[data_intro_bytes]);
+	data_intro_bytes += 4;
 
-	__m256d ratios;
+	int * data_val_lanes_size;
+	data_val_lanes_size = (typeof(data_val_lanes_size)) &(data_intro[data_intro_bytes]);
+	data_intro_bytes += 4 * sizeof(*data_val_lanes_size);
+
+	uint32_t * data_rfs = (uint32_t *) &data_intro[data_intro_bytes];
+	const uint64_t data_rfs_bytes = sizeof(*data_rfs) * num_rfs;
+
+	uint32_t * data_num_unique_vals_per_rf = (uint32_t *) &((unsigned char *) data_rfs)[data_rfs_bytes];
+	const uint64_t data_num_unique_vals_per_rf_bytes = sizeof(*data_num_unique_vals_per_rf) * num_rfs;
+
+	unsigned char * data_coords = &((unsigned char *) data_num_unique_vals_per_rf)[data_num_unique_vals_per_rf_bytes];
+	const uint64_t coords_bytes = (row_bits + col_bits + 7) >> 3;
+	const uint64_t data_coords_bytes = coords_bytes * num_vals;
+
+	unsigned char * data_val_lens = &data_coords[data_coords_bytes];
+	const uint64_t data_val_lens_bytes = num_vals_unique;
+
+	__m256i data_val_lanes;
+	data_val_lanes[0] = (long long) &data_val_lens[data_val_lens_bytes];
+	data_val_lanes[1] = data_val_lanes[0] + data_val_lanes_size[0];
+	data_val_lanes[2] = data_val_lanes[1] + data_val_lanes_size[1];
+	data_val_lanes[3] = data_val_lanes[2] + data_val_lanes_size[2];
+	const uint64_t data_val_lanes_bytes = data_val_lanes_size[0] + data_val_lanes_size[1] + data_val_lanes_size[2] + data_val_lanes_size[3];
+
+	i = 0;
+
 	union {
 		__m256d d;
 		__m256i u;
 	} val;
-	val.d = _mm256_loadu_pd((double *) &data_intro[data_intro_bytes]);
-	data_intro_bytes += 4*8;
-
-	int * data_val_lanes_len;
-	data_val_lanes_len = (typeof(data_val_lanes_len)) &(data_intro[data_intro_bytes]);
-	data_intro_bytes += 4 * sizeof(*data_val_lanes_len);
-
-	unsigned char * data_coords = &data_intro[data_intro_bytes];
-	const uint64_t coords_bytes = (row_bits + col_bits + 7) >> 3;
-	const uint64_t data_coords_bytes = coords_bytes * num_vals_padded;
-
-	double * data_ratios = (double *) &data_coords[data_coords_bytes];
-	uint64_t num_blocks = 4 * (((num_vals_padded - 4) + (4*max_block_size) - 1) / (4*max_block_size));
-	const uint64_t data_ratios_bytes = num_blocks * sizeof(*data_ratios);
-
-	unsigned char * data_val_lens = &((unsigned char *) data_ratios)[data_ratios_bytes];
-	const uint64_t data_val_lens_bytes = num_vals_padded;
-
-	__m256i data_val_lanes;
-	data_val_lanes[0] = (long long) &data_val_lens[data_val_lens_bytes];
-	data_val_lanes[1] = data_val_lanes[0] + data_val_lanes_len[0];
-	data_val_lanes[2] = data_val_lanes[1] + data_val_lanes_len[1];
-	data_val_lanes[3] = data_val_lanes[2] + data_val_lanes_len[2];
-
-	i = 0;
-	gather_coords(i, data_coords, coords_bytes, row_bits, col_bits, &row_rel, &col_rel);
-
-	if (validate)
-		_mm256_storeu_pd(&window[0], val.d);
-	else
+	for (l=0;l<num_rfs;l++)
 	{
-		switch (mult_add_select) {
-			case 0: mult_add_serial(x_rel, y_rel, val.d, row_rel, col_rel); break;
-			case 1: mult_add_r0_res = mult_add_r0(mult_add_r0_res, x_rel, val.d, col_rel); break;
-			case 2: mult_add_ybuf(num_rows, y_buf, x_rel, val.d, row_rel, col_rel); break;
-		}
-	}
-
-	const __m256i one = _mm256_set1_epi64x(1ULL);
-	for (j=4,b=0; j<num_vals_padded; j+=4*max_block_size,b+=4)
-	{
-		i_block_e = j + 4*max_block_size;
-		if (i_block_e > num_vals_padded)
-			i_block_e = num_vals_padded;
-		ratios = _mm256_loadu_pd(&data_ratios[b]);
-		// if (ratios[0] != 1.0 || ratios[1] != 1.0 || ratios[2] != 1.0 || ratios[3] != 1.0)
-			// error("test");
-		for (i=j;i<i_block_e;i+=4)
+		long rf = data_rfs[l];
+		long num_elems_unique = data_num_unique_vals_per_rf[l];
+		long num_vals_div = num_elems_unique / 4;
+		long num_vals_mul4 = num_vals_div * 4;
+		val.u = _mm256_set1_epi64x(0);
+		for (i=0;i<num_vals_mul4;i+=4)
 		{
-			// val.d = val.d * ratios;
-			// val.d = _mm256_mul_pd(val.d, ratios);
-			val.d = _mm256_add_pd(val.d, ratios);
-
-			gather_coords(i, data_coords, coords_bytes, row_bits, col_bits, &row_rel, &col_rel);
-
-			if (!validate)
-			{
-				// v_x = _mm256_set_pd(x_rel[col_rel[3]], x_rel[col_rel[2]], x_rel[col_rel[1]], x_rel[col_rel[0]]);
-				// v_x = _mm256_i64gather_pd(x_rel, col_rel, 8);
-			}
+			union {
+				__m256d d;
+				__m256i u;
+			} diff;
+			__m256i len;
+			__m256i row_rel, col_rel;
 
 			len = _mm256_set_epi64x(data_val_lens[i+3], data_val_lens[i+2], data_val_lens[i+1], data_val_lens[i+0]);
 			/* __m256i _mm_loadu_si64 (void const* mem_addr)
@@ -1128,64 +916,109 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 			// len &= 15ULL;
 			len = _mm256_and_si256(len, _mm256_set1_epi64x(15ULL));
 			// len_bits = len << 3ULL;
-			len_bits = _mm256_slli_epi64(len, 3ULL);
+			__m256i len_bits = _mm256_slli_epi64(len, 3ULL);
 
 			diff.u = _mm256_set_epi64x(*((uint64_t *) data_val_lanes[3]), *((uint64_t *) data_val_lanes[2]), *((uint64_t *) data_val_lanes[1]), *((uint64_t *) data_val_lanes[0]));
 
 			// data_val_lanes = data_val_lanes + len;
 			data_val_lanes = _mm256_add_epi64(data_val_lanes, len);
 
-
-
-			/* // __m256i mask = (1ULL << (len << 3ULL)) - 1ULL;
-			__m256i mask = _mm256_sub_epi64(_mm256_sllv_epi64(_mm256_set1_epi64x(1ULL), _mm256_slli_epi64(len, 3ULL)), _mm256_set1_epi64x(1ULL));
+			// __m256i mask = (1ULL << len_bits) - 1ULL;
+			__m256i mask = _mm256_sub_epi64(_mm256_sllv_epi64(_mm256_set1_epi64x(1ULL), len_bits), _mm256_set1_epi64x(1ULL));
 			// diff.u &= mask;
 			diff.u = _mm256_and_si256(diff.u, mask);
-			// diff.u <<= tz;
-			diff.u = _mm256_sllv_epi64(diff.u, tz); */
-
-
-
-			// __m256i pow2 = (1ULL << len_bits);
-			__m256i pow2 = _mm256_sllv_epi64(one, len_bits);
-
-			// __m256i msb = pow2 >> 1ULL;
-			__m256i msb = _mm256_srli_epi64(pow2, 1ULL);
-			// sign = ~((diff.u & msb) - 1ULL);  // =>  sign = (~(diff.u & msb)) + 1ULL;  There is no NOT, so we have to use nand.
-			// sign = _mm256_add_epi64(_mm256_andnot_si256(diff.u, msb), one);
-			sign = _mm256_and_si256(diff.u, msb);
-			sign = _mm256_sub_epi64(sign, one);
-			sign = _mm256_xor_si256(sign, _mm256_cmpeq_epi32(sign, sign));
-
-			// __m256i mask = pow2 - 1ULL;
-			__m256i mask = _mm256_sub_epi64(pow2, one);
-			// diff.u &= mask;
-			diff.u = _mm256_and_si256(diff.u, mask);
-
-			// diff.u = diff.u | sign;   // AFTER mask, BEFORE shift.
-			diff.u = _mm256_or_si256(diff.u, sign);
-
 			// diff.u <<= tz;
 			diff.u = _mm256_sllv_epi64(diff.u, tz);
-
-
-
-
 
 			// val.u = val.u + diff.u;
 			val.u = _mm256_add_epi64(val.u, diff.u);
 
-			if (validate)
-				_mm256_storeu_pd(&window[i], val.d);
-			else
+			for (j=0;j<rf;j++)
 			{
-				switch (mult_add_select) {
-					case 0: mult_add_serial(x_rel, y_rel, val.d, row_rel, col_rel); break;
-					case 1: mult_add_r0_res = mult_add_r0(mult_add_r0_res, x_rel, val.d, col_rel); break;
-					case 2: mult_add_ybuf(num_rows, y_buf, x_rel, val.d, row_rel, col_rel); break;
+				k = i*rf + 4*j;
+				gather_coords_v4(k, data_coords, coords_bytes, row_bits, col_bits, &row_rel, &col_rel);
+
+				if (validate)
+					_mm256_storeu_pd(&window[k], val.d);
+				else
+				{
+					switch (mult_add_select) {
+						case 0: mult_add_serial(x_rel, y_rel, val.d, row_rel, col_rel); break;
+						case 1: mult_add_r0_res = mult_add_r0(mult_add_r0_res, x_rel, val.d, col_rel); break;
+						case 2: mult_add_ybuf(num_rows, y_buf, x_rel, val.d, row_rel, col_rel); break;
+					}
 				}
 			}
 		}
+
+		for (i=num_vals_mul4;i<num_elems_unique;i++)
+		{
+			union {
+				double d;
+				uint64_t u;
+			} diff;
+			uint64_t len;
+			long lane_id = i % 4;
+
+			len = data_val_lens[i];
+
+			uint64_t tz = (len >> 2ULL) & (~3ULL);
+			len &= 15ULL;
+			uint64_t len_bits = len << 3ULL;
+
+			diff.u = *((uint64_t *) data_val_lanes[lane_id]);
+
+			data_val_lanes[lane_id] = data_val_lanes[lane_id] + len;
+
+			uint64_t mask = (1ULL << len_bits) - 1ULL;
+			diff.u &= mask;
+			diff.u <<= tz;
+
+			val.u[lane_id] = val.u[lane_id] + diff.u;
+
+			long rf_div = rf / 4;
+			long rf_mul4 = rf_div * 4;
+			for (j=0;j<rf_mul4;j+=4)
+			{
+				__m256i row_rel, col_rel;
+				__m256d val_buf = _mm256_set1_pd(val.d[lane_id]);
+				k = i*rf + j;
+				gather_coords_v4(k, data_coords, coords_bytes, row_bits, col_bits, &row_rel, &col_rel);
+				if (validate)
+					_mm256_storeu_pd(&window[k], val_buf);
+				else
+				{
+					switch (mult_add_select) {
+						case 0: mult_add_serial(x_rel, y_rel, val_buf, row_rel, col_rel); break;
+						case 1: mult_add_r0_res = mult_add_r0(mult_add_r0_res, x_rel, val_buf, col_rel); break;
+						case 2: mult_add_ybuf(num_rows, y_buf, x_rel, val_buf, row_rel, col_rel); break;
+					}
+				}
+			}
+
+			// for (j=0;j<rf;j++)
+			for (j=rf_mul4;j<rf;j++)
+			{
+				uint64_t row_rel, col_rel;
+				k = i*rf + j;
+				gather_coords(k, data_coords, coords_bytes, row_bits, col_bits, &row_rel, &col_rel);
+				if (validate)
+					window[k] = val.d[lane_id];
+				else
+				{
+					y_rel[row_rel] += val.d[lane_id] * x_rel[col_rel];
+					// switch (mult_add_select) {
+						// case 0: mult_add_serial(x_rel, y_rel, val.d[lane_id], row_rel, col_rel); break;
+						// case 1: mult_add_r0_res = mult_add_r0(mult_add_r0_res, x_rel, val.d[lane_id], col_rel); break;
+						// case 2: mult_add_ybuf(num_rows, y_buf, x_rel, val.d[lane_id], row_rel, col_rel); break;
+					// }
+				}
+			}
+		}
+
+		data_val_lens += num_elems_unique;
+		data_coords += coords_bytes * rf * num_elems_unique;
+		window += rf * num_elems_unique;
 	}
 
 	if (!validate)
@@ -1198,7 +1031,7 @@ decompress_and_compute_kernel_sort_diff_base(unsigned char * restrict buf, Value
 
 	if (num_vals_out != NULL)
 		*num_vals_out = num_vals;
-	return data_intro_bytes + data_coords_bytes + data_ratios_bytes + data_val_lens_bytes + data_val_lanes_len[0] + data_val_lanes_len[1] + data_val_lanes_len[2] + data_val_lanes_len[3];
+	return data_intro_bytes + data_rfs_bytes + data_num_unique_vals_per_rf_bytes + data_coords_bytes + data_val_lens_bytes + data_val_lanes_bytes;
 }
 
 
@@ -1210,6 +1043,7 @@ decompress_and_compute_kernel_sort_diff_select(unsigned char * restrict buf, Val
 	unsigned char * data_intro = buf;
 	uint64_t data_intro_bytes = 0;
 	__attribute__((unused)) long num_vals;
+	__attribute__((unused)) long num_vals_unique;
 	__attribute__((unused)) long num_rows;
 
 	row_bits = data_intro[data_intro_bytes];
@@ -1218,6 +1052,8 @@ decompress_and_compute_kernel_sort_diff_select(unsigned char * restrict buf, Val
 	data_intro_bytes += 1;
 
 	num_vals = *((uint32_t *) &data_intro[data_intro_bytes]);
+	data_intro_bytes += 4;
+	num_vals_unique = *((uint32_t *) &data_intro[data_intro_bytes]);
 	data_intro_bytes += 4;
 	num_rows = *((uint32_t *) &data_intro[data_intro_bytes]);
 	data_intro_bytes += 4;
@@ -1233,60 +1069,58 @@ decompress_and_compute_kernel_sort_diff_select(unsigned char * restrict buf, Val
 		{
 			switch (col_bits) {
 				case 8:
-					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c1, 0);
+					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c1, gather_coords_sparse_r1_c1_v4, 0);
 				case 16:
-					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c2, 0);
+					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c2, gather_coords_sparse_r1_c2_v4, 0);
 				case 24:
-					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c3, 0);
-				default:
-					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c4, 0);
+					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c3, gather_coords_sparse_r1_c3_v4, 0);
+				case 32:
+					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c4, gather_coords_sparse_r1_c4_v4, 0);
 			}
 		}
 		else
 		{
 			switch (col_bits) {
 				case 8:
-					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c1, 2);
+					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c1, gather_coords_sparse_r1_c1_v4, 2);
 				case 16:
-					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c2, 2);
+					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c2, gather_coords_sparse_r1_c2_v4, 2);
 				case 24:
-					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c3, 2);
+					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c3, gather_coords_sparse_r1_c3_v4, 2);
 				case 32:
-					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c4, 2);
+					return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r1_c4, gather_coords_sparse_r1_c4_v4, 2);
 			}
 		}
 	}
 
-	/* Huge rows, or columns forming small rows with no stray elements. */
+	/* Huge rows. */
 	if (row_bits == 0)
 	{
-
-		// return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r0, 0);
+		// return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r0, gather_coords_sparse_r0_v4, 0);
 		switch (col_bits) {
 			case 8:
-				return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r0_c1, 0);
+				return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r0_c1, gather_coords_sparse_r0_c1_v4, 0);
 			case 16:
-				return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r0_c2, 0);
+				return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r0_c2, gather_coords_sparse_r0_c2_v4, 0);
 			case 24:
-				return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r0_c3, 0);
-			default:
-				return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r0_c4, 0);
+				return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r0_c3, gather_coords_sparse_r0_c3_v4, 0);
+			case 32:
+				return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_sparse_r0_c4, gather_coords_sparse_r0_c4_v4, 0);
 		}
-
 	}
 
 	switch (coords_bytes) {
 		case 1:
-			return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_dense_1, 0);
+			return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_dense_1, gather_coords_dense_1_v4, 0);
 		case 2:
-			return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_dense_2, 0);
+			return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_dense_2, gather_coords_dense_2_v4, 0);
 		case 3:
-			return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_dense_3, 0);
+			return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_dense_3, gather_coords_dense_3_v4, 0);
 		case 4:
-			return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_dense_4, 0);
+			return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_dense_4, gather_coords_dense_4_v4, 0);
 	}
 
-	return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_dense, 0);
+	return decompress_and_compute_kernel_sort_diff_base(buf, x, y, num_vals_out, validate, gather_coords_dense, gather_coords_dense_v4, 0);
 
 }
 
@@ -1307,17 +1141,13 @@ decompress_kernel_sort_diff(ValueType * vals, unsigned char * restrict buf)
 	long num_vals;
 	int tnum = omp_get_thread_num();
 	double * window = t_window[tnum];
-	int * permutation = t_permutation[tnum];
+	int * rev_permutation = t_rev_permutation[tnum];
 	long i, bytes;
 	bytes = decompress_and_compute_kernel_sort_diff_select(buf, NULL, NULL, &num_vals, 1);
 
-	long div_padded = (num_vals + 3) / 4;
-	long num_vals_padded = div_padded * 4;
-
-	for (i=0;i<num_vals_padded;i++)
+	for (i=0;i<num_vals;i++)
 	{
-		if (permutation[i] < num_vals)
-			vals[permutation[i]] = window[i];
+		vals[rev_permutation[i]] = window[i];
 	}
 	return bytes;
 }

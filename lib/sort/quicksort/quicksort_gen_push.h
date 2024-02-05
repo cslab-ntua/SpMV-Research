@@ -6,7 +6,8 @@
 #pragma push_macro("_TYPE_V")
 #pragma push_macro("_TYPE_I")
 #pragma push_macro("_TYPE_AD")
-#pragma push_macro("quicksort_no_malloc")
 #pragma push_macro("quicksort")
+#pragma push_macro("quicksort_parallel")
+#pragma push_macro("quicksort_parallel_inplace")
 #pragma push_macro("insertionsort")
 #include "quicksort_gen_undef.h"

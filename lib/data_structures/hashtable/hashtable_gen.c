@@ -186,13 +186,13 @@ hashtable_hash_base(_TYPE_K key, int variant)
 			uint64_t v = 0;
 			switch (len) {
 				case 8: v ^= *((uint64_t *) (bytes)); break;
-				case 7: v ^= (uint64_t) bytes[6] << 48; /* fallthrough */
-				case 6: v ^= (uint64_t) bytes[5] << 40; /* fallthrough */
-				case 5: v ^= (uint64_t) bytes[4] << 32; /* fallthrough */
-				case 4: v ^= (uint64_t) *((uint32_t *) (bytes)); break;
-				case 3: v ^= (uint64_t) bytes[2] << 16; /* fallthrough */
-				case 2: v ^= (uint64_t) *((uint16_t *) (bytes)); break;
-				case 1: v ^= (uint64_t) *((uint8_t *) (bytes)); break;
+				case 7: v ^=  ((uint64_t) bytes[6]) << 48; /* fallthrough */
+				case 6: v ^=  ((uint64_t) bytes[5]) << 40; /* fallthrough */
+				case 5: v ^=  ((uint64_t) bytes[4]) << 32; /* fallthrough */
+				case 4: v ^=   (uint64_t) *((uint32_t *) (bytes)); break;
+				case 3: v ^=  ((uint64_t) bytes[2]) << 16; /* fallthrough */
+				case 2: v ^=   (uint64_t) *((uint16_t *) (bytes)); break;
+				case 1: v ^=   (uint64_t) *((uint8_t *) (bytes)); break;
 			}
 			hash = xorshift64_int(v, 0, variant);
 			// hash = fasthash64(&key, len, 0);
@@ -572,8 +572,22 @@ hashtable_bucket_resize(struct hashtable * ht, long pos, long new_size)
 	long space_is_malloced;
 	long n = bucket->n;
 	space_is_malloced = (bucket->kv_pairs < ht->buf_kv_pairs) || (bucket->kv_pairs > ht->buf_kv_pairs_end);
+	new_size = (_TYPE_BS) new_size;
 	if (new_size <= bucket->size)
-		error("new size must be greater than older: old=%ld, new=%ld", bucket->size, new_size);
+	{
+		// for (long i=0;i<bucket->size;i++)
+		// {
+			// union {
+				// uint64_t u;
+				// double f;
+			// } val;
+			// val.f = bucket->kv_pairs[i].key;
+			// printf("%lu\n", val.u);
+			// printf("%lf\n", val.f);
+		// }
+		error("possible overflow, new size given is lower of equal to older: old=%ld, new=%ld", bucket->size, new_size);
+		// error("new size must be greater than older: old=%ld, new=%ld", bucket->size, new_size);
+	}
 	if (!space_is_malloced)
 	{
 		long pos_next;
@@ -614,8 +628,10 @@ hashtable_bucket_resize_concurrent(struct hashtable * ht, long pos, long new_siz
 	char zero = 0;
 	n = bucket->n;
 	space_is_malloced = (bucket->kv_pairs < ht->buf_kv_pairs) || (bucket->kv_pairs > ht->buf_kv_pairs_end);
+	new_size = (_TYPE_BS) new_size;
 	if (new_size <= bucket->size)
-		error("new size must be greater than older: old=%ld, new=%ld", bucket->size, new_size);
+		error("possible overflow, new size given is lower of equal to older: old=%ld, new=%ld", bucket->size, new_size);
+		// error("new size must be greater than older: old=%ld, new=%ld", bucket->size, new_size);
 	if (!space_is_malloced)
 	{
 		long pos_next;
@@ -658,6 +674,44 @@ hashtable_bucket_resize_concurrent(struct hashtable * ht, long pos, long new_siz
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 
+/* Cast to integer type before comparison.
+ * For float/double types comparison is unpredictable, e.g., nan==nan is always false!
+ */
+#undef  hashtable_bucket_contains
+#define hashtable_bucket_contains  HASHTABLE_GEN_EXPAND(hashtable_bucket_contains)
+static inline
+int
+hashtable_test_equal_keys_basic_type(_TYPE_K target_key, _TYPE_K key)
+{
+	if (sizeof(_TYPE_K) <= 8)
+	{
+		union {
+			uint64_t u;
+			_TYPE_K t;
+		} tk, k;
+		tk.u = 0;
+		tk.t = target_key;
+		k.u = 0;
+		k.t = key;
+		return tk.u == k.u;
+	}
+	else if (sizeof(_TYPE_K) <= 16)
+	{
+		union {
+			__uint128_t u;
+			_TYPE_K t;
+		} tk, k;
+		tk.u = 0;
+		tk.t = target_key;
+		k.u = 0;
+		k.t = key;
+		return tk.u == k.u;
+	}
+	else
+		error("the key is not a basic type, its size should be less or equal to 16 bytes");
+}
+
+
 #undef  hashtable_bucket_contains
 #define hashtable_bucket_contains  HASHTABLE_GEN_EXPAND(hashtable_bucket_contains)
 static inline
@@ -691,7 +745,7 @@ hashtable_bucket_contains(struct hashtable_bucket * bucket, _TYPE_K target_key  
 				return 1;
 			}
 		#else
-			if (target_key == key)
+			if (hashtable_test_equal_keys_basic_type(target_key, key))
 			{
 				_VC(
 					*kv_pair_out = &kv_pairs[i];
@@ -732,7 +786,7 @@ hashtable_bucket_contains_mru(struct hashtable_bucket * bucket, _TYPE_K target_k
 			if (!memcmp(target_buf, buf, target_len))
 				return 1;
 		#else
-			if (target_key == key)
+			if (hashtable_test_equal_keys_basic_type(target_key, key))
 				return 1;
 		#endif
 	}
@@ -784,7 +838,6 @@ hashtable_insert_serial(struct hashtable * ht, _TYPE_K key  _VC(, _TYPE_V value,
 	n = bucket->n;
 	if (n > 0)
 	{
-
 		if (hashtable_bucket_contains(bucket, key  _VC(, &kv_pair)))
 		{
 			_VC(
@@ -1027,7 +1080,7 @@ hashtable_entries_serial(struct hashtable * ht, _TYPE_K ** keys_out, _VC(_TYPE_V
 {
 	long i, j, k;
 	_TYPE_K * keys;
-	_VC(_TYPE_V * values;)
+	_VC(_TYPE_V * values = NULL;)
 	long num_entries;
 	struct hashtable_bucket * bucket;
 	hashtable_entries_check_parameters(keys_out, _VC(values_out,) num_entries_out);

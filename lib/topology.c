@@ -37,7 +37,7 @@ hex_chars_to_bin_chars(char * str_hex, long N, char ** str_bin_out)
 	for (i=0,j=0;i<N;i++)
 	{
 		c = str_hex[i];
-		j += str_char_hex_to_bin_unsafe(c, buf + j);
+		j += str_char_hex_to_bin(c, buf + j, buf_n - j);
 	}
 	*str_bin_out = buf;
 	return j;

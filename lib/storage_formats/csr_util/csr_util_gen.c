@@ -17,27 +17,27 @@
 
 
 /* Notes: 
- *	 - We assume that the matrix is FULLY sorted, i.e. both rows and columns.
+ *     - We assume that the matrix is FULLY sorted, i.e. both rows and columns.
  */
 
 /* features_all = ['A_mem_footprint',
- *			  'avg_nz_row',
- *			  'skew_coeff',
- *			  'avg_num_neighbours',
- *			  'avg_cross_row_similarity',
+ *              'avg_nz_row',
+ *              'skew_coeff',
+ *              'avg_num_neighbours',
+ *              'avg_cross_row_similarity',
  *
- *			  'm','n','nz',
- *			  'density',
- *			  'min_nz_row', 'max_nz_row', 'std_nz_row',
- *			  'min_nz_col', 'max_nz_col', 'avg_nz_col', 'std_nz_col',
- *			  'min_bandwidth', 'max_bandwidth', 'avg_bandwidth', 'std_bandwidth',
- *			  'min_scattering', 'max_scattering', 'avg_scattering', 'std_scattering',
- *			  'min_ngroups', 'max_ngroups', 'avg_ngroups', 'std_ngroups',
- *			  'min_dis', 'max_dis', 'avg_dis', 'std_dis',
- *			  'min_clustering', 'max_clustering', 'avg_clustering', 'std_clustering',
- *			  'min_num_neighbours','max_num_neighbours', 'std_num_neighbours',
- *			  'min_cross_row_similarity', 'max_cross_row_similarity', 'std_cross_row_similarity'
- *		 ]
+ *              'm','n','nz',
+ *              'density',
+ *              'min_nz_row', 'max_nz_row', 'std_nz_row',
+ *              'min_nz_col', 'max_nz_col', 'avg_nz_col', 'std_nz_col',
+ *              'min_bandwidth', 'max_bandwidth', 'avg_bandwidth', 'std_bandwidth',
+ *              'min_scattering', 'max_scattering', 'avg_scattering', 'std_scattering',
+ *              'min_ngroups', 'max_ngroups', 'avg_ngroups', 'std_ngroups',
+ *              'min_dis', 'max_dis', 'avg_dis', 'std_dis',
+ *              'min_clustering', 'max_clustering', 'avg_clustering', 'std_clustering',
+ *              'min_num_neighbours','max_num_neighbours', 'std_num_neighbours',
+ *              'min_cross_row_similarity', 'max_cross_row_similarity', 'std_cross_row_similarity'
+ *         ]
  */
 
 //==========================================================================================================================================
@@ -80,6 +80,27 @@ functools_reduce_fun(double a, double b)
 //------------------------------------------------------------------------------------------------------------------------------------------
 //- Quicksort
 //------------------------------------------------------------------------------------------------------------------------------------------
+
+#include "sort/quicksort/quicksort_gen_push.h"
+#define QUICKSORT_GEN_TYPE_1  double
+#define QUICKSORT_GEN_TYPE_2  int
+#define QUICKSORT_GEN_TYPE_3  void
+#define QUICKSORT_GEN_SUFFIX  CONCAT(_CSR_UTIL_GEN_d_sign, CSR_UTIL_GEN_SUFFIX)
+#include "sort/quicksort/quicksort_gen.c"
+
+static inline
+int
+quicksort_cmp(double a, double b, __attribute__((unused)) void * aux)
+{
+	if (a*b <= 0)
+		return (a > b) ? 1 : (a < b) ? -1 : 0;
+	return (fabs(a) > fabs(b)) ? 1 : (fabs(a) < fabs(b)) ? -1 : 0;
+}
+
+
+#undef quicksort_sign
+#define quicksort_sign(A, N, aux, partitions_buf) CONCAT(quicksort_CSR_UTIL_GEN_d_sign, CSR_UTIL_GEN_SUFFIX)(A, N, aux, partitions_buf)
+
 
 #include "sort/quicksort/quicksort_gen_push.h"
 #define QUICKSORT_GEN_TYPE_1  double
@@ -132,7 +153,7 @@ typedef CSR_UTIL_GEN_TYPE_2  _TYPE_I;
 
 //==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
-//-															  Templates																 -
+//-                                                              Templates                                                                 -
 //------------------------------------------------------------------------------------------------------------------------------------------
 //==========================================================================================================================================
 
@@ -447,7 +468,7 @@ csr_column_distances_and_groupping(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m,
 
 
 /* Notes: 
- *	 - 'window_size': Distance from left and right.
+ *     - 'window_size': Distance from left and right.
  */
 #undef  csr_row_neighbours
 #define csr_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_row_neighbours)
@@ -510,7 +531,7 @@ csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 			degree = row_ptr[i+1] - row_ptr[i];
 			if (degree <= 0)
 				continue;
-			for (l=i+1;l<m;l++)	   // Find next non-empty row.
+			for (l=i+1;l<m;l++)       // Find next non-empty row.
 				if (row_ptr[l+1] - row_ptr[l] > 0)
 					break;
 			num_non_empty_rows++;
@@ -539,7 +560,7 @@ csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 				row_similarity += ((double) num_similarities) / degree;
 			}
 		}
-		__atomic_store(&t_row_similarity[tnum], &row_similarity, __ATOMIC_RELAXED);	// '__atomic_store_n' is for integer types only.
+		__atomic_store(&t_row_similarity[tnum], &row_similarity, __ATOMIC_RELAXED);    // '__atomic_store_n' is for integer types only.
 		__atomic_fetch_add(&total_num_non_empty_rows, num_non_empty_rows, __ATOMIC_RELAXED);
 	}
 	if (total_num_non_empty_rows == 0)
@@ -574,7 +595,7 @@ csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 			degree = row_ptr[i+1] - row_ptr[i];
 			if (degree <= 0)
 				continue;
-			for (l=i+1;l<m;l++)	   // Find next non-empty row.
+			for (l=i+1;l<m;l++)       // Find next non-empty row.
 				if (row_ptr[l+1] - row_ptr[l] > 0)
 					break;
 			num_non_empty_rows++;
@@ -651,12 +672,12 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 
 	long buf_n = strlen(title_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
-	__attribute__((unused)) double time;
+	double time;
 
 	time = time_it(1,
 		csr_row_indices(row_ptr, col_idx, m, n, nnz, &row_idx);
 	);
-	// printf("time row indices = %lf\n", time);
+	printf("time row indices = %lf\n", time);
 	// Matrix structure, density map.
 	if (do_plot)
 	{
@@ -666,8 +687,8 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
 			figure_axes_flip_y(_fig);
-			figure_set_bounds_x(_fig, 0, n);
-			figure_set_bounds_y(_fig, 0, m);
+			figure_set_bounds_x(_fig, 0, n-1);
+			figure_set_bounds_y(_fig, 0, m-1);
 			figure_series_type_density_map(_s);
 		);
 	}
@@ -675,7 +696,7 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	time = time_it(1,
 		csr_degrees_bandwidths_scatters(row_ptr, col_idx, m, n, nnz, &degrees_rows, &degrees_cols, &bandwidths, &scatters);
 	);
-	// printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
+	printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
 
 	/* It's not worth it combining the array metrics, because min-max degrade the total performance of the pipeline,
 	 * and std depends on mean and needs a separete loop either way. */
@@ -704,7 +725,15 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, degrees_rows, NULL, m, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
-			figure_series_type_histogram(_s, 0, 1);
+			figure_series_type_histogram(_s, 0, NULL, 1);
+			figure_series_type_barplot(_s);
+		);
+		snprintf(buf, buf_n, "%s_degree_distribution_cumulative_sum.png", title_base);
+		snprintf(buf_title, buf_n, "%s: degree distribution cumulative sum", title_base);
+		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, degrees_rows, NULL, m, 0),
+			figure_enable_legend(_fig);
+			figure_set_title(_fig, buf_title);
+			figure_series_type_histogram(_s, 0, NULL, 1, 1);
 			figure_series_type_barplot(_s);
 		);
 	}
@@ -722,7 +751,7 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	time = time_it(1,
 		csr_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &num_neigh);
 	);
-	// printf("time csr_row_neighbours = %lf\n", time);
+	printf("time csr_row_neighbours = %lf\n", time);
 
 	array_min_max(num_neigh, nnz, &num_neigh_min, NULL, &num_neigh_max, NULL);
 	array_mean(num_neigh, nnz, &num_neigh_avg);
@@ -736,7 +765,7 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, num_neigh, NULL, nnz, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
-			figure_series_type_histogram(_s, 0, 1);
+			figure_series_type_histogram(_s, 0, NULL, 1);
 			figure_series_type_barplot(_s);
 		);
 	}
@@ -746,13 +775,13 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	time = time_it(1,
 		cross_row_similarity_avg = csr_cross_row_similarity(row_ptr, col_idx, m, n, nnz, window_size);
 	);
-	// printf("time csr_cross_row_similarity = %lf\n", time);
+	printf("time csr_cross_row_similarity = %lf\n", time);
 
 	max_gap_size = 0;
 	time = time_it(1,
 		num_groups = csr_column_distances_and_groupping(row_ptr, col_idx, m, n, nnz, max_gap_size, &nnz_col_dist, &group_col_dist, &group_sizes, &groups_per_row);
 	);
-	// printf("time csr_column_distances_and_groupping = %lf\n", time);
+	printf("time csr_column_distances_and_groupping = %lf\n", time);
 
 	array_min_max(nnz_col_dist, nnz, &nnz_col_dist_min, NULL, &nnz_col_dist_max, NULL);
 	array_mean(nnz_col_dist, nnz, &nnz_col_dist_avg);
@@ -778,7 +807,7 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, groups_per_row, NULL, m, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
-			figure_series_type_histogram(_s, 0, 1);
+			figure_series_type_histogram(_s, 0, NULL, 1);
 			figure_series_type_barplot(_s);
 		);
 	}
@@ -900,17 +929,17 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	double num_neigh_avg;
 	double cross_row_similarity_avg;
 
-	__attribute__((unused)) double time;
+	double time;
 
 	time = time_it(1,
 		csr_row_indices(row_ptr, col_idx, m, n, nnz, &row_idx);
 	);
-	// printf("time row indices = %lf\n", time);
+	printf("time row indices = %lf\n", time);
 
 	time = time_it(1,
 		csr_degrees_bandwidths_scatters(row_ptr, col_idx, m, n, nnz, &degrees_rows, &degrees_cols, &bandwidths, &scatters);
 	);
-	// printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
+	printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
 
 	/* It's not worth it combining the array metrics, because min-max degrade the total performance of the pipeline,
 	 * and std depends on mean and needs a separete loop either way. */
@@ -934,7 +963,7 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	time = time_it(1,
 		csr_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &num_neigh);
 	);
-	// printf("time csr_row_neighbours = %lf\n", time);
+	printf("time csr_row_neighbours = %lf\n", time);
 
 	array_mean(num_neigh, nnz, &num_neigh_avg);
 
@@ -943,7 +972,7 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	time = time_it(1,
 		cross_row_similarity_avg = csr_cross_row_similarity(row_ptr, col_idx, m, n, nnz, window_size);
 	);
-	// printf("time csr_cross_row_similarity = %lf\n", time);
+	printf("time csr_cross_row_similarity = %lf\n", time);
 
 	/* Matrix features for artificial twins.
 	 * Also print the csr mem footprint for easier sorting.
@@ -1059,6 +1088,17 @@ get_double_upper_12_bits(void * A, long i)
 	return bits_double_get_upper_12_bits(((double *) A)[i]);
 }
 
+#undef  get_double_surrounding_zeros
+#define get_double_surrounding_zeros  CSR_UTIL_GEN_EXPAND(get_double_surrounding_zeros)
+static inline
+double
+get_double_surrounding_zeros(void * A, long i)
+{
+	uint64_t u = ((uint64_t *) A)[i];
+	return u == 0 ? 64 : __builtin_ctzl(u) + __builtin_clzl(u);
+}
+
+
 #undef  get_double_trailing_zeros
 #define get_double_trailing_zeros  CSR_UTIL_GEN_EXPAND(get_double_trailing_zeros)
 static inline
@@ -1120,8 +1160,8 @@ csr_value_differences_of_neighbors(char * title_base, double * vals, __attribute
 	long num_bins = 1024;
 
 	double * vals_diff;
-	double vals_diff_min, vals_diff_max, vals_diff_avg, vals_diff_std, vals_diff_ctz_avg, vals_diff_ctz_std;
-	// double vals_diff_grouped_ctz_avg;
+	double vals_diff_min, vals_diff_max, vals_diff_avg, vals_diff_std, vals_diff_sz_avg, vals_diff_sz_std;
+	// double vals_diff_grouped_sz_avg;
 	double vals_diff_abs_min, vals_diff_abs_max, vals_diff_abs_avg, vals_diff_abs_std;
 	double vals_diff_exp_min, vals_diff_exp_max, vals_diff_exp_avg, vals_diff_exp_std;
 
@@ -1132,13 +1172,22 @@ csr_value_differences_of_neighbors(char * title_base, double * vals, __attribute
 		long i;
 		#pragma omp for
 		for (i=1;i<nnz;i++)
-			vals_diff[i] = vals[i] - vals[i-1];
+		{
+			union {
+				uint64_t u;
+				double f;
+			} val, val_prev, diff;
+			val.f = vals[i];
+			val_prev.f = vals[i-1];
+			diff.u = val.u - val_prev.u;
+			vals_diff[i] = diff.f;
+		}
 	}
 	array_min_max(vals_diff, nnz, &vals_diff_min, NULL, &vals_diff_max, NULL);
 	array_mean(vals_diff, nnz, &vals_diff_avg);
 	array_std(vals_diff, nnz, &vals_diff_std);
-	array_mean(vals_diff, nnz, &vals_diff_ctz_avg, get_double_trailing_zeros);
-	array_std(vals_diff, nnz, &vals_diff_ctz_std, get_double_trailing_zeros);
+	array_mean(vals_diff, nnz, &vals_diff_sz_avg, get_double_surrounding_zeros);
+	array_std(vals_diff, nnz, &vals_diff_sz_std, get_double_surrounding_zeros);
 	array_min_max(vals_diff, nnz, &vals_diff_abs_min, NULL, &vals_diff_abs_max, NULL, get_double_abs);
 	array_mean(vals_diff, nnz, &vals_diff_abs_avg, get_double_abs);
 	array_std(vals_diff, nnz, &vals_diff_abs_std, get_double_abs);
@@ -1158,7 +1207,7 @@ csr_value_differences_of_neighbors(char * title_base, double * vals, __attribute
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_diff, NULL, nnz, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
-			figure_series_type_histogram(_s, num_bins, 1);
+			figure_series_type_histogram(_s, num_bins, NULL, 1);
 			figure_series_type_barplot(_s);
 		);
 		snprintf(buf, buf_n, "%s_values_diff_exp_distribution.png", title_base);
@@ -1166,7 +1215,7 @@ csr_value_differences_of_neighbors(char * title_base, double * vals, __attribute
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_diff, NULL, nnz, 0, , get_double_exponent),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
-			figure_series_type_histogram(_s, 0, 1); // Integer mode.
+			figure_series_type_histogram(_s, 0, NULL, 1); // Integer mode.
 			figure_series_type_barplot(_s);
 		);
 		snprintf(buf, buf_n, "%s_values_diff_frac_distribution.png", title_base);
@@ -1174,7 +1223,7 @@ csr_value_differences_of_neighbors(char * title_base, double * vals, __attribute
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_diff, NULL, nnz, 0, , get_double_fraction),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
-			figure_series_type_histogram(_s, num_bins, 1);
+			figure_series_type_histogram(_s, num_bins, NULL, 1);
 			figure_series_type_barplot(_s);
 		);
 	}
@@ -1182,12 +1231,12 @@ csr_value_differences_of_neighbors(char * title_base, double * vals, __attribute
 	fprintf(stderr, "vals_diff max = %g\n", vals_diff_max);
 	fprintf(stderr, "vals_diff avg = %g\n", vals_diff_avg);
 	fprintf(stderr, "vals_diff std = %g\n", vals_diff_std);
-	fprintf(stderr, "vals_diff ctz avg = %.3lf\n", vals_diff_ctz_avg);
-	fprintf(stderr, "vals_diff ctz std = %.3lf\n", vals_diff_ctz_std);
-	/* for (ctz_group_size=4;ctz_group_size<=16;ctz_group_size+=4)
+	fprintf(stderr, "vals_diff sz avg = %.3lf\n", vals_diff_sz_avg);
+	fprintf(stderr, "vals_diff sz std = %.3lf\n", vals_diff_sz_std);
+	/* for (sz_group_size=4;sz_group_size<=16;sz_group_size+=4)
 	{
-		array_mean_of_windowed_ctz_min(vals_diff, nnz, ctz_group_size, &vals_diff_grouped_ctz_avg);
-		fprintf(stderr, "vals_diff grouped (%ld) ctz avg of min = %.3lf\n", ctz_group_size, vals_diff_grouped_ctz_avg);
+		array_mean_of_windowed_sz_min(vals_diff, nnz, sz_group_size, &vals_diff_grouped_sz_avg);
+		fprintf(stderr, "vals_diff grouped (%ld) sz avg of min = %.3lf\n", sz_group_size, vals_diff_grouped_sz_avg);
 	} */
 	fprintf(stderr, "vals_diff abs min = %g\n", vals_diff_abs_min);
 	fprintf(stderr, "vals_diff abs max = %g\n", vals_diff_abs_max);
@@ -1201,180 +1250,33 @@ csr_value_differences_of_neighbors(char * title_base, double * vals, __attribute
 }
 
 
-/* #undef  csr_value_
-#define csr_value_  CSR_UTIL_GEN_EXPAND(csr_value_)
-static
-void
-csr_value_absolute_values(char * title_base, double * vals, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y)
-{
-	long buf_n = strlen(title_base) + 1 + 1000;
-	char buf[buf_n], buf_title[buf_n];
-	long num_bins = 1024;
-
-	double * abs_vals_diff;
-	double abs_vals_diff_min, abs_vals_diff_max, abs_vals_diff_avg, abs_vals_diff_std, abs_vals_diff_ctz_avg, abs_vals_diff_ctz_std, abs_vals_diff_grouped_ctz_avg;
-	double abs_vals_diff_abs_min, abs_vals_diff_abs_max, abs_vals_diff_abs_avg, abs_vals_diff_abs_std;
-	abs_vals_diff = (typeof(abs_vals_diff)) malloc(nnz * sizeof(*abs_vals_diff));
-	abs_vals_diff[0] = 0;
-	#pragma omp parallel
-	{
-		long i;
-		#pragma omp for
-		for (i=1;i<nnz;i++)
-			abs_vals_diff[i] = fabs(vals[i]) - fabs(vals[i-1]);
-	}
-	array_min_max(abs_vals_diff, nnz, &abs_vals_diff_min, NULL, &abs_vals_diff_max, NULL);
-	array_mean(abs_vals_diff, nnz, &abs_vals_diff_avg);
-	array_std(abs_vals_diff, nnz, &abs_vals_diff_std);
-	array_mean(abs_vals_diff, nnz, &abs_vals_diff_ctz_avg, get_double_trailing_zeros);
-	array_std(abs_vals_diff, nnz, &abs_vals_diff_ctz_std, get_double_trailing_zeros);
-	array_min_max(abs_vals_diff, nnz, &abs_vals_diff_abs_min, NULL, &abs_vals_diff_abs_max, NULL, get_double_abs);
-	array_mean(abs_vals_diff, nnz, &abs_vals_diff_abs_avg, get_double_abs);
-	array_std(abs_vals_diff, nnz, &abs_vals_diff_abs_std, get_double_abs);
-	if (do_plot)
-	{
-		double * running_avg;
-		running_avg = (typeof(running_avg)) malloc(nnz * sizeof(*running_avg));
-		scan_reduce(vals, running_avg, nnz, 0.0, 1, 0);
-		#pragma omp parallel
-		{
-			long i;
-			#pragma omp for
-			for (i=0;i<nnz;i++)
-				running_avg[i] /= (i + 1);
-		}
-		struct Figure * fig;
-		struct Figure_Series * s;
-		snprintf(buf, buf_n, "%s_values_running_avg.png", title_base);
-		snprintf(buf_title, buf_n, "%s: values running average", title_base);
-		fig = (typeof(fig)) malloc(sizeof(*fig));
-		figure_init(fig, num_pixels_x, num_pixels_y);
-		s = figure_add_series(fig, NULL, vals, NULL, nnz, 0);
-		s = figure_add_series(fig, NULL, running_avg, NULL, nnz, 0);
-		figure_series_set_color(s, 0xff, 0, 0);
-		figure_enable_legend(fig);
-		figure_set_title(fig, buf_title);
-		figure_plot(fig, buf);
-		figure_destroy(&fig);
-		free(running_avg);
-	}
-	fprintf(stderr, "abs_vals_diff min = %g\n", abs_vals_diff_min);
-	fprintf(stderr, "abs_vals_diff max = %g\n", abs_vals_diff_max);
-	fprintf(stderr, "abs_vals_diff avg = %g\n", abs_vals_diff_avg);
-	fprintf(stderr, "abs_vals_diff std = %g\n", abs_vals_diff_std);
-	fprintf(stderr, "abs_vals_diff ctz avg = %.3lf\n", abs_vals_diff_ctz_avg);
-	fprintf(stderr, "abs_vals_diff ctz std = %.3lf\n", abs_vals_diff_ctz_std);
-	for (ctz_group_size=4;ctz_group_size<=16;ctz_group_size+=4)
-	{
-		array_mean_of_windowed_ctz_min(abs_vals_diff, nnz, ctz_group_size, &abs_vals_diff_grouped_ctz_avg);
-		fprintf(stderr, "abs_vals_diff grouped (%ld) ctz avg of min = %.3lf\n", ctz_group_size, abs_vals_diff_grouped_ctz_avg);
-	}
-	fprintf(stderr, "abs_vals_diff abs min = %g\n", abs_vals_diff_abs_min);
-	fprintf(stderr, "abs_vals_diff abs max = %g\n", abs_vals_diff_abs_max);
-	fprintf(stderr, "abs_vals_diff abs avg = %g\n", abs_vals_diff_abs_avg);
-	fprintf(stderr, "abs_vals_diff abs std = %g\n", abs_vals_diff_abs_std);
-	free(abs_vals_diff);
-
-	double * windowed_avg;
-	double * dist_from_windowed_avg;
-	double dist_from_windowed_avg_abs_min, dist_from_windowed_avg_abs_max, dist_from_windowed_avg_abs_avg, dist_from_windowed_avg_abs_std, dist_from_windowed_avg_ctz_avg, dist_from_windowed_avg_ctz_std, dist_from_windowed_avg_grouped_ctz_avg;
-	window_size = 1 << 2;
-	windowed_avg = (typeof(windowed_avg)) malloc(nnz * sizeof(*windowed_avg));
-	dist_from_windowed_avg = (typeof(dist_from_windowed_avg)) malloc(nnz * sizeof(*dist_from_windowed_avg));
-	#pragma omp parallel
-	{
-		double sum = 0;
-		long i, j, j_e;
-		#pragma omp for
-		for (i=0;i<nnz;i+=window_size)
-		{
-			j_e = i + window_size;
-			if (j_e > nnz)
-				j_e = nnz;
-			sum = 0;
-			for (j=i;j<j_e;j++)
-				sum += vals[j];
-			sum /= j_e - i;
-			for (j=i;j<j_e;j++)
-			{
-				windowed_avg[j] = sum;
-				dist_from_windowed_avg[j] = sum - vals[j];
-			}
-		}
-	}
-	array_min_max(dist_from_windowed_avg, nnz, &dist_from_windowed_avg_abs_min, NULL, &dist_from_windowed_avg_abs_max, NULL, get_double_abs);
-	array_mean(dist_from_windowed_avg, nnz, &dist_from_windowed_avg_abs_avg, get_double_abs);
-	array_std(dist_from_windowed_avg, nnz, &dist_from_windowed_avg_abs_std, get_double_abs);
-	array_mean(dist_from_windowed_avg, nnz, &dist_from_windowed_avg_ctz_avg, get_double_trailing_zeros);
-	array_std(dist_from_windowed_avg, nnz, &dist_from_windowed_avg_ctz_std, get_double_trailing_zeros);
-	if (do_plot)
-	{
-		struct Figure * fig;
-		struct Figure_Series * s;
-		snprintf(buf, buf_n, "%s_values_windowed_avg.png", title_base);
-		snprintf(buf_title, buf_n, "%s: values windowed average", title_base);
-		fig = (typeof(fig)) malloc(sizeof(*fig));
-		figure_init(fig, num_pixels_x, num_pixels_y);
-		s = figure_add_series(fig, NULL, vals, NULL, nnz, 0);
-		s = figure_add_series(fig, NULL, windowed_avg, NULL, nnz, 0);
-		figure_series_set_color(s, 0xff, 0, 0);
-		figure_enable_legend(fig);
-		figure_set_title(fig, buf_title);
-		figure_plot(fig, buf);
-		figure_destroy(&fig);
-	}
-	fprintf(stderr, "dist_from_windowed_avg abs min = %g\n", dist_from_windowed_avg_abs_min);
-	fprintf(stderr, "dist_from_windowed_avg abs max = %g\n", dist_from_windowed_avg_abs_max);
-	fprintf(stderr, "dist_from_windowed_avg abs avg = %g\n", dist_from_windowed_avg_abs_avg);
-	fprintf(stderr, "dist_from_windowed_avg abs std = %g\n", dist_from_windowed_avg_abs_std);
-	fprintf(stderr, "dist_from_windowed_avg ctz avg = %.3lf\n", dist_from_windowed_avg_ctz_avg);
-	fprintf(stderr, "dist_from_windowed_avg ctz std = %.3lf\n", dist_from_windowed_avg_ctz_std);
-	for (ctz_group_size=4;ctz_group_size<=16;ctz_group_size+=4)
-	{
-		array_mean_of_windowed_ctz_min(dist_from_windowed_avg, nnz, ctz_group_size, &dist_from_windowed_avg_grouped_ctz_avg);
-		fprintf(stderr, "dist_from_windowed_avg grouped (%ld) ctz avg of min = %.3lf\n", ctz_group_size, dist_from_windowed_avg_grouped_ctz_avg);
-	}
-	free(windowed_avg);
-	free(dist_from_windowed_avg);
-} */
-
-
 // Sorting.
 #undef  csr_value_differences_of_sorted_subsets
 #define csr_value_differences_of_sorted_subsets  CSR_UTIL_GEN_EXPAND(csr_value_differences_of_sorted_subsets)
 static inline
 void
-csr_value_differences_of_sorted_subsets(double * vals, long nnz)
+csr_value_differences_of_sorted_subsets(double * vals, long nnz, long deduplicate)
 {
-	double * vals_diff_sorted_window;
-	double vals_diff_sorted_window_abs_min, vals_diff_sorted_window_abs_max, vals_diff_sorted_window_abs_avg, vals_diff_sorted_window_abs_std, vals_diff_sorted_window_ctz_avg, vals_diff_sorted_window_ctz_std;
-	// double vals_diff_sorted_window_grouped_ctz_avg;
-	long vals_diff_sorted_window_unique_num, vals_diff_sorted_window_exp_unique_num;
-	double ctz_corrected, ctz_corrected_best;
-	long best_k, best_ctz_group_size;
+	double * diffs;
+	double avg;
 	long window_size;
 	long k;
-	vals_diff_sorted_window = (typeof(vals_diff_sorted_window)) malloc(nnz * sizeof(*vals_diff_sorted_window));
-	ctz_corrected_best = 0;
-	best_k = 0;
-	best_ctz_group_size = 1;
-	// k = 21;
+	long nnz_dedup;
+	diffs = (typeof(diffs)) malloc(nnz * sizeof(*diffs));
 	for (k=4;k<=24;k++)
 	{
-		long num_windows;
-		double * windows_exp_unique_num;
-		double windows_exp_unique_num_min, windows_exp_unique_num_max, windows_exp_unique_num_avg;
+		nnz_dedup = 0;
 		window_size = 1 << k;
-		num_windows = (nnz + window_size - 1) / window_size;
-		windows_exp_unique_num = (typeof(windows_exp_unique_num)) malloc(num_windows * sizeof(*windows_exp_unique_num));
 		#pragma omp parallel
 		{
 			double * window = (typeof(window)) malloc(window_size * sizeof(*window));
 			int * qsort_partitions = (typeof(qsort_partitions)) malloc(window_size * sizeof(*qsort_partitions));
 			long i, j, j_e, k;
-			long exp_table_n = 1<<12;
-			long * exp_table;
-			exp_table = (typeof(exp_table)) malloc(exp_table_n * sizeof(*exp_table));
+			long t_nnz_dedup = 0;
+			union {
+				uint64_t u;
+				double f;
+			} val, val_prev, diff;
 			#pragma omp for
 			for (i=0;i<nnz;i+=window_size)
 			{
@@ -1383,72 +1285,48 @@ csr_value_differences_of_sorted_subsets(double * vals, long nnz)
 					j_e = nnz;
 				for (j=i;j<j_e;j++)
 					window[j-i] = vals[j];
-				quicksort_no_malloc(window, j_e-i, NULL, qsort_partitions);
-				vals_diff_sorted_window[i] = window[0];
-				for (j=i+1;j<j_e;j++)
-					vals_diff_sorted_window[j] = window[j-i] - window[j-1-i];
-				for (j=0;j<exp_table_n;j++)
-					exp_table[j] = 0;
-				for (j=i;j<j_e;j++)
-					exp_table[(int) get_double_exponent_bits(vals_diff_sorted_window, j)] = 1;
-				k = 0;
-				for (j=0;j<exp_table_n;j++)
+				quicksort_sign(window, j_e-i, NULL, qsort_partitions);
+				if (deduplicate)
 				{
-					if (exp_table[j])
+					val.u = -1LL;   // a value with no zeros, so that 'get_double_surrounding_zeros()' returns zero;
+					for (j=i;j<j_e;j++)
+						diffs[j] = val.f;
+					k = 0;
+					j = i;
+					while (j<j_e)
+					{
+						window[k] = window[j-i];
 						k++;
+						j++;
+						for (;j<j_e;j++)
+						{
+							if (window[j-i] != window[j-1-i])
+								break;
+						}
+					}
+					j_e = i + k;
+					t_nnz_dedup += k;
 				}
-				windows_exp_unique_num[i / window_size] = k;
+				diffs[i] = window[0];
+				for (j=i+1;j<j_e;j++)
+				{
+					val.f = window[j-i];
+					val_prev.f = window[j-1-i];
+					diff.u = val.u - val_prev.u;
+					diffs[j] = diff.f;
+				}
 			}
+			__atomic_fetch_add(&nnz_dedup, t_nnz_dedup, __ATOMIC_RELAXED);
 			free(window);
 			free(qsort_partitions);
-			free(exp_table);
 		}
-		array_min_max(vals_diff_sorted_window, nnz, &vals_diff_sorted_window_abs_min, NULL, &vals_diff_sorted_window_abs_max, NULL, get_double_abs);
-		array_mean(vals_diff_sorted_window, nnz, &vals_diff_sorted_window_abs_avg, get_double_abs);
-		array_std(vals_diff_sorted_window, nnz, &vals_diff_sorted_window_abs_std, get_double_abs);
-		array_mean(vals_diff_sorted_window, nnz, &vals_diff_sorted_window_ctz_avg, get_double_trailing_zeros);
-		ctz_corrected = vals_diff_sorted_window_ctz_avg - k - 6;
-		if (ctz_corrected > ctz_corrected_best)
-		{
-			ctz_corrected_best = ctz_corrected;
-			best_k = k;
-			best_ctz_group_size = 1;
-		}
-		array_std(vals_diff_sorted_window, nnz, &vals_diff_sorted_window_ctz_std, get_double_trailing_zeros);
-		array_unique_num(vals_diff_sorted_window, nnz, &vals_diff_sorted_window_unique_num);
-		array_unique_num(vals_diff_sorted_window, nnz, &vals_diff_sorted_window_exp_unique_num, get_double_exponent);
-		array_min_max(windows_exp_unique_num, num_windows, &windows_exp_unique_num_min, NULL, &windows_exp_unique_num_max, NULL);
-		array_mean(windows_exp_unique_num, num_windows, &windows_exp_unique_num_avg);
-		fprintf(stderr, "vals_diff_sorted_window (2^%ld) abs min = %g\n", k, vals_diff_sorted_window_abs_min);
-		fprintf(stderr, "vals_diff_sorted_window (2^%ld) abs max = %g\n", k, vals_diff_sorted_window_abs_max);
-		fprintf(stderr, "vals_diff_sorted_window (2^%ld) abs avg = %g\n", k, vals_diff_sorted_window_abs_avg);
-		fprintf(stderr, "vals_diff_sorted_window (2^%ld) abs std = %g\n", k, vals_diff_sorted_window_abs_std);
-		fprintf(stderr, "vals_diff_sorted_window (2^%ld) ctz avg = %.3lf\n", k, vals_diff_sorted_window_ctz_avg);
-		fprintf(stderr, "vals_diff_sorted_window (2^%ld) ctz avg corrected (- %ld - 6) = %.3lf\n", k, k, ctz_corrected);
-		fprintf(stderr, "vals_diff_sorted_window (2^%ld) ctz std = %.3lf\n", k, vals_diff_sorted_window_ctz_std);
-		/* for (ctz_group_size=4;ctz_group_size<=16;ctz_group_size+=4)
-		{
-			array_mean_of_windowed_ctz_min(vals_diff_sorted_window, nnz, ctz_group_size, &vals_diff_sorted_window_grouped_ctz_avg);
-			ctz_corrected = vals_diff_sorted_window_grouped_ctz_avg - k - (6.0 / ctz_group_size);
-			if (ctz_corrected > ctz_corrected_best)
-			{
-				ctz_corrected_best = ctz_corrected;
-				best_k = k;
-				best_ctz_group_size = ctz_group_size;
-			}
-			fprintf(stderr, "vals_diff_sorted_window (2^%ld) grouped (%ld) ctz avg of min - %ld - %.3lf = %.3lf\n", k, ctz_group_size, k, 6.0 / ctz_group_size, ctz_corrected);
-		} */
-		fprintf(stderr, "vals_diff_sorted_window (2^%ld) unique num = %ld\n", k, vals_diff_sorted_window_unique_num);
-		fprintf(stderr, "vals_diff_sorted_window_exp (2^%ld) unique num = %ld\n", k, vals_diff_sorted_window_exp_unique_num);
-		fprintf(stderr, "windows_exp (2^%ld) unique num min = %.3lf\n", k, windows_exp_unique_num_min);
-		fprintf(stderr, "windows_exp (2^%ld) unique num max = %.3lf\n", k, windows_exp_unique_num_max);
-		fprintf(stderr, "windows_exp (2^%ld) unique num avg = %.3lf\n", k, windows_exp_unique_num_avg);
-		free(windows_exp_unique_num);
+		array_mean(diffs, nnz, &avg, get_double_surrounding_zeros);
+		if (deduplicate)
+			avg = (avg * nnz) / nnz_dedup;
+		fprintf(stderr, "vals_diff_sorted_window (2^%ld) sz avg = %.3lf\n", k, avg);
+		fprintf(stderr, "vals_diff_sorted_window (2^%ld) UF = %g\n", k, ((double) nnz_dedup) / nnz);
 	}
-	fprintf(stderr, "vals_diff_sorted_window best ctz avg corrected (- %ld - 6) = %.3lf\n", best_k, ctz_corrected_best);
-	fprintf(stderr, "vals_diff_sorted_window best windows size = %ld\n", best_k);
-	fprintf(stderr, "vals_diff_sorted_window best ctz group size = %ld\n", best_ctz_group_size);
-	free(vals_diff_sorted_window);
+	free(diffs);
 }
 
 
@@ -1462,7 +1340,7 @@ csr_value_distances_from_cluster_centers(char * title_base, double * vals, doubl
 	long buf_n = strlen(title_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 	// long num_bins = 1024;
-	__attribute__((unused)) double time;
+	double time;
 
 	double vals_min;
 	// double vals_grouped_ctz_avg;
@@ -1610,10 +1488,10 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 	double vals_exp_min, vals_exp_max, vals_exp_avg, vals_exp_std;
 	long vals_unique_num, vals_sgnexp_unique_num;
 	uint64_t vals_unique_bits_num;
-	__attribute__((unused)) long i, j, k, l;
+	__attribute__((unused)) long i, j, k, l, s, t;
 
-	long do_print_features = 0;
-	// long do_print_features = 1;
+	// long do_print_features = 0;
+	long do_print_features = 1;
 
 	if (nnz == 0)
 		error("empty array");
@@ -1718,6 +1596,9 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 
 	if (do_plot)
 	{
+		long size, size_sub, gap;
+		long window_size, subwindow_size;
+		double * window, * subwindow;
 
 		// snprintf(buf, buf_n, "%s_values_heatmap.png", title_base);
 		// snprintf(buf_title, buf_n, "%s: values heatmap", title_base);
@@ -1725,8 +1606,8 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 			// figure_axes_flip_y(_fig);
-			// figure_set_bounds_x(_fig, 0, n);
-			// figure_set_bounds_y(_fig, 0, m);
+			// figure_set_bounds_x(_fig, 0, n-1);
+			// figure_set_bounds_y(_fig, 0, m-1);
 		// );
 		// snprintf(buf, buf_n, "%s_values.png", title_base);
 		// snprintf(buf_title, buf_n, "%s: values (row-major order)", title_base);
@@ -1747,7 +1628,7 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals, NULL, nnz, 0),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
-			// figure_series_type_histogram(_s, num_bins, 1);
+			// figure_series_type_histogram(_s, num_bins, NULL, 1);
 			// figure_series_type_barplot(_s);
 		// );
 		// snprintf(buf, buf_n, "%s_values_exp_distribution.png", title_base);
@@ -1755,7 +1636,7 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals, NULL, nnz, 0, , get_double_exponent),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
-			// figure_series_type_histogram(_s, 0, 1); // Integer mode.
+			// figure_series_type_histogram(_s, 0, NULL, 1); // Integer mode.
 			// figure_series_type_barplot(_s);
 		// );
 		// snprintf(buf, buf_n, "%s_values_frac_distribution.png", title_base);
@@ -1763,7 +1644,7 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals, NULL, nnz, 0, , get_double_fraction),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
-			// figure_series_type_histogram(_s, num_bins, 1);
+			// figure_series_type_histogram(_s, num_bins, NULL, 1);
 			// figure_series_type_barplot(_s);
 		// );
 
@@ -1798,6 +1679,49 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 			// figure_set_title(_fig, buf_title);
 			// figure_series_type_bounded_median_curve(_s, 0);
 		// );
+
+		// k = 14;
+		// window_size = 1ULL << k;
+		// window = (typeof(window)) malloc(window_size * sizeof(*window));
+		// gap = nnz / 10;
+		// for (l=0;l<10;l++)
+		// {
+			// double val, val_prev, diff;
+			// i = l * gap;
+			// size = (window_size < nnz - i) ?  window_size : nnz - i;
+			// for (j=0;j<size;j++)
+				// window[j] = vals[i+j];
+			// quicksort(window, size, NULL, NULL);
+			// for (j=size-1;j>=1;j--)
+			// {
+				// val = window[j];
+				// val_prev = window[j-1];
+				// diff = val - val_prev;
+				// if (diff == 0 || val_prev == 0)
+					// window[j] = 0;
+				// else
+				// {
+					// window[j] = val - val_prev;
+				// }
+			// }
+			// window[0] = 0;
+			// snprintf(buf, buf_n, "%s_values_sorted_diff_abs_log2_window_%ld.png", title_base, l);
+			// snprintf(buf_title, buf_n, "%s: values sorted: diff, absolute, log2 - window [%ld, %ld)", title_base, i, i+size);
+			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
+				// figure_enable_legend(_fig);
+				// figure_set_title(_fig, buf_title);
+			// );
+			// snprintf(buf, buf_n, "%s_values_sorted_diff_abs_log2_bounded_median_curve_window_%ld.png", title_base, l);
+			// snprintf(buf_title, buf_n, "%s: values sorted: diff, absolute, log2 - bounded median curve - window [%ld, %ld)", title_base, i, i+size);
+			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
+				// figure_enable_legend(_fig);
+				// figure_set_title(_fig, buf_title);
+				// figure_series_set_dot_size_pixels(_s, 4);
+				// figure_series_type_bounded_median_curve(_s, 0);
+			// );
+		// }
+		// free(window);
+
 
 		// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs.png", title_base);
 		// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute", title_base);
@@ -1847,37 +1771,57 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 			// );
 		// }
 
-		k = 14;
-		long window_size = 1ULL << k;
-		double * window = (typeof(window)) malloc(window_size * sizeof(*window));
-		long size, gap;
-		gap = nnz / 10;
-		for (l=0;l<10;l++)
-		{
-			double val, val_prev;
-			i = l * gap;
-			size = (window_size < nnz - i) ?  window_size : nnz - i;
-			window[0] = 0;
-			for (j=1;j<size;j++)
-			{
-				val = vals[i+j];
-				val_prev = vals[i+j-1];
-				if (val == 0 || val_prev == 0)
-					window[j] = 0;
-				else
-				{
-					window[j] = fabs(val / val_prev);
-				}
-			}
-			quicksort(window, size, NULL);
-			snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_window_%ld.png", title_base, l);
-			snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - window [%ld, %ld)", title_base, i, i+size);
-			figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
-				figure_enable_legend(_fig);
-				figure_set_title(_fig, buf_title);
-			);
-		}
-		free(window);
+		// k = 14;
+		// window_size = 1ULL << k;
+		// window = (typeof(window)) malloc(window_size * sizeof(*window));
+		// gap = nnz / 10;
+		// for (l=0;l<10;l++)
+		// {
+			// double val, val_prev;
+			// i = l * gap;
+			// size = (window_size < nnz - i) ?  window_size : nnz - i;
+			// for (j=0;j<size;j++)
+				// window[j] = vals[i+j];
+			// quicksort(window, size, NULL, NULL);
+			// for (j=size-1;j>=1;j--)
+			// {
+				// val = window[j];
+				// val_prev = window[j-1];
+				// if (val == 0 || val_prev == 0)
+					// window[j] = 0;
+				// else
+				// {
+					// window[j] = fabs(val / val_prev);
+				// }
+			// }
+			// window[0] = 0;
+			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_window_%ld.png", title_base, l);
+			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - window [%ld, %ld)", title_base, i, i+size);
+			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
+				// figure_enable_legend(_fig);
+				// figure_set_title(_fig, buf_title);
+			// );
+			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_bounded_median_curve_window_%ld.png", title_base, l);
+			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - bounded median curve - window [%ld, %ld)", title_base, i, i+size);
+			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
+				// figure_enable_legend(_fig);
+				// figure_set_title(_fig, buf_title);
+				// figure_series_set_dot_size_pixels(_s, 4);
+				// figure_series_type_bounded_median_curve(_s, 0);
+			// );
+			// long div2 = 9;
+			// double bound = 1.0 / (1ULL << div2);
+			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_bounded_median_curve_window_%ld_zoomed_y_2^-%02ld.png", title_base, l, div2);
+			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - zoomed y axis: [0, 2^-%ld] - bounded median curve - window [%ld, %ld)", title_base, div2, i, i+size);
+			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
+				// figure_enable_legend(_fig);
+				// figure_set_title(_fig, buf_title);
+				// figure_set_bounds_y(_fig, -bound, bound);
+				// figure_series_set_dot_size_pixels(_s, 4);
+				// figure_series_type_bounded_median_curve(_s, 0);
+			// );
+		// }
+		// free(window);
 
 
 		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs.png", title_base);
@@ -1910,20 +1854,21 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 		// );
 
 		// k = 14;
-		// long window_size = 1ULL << k;
-		// double * window = (typeof(window)) malloc(window_size * sizeof(*window));
-		// long size, gap;
+		// window_size = 1ULL << k;
+		// window = (typeof(window)) malloc(window_size * sizeof(*window));
 		// gap = nnz / 10;
 		// for (l=0;l<10;l++)
 		// {
 			// double val, val_prev, diff;
 			// i = l * gap;
 			// size = (window_size < nnz - i) ?  window_size : nnz - i;
-			// window[0] = 0;
-			// for (j=1;j<size;j++)
+			// for (j=0;j<size;j++)
+				// window[j] = vals[i+j];
+			// quicksort(window, size, NULL, NULL);
+			// for (j=size-1;j>=1;j--)
 			// {
-				// val = vals[i+j];
-				// val_prev = vals[i+j-1];
+				// val = window[j];
+				// val_prev = window[j-1];
 				// diff = val - val_prev;
 				// if (diff == 0 || val_prev == 0)
 					// window[j] = 0;
@@ -1932,12 +1877,20 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 					// window[j] = fabs(diff / val_prev);
 				// }
 			// }
-			// quicksort(window, size, NULL);
+			// window[0] = 0;
 			// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2_window_%ld.png", title_base, l);
 			// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2 - window [%ld, %ld)", title_base, i, i+size);
 			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
 				// figure_enable_legend(_fig);
 				// figure_set_title(_fig, buf_title);
+			// );
+			// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2_bounded_median_curve_window_%ld.png", title_base, l);
+			// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2 - bounded median curve - window [%ld, %ld)", title_base, i, i+size);
+			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
+				// figure_enable_legend(_fig);
+				// figure_set_title(_fig, buf_title);
+				// figure_series_set_dot_size_pixels(_s, 4);
+				// figure_series_type_bounded_median_curve(_s, 0);
 			// );
 		// }
 		// free(window);
@@ -1957,7 +1910,7 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 			{
 				window[j] = vals[i+j];
 			}
-			quicksort(window, size, NULL);
+			quicksort(window, size, NULL, NULL);
 			snprintf(buf, buf_n, "%s_values_sorted_window_%ld.png", title_base, l);
 			snprintf(buf_title, buf_n, "%s: values sorted window [%ld, %ld)", title_base, i, i+size);
 			figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0),
@@ -1973,12 +1926,83 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 		}
 		free(window); */
 
+		k = 14;
+		window_size = 1ULL << k;
+		subwindow_size = 1ULL << 6;
+		window = (typeof(window)) malloc(window_size * sizeof(*window));
+		subwindow = (typeof(subwindow)) malloc(window_size * sizeof(*subwindow));
+		gap = nnz / 5;
+		for (l=0;l<5;l++)
+		{
+			double val, val_prev;
+			i = l * gap;
+			size = (window_size < nnz - i) ?  window_size : nnz - i;
+			for (j=0;j<size;j++)
+				window[j] = vals[i+j];
+			quicksort(window, size, NULL, NULL);
+			for (s=0;s<5;s++)
+			{
+				t = s * window_size / 5;
+				size_sub = (subwindow_size < nnz - t) ?  subwindow_size : nnz - t;
+				for (j=0;j<size_sub;j++)
+				{
+					subwindow[j] = window[t+j];
+				}
+				snprintf(buf, buf_n, "%s_values_sorted_subwindow_%ld_%ld.png", title_base, l, s);
+				snprintf(buf_title, buf_n, "%s: values sorted - window [%ld, %ld) subwindow [%ld, %ld)", title_base, i, i+size, t, t+size_sub);
+				figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, subwindow, NULL, size_sub, 0),
+					figure_enable_legend(_fig);
+					figure_set_title(_fig, buf_title);
+					figure_series_set_dot_size_pixels(_s, 4);
+				);
+				for (j=1;j<size_sub;j++)
+				{
+					val = window[t+j];
+					val_prev = window[t+j-1];
+					subwindow[j] = val - val_prev;
+				}
+				subwindow[0] = 0;
+				snprintf(buf, buf_n, "%s_values_sorted_diff_subwindow_%ld_%ld.png", title_base, l, s);
+				snprintf(buf_title, buf_n, "%s: values sorted: diff - window [%ld, %ld) subwindow [%ld, %ld)", title_base, i, i+size, t, t+size_sub);
+				figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, subwindow, NULL, size_sub, 0),
+					figure_enable_legend(_fig);
+					figure_set_title(_fig, buf_title);
+					figure_series_set_dot_size_pixels(_s, 4);
+				);
+				for (j=1;j<size_sub;j++)
+				{
+					val = window[t+j];
+					val_prev = window[t+j-1];
+					if (val == 0 || val_prev == 0)
+						subwindow[j] = 0;
+					else
+						subwindow[j] = val / val_prev;
+				}
+				subwindow[0] = 1;
+				snprintf(buf, buf_n, "%s_values_sorted_ratio_subwindow_%ld_%ld.png", title_base, l, s);
+				snprintf(buf_title, buf_n, "%s: values sorted: ratio - window [%ld, %ld) subwindow [%ld, %ld)", title_base, i, i+size, t, t+size_sub);
+				figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, subwindow, NULL, size_sub, 0),
+					figure_enable_legend(_fig);
+					figure_set_title(_fig, buf_title);
+					figure_series_set_dot_size_pixels(_s, 4);
+				);
+			}
+		}
+		free(window);
+		free(subwindow);
+
 	}
 
-	// csr_value_differences_of_neighbors(title_base, vals, m, n, nnz, do_plot, num_pixels_x, num_pixels_y);
-	// csr_value_differences_of_sorted_subsets(vals, nnz);
+	if (do_print_features)
+	{
+		csr_value_differences_of_neighbors(title_base, vals, m, n, nnz, do_plot, num_pixels_x, num_pixels_y);
 
-	// csr_value_distances_from_cluster_centers(title_base, vals, vals_sorted, m, n, nnz, do_plot, num_pixels_x, num_pixels_y);
+		// long deduplicate = 0;
+		long deduplicate = 1;
+		csr_value_differences_of_sorted_subsets(vals, nnz, deduplicate);
+
+		// csr_value_distances_from_cluster_centers(title_base, vals, vals_sorted, m, n, nnz, do_plot, num_pixels_x, num_pixels_y);
+	}
 
 	free(vals);
 	free(vals_sorted);
@@ -3058,7 +3082,7 @@ csr_kmeans_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val,
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
 	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+		printf("I = %d\t%d\t( %.3f %% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
@@ -3150,7 +3174,7 @@ csr_kmeans_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
 	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+		printf("I = %d\t%d\t( %.3f %% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
@@ -3250,7 +3274,7 @@ csr_kmeans_char_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val,
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
 	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+		printf("I = %d\t%d\t( %.3f %% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
@@ -3323,7 +3347,7 @@ csr_kmeans_char_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V 
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
 	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+		printf("I = %d\t%d\t( %.3f %% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
@@ -3359,6 +3383,7 @@ csr_save_to_mtx(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int num_row
 	fclose(file);
 }
 
+
 //==========================================================================================================================================
 //= Ploting
 //==========================================================================================================================================
@@ -3381,12 +3406,13 @@ csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__(
 			figure_enable_legend(_fig);
 		figure_set_title(_fig, buf_title);
 		figure_axes_flip_y(_fig);
-		figure_set_bounds_x(_fig, 0, n);
-		figure_set_bounds_y(_fig, 0, m);
+		figure_set_bounds_x(_fig, 0, n-1);
+		figure_set_bounds_y(_fig, 0, m-1);
 		figure_series_type_density_map(_s);
 	);
 	free(row_idx);
 }
+
 
 #undef  csr_row_size_histogram_plot
 #define csr_row_size_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_row_size_histogram_plot)
@@ -3422,7 +3448,7 @@ csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__(
 		if (enable_legend)
 			figure_enable_legend(_fig);
 		figure_set_title(_fig, buf_title);
-		figure_series_type_histogram(_s, 0, 1);
+		figure_series_type_histogram(_s, 0, NULL, 1);
 		figure_series_type_barplot(_s);
 	);
 
@@ -3460,12 +3486,13 @@ csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _T
 		if (enable_legend)
 			figure_enable_legend(_fig);
 		figure_set_title(_fig, buf_title);
-		figure_series_type_histogram(_s, 0, 1);
+		figure_series_type_histogram(_s, 0, NULL, 1);
 		figure_series_type_barplot(_s);
 	);
 
 	free(crs_row);
 }
+
 
 #undef  csr_num_neigh_histogram_plot
 #define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
@@ -3497,7 +3524,7 @@ csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col
 		if (enable_legend)
 			figure_enable_legend(_fig);
 		figure_set_title(_fig, buf_title);
-		figure_series_type_histogram(_s, 0, 1);
+		figure_series_type_histogram(_s, 0, NULL, 1);
 		figure_series_type_barplot(_s);
 	);
 
@@ -3511,6 +3538,7 @@ csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col
 
 
 #include "sort/samplesort/samplesort_gen_pop.h"
+#include "sort/quicksort/quicksort_gen_pop.h"
 #include "sort/quicksort/quicksort_gen_pop.h"
 #include "functools/functools_gen_pop.h"
 

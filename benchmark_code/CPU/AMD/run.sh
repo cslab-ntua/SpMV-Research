@@ -22,12 +22,17 @@ fi
 export GOMP_CPU_AFFINITY="$cpu_affinity"
 export XLSMPOPTS="PROCS=$cpu_affinity"
 
-export MKL_DEBUG_CPU_TYPE=5
+lscpu | grep -q -i amd
+if (($? == 0)); then
+    export MKL_DEBUG_CPU_TYPE=5
+fi
+# export MKL_ENABLE_INSTRUCTIONS=AVX512
+export MKL_VERBOSE=1
 
 export LD_LIBRARY_PATH="${AOCL_PATH}/lib:${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${SPARSEX_LIB_PATH}"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/various/dgal/gcc/gcc-12.2.0/gcc_bin/lib64"
-
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/various/dgal/epyc1/cuda/cuda_11_4_4/lib64"
 
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'
@@ -72,11 +77,11 @@ matrices_validation=(
     # Chebyshev4.mtx
     # consph.mtx
     # com-Youtube.mtx
-    # rajat30.mtx
+    rajat30.mtx
     # radiation.mtx
     # Stanford_Berkeley.mtx
     # shipsec1.mtx
-    PR02R.mtx
+    # PR02R.mtx
     # CurlCurl_2.mtx
     # gupta3.mtx
     # mip1.mtx
@@ -213,9 +218,9 @@ done
 
 matrices_compression=(
 
-    # spal_004
+    spal_004
     # ldoor
-    dielFilterV2real
+    # dielFilterV2real
     # nv2
     # af_shell10
     # boneS10
@@ -242,6 +247,62 @@ matrices_compression=(
     # Queen_4147
     # stokes
     # nlpkkt200
+
+    # Transport
+    # Freescale2
+    # FullChip
+    # cage14
+    # ML_Laplace
+    # vas_stokes_1M
+    # ss
+    # RM07R
+    # dgreen
+    # Hardesty3
+    # nlpkkt240
+
+    # MOLIERE_2016
+
+    # Transport
+    # Freescale2
+    # ldoor
+    # dielFilterV2real
+    # af_shell10
+    # FullChip
+    # cage14
+    # ML_Laplace
+    # boneS10
+    # Hook_1498
+    # Geo_1438
+    # Serena
+    # vas_stokes_1M
+    # ss
+    # bone010
+    # RM07R
+    # dgreen
+    # audikw_1
+    # Hardesty3
+    # Long_Coup_dt0
+    # Long_Coup_dt6
+    # dielFilterV3real
+    # spal_004
+    # nlpkkt120
+    # nv2
+    # Flan_1565
+    # circuit5M
+    # Cube_Coup_dt0
+    # Cube_Coup_dt6
+    # vas_stokes_2M
+    # Bump_2911
+    # cage15
+    # ML_Geer
+    # nlpkkt160
+    # vas_stokes_4M
+    # Queen_4147
+    # nlpkkt200
+    # HV15R
+    # stokes
+    # nlpkkt240
+    # MOLIERE_2016
 
 )
 for ((i=0;i<${#matrices_compression[@]};i++)); do
@@ -479,9 +540,10 @@ for format_name in "${!progs[@]}"; do
     LEVEL3_CACHE_SIZE="$(getconf LEVEL3_CACHE_SIZE)"
     csrcv_num_packet_vals=(
         # 128 
-        # $((2**6))
+        $((2**6))
+        # $((2**7))
         # $((2**10))
-        $((2**14))
+        # $((2**14))
         # $((2**17))
         # $((2**20))
         # $((2**12))

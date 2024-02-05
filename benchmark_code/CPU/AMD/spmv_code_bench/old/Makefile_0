@@ -1,0 +1,408 @@
+.PHONY: all clean
+
+SHELL := bash
+.SHELLFLAGS := -eu -o pipefail -c
+.ONESHELL:
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+
+# Targets that don't generate dependency files.
+NODEPS = clean
+
+DIRS = obj obj_f obj_cuda
+
+define Rule_Auto_Dependencies_base =
+    $(1:.o=.d): $(2) | $(DIRS)
+	@echo 'Generating dependencies file:  $(2)'
+	gcc $$(CFLAGS) -MT '$(1:.o=.d)' -MM -MG '$(2)' -MF '$(1:.o=.d)'
+    ifeq (0, $(words $(findstring $(MAKECMDGOALS),$(NODEPS))))
+        -include $(1:.o=.d)
+    endif
+    $(1): $(1:.o=.d)
+endef
+
+define Rule_Auto_Dependencies =
+    $(eval $(call Rule_Auto_Dependencies_base,$(1),$(2)))
+    $(1): $(2)
+endef
+
+
+library = ../../../../lib
+
+
+CPATH = 
+define NEWLINE
+
+
+endef
+
+shell_out := $(shell ../config.sh)
+shell_out := $(subst ;,$(NEWLINE),$(shell_out))
+$(eval $(shell_out))
+
+AMG_PATH = ../../../../artificial-matrix-generator
+
+
+CC = gcc
+# CC = /various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/gcc
+# CC = clang
+# CC = xlc
+
+CPP = g++
+# CPP = /various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/g++
+# CPP = clang++
+# CPP = xlc++
+
+NVCC = nvcc
+
+
+ARCH = $(shell uname -m)
+
+
+CFLAGS =
+CFLAGS += -Wall -Wextra
+CFLAGS += -pipe  # Tells the compiler to use pipes instead of temporary files (faster compilation, but uses more memory).
+# CFLAGS += -Wno-unused-variable
+CFLAGS += -Wno-alloc-size-larger-than
+CFLAGS += -fopenmp
+
+CFLAGS += -D'_GNU_SOURCE'
+
+# CFLAGS += -g
+# CFLAGS += -g3 -fno-omit-frame-pointer
+# CFLAGS += -Og
+# CFLAGS += -O0
+# CFLAGS += -O2
+CFLAGS += -O3
+
+# CFLAGS += -ffast-math
+
+CFLAGS += -flto=auto
+ifeq ($(ARCH), x86_64)
+    CFLAGS += -mbmi
+    CFLAGS += -mbmi2
+    CFLAGS += -march=native
+else ifeq ($(ARCH), ppc64le)
+    CFLAGS += -mcpu=power9
+else
+    CFLAGS += -mcpu=native
+endif
+
+CFLAGS += -I'$(library)'
+CFLAGS += -I'$(AMG_PATH)'
+
+CFLAGS += -D'INT_T=int32_t'
+
+ifeq ($(PRINT_STATISTICS),1)
+    CFLAGS += -D'PRINT_STATISTICS'
+endif
+
+CFLAGS += -D'LEVEL1_DCACHE_LINESIZE=$(shell getconf LEVEL1_DCACHE_LINESIZE)'
+CFLAGS += -D'LEVEL1_DCACHE_SIZE=$(shell getconf LEVEL1_DCACHE_SIZE)'
+CFLAGS += -D'LEVEL2_CACHE_SIZE=$(shell getconf LEVEL2_CACHE_SIZE)'
+CFLAGS += -D'LEVEL3_CACHE_SIZE=$(shell getconf LEVEL3_CACHE_SIZE)'
+
+CFLAGS += -D'MATRIX_MARKET_FLOAT_T=ValueType'
+
+
+CPPFLAGS =
+CPPFLAGS += $(CFLAGS)
+
+ifeq ($(CC), xlc)
+    CFLAGS += -Wno-typedef-redefinition
+    CFLAGS += -D'__XLC__'
+endif
+ifeq ($(CPP), xlc++)
+    CPPFLAGS += -std=c++11
+    CPPFLAGS += -D'__XLC__'
+endif
+
+
+CFLAGS_D := $(CFLAGS) -D'DOUBLE=1' -D'ValueType=double'
+CPPFLAGS_D := $(CPPFLAGS) -D'DOUBLE=1' -D'ValueType=double'
+
+CFLAGS_F := $(CFLAGS) -D'DOUBLE=0' -D'ValueType=float'
+CPPFLAGS_F := $(CPPFLAGS) -D'DOUBLE=0' -D'ValueType=float'
+
+CFLAGS_CUDA := $(CFLAGS_D) -fno-lto
+CPPFLAGS_CUDA := $(CPPFLAGS_D) -fno-lto
+
+
+LDFLAGS =
+LDFLAGS += -lm
+
+
+LIB_SRC = pthread_functions.c omp_functions.c topology.c hash.c random.c hashtable.c bitstream.c bytestream.c array_metrics.c string_util.c io.c parallel_io.c plot.c read_mtx.c matrix_market.c openfoam_matrix.c rapl.c csr_converter.c csr_converter_double.c csr_util.c artificial_matrix_generation.c ordered_set.c
+
+LIB_OBJ := $(LIB_SRC)
+
+LIB_OBJ_D := $(LIB_OBJ)
+LIB_OBJ_D := $(patsubst %.c,obj/%.o,$(LIB_OBJ_D))
+LIB_OBJ_D := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ_D))
+
+LIB_OBJ_F := $(LIB_OBJ)
+LIB_OBJ_F := $(patsubst %.c,obj_f/%.o,$(LIB_OBJ_F))
+LIB_OBJ_F := $(patsubst %.cpp,obj_f/%.o,$(LIB_OBJ_F))
+
+LIB_OBJ_CUDA := $(LIB_OBJ)
+LIB_OBJ_CUDA := $(patsubst %.c,obj_cuda/%.o,$(LIB_OBJ_CUDA))
+LIB_OBJ_CUDA := $(patsubst %.cpp,obj_cuda/%.o,$(LIB_OBJ_CUDA))
+
+
+EXE =
+
+# EXE += spmv_csr_naive.exe
+# EXE += spmv_csr.exe
+# EXE += spmv_csr_kahan.exe
+# EXE += spmv_csr_prefetch.exe
+# EXE += spmv_csr_simd.exe
+# EXE += spmv_csr_vector.exe
+# EXE += spmv_csr_vector_perfect_nnz_balance.exe
+
+# EXE += spmv_csr_cv.exe
+# EXE += spmv_csr_cv_stream.exe
+# EXE += spmv_csr_cv_stream_opt_compress.exe
+
+# EXE += spmv_csr_vector_x86.exe
+# EXE += spmv_csr_vector_oracle_balance_x86.exe
+# EXE += spmv_csr_vector_queues_x86.exe
+# EXE += spmv_csr__vector_perfect_nnz_balance_x86.exe
+
+# EXE += spmv_csr_vector_lut_x86.exe
+
+# EXE += spmv_dia.exe
+# EXE += spmv_ldu.exe
+# EXE += spmv_ell.exe
+
+EXE += spmv_csr_cuda.exe
+
+EXE += spmv_mkl_ie.exe
+EXE += spmv_mkl_ie_f.exe
+# EXE += spmv_mkl_coo.exe
+# EXE += spmv_mkl_dia.exe
+# EXE += spmv_mkl_csc.exe
+# EXE += spmv_mkl_csr.exe
+# EXE += spmv_mkl_bsr_2.exe spmv_mkl_bsr_4.exe spmv_mkl_bsr_8.exe spmv_mkl_bsr_16.exe spmv_mkl_bsr_32.exe spmv_mkl_bsr_64.exe
+
+# EXE += spmv_aocl_optmv.exe
+
+# EXE += spmv_csrrv.exe
+
+# EXE += spmv_csr5.exe
+
+# EXE += spmv_merge.exe
+
+# EXE += spmv_sparsex.exe
+
+
+all: $(EXE) | $(DIRS)
+
+
+# x86_64 aarch64 ppc64le
+CPPFLAGS_CUSTOM =
+ifeq ($(ARCH), x86_64)
+    CPPFLAGS_CUSTOM += -mavx2
+    CPPFLAGS_CUSTOM += -mavx512f
+else ifeq ($(ARCH), aarch64)
+endif
+
+spmv_csr_naive.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) -D'NAIVE' $^ -o $@ $(LDFLAGS)
+spmv_csr.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+spmv_csr_kahan.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) -D'CUSTOM_KAHAN' $^ -o $@ $(LDFLAGS)
+spmv_csr_prefetch.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) -D'CUSTOM_PREFETCH' $^ -o $@ $(LDFLAGS)
+spmv_csr_simd.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) -D'CUSTOM_SIMD' $^ -o $@ $(LDFLAGS)
+spmv_csr_vector.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) -D'CUSTOM_VECTOR' $^ -o $@ $(LDFLAGS)
+spmv_csr_vector_perfect_nnz_balance.exe: obj/spmv_bench.o spmv_kernel_csr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
+
+spmv_csr_cv.exe: obj/spmv_bench.o obj/spmv_kernel_csr_cv.o $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+spmv_csr_cv_stream.exe: obj/spmv_bench.o obj/spmv_kernel_csr_cv_stream.o $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+spmv_csr_cv_stream_opt_compress.exe: obj/spmv_bench.o obj/spmv_kernel_csr_cv_stream_opt_compress.o $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+
+spmv_csr_vector_x86.exe: obj/spmv_bench.o spmv_kernel_csr_x86.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR' $^ -o $@ $(LDFLAGS)
+spmv_csr_vector_oracle_balance_x86.exe: obj/spmv_bench.o spmv_kernel_csr_x86.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR' -D'CUSTOM_X86_VECTOR_ORACLE_BALANCE' $^ -o $@ $(LDFLAGS)
+spmv_csr__vector_perfect_nnz_balance_x86.exe: obj/spmv_bench.o spmv_kernel_csr_x86.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
+spmv_csr_vector_queues_x86.exe: obj/spmv_bench.o spmv_kernel_csr_x86.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR_QUEUES' $^ -o $@ $(LDFLAGS)
+
+spmv_csr_vector_lut_x86.exe: obj/spmv_bench.o spmv_kernel_csr_lut_x86.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+
+spmv_ldu.exe: obj/spmv_bench.o spmv_kernel_ldu.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+spmv_ell.exe: obj/spmv_bench.o spmv_kernel_ell.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+spmv_dia.exe: obj/spmv_bench.o spmv_kernel_dia.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS_MKL)
+
+
+LDFLAGS_NV =
+LDFLAGS_NV += -lcuda
+LDFLAGS_NV += -lcudart
+
+NVFLAGS = -allow-unsupported-compiler
+# NVFLAGS += --dlink-time-opt
+
+spmv_csr_cuda.exe: obj_cuda/spmv_bench.o spmv_kernel_csr_cuda.cu $(LIB_OBJ_CUDA)
+	$(NVCC) $(NVFLAGS) --compiler-options "$(CPPFLAGS_D) $(CPPFLAGS_CUDA)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+
+
+CPPFLAGS_MKL = 
+CPPFLAGS_MKL += -I'$(MKL_PATH)/include' -I'/usr/include/mkl'
+CPPFLAGS_MKL += -Wno-deprecated-declarations -m64 -mavx2
+
+LDFLAGS_MKL = 
+LDFLAGS_MKL += -L'$(MKL_PATH)/lib/intel64'
+LDFLAGS_MKL += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -ldl
+
+spmv_mkl_coo.exe: obj/spmv_bench.o spmv_kernel_mkl_coo.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+spmv_mkl_dia.exe: obj/spmv_bench.o spmv_kernel_mkl_dia.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+spmv_mkl_csc.exe: obj/spmv_bench.o spmv_kernel_mkl_csc.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+spmv_mkl_csr.exe: obj/spmv_bench.o spmv_kernel_mkl_csr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+spmv_mkl_ie.exe: obj/spmv_bench.o spmv_kernel_mkl_ie.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+spmv_mkl_ie_f.exe: obj_f/spmv_bench.o spmv_kernel_mkl_ie.cpp $(LIB_OBJ_F)
+	$(CPP) $(CPPFLAGS_F) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+spmv_mkl_bsr_2.exe: obj/spmv_bench.o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=2' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+spmv_mkl_bsr_4.exe: obj/spmv_bench.o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=4' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+spmv_mkl_bsr_8.exe: obj/spmv_bench.o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=8' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+spmv_mkl_bsr_16.exe: obj/spmv_bench.o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=16' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+spmv_mkl_bsr_32.exe: obj/spmv_bench.o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=32' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+spmv_mkl_bsr_64.exe: obj/spmv_bench.o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=64' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+
+
+CPPFLAGS_AOCL =
+CPPFLAGS_AOCL += -I'$(AOCL_PATH)/include' -I'$(AOCL_PATH)/src/include' -I'$(AOCL_PATH)/../../library/src/include'
+CPPFLAGS_AOCL += -m64 -mavx2
+
+LDFLAGS_AOCL =
+LDFLAGS_AOCL += -L'$(AOCL_PATH)/lib/'
+LDFLAGS_AOCL += -Wl,--no-as-needed  -laoclsparse -lgomp -lpthread -ldl
+
+spmv_aocl_optmv.exe: obj/spmv_bench.o spmv_kernel_aocl_optmv.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_AOCL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_AOCL)
+
+
+CPPFLAGS_CSRRV =
+CPPFLAGS_CSRRV += -Wno-unused-variable
+CPPFLAGS_CSRRV += -Wno-unused-parameter
+CPPFLAGS_CSRRV += -Wno-init-self
+CPPFLAGS_CSRRV += -mavx
+CPPFLAGS_CSRRV += -mavx2
+CPPFLAGS_CSRRV += -mavx512f
+CPPFLAGS_CSRRV += -mavx512vl
+CPPFLAGS_CSRRV += -mavx512bw
+
+spmv_csrrv.exe: obj/spmv_bench.o spmv_kernel_csrrv.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CSRRV) $^ -o $@ $(LDFLAGS)
+
+
+CPPFLAGS_CSR5 =
+CPPFLAGS_CSR5 += -Wno-deprecated-writable-strings -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-sign-compare -Wno-unknown-pragmas -Wno-write-strings -Wno-unused-result
+
+spmv_csr5.exe: obj/spmv_bench.o spmv_kernel_csr5.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_CSR5) $^ -o $@ $(LDFLAGS)
+
+
+CPPFLAGS_MERGE =
+# CPPFLAGS_MERGE += -D'CUB_MKL'
+CPPFLAGS_MERGE += -m64
+ifeq ($(ARCH), x86_64)
+    CPPFLAGS_MERGE += -mavx2
+    # CPPFLAGS_MERGE += -mavx512f
+else ifeq ($(ARCH), aarch64)
+endif
+CPPFLAGS_MERGE += -Wno-deprecated-declarations -Wno-sign-compare
+ifeq ($(CPP), xlc++)
+    CPPFLAGS_MERGE += -Wno-unknown-attributes
+    CPPFLAGS_MERGE += -Wno-unused-parameter
+    CPPFLAGS_MERGE += -Wno-unused-variable
+endif
+
+LDFLAGS_MERGE =
+LDFLAGS_MERGE += -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl
+# LDFLAGS_MERGE += -lnuma
+
+spmv_merge.exe: obj/spmv_bench.o spmv_kernel_merge.cpp $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_MERGE) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MERGE)
+
+
+CPPFLAGS_SPARSEX =
+CPPFLAGS_SPARSEX += -Wno-unused-variable
+CPPFLAGS_SPARSEX += -Wno-unused-but-set-variable
+CPPFLAGS_SPARSEX += -Wno-unused-parameter
+CPPFLAGS_SPARSEX += -Wno-sign-compare
+CPPFLAGS_SPARSEX += -Wno-unused-local-typedefs
+CPPFLAGS_SPARSEX += -Wno-deprecated-copy
+CPPFLAGS_SPARSEX += -Wno-placement-new
+CPPFLAGS_SPARSEX += -Wno-deprecated-declarations
+CPPFLAGS_SPARSEX += -Wno-parentheses
+CPPFLAGS_SPARSEX += -Wno-nonnull
+CPPFLAGS_SPARSEX += -fopenmp
+CPPFLAGS_SPARSEX += -I'$(BOOST_INC_PATH)'
+CPPFLAGS_SPARSEX += -I'$(LLVM_INC_PATH)'
+CPPFLAGS_SPARSEX += -I$(SPARSEX_INC_PATH)
+CPPFLAGS_SPARSEX += $(shell ${SPARSEX_CONF_PATH}/sparsex-config --cppflags)
+
+LDFLAGS_SPARSEX =
+LDFLAGS_SPARSEX += $(shell ${SPARSEX_CONF_PATH}/sparsex-config --ldflags)
+LDFLAGS_SPARSEX += -L'$(BOOST_LIB_PATH)'
+LDFLAGS_SPARSEX += -L'$(LLVM_LIB_PATH)'
+LDFLAGS_SPARSEX += -L'$(SPARSEX_LIB_PATH)'
+LDFLAGS_SPARSEX += -lboost_regex
+LDFLAGS_SPARSEX += -lboost_serialization
+LDFLAGS_SPARSEX += -lboost_system
+LDFLAGS_SPARSEX += -lboost_atomic
+# LDFLAGS_SPARSEX += -lnuma
+# LDFLAGS_SPARSEX += -lz -ltinfo -lrt -lgomp -lpthread -ldl -lpapi -fopenmp
+
+# This needs to be put FIRST.
+LDFLAGS_SPARSEX := -Wl,--no-as-needed $(LDFLAGS_SPARSEX)
+
+spmv_sparsex.exe: obj/spmv_bench.o obj/spmv_kernel_sparsex.o $(LIB_OBJ_D)
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_SPARSEX) $^ -o $@ $(LDFLAGS) $(LDFLAGS_SPARSEX)
+
+obj/spmv_kernel_sparsex.o: spmv_kernel_sparsex.cpp
+	$(CPP) $(CPPFLAGS_D) $(CPPFLAGS_SPARSEX) -c $< -o $@
+
+
+
+$(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv.o,spmv_kernel_csr_cv.cpp)
+	$(CPP) $(CPPFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_stream.o,spmv_kernel_csr_cv_stream.cpp)
+	$(CPP) $(CPPFLAGS_D) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_stream_opt_compress.o,spmv_kernel_csr_cv_stream_opt_compress.cpp)
+	$(CPP) $(CPPFLAGS_D) -c $< -o $@
+
+
+include Makefile_lib
+
+
+$(DIRS): %:
+	mkdir -p $@
+
+clean:
+	$(RM) obj/* obj_f/* *.o *.exe a.out
+

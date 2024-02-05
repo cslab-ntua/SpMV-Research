@@ -44,12 +44,18 @@ uint64_t * t_row_bits_accum;
 uint64_t * t_col_bits_accum;
 uint64_t * t_row_col_bytes_accum;
 
-#include "sort/quicksort/quicksort_gen_undef.h"
-#define QUICKSORT_GEN_TYPE_1  int
-#define QUICKSORT_GEN_TYPE_2  int
-#define QUICKSORT_GEN_TYPE_3  double
-#define QUICKSORT_GEN_SUFFIX  i_i_d
-#include "sort/quicksort/quicksort_gen.c"
+#ifdef __cplusplus
+extern "C"{
+#endif
+	#include "sort/quicksort/quicksort_gen_undef.h"
+	#define QUICKSORT_GEN_TYPE_1  int
+	#define QUICKSORT_GEN_TYPE_2  int
+	#define QUICKSORT_GEN_TYPE_3  double
+	#define QUICKSORT_GEN_SUFFIX  i_i_d
+	#include "sort/quicksort/quicksort_gen.c"
+#ifdef __cplusplus
+}
+#endif
 
 static inline
 int
@@ -119,7 +125,7 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals, long i_s, lo
 	long i, j, k;
 	for (k=0;k<num_vals;k++)
 		permutation[k] = k;
-	quicksort_no_malloc(permutation, num_vals, vals, t_qsort_partitions[tnum]);
+	quicksort(permutation, num_vals, vals, t_qsort_partitions[tnum]);
 	for (k=0;k<num_vals;k++)
 		rev_permutation[permutation[k]] = k;
 	col_min = ja[j_s];

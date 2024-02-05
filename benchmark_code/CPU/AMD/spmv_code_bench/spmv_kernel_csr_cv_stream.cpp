@@ -18,7 +18,15 @@ extern "C"{
 	#include "array_metrics.h"
 	#include "x86_util.h"
 
+	// #include "spmv_kernel_csr_cv_stream_compression_kernels_predict.h"
+	// #include "spmv_kernel_csr_cv_stream_compression_kernels_predict_0_base_naive_prev_value.h"
+	// #include "spmv_kernel_csr_cv_stream_compression_kernels_predict_1_ratio.h"
+
 	#include "spmv_kernel_csr_cv_stream_compression_kernels.h"
+	// #include "spmv_kernel_csr_cv_stream_compression_kernels_24_rf.h"
+	// #include "spmv_kernel_csr_cv_stream_compression_kernels_23_int_sort_abs_nzp_r0_select_dense_select.h"
+	// #include "spmv_kernel_csr_cv_stream_compression_kernels_17_int_sort_abs_nzp_r0_select_dense_select.h"
+
 	// #include "spmv_kernel_csr_cv_stream_compression_kernels_0.h"
 	// #include "spmv_kernel_csr_cv_stream_compression_kernels_0_size_of_fraction.h"
 	// #include "spmv_kernel_csr_cv_stream_compression_kernels_1_total_entry_size.h"
@@ -37,7 +45,6 @@ extern "C"{
 	// #include "spmv_kernel_csr_cv_stream_compression_kernels_14_int_sort_abs_znp_avx_coords.h"
 	// #include "spmv_kernel_csr_cv_stream_compression_kernels_15_int_sort_abs_znp_avx_coords_multadd_select.h"
 	// #include "spmv_kernel_csr_cv_stream_compression_kernels_16_int_sort_abs_znp_multadd_select.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_17_int_sort_abs_nzp_r0_select_dense_select.h"
 	// #include "spmv_kernel_csr_cv_stream_compression_kernels_18_int_sort_abs_nzp_r0_select_dense_select_2_shifts.h"
 
 #ifdef __cplusplus
@@ -257,6 +264,8 @@ struct CSRCVSArrays : Matrix_Format
 			}
 		);
 		printf("compression time = %g\n", time_compress);
+
+		// error("test");
 
 		compr_data_size = 0;
 		for (i=0;i<num_threads;i++)

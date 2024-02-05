@@ -88,8 +88,9 @@ typedef QUICKSORT_GEN_TYPE_3  _TYPE_AD;
 
 #undef  quicksort_no_malloc
 #define quicksort_no_malloc  QUICKSORT_GEN_EXPAND(quicksort_no_malloc)
+static inline
 void
-quicksort_no_malloc(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitions)
+quicksort_no_malloc(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitions_buf)
 {
 	long s, m, e;
 	long i;
@@ -117,10 +118,10 @@ quicksort_no_malloc(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitio
 				return;
 			i--;
 			e--;
-			s = partitions[i];
+			s = partitions_buf[i];
 		}
 		m = partition_auto_serial(A, s, e+1, aux_data);
-		partitions[i++] = s;
+		partitions_buf[i++] = s;
 		s = m;
 	}
 }
@@ -129,21 +130,23 @@ quicksort_no_malloc(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitio
 #undef  quicksort
 #define quicksort  QUICKSORT_GEN_EXPAND(quicksort)
 void
-quicksort(_TYPE_V * A, long N, _TYPE_AD * aux_data)
+quicksort(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitions_buf)
 {
-	_TYPE_I * partitions;
+	_TYPE_I * partitions_buf_tmp;
 	if (N < 2)
 		return;
-	partitions = (typeof(partitions)) malloc(N * sizeof(*partitions));
-	quicksort_no_malloc(A, N, aux_data, partitions);
-	free(partitions);
+	partitions_buf_tmp = (partitions_buf != NULL) ? partitions_buf : (typeof(partitions_buf_tmp)) malloc(N * sizeof(*partitions_buf_tmp));
+	quicksort_no_malloc(A, N, aux_data, partitions_buf_tmp);
+	if (partitions_buf == NULL)
+		free(partitions_buf_tmp);
 }
 
 
 #undef  quicksort_no_malloc_parallel
 #define quicksort_no_malloc_parallel  QUICKSORT_GEN_EXPAND(quicksort_no_malloc_parallel)
+static inline
 void
-quicksort_no_malloc_parallel(_TYPE_V * A, __attribute__((unused)) _TYPE_V * buf, long N, _TYPE_AD * aux_data, _TYPE_I * partitions)
+quicksort_no_malloc_parallel(_TYPE_V * A, __attribute__((unused)) _TYPE_V * buf, long N, _TYPE_AD * aux_data, _TYPE_I * partitions_buf)
 {
 	long s, m, e;
 	long i;
@@ -179,7 +182,7 @@ quicksort_no_malloc_parallel(_TYPE_V * A, __attribute__((unused)) _TYPE_V * buf,
 				return;
 			i--;
 			e--;
-			s = partitions[i];
+			s = partitions_buf[i];
 		}
 
 		// if (do_print)
@@ -261,7 +264,7 @@ quicksort_no_malloc_parallel(_TYPE_V * A, __attribute__((unused)) _TYPE_V * buf,
 		// if (exit_after_one)
 			// exit(0);
 
-		partitions[i++] = s;
+		partitions_buf[i++] = s;
 		s = m;
 	}
 }
@@ -270,31 +273,33 @@ quicksort_no_malloc_parallel(_TYPE_V * A, __attribute__((unused)) _TYPE_V * buf,
 #undef  quicksort_parallel
 #define quicksort_parallel  QUICKSORT_GEN_EXPAND(quicksort_parallel)
 void
-quicksort_parallel(_TYPE_V * A, long N, _TYPE_AD * aux_data)
+quicksort_parallel(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitions_buf)
 {
 	_TYPE_V * buf;
-	_TYPE_I * partitions;
+	_TYPE_I * partitions_buf_tmp;
 	if (N < 2)
 		return;
 	buf = (typeof(buf)) malloc(N * sizeof(*buf));
-	partitions = (typeof(partitions)) malloc(N * sizeof(*partitions));
-	quicksort_no_malloc_parallel(A, buf, N, aux_data, partitions);
+	partitions_buf_tmp = (partitions_buf != NULL) ? partitions_buf : (typeof(partitions_buf_tmp)) malloc(N * sizeof(*partitions_buf_tmp));
+	quicksort_no_malloc_parallel(A, buf, N, aux_data, partitions_buf_tmp);
 	free(buf);
-	free(partitions);
+	if (partitions_buf == NULL)
+		free(partitions_buf_tmp);
 }
 
 
 #undef  quicksort_parallel_inplace
 #define quicksort_parallel_inplace  QUICKSORT_GEN_EXPAND(quicksort_parallel_inplace)
 void
-quicksort_parallel_inplace(_TYPE_V * A, long N, _TYPE_AD * aux_data)
+quicksort_parallel_inplace(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitions_buf)
 {
-	_TYPE_I * partitions;
+	_TYPE_I * partitions_buf_tmp;
 	if (N < 2)
 		return;
-	partitions = (typeof(partitions)) malloc(N * sizeof(*partitions));
-	quicksort_no_malloc_parallel(A, NULL, N, aux_data, partitions);
-	free(partitions);
+	partitions_buf_tmp = (partitions_buf != NULL) ? partitions_buf : (typeof(partitions_buf_tmp)) malloc(N * sizeof(*partitions_buf_tmp));
+	quicksort_no_malloc_parallel(A, NULL, N, aux_data, partitions_buf_tmp);
+	if (partitions_buf == NULL)
+		free(partitions_buf_tmp);
 }
 
 

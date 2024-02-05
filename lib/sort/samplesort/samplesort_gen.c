@@ -124,7 +124,7 @@ find_splitters(_TYPE_V * A, long N, _TYPE_V * splitters, long num_splitters, _TY
 	for (i=0;i<num_samples;i++)
 		samples[i] = A[i*div];
 	// printf("quicksort samples\n");
-	quicksort(samples, num_samples, aux_data);
+	quicksort(samples, num_samples, aux_data, NULL);
 	for (i=0,j=0;i<num_samples;i++)
 	{
 		if (samplesort_cmp(samples[i], samples[j], aux_data) == 0)
@@ -187,7 +187,7 @@ samplesort_concurrent(_TYPE_V * A, long N, _TYPE_AD * aux_data)
 	{
 		#pragma omp single nowait
 		{
-			quicksort(A, N, aux_data);
+			quicksort(A, N, aux_data, NULL);
 		}
 		#pragma omp barrier
 		return;
@@ -206,7 +206,7 @@ samplesort_concurrent(_TYPE_V * A, long N, _TYPE_AD * aux_data)
 	{
 		#pragma omp single nowait
 		{
-			quicksort(A, N, aux_data);
+			quicksort(A, N, aux_data, NULL);
 		}
 		#pragma omp barrier
 		return;
@@ -331,8 +331,8 @@ samplesort_concurrent(_TYPE_V * A, long N, _TYPE_AD * aux_data)
 			free(t_buckets[i][b_id]);
 		}
 
-		// quicksort(priv_bucket[b], priv_bucket_n[b], aux_data);
-		quicksort_no_malloc(priv_bucket[b], priv_bucket_n[b], aux_data, partitions);
+		// quicksort(priv_bucket[b], priv_bucket_n[b], aux_data, NULL);
+		quicksort(priv_bucket[b], priv_bucket_n[b], aux_data, partitions);
 		// mergesort(priv_bucket[b], priv_bucket_n[b], aux_data);
 		// mergesort_no_malloc(priv_bucket[b], priv_bucket_n[b], aux_data, buf);
 
@@ -389,7 +389,7 @@ samplesort(_TYPE_V * A, long N, _TYPE_AD * aux_data)
 {
 	if (omp_get_level() > 0)
 	{
-		quicksort(A, N, aux_data);
+		quicksort(A, N, aux_data, NULL);
 		return;
 	}
 	_Pragma("omp parallel")
