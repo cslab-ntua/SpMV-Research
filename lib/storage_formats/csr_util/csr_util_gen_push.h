@@ -4,7 +4,7 @@
 #pragma push_macro("CSR_UTIL_GEN_EXPAND")
 #pragma push_macro("_TYPE_V")
 #pragma push_macro("_TYPE_I")
-#pragma push_macro("csr_row_indexes")
+#pragma push_macro("csr_row_indices")
 #pragma push_macro("csr_degrees_bandwidths_scatters")
 #pragma push_macro("csr_groups_per_row")
 #pragma push_macro("csr_column_distances_and_groupping")

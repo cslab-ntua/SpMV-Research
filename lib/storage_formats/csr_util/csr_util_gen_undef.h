@@ -4,7 +4,7 @@
 #undef CSR_UTIL_GEN_EXPAND
 #undef _TYPE_V
 #undef _TYPE_I
-#undef csr_row_indexes
+#undef csr_row_indices
 #undef csr_degrees_bandwidths_scatters
 #undef csr_groups_per_row
 #undef csr_column_distances_and_groupping

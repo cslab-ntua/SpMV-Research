@@ -22,5 +22,15 @@
 #endif /* CSC_UTIL_GEN_H_F */
 
 
+#ifndef CSC_REORDER_GEN_H_F
+#define CSC_REORDER_GEN_H_F
+#include "storage_formats/csc_reorder/csc_reorder_gen_undef.h"
+#define CSC_REORDER_GEN_TYPE_1  ValueType
+#define CSC_REORDER_GEN_TYPE_2  int
+#define CSC_REORDER_GEN_SUFFIX  _f
+#include "storage_formats/csc_reorder/csc_reorder_gen.h"
+#endif /* CSC_REORDER_GEN_H_F */
+
+
 #endif /* CSC_H */
 

@@ -22,5 +22,15 @@
 #endif /* CSR_UTIL_GEN_H_F */
 
 
+#ifndef CSR_REORDER_GEN_H_F
+#define CSR_REORDER_GEN_H_F
+#include "storage_formats/csr_reorder/csr_reorder_gen_undef.h"
+#define CSR_REORDER_GEN_TYPE_1  ValueType
+#define CSR_REORDER_GEN_TYPE_2  int
+#define CSR_REORDER_GEN_SUFFIX  _f
+#include "storage_formats/csr_reorder/csr_reorder_gen.h"
+#endif /* CSR_REORDER_GEN_H_F */
+
+
 #endif /* CSR_H */
 

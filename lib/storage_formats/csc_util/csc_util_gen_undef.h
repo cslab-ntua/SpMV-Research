@@ -4,7 +4,7 @@
 #undef CSC_UTIL_GEN_EXPAND
 #undef _TYPE_V
 #undef _TYPE_I
-#undef csc_col_indexes
+#undef csc_col_indices
 #undef csc_degrees_bandwidths_scatters
 #undef csc_groups_per_row
 #undef csc_column_distances_and_groupping

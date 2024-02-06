@@ -5,7 +5,7 @@
 #pragma pop_macro("CSR_UTIL_GEN_EXPAND")
 #pragma pop_macro("_TYPE_V")
 #pragma pop_macro("_TYPE_I")
-#pragma pop_macro("csr_row_indexes")
+#pragma pop_macro("csr_row_indices")
 #pragma pop_macro("csr_degrees_bandwidths_scatters")
 #pragma pop_macro("csr_groups_per_row")
 #pragma pop_macro("csr_column_distances_and_groupping")

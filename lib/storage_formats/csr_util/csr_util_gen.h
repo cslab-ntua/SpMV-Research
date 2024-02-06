@@ -127,6 +127,9 @@ void csr_shuffle_matrix(long m, _TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *val
 void csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width,
 		int *num_windows_out, float **row_cross_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
 
+#undef  csr_save_to_mtx
+#define csr_save_to_mtx  CSR_UTIL_GEN_EXPAND(csr_save_to_mtx)
+void csr_save_to_mtx(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int num_rows, int num_cols, const char* filename);
 
 //==========================================================================================================================================
 //= Ploting

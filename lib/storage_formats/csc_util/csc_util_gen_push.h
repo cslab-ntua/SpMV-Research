@@ -4,7 +4,7 @@
 #pragma push_macro("CSC_UTIL_GEN_EXPAND")
 #pragma push_macro("_TYPE_V")
 #pragma push_macro("_TYPE_I")
-#pragma push_macro("csc_col_indexes")
+#pragma push_macro("csc_col_indices")
 #pragma push_macro("csc_degrees_bandwidths_scatters")
 #pragma push_macro("csc_groups_per_row")
 #pragma push_macro("csc_column_distances_and_groupping")
