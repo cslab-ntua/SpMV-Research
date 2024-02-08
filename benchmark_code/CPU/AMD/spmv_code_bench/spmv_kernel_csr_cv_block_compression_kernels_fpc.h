@@ -21,72 +21,14 @@ extern "C"{
 
 
 //==========================================================================================================================================
-//= Id
-//==========================================================================================================================================
-
-
-static inline
-long
-compress_kernel_id(ValueType * vals, unsigned char * buf, const long num_vals)
-{
-	long i;
-	*((int *) buf) = num_vals;
-	buf += sizeof(int);
-	for (i=0;i<num_vals;i++)
-		((ValueType *) buf)[i] = vals[i];
-	return sizeof(int) + num_vals * sizeof(ValueType);
-}
-
-
-static inline
-long
-decompress_kernel_id(ValueType * vals, unsigned char * buf, long * num_vals_out)
-{
-	long i;
-	long num_vals = *((int *) buf);
-	buf += sizeof(int);
-	for (i=0;i<num_vals;i++)
-		vals[i] = ((ValueType *) buf)[i];
-	*num_vals_out = num_vals;
-	return sizeof(int) + num_vals * sizeof(ValueType);
-}
-
-
-//==========================================================================================================================================
-//= Float Casting
-//==========================================================================================================================================
-
-
-static inline
-long
-compress_kernel_float(ValueType * vals, unsigned char * buf, const long num_vals)
-{
-	long i;
-	*((int *) buf) = num_vals;
-	buf += sizeof(int);
-	for (i=0;i<num_vals;i++)
-		((float *) buf)[i] = (float) vals[i];
-	return sizeof(int) + num_vals * sizeof(float);
-}
-
-
-static inline
-long
-decompress_kernel_float(ValueType * vals, unsigned char * buf, long * num_vals_out)
-{
-	long i;
-	long num_vals = *((int *) buf);
-	buf += sizeof(int);
-	for (i=0;i<num_vals;i++)
-		vals[i] = (ValueType) ((float *) buf)[i];
-	*num_vals_out = num_vals;
-	return sizeof(int) + num_vals * sizeof(float);
-}
-
-
-//==========================================================================================================================================
 //= FPC
 //==========================================================================================================================================
+
+
+void
+compress_kernel_init(__attribute__((unused)) ValueType * vals, __attribute__((unused)) const long num_vals, __attribute__((unused)) const long packet_size)
+{
+}
 
 
 // #define PREDSIZEM1_LOG  8

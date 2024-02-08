@@ -201,13 +201,13 @@ mtx_to_string(struct Matrix_Market * MTX)
 	for (i=0;i<MTX->nnz;i++)
 	{
 		len = 0;
-		len += gen_numtostr(buf+len, buf_n-len, R[i] + 1);  // Base 1 arrays.
+		len += gen_numtostr(buf+len, buf_n-len, "", R[i] + 1);  // Base 1 arrays.
 		buf[len++] = ' ';
-		len += gen_numtostr(buf+len, buf_n-len, C[i] + 1);  // Base 1 arrays.
+		len += gen_numtostr(buf+len, buf_n-len, "", C[i] + 1);  // Base 1 arrays.
 		if (strcmp(MTX->field, "pattern") != 0)
 		{
 			buf[len++] = ' ';
-			len += gen_numtostr(buf+len, buf_n-len, V[i]);
+			len += gen_numtostr(buf+len, buf_n-len, "", V[i]);
 		}
 		len += snprintf(buf+len, buf_n-len, "\n");
 		vector_push_back_array(v, buf, len);
@@ -253,13 +253,13 @@ mtx_to_string_par(struct Matrix_Market * MTX, char ** str_ptr)
 		for (i=i_s;i<i_e;i++)
 		{
 			len = 0;
-			len += gen_numtostr(buf+len, buf_n-len, R[i] + 1);  // Base 1 arrays.
+			len += gen_numtostr(buf+len, buf_n-len, "", R[i] + 1);  // Base 1 arrays.
 			buf[len++] = ' ';
-			len += gen_numtostr(buf+len, buf_n-len, C[i] + 1);  // Base 1 arrays.
+			len += gen_numtostr(buf+len, buf_n-len, "", C[i] + 1);  // Base 1 arrays.
 			if (strcmp(MTX->field, "pattern") != 0)
 			{
 				buf[len++] = ' ';
-				len += gen_numtostr(buf+len, buf_n-len, V[i]);
+				len += gen_numtostr(buf+len, buf_n-len, "", V[i]);
 			}
 			len += snprintf(buf+len, buf_n-len, "\n");
 			vector_push_back_array(v, buf, len);

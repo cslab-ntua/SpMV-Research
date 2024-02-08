@@ -302,7 +302,7 @@ struct Matrix_Format *
 csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
 {
 	struct CSRCVSArrays * csr = new CSRCVSArrays(row_ptr, col_ind, values, m, n, nnz);
-	csr->format_name = (char *) "CSR_CVS";
+	csr->format_name = (char *) "CSR_CV_STREAM";
 	return csr;
 }
 
@@ -454,12 +454,12 @@ CSRCVSArrays::statistics_print_data(char * buf, long buf_n)
 	row_bits_avg /= num_packets;
 	col_bits_avg /= num_packets;
 	row_col_bytes_avg /= num_packets;
-	len = 0;
 
 	double compression_spmv_loops = time_compress / (time_max / num_loops_out);
 
 	double tolerance = atof(getenv("VC_TOLERANCE"));
 
+	len = 0;
 	len += snprintf(buf + len, buf_n - len, ",%.2lf", (time_max - time_avg) / time_avg * 100); // unbalance time
 	len += snprintf(buf + len, buf_n - len, ",%.2lf",  (data_size_max - data_size_avg) / data_size_avg * 100); // unbalance size
 	len += snprintf(buf + len, buf_n - len, ",%.4lf",  row_bits_avg);

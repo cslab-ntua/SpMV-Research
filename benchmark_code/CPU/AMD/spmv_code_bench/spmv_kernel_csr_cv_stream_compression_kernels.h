@@ -266,6 +266,45 @@ compress_diff_lossy(double val_d, double val_prev_d, double diff_d, double toler
 }
 
 
+static inline
+double
+reduce_precision(double val_d, double tolerance)
+{
+	uint64_t trailing_zeros;
+	uint64_t pow2, mask_inv;
+	union {
+		double d;
+		uint64_t u;
+	} val, val_new;
+	double error;
+	long i;
+	val.d = val_d;
+	if (tolerance == 0)
+		return val.u;
+	if (val.u == 0)
+		return val.u;
+	trailing_zeros = (val.u == 0) ? 64 : __builtin_ctzl(val.u);
+	if (trailing_zeros >= 53)  // Only the exponent remains.
+		return val.u;
+	pow2 = 1ULL<<trailing_zeros;
+	mask_inv = pow2 - 1;
+	for (i=trailing_zeros;i<54;i++)
+	{
+		val_new.u = val.u & ~mask_inv;
+		error = fabs(val.d - val_new.d) / fabs(val.d);
+		if (error > tolerance)
+		{
+			mask_inv >>= 1;
+			break;
+		}
+		pow2 <<= 1;
+		mask_inv = pow2 - 1;
+	}
+	val_new.u = val.u & ~mask_inv;
+	return val_new.u;
+}
+
+
 void
 test_permutation(long num_vals, ValueType * vals, ValueType * window, int * rev_permutation, char * msg)
 {

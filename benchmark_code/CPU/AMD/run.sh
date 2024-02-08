@@ -528,6 +528,7 @@ for format_name in "${!progs[@]}"; do
     echo "program: $prog"
     echo "number of matrices: ${#prog_args[@]}"
 
+    # Just print the output labels first.
     "$prog"
 
     rep=1
@@ -539,7 +540,6 @@ for format_name in "${!progs[@]}"; do
 
     LEVEL3_CACHE_SIZE="$(getconf LEVEL3_CACHE_SIZE)"
     csrcv_num_packet_vals=(
-        # 128 
         $((2**6))
         # $((2**7))
         # $((2**10))

@@ -64,17 +64,31 @@ spmv_csr_vector$(SUFFIX).exe: spmv_kernel_csr.cpp $(LIB_OBJ)
 spmv_csr_vector_perfect_nnz_balance$(SUFFIX).exe: spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
 
+CPPFLAGS_CV_BLOCK_ID = -D'COMPRESSION_KERNEL_ID'
+spmv_csr_cv_block_id$(SUFFIX).exe: obj/spmv_kernel_csr_cv_block_id$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_ID) $^ -o $@ $(LDFLAGS)
+CPPFLAGS_CV_BLOCK_D2F = -D'COMPRESSION_KERNEL_D2F'
+spmv_csr_cv_block_d2f$(SUFFIX).exe: obj/spmv_kernel_csr_cv_block_d2f$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_ID) $^ -o $@ $(LDFLAGS)
 CPPFLAGS_CV_BLOCK_FPC = -D'COMPRESSION_KERNEL_FPC'
 spmv_csr_cv_block_fpc$(SUFFIX).exe: obj/spmv_kernel_csr_cv_block_fpc$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_FPC) $^ -o $@ $(LDFLAGS)
-# ZFP_BASE_DIR=/home/jim/lib/zfp
-# INCS = -I"$(ZFP_BASE_DIR)"/include
-# LIBS = -L"$(ZFP_BASE_DIR)"/lib -lzfp
-# CLIBS = $(LIBS) $(LDFLAGS) -lm
-# CXXLIBS = $(LIBS) $(LDFLAGS)
-CPPFLAGS_CV_BLOCK_ZFP = -D'COMPRESSION_KERNEL_ZFP'
+CPPFLAGS_CV_BLOCK_ZFP =
+CPPFLAGS_CV_BLOCK_ZFP += -D'COMPRESSION_KERNEL_ZFP'
+CPPFLAGS_CV_BLOCK_ZFP += -I'$(ZFP_ROOT_DIR)/include'
+LDFLAGS_CV_BLOCK_ZFP =
+LDFLAGS_CV_BLOCK_ZFP += -L'$(ZFP_ROOT_DIR)/lib'
+LDFLAGS_CV_BLOCK_ZFP += -lzfp
 spmv_csr_cv_block_zfp$(SUFFIX).exe: obj/spmv_kernel_csr_cv_block_zfp$(SUFFIX).o $(LIB_OBJ)
-	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_ZFP) $^ -o $@ $(LDFLAGS)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_ZFP) $^ -o $@ $(LDFLAGS) $(LDFLAGS_CV_BLOCK_ZFP)
+CPPFLAGS_CV_BLOCK_FPZIP =
+CPPFLAGS_CV_BLOCK_FPZIP += -D'COMPRESSION_KERNEL_FPZIP'
+CPPFLAGS_CV_BLOCK_FPZIP += -I'$(FPZIP_ROOT_DIR)/include'
+LDFLAGS_CV_BLOCK_FPZIP =
+LDFLAGS_CV_BLOCK_FPZIP += -L'$(FPZIP_ROOT_DIR)/lib'
+LDFLAGS_CV_BLOCK_FPZIP += -lfpzip
+spmv_csr_cv_block_fpzip$(SUFFIX).exe: obj/spmv_kernel_csr_cv_block_fpzip$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_FPZIP) $^ -o $@ $(LDFLAGS) $(LDFLAGS_CV_BLOCK_FPZIP)
 
 spmv_csr_cv_stream$(SUFFIX).exe: obj/spmv_kernel_csr_cv_stream$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
@@ -110,7 +124,7 @@ spmv_csr_cuda_buffer$(SUFFIX).exe: spmv_kernel_csr_cuda_buffer.cu $(LIB_OBJ)
 
 
 CPPFLAGS_CUSPARSE =
-# CPPFLAGS_CUSPARSE += -I$(CUDA_TOOLKIT)/include
+# CPPFLAGS_CUSPARSE += -I'$(CUDA_TOOLKIT)/include'
 
 LDFLAGS_CUSPARSE =
 LDFLAGS_CUSPARSE += -lcuda
@@ -227,7 +241,7 @@ CPPFLAGS_SPARSEX += -Wno-nonnull
 CPPFLAGS_SPARSEX += -fopenmp
 CPPFLAGS_SPARSEX += -I'$(BOOST_INC_PATH)'
 CPPFLAGS_SPARSEX += -I'$(LLVM_INC_PATH)'
-CPPFLAGS_SPARSEX += -I$(SPARSEX_INC_PATH)
+CPPFLAGS_SPARSEX += -I'$(SPARSEX_INC_PATH)'
 CPPFLAGS_SPARSEX += $(shell ${SPARSEX_CONF_PATH}/sparsex-config --cppflags)
 
 LDFLAGS_SPARSEX =
@@ -252,10 +266,16 @@ obj/spmv_kernel_sparsex$(SUFFIX).o: spmv_kernel_sparsex.cpp
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_SPARSEX) -c $< -o $@
 
 
-$(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_block_zfp$(SUFFIX).o,spmv_kernel_csr_cv_block.cpp,$(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_ZFP))
-	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_ZFP) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_block_id$(SUFFIX).o,spmv_kernel_csr_cv_block.cpp,$(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_ID))
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_ID) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_block_d2f$(SUFFIX).o,spmv_kernel_csr_cv_block.cpp,$(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_D2F))
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_D2F) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_block_fpc$(SUFFIX).o,spmv_kernel_csr_cv_block.cpp,$(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_FPC))
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_FPC) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_block_zfp$(SUFFIX).o,spmv_kernel_csr_cv_block.cpp,$(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_ZFP))
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_ZFP) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_block_fpzip$(SUFFIX).o,spmv_kernel_csr_cv_block.cpp,$(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_FPZIP))
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_FPZIP) -c $< -o $@
 
 $(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_stream$(SUFFIX).o,spmv_kernel_csr_cv_stream.cpp,$(CPPFLAGS) $(CPPFLAGS_CUSTOM))
 	$(CPP) $(CPPFLAGS) -c $< -o $@

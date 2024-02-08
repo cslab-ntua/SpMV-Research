@@ -10,8 +10,6 @@
 #include "bit_ops.h"
 #include "plot/plot.h"
 #include "time_it.h"
-#include "kmeans/kmeans.h"
-#include "kmeans/kmeans_char.h"
 
 #include "csr_util_gen.h"
 
@@ -2013,9 +2011,15 @@ csr_save_to_mtx(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int num_row
 
 	fprintf(file, "%%%%MatrixMarket matrix coordinate real general\n");
 	fprintf(file, "%d %d %d\n", num_rows, num_cols, row_ptr[num_rows]);
+	long buf_n = 1000;
+	char buf[buf_n];
+	long k;
 	for (int i = 0; i < num_rows; i++) {
 		for (int j = row_ptr[i]; j < row_ptr[i + 1]; j++) {
-			fprintf(file, "%d %d %.15g\n", i + 1, col_idx[j] + 1, val[j]);
+			k = 0;
+			k += snprintf(buf, buf_n-k, "%d %d ", i + 1, col_idx[j] + 1);
+			gen_numtostr(buf, buf_n-k, ".15", val[j]);
+			fprintf(file, "%s\n", buf);
 		}
 	}
 	fclose(file);

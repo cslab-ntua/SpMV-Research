@@ -201,6 +201,8 @@ conf_vars=(
     ['path_tamu']="${HOME}/Data/graphs/tamu"
     ['path_M3E']="${HOME}/Data/graphs/M3E-Matrix-Collection"
 
+    ['ZFP_ROOT_DIR']="${HOME}/lib/zfp"
+    ['FPZIP_ROOT_DIR']="${HOME}/lib/fpzip"
 )
 
 conf_vars['cpu_affinity']="$(calc_cpu_pinning "${conf_vars["cores"]}" "${conf_vars["max_cores"]}" "${conf_vars["cpu_pinning_step"]}" "${conf_vars["cpu_pinning_group_size"]}")"
@@ -320,16 +322,19 @@ progs=(
     # ['csr_vector_lut_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_lut_x86_d.exe"
 
     # Custom cuda
-    ['csr_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_nv_d.exe"
-    ['csr_cuda_buffer_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_nv_d.exe"
+    # ['csr_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_nv_d.exe"
+    # ['csr_cuda_buffer_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_nv_d.exe"
 
     # cusparse
-    ['cusparse_csr_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
-    ['cusparse_coo_d']="${script_dir}/spmv_code_bench/spmv_cusparse_coo_nv_d.exe"
+    # ['cusparse_csr_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
+    # ['cusparse_coo_d']="${script_dir}/spmv_code_bench/spmv_cusparse_coo_nv_d.exe"
 
     # Custom compressed values block
+    # ['csr_cv_block_id_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_id_d.exe"
+    # ['csr_cv_block_d2f_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_d2f_d.exe"
     # ['csr_cv_block_fpc_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_fpc_d.exe"
-    # ['csr_cv_block_zfp_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_zfp_d.exe"
+    ['csr_cv_block_zfp_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_zfp_d.exe"
+    # ['csr_cv_block_fpzip_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_fpzip_d.exe"
 
     # Custom compressed values stream
     # ['csr_cv_stream_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream_d.exe"

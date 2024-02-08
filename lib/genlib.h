@@ -302,32 +302,32 @@ do {                                                                            
 //==========================================================================================================================================
 
 
-#define gen_numtostr(str, N, val)                                                                                                                                    \
-({                                                                                                                                                                   \
-	int _len = 0;                                                                                                                                                \
-	char * _str = (str);                                                                                                                                         \
-	__auto_type _val = (val);                                                                                                                                    \
-	gen_assert_type_is_basic(_val, "gen_numtostr");                                                                                                              \
-	_len = _Generic(_val,                                                                                                                                        \
-		GENLIB_rule_expand_storage_classes(char,                snprintf(_str, N, "%d"     , (char               ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(unsigned char,       snprintf(_str, N, "%u"     , (char               ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(signed char,         snprintf(_str, N, "%d"     , (signed char        ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(short,               snprintf(_str, N, "%d"     , (short              ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(unsigned short,      snprintf(_str, N, "%u"     , (short              ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(int,                 snprintf(_str, N, "%d"     , (int                ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(unsigned int,        snprintf(_str, N, "%u"     , (int                ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(long,                snprintf(_str, N, "%ld"    , (long               ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(unsigned long,       snprintf(_str, N, "%lu"    , (long               ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(long long,           snprintf(_str, N, "%lld"   , (long long          ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(unsigned long long,  snprintf(_str, N, "%llu"   , (long long          ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(float,               snprintf(_str, N, "%g"     , (float              ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(double,              snprintf(_str, N, "%lg"    , (double             ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(long double,         snprintf(_str, N, "%Lg"    , (long double        ) _val)),                                   \
-		GENLIB_rule_expand_storage_classes(complex float,       snprintf(_str, N, "%g %g"  , crealf(_val), cimagf(_val))),                                   \
-		GENLIB_rule_expand_storage_classes(complex double,      snprintf(_str, N, "%lg %lg", creal((complex double) _val), cimag((complex double)_val))),    \
-		GENLIB_rule_expand_storage_classes(complex long double, snprintf(_str, N, "%Lg %Lg", creall(_val), cimagl(_val)))                                    \
-	);                                                                                                                                                           \
-	_len;                                                                                                                                                        \
+#define gen_numtostr(str, N, fmt_flags, val)                                                                                                                                                   \
+({                                                                                                                                                                                             \
+	int _len = 0;                                                                                                                                                                          \
+	char * _str = (str);                                                                                                                                                                   \
+	__auto_type _val = (val);                                                                                                                                                              \
+	gen_assert_type_is_basic(_val, "gen_numtostr");                                                                                                                                        \
+	_len = _Generic(_val,                                                                                                                                                                  \
+		GENLIB_rule_expand_storage_classes(char,                snprintf(_str, N, "%" fmt_flags "d"                  , (char               ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(unsigned char,       snprintf(_str, N, "%" fmt_flags "u"                  , (char               ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(signed char,         snprintf(_str, N, "%" fmt_flags "d"                  , (signed char        ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(short,               snprintf(_str, N, "%" fmt_flags "d"                  , (short              ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(unsigned short,      snprintf(_str, N, "%" fmt_flags "u"                  , (short              ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(int,                 snprintf(_str, N, "%" fmt_flags "d"                  , (int                ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(unsigned int,        snprintf(_str, N, "%" fmt_flags "u"                  , (int                ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(long,                snprintf(_str, N, "%" fmt_flags "ld"                 , (long               ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(unsigned long,       snprintf(_str, N, "%" fmt_flags "lu"                 , (long               ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(long long,           snprintf(_str, N, "%" fmt_flags "lld"                , (long long          ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(unsigned long long,  snprintf(_str, N, "%" fmt_flags "llu"                , (long long          ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(float,               snprintf(_str, N, "%" fmt_flags "g"                  , (float              ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(double,              snprintf(_str, N, "%" fmt_flags "lg"                 , (double             ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(long double,         snprintf(_str, N, "%" fmt_flags "Lg"                 , (long double        ) _val)),                                   \
+		GENLIB_rule_expand_storage_classes(complex float,       snprintf(_str, N, "%" fmt_flags "g %" fmt_flags "g"  , crealf(_val), cimagf(_val))),                                   \
+		GENLIB_rule_expand_storage_classes(complex double,      snprintf(_str, N, "%" fmt_flags "lg %" fmt_flags "lg", creal((complex double) _val), cimag((complex double)_val))),    \
+		GENLIB_rule_expand_storage_classes(complex long double, snprintf(_str, N, "%" fmt_flags "Lg %" fmt_flags "Lg", creall(_val), cimagl(_val)))                                    \
+	);                                                                                                                                                                                     \
+	_len;                                                                                                                                                                                  \
 })
 
 

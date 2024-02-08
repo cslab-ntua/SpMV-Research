@@ -16,17 +16,19 @@ source "$script_dir"/../config.sh
 export AMG_PATH=../../../../artificial-matrix-generator
 
 
-# export CC=gcc
-export CC=/home/jim/Documents/gcc_versions/gcc_12/bin/gcc
+# CC=gcc
+CC=/home/jim/Documents/gcc_versions/gcc_12/bin/gcc
 # CC=/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/gcc
 # CC=clang
 # CC=xlc
+export CC
 
-# export CPP=g++
-export CPP=/home/jim/Documents/gcc_versions/gcc_12/bin/g++
+# CPP=g++
+CPP=/home/jim/Documents/gcc_versions/gcc_12/bin/g++
 # CPP=/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/g++
 # CPP=clang++
 # CPP=xlc++
+export CPP
 
 export NVCC="nvcc -ccbin=${CC}"
 # export NVCC="/various/dgal/epyc1/cuda/cuda_11_4_4/bin/nvcc -ccbin=${CC}"
