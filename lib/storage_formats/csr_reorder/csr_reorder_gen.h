@@ -44,48 +44,52 @@ long csr_mark_distant_nonzeros(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, lon
 #define csr_separate_close_distant  CSR_REORDER_GEN_EXPAND(csr_separate_close_distant)
 void csr_separate_close_distant(_TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, _TYPE_I *distant_mark, long nnz, long m, _TYPE_I *row_ptr_close, _TYPE_I *col_idx_close, _TYPE_V *values_close, _TYPE_I *row_ptr_distant, _TYPE_I *col_idx_distant, _TYPE_V *values_distant);
 
+#undef  csr_separate_low_high
+#define csr_separate_low_high  CSR_REORDER_GEN_EXPAND(csr_separate_low_high)
+void csr_separate_low_high(_TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, long nnz, long m, _TYPE_I *row_low_out, _TYPE_I **row_ptr_low_out, _TYPE_I **col_idx_low_out, _TYPE_V **values_low_out, _TYPE_I **row_ptr_high_out, _TYPE_I **col_idx_high_out, _TYPE_V **values_high_out);
+
 #undef  csr_shuffle_matrix
 #define csr_shuffle_matrix  CSR_REORDER_GEN_EXPAND(csr_shuffle_matrix)
 void csr_shuffle_matrix(long m, _TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, _TYPE_I *row_ptr_shuffle, _TYPE_I *col_idx_shuffle, _TYPE_V *values_shuffle);
 
 // #undef  csr_extract_row_cross
 // #define csr_extract_row_cross  CSR_REORDER_GEN_EXPAND(csr_extract_row_cross)
-// void csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width,
+// void csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *val, int m, int n, int nnz, int window_width,
 // 		int *num_windows_out, float **row_cross_out, int plot, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
 
 #undef  csr_extract_row_cross2
 #define csr_extract_row_cross2  CSR_REORDER_GEN_EXPAND(csr_extract_row_cross2)
-void csr_extract_row_cross2(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, 
+void csr_extract_row_cross2(_TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *val, int m, int n, int nnz, int window_width, 
 							int *num_windows_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
 
 #undef  csr_extract_row_cross2_batch
 #define csr_extract_row_cross2_batch  CSR_REORDER_GEN_EXPAND(csr_extract_row_cross2_batch)
-void csr_extract_row_cross2_batch(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, int batch, 
+void csr_extract_row_cross2_batch(_TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *val, int m, int n, int nnz, int window_width, int batch, 
 								  int *num_windows_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
 
 #undef  csr_extract_row_cross_char
 #define csr_extract_row_cross_char  CSR_REORDER_GEN_EXPAND(csr_extract_row_cross_char)
-void csr_extract_row_cross_char(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width,
+void csr_extract_row_cross_char(_TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *val, int m, int n, int nnz, int window_width,
 		int *num_windows_out, unsigned char **row_cross_out, int plot, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
 
 #undef  csr_extract_row_cross_char2
 #define csr_extract_row_cross_char2  CSR_REORDER_GEN_EXPAND(csr_extract_row_cross_char2)
-void csr_extract_row_cross_char2(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, 
+void csr_extract_row_cross_char2(_TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *val, int m, int n, int nnz, int window_width, 
 		int *num_windows_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, unsigned char **rc_v_out);
 
 #undef  csr_extract_row_cross_char2_batch
 #define csr_extract_row_cross_char2_batch  CSR_REORDER_GEN_EXPAND(csr_extract_row_cross_char2_batch)
-void csr_extract_row_cross_char2_batch(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width, int batch, 
+void csr_extract_row_cross_char2_batch(_TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *val, int m, int n, int nnz, int window_width, int batch, 
 									   int *num_windows_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, unsigned char **rc_v_out);
 
 #undef  csr_reorder_matrix_by_row
 #define csr_reorder_matrix_by_row  CSR_REORDER_GEN_EXPAND(csr_reorder_matrix_by_row)
-void csr_reorder_matrix_by_row(int m, __attribute__((unused)) int n, __attribute__((unused)) int nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
+void csr_reorder_matrix_by_row(int m, int n, int nnz, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
 							   int * membership, _TYPE_I * row_ptr_reorder, _TYPE_I * col_idx_reorder, _TYPE_V * val_reorder, _TYPE_I * original_row_positions);
 
 #undef  csr_reorder_matrix_by_row_batch
 #define csr_reorder_matrix_by_row_batch  CSR_REORDER_GEN_EXPAND(csr_reorder_matrix_by_row_batch)
-void csr_reorder_matrix_by_row_batch(int m, __attribute__((unused)) int n, __attribute__((unused)) int nnz, int batch, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
+void csr_reorder_matrix_by_row_batch(int m, int n, int nnz, int batch, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
 									 int * membership, _TYPE_I * row_ptr_reorder, _TYPE_I * col_idx_reorder, _TYPE_V * val_reorder, _TYPE_I * original_row_positions);
 
 #undef  csr_kmeans_reorder_row

@@ -31,6 +31,10 @@ typedef CSC_REORDER_GEN_TYPE_2  _TYPE_I;
 //= Matrix transformations
 //==========================================================================================================================================
 
+#undef  csc_sort_by_col_size
+#define csc_sort_by_col_size  CSC_REORDER_GEN_EXPAND(csc_sort_by_col_size)
+void csc_sort_by_col_size(long n, _TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * values, _TYPE_I * row_idx_s, _TYPE_I * col_ptr_s, _TYPE_V * values_s);
+
 #undef  csc_shuffle_matrix
 #define csc_shuffle_matrix  CSC_REORDER_GEN_EXPAND(csc_shuffle_matrix)
 void csc_shuffle_matrix(long n, _TYPE_I *row_idx, _TYPE_I *col_ptr, _TYPE_V *values, _TYPE_I *row_idx_shuffle, _TYPE_I *col_ptr_shuffle, _TYPE_V *values_shuffle);

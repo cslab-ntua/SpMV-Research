@@ -146,6 +146,86 @@ typedef CSC_REORDER_GEN_TYPE_2  _TYPE_I;
 //= Matrix transformations
 //==========================================================================================================================================
 
+
+typedef struct {
+	int col_sizes;
+	int original_position;
+} ColInfo;
+
+static inline
+int compare(const void *a, const void *b) {
+	return ((ColInfo *)b)->col_sizes - ((ColInfo *)a)->col_sizes;
+}
+
+static
+void sort_cols(_TYPE_I *col_ptr, long n, _TYPE_I *sorted_col_sizes, _TYPE_I *original_positions)
+{
+	ColInfo *cols = (ColInfo *)malloc(n * sizeof(ColInfo));
+
+	// Extract col sizes and original positions
+	// #pragma omp parallel for
+	for (int i = 0; i < n; i++) {
+		cols[i].col_sizes = col_ptr[i + 1] - col_ptr[i];
+		cols[i].original_position = i;
+	}
+
+	// Sort cols by descending order of col sizes
+	qsort(cols, n, sizeof(ColInfo), compare);
+
+	// Store sorted col sizes and original positions
+	// #pragma omp parallel for
+	for (int i = 0; i < n; i++) {
+		sorted_col_sizes[i] = cols[i].col_sizes;
+		original_positions[i] = cols[i].original_position;
+	}
+
+	free(cols);
+}
+
+#undef  csc_sort_by_col_size
+#define csc_sort_by_col_size  CSC_REORDER_GEN_EXPAND(csc_sort_by_col_size)
+void
+csc_sort_by_col_size(long n, _TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * values, _TYPE_I * row_idx_s, _TYPE_I * col_ptr_s, _TYPE_V * values_s)
+{
+	_TYPE_I *sorted_col_sizes = (_TYPE_I *)malloc(n * sizeof(_TYPE_I));
+	_TYPE_I *original_positions = (_TYPE_I *)malloc(n * sizeof(_TYPE_I));
+
+	sort_cols(col_ptr, n, sorted_col_sizes, original_positions);
+
+	// printf("Sorted Col Sizes = [ ");
+	// for (int i = 0; i < n; i++) printf("%d ", sorted_col_sizes[i]);
+	// printf("]\n");
+
+	// printf("\nOriginal Positions = [ ");
+	// for (int i = 0; i < n; i++) printf("%d ", original_positions[i]);
+	// printf("]\n");
+
+	// Create a temporary array to keep track of col_ptr_s updates
+	_TYPE_I *col_ptr_temp = (_TYPE_I *)malloc((n + 1) * sizeof(_TYPE_I));
+	col_ptr_temp[0] = 0;
+	col_ptr_s[0] = 0;
+
+	// Update col_ptr_s based on sorted col sizes
+	for (int i = 0; i < n; i++) {
+		col_ptr_s[i + 1] = col_ptr_s[i] + sorted_col_sizes[i];
+		col_ptr_temp[i + 1] = col_ptr_s[i + 1];
+	}
+
+	// Rearrange row_idx and val arrays based on original positions
+	for (int i = 0; i < n; i++) {
+		int orig_pos = original_positions[i];
+		for (int j = col_ptr[orig_pos]; j < col_ptr[orig_pos + 1]; j++) {
+			row_idx_s[col_ptr_temp[i]] = row_idx[j];
+			values_s[col_ptr_temp[i]] = values[j];
+			col_ptr_temp[i]++;
+		}
+	}
+
+	free(col_ptr_temp);
+	free(sorted_col_sizes);
+	free(original_positions);
+}
+
 #undef  csc_shuffle_matrix
 #define csc_shuffle_matrix  CSC_REORDER_GEN_EXPAND(csc_shuffle_matrix)
 void
@@ -891,7 +971,7 @@ csc_kmeans_reorder_col(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val,
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
 	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+		printf("I = %d\t%d\t( %.3f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_col_positions = (typeof(*original_col_positions)) malloc(n * sizeof(**original_col_positions));
@@ -933,38 +1013,38 @@ csc_kmeans_reorder_col_batch(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val
 	// 	printf("]\n");
 	// }
 
-	// char * binary_string[numClusters];
-	binary_string_with_id clusters_binary[numClusters];
+	// // char * binary_string[numClusters];
+	// binary_string_with_id clusters_binary[numClusters];
 
-	for(int i = 0; i < numClusters; i++){
-		clusters_binary[i].binary_string = convert_float_to_binary_string(&clusters[i * numCoords], numCoords);
-		clusters_binary[i].id = i;
-		// printf("cluster_b[%3d]: %s\n", i, clusters_binary[i].binary_string);
-	}
-	free(clusters);
+	// for(int i = 0; i < numClusters; i++){
+	// 	clusters_binary[i].binary_string = convert_float_to_binary_string(&clusters[i * numCoords], numCoords);
+	// 	clusters_binary[i].id = i;
+	// 	// printf("cluster_b[%3d]: %s\n", i, clusters_binary[i].binary_string);
+	// }
+	// free(clusters);
 
-	// Sort the array of binary strings
-	qsort(clusters_binary, numClusters, sizeof(binary_string_with_id), compare_binary_strings);
+	// // Sort the array of binary strings
+	// qsort(clusters_binary, numClusters, sizeof(binary_string_with_id), compare_binary_strings);
 
-	// printf("after sorting...\n");
+	// // printf("after sorting...\n");
+	// // for (int i = 0; i < numClusters; i++)
+	// // 	printf("cluster_b[%3d]: %s (%d)\n", i, clusters_binary[i].binary_string, clusters_binary[i].id);
+
 	// for (int i = 0; i < numClusters; i++)
-	// 	printf("cluster_b[%3d]: %s (%d)\n", i, clusters_binary[i].binary_string, clusters_binary[i].id);
+	// 	free(clusters_binary[i].binary_string);
 
-	for (int i = 0; i < numClusters; i++)
-		free(clusters_binary[i].binary_string);
+	int * ordered_membership = (typeof(ordered_membership)) calloc(numClusters, sizeof(*ordered_membership));
+	// for (int i = 0; i < numClusters; i++)
+	// 	ordered_membership[clusters_binary[i].id] = i;
 
-	int * ordered_membership = (typeof(ordered_membership)) malloc(numClusters * sizeof(*ordered_membership));
-	for (int i = 0; i < numClusters; i++)
-		ordered_membership[clusters_binary[i].id] = i;
-
-	for(int i = 0; i < numObjs; i++){
-		membership[i] = ordered_membership[membership[i]];
-		ordered_membership[membership[i]] = 0;
-	}
+	// for(int i = 0; i < numObjs; i++){
+	// 	membership[i] = ordered_membership[membership[i]];
+	// 	ordered_membership[membership[i]] = 0;
+	// }
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
 	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+		printf("I = %d\t%d\t( %.3f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_col_positions = (typeof(*original_col_positions)) malloc(n * sizeof(**original_col_positions));
@@ -1064,7 +1144,7 @@ csc_kmeans_char_reorder_col(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val,
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
 	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+		printf("I = %d\t%d\t( %.3f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_col_positions = (typeof(*original_col_positions)) malloc(n * sizeof(**original_col_positions));
@@ -1137,7 +1217,7 @@ csc_kmeans_char_reorder_col_batch(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V 
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
 	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f % )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+		printf("I = %d\t%d\t( %.3f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_col_positions = (typeof(*original_col_positions)) malloc(n * sizeof(**original_col_positions));

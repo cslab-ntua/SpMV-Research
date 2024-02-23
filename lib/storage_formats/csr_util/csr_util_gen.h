@@ -66,14 +66,13 @@ long csr_column_distances_and_groupping(_TYPE_I * row_ptr, _TYPE_I * col_idx, lo
 #define csr_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_row_neighbours)
 void csr_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size, _TYPE_I ** num_neigh_out);
 
+#undef  csr_cross_row_neighbours
+#define csr_cross_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_cross_row_neighbours)
+void csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size, _TYPE_I **crs_neigh_out);
 
 #undef  csr_cross_row_similarity
 #define csr_cross_row_similarity  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity)
 double csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size);
-
-#undef  csr_cross_row_neighbours
-#define csr_cross_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_cross_row_neighbours)
-double csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size, _TYPE_I * crs_row);
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -99,34 +98,6 @@ void csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_
 #define csr_value_features  CSR_UTIL_GEN_EXPAND(csr_value_features)
 void csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y);
 
-
-//==========================================================================================================================================
-//= Matrix transformations
-//==========================================================================================================================================
-
-
-#undef  csr_sort_by_row_size
-#define csr_sort_by_row_size  CSR_UTIL_GEN_EXPAND(csr_sort_by_row_size)
-void csr_sort_by_row_size(long m, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, _TYPE_I * row_ptr_s, _TYPE_I * col_idx_s, _TYPE_V * values_s);
-
-// "distant_mark" is a 0-1 flag matrix, which holds which nonzeros are distant from others, in order to isolate them later
-#undef  csr_mark_distant_nonzeros
-#define csr_mark_distant_nonzeros  CSR_UTIL_GEN_EXPAND(csr_mark_distant_nonzeros)
-long csr_mark_distant_nonzeros(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long max_distance, _TYPE_I * distant_mark);
-
-#undef  csr_separate_close_distant
-#define csr_separate_close_distant  CSR_UTIL_GEN_EXPAND(csr_separate_close_distant)
-void csr_separate_close_distant(_TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, _TYPE_I *distant_mark, long nnz, long m, _TYPE_I *row_ptr_close, _TYPE_I *col_idx_close, _TYPE_V *values_close, _TYPE_I *row_ptr_distant, _TYPE_I *col_idx_distant, _TYPE_V *values_distant);
-
-#undef  csr_shuffle_matrix
-#define csr_shuffle_matrix  CSR_UTIL_GEN_EXPAND(csr_shuffle_matrix)
-void csr_shuffle_matrix(long m, _TYPE_I *row_ptr, _TYPE_I *col_idx, _TYPE_V *values, _TYPE_I *row_ptr_shuffle, _TYPE_I *col_idx_shuffle, _TYPE_V *values_shuffle);
-
-#undef  csr_extract_row_cross
-#define csr_extract_row_cross  CSR_UTIL_GEN_EXPAND(csr_extract_row_cross)
-void csr_extract_row_cross(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((unused)) _TYPE_V *val, int m, int n, int nnz, int window_width,
-		int *num_windows_out, float **row_cross_out, _TYPE_I **rc_r_out, _TYPE_I **rc_c_out, float **rc_v_out);
-
 #undef  csr_save_to_mtx
 #define csr_save_to_mtx  CSR_UTIL_GEN_EXPAND(csr_save_to_mtx)
 void csr_save_to_mtx(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int num_rows, int num_cols, const char* filename);
@@ -142,13 +113,16 @@ void csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V *
 
 #undef  csr_row_size_histogram_plot
 #define csr_row_size_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_row_size_histogram_plot)
-void csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__((unused)) _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, __attribute__((unused)) long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
-
-#undef  csr_cross_row_similarity_histogram_plot
-#define csr_cross_row_similarity_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity_histogram_plot)
-void csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
+void csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
 
 #undef  csr_num_neigh_histogram_plot
 #define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
-void csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
+void csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
 
+#undef  csr_cross_row_similarity_histogram_plot
+#define csr_cross_row_similarity_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity_histogram_plot)
+void csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
+
+#undef  csr_pop_zone_score_histogram_plot
+#define csr_pop_zone_score_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_pop_zone_score_histogram_plot)
+void csr_pop_zone_score_histogram_plot(char * title_base, int * pop_zone_score, long m_batch, long col_select_window, int enable_legend, long num_pixels_x, long num_pixels_y);

@@ -40,11 +40,9 @@ int main(int argc, char **argv)
 	long i;
 
 	if (argc >= 6)
-	{
 		return 1;
-	}
 
-	char * file_in, * file_fig;
+	char * file_in;
 	char * path, * filename, * filename_base;
 
 	i = 1;
@@ -56,8 +54,9 @@ int main(int argc, char **argv)
 
 	str_path_split_ext(filename, strlen(filename) + 1, buf, buf_n, &filename_base, NULL);
 	filename_base = strdup(filename_base);
-	snprintf(buf, buf_n, "figures/%s", filename_base);
-	file_fig = strdup(buf);
+	// snprintf(buf, buf_n, "figures/%s", filename_base);
+	// char * file_fig;
+	// file_fig = strdup(buf);
 
 	time = time_it(1,
 		create_coo_matrix(file_in, &mtx_val, &mtx_rowind, &mtx_colind, &m, &n, &nnz);
@@ -88,13 +87,23 @@ int main(int argc, char **argv)
 	);
 	printf("time coo_to_csr = %lf\n", time);
 
-	time = time_it(1,
-		csr_plot_f(file_fig, row_ptr, col_idx, val, m, n, nnz, 0, num_pixels_x, num_pixels_y);
-	);
-	printf("time plot = %lf\n", time);
+	// time = time_it(1,
+	// 	csr_plot_f(file_fig, row_ptr, col_idx, val, m, n, nnz, 0, num_pixels_x, num_pixels_y);
+	// 	csr_row_size_histogram_plot(file_fig, row_ptr, col_idx, val, m, n, nnz, 1, 1024, 1024);
+	// 	csr_num_neigh_histogram_plot(file_fig, row_ptr, col_idx, val, m, n, nnz, 1, 1, num_pixels_x, num_pixels_y);
+	// 	csr_cross_row_similarity_histogram_plot(file_fig, row_ptr, col_idx, val, m, n, nnz, 1, 1, num_pixels_x, num_pixels_y);
+	// );
+	// printf("time plot = %lf\n", time);
 
 	csr_matrix_features_validation(filename_base, row_ptr, col_idx, m, n, nnz);
 
+	free(mtx_rowind);
+	free(mtx_colind);
+	free(mtx_val);
+
+	free(row_ptr);
+	free(col_idx);
+	free(val);
+
 	return 0;
 }
-

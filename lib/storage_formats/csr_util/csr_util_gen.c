@@ -489,8 +489,63 @@ csr_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((
 		free(num_neigh);
 }
 
+#undef  csr_cross_row_neighbours
+#define csr_cross_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_cross_row_neighbours)
+void
+csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, long window_size,
+		_TYPE_I **crs_neigh_out)
+{
+	_TYPE_I * crs_neigh = (typeof(crs_neigh)) malloc(nnz * sizeof(*crs_neigh));
+	#pragma omp parallel
+	{
+		long i, j, k, k_s, k_e, l;
+		long degree, column_diff;
+		#pragma omp for
+		for (i=0;i<nnz;i++)
+			crs_neigh[i] = 0;
 
-/* For similarities each non-empty row is equivalent, no matter the degree.
+		#pragma omp for
+		for (i=0;i<m;i++)
+		{
+			degree = row_ptr[i+1] - row_ptr[i];
+			if (degree <= 0)
+				continue;
+			for (l=i+1;l<m;l++)       // Find next non-empty row.
+				if (row_ptr[l+1] - row_ptr[l] > 0)
+					break;
+			if (l < m)
+			{
+				k_s = row_ptr[l];
+				k_e = row_ptr[l+1];
+				k = k_s;
+				for (j=row_ptr[i];j<row_ptr[i+1];j++)
+				{
+					while (k < k_e)
+					{
+						column_diff = col_idx[k] - col_idx[j];
+						if (labs(column_diff) <= window_size)
+						{
+							crs_neigh[j]+=1;
+							// do not break, in order to register all neighbours
+							// break; 
+						}
+						if (column_diff <= 0)
+							k++;
+						else
+							break;   // went outside of area to examine
+					}
+				}
+			}
+		}
+	}
+	if (crs_neigh_out != NULL)
+		*crs_neigh_out = crs_neigh;
+	else
+		free(crs_neigh);
+}
+
+/* ATTENTION: DEPRECATED, not used anymore... Keep it for legacy reasons
+ * For similarities each non-empty row is equivalent, no matter the degree.
  */
 #undef  csr_cross_row_similarity
 #define csr_cross_row_similarity  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity)
@@ -554,71 +609,6 @@ csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 	return total_row_similarity / total_num_non_empty_rows;   // Neighbours are only between non-empty rows.
 }
 
-
-#undef  csr_cross_row_neighbours
-#define csr_cross_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_cross_row_neighbours)
-double
-csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, long window_size, _TYPE_I *crs_row)
-{
-	double * num_neigh = (typeof(num_neigh)) malloc((m) * sizeof(*num_neigh));
-	long total_num_non_empty_rows = 0;
-	#pragma omp parallel
-	{
-		long i, j, k, k_s, k_e, l;
-		long degree, curr_neigh, column_diff;
-		long num_non_empty_rows = 0;
-		#pragma omp for
-		for (i=0;i<m;i++){
-			num_neigh[i] = 0;
-			crs_row[i] = 0;
-		}
-		#pragma omp for
-		for (i=0;i<m;i++)
-		{
-			degree = row_ptr[i+1] - row_ptr[i];
-			if (degree <= 0)
-				continue;
-			for (l=i+1;l<m;l++)       // Find next non-empty row.
-				if (row_ptr[l+1] - row_ptr[l] > 0)
-					break;
-			num_non_empty_rows++;
-			if (l < m)
-			{
-				k_s = row_ptr[l];
-				k_e = row_ptr[l+1];
-				curr_neigh = 0;
-				k = k_s;
-				for (j=row_ptr[i];j<row_ptr[i+1];j++)
-				{
-					while (k < k_e)
-					{
-						column_diff = col_idx[k] - col_idx[j];
-						if (labs(column_diff) <= window_size)
-						{
-							curr_neigh++;
-							break;
-						}
-						if (column_diff <= 0)
-							k++;
-						else
-							break;   // went outside of area to examine
-					}
-				}
-				num_neigh[i] = ((double) curr_neigh) / degree;
-				crs_row[i] = curr_neigh;
-			}
-		}
-		__atomic_fetch_add(&total_num_non_empty_rows, num_non_empty_rows, __ATOMIC_RELAXED);
-	}
-	double mean;
-	array_mean(num_neigh, m, &mean);
-	free(num_neigh);
-	if (total_num_non_empty_rows == 0)
-		return 0;
-	return (mean * m) / total_num_non_empty_rows;   // Neighbours are only between non-empty rows.
-}
-
-
 //------------------------------------------------------------------------------------------------------------------------------------------
 //- Structural Features - Print
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -679,7 +669,7 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	time = time_it(1,
 		csr_degrees_bandwidths_scatters(row_ptr, col_idx, m, n, nnz, &degrees_rows, &degrees_cols, &bandwidths, &scatters);
 	);
-	printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
+	// printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
 
 	/* It's not worth it combining the array metrics, because min-max degrade the total performance of the pipeline,
 	 * and std depends on mean and needs a separete loop either way. */
@@ -734,7 +724,7 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	time = time_it(1,
 		csr_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &num_neigh);
 	);
-	printf("time csr_row_neighbours = %lf\n", time);
+	// printf("time csr_row_neighbours = %lf\n", time);
 
 	array_min_max(num_neigh, nnz, &num_neigh_min, NULL, &num_neigh_max, NULL);
 	array_mean(num_neigh, nnz, &num_neigh_avg);
@@ -758,13 +748,13 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	time = time_it(1,
 		cross_row_similarity_avg = csr_cross_row_similarity(row_ptr, col_idx, m, n, nnz, window_size);
 	);
-	printf("time csr_cross_row_similarity = %lf\n", time);
+	// printf("time csr_cross_row_similarity = %lf\n", time);
 
 	max_gap_size = 0;
 	time = time_it(1,
 		num_groups = csr_column_distances_and_groupping(row_ptr, col_idx, m, n, nnz, max_gap_size, &nnz_col_dist, &group_col_dist, &group_sizes, &groups_per_row);
 	);
-	printf("time csr_column_distances_and_groupping = %lf\n", time);
+	// printf("time csr_column_distances_and_groupping = %lf\n", time);
 
 	array_min_max(nnz_col_dist, nnz, &nnz_col_dist_min, NULL, &nnz_col_dist_max, NULL);
 	array_mean(nnz_col_dist, nnz, &nnz_col_dist_avg);
@@ -908,9 +898,10 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	double bw_avg;
 
 	long window_size;
-	_TYPE_I * num_neigh;
-	double num_neigh_avg;
+	_TYPE_I * num_neigh, *crs_neigh;
+	double num_neigh_avg, num_neigh_std;
 	double cross_row_similarity_avg;
+	double cross_row_neighbours_avg, cross_row_neighbours_std;
 
 	double time;
 
@@ -922,7 +913,7 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	time = time_it(1,
 		csr_degrees_bandwidths_scatters(row_ptr, col_idx, m, n, nnz, &degrees_rows, &degrees_cols, &bandwidths, &scatters);
 	);
-	printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
+	// printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
 
 	/* It's not worth it combining the array metrics, because min-max degrade the total performance of the pipeline,
 	 * and std depends on mean and needs a separete loop either way. */
@@ -946,16 +937,29 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	time = time_it(1,
 		csr_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &num_neigh);
 	);
-	printf("time csr_row_neighbours = %lf\n", time);
+	// printf("time csr_row_neighbours = %lf\n", time);
 
 	array_mean(num_neigh, nnz, &num_neigh_avg);
-
+	array_std(num_neigh, nnz, &num_neigh_std);
 	free(num_neigh);
 
 	time = time_it(1,
 		cross_row_similarity_avg = csr_cross_row_similarity(row_ptr, col_idx, m, n, nnz, window_size);
 	);
-	printf("time csr_cross_row_similarity = %lf\n", time);
+	// printf("time csr_cross_row_similarity = %lf\n", time);
+
+	time = time_it(1,
+	csr_cross_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &crs_neigh);
+	);
+	// printf("time csr_cross_row_neighbours = %lf\n", time);
+
+	array_mean(crs_neigh, nnz, &cross_row_neighbours_avg);
+	array_std(crs_neigh, nnz, &cross_row_neighbours_std);
+	free(crs_neigh);
+
+	fprintf(stderr, "extra features (ann_std, crn_avg, crn_std) | %.10lf ", num_neigh_std);
+	fprintf(stderr, "%.10lf ", cross_row_neighbours_avg);
+	fprintf(stderr, "%.10lf |\n", cross_row_neighbours_std);
 
 	/* Matrix features for artificial twins.
 	 * Also print the csr mem footprint for easier sorting.
@@ -2017,8 +2021,7 @@ csr_save_to_mtx(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int num_row
 	for (int i = 0; i < num_rows; i++) {
 		for (int j = row_ptr[i]; j < row_ptr[i + 1]; j++) {
 			k = 0;
-			k += snprintf(buf, buf_n-k, "%d %d ", i + 1, col_idx[j] + 1);
-			gen_numtostr(buf, buf_n-k, ".15", val[j]);
+			k += snprintf(buf, buf_n-k, "%d %d %.15g", i + 1, col_idx[j] + 1, val[j]);
 			fprintf(file, "%s\n", buf);
 		}
 	}
@@ -2071,19 +2074,41 @@ csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__(
 	for(int i=0; i<m; i++)
 		degrees_rows[i] = row_ptr[i+1] - row_ptr[i];
 
-	/*	
 	// Degree histogram. this can be commented out
 	double nnz_per_row_min, nnz_per_row_max, nnz_per_row_avg, nnz_per_row_std;
 	array_min_max(degrees_rows, m, &nnz_per_row_min, NULL, &nnz_per_row_max, NULL);
-	printf("nnz_per_row_max = %lf\n", nnz_per_row_max);
+	array_mean(degrees_rows, m, &nnz_per_row_avg);
+	array_std(degrees_rows, m, &nnz_per_row_std);
+	printf("nnz_per_row_max = %.0lf\n", nnz_per_row_max);
+	printf("nnz_per_row_min = %.0lf\n", nnz_per_row_min);
+	printf("nnz_per_row_avg = %.4lf\n", nnz_per_row_avg);
+	printf("nnz_per_row_std = %.4lf\n", nnz_per_row_std);
+	/*	
 	int *row_size_hist = (int*) calloc((int)nnz_per_row_max+1, sizeof(int));
-	for(int i=0;i<m;i++)
+	int cnt_l = 0, cnt_h = 0, nnz_l = 0, nnz_h = 0;
+
+	for(int i=0;i<m;i++){
 		row_size_hist[degrees_rows[i]]++;
-	for (int i = 0; i < (int)nnz_per_row_max+1; ++i)
-		printf("%d %d\n", i, row_size_hist[i]);
+		if(degrees_rows[i] < nnz_per_row_avg){
+			nnz_l += degrees_rows[i];
+			cnt_l++;
+		}
+		else{
+			nnz_h += degrees_rows[i];
+			cnt_h++;
+		}
+	}
+	for (int i = 0; i < (int)nnz_per_row_max+1; ++i){
+		printf("%d %d", i, row_size_hist[i]);
+		if(row_size_hist[i]*100.0/m > 0.5)
+			printf(" ( %.4f )", row_size_hist[i]*100.0/m);
+		printf("\n");
+	}
+	printf("size of low:   %d rows, %d nonzeros, %.2lf MB\n", cnt_l, nnz_l, ((cnt_l+1)*sizeof(_TYPE_I) + nnz_l*(sizeof(_TYPE_V) + sizeof(_TYPE_I)))/(1024.0*1024.0));
+	printf("size of high:  %d rows, %d nonzeros, %.2lf MB\n", cnt_h, nnz_h, ((cnt_h+1)*sizeof(_TYPE_I) + nnz_h*(sizeof(_TYPE_V) + sizeof(_TYPE_I)))/(1024.0*1024.0));
+	printf("size of total: %ld rows, %ld nonzeros, %.2lf MB\n", m, nnz, ((m+1)*sizeof(_TYPE_I) + nnz*(sizeof(_TYPE_V) + sizeof(_TYPE_I)))/(1024.0*1024.0));
 	free(row_size_hist);
 	*/
-	
 	snprintf(buf, buf_n, "%s_row_size_distribution.png", title_base);
 	snprintf(buf_title, buf_n, "%s: row size distribution", title_base);
 	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, degrees_rows, NULL, m, 0),
@@ -2096,45 +2121,6 @@ csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__(
 
 	free(degrees_rows);
 }
-
-#undef  csr_cross_row_similarity_histogram_plot
-#define csr_cross_row_similarity_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity_histogram_plot)
-void
-csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size,
-		int enable_legend, long num_pixels_x, long num_pixels_y)
-{
-	_TYPE_I *crs_row;
-	long buf_n = strlen(title_base) + 1 + 1000;
-	char buf[buf_n], buf_title[buf_n];
-
-	// extract cross_row_similarity per row
-	crs_row = (typeof(crs_row)) malloc(m * sizeof(*crs_row));
-	csr_cross_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, crs_row);
-
-	// cross_row_similarity (per row) histogram. this can be commented out
-	double crs_row_min, crs_row_max;
-	array_min_max(crs_row, m, &crs_row_min, NULL, &crs_row_max, NULL);
-	// printf("crs_row_max = %lf\n", crs_row_max);
-	int *crs_row_hist = (int*) calloc((int)crs_row_max+1, sizeof(int));
-	for(int i=0;i<m;i++)
-		crs_row_hist[crs_row[i]]++;
-	// for (int i = 0; i < (int)crs_row_max+1; ++i)
-	// 	printf("%d: %d (%.3f%)\n", i, crs_row_hist[i], crs_row_hist[i]*100.0/m);
-	free(crs_row_hist);
-
-	snprintf(buf, buf_n, "%s_crs_row_distribution.png", title_base);
-	snprintf(buf_title, buf_n, "%s: crs_row distribution", title_base);
-	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, crs_row, NULL, m, 0),
-		if (enable_legend)
-			figure_enable_legend(_fig);
-		figure_set_title(_fig, buf_title);
-		figure_series_type_histogram(_s, 0, NULL, 1);
-		figure_series_type_barplot(_s);
-	);
-
-	free(crs_row);
-}
-
 
 #undef  csr_num_neigh_histogram_plot
 #define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
@@ -2151,18 +2137,18 @@ csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col
 
 	// num_neigh (per row) histogram. this can be commented out
 	double num_neigh_min, num_neigh_max;
-	array_min_max(num_neigh, m, &num_neigh_min, NULL, &num_neigh_max, NULL);
-	// printf("num_neigh_max = %lf\n", num_neigh_max);
+	array_min_max(num_neigh, nnz, &num_neigh_min, NULL, &num_neigh_max, NULL);
+	/*
 	int *num_neigh_hist = (int*) calloc((int)num_neigh_max+1, sizeof(int));
-	for(int i=0;i<m;i++)
+	for(int i=0;i<nnz;i++)
 		num_neigh_hist[num_neigh[i]]++;
-	// for (int i = 0; i < (int)num_neigh_max+1; ++i)
-	// 	printf("%d: %d (%.3f%)\n", i, num_neigh_hist[i], num_neigh_hist[i]*100.0/m);
+	for (int i = 0; i < (int)num_neigh_max+1; ++i)
+		printf("%d: %d (%.4f%%)\n", i, num_neigh_hist[i], num_neigh_hist[i]*100.0/nnz);
 	free(num_neigh_hist);
-
+	*/
 	snprintf(buf, buf_n, "%s_num_neigh_distribution.png", title_base);
 	snprintf(buf_title, buf_n, "%s: num_neigh distribution", title_base);
-	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, num_neigh, NULL, m, 0),
+	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, num_neigh, NULL, nnz, 0),
 		if (enable_legend)
 			figure_enable_legend(_fig);
 		figure_set_title(_fig, buf_title);
@@ -2173,6 +2159,82 @@ csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col
 	free(num_neigh);
 }
 
+#undef  csr_cross_row_similarity_histogram_plot
+#define csr_cross_row_similarity_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity_histogram_plot)
+void
+csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size,
+		int enable_legend, long num_pixels_x, long num_pixels_y)
+{
+	_TYPE_I *crs_neigh;
+	long buf_n = strlen(title_base) + 1 + 1000;
+	char buf[buf_n], buf_title[buf_n];
+
+	// extract cross_row_similarity per nnz
+	csr_cross_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &crs_neigh);
+
+	// cross_row_similarity (per nnz) histogram. this can be commented out
+	double crs_neigh_min, crs_neigh_max;
+	array_min_max(crs_neigh, nnz, &crs_neigh_min, NULL, &crs_neigh_max, NULL);
+	
+	int *crs_neigh_hist = (int*) calloc((int)crs_neigh_max+1, sizeof(int));
+	for(int i=0;i<nnz;i++)
+		crs_neigh_hist[crs_neigh[i]]++;
+	for (int i = 0; i < (int)crs_neigh_max+1; ++i)
+		printf("%d: %d (%.4f%%)\n", i, crs_neigh_hist[i], crs_neigh_hist[i]*100.0/nnz);
+	free(crs_neigh_hist);
+	
+	snprintf(buf, buf_n, "%s_crs_neigh_distribution.png", title_base);
+	snprintf(buf_title, buf_n, "%s: crs_neigh distribution", title_base);
+	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, crs_neigh, NULL, nnz, 0),
+		if (enable_legend)
+			figure_enable_legend(_fig);
+		figure_set_title(_fig, buf_title);
+		figure_series_type_histogram(_s, 0, NULL, 1);
+		figure_series_type_barplot(_s);
+	);
+
+	free(crs_neigh);
+}
+
+#undef  csr_pop_zone_score_histogram_plot
+#define csr_pop_zone_score_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_pop_zone_score_histogram_plot)
+void
+csr_pop_zone_score_histogram_plot(char * title_base, int * pop_zone_score, long m_batch, long col_select_window, int enable_legend, long num_pixels_x, long num_pixels_y)
+{
+	long buf_n = strlen(title_base) + 1 + 1000;
+	char buf[buf_n], buf_title[buf_n];
+
+	// Degree histogram. this can be commented out
+	double pop_zone_score_min, pop_zone_score_max, pop_zone_score_avg, pop_zone_score_std;
+	array_min_max(pop_zone_score, m_batch, &pop_zone_score_min, NULL, &pop_zone_score_max, NULL);
+	array_mean(pop_zone_score, m_batch, &pop_zone_score_avg);
+	array_std(pop_zone_score, m_batch, &pop_zone_score_std);
+	printf("pop_zone_score_max = %.4lf\n", pop_zone_score_max);
+	printf("pop_zone_score_min = %.4lf\n", pop_zone_score_min);
+	printf("pop_zone_score_avg = %.4lf\n", pop_zone_score_avg);
+	printf("pop_zone_score_std = %.4lf\n", pop_zone_score_std);
+	
+	int *pop_zone_score_hist = (int*) calloc((int)pop_zone_score_max+1, sizeof(int));
+	for(int i=0;i<m_batch;i++)
+		pop_zone_score_hist[pop_zone_score[i]]++;
+	for (int i = 0; i < (int)pop_zone_score_max+1; ++i){
+		printf("%d: ",i);
+		if(pop_zone_score_hist[i]>0)
+			printf("%d (%.4f%%)", pop_zone_score_hist[i], pop_zone_score_hist[i]*100.0/m_batch);
+		printf("\n");
+	}
+	free(pop_zone_score_hist);
+	
+	snprintf(buf, buf_n, "%s_pop_zone_score_distribution_%ld.png", title_base, col_select_window);
+	snprintf(buf_title, buf_n, "%s: pop score distribution", title_base);
+	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, pop_zone_score, NULL, m_batch, 0),
+		if (enable_legend)
+			figure_enable_legend(_fig);
+		figure_set_title(_fig, buf_title);
+		figure_series_type_histogram(_s, 0, NULL, 1);
+		figure_series_type_barplot(_s);
+	);
+}
 
 //==========================================================================================================================================
 //= Includes Undefs

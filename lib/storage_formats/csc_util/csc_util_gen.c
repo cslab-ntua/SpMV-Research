@@ -10,8 +10,6 @@
 #include "bit_ops.h"
 #include "plot/plot.h"
 #include "time_it.h"
-#include "kmeans/kmeans.h"
-#include "kmeans/kmeans_char.h"
 
 #include "csc_util_gen.h"
 
@@ -168,6 +166,100 @@ csc_col_indices(__attribute__((unused)) _TYPE_I * row_idx, _TYPE_I * col_ptr, __
 	*col_idx_out = col_idx;
 }
 
+/* Notes: 
+ *     - 'window_size': Distance from left and right.
+ */
+#undef  csc_col_neighbours
+#define csc_col_neighbours  CSC_UTIL_GEN_EXPAND(csc_col_neighbours)
+void
+csc_col_neighbours(_TYPE_I * row_idx, _TYPE_I * col_ptr, __attribute__((unused)) long m, long n, long nnz, long window_size,
+		_TYPE_I ** num_neigh_out)
+{
+	int num_threads = safe_omp_get_num_threads_external();
+	_TYPE_I * num_neigh = (typeof(num_neigh)) malloc(nnz * sizeof(*num_neigh));
+	#pragma omp parallel
+	{
+		int tnum = omp_get_thread_num();
+		long i, i_s, i_e, j, k;
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, col_ptr, n, nnz, &i_s, &i_e);
+		#pragma omp for
+		for (i=0;i<nnz;i++)
+			num_neigh[i] = 0;
+		for (i=i_s;i<i_e;i++)
+		{
+			for (j=col_ptr[i];j<col_ptr[i+1];j++)
+			{
+				for (k=j+1;k<col_ptr[i+1];k++)
+				{
+					if (row_idx[k] - row_idx[j] > window_size)
+						break;
+					num_neigh[j]++;
+					num_neigh[k]++;
+				}
+			}
+		}
+	}
+	if (num_neigh_out != NULL)
+		*num_neigh_out = num_neigh;
+	else
+		free(num_neigh);
+}
+
+#undef  csc_cross_col_neighbours
+#define csc_cross_col_neighbours  CSC_UTIL_GEN_EXPAND(csc_cross_col_neighbours)
+void
+csc_cross_col_neighbours(_TYPE_I * row_idx, _TYPE_I * col_ptr, __attribute__((unused)) long m, long n, __attribute__((unused)) long nnz, long window_size,
+		_TYPE_I **ccs_neigh_out)
+{
+	_TYPE_I * ccs_neigh = (typeof(ccs_neigh)) malloc(nnz * sizeof(*ccs_neigh));
+	#pragma omp parallel
+	{
+		long i, j, k, k_s, k_e, l;
+		long degree, row_diff;
+		#pragma omp for
+		for (i=0;i<nnz;i++)
+			ccs_neigh[i] = 0;
+
+		#pragma omp for
+		for (i=0;i<n;i++)
+		{
+			degree = col_ptr[i+1] - col_ptr[i];
+			if (degree <= 0)
+				continue;
+			for (l=i+1;l<n;l++)       // Find next non-empty col.
+				if (col_ptr[l+1] - col_ptr[l] > 0)
+					break;
+			if (l < n)
+			{
+				k_s = col_ptr[l];
+				k_e = col_ptr[l+1];
+				k = k_s;
+				for (j=col_ptr[i];j<col_ptr[i+1];j++)
+				{
+					while (k < k_e)
+					{
+						row_diff = row_idx[k] - row_idx[j];
+						if (labs(row_diff) <= window_size)
+						{
+							ccs_neigh[j]+=1;
+							// do not break, in order to register all neighbours
+							// break; 
+						}
+						if (row_diff <= 0)
+							k++;
+						else
+							break;   // went outside of area to examine
+					}
+				}
+			}
+		}
+	}
+	if (ccs_neigh_out != NULL)
+		*ccs_neigh_out = ccs_neigh;
+	else
+		free(ccs_neigh);
+}
+
 #undef  csc_save_to_mtx
 #define csc_save_to_mtx  CSC_UTIL_GEN_EXPAND(csc_save_to_mtx)
 void
@@ -183,9 +275,14 @@ csc_save_to_mtx(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, int num_row
 
 	fprintf(file, "%%%%MatrixMarket matrix coordinate real general\n");
 	fprintf(file, "%d %d %d\n", num_rows, num_cols, col_ptr[num_cols]);
-	for (int j = 0; j < num_cols; j++) {
-		for (int i = col_ptr[j]; i < col_ptr[j + 1]; i++) {
-			fprintf(file, "%d %d %.15g\n", row_idx[i] + 1, j + 1, val[i]);
+	long buf_n = 1000;
+	char buf[buf_n];
+	long k;
+	for (int i = 0; i < num_cols; i++) {
+		for (int j = col_ptr[i]; j < col_ptr[i + 1]; j++) {
+			k = 0;
+			k += snprintf(buf, buf_n-k, "%d %d %.15g", row_idx[j] + 1, j + 1, val[j]);
+			fprintf(file, "%s\n", buf);
 		}
 	}
 	fclose(file);
@@ -221,6 +318,131 @@ csc_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, __attribute__(
 	free(col_idx);
 }
 
+#undef  csc_col_size_histogram_plot
+#define csc_col_size_histogram_plot  CSC_UTIL_GEN_EXPAND(csc_col_size_histogram_plot)
+void
+csc_col_size_histogram_plot(char * title_base, __attribute__((unused)) _TYPE_I * row_idx, _TYPE_I * col_ptr, __attribute__((unused)) _TYPE_V * val, __attribute__((unused)) long m, long n, __attribute__((unused)) long nnz,
+		int enable_legend, long num_pixels_x, long num_pixels_y)
+{
+	_TYPE_I * degrees_cols;
+	long buf_n = strlen(title_base) + 1 + 1000;
+	char buf[buf_n], buf_title[buf_n];
+
+	degrees_cols = (typeof(degrees_cols)) malloc(n * sizeof(*degrees_cols));
+	#pragma omp parallel for
+	for(int i=0; i<n; i++)
+		degrees_cols[i] = col_ptr[i+1] - col_ptr[i];
+	
+	// Degree histogram. this can be commented out
+	double nnz_per_col_min, nnz_per_col_max, nnz_per_col_avg, nnz_per_col_std;
+	array_min_max(degrees_cols, n, &nnz_per_col_min, NULL, &nnz_per_col_max, NULL);
+	array_mean(degrees_cols, n, &nnz_per_col_avg);
+	array_std(degrees_cols, n, &nnz_per_col_std);
+
+	printf("nnz_per_col_max = %.0lf\n", nnz_per_col_max);
+	printf("nnz_per_col_min = %.0lf\n", nnz_per_col_min);
+	printf("nnz_per_col_avg = %.4lf\n", nnz_per_col_avg);
+	printf("nnz_per_col_std = %.4lf\n", nnz_per_col_std);
+
+	/*	
+	int *col_size_hist = (int*) calloc((int)nnz_per_col_max+1, sizeof(int));
+	for(int i=0;i<n;i++)
+		col_size_hist[degrees_cols[i]]++;
+	for (int i = 0; i < (int)nnz_per_col_max+1; ++i){
+		printf("%d %d", i, col_size_hist[i]);
+		if(col_size_hist[i]*100.0/n > 0.5)
+			printf(" ( %.4f )", col_size_hist[i]*100.0/n);
+		printf("\n");
+	}
+	free(col_size_hist);
+	*/
+	
+	snprintf(buf, buf_n, "%s_col_size_distribution.png", title_base);
+	snprintf(buf_title, buf_n, "%s: col size distribution", title_base);
+	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, degrees_cols, NULL, n, 0),
+		if (enable_legend)
+			figure_enable_legend(_fig);
+		figure_set_title(_fig, buf_title);
+		figure_series_type_histogram(_s, 0, NULL, 1);
+		figure_series_type_barplot(_s);
+	);
+
+	free(degrees_cols);
+}
+
+#undef  csc_num_neigh_histogram_plot
+#define csc_num_neigh_histogram_plot  CSC_UTIL_GEN_EXPAND(csc_num_neigh_histogram_plot)
+void
+csc_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size,
+		int enable_legend, long num_pixels_x, long num_pixels_y)
+{
+	_TYPE_I *num_neigh;
+	long buf_n = strlen(title_base) + 1 + 1000;
+	char buf[buf_n], buf_title[buf_n];
+
+	// extract num_neigh per row
+	csc_col_neighbours(row_idx, col_ptr, m, n, nnz, window_size, &num_neigh);
+
+	// num_neigh (per row) histogram. this can be commented out
+	double num_neigh_min, num_neigh_max;
+	array_min_max(num_neigh, nnz, &num_neigh_min, NULL, &num_neigh_max, NULL);
+	
+	int *num_neigh_hist = (int*) calloc((int)num_neigh_max+1, sizeof(int));
+	for(int i=0;i<nnz;i++)
+		num_neigh_hist[num_neigh[i]]++;
+	for (int i = 0; i < (int)num_neigh_max+1; ++i)
+		printf("%d: %d (%.4f%%)\n", i, num_neigh_hist[i], num_neigh_hist[i]*100.0/nnz);
+	free(num_neigh_hist);
+	
+	snprintf(buf, buf_n, "%s_num_neigh_col_distribution.png", title_base);
+	snprintf(buf_title, buf_n, "%s: num_neigh_col distribution", title_base);
+	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, num_neigh, NULL, nnz, 0),
+		if (enable_legend)
+			figure_enable_legend(_fig);
+		figure_set_title(_fig, buf_title);
+		figure_series_type_histogram(_s, 0, NULL, 1);
+		figure_series_type_barplot(_s);
+	);
+
+	free(num_neigh);
+}
+
+#undef  csc_cross_col_similarity_histogram_plot
+#define csc_cross_col_similarity_histogram_plot  CSC_UTIL_GEN_EXPAND(csc_cross_col_similarity_histogram_plot)
+void
+csc_cross_col_similarity_histogram_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size,
+		int enable_legend, long num_pixels_x, long num_pixels_y)
+{
+	_TYPE_I *ccs_neigh;
+	long buf_n = strlen(title_base) + 1 + 1000;
+	char buf[buf_n], buf_title[buf_n];
+
+	// extract cross_col_similarity per nnz
+	csc_cross_col_neighbours(row_idx, col_ptr, m, n, nnz, window_size, &ccs_neigh);
+
+	// cross_col_similarity (per nnz) histogram. this can be commented out
+	double ccs_neigh_min, ccs_neigh_max;
+	array_min_max(ccs_neigh, nnz, &ccs_neigh_min, NULL, &ccs_neigh_max, NULL);
+	
+	int *ccs_neigh_hist = (int*) calloc((int)ccs_neigh_max+1, sizeof(int));
+	for(int i=0;i<nnz;i++)
+		ccs_neigh_hist[ccs_neigh[i]]++;
+	for (int i = 0; i < (int)ccs_neigh_max+1; ++i)
+		printf("%d: %d (%.4f%%)\n", i, ccs_neigh_hist[i], ccs_neigh_hist[i]*100.0/nnz);
+	free(ccs_neigh_hist);
+	
+	snprintf(buf, buf_n, "%s_ccs_neigh_distribution.png", title_base);
+	snprintf(buf_title, buf_n, "%s: ccs_neigh distribution", title_base);
+	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, ccs_neigh, NULL, nnz, 0),
+		if (enable_legend)
+			figure_enable_legend(_fig);
+		figure_set_title(_fig, buf_title);
+		figure_series_type_histogram(_s, 0, NULL, 1);
+		figure_series_type_barplot(_s);
+	);
+
+	free(ccs_neigh);
+}
 
 //==========================================================================================================================================
 //= Includes Undefs

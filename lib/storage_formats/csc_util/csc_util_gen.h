@@ -38,7 +38,6 @@ void csc_col_indices(_TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long 
 // void csc_degrees_bandwidths_scatters(_TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long nnz,
 // 		_TYPE_I ** degrees_rows_out, _TYPE_I ** degrees_cols_out, double ** bandwidths_out, double ** scatters_out);
 
-
 // // #undef  csc_groups_per_col
 // // #define csc_groups_per_col  CSC_UTIL_GEN_EXPAND(csc_groups_per_col)
 // // void csc_groups_per_col(_TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long nnz, long max_gap_size, long ** groups_per_col_out);
@@ -48,20 +47,17 @@ void csc_col_indices(_TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long 
 // long csc_column_distances_and_groupping(_TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long nnz, long max_gap_size,
 // 		_TYPE_I ** nnz_col_dist_out, _TYPE_I ** group_col_dist_out, _TYPE_I ** group_sizes_out, _TYPE_I ** groups_per_col_out);
 
+#undef  csc_col_neighbours
+#define csc_col_neighbours  CSC_UTIL_GEN_EXPAND(csc_col_neighbours)
+void csc_col_neighbours(_TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long nnz, long window_size, _TYPE_I ** num_neigh_out);
 
-// #undef  csc_row_neighbours
-// #define csc_row_neighbours  CSC_UTIL_GEN_EXPAND(csc_row_neighbours)
-// void csc_row_neighbours(_TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long nnz, long window_size, _TYPE_I ** num_neigh_out);
+#undef  csc_cross_col_neighbours
+#define csc_cross_col_neighbours  CSC_UTIL_GEN_EXPAND(csc_cross_col_neighbours)
+void csc_cross_col_neighbours(_TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long nnz, long window_size, _TYPE_I **ccs_neigh_out);
 
-
-// #undef  csc_cross_row_similarity
-// #define csc_cross_row_similarity  CSC_UTIL_GEN_EXPAND(csc_cross_row_similarity)
-// double csc_cross_row_similarity(_TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long nnz, long window_size);
-
-// #undef  csc_cross_row_neighbours
-// #define csc_cross_row_neighbours  CSC_UTIL_GEN_EXPAND(csc_cross_row_neighbours)
-// double csc_cross_row_neighbours(_TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long nnz, long window_size);
-
+#undef  csc_cross_col_similarity
+#define csc_cross_col_similarity  CSC_UTIL_GEN_EXPAND(csc_cross_col_similarity)
+double csc_cross_col_similarity(_TYPE_I * row_idx, _TYPE_I * col_ptr, long m, long n, long nnz, long window_size);
 
 // #undef  csc_value_features
 // #define csc_value_features  CSC_UTIL_GEN_EXPAND(csc_value_features)
@@ -88,3 +84,14 @@ void csc_save_to_mtx(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, int nu
 #define csc_plot  CSC_UTIL_GEN_EXPAND(csc_plot)
 void csc_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
 
+#undef  csc_col_size_histogram_plot
+#define csc_col_size_histogram_plot  CSC_UTIL_GEN_EXPAND(csc_col_size_histogram_plot)
+void csc_col_size_histogram_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
+
+#undef  csc_num_neigh_histogram_plot
+#define csc_num_neigh_histogram_plot  CSC_UTIL_GEN_EXPAND(csc_num_neigh_histogram_plot)
+void csc_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
+
+#undef  csc_cross_col_similarity_histogram_plot
+#define csc_cross_col_similarity_histogram_plot  CSC_UTIL_GEN_EXPAND(csc_cross_col_similarity_histogram_plot)
+void csc_cross_col_similarity_histogram_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);

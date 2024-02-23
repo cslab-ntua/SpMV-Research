@@ -91,7 +91,10 @@ LIB_OBJ := $(patsubst %.c,obj/%.o,$(LIB_OBJ))
 LIB_OBJ := $(patsubst %.cpp,obj/%.o,$(LIB_OBJ))
 
 
-EXE = mat_feat.exe mat_experiment.exe mat_experiment_char.exe mat_experiment_inverse.exe mat_experiment_char_inverse.exe mat_reorder.exe
+# EXE = mat_feat.exe mat_experiment.exe mat_experiment_char.exe mat_experiment_inverse.exe mat_experiment_char_inverse.exe mat_reorder.exe
+# EXE = mat_feat.exe mat_experiment.exe mat_experiment_char.exe mat_experiment_col_sorting.exe 
+EXE = mat_feat.exe mat_experiment_col_sorting.exe 
+# mat_experiment_high_low_splitting.exe mat_experiment_col_row_sorting.exe mat_experiment_row_col_sorting.exe
 
 all: $(EXE) | $(DIRS)
 
@@ -112,7 +115,14 @@ $(call Rule_Auto_Dependencies,obj/mat_experiment_char_inverse.o,mat_experiment_c
 	$(CPP) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/mat_reorder.o,mat_reorder.cpp)
 	$(CPP) $(CFLAGS) -c $< -o $@
-
+$(call Rule_Auto_Dependencies,obj/mat_experiment_high_low_splitting.o,mat_experiment_high_low_splitting.cpp)
+	$(CPP) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/mat_experiment_col_row_sorting.o,mat_experiment_col_row_sorting.cpp)
+	$(CPP) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/mat_experiment_col_sorting.o,mat_experiment_col_sorting.cpp)
+	$(CPP) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/mat_experiment_row_col_sorting.o,mat_experiment_row_col_sorting.cpp)
+	$(CPP) $(CFLAGS) -c $< -o $@
 
 $(call Rule_Auto_Dependencies,obj/read_mtx.o,read_mtx.cpp)
 	$(CPP) $(CFLAGS) -c $< -o $@
