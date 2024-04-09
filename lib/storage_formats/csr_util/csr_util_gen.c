@@ -2195,15 +2195,15 @@ csr_bandwidth_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col
 #define csr_bandwidth_batch_nnz_bar_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_batch_nnz_bar_plot)
 void
 csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, __attribute__((unused)) long m, long n, __attribute__((unused)) long nnz, int batch_nnz, 
-		int enable_legend, long num_pixels_x, long num_pixels_y)
+		[[gnu::unused]] int enable_legend, [[gnu::unused]] long num_pixels_x, [[gnu::unused]] long num_pixels_y)
 {
 	_TYPE_I * row_idx;
 	csr_row_indices(row_ptr, col_idx, m, n, nnz, &row_idx);
 
-	float * x_part_size, * y_part_size, * x_unique_values;
+	[[gnu::unused]] float * x_part_size, * y_part_size, * x_unique_values;
 	int * x_part_s, * x_part_f;
 	long buf_n = strlen(title_base) + 1 + 1000;
-	char buf[buf_n], buf_title[buf_n];
+	[[gnu::unused]] char buf[buf_n], buf_title[buf_n];
 
 	_TYPE_I nnz_b = (nnz+batch_nnz-1)/batch_nnz;
 	x_part_size = (typeof(x_part_size)) malloc(nnz_b * sizeof(*x_part_size));
@@ -2272,7 +2272,7 @@ csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYP
 	printf("time_it1 = %.4lf, time_it2 = %.4lf\n", time_it1, time_it2);
 
 	for(int i=0;i<50;i++)
-		printf("nnz block %d: x_part_size = %.0lf width, x_unique_values = %.0lf (%.4lf%)\n", i, x_part_size[i]*1024/8, x_unique_values[i], x_unique_values[i]*100.0/(x_part_f[i] - x_part_s[i] + 1));
+		printf("nnz block %d: x_part_size = %.0lf width, x_unique_values = %.0lf (%.4lf%%)\n", i, x_part_size[i]*1024/8, x_unique_values[i], x_unique_values[i]*100.0/(x_part_f[i] - x_part_s[i] + 1));
 
 	// Degree histogram. this can be commented out
 	double x_part_size_min, x_part_size_max, x_part_size_avg, x_part_size_std;
@@ -2282,7 +2282,7 @@ csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYP
 	printf("%d batches of %d nonzeros\n", nnz_b, batch_nnz);
 	printf("x_part_size_max = %.4lf KB\n", x_part_size_max);
 	printf("x_part_size_min = %.4lf KB\n", x_part_size_min);
-	printf("x_part_size_avg = %.4lf KB (while x vector = %.4lf -> %.2lf\%)\n", x_part_size_avg, n * 8.0 / 1024, x_part_size_avg * 100.0 / (n * 8.0 / 1024));
+	printf("x_part_size_avg = %.4lf KB (while x vector = %.4lf -> %.2lf%%)\n", x_part_size_avg, n * 8.0 / 1024, x_part_size_avg * 100.0 / (n * 8.0 / 1024));
 	printf("x_part_size_std = %.4lf\n", x_part_size_std);
 
 	double x_unique_values_min, x_unique_values_max, x_unique_values_avg, x_unique_values_std;
@@ -2292,7 +2292,7 @@ csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYP
 	printf("\n");
 	printf("x_unique_values_max = %.4lf\n", x_unique_values_max);
 	printf("x_unique_values_min = %.4lf\n", x_unique_values_min);
-	printf("x_unique_values_avg = %.4lf (while x part width avg = %.4lf -> %.2lf\%)\t(%.2lf\% out of 8192 (max 100%) - different for each nonzero)\n", x_unique_values_avg, x_part_size_avg*1024/8, x_unique_values_avg * 100.0 / (x_part_size_avg*1024/8), x_unique_values_avg * 100.0 / batch_nnz);
+	printf("x_unique_values_avg = %.4lf (while x part width avg = %.4lf -> %.2lf%%)\t(%.2lf%% out of 8192 (max 100%%) - different for each nonzero)\n", x_unique_values_avg, x_part_size_avg*1024/8, x_unique_values_avg * 100.0 / (x_part_size_avg*1024/8), x_unique_values_avg * 100.0 / batch_nnz);
 	printf("x_unique_values_std = %.4lf\n", x_unique_values_std);
 
 	// Degree histogram. this can be commented out
