@@ -115,6 +115,14 @@ void csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V *
 #define csr_row_size_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_row_size_histogram_plot)
 void csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
 
+#undef  csr_bandwidth_histogram_plot
+#define csr_bandwidth_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_histogram_plot)
+void csr_bandwidth_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
+
+#undef  csr_bandwidth_batch_nnz_bar_plot
+#define csr_bandwidth_batch_nnz_bar_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_batch_nnz_bar_plot)
+void csr_bandwidth_batch_nnz_bar_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int batch_nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
+
 #undef  csr_num_neigh_histogram_plot
 #define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
 void csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);

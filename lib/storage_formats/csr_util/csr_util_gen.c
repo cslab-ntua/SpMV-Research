@@ -2083,20 +2083,20 @@ csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__(
 	printf("nnz_per_row_min = %.0lf\n", nnz_per_row_min);
 	printf("nnz_per_row_avg = %.4lf\n", nnz_per_row_avg);
 	printf("nnz_per_row_std = %.4lf\n", nnz_per_row_std);
-	/*	
+		
 	int *row_size_hist = (int*) calloc((int)nnz_per_row_max+1, sizeof(int));
 	int cnt_l = 0, cnt_h = 0, nnz_l = 0, nnz_h = 0;
-
+	/*
 	for(int i=0;i<m;i++){
 		row_size_hist[degrees_rows[i]]++;
-		if(degrees_rows[i] < nnz_per_row_avg){
-			nnz_l += degrees_rows[i];
-			cnt_l++;
-		}
-		else{
-			nnz_h += degrees_rows[i];
-			cnt_h++;
-		}
+		// if(degrees_rows[i] < nnz_per_row_avg){
+		// 	nnz_l += degrees_rows[i];
+		// 	cnt_l++;
+		// }
+		// else{
+		// 	nnz_h += degrees_rows[i];
+		// 	cnt_h++;
+		// }
 	}
 	for (int i = 0; i < (int)nnz_per_row_max+1; ++i){
 		printf("%d %d", i, row_size_hist[i]);
@@ -2104,9 +2104,9 @@ csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__(
 			printf(" ( %.4f )", row_size_hist[i]*100.0/m);
 		printf("\n");
 	}
-	printf("size of low:   %d rows, %d nonzeros, %.2lf MB\n", cnt_l, nnz_l, ((cnt_l+1)*sizeof(_TYPE_I) + nnz_l*(sizeof(_TYPE_V) + sizeof(_TYPE_I)))/(1024.0*1024.0));
-	printf("size of high:  %d rows, %d nonzeros, %.2lf MB\n", cnt_h, nnz_h, ((cnt_h+1)*sizeof(_TYPE_I) + nnz_h*(sizeof(_TYPE_V) + sizeof(_TYPE_I)))/(1024.0*1024.0));
-	printf("size of total: %ld rows, %ld nonzeros, %.2lf MB\n", m, nnz, ((m+1)*sizeof(_TYPE_I) + nnz*(sizeof(_TYPE_V) + sizeof(_TYPE_I)))/(1024.0*1024.0));
+	// printf("size of low:   %d rows, %d nonzeros, %.2lf MB\n", cnt_l, nnz_l, ((cnt_l+1)*sizeof(_TYPE_I) + nnz_l*(sizeof(_TYPE_V) + sizeof(_TYPE_I)))/(1024.0*1024.0));
+	// printf("size of high:  %d rows, %d nonzeros, %.2lf MB\n", cnt_h, nnz_h, ((cnt_h+1)*sizeof(_TYPE_I) + nnz_h*(sizeof(_TYPE_V) + sizeof(_TYPE_I)))/(1024.0*1024.0));
+	// printf("size of total: %ld rows, %ld nonzeros, %.2lf MB\n", m, nnz, ((m+1)*sizeof(_TYPE_I) + nnz*(sizeof(_TYPE_V) + sizeof(_TYPE_I)))/(1024.0*1024.0));
 	free(row_size_hist);
 	*/
 	snprintf(buf, buf_n, "%s_row_size_distribution.png", title_base);
@@ -2121,6 +2121,218 @@ csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__(
 
 	free(degrees_rows);
 }
+
+#undef  csr_bandwidth_histogram_plot
+#define csr_bandwidth_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_histogram_plot)
+void
+csr_bandwidth_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz,
+		int enable_legend, long num_pixels_x, long num_pixels_y)
+{
+	_TYPE_I * bandwidth_rows;
+	long buf_n = strlen(title_base) + 1 + 1000;
+	char buf[buf_n], buf_title[buf_n];
+
+	// TODO: need to fix this, so that it account for non_empty_rows only when calculating bw values.
+	bandwidth_rows = (typeof(bandwidth_rows)) malloc(m * sizeof(*bandwidth_rows));
+	#pragma omp parallel for
+	for(int i=0; i<m; i++){
+		if((row_ptr[i+1] - row_ptr[i]) == 0)
+			bandwidth_rows[i] = 0;
+		else
+			bandwidth_rows[i] = col_idx[row_ptr[i+1]-1] - col_idx[row_ptr[i]];
+	}
+
+	// Degree histogram. this can be commented out
+	double bandwidth_min, bandwidth_max, bandwidth_avg, bandwidth_std;
+	array_min_max(bandwidth_rows, m, &bandwidth_min, NULL, &bandwidth_max, NULL);
+	array_mean(bandwidth_rows, m, &bandwidth_avg);
+	array_std(bandwidth_rows, m, &bandwidth_std);
+	printf("bandwidth_max = %.0lf\n", bandwidth_max);
+	printf("bandwidth_min = %.0lf\n", bandwidth_min);
+	printf("bandwidth_avg = %.4lf\n", bandwidth_avg);
+	printf("bandwidth_std = %.4lf\n", bandwidth_std);
+	/*	
+	int *bandwidth_hist = (int*) calloc((int)bandwidth_max+1, sizeof(int));
+
+	for(int i=0;i<m;i++)
+		bandwidth_hist[bandwidth_rows[i]]++;
+	for (int i = 0; i < (int)bandwidth_max+1; ++i){
+		printf("%d %d", i, bandwidth_hist[i]);
+		if(bandwidth_hist[i]*100.0/m > 0.5)
+			printf(" ( %.4f )", bandwidth_hist[i]*100.0/m);
+		printf("\n");
+	}
+	free(bandwidth_hist);
+	*/	
+	snprintf(buf, buf_n, "%s_bandwidth_distribution.png", title_base);
+	snprintf(buf_title, buf_n, "%s: bandwidth distribution", title_base);
+	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, bandwidth_rows, NULL, m, 0),
+		if (enable_legend)
+			figure_enable_legend(_fig);
+		figure_set_title(_fig, buf_title);
+		figure_series_type_histogram(_s, 0, NULL, 1);
+		figure_series_type_barplot(_s);
+	);
+
+	free(bandwidth_rows);
+}
+
+#undef  csr_bandwidth_batch_nnz_bar_plot
+#define csr_bandwidth_batch_nnz_bar_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_batch_nnz_bar_plot)
+void
+csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, __attribute__((unused)) long m, long n, __attribute__((unused)) long nnz, int batch_nnz, 
+		int enable_legend, long num_pixels_x, long num_pixels_y)
+{
+	_TYPE_I * row_idx;
+	csr_row_indices(row_ptr, col_idx, m, n, nnz, &row_idx);
+
+	float * x_part_size, * y_part_size, * x_unique_values;
+	int * x_part_s, * x_part_f;
+	long buf_n = strlen(title_base) + 1 + 1000;
+	char buf[buf_n], buf_title[buf_n];
+
+	_TYPE_I nnz_b = (nnz+batch_nnz-1)/batch_nnz;
+	x_part_size = (typeof(x_part_size)) malloc(nnz_b * sizeof(*x_part_size));
+	// y_part_size = (typeof(y_part_size)) malloc(nnz_b * sizeof(*y_part_size));
+	
+	x_unique_values = (typeof(x_unique_values)) calloc(nnz_b, sizeof(*x_unique_values));
+	x_part_s = (typeof(x_part_s)) malloc(nnz_b * sizeof(*x_part_s));
+	x_part_f = (typeof(x_part_f)) malloc(nnz_b * sizeof(*x_part_f));
+	
+	// cuCSR processes nonzeros in wavefronts of 432 thread blocks -> 108 SMs -> 4 thread blocks per SM
+	// Each SM is assigned with 4 thread blocks for load_balancing_kernel
+	// Each thread block consists of 512 threads, and each thread is assigned with 4 nonzeros
+	// Therefore, 4*512*4 = 8192 nonzeros per SM
+	// For each window of 8192 nonzeros, I have to see which part of x vector is requested, and try to minimize it as much as possible
+	// so that it fits in the L1 cache
+	double time_it1 = time_it(1,
+	_Pragma("omp parallel")
+	{
+		_Pragma("omp for")
+		for(int i=0; i<nnz_b; i++){
+			int min_col_idx = n+1;
+			int max_col_idx = -1;
+			int min_row_idx = m+1;
+			int max_row_idx = -1;
+			for(int ii=i*batch_nnz; ii<(i+1)*batch_nnz && ii<nnz; ii++){
+				if(col_idx[ii] < min_col_idx)
+					min_col_idx = col_idx[ii];
+				if(col_idx[ii] > max_col_idx)
+					max_col_idx = col_idx[ii];
+				if(row_idx[ii] < min_row_idx)
+					min_row_idx = row_idx[ii];
+				if(row_idx[ii] > max_row_idx)
+					max_row_idx = row_idx[ii];
+			}
+			int col_width = max_col_idx - min_col_idx + 1;
+			x_part_size[i] = col_width * 8.0 / 1024;
+			// int row_width = max_row_idx - min_row_idx + 1;
+			// y_part_size[i] = row_width * 8.0 / 1024;
+
+			x_part_s[i] = min_col_idx;
+			x_part_f[i] = max_col_idx;
+			// printf("%d/%d\tmin_row_idx = %d, max_row_idx = %d ( %d rows )\t/ min_col_idx = %d, max_col_idx = %d ( width = %d )\t-> %.2lf KB of x vector\n", i+1, nnz_b, min_row_idx, max_row_idx, row_width, min_col_idx, max_col_idx, col_width, x_part_size[i]);
+		}
+	}
+	);
+
+	double time_it2 = time_it(1,
+	_Pragma("omp parallel")
+	{
+		_Pragma("omp for")
+		for(int i=0; i<nnz_b; i++){
+			int * x_hash_table;
+			x_hash_table = (typeof(x_hash_table)) calloc(x_part_f[i] - x_part_s[i] + 1, sizeof(*x_hash_table));
+
+			for(int ii=i*batch_nnz; ii<(i+1)*batch_nnz && ii<nnz; ii++)
+				x_hash_table[col_idx[ii]-x_part_s[i]]+=1;
+
+			// now count how many values of x_hash_table are larger than zero
+			for(int ii=0; ii<x_part_f[i]-x_part_s[i]+1; ii++)
+				if(x_hash_table[ii] > 0)
+					x_unique_values[i]+=1;
+			free(x_hash_table);
+		}
+	}
+	);
+	printf("time_it1 = %.4lf, time_it2 = %.4lf\n", time_it1, time_it2);
+
+	for(int i=0;i<50;i++)
+		printf("nnz block %d: x_part_size = %.0lf width, x_unique_values = %.0lf (%.4lf%)\n", i, x_part_size[i]*1024/8, x_unique_values[i], x_unique_values[i]*100.0/(x_part_f[i] - x_part_s[i] + 1));
+
+	// Degree histogram. this can be commented out
+	double x_part_size_min, x_part_size_max, x_part_size_avg, x_part_size_std;
+	array_min_max(x_part_size, nnz_b, &x_part_size_min, NULL, &x_part_size_max, NULL);
+	array_mean(x_part_size, nnz_b, &x_part_size_avg);
+	array_std(x_part_size, nnz_b, &x_part_size_std);
+	printf("%d batches of %d nonzeros\n", nnz_b, batch_nnz);
+	printf("x_part_size_max = %.4lf KB\n", x_part_size_max);
+	printf("x_part_size_min = %.4lf KB\n", x_part_size_min);
+	printf("x_part_size_avg = %.4lf KB (while x vector = %.4lf -> %.2lf\%)\n", x_part_size_avg, n * 8.0 / 1024, x_part_size_avg * 100.0 / (n * 8.0 / 1024));
+	printf("x_part_size_std = %.4lf\n", x_part_size_std);
+
+	double x_unique_values_min, x_unique_values_max, x_unique_values_avg, x_unique_values_std;
+	array_min_max(x_unique_values, nnz_b, &x_unique_values_min, NULL, &x_unique_values_max, NULL);
+	array_mean(x_unique_values, nnz_b, &x_unique_values_avg);
+	array_std(x_unique_values, nnz_b, &x_unique_values_std);
+	printf("\n");
+	printf("x_unique_values_max = %.4lf\n", x_unique_values_max);
+	printf("x_unique_values_min = %.4lf\n", x_unique_values_min);
+	printf("x_unique_values_avg = %.4lf (while x part width avg = %.4lf -> %.2lf\%)\t(%.2lf\% out of 8192 (max 100%) - different for each nonzero)\n", x_unique_values_avg, x_part_size_avg*1024/8, x_unique_values_avg * 100.0 / (x_part_size_avg*1024/8), x_unique_values_avg * 100.0 / batch_nnz);
+	printf("x_unique_values_std = %.4lf\n", x_unique_values_std);
+
+	// Degree histogram. this can be commented out
+	// double y_part_size_min, y_part_size_max, y_part_size_avg, y_part_size_std;
+	// array_min_max(y_part_size, nnz_b, &y_part_size_min, NULL, &y_part_size_max, NULL);
+	// array_mean(y_part_size, nnz_b, &y_part_size_avg);
+	// array_std(y_part_size, nnz_b, &y_part_size_std);
+	// printf("\n");
+	// printf("y_part_size_max = %.4lf KB\n", y_part_size_max);
+	// printf("y_part_size_min = %.4lf KB\n", y_part_size_min);
+	// printf("y_part_size_avg = %.4lf KB\n", y_part_size_avg);
+	// printf("y_part_size_std = %.4lf\n", y_part_size_std);
+
+	/*
+	int *bandwidth_hist = (int*) calloc((int)x_part_size_max+1, sizeof(int));
+	for(int i=0;i<nnz_b;i++)
+		bandwidth_hist[x_part_size[i]]++;
+	for (int i = 0; i < (int)x_part_size_max+1; ++i){
+		printf("%d %d", i, bandwidth_hist[i]);
+		if(bandwidth_hist[i]*100.0/nnz_b > 0.5)
+			printf(" ( %.4f )", bandwidth_hist[i]*100.0/nnz_b);
+		printf("\n");
+	}
+	free(bandwidth_hist);
+	*/
+
+	// snprintf(buf, buf_n, "%s_x_part_size_distribution.png", title_base);
+	// snprintf(buf_title, buf_n, "%s: bandwidth batch_nnz distribution", title_base);
+	// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, x_part_size, NULL, nnz_b, 0),
+	// 	if (enable_legend)
+	// 		figure_enable_legend(_fig);
+	// 	figure_set_title(_fig, buf_title);
+	// 	// figure_series_type_histogram(_s, 0, NULL, 1);
+	// 	figure_series_type_barplot(_s);
+	// );
+
+	// snprintf(buf, buf_n, "%s_y_part_size_distribution.png", title_base);
+	// snprintf(buf_title, buf_n, "%s: bandwidth batch_nnz distribution", title_base);
+	// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, y_part_size, NULL, nnz_b, 0),
+	// 	if (enable_legend)
+	// 		figure_enable_legend(_fig);
+	// 	figure_set_title(_fig, buf_title);
+	// 	// figure_series_type_histogram(_s, 0, NULL, 1);
+	// 	figure_series_type_barplot(_s);
+	// );
+
+	free(x_part_size);
+	// free(y_part_size);
+	free(x_part_s);
+	free(x_part_f);
+	free(x_unique_values);
+	free(row_idx);
+}
+
 
 #undef  csr_num_neigh_histogram_plot
 #define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
