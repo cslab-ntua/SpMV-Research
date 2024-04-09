@@ -4,6 +4,8 @@
 #include <math.h>
 
 #include "macros/macrolib.h"
+#include "debug.h"
+#include "genlib.h"
 #include "time_it.h"
 #include "parallel_util.h"
 #include "omp_functions.h"
@@ -62,11 +64,11 @@ bucketsort_find_bucket(CSR_GEN_TYPE_2 a, __attribute__((unused)) void * unused)
 
 
 #undef  _TYPE_V
-#define _TYPE_V  CSR_GEN_EXPAND(_TYPE_V)
+#define _TYPE_V  CSR_GEN_EXPAND_TYPE(_TYPE_V)
 typedef CSR_GEN_TYPE_1  _TYPE_V;
 
 #undef  _TYPE_I
-#define _TYPE_I  CSR_GEN_EXPAND(_TYPE_I)
+#define _TYPE_I  CSR_GEN_EXPAND_TYPE(_TYPE_I)
 typedef CSR_GEN_TYPE_2  _TYPE_I;
 
 
@@ -215,6 +217,41 @@ coo_to_csr(_TYPE_I * R, _TYPE_I * C, _TYPE_V * V, long m, long n, long nnz, _TYP
 		else
 			csr_sort_columns(row_ptr, col_idx, values, n, m, nnz);
 	}
+}
+
+
+//==========================================================================================================================================
+//= Save to file
+//==========================================================================================================================================
+
+
+#undef  csr_save_to_mtx
+#define csr_save_to_mtx  CSR_GEN_EXPAND(csr_save_to_mtx)
+void
+csr_save_to_mtx(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int num_rows, int num_cols, const char* filename)
+{
+	printf("Storing: %s\n", filename);
+	FILE* file;
+	file = fopen(filename, "w");
+	if (file == NULL) {
+		printf("Error opening file %s\n", filename);
+		return;
+	}
+
+	fprintf(file, "%%%%MatrixMarket matrix coordinate real general\n");
+	fprintf(file, "%d %d %d\n", num_rows, num_cols, row_ptr[num_rows]);
+	long buf_n = 1000;
+	char buf[buf_n];
+	long k;
+	for (int i = 0; i < num_rows; i++) {
+		for (int j = row_ptr[i]; j < row_ptr[i + 1]; j++) {
+			k = 0;
+			k += snprintf(buf, buf_n-k, "%d %d ", i + 1, col_idx[j] + 1);
+			gen_numtostr(buf, buf_n-k, ".15", val[j]);
+			fprintf(file, "%s\n", buf);
+		}
+	}
+	fclose(file);
 }
 
 

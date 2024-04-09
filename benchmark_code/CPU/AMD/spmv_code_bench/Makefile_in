@@ -14,7 +14,7 @@ DIRS = obj
 
 define Rule_Auto_Dependencies_base =
     $(1:.o=.d): $(2) | $(DIRS)
-	@echo 'Generating dependencies file:  $(2)'
+	@echo 'Generating dependencies file:  $(1)'
 	gcc $(3) -MT '$(1:.o=.d)' -MM -MG '$(2)' -MF '$(1:.o=.d)'
     ifeq (0, $(words $(findstring $(MAKECMDGOALS),$(NODEPS))))
         -include $(1:.o=.d)
@@ -29,7 +29,7 @@ define Rule_Auto_Dependencies =
 endef
 
 
-LIB_SRC = spmv_bench.cpp pthread_functions.c omp_functions.c topology.c hash.c random.c hashtable.c bitstream.c bytestream.c array_metrics.c string_util.c io.c parallel_io.c plot.c read_mtx.c matrix_market.c openfoam_matrix.c rapl.c csr_converter.c csr_converter_double.c kmeans.c kmeans_char.c csr_util.c artificial_matrix_generation.c ordered_set.c
+LIB_SRC = pthread_functions.c omp_functions.c topology.c hash.c random.c hashtable.c bitstream.c bytestream.c array_metrics.c string_util.c io.c parallel_io.c plot.c read_mtx.c matrix_market.c openfoam_matrix.c rapl.c csr_converter.c csr_converter_double.c kmeans.c kmeans_char.c csr_util.c artificial_matrix_generation.c ordered_set.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%$(SUFFIX).o,$(LIB_OBJ))
@@ -49,29 +49,32 @@ ifeq ($(ARCH), x86_64)
 else ifeq ($(ARCH), aarch64)
 endif
 
-spmv_csr_naive$(SUFFIX).exe: spmv_kernel_csr.cpp $(LIB_OBJ)
+
+spmv_csr_naive$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'NAIVE' $^ -o $@ $(LDFLAGS)
-spmv_csr$(SUFFIX).exe: spmv_kernel_csr.cpp $(LIB_OBJ)
+spmv_csr$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
-spmv_csr_kahan$(SUFFIX).exe: spmv_kernel_csr.cpp $(LIB_OBJ)
+cg_csr$(SUFFIX).exe: obj/cg_bench$(SUFFIX).o spmv_kernel_csr.cpp $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+spmv_csr_kahan$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_KAHAN' $^ -o $@ $(LDFLAGS)
-spmv_csr_prefetch$(SUFFIX).exe: spmv_kernel_csr.cpp $(LIB_OBJ)
+spmv_csr_prefetch$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_PREFETCH' $^ -o $@ $(LDFLAGS)
-spmv_csr_simd$(SUFFIX).exe: spmv_kernel_csr.cpp $(LIB_OBJ)
+spmv_csr_simd$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_SIMD' $^ -o $@ $(LDFLAGS)
-spmv_csr_vector$(SUFFIX).exe: spmv_kernel_csr.cpp $(LIB_OBJ)
+spmv_csr_vector$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_VECTOR' $^ -o $@ $(LDFLAGS)
-spmv_csr_vector_perfect_nnz_balance$(SUFFIX).exe: spmv_kernel_csr.cpp $(LIB_OBJ)
+spmv_csr_vector_perfect_nnz_balance$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
 
 CPPFLAGS_CV_BLOCK_ID = -D'COMPRESSION_KERNEL_ID'
-spmv_csr_cv_block_id$(SUFFIX).exe: obj/spmv_kernel_csr_cv_block_id$(SUFFIX).o $(LIB_OBJ)
+spmv_csr_cv_block_id$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_cv_block_id$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_ID) $^ -o $@ $(LDFLAGS)
 CPPFLAGS_CV_BLOCK_D2F = -D'COMPRESSION_KERNEL_D2F'
-spmv_csr_cv_block_d2f$(SUFFIX).exe: obj/spmv_kernel_csr_cv_block_d2f$(SUFFIX).o $(LIB_OBJ)
+spmv_csr_cv_block_d2f$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_cv_block_d2f$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_ID) $^ -o $@ $(LDFLAGS)
 CPPFLAGS_CV_BLOCK_FPC = -D'COMPRESSION_KERNEL_FPC'
-spmv_csr_cv_block_fpc$(SUFFIX).exe: obj/spmv_kernel_csr_cv_block_fpc$(SUFFIX).o $(LIB_OBJ)
+spmv_csr_cv_block_fpc$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_cv_block_fpc$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_FPC) $^ -o $@ $(LDFLAGS)
 CPPFLAGS_CV_BLOCK_ZFP =
 CPPFLAGS_CV_BLOCK_ZFP += -D'COMPRESSION_KERNEL_ZFP'
@@ -79,7 +82,7 @@ CPPFLAGS_CV_BLOCK_ZFP += -I'$(ZFP_ROOT_DIR)/include'
 LDFLAGS_CV_BLOCK_ZFP =
 LDFLAGS_CV_BLOCK_ZFP += -L'$(ZFP_ROOT_DIR)/lib'
 LDFLAGS_CV_BLOCK_ZFP += -lzfp
-spmv_csr_cv_block_zfp$(SUFFIX).exe: obj/spmv_kernel_csr_cv_block_zfp$(SUFFIX).o $(LIB_OBJ)
+spmv_csr_cv_block_zfp$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_cv_block_zfp$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_ZFP) $^ -o $@ $(LDFLAGS) $(LDFLAGS_CV_BLOCK_ZFP)
 CPPFLAGS_CV_BLOCK_FPZIP =
 CPPFLAGS_CV_BLOCK_FPZIP += -D'COMPRESSION_KERNEL_FPZIP'
@@ -87,29 +90,33 @@ CPPFLAGS_CV_BLOCK_FPZIP += -I'$(FPZIP_ROOT_DIR)/include'
 LDFLAGS_CV_BLOCK_FPZIP =
 LDFLAGS_CV_BLOCK_FPZIP += -L'$(FPZIP_ROOT_DIR)/lib'
 LDFLAGS_CV_BLOCK_FPZIP += -lfpzip
-spmv_csr_cv_block_fpzip$(SUFFIX).exe: obj/spmv_kernel_csr_cv_block_fpzip$(SUFFIX).o $(LIB_OBJ)
+spmv_csr_cv_block_fpzip$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_cv_block_fpzip$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_FPZIP) $^ -o $@ $(LDFLAGS) $(LDFLAGS_CV_BLOCK_FPZIP)
 
-spmv_csr_cv_stream$(SUFFIX).exe: obj/spmv_kernel_csr_cv_stream$(SUFFIX).o $(LIB_OBJ)
+spmv_csr_cv_stream$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_cv_stream$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
-spmv_csr_cv_stream_opt_compress$(SUFFIX).exe: obj/spmv_kernel_csr_cv_stream_opt_compress$(SUFFIX).o $(LIB_OBJ)
+spmv_csr_cv_stream_rf$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_cv_stream_rf$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+cg_csr_cv_stream$(SUFFIX).exe: obj/cg_bench$(SUFFIX).o obj/spmv_kernel_csr_cv_stream_rf$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+spmv_csr_cv_stream_opt_compress$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_cv_stream_opt_compress$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
 
-spmv_csr_vector_x86$(SUFFIX).exe: spmv_kernel_csr_x86.cpp $(LIB_OBJ)
+spmv_csr_vector_x86$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR' $^ -o $@ $(LDFLAGS)
-spmv_csr_vector_oracle_balance_x86$(SUFFIX).exe: spmv_kernel_csr_x86.cpp $(LIB_OBJ)
+spmv_csr_vector_oracle_balance_x86$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR' -D'CUSTOM_X86_VECTOR_ORACLE_BALANCE' $^ -o $@ $(LDFLAGS)
-spmv_csr__vector_perfect_nnz_balance_x86$(SUFFIX).exe: spmv_kernel_csr_x86.cpp $(LIB_OBJ)
+spmv_csr__vector_perfect_nnz_balance_x86$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
-spmv_csr_vector_queues_x86$(SUFFIX).exe: spmv_kernel_csr_x86.cpp $(LIB_OBJ)
+spmv_csr_vector_queues_x86$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR_QUEUES' $^ -o $@ $(LDFLAGS)
 
-spmv_csr_vector_lut_x86$(SUFFIX).exe: spmv_kernel_csr_lut_x86.cpp $(LIB_OBJ)
+spmv_csr_vector_lut_x86$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_lut_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
 
-spmv_ldu$(SUFFIX).exe: spmv_kernel_ldu.cpp $(LIB_OBJ)
+spmv_ldu$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_ldu.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
-spmv_ell$(SUFFIX).exe: spmv_kernel_ell.cpp $(LIB_OBJ)
+spmv_ell$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_ell.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
 
 
@@ -117,9 +124,9 @@ LDFLAGS_NV =
 LDFLAGS_NV += -lcuda
 LDFLAGS_NV += -lcudart
 
-spmv_csr_cuda$(SUFFIX).exe: spmv_kernel_csr_cuda.cu $(LIB_OBJ)
+spmv_csr_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_cuda.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
-spmv_csr_cuda_buffer$(SUFFIX).exe: spmv_kernel_csr_cuda_buffer.cu $(LIB_OBJ)
+spmv_csr_cuda_buffer$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_cuda_buffer.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 
 
@@ -131,9 +138,9 @@ LDFLAGS_CUSPARSE += -lcuda
 LDFLAGS_CUSPARSE += -lcudart
 LDFLAGS_CUSPARSE += -lcusparse
 
-spmv_cusparse_csr$(SUFFIX).exe: spmv_kernel_cusparse_csr.cu $(LIB_OBJ)
+spmv_cusparse_csr$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_csr.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CUSPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_CUSPARSE)
-spmv_cusparse_coo$(SUFFIX).exe: spmv_kernel_cusparse_coo.cu $(LIB_OBJ)
+spmv_cusparse_coo$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_coo.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CUSPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_CUSPARSE)
 
 
@@ -145,29 +152,31 @@ LDFLAGS_MKL =
 LDFLAGS_MKL += -L'$(MKL_PATH)/lib/intel64'
 LDFLAGS_MKL += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -ldl
 
-spmv_mkl_coo$(SUFFIX).exe: spmv_kernel_mkl_coo.cpp $(LIB_OBJ)
+spmv_mkl_coo$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_mkl_coo.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
-spmv_mkl_dia$(SUFFIX).exe: spmv_kernel_mkl_dia.cpp $(LIB_OBJ)
+spmv_mkl_dia$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_mkl_dia.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
-spmv_dia$(SUFFIX).exe: spmv_kernel_dia.cpp $(LIB_OBJ)
+spmv_dia$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_dia.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS_MKL)
-spmv_mkl_csc$(SUFFIX).exe: spmv_kernel_mkl_csc.cpp $(LIB_OBJ)
+spmv_mkl_csc$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_mkl_csc.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
-spmv_mkl_csr$(SUFFIX).exe: spmv_kernel_mkl_csr.cpp $(LIB_OBJ)
+spmv_mkl_csr$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_mkl_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
-spmv_mkl_ie$(SUFFIX).exe: spmv_kernel_mkl_ie.cpp $(LIB_OBJ)
+spmv_mkl_ie$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_mkl_ie.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
-spmv_mkl_bsr_2$(SUFFIX).exe: spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
+cg_mkl_ie$(SUFFIX).exe: obj/cg_bench$(SUFFIX).o spmv_kernel_mkl_ie.cpp $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
+spmv_mkl_bsr_2$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=2' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
-spmv_mkl_bsr_4$(SUFFIX).exe: spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
+spmv_mkl_bsr_4$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=4' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
-spmv_mkl_bsr_8$(SUFFIX).exe: spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
+spmv_mkl_bsr_8$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=8' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
-spmv_mkl_bsr_16$(SUFFIX).exe: spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
+spmv_mkl_bsr_16$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=16' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
-spmv_mkl_bsr_32$(SUFFIX).exe: spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
+spmv_mkl_bsr_32$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=32' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
-spmv_mkl_bsr_64$(SUFFIX).exe: spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
+spmv_mkl_bsr_64$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_mkl_bsr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=64' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
 
 
@@ -179,7 +188,7 @@ LDFLAGS_AOCL =
 LDFLAGS_AOCL += -L'$(AOCL_PATH)/lib/'
 LDFLAGS_AOCL += -Wl,--no-as-needed  -laoclsparse -lgomp -lpthread -ldl
 
-spmv_aocl_optmv$(SUFFIX).exe: spmv_kernel_aocl_optmv.cpp $(LIB_OBJ)
+spmv_aocl_optmv$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_aocl_optmv.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_AOCL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_AOCL)
 
 
@@ -193,14 +202,14 @@ CPPFLAGS_CSRRV += -mavx512f
 CPPFLAGS_CSRRV += -mavx512vl
 CPPFLAGS_CSRRV += -mavx512bw
 
-spmv_csrrv$(SUFFIX).exe: spmv_kernel_csrrv.cpp $(LIB_OBJ)
+spmv_csrrv$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csrrv.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CSRRV) $^ -o $@ $(LDFLAGS)
 
 
 CPPFLAGS_CSR5 =
 CPPFLAGS_CSR5 += -Wno-deprecated-writable-strings -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-sign-compare -Wno-unknown-pragmas -Wno-write-strings -Wno-unused-result
 
-spmv_csr5$(SUFFIX).exe: spmv_kernel_csr5.cpp $(LIB_OBJ)
+spmv_csr5$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr5.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CSR5) $^ -o $@ $(LDFLAGS)
 
 
@@ -223,7 +232,7 @@ LDFLAGS_MERGE =
 LDFLAGS_MERGE += -lrt -Wl,--no-as-needed -lgomp -lpthread -lm -ldl
 # LDFLAGS_MERGE += -lnuma
 
-spmv_merge$(SUFFIX).exe: spmv_kernel_merge.cpp $(LIB_OBJ)
+spmv_merge$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_merge.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MERGE) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MERGE)
 
 
@@ -259,11 +268,29 @@ LDFLAGS_SPARSEX += -lboost_atomic
 # This needs to be put FIRST.
 LDFLAGS_SPARSEX := -Wl,--no-as-needed $(LDFLAGS_SPARSEX)
 
-spmv_sparsex$(SUFFIX).exe: obj/spmv_kernel_sparsex$(SUFFIX).o $(LIB_OBJ)
+spmv_sparsex$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_sparsex$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_SPARSEX) $^ -o $@ $(LDFLAGS) $(LDFLAGS_SPARSEX)
 
 obj/spmv_kernel_sparsex$(SUFFIX).o: spmv_kernel_sparsex.cpp
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_SPARSEX) -c $< -o $@
+
+
+CPPFLAGS_SPV8 =
+CPPFLAGS_SPV8 += -I'$(MKL_PATH)/include' -I'/usr/include/mkl'
+CPPFLAGS_SPV8 += -mavx512f
+
+LDFLAGS_SPV8 =
+LDFLAGS_SPV8 += -L'$(MKL_PATH)/lib/intel64'
+LDFLAGS_SPV8 += -lmkl_intel_lp64
+LDFLAGS_SPV8 += -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -ldl
+
+spmv_spv8$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_spv8.cpp $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_SPV8) $^ -o $@ $(LDFLAGS) $(LDFLAGS_SPV8)
+
+
+spmv_lcm$(SUFFIX).exe:
+	cd LCM-partially-strided-codelet
+	make
 
 
 $(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_block_id$(SUFFIX).o,spmv_kernel_csr_cv_block.cpp,$(CPPFLAGS) $(CPPFLAGS_CUSTOM) $(CPPFLAGS_CV_BLOCK_ID))
@@ -279,11 +306,15 @@ $(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_block_fpzip$(SUFFIX).o,spmv
 
 $(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_stream$(SUFFIX).o,spmv_kernel_csr_cv_stream.cpp,$(CPPFLAGS) $(CPPFLAGS_CUSTOM))
 	$(CPP) $(CPPFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_stream_rf$(SUFFIX).o,spmv_kernel_csr_cv_stream.cpp,$(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'REPLICATION_FACTORS')
+	$(CPP) $(CPPFLAGS) -D'REPLICATION_FACTORS' -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/spmv_kernel_csr_cv_stream_opt_compress$(SUFFIX).o,spmv_kernel_csr_cv_stream_opt_compress.cpp,$(CPPFLAGS) $(CPPFLAGS_CUSTOM))
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 
 $(call Rule_Auto_Dependencies,obj/spmv_bench$(SUFFIX).o,spmv_bench.cpp,$(CPPFLAGS))
+	$(CPP) $(CPPFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/cg_bench$(SUFFIX).o,cg_bench.cpp,$(CPPFLAGS))
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 $(call Rule_Auto_Dependencies,obj/artificial_matrix_generation$(SUFFIX).o,$(AMG_PATH)/artificial_matrix_generation.c,$(CFLAGS))

@@ -7,3 +7,4 @@
 #undef _TYPE_I
 #undef csr_sort_columns
 #undef coo_to_csr
+#undef csr_save_to_mtx

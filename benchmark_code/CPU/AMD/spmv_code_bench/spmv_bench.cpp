@@ -24,6 +24,7 @@ extern "C"{
 	#include "array_metrics.h"
 
 	#include "string_util.h"
+	#include "io.h"
 	#include "parallel_io.h"
 	#include "storage_formats/matrix_market/matrix_market.h"
 	#include "storage_formats/openfoam/openfoam_matrix.h"
@@ -95,9 +96,23 @@ reference_to_double(void * A, long i)
 }
 
 
-/** Simply return the max relative diff */
-void
-CheckAccuracy(INT_T * csr_ia, INT_T * csr_ja, double * csr_a_ref, INT_T csr_m, __attribute__((unused)) INT_T csr_n, __attribute__((unused)) INT_T csr_nnz, double * x_ref, ValueType * y)
+long
+check_accuracy_labels(char * buf, long buf_n)
+{
+	long len = 0;
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_mae");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_max_ae");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_mse");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_mape");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_smape");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_lnQ_error");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_mlare");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_gmare");
+	return len;
+}
+
+long
+check_accuracy(char * buf, long buf_n, INT_T * csr_ia, INT_T * csr_ja, double * csr_a_ref, INT_T csr_m, __attribute__((unused)) INT_T csr_n, __attribute__((unused)) INT_T csr_nnz, double * x_ref, ValueType * y)
 {
 	__attribute__((unused)) ReferenceType epsilon_relaxed = 1e-4;
 	#if DOUBLE == 0
@@ -163,6 +178,7 @@ CheckAccuracy(INT_T * csr_ia, INT_T * csr_ja, double * csr_a_ref, INT_T csr_m, _
 	}
 	if(maxDiff > epsilon)
 		printf("Test failed! (%g)\n", reference_to_double(&maxDiff, 0));
+	long len = 0;
 	#pragma omp parallel
 	{
 		double mae, max_ae, mse, mape, smape;
@@ -176,22 +192,21 @@ CheckAccuracy(INT_T * csr_ia, INT_T * csr_ja, double * csr_a_ref, INT_T csr_m, _
 		array_mlare_concurrent(y_gold, y_test, csr_m, &mlare, reference_to_double);
 		array_gmare_concurrent(y_gold, y_test, csr_m, &gmare, reference_to_double);
 		#pragma omp single
-		printf("errors spmv: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g, lnQ_error=%g, mlare=%g, gmare=%g\n", mae, max_ae, mse, mape, smape, lnQ_error, mlare, gmare);
+		{
+			printf("errors spmv: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g, lnQ_error=%g, mlare=%g, gmare=%g\n", mae, max_ae, mse, mape, smape, lnQ_error, mlare, gmare);
+			len += snprintf(buf + len, buf_n - len, ",%g", mae);
+			len += snprintf(buf + len, buf_n - len, ",%g", max_ae);
+			len += snprintf(buf + len, buf_n - len, ",%g", mse);
+			len += snprintf(buf + len, buf_n - len, ",%g", mape);
+			len += snprintf(buf + len, buf_n - len, ",%g", smape);
+			len += snprintf(buf + len, buf_n - len, ",%g", lnQ_error);
+			len += snprintf(buf + len, buf_n - len, ",%g", mlare);
+			len += snprintf(buf + len, buf_n - len, ",%g", gmare);
+		}
 	}
 	free(y_gold);
 	free(y_test);
-}
-
-
-int
-is_directory(const char *path)
-{
-    struct stat stats;
-    stat(path, &stats);
-    // Check for file existence
-    if (S_ISDIR(stats.st_mode))
-        return 1;
-    return 0;
+	return len;
 }
 
 
@@ -367,7 +382,6 @@ compute(char * matrix_name,
 		//= Output section.
 		//=============================================================================
 
-		std::stringstream stream;
 		gflops = csr_nnz / time * num_loops * 2 * 1e-9;    // Use csr_nnz to be sure we have the initial nnz (there is no coo for artificial AM).
 	}
 
@@ -399,7 +413,8 @@ compute(char * matrix_name,
 			i += snprintf(buf + i, buf_n - i, ",%s", "nnz");
 			i += snprintf(buf + i, buf_n - i, ",%s", "mem_footprint");
 			i += snprintf(buf + i, buf_n - i, ",%s", "mem_ratio");
-			i += snprintf(buf + i, buf_n - i, ",%s", "CSRCV_NUM_PACKET_VALS");
+			i += snprintf(buf + i, buf_n - i, ",%s", "num_loops");
+			i += check_accuracy_labels(buf + i, buf_n - i);
 			#ifdef PRINT_STATISTICS
 				i += statistics_print_labels(buf + i, buf_n - i);
 			#endif
@@ -431,14 +446,13 @@ compute(char * matrix_name,
 		i += snprintf(buf + i, buf_n - i, ",%u", MF->nnz);
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / (1024*1024));
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / MF->csr_mem_footprint);
-		i += snprintf(buf + i, buf_n - i, ",%ld", atol(getenv("CSRCV_NUM_PACKET_VALS")));
+		i += snprintf(buf + i, buf_n - i, ",%ld", num_loops);
+		i += check_accuracy(buf + i, buf_n - i, csr_ia, csr_ja, csr_a_ref, csr_m, csr_n, csr_nnz, x_ref, y);
 		#ifdef PRINT_STATISTICS
 			i += MF->statistics_print_data(buf + i, buf_n - i);
 		#endif
 		buf[i] = '\0';
 		fprintf(stderr, "%s\n", buf);
-
-		CheckAccuracy(csr_ia, csr_ja, csr_a_ref, csr_m, csr_n, csr_nnz, x_ref, y);
 	}
 	else
 	{
@@ -621,7 +635,7 @@ child_proc_label:
 		snprintf(matrix_name, sizeof(matrix_name), "%s", file_in);
 
 		time = time_it(1,
-			if (is_directory(file_in))
+			if (stat_isdir(file_in))
 			{
 				int nnz_non_diag, N;
 				int * rowind, * colind;
@@ -644,7 +658,6 @@ child_proc_label:
 			}
 			else
 			{
-
 				// create_coo_matrix(file_in, &mtx_val, &mtx_rowind, &mtx_colind, &mtx_m, &mtx_n, &mtx_nnz);
 				long expand_symmetry = 1;
 				long pattern_dummy_vals = 1;
@@ -663,6 +676,7 @@ child_proc_label:
 						mtx_val[i] = ((int *) MTX->V)[i];
 					}
 					free(MTX->V);
+					MTX->V = NULL;
 				}
 				else if (!strcmp(MTX->field, "complex"))
 				{
@@ -677,10 +691,10 @@ child_proc_label:
 						#endif
 					}
 					free(MTX->V);
+					MTX->V = NULL;
 				}
 				else
 					mtx_val = (double *) MTX->V;
-
 			}
 		);
 		printf("time read: %lf\n", time);
@@ -707,9 +721,7 @@ child_proc_label:
 				csr_a[i] = (ValueType) csr_a_ref[i];
 		);
 		printf("time coo to csr: %lf\n", time);
-		free(mtx_rowind);
-		free(mtx_colind);
-		free(mtx_val);
+		mtx_destroy(&MTX);
 	}
 	else
 	{

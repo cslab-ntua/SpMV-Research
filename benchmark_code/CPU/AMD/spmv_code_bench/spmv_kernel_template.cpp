@@ -20,6 +20,9 @@ extern "C"{
 
 struct New_Array : Matrix_Format
 {
+	INT_T * ia;      // the usual rowptr (of size m+1)
+	INT_T * ja;      // the colidx of each NNZ (of size nnz)
+	ValueType * a;   // the values (of size NNZ)
 
 	New_Array(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
 	{
@@ -69,7 +72,8 @@ statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unuse
 
 
 int
-New_Array::statistics_print_data(char * buf, long buf_n)
+SpV8_Array::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
+	return 0;
 }
 

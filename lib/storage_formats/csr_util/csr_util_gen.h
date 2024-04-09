@@ -11,13 +11,14 @@
 
 
 #define CSR_UTIL_GEN_EXPAND(name)  CONCAT(name, CSR_UTIL_GEN_SUFFIX)
+#define CSR_UTIL_GEN_EXPAND_TYPE(name)  CONCAT(CSR_UTIL_GEN_, CSR_UTIL_GEN_EXPAND(name))
 
 #undef  _TYPE_V
-#define _TYPE_V  CSR_UTIL_GEN_EXPAND(_TYPE_V)
+#define _TYPE_V  CSR_UTIL_GEN_EXPAND_TYPE(_TYPE_V)
 typedef CSR_UTIL_GEN_TYPE_1  _TYPE_V;
 
 #undef  _TYPE_I
-#define _TYPE_I  CSR_UTIL_GEN_EXPAND(_TYPE_I)
+#define _TYPE_I  CSR_UTIL_GEN_EXPAND_TYPE(_TYPE_I)
 typedef CSR_UTIL_GEN_TYPE_2  _TYPE_I;
 
 
@@ -66,13 +67,14 @@ long csr_column_distances_and_groupping(_TYPE_I * row_ptr, _TYPE_I * col_idx, lo
 #define csr_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_row_neighbours)
 void csr_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size, _TYPE_I ** num_neigh_out);
 
-#undef  csr_cross_row_neighbours
-#define csr_cross_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_cross_row_neighbours)
-void csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size, _TYPE_I **crs_neigh_out);
 
 #undef  csr_cross_row_similarity
 #define csr_cross_row_similarity  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity)
 double csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size);
+
+#undef  csr_cross_row_neighbours
+#define csr_cross_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_cross_row_neighbours)
+double csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size, _TYPE_I * crs_row);
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -98,9 +100,6 @@ void csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_
 #define csr_value_features  CSR_UTIL_GEN_EXPAND(csr_value_features)
 void csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y);
 
-#undef  csr_save_to_mtx
-#define csr_save_to_mtx  CSR_UTIL_GEN_EXPAND(csr_save_to_mtx)
-void csr_save_to_mtx(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int num_rows, int num_cols, const char* filename);
 
 //==========================================================================================================================================
 //= Ploting
@@ -113,24 +112,13 @@ void csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V *
 
 #undef  csr_row_size_histogram_plot
 #define csr_row_size_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_row_size_histogram_plot)
-void csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
-
-#undef  csr_bandwidth_histogram_plot
-#define csr_bandwidth_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_histogram_plot)
-void csr_bandwidth_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
-
-#undef  csr_bandwidth_batch_nnz_bar_plot
-#define csr_bandwidth_batch_nnz_bar_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_batch_nnz_bar_plot)
-void csr_bandwidth_batch_nnz_bar_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int batch_nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
-
-#undef  csr_num_neigh_histogram_plot
-#define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
-void csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
+void csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__((unused)) _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, __attribute__((unused)) long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
 
 #undef  csr_cross_row_similarity_histogram_plot
 #define csr_cross_row_similarity_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity_histogram_plot)
-void csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
+void csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
 
-#undef  csr_pop_zone_score_histogram_plot
-#define csr_pop_zone_score_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_pop_zone_score_histogram_plot)
-void csr_pop_zone_score_histogram_plot(char * title_base, int * pop_zone_score, long m_batch, long col_select_window, int enable_legend, long num_pixels_x, long num_pixels_y);
+#undef  csr_num_neigh_histogram_plot
+#define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
+void csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
+

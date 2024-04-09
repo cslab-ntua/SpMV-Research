@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH --account=project_465000712
-#SBATCH -p standard
+#SBATCH -p ju-standard
+#SBATCH --exclusive
 #SBATCH --time 24:00:00                 # format: HH:MM:SS
 #SBATCH --nodes 1                            # 1 node
 #SBATCH --ntasks=1

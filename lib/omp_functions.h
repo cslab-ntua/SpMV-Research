@@ -26,11 +26,11 @@ int get_affinity_from_GOMP_CPU_AFFINITY(int tnum);
 void print_affinity();
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                     Thread Parallel Reduction                                                          -
 //------------------------------------------------------------------------------------------------------------------------------------------
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 
 
 /*
@@ -115,6 +115,15 @@ do {                                                                            
 } while (0)
 
 
+/*
+ * _reduce_fun           : the reduction function
+ * _partial              : the thread's partial result
+ * _zero                 : the zero value - optional when '_local_result_ptr_ret' also not given
+ * exclusive             : whether the reduction is exclusive, i.e., each prefix sum is without accounting the current value - matters if _local_result_ptr_ret is given
+ * _backwards            : whether the reduction is performed backwards
+ * _local_result_ptr_ret : the prefix sum until the current thread's value - optional 
+ * _total_result_ptr_ret : the total result
+ */
 #undef  omp_thread_reduce_global
 #define omp_thread_reduce_global(_reduce_fun, _partial, _zero, exclusive, _backwards, _local_result_ptr_ret, _total_result_ptr_ret)              \
 do {                                                                                                                                             \

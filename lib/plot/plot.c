@@ -31,14 +31,14 @@
 #define FUNCTOOLS_GEN_TYPE_2  int
 #define FUNCTOOLS_GEN_SUFFIX  _plot_i_i
 #include "functools/functools_gen.c"
-__attribute__((pure))
+[[gnu::pure]]
 static inline
 int
 functools_map_fun(int * A, long i)
 {
 	return A[i];
 }
-__attribute__((pure))
+[[gnu::pure]]
 static inline
 int
 functools_reduce_fun(int a, int b)
@@ -52,14 +52,14 @@ functools_reduce_fun(int a, int b)
 #define FUNCTOOLS_GEN_TYPE_2  long
 #define FUNCTOOLS_GEN_SUFFIX  _plot_l_l
 #include "functools/functools_gen.c"
-__attribute__((pure))
+[[gnu::pure]]
 static inline
 long
 functools_map_fun(long * A, long i)
 {
 	return A[i];
 }
-__attribute__((pure))
+[[gnu::pure]]
 static inline
 long
 functools_reduce_fun(long a, long b)
@@ -86,16 +86,16 @@ functools_reduce_fun(long a, long b)
 // }
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                             Utilities                                                                  -
 //------------------------------------------------------------------------------------------------------------------------------------------
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 
 
 static
 double
-id(__attribute__((unused)) void * x, long i)
+id([[gnu::unused]] void * x, long i)
 {
 	return (double) i;
 }
@@ -124,15 +124,14 @@ static
 void
 write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 {
-	__label__ out;
-	char * f = NULL, * f_ppm = NULL, * f_conv = NULL;
-	char * buf = NULL;
-	char * base, * ext;
+	// __label__ out;
+	[[gnu::cleanup(cleanup_free)]] char * buf = NULL;
+	char * base = NULL, * ext = NULL;
 	long len, buf_n;
 	int fd, ret;
 	long i;
 
-	f = strdup(filename);
+	[[gnu::cleanup(cleanup_free)]] char * const f = strdup(filename);
 	len = strlen(f);
 	for (i=len-1;i>=0;i--)
 		if (f[i] == '.')
@@ -148,9 +147,9 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 	buf = malloc(buf_n);
 
 	snprintf(buf, buf_n, "%s.ppm", base);
-	f_ppm = strdup(buf);
+	[[gnu::cleanup(cleanup_free)]] char * const f_ppm = strdup(buf);
 	snprintf(buf, buf_n, "%s.%s", base, ext);
-	f_conv = strdup(buf);
+	[[gnu::cleanup(cleanup_free)]] char * const f_conv = strdup(buf);
 	if (fig->legend_conf.title == NULL)
 		fig->legend_conf.title = strdup(f_conv);       // Better for the viewer to immediately understand that it's just the file name, than try to extract a possibly non-existent meaning from it, so keep extension.
 
@@ -159,14 +158,16 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 	safe_close(fd);
 
 	if (system("hash convert"))
-		goto out;
+		return;
+		// goto out;
 
 	// Adding the legend in ppm format, before converting, is MUCH faster than working on an e.g. png file.
 	if (fig->legend_conf.legend_enabled)
 		add_legend(fig, f_ppm);
 
 	if (!strcmp(ext, "ppm"))
-		goto out;
+		return;
+		// goto out;
 
 	// File conversion.
 	// Actually, the conversion to e.g. png takes most of the time, but the file sizes are orders of magnitude smaller.
@@ -175,26 +176,28 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 	if (ret)
 	{
 		printf("convert failed with code: %d\n", ret);
-		goto out;
+		return;
+		// goto out;
 	}
 	snprintf(buf, buf_n, "rm '%s'", f_ppm);
 	if (system(buf))
-		goto out;
+		return;
+		// goto out;
 
-out:
+// out:
 	// Freeing NULL is well defined, manpage: If ptr is NULL, no operation is performed.
-	free(f);
-	free(f_ppm);
-	free(f_conv);
-	free(buf);
+	// free(f);
+	// free(f_ppm);
+	// free(f_conv);
+	// free(buf);
 }
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                         Exported Interface                                                             -
 //------------------------------------------------------------------------------------------------------------------------------------------
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 
 
 /* Change only the affected fields, so that it can be used on an already initialized series.
@@ -660,7 +663,7 @@ figure_color_mapping_geodesics(double val_norm, double val,
 
 
 void
-figure_color_mapping_normal(double val_norm, __attribute__((unused)) double val,
+figure_color_mapping_normal(double val_norm, [[gnu::unused]] double val,
 		uint8_t * r_out, uint8_t * g_out, uint8_t * b_out)
 {
 	double val_proj = (val_norm - 0.5) * 4;    // [-2, 2]
@@ -674,7 +677,7 @@ figure_color_mapping_normal(double val_norm, __attribute__((unused)) double val,
 
 
 void
-figure_color_mapping_normal_logscale(double val_norm, __attribute__((unused)) double val,
+figure_color_mapping_normal_logscale(double val_norm, [[gnu::unused]] double val,
 		uint8_t * r_out, uint8_t * g_out, uint8_t * b_out)
 {
 	double val_proj = log2(((double) 0xFF) * val_norm + 1);  // [0, log2(256)=8]
@@ -689,7 +692,7 @@ figure_color_mapping_normal_logscale(double val_norm, __attribute__((unused)) do
 
 
 void
-figure_color_mapping_linear(double val_norm, __attribute__((unused)) double val,
+figure_color_mapping_linear(double val_norm, [[gnu::unused]] double val,
 		uint8_t * r_out, uint8_t * g_out, uint8_t * b_out)
 {
 	double r, g, b;
@@ -703,7 +706,7 @@ figure_color_mapping_linear(double val_norm, __attribute__((unused)) double val,
 
 
 void
-figure_color_mapping_cyclic(double val_norm, __attribute__((unused)) double val,
+figure_color_mapping_cyclic(double val_norm, [[gnu::unused]] double val,
 		uint8_t * r_out, uint8_t * g_out, uint8_t * b_out)
 {
 	double r, g, b;
@@ -717,7 +720,7 @@ figure_color_mapping_cyclic(double val_norm, __attribute__((unused)) double val,
 
 
 void
-figure_color_mapping_greyscale(double val_norm, __attribute__((unused)) double val,
+figure_color_mapping_greyscale(double val_norm, [[gnu::unused]] double val,
 		uint8_t * r_out, uint8_t * g_out, uint8_t * b_out)
 {
 	double val_proj = ((double) 0xFF) * val_norm;
@@ -726,11 +729,11 @@ figure_color_mapping_greyscale(double val_norm, __attribute__((unused)) double v
 
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                          Plotting Functions                                                            -
 //------------------------------------------------------------------------------------------------------------------------------------------
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 
 
 //==========================================================================================================================================
@@ -988,7 +991,7 @@ static
 void
 series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * pa)
 {
-	struct Pixel_8 * pixels = pa->pixels;
+	// struct Pixel_8 * pixels = pa->pixels;
 	long x_num_pixels = fig->x_num_pixels;
 	long y_num_pixels = fig->y_num_pixels;
 	long counts_n = x_num_pixels * y_num_pixels;
@@ -1037,21 +1040,24 @@ series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pi
 
 	#pragma omp parallel
 	{
-		struct Pixel_8 * p;
+		// struct Pixel_8 * p;
 		double val, val_norm;
 		long i, j, pos;
 		#pragma omp for
 		for (i=0;i<y_num_pixels;i++)
 		{
+			uint8_t r, g, b;
 			for (j=0;j<x_num_pixels;j++)
 			{
 				pos = i*x_num_pixels + j;
 				val = counts[pos];
 				if (val == 0)    // Only plot existing points of the series.
 					continue;
-				p = &pixels[pos];
+				// p = &pixels[pos];
 				val_norm = normalize_value(val, min, max);
-				s->color_mapping(val_norm, val, &p->r, &p->g, &p->b);
+				// s->color_mapping(val_norm, val, &p->r, &p->g, &p->b);
+				s->color_mapping(val_norm, val, &r, &g, &b);
+				color_pixels(pa, j, i, fig, s, val, 1, r, g, b);
 			}
 		}
 	}

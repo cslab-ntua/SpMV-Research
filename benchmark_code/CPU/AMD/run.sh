@@ -31,6 +31,7 @@ export MKL_VERBOSE=1
 
 export LD_LIBRARY_PATH="${AOCL_PATH}/lib:${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${SPARSEX_LIB_PATH}"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/home/jim/lib/gcc/gcc_12/lib64"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/various/dgal/gcc/gcc-12.2.0/gcc_bin/lib64"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/various/dgal/epyc1/cuda/cuda_11_4_4/lib64"
 
@@ -112,12 +113,10 @@ matrices_validation=(
     # kmer_V2a.mtx
 
 )
-
 validation_dirs=(
     "${path_validation}"
     "${path_validation}/new_matrices" 
 )
-
 matrices_validation=( $(
     for ((i=0;i<${#matrices_validation[@]};i++)); do
         m="${matrices_validation[i]}"
@@ -134,40 +133,40 @@ matrices_validation=( $(
 matrices_paper_csr_rv=(
 
     ts-palko
-    # neos
-    # stat96v3
-    # stormG2_1000
-    # xenon2
-    # s3dkq4m2
-    # apache2
-    # Si34H36
-    # ecology2
-    # LargeRegFile
-    # largebasis
-    # Goodwin_127
-    # Hamrle3
-    # boneS01
-    # sls
-    # cont1_l
-    # CO
-    # G3_circuit
-    # degme
-    # atmosmodl
-    # SiO2
-    # tp-6
-    # af_shell3
-    # circuit5M_dc
-    # rajat31
-    # CurlCurl_4
-    # cage14
-    # nlpkkt80
-    # ss
-    # boneS10
+    neos
+    stat96v3
+    stormG2_1000
+    xenon2
+    s3dkq4m2
+    apache2
+    Si34H36
+    ecology2
+    LargeRegFile
+    largebasis
+    Goodwin_127
+    Hamrle3
+    boneS01
+    sls
+    cont1_l
+    CO
+    G3_circuit
+    degme
+    atmosmodl
+    SiO2
+    tp-6
+    af_shell3
+    circuit5M_dc
+    rajat31
+    CurlCurl_4
+    cage14
+    nlpkkt80
+    ss
+    boneS10
 
 )
 for ((i=0;i<${#matrices_paper_csr_rv[@]};i++)); do
     m="${matrices_paper_csr_rv[i]}"
-    matrices_paper_csr_rv[i]="$path_tamu"/matrices/"$m"/"$m".mtx
+    matrices_paper_csr_rv[i]="${path_tamu}/matrices/${m}/${m}.mtx"
 done
 
 
@@ -203,50 +202,52 @@ matrices_compression_small=(
     # dgreen
 
     cop20k_A
-    ASIC_680k
-    radiation
-    PR02R
-    crankseg_2
-    human_gene1
+    # ASIC_680k
+    # radiation
+    # PR02R
+    # crankseg_2
+    # rajat31
+    # human_gene1
+    # dgreen
 
 )
 for ((i=0;i<${#matrices_compression_small[@]};i++)); do
     m="${matrices_compression_small[i]}"
-    matrices_compression_small[i]="$path_tamu"/matrices/"$m"/"$m".mtx
+    matrices_compression_small[i]="${path_tamu}/matrices/${m}/${m}.mtx"
 done
 
 
 matrices_compression=(
 
     spal_004
-    # ldoor
-    # dielFilterV2real
-    # nv2
-    # af_shell10
-    # boneS10
-    # circuit5M
-    # Hook_1498
-    # Geo_1438
-    # Serena
-    # vas_stokes_2M
-    # bone010
-    # audikw_1
-    # Long_Coup_dt0
-    # Long_Coup_dt6
-    # dielFilterV3real
-    # nlpkkt120
-    # cage15
-    # ML_Geer
-    # Flan_1565
-    # Cube_Coup_dt0
-    # Cube_Coup_dt6
-    # Bump_2911
-    # vas_stokes_4M
-    # nlpkkt160
-    # HV15R
-    # Queen_4147
-    # stokes
-    # nlpkkt200
+    ldoor
+    dielFilterV2real
+    nv2
+    af_shell10
+    boneS10
+    circuit5M
+    Hook_1498
+    Geo_1438
+    Serena
+    vas_stokes_2M
+    bone010
+    audikw_1
+    Long_Coup_dt0
+    Long_Coup_dt6
+    dielFilterV3real
+    nlpkkt120
+    cage15
+    ML_Geer
+    Flan_1565
+    Cube_Coup_dt0
+    Cube_Coup_dt6
+    Bump_2911
+    vas_stokes_4M
+    nlpkkt160
+    HV15R
+    Queen_4147
+    stokes
+    nlpkkt200
 
     # Transport
     # Freescale2
@@ -307,7 +308,7 @@ matrices_compression=(
 )
 for ((i=0;i<${#matrices_compression[@]};i++)); do
     m="${matrices_compression[i]}"
-    matrices_compression[i]="$path_tamu"/matrices/"$m"/"$m".mtx
+    matrices_compression[i]="${path_tamu}/matrices/${m}/${m}.mtx"
 done
 
 
@@ -325,6 +326,33 @@ matrices_M3E=(
 for ((i=0;i<${#matrices_M3E[@]};i++)); do
     m="${matrices_M3E[i]}"
     matrices_M3E[i]="$path_M3E"/"$m"/"$m".mtx
+done
+
+
+matrices_cg=(
+
+    # ldoor
+    # dielFilterV2real
+    boneS10
+    # Hook_1498
+    # Geo_1438
+    # Serena
+    # bone010
+    # audikw_1
+    # dielFilterV3real
+    # Flan_1565
+    # Cube_Coup_dt0
+    # Cube_Coup_dt6
+    # Bump_2911
+    # Queen_4147
+
+    # af_shell10
+    # Long_Coup_dt0
+    # Long_Coup_dt6
+)
+for ((i=0;i<${#matrices_cg[@]};i++)); do
+    m="${matrices_cg[i]}"
+    matrices_cg[i]="${path_tamu}/matrices/${m}/${m}.mtx"
 done
 
 
@@ -378,6 +406,9 @@ bench()
                     "$prog" -c $OMP_NUM_THREADS --artif_args="${prog_args2[@]}" -f SELL-32-1  2>'tmp.err'
                     ret="$?"
                 fi
+            elif [[ "$prog" == *"spmv_lcm_d.exe" ]]; then
+                echo numactl -i "$numa_nodes"
+                numactl -i "$numa_nodes" "$prog" "${prog_args[@]}"  2>'tmp.err'
             else
                 # "$prog" 4690000 4 1.6 normal random 1 14  2>'tmp.err'
 
@@ -399,14 +430,20 @@ bench()
 
 
 matrices=(
+
     # "${matrices_openFoam[@]}"
     # "${matrices_validation[@]}"
     # "${matrices_paper_csr_rv[@]}"
     # "${matrices_compression_small[@]}"
-    "${matrices_compression[@]}"
+    # "${matrices_compression[@]}"
     # "${matrices_M3E[@]}"
+    # "${matrices_cg[@]}"
 
-    # "$path_tamu"/matrices/ASIC_680k/ASIC_680k.mtx
+    # '/home/jim/Synced_Folder/lib/C/tests/kmeans/matrices/kron_g500-logn18_reordered_both.mtx'
+    # '/home/jim/Synced_Folder/lib/C/tests/kmeans/matrices/kron_g500-logn18_reordered_rows.mtx'
+    # "$path_tamu"/matrices/kron_g500-logn18/kron_g500-logn18.mtx
+
+    "$path_tamu"/matrices/ASIC_680k/ASIC_680k.mtx
     # '682862 682862 5.6699201303 659.8073579974 normal random 0.3746622132 69710.5639935502 0.6690077130 0.8254737741 14 ASIC_680k'
 
     # nr_rows nr_cols avg_nnz_per_row std_nnz_per_row distribution placement bw           skew          avg_num_neighbours cross_row_similarity seed
@@ -430,64 +467,6 @@ matrices=(
     # "$path_openFoam"/TestMatrices/HEXmats/5krows/processor0
     # "${matrices_openFoam_own_neigh[@]}"
 
-    # '/home/jim/Data/graphs/tamu/ML/thermomech_dK.mtx'
-
-    # "$path_validation"/scircuit.mtx
-    # "$path_validation"/mac_econ_fwd500.mtx
-    # "$path_validation"/raefsky3.mtx
-    # "$path_validation"/bbmat.mtx
-    # "$path_validation"/conf5_4-8x8-15.mtx
-    # "$path_validation"/mc2depi.mtx
-    # "$path_validation"/rma10.mtx
-    # "$path_validation"/cop20k_A.mtx
-    # "$path_validation"/webbase-1M.mtx
-    # "$path_validation"/cant.mtx
-    # "$path_validation"/pdb1HYS.mtx
-    # "$path_validation"/TSOPF_RS_b300_c3.mtx
-    # "$path_validation"/Chebyshev4.mtx
-    # "$path_validation"/consph.mtx
-    # "$path_validation"/shipsec1.mtx
-    # "$path_validation"/PR02R.mtx
-    # "$path_validation"/mip1.mtx
-    # "$path_validation"/rail4284.mtx
-    # "$path_validation"/pwtk.mtx
-    # "$path_validation"/crankseg_2.mtx
-    # "$path_validation"/Si41Ge41H72.mtx
-    # "$path_validation"/TSOPF_RS_b2383.mtx
-    # "$path_validation"/in-2004.mtx
-    # "$path_validation"/Ga41As41H72.mtx
-    # "$path_validation"/eu-2005.mtx
-    # "$path_validation"/wikipedia-20051105.mtx
-    # "$path_validation"/ldoor.mtx
-    # "$path_validation"/circuit5M.mtx
-    # "$path_validation"/bone010.mtx
-    # "$path_validation"/cage15.mtx
-
-    # "$path_selected"/soc-LiveJournal1.mtx
-    # "$path_selected"/soc-LiveJournal1_sorted_1.mtx
-    # "$path_selected"/soc-LiveJournal1_sorted_2.mtx
-    # "$path_selected"/soc-LiveJournal1_sorted_3.mtx
-    # "$path_selected"/soc-LiveJournal1_sorted_4.mtx
-
-    # "$path_selected"/dielFilterV3real.mtx
-    # "$path_selected"/dielFilterV3real_sorted_1.mtx
-    # "$path_selected"/dielFilterV3real_sorted_2.mtx
-    # "$path_selected"/dielFilterV3real_sorted_3.mtx
-    # "$path_selected"/dielFilterV3real_sorted_4.mtx
-
-    # "$path_selected"/circuit5M.mtx
-    # "$path_selected"/circuit5M_sorted_1.mtx
-    # "$path_selected"/circuit5M_sorted_2.mtx
-    # "$path_selected"/circuit5M_sorted_3.mtx
-    # "$path_selected"/circuit5M_sorted_4.mtx
-
-    # "$path_selected"/wikipedia-20051105.mtx
-    # "$path_selected"/wikipedia-20051105_sorted_1.mtx
-    # "$path_selected"/wikipedia-20051105_sorted_2.mtx
-    # "$path_selected"/wikipedia-20051105_sorted_3.mtx
-    # "$path_selected"/wikipedia-20051105_sorted_4.mtx
-
-    # "$path_selected_sorted"/circuit5M.mtx
 )
 
 
@@ -540,10 +519,10 @@ for format_name in "${!progs[@]}"; do
 
     LEVEL3_CACHE_SIZE="$(getconf LEVEL3_CACHE_SIZE)"
     csrcv_num_packet_vals=(
-        $((2**6))
+        # $((2**6))
         # $((2**7))
         # $((2**10))
-        # $((2**14))
+        $((2**14))
         # $((2**17))
         # $((2**20))
         # $((2**12))

@@ -181,7 +181,7 @@ void figure_series_type_bounded_median_curve(struct Figure_Series * s, int axis)
 #define figure_simple_plot(file_out, x_num_pixels, y_num_pixels, series_args, ...)    \
 do {                                                                                  \
 	struct Figure * _fig;                                                         \
-	__attribute__((unused)) struct Figure_Series * _s;                            \
+	[[gnu::unused]] struct Figure_Series * _s;                                    \
 	_fig = (typeof(_fig)) malloc(sizeof(*_fig));                                  \
 	figure_init(_fig, x_num_pixels, y_num_pixels);                                \
 	_s = _figure_simple_plot_add_series(_fig, UNPACK(series_args));               \

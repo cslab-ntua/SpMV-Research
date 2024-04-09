@@ -59,15 +59,15 @@ static int partition_cmp(_TYPE_V a, _TYPE_V b, _TYPE_AD * aux_data);
 
 
 #undef  _TYPE_V
-#define _TYPE_V  PARTITION_GEN_EXPAND(_TYPE_V)
+#define _TYPE_V  PARTITION_GEN_EXPAND_TYPE(_TYPE_V)
 typedef PARTITION_GEN_TYPE_1  _TYPE_V;
 
 #undef  _TYPE_I
-#define _TYPE_I  PARTITION_GEN_EXPAND(_TYPE_I)
+#define _TYPE_I  PARTITION_GEN_EXPAND_TYPE(_TYPE_I)
 typedef PARTITION_GEN_TYPE_2  _TYPE_I;
 
 #undef  _TYPE_AD
-#define _TYPE_AD  PARTITION_GEN_EXPAND(_TYPE_AD)
+#define _TYPE_AD  PARTITION_GEN_EXPAND_TYPE(_TYPE_AD)
 typedef PARTITION_GEN_TYPE_3  _TYPE_AD;
 
 
@@ -126,7 +126,7 @@ partition_serial_base(_TYPE_V pivot, _TYPE_V * A, long i_start, long i_end, _TYP
 		}
 		if (i_s >= i_e)
 			break;
-		SWAP(&A[i_s], &A[i_e]);
+		macros_swap(&A[i_s], &A[i_e]);
 		i_s++;
 		i_e--;
 	}
@@ -173,7 +173,7 @@ partition_serial_base(_TYPE_V pivot, _TYPE_V * A, long i_start, long i_end, _TYP
 			i_e--;
 		if (i_s >= i_e)
 			break;
-		SWAP(&A[i_s], &A[i_e]);
+		macros_swap(&A[i_s], &A[i_e]);
 		i_s++;
 		i_e--;
 	}
@@ -240,12 +240,12 @@ partition_auto_serial(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_data
 	/* In order for the left part to be non-empty we always at least advance by an element equal to the pivot by reserving it at the left.
 	 * In order for the right part to be non-empty, if the pivot is the maximum value we swap the reserved element at the end.
 	 */
-	SWAP(&A[i_start], &A[pivot_pos]);
+	macros_swap(&A[i_start], &A[pivot_pos]);
 
 	m = partition_serial_base(pivot, A, i_start+1, i_end, aux_data);
 
 	/* The pivot can be the max value, so we have to place it as the last element of the left segment. */
-	SWAP(&A[i_start], &A[m-1]);   // m-1 >= i_start
+	macros_swap(&A[i_start], &A[m-1]);   // m-1 >= i_start
 
 	return m;
 }
@@ -276,7 +276,7 @@ partition_auto_serial(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_data
 	else if (i_end - i_start == 2)
 	{
 		if (partition_cmp(A[i_start], A[i_start+1], aux_data) > 0)
-			SWAP(&A[i_start], &A[i_start+1]);
+			macros_swap(&A[i_start], &A[i_start+1]);
 		return i_start + 1;
 	}
 
@@ -285,11 +285,11 @@ partition_auto_serial(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_data
 	pivot_pos = (i_start+i_end)/2;    // A somewhat better pivot than simply the first element. Also works well when already sorted.
 
 	if (partition_cmp(A[i_start], A[i_end], aux_data) > 0)
-		SWAP(&A[i_start], &A[i_end]);
+		macros_swap(&A[i_start], &A[i_end]);
 	if (partition_cmp(A[i_start], A[pivot_pos], aux_data) > 0)
-		SWAP(&A[i_start], &A[pivot_pos]);
+		macros_swap(&A[i_start], &A[pivot_pos]);
 	if (partition_cmp(A[pivot_pos], A[i_end], aux_data) > 0)
-		SWAP(&A[pivot_pos], &A[i_end]);
+		macros_swap(&A[pivot_pos], &A[i_end]);
 	return partition_serial_base(A[pivot_pos], A, i_start+1, i_end-1, aux_data);
 }
 
@@ -650,7 +650,7 @@ partition_concurrent_inplace_base(_TYPE_V pivot, _TYPE_V * A, long i_start, long
 		{
 			if ((l_s == l_e) || (h_s == h_e))
 				break;
-			SWAP(&A[l_s], &A[h_s]);
+			macros_swap(&A[l_s], &A[h_s]);
 			l_s++;
 			h_s++;
 			realoc_num--;
@@ -714,7 +714,7 @@ partition_auto_concurrent(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_
 		#pragma omp single nowait
 		{
 			if (partition_cmp(A[i_start], A[i_start+1], aux_data) > 0)
-				SWAP(&A[i_start], &A[i_start+1]);
+				macros_swap(&A[i_start], &A[i_start+1]);
 		}
 		#pragma omp barrier
 		return i_start + 1;
@@ -727,11 +727,11 @@ partition_auto_concurrent(_TYPE_V * A, long i_start, long i_end, _TYPE_AD * aux_
 	#pragma omp single nowait
 	{
 		if (partition_cmp(A[i_start], A[i_end], aux_data) > 0)
-			SWAP(&A[i_start], &A[i_end]);
+			macros_swap(&A[i_start], &A[i_end]);
 		if (partition_cmp(A[i_start], A[pivot_pos], aux_data) > 0)
-			SWAP(&A[i_start], &A[pivot_pos]);
+			macros_swap(&A[i_start], &A[pivot_pos]);
 		if (partition_cmp(A[pivot_pos], A[i_end], aux_data) > 0)
-			SWAP(&A[pivot_pos], &A[i_end]);
+			macros_swap(&A[pivot_pos], &A[i_end]);
 	}
 
 	#pragma omp barrier

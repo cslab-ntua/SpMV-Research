@@ -132,7 +132,7 @@ struct CSRArrays : Matrix_Format
 						#ifdef CUSTOM_X86_VECTOR_PERFECT_NNZ_BALANCE
 							long lower_boundary;
 							loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
-							binary_search(ia, 0, m, thread_j_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
+							macros_binary_search(ia, 0, m, thread_j_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
 							thread_i_s[tnum] = lower_boundary;
 							_Pragma("omp barrier")
 							if (tnum == num_threads - 1)   // If we calculate each thread's boundaries individually some empty rows might be unassigned.

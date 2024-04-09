@@ -14,4 +14,6 @@ all:
 
 clean:
 	$(RM) obj/* *.o *.exe a.out
+	cd LCM-partially-strided-codelet
+	make clean
 

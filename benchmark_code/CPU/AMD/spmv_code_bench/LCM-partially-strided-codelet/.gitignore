@@ -1,0 +1,10 @@
+cmake-build-release
+cmake-build-debug
+build
+.clang-format
+.idea/
+compile_commands.json
+*.mtx
+external
+*.png
+*.pdf

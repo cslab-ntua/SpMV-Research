@@ -78,7 +78,7 @@ struct CSRArrays : Matrix_Format
 		cudaDeviceGetAttribute(&warp_size, cudaDevAttrWarpSize , 0);
 		cudaDeviceGetAttribute(&max_threads_per_multiproc, cudaDevAttrMaxThreadsPerMultiProcessor, 0);
 		cudaDeviceGetAttribute(&max_block_dim_x, cudaDevAttrMaxBlockDimX, 0);
-		printf("max_smem_per_block=%d\n", max_smem_per_block);
+		printf("max_smem_per_block(bytes)=%d\n", max_smem_per_block);
 		printf("multiproc_count=%d\n", multiproc_count);
 		printf("max_threads_per_block=%d\n", max_threads_per_block);
 		printf("warp_size=%d\n", warp_size);

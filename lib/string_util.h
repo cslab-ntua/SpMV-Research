@@ -38,7 +38,7 @@ do {                                                   \
 } while (0)
 
 
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 long
 str_check_mem_overlap(const char * s1, long s1_n, const char * s2, long s2_n)
@@ -56,7 +56,7 @@ str_check_mem_overlap(const char * s1, long s1_n, const char * s2, long s2_n)
 //==========================================================================================================================================
 
 
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 int
 str_char_is_ws(const char c)
@@ -87,7 +87,7 @@ str_char_is_ws(const char c)
 
 
 // Returns the number of chars written.
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 long
 str_char_hex_to_bin(const char c_hex, char * buf, long N)
@@ -123,7 +123,7 @@ str_char_hex_to_bin(const char c_hex, char * buf, long N)
 //==========================================================================================================================================
 
 
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 long
 str_find_char_from_start(const char * str, long N, char c)
@@ -136,7 +136,7 @@ str_find_char_from_start(const char * str, long N, char c)
 }
 
 
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 long
 str_find_char_from_end(const char * str, long N, char c)
@@ -149,7 +149,7 @@ str_find_char_from_end(const char * str, long N, char c)
 }
 
 
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 long
 str_find_ws(const char * str, long N)
@@ -162,7 +162,7 @@ str_find_ws(const char * str, long N)
 }
 
 
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 long
 str_find_non_ws(const char * str, long N)
@@ -175,7 +175,7 @@ str_find_non_ws(const char * str, long N)
 }
 
 
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 long
 str_find_eol(const char * str, long N)
@@ -188,7 +188,7 @@ str_find_eol(const char * str, long N)
 }
 
 
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 long
 str_next_word(const char * str, long N)

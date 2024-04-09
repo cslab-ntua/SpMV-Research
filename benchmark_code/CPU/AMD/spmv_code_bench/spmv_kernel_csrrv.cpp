@@ -8,7 +8,8 @@
 #include <string>
 #include <algorithm>
 #include <unordered_map>
-#include <immintrin.h>
+#include <x86intrin.h>
+// #include <immintrin.h>
 
 #include "macros/cpp_defines.h"
 

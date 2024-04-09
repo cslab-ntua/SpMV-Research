@@ -7,7 +7,8 @@
 #include "spmv_bench_common.h"
 #include "spmv_kernel.h"
 
-#include <immintrin.h>
+#include <x86intrin.h>
+// #include <immintrin.h>
 
 #ifdef __cplusplus
 extern "C"{
@@ -180,7 +181,7 @@ static inline
 double
 subkernel_row_csr_vector_x86_512d(INT_T * restrict ja, ValueType * restrict a, ValueType * restrict x, long j_s, long j_e)
 {
-	#if defined(__AVX512f__)
+	#if defined(__AVX512F__)
 		return __subkernel_row_csr_vector_x86_512d(ja, a, x, j_s, j_e);
 	#else
 		return subkernel_row_csr_vector_x86_256d(ja, a, x, j_s, j_e);

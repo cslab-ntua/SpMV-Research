@@ -3,6 +3,7 @@
 
 #include "macros/macrolib.h"
 #include "debug.h"
+#include "genlib.h"
 #include "omp_functions.h"
 #include "parallel_util.h"
 #include "string_util.h"
@@ -48,44 +49,35 @@
 //==========================================================================================================================================
 
 
-//------------------------------------------------------------------------------------------------------------------------------------------
-//- Reduce Add
-//------------------------------------------------------------------------------------------------------------------------------------------
-
+// Reduce Add
 #include "functools/functools_gen_push.h"
-#define FUNCTOOLS_GEN_TYPE_1  double
-#define FUNCTOOLS_GEN_TYPE_2  double
-#define FUNCTOOLS_GEN_SUFFIX  CONCAT(_CSR_UTIL_GEN_add_d, CSR_UTIL_GEN_SUFFIX)
+#define FUNCTOOLS_GEN_TYPE_1  int
+#define FUNCTOOLS_GEN_TYPE_2  int
+#define FUNCTOOLS_GEN_SUFFIX  CONCAT(_CSR_UTIL_GEN_add_i, CSR_UTIL_GEN_SUFFIX)
 #include "functools/functools_gen.c"
-
 __attribute__((pure))
 static inline
-double
-functools_map_fun(double * A, long i)
+int
+functools_map_fun(int * A, long i)
 {
 	return A[i];
 }
-
 __attribute__((pure))
 static inline
-double
-functools_reduce_fun(double a, double b)
+int
+functools_reduce_fun(int a, int b)
 {
 	return a + b;
 }
 
 
-//------------------------------------------------------------------------------------------------------------------------------------------
-//- Quicksort
-//------------------------------------------------------------------------------------------------------------------------------------------
-
+// Quicksort
 #include "sort/quicksort/quicksort_gen_push.h"
 #define QUICKSORT_GEN_TYPE_1  double
 #define QUICKSORT_GEN_TYPE_2  int
 #define QUICKSORT_GEN_TYPE_3  void
 #define QUICKSORT_GEN_SUFFIX  CONCAT(_CSR_UTIL_GEN_d_sign, CSR_UTIL_GEN_SUFFIX)
 #include "sort/quicksort/quicksort_gen.c"
-
 static inline
 int
 quicksort_cmp(double a, double b, __attribute__((unused)) void * aux)
@@ -94,16 +86,11 @@ quicksort_cmp(double a, double b, __attribute__((unused)) void * aux)
 		return (a > b) ? 1 : (a < b) ? -1 : 0;
 	return (fabs(a) > fabs(b)) ? 1 : (fabs(a) < fabs(b)) ? -1 : 0;
 }
-
-
 #undef quicksort_sign
 #define quicksort_sign(A, N, aux, partitions_buf) CONCAT(quicksort_CSR_UTIL_GEN_d_sign, CSR_UTIL_GEN_SUFFIX)(A, N, aux, partitions_buf)
 
 
-//------------------------------------------------------------------------------------------------------------------------------------------
-//- Samplesort
-//------------------------------------------------------------------------------------------------------------------------------------------
-
+// Samplesort
 #include "sort/samplesort/samplesort_gen_push.h"
 #define SAMPLESORT_GEN_TYPE_1  double
 #define SAMPLESORT_GEN_TYPE_2  int
@@ -111,7 +98,6 @@ quicksort_cmp(double a, double b, __attribute__((unused)) void * aux)
 #define SAMPLESORT_GEN_TYPE_4  void
 #define SAMPLESORT_GEN_SUFFIX  CONCAT(_CSR_UTIL_GEN_d, CSR_UTIL_GEN_SUFFIX)
 #include "sort/samplesort/samplesort_gen.c"
-
 static inline
 int
 samplesort_cmp(double a, double b, __attribute__((unused)) void * aux)
@@ -126,11 +112,11 @@ samplesort_cmp(double a, double b, __attribute__((unused)) void * aux)
 
 
 #undef  _TYPE_V
-#define _TYPE_V  CSR_UTIL_GEN_EXPAND(_TYPE_V)
+#define _TYPE_V  CSR_UTIL_GEN_EXPAND_TYPE(_TYPE_V)
 typedef CSR_UTIL_GEN_TYPE_1  _TYPE_V;
 
 #undef  _TYPE_I
-#define _TYPE_I  CSR_UTIL_GEN_EXPAND(_TYPE_I)
+#define _TYPE_I  CSR_UTIL_GEN_EXPAND_TYPE(_TYPE_I)
 typedef CSR_UTIL_GEN_TYPE_2  _TYPE_I;
 
 
@@ -139,6 +125,155 @@ typedef CSR_UTIL_GEN_TYPE_2  _TYPE_I;
 //-                                                              Templates                                                                 -
 //------------------------------------------------------------------------------------------------------------------------------------------
 //==========================================================================================================================================
+
+
+//==========================================================================================================================================
+//= Helpers
+//==========================================================================================================================================
+
+
+#undef  get_double_zero
+#define get_double_zero  CSR_UTIL_GEN_EXPAND(get_double_zero)
+static inline
+double
+get_double_zero(__attribute__((unused)) void * A, __attribute__((unused)) long i)
+{
+	return 0;
+}
+
+#undef  get_double_abs
+#define get_double_abs  CSR_UTIL_GEN_EXPAND(get_double_abs)
+static inline
+double
+get_double_abs(void * A, long i)
+{
+	return fabs(((double *) A)[i]);
+}
+
+#undef  get_double_log2
+#define get_double_log2  CSR_UTIL_GEN_EXPAND(get_double_log2)
+static inline
+double
+get_double_log2(void * A, long i)
+{
+	double val = ((double *) A)[i];
+	return (val == 0) ? 0 : log2(val);
+}
+
+#undef  get_double_abs_log2
+#define get_double_abs_log2  CSR_UTIL_GEN_EXPAND(get_double_abs_log2)
+static inline
+double
+get_double_abs_log2(void * A, long i)
+{
+	double val = fabs(((double *) A)[i]);
+	return (val == 0) ? 0 : log2(val);
+	// return (val == 0) ? -1022 : log2(val);  // If 0 return the smallest exponent for double floating point values instead of -infinite.
+}
+
+#undef  get_double_sign
+#define get_double_sign  CSR_UTIL_GEN_EXPAND(get_double_sign)
+static inline
+double
+get_double_sign(void * A, long i)
+{
+	return bits_double_get_sign(((double *) A)[i]);
+}
+
+#undef  get_double_exponent
+#define get_double_exponent  CSR_UTIL_GEN_EXPAND(get_double_exponent)
+static inline
+double
+get_double_exponent(void * A, long i)
+{
+	return bits_double_get_exponent(((double *) A)[i]);
+}
+
+#undef  get_double_exponent_bits
+#define get_double_exponent_bits  CSR_UTIL_GEN_EXPAND(get_double_exponent_bits)
+static inline
+double
+get_double_exponent_bits(void * A, long i)
+{
+	return bits_double_get_exponent_bits(((double *) A)[i]);
+}
+
+#undef  get_double_fraction
+#define get_double_fraction  CSR_UTIL_GEN_EXPAND(get_double_fraction)
+static inline
+double
+get_double_fraction(void * A, long i)
+{
+	return bits_double_get_fraction(((double *) A)[i]);
+}
+
+#undef  get_double_upper_12_bits
+#define get_double_upper_12_bits  CSR_UTIL_GEN_EXPAND(get_double_upper_12_bits)
+static inline
+double
+get_double_upper_12_bits(void * A, long i)
+{
+	return bits_double_get_upper_12_bits(((double *) A)[i]);
+}
+
+#undef  get_double_surrounding_zeros
+#define get_double_surrounding_zeros  CSR_UTIL_GEN_EXPAND(get_double_surrounding_zeros)
+static inline
+double
+get_double_surrounding_zeros(void * A, long i)
+{
+	uint64_t u = ((uint64_t *) A)[i];
+	return u == 0 ? 64 : __builtin_ctzl(u) + __builtin_clzl(u);
+}
+
+
+#undef  get_double_trailing_zeros
+#define get_double_trailing_zeros  CSR_UTIL_GEN_EXPAND(get_double_trailing_zeros)
+static inline
+double
+get_double_trailing_zeros(void * A, long i)
+{
+	uint64_t u = ((uint64_t *) A)[i];
+	return u == 0 ? 64 : __builtin_ctzl(u);
+}
+
+
+#undef  reduce_add
+#define reduce_add  CSR_UTIL_GEN_EXPAND(reduce_add)
+static inline
+double
+reduce_add(double a, double b)
+{
+	return a + b;
+}
+
+#undef  get_window_min_ctz_as_double
+#define get_window_min_ctz_as_double  CSR_UTIL_GEN_EXPAND(get_window_min_ctz_as_double)
+static inline
+double
+get_window_min_ctz_as_double(void * A, long i, long len)
+{
+	uint64_t min;
+	uint64_t ctz;
+	long j;
+	min = get_double_trailing_zeros(A, i);
+	for (j=1;j<len;j++)
+	{
+		ctz = get_double_trailing_zeros(A, i + j);
+		if (ctz < min)
+			min = ctz;
+	}
+	return min * len;
+}
+
+#undef  array_mean_of_windowed_ctz_min
+#define array_mean_of_windowed_ctz_min  CSR_UTIL_GEN_EXPAND(array_mean_of_windowed_ctz_min)
+static inline
+double
+array_mean_of_windowed_ctz_min(double * A, long N, long window_len)
+{
+	return array_windowed_aggregate(A, N, window_len, get_window_min_ctz_as_double, reduce_add) / N;
+}
 
 
 //==========================================================================================================================================
@@ -489,63 +624,8 @@ csr_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((
 		free(num_neigh);
 }
 
-#undef  csr_cross_row_neighbours
-#define csr_cross_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_cross_row_neighbours)
-void
-csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, long window_size,
-		_TYPE_I **crs_neigh_out)
-{
-	_TYPE_I * crs_neigh = (typeof(crs_neigh)) malloc(nnz * sizeof(*crs_neigh));
-	#pragma omp parallel
-	{
-		long i, j, k, k_s, k_e, l;
-		long degree, column_diff;
-		#pragma omp for
-		for (i=0;i<nnz;i++)
-			crs_neigh[i] = 0;
 
-		#pragma omp for
-		for (i=0;i<m;i++)
-		{
-			degree = row_ptr[i+1] - row_ptr[i];
-			if (degree <= 0)
-				continue;
-			for (l=i+1;l<m;l++)       // Find next non-empty row.
-				if (row_ptr[l+1] - row_ptr[l] > 0)
-					break;
-			if (l < m)
-			{
-				k_s = row_ptr[l];
-				k_e = row_ptr[l+1];
-				k = k_s;
-				for (j=row_ptr[i];j<row_ptr[i+1];j++)
-				{
-					while (k < k_e)
-					{
-						column_diff = col_idx[k] - col_idx[j];
-						if (labs(column_diff) <= window_size)
-						{
-							crs_neigh[j]+=1;
-							// do not break, in order to register all neighbours
-							// break; 
-						}
-						if (column_diff <= 0)
-							k++;
-						else
-							break;   // went outside of area to examine
-					}
-				}
-			}
-		}
-	}
-	if (crs_neigh_out != NULL)
-		*crs_neigh_out = crs_neigh;
-	else
-		free(crs_neigh);
-}
-
-/* ATTENTION: DEPRECATED, not used anymore... Keep it for legacy reasons
- * For similarities each non-empty row is equivalent, no matter the degree.
+/* For similarities each non-empty row is equivalent, no matter the degree.
  */
 #undef  csr_cross_row_similarity
 #define csr_cross_row_similarity  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity)
@@ -609,6 +689,71 @@ csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 	return total_row_similarity / total_num_non_empty_rows;   // Neighbours are only between non-empty rows.
 }
 
+
+#undef  csr_cross_row_neighbours
+#define csr_cross_row_neighbours  CSR_UTIL_GEN_EXPAND(csr_cross_row_neighbours)
+double
+csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, long window_size, _TYPE_I *crs_row)
+{
+	double * num_neigh = (typeof(num_neigh)) malloc((m) * sizeof(*num_neigh));
+	long total_num_non_empty_rows = 0;
+	#pragma omp parallel
+	{
+		long i, j, k, k_s, k_e, l;
+		long degree, curr_neigh, column_diff;
+		long num_non_empty_rows = 0;
+		#pragma omp for
+		for (i=0;i<m;i++){
+			num_neigh[i] = 0;
+			crs_row[i] = 0;
+		}
+		#pragma omp for
+		for (i=0;i<m;i++)
+		{
+			degree = row_ptr[i+1] - row_ptr[i];
+			if (degree <= 0)
+				continue;
+			for (l=i+1;l<m;l++)       // Find next non-empty row.
+				if (row_ptr[l+1] - row_ptr[l] > 0)
+					break;
+			num_non_empty_rows++;
+			if (l < m)
+			{
+				k_s = row_ptr[l];
+				k_e = row_ptr[l+1];
+				curr_neigh = 0;
+				k = k_s;
+				for (j=row_ptr[i];j<row_ptr[i+1];j++)
+				{
+					while (k < k_e)
+					{
+						column_diff = col_idx[k] - col_idx[j];
+						if (labs(column_diff) <= window_size)
+						{
+							curr_neigh++;
+							break;
+						}
+						if (column_diff <= 0)
+							k++;
+						else
+							break;   // went outside of area to examine
+					}
+				}
+				num_neigh[i] = ((double) curr_neigh) / degree;
+				crs_row[i] = curr_neigh;
+			}
+		}
+		__atomic_fetch_add(&total_num_non_empty_rows, num_non_empty_rows, __ATOMIC_RELAXED);
+	}
+	double mean;
+	array_mean(num_neigh, m, &mean);
+	free(num_neigh);
+	if (total_num_non_empty_rows == 0)
+		return 0;
+	return (mean * m) / total_num_non_empty_rows;   // Neighbours are only between non-empty rows.
+}
+
+
 //------------------------------------------------------------------------------------------------------------------------------------------
 //- Structural Features - Print
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -669,7 +814,7 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	time = time_it(1,
 		csr_degrees_bandwidths_scatters(row_ptr, col_idx, m, n, nnz, &degrees_rows, &degrees_cols, &bandwidths, &scatters);
 	);
-	// printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
+	printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
 
 	/* It's not worth it combining the array metrics, because min-max degrade the total performance of the pipeline,
 	 * and std depends on mean and needs a separete loop either way. */
@@ -724,7 +869,7 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	time = time_it(1,
 		csr_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &num_neigh);
 	);
-	// printf("time csr_row_neighbours = %lf\n", time);
+	printf("time csr_row_neighbours = %lf\n", time);
 
 	array_min_max(num_neigh, nnz, &num_neigh_min, NULL, &num_neigh_max, NULL);
 	array_mean(num_neigh, nnz, &num_neigh_avg);
@@ -748,13 +893,13 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	time = time_it(1,
 		cross_row_similarity_avg = csr_cross_row_similarity(row_ptr, col_idx, m, n, nnz, window_size);
 	);
-	// printf("time csr_cross_row_similarity = %lf\n", time);
+	printf("time csr_cross_row_similarity = %lf\n", time);
 
 	max_gap_size = 0;
 	time = time_it(1,
 		num_groups = csr_column_distances_and_groupping(row_ptr, col_idx, m, n, nnz, max_gap_size, &nnz_col_dist, &group_col_dist, &group_sizes, &groups_per_row);
 	);
-	// printf("time csr_column_distances_and_groupping = %lf\n", time);
+	printf("time csr_column_distances_and_groupping = %lf\n", time);
 
 	array_min_max(nnz_col_dist, nnz, &nnz_col_dist_min, NULL, &nnz_col_dist_max, NULL);
 	array_mean(nnz_col_dist, nnz, &nnz_col_dist_avg);
@@ -898,10 +1043,9 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	double bw_avg;
 
 	long window_size;
-	_TYPE_I * num_neigh, *crs_neigh;
-	double num_neigh_avg, num_neigh_std;
+	_TYPE_I * num_neigh;
+	double num_neigh_avg;
 	double cross_row_similarity_avg;
-	double cross_row_neighbours_avg, cross_row_neighbours_std;
 
 	double time;
 
@@ -913,7 +1057,7 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	time = time_it(1,
 		csr_degrees_bandwidths_scatters(row_ptr, col_idx, m, n, nnz, &degrees_rows, &degrees_cols, &bandwidths, &scatters);
 	);
-	// printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
+	printf("time csr_degrees_bandwidths_scatters = %lf\n", time);
 
 	/* It's not worth it combining the array metrics, because min-max degrade the total performance of the pipeline,
 	 * and std depends on mean and needs a separete loop either way. */
@@ -937,29 +1081,16 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	time = time_it(1,
 		csr_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &num_neigh);
 	);
-	// printf("time csr_row_neighbours = %lf\n", time);
+	printf("time csr_row_neighbours = %lf\n", time);
 
 	array_mean(num_neigh, nnz, &num_neigh_avg);
-	array_std(num_neigh, nnz, &num_neigh_std);
+
 	free(num_neigh);
 
 	time = time_it(1,
 		cross_row_similarity_avg = csr_cross_row_similarity(row_ptr, col_idx, m, n, nnz, window_size);
 	);
-	// printf("time csr_cross_row_similarity = %lf\n", time);
-
-	time = time_it(1,
-	csr_cross_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &crs_neigh);
-	);
-	// printf("time csr_cross_row_neighbours = %lf\n", time);
-
-	array_mean(crs_neigh, nnz, &cross_row_neighbours_avg);
-	array_std(crs_neigh, nnz, &cross_row_neighbours_std);
-	free(crs_neigh);
-
-	fprintf(stderr, "extra features (ann_std, crn_avg, crn_std) | %.10lf ", num_neigh_std);
-	fprintf(stderr, "%.10lf ", cross_row_neighbours_avg);
-	fprintf(stderr, "%.10lf |\n", cross_row_neighbours_std);
+	printf("time csr_cross_row_similarity = %lf\n", time);
 
 	/* Matrix features for artificial twins.
 	 * Also print the csr mem footprint for easier sorting.
@@ -989,150 +1120,6 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 //==========================================================================================================================================
 //= Value Features
 //==========================================================================================================================================
-
-
-#undef  get_double_zero
-#define get_double_zero  CSR_UTIL_GEN_EXPAND(get_double_zero)
-static inline
-double
-get_double_zero(__attribute__((unused)) void * A, __attribute__((unused)) long i)
-{
-	return 0;
-}
-
-#undef  get_double_abs
-#define get_double_abs  CSR_UTIL_GEN_EXPAND(get_double_abs)
-static inline
-double
-get_double_abs(void * A, long i)
-{
-	return fabs(((double *) A)[i]);
-}
-
-#undef  get_double_log2
-#define get_double_log2  CSR_UTIL_GEN_EXPAND(get_double_log2)
-static inline
-double
-get_double_log2(void * A, long i)
-{
-	double val = ((double *) A)[i];
-	return (val == 0) ? 0 : log2(val);
-}
-
-#undef  get_double_abs_log2
-#define get_double_abs_log2  CSR_UTIL_GEN_EXPAND(get_double_abs_log2)
-static inline
-double
-get_double_abs_log2(void * A, long i)
-{
-	double val = fabs(((double *) A)[i]);
-	return (val == 0) ? 0 : log2(val);
-	// return (val == 0) ? -1022 : log2(val);  // If 0 return the smallest exponent for double floating point values instead of -infinite.
-}
-
-#undef  get_double_sign
-#define get_double_sign  CSR_UTIL_GEN_EXPAND(get_double_sign)
-static inline
-double
-get_double_sign(void * A, long i)
-{
-	return bits_double_get_sign(((double *) A)[i]);
-}
-
-#undef  get_double_exponent
-#define get_double_exponent  CSR_UTIL_GEN_EXPAND(get_double_exponent)
-static inline
-double
-get_double_exponent(void * A, long i)
-{
-	return bits_double_get_exponent(((double *) A)[i]);
-}
-
-#undef  get_double_exponent_bits
-#define get_double_exponent_bits  CSR_UTIL_GEN_EXPAND(get_double_exponent_bits)
-static inline
-double
-get_double_exponent_bits(void * A, long i)
-{
-	return bits_double_get_exponent_bits(((double *) A)[i]);
-}
-
-#undef  get_double_fraction
-#define get_double_fraction  CSR_UTIL_GEN_EXPAND(get_double_fraction)
-static inline
-double
-get_double_fraction(void * A, long i)
-{
-	return bits_double_get_fraction(((double *) A)[i]);
-}
-
-#undef  get_double_upper_12_bits
-#define get_double_upper_12_bits  CSR_UTIL_GEN_EXPAND(get_double_upper_12_bits)
-static inline
-double
-get_double_upper_12_bits(void * A, long i)
-{
-	return bits_double_get_upper_12_bits(((double *) A)[i]);
-}
-
-#undef  get_double_surrounding_zeros
-#define get_double_surrounding_zeros  CSR_UTIL_GEN_EXPAND(get_double_surrounding_zeros)
-static inline
-double
-get_double_surrounding_zeros(void * A, long i)
-{
-	uint64_t u = ((uint64_t *) A)[i];
-	return u == 0 ? 64 : __builtin_ctzl(u) + __builtin_clzl(u);
-}
-
-
-#undef  get_double_trailing_zeros
-#define get_double_trailing_zeros  CSR_UTIL_GEN_EXPAND(get_double_trailing_zeros)
-static inline
-double
-get_double_trailing_zeros(void * A, long i)
-{
-	uint64_t u = ((uint64_t *) A)[i];
-	return u == 0 ? 64 : __builtin_ctzl(u);
-}
-
-
-#undef  reduce_add
-#define reduce_add  CSR_UTIL_GEN_EXPAND(reduce_add)
-static inline
-double
-reduce_add(double a, double b)
-{
-	return a + b;
-}
-
-#undef  get_window_min_ctz_as_double
-#define get_window_min_ctz_as_double  CSR_UTIL_GEN_EXPAND(get_window_min_ctz_as_double)
-static inline
-double
-get_window_min_ctz_as_double(void * A, long i, long len)
-{
-	uint64_t min;
-	uint64_t ctz;
-	long j;
-	min = get_double_trailing_zeros(A, i);
-	for (j=1;j<len;j++)
-	{
-		ctz = get_double_trailing_zeros(A, i + j);
-		if (ctz < min)
-			min = ctz;
-	}
-	return min * len;
-}
-
-#undef  array_mean_of_windowed_ctz_min
-#define array_mean_of_windowed_ctz_min  CSR_UTIL_GEN_EXPAND(array_mean_of_windowed_ctz_min)
-static inline
-double
-array_mean_of_windowed_ctz_min(double * A, long N, long window_len)
-{
-	return array_windowed_aggregate(A, N, window_len, get_window_min_ctz_as_double, reduce_add) / N;
-}
 
 
 // Value differences of neighbouring nnz.
@@ -1389,7 +1376,7 @@ csr_value_distances_from_cluster_centers(char * title_base, double * vals, doubl
 			#pragma omp for
 			for (i=0;i<nnz;i++)
 			{
-				long center_pos = binary_search(cluster_centers, 0, num_clusters - 1, vals[i], NULL, NULL);
+				long center_pos = macros_binary_search(cluster_centers, 0, num_clusters - 1, vals[i], NULL, NULL);
 				double center = cluster_centers[center_pos];
 				vals_cluster_centers_diffs[i] = vals[i] - center;
 			}
@@ -2000,35 +1987,6 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 }
 
 
-#undef  csr_save_to_mtx
-#define csr_save_to_mtx  CSR_UTIL_GEN_EXPAND(csr_save_to_mtx)
-void
-csr_save_to_mtx(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, int num_rows, int num_cols, const char* filename)
-{
-	printf("Storing: %s\n", filename);
-	FILE* file;
-	file = fopen(filename, "w");
-	if (file == NULL) {
-		printf("Error opening file %s\n", filename);
-		return;
-	}
-
-	fprintf(file, "%%%%MatrixMarket matrix coordinate real general\n");
-	fprintf(file, "%d %d %d\n", num_rows, num_cols, row_ptr[num_rows]);
-	long buf_n = 1000;
-	char buf[buf_n];
-	long k;
-	for (int i = 0; i < num_rows; i++) {
-		for (int j = row_ptr[i]; j < row_ptr[i + 1]; j++) {
-			k = 0;
-			k += snprintf(buf, buf_n-k, "%d %d %.15g", i + 1, col_idx[j] + 1, val[j]);
-			fprintf(file, "%s\n", buf);
-		}
-	}
-	fclose(file);
-}
-
-
 //==========================================================================================================================================
 //= Ploting
 //==========================================================================================================================================
@@ -2074,41 +2032,19 @@ csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__(
 	for(int i=0; i<m; i++)
 		degrees_rows[i] = row_ptr[i+1] - row_ptr[i];
 
+	/*	
 	// Degree histogram. this can be commented out
 	double nnz_per_row_min, nnz_per_row_max, nnz_per_row_avg, nnz_per_row_std;
 	array_min_max(degrees_rows, m, &nnz_per_row_min, NULL, &nnz_per_row_max, NULL);
-	array_mean(degrees_rows, m, &nnz_per_row_avg);
-	array_std(degrees_rows, m, &nnz_per_row_std);
-	printf("nnz_per_row_max = %.0lf\n", nnz_per_row_max);
-	printf("nnz_per_row_min = %.0lf\n", nnz_per_row_min);
-	printf("nnz_per_row_avg = %.4lf\n", nnz_per_row_avg);
-	printf("nnz_per_row_std = %.4lf\n", nnz_per_row_std);
-		
+	printf("nnz_per_row_max = %lf\n", nnz_per_row_max);
 	int *row_size_hist = (int*) calloc((int)nnz_per_row_max+1, sizeof(int));
-	int cnt_l = 0, cnt_h = 0, nnz_l = 0, nnz_h = 0;
-	/*
-	for(int i=0;i<m;i++){
+	for(int i=0;i<m;i++)
 		row_size_hist[degrees_rows[i]]++;
-		// if(degrees_rows[i] < nnz_per_row_avg){
-		// 	nnz_l += degrees_rows[i];
-		// 	cnt_l++;
-		// }
-		// else{
-		// 	nnz_h += degrees_rows[i];
-		// 	cnt_h++;
-		// }
-	}
-	for (int i = 0; i < (int)nnz_per_row_max+1; ++i){
-		printf("%d %d", i, row_size_hist[i]);
-		if(row_size_hist[i]*100.0/m > 0.5)
-			printf(" ( %.4f )", row_size_hist[i]*100.0/m);
-		printf("\n");
-	}
-	// printf("size of low:   %d rows, %d nonzeros, %.2lf MB\n", cnt_l, nnz_l, ((cnt_l+1)*sizeof(_TYPE_I) + nnz_l*(sizeof(_TYPE_V) + sizeof(_TYPE_I)))/(1024.0*1024.0));
-	// printf("size of high:  %d rows, %d nonzeros, %.2lf MB\n", cnt_h, nnz_h, ((cnt_h+1)*sizeof(_TYPE_I) + nnz_h*(sizeof(_TYPE_V) + sizeof(_TYPE_I)))/(1024.0*1024.0));
-	// printf("size of total: %ld rows, %ld nonzeros, %.2lf MB\n", m, nnz, ((m+1)*sizeof(_TYPE_I) + nnz*(sizeof(_TYPE_V) + sizeof(_TYPE_I)))/(1024.0*1024.0));
+	for (int i = 0; i < (int)nnz_per_row_max+1; ++i)
+		printf("%d %d\n", i, row_size_hist[i]);
 	free(row_size_hist);
 	*/
+	
 	snprintf(buf, buf_n, "%s_row_size_distribution.png", title_base);
 	snprintf(buf_title, buf_n, "%s: row size distribution", title_base);
 	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, degrees_rows, NULL, m, 0),
@@ -2121,6 +2057,83 @@ csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__(
 
 	free(degrees_rows);
 }
+
+#undef  csr_cross_row_similarity_histogram_plot
+#define csr_cross_row_similarity_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity_histogram_plot)
+void
+csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size,
+		int enable_legend, long num_pixels_x, long num_pixels_y)
+{
+	_TYPE_I *crs_row;
+	long buf_n = strlen(title_base) + 1 + 1000;
+	char buf[buf_n], buf_title[buf_n];
+
+	// extract cross_row_similarity per row
+	crs_row = (typeof(crs_row)) malloc(m * sizeof(*crs_row));
+	csr_cross_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, crs_row);
+
+	// cross_row_similarity (per row) histogram. this can be commented out
+	double crs_row_min, crs_row_max;
+	array_min_max(crs_row, m, &crs_row_min, NULL, &crs_row_max, NULL);
+	// printf("crs_row_max = %lf\n", crs_row_max);
+	int *crs_row_hist = (int*) calloc((int)crs_row_max+1, sizeof(int));
+	for(int i=0;i<m;i++)
+		crs_row_hist[crs_row[i]]++;
+	// for (int i = 0; i < (int)crs_row_max+1; ++i)
+	// 	printf("%d: %d (%.3f%)\n", i, crs_row_hist[i], crs_row_hist[i]*100.0/m);
+	free(crs_row_hist);
+
+	snprintf(buf, buf_n, "%s_crs_row_distribution.png", title_base);
+	snprintf(buf_title, buf_n, "%s: crs_row distribution", title_base);
+	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, crs_row, NULL, m, 0),
+		if (enable_legend)
+			figure_enable_legend(_fig);
+		figure_set_title(_fig, buf_title);
+		figure_series_type_histogram(_s, 0, NULL, 1);
+		figure_series_type_barplot(_s);
+	);
+
+	free(crs_row);
+}
+
+
+#undef  csr_num_neigh_histogram_plot
+#define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
+void
+csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size,
+		int enable_legend, long num_pixels_x, long num_pixels_y)
+{
+	_TYPE_I *num_neigh;
+	long buf_n = strlen(title_base) + 1 + 1000;
+	char buf[buf_n], buf_title[buf_n];
+
+	// extract num_neigh per row
+	csr_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &num_neigh);
+
+	// num_neigh (per row) histogram. this can be commented out
+	double num_neigh_min, num_neigh_max;
+	array_min_max(num_neigh, m, &num_neigh_min, NULL, &num_neigh_max, NULL);
+	// printf("num_neigh_max = %lf\n", num_neigh_max);
+	int *num_neigh_hist = (int*) calloc((int)num_neigh_max+1, sizeof(int));
+	for(int i=0;i<m;i++)
+		num_neigh_hist[num_neigh[i]]++;
+	// for (int i = 0; i < (int)num_neigh_max+1; ++i)
+	// 	printf("%d: %d (%.3f%)\n", i, num_neigh_hist[i], num_neigh_hist[i]*100.0/m);
+	free(num_neigh_hist);
+
+	snprintf(buf, buf_n, "%s_num_neigh_distribution.png", title_base);
+	snprintf(buf_title, buf_n, "%s: num_neigh distribution", title_base);
+	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, num_neigh, NULL, m, 0),
+		if (enable_legend)
+			figure_enable_legend(_fig);
+		figure_set_title(_fig, buf_title);
+		figure_series_type_histogram(_s, 0, NULL, 1);
+		figure_series_type_barplot(_s);
+	);
+
+	free(num_neigh);
+}
+
 
 #undef  csr_bandwidth_histogram_plot
 #define csr_bandwidth_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_histogram_plot)
@@ -2176,6 +2189,7 @@ csr_bandwidth_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col
 
 	free(bandwidth_rows);
 }
+
 
 #undef  csr_bandwidth_batch_nnz_bar_plot
 #define csr_bandwidth_batch_nnz_bar_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_batch_nnz_bar_plot)
@@ -2334,119 +2348,91 @@ csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYP
 }
 
 
-#undef  csr_num_neigh_histogram_plot
-#define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
+
+
+//==========================================================================================================================================
+//= Quantize
+//==========================================================================================================================================
+
+
+/* We expect sorted columns in each row.
+ */
+#undef  csr_quantize_columns
+#define csr_quantize_columns  CSR_UTIL_GEN_EXPAND(csr_quantize_columns)
 void
-csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size,
-		int enable_legend, long num_pixels_x, long num_pixels_y)
+csr_quantize_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, [[gnu::unused]] long n, long nnz, long window_len,
+		_TYPE_I ** q_row_ptr_out, _TYPE_I ** q_col_idx_out, int ** q_frequencies_out, int * q_nnz_out)
 {
-	_TYPE_I *num_neigh;
-	long buf_n = strlen(title_base) + 1 + 1000;
-	char buf[buf_n], buf_title[buf_n];
+	int num_threads = omp_get_max_threads();
+	long q_nnz;
 
-	// extract num_neigh per row
-	csr_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &num_neigh);
+	int * q_row_ptr = (typeof(q_row_ptr)) malloc((m+1) * sizeof(*q_row_ptr));
 
-	// num_neigh (per row) histogram. this can be commented out
-	double num_neigh_min, num_neigh_max;
-	array_min_max(num_neigh, nnz, &num_neigh_min, NULL, &num_neigh_max, NULL);
-	/*
-	int *num_neigh_hist = (int*) calloc((int)num_neigh_max+1, sizeof(int));
-	for(int i=0;i<nnz;i++)
-		num_neigh_hist[num_neigh[i]]++;
-	for (int i = 0; i < (int)num_neigh_max+1; ++i)
-		printf("%d: %d (%.4f%%)\n", i, num_neigh_hist[i], num_neigh_hist[i]*100.0/nnz);
-	free(num_neigh_hist);
-	*/
-	snprintf(buf, buf_n, "%s_num_neigh_distribution.png", title_base);
-	snprintf(buf_title, buf_n, "%s: num_neigh distribution", title_base);
-	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, num_neigh, NULL, nnz, 0),
-		if (enable_legend)
-			figure_enable_legend(_fig);
-		figure_set_title(_fig, buf_title);
-		figure_series_type_histogram(_s, 0, NULL, 1);
-		figure_series_type_barplot(_s);
-	);
-
-	free(num_neigh);
-}
-
-#undef  csr_cross_row_similarity_histogram_plot
-#define csr_cross_row_similarity_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity_histogram_plot)
-void
-csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size,
-		int enable_legend, long num_pixels_x, long num_pixels_y)
-{
-	_TYPE_I *crs_neigh;
-	long buf_n = strlen(title_base) + 1 + 1000;
-	char buf[buf_n], buf_title[buf_n];
-
-	// extract cross_row_similarity per nnz
-	csr_cross_row_neighbours(row_ptr, col_idx, m, n, nnz, window_size, &crs_neigh);
-
-	// cross_row_similarity (per nnz) histogram. this can be commented out
-	double crs_neigh_min, crs_neigh_max;
-	array_min_max(crs_neigh, nnz, &crs_neigh_min, NULL, &crs_neigh_max, NULL);
-	
-	int *crs_neigh_hist = (int*) calloc((int)crs_neigh_max+1, sizeof(int));
-	for(int i=0;i<nnz;i++)
-		crs_neigh_hist[crs_neigh[i]]++;
-	for (int i = 0; i < (int)crs_neigh_max+1; ++i)
-		printf("%d: %d (%.4f%%)\n", i, crs_neigh_hist[i], crs_neigh_hist[i]*100.0/nnz);
-	free(crs_neigh_hist);
-	
-	snprintf(buf, buf_n, "%s_crs_neigh_distribution.png", title_base);
-	snprintf(buf_title, buf_n, "%s: crs_neigh distribution", title_base);
-	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, crs_neigh, NULL, nnz, 0),
-		if (enable_legend)
-			figure_enable_legend(_fig);
-		figure_set_title(_fig, buf_title);
-		figure_series_type_histogram(_s, 0, NULL, 1);
-		figure_series_type_barplot(_s);
-	);
-
-	free(crs_neigh);
-}
-
-#undef  csr_pop_zone_score_histogram_plot
-#define csr_pop_zone_score_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_pop_zone_score_histogram_plot)
-void
-csr_pop_zone_score_histogram_plot(char * title_base, int * pop_zone_score, long m_batch, long col_select_window, int enable_legend, long num_pixels_x, long num_pixels_y)
-{
-	long buf_n = strlen(title_base) + 1 + 1000;
-	char buf[buf_n], buf_title[buf_n];
-
-	// Degree histogram. this can be commented out
-	double pop_zone_score_min, pop_zone_score_max, pop_zone_score_avg, pop_zone_score_std;
-	array_min_max(pop_zone_score, m_batch, &pop_zone_score_min, NULL, &pop_zone_score_max, NULL);
-	array_mean(pop_zone_score, m_batch, &pop_zone_score_avg);
-	array_std(pop_zone_score, m_batch, &pop_zone_score_std);
-	printf("pop_zone_score_max = %.4lf\n", pop_zone_score_max);
-	printf("pop_zone_score_min = %.4lf\n", pop_zone_score_min);
-	printf("pop_zone_score_avg = %.4lf\n", pop_zone_score_avg);
-	printf("pop_zone_score_std = %.4lf\n", pop_zone_score_std);
-	
-	int *pop_zone_score_hist = (int*) calloc((int)pop_zone_score_max+1, sizeof(int));
-	for(int i=0;i<m_batch;i++)
-		pop_zone_score_hist[pop_zone_score[i]]++;
-	for (int i = 0; i < (int)pop_zone_score_max+1; ++i){
-		printf("%d: ",i);
-		if(pop_zone_score_hist[i]>0)
-			printf("%d (%.4f%%)", pop_zone_score_hist[i], pop_zone_score_hist[i]*100.0/m_batch);
-		printf("\n");
+	printf("1\n");
+	_Pragma("omp parallel")
+	{
+		int tnum = omp_get_thread_num();
+		long win, win_prev;
+		long i, i_s, i_e, j;
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &i_s, &i_e);
+		for (i=i_s;i<i_e;i++)
+		{
+			win_prev = -1;
+			q_row_ptr[i] = 0;
+			for (j=row_ptr[i];j<row_ptr[i+1];j++)
+			{
+				win = col_idx[j] / window_len;
+				if (win != win_prev)
+				{
+					q_row_ptr[i]++;
+					win_prev = win;
+				}
+			}
+		}
 	}
-	free(pop_zone_score_hist);
-	
-	snprintf(buf, buf_n, "%s_pop_zone_score_distribution_%ld.png", title_base, col_select_window);
-	snprintf(buf_title, buf_n, "%s: pop score distribution", title_base);
-	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, pop_zone_score, NULL, m_batch, 0),
-		if (enable_legend)
-			figure_enable_legend(_fig);
-		figure_set_title(_fig, buf_title);
-		figure_series_type_histogram(_s, 0, NULL, 1);
-		figure_series_type_barplot(_s);
-	);
+	q_row_ptr[m] = 0;
+
+	printf("2\n");
+	q_nnz = scan_reduce(q_row_ptr, q_row_ptr, m+1, 0, 1, 0);
+
+	int * q_col_idx = (typeof(q_col_idx)) malloc(q_nnz * sizeof(*q_col_idx));
+	int * q_frequencies = (typeof(q_frequencies)) malloc(q_nnz * sizeof(*q_frequencies));
+
+	printf("3\n");
+	_Pragma("omp parallel")
+	{
+		int tnum = omp_get_thread_num();
+		long win, win_prev;
+		long i, i_s, i_e, j, w_j;
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &i_s, &i_e);
+		printf("3a\n");
+		for (i=i_s;i<i_e;i++)
+		{
+			win_prev = -1;
+			w_j = q_row_ptr[i] - 1;
+			for (j=row_ptr[i];j<row_ptr[i+1];j++)
+			{
+				win = col_idx[j] / window_len;
+				if (win != win_prev)
+				{
+					w_j++;
+					q_col_idx[w_j] = win;
+					q_frequencies[w_j] = 0;
+					win_prev = win;
+				}
+				q_frequencies[w_j]++;
+			}
+		}
+	}
+	printf("4\n");
+
+	*q_row_ptr_out = q_row_ptr;
+	*q_col_idx_out = q_col_idx;
+	*q_frequencies_out = q_frequencies;
+
+	*q_nnz_out = q_nnz;
 }
+
 
 //==========================================================================================================================================
 //= Includes Undefs

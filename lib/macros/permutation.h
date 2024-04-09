@@ -7,8 +7,10 @@
 /* Only one unit can be incomplete.
  * The units are differentiated between the max multiple of number of units that are fully populated (main body),
  * and the remaining ones along with the potentially incomplete one.
+ *
  * If 'solid_units_main' is true, then interleaving for the main body of the elements is done unit-wise, else it is done element-wise.
  * Same for 'solid_units_rem', but specifically for the remaining units.
+ * If unit_size == 1 then it doesn't matter.
  *
  * Example:
  *     N = 21

@@ -70,19 +70,19 @@ quicksort_cmp(SAMPLESORT_GEN_TYPE_1 a, SAMPLESORT_GEN_TYPE_1 b, SAMPLESORT_GEN_T
 
 
 #undef  _TYPE_V
-#define _TYPE_V  SAMPLESORT_GEN_EXPAND(_TYPE_V)
+#define _TYPE_V  SAMPLESORT_GEN_EXPAND_TYPE(_TYPE_V)
 typedef SAMPLESORT_GEN_TYPE_1  _TYPE_V;
 
 #undef  _TYPE_I
-#define _TYPE_I  SAMPLESORT_GEN_EXPAND(_TYPE_I)
+#define _TYPE_I  SAMPLESORT_GEN_EXPAND_TYPE(_TYPE_I)
 typedef SAMPLESORT_GEN_TYPE_2  _TYPE_I;
 
 #undef  _TYPE_BUCKET_I
-#define _TYPE_BUCKET_I  SAMPLESORT_GEN_EXPAND(_TYPE_BUCKET_I)
+#define _TYPE_BUCKET_I  SAMPLESORT_GEN_EXPAND_TYPE(_TYPE_BUCKET_I)
 typedef SAMPLESORT_GEN_TYPE_3  _TYPE_BUCKET_I;
 
 #undef  _TYPE_AD
-#define _TYPE_AD  SAMPLESORT_GEN_EXPAND(_TYPE_AD)
+#define _TYPE_AD  SAMPLESORT_GEN_EXPAND_TYPE(_TYPE_AD)
 typedef SAMPLESORT_GEN_TYPE_4  _TYPE_AD;
 
 
@@ -254,7 +254,7 @@ samplesort_concurrent(_TYPE_V * A, long N, _TYPE_AD * aux_data)
 	{
 		#undef  binary_search_cmp
 		#define binary_search_cmp(_target, _A, _i) ({ samplesort_cmp(_target, _A[_i], aux_data) > 0 ? 1 : 0; })
-		b = binary_search_simple(splitters, 0, num_splitters-1, A[i], binary_search_cmp);
+		b = macros_binary_search_simple(splitters, 0, num_splitters-1, A[i], binary_search_cmp);
 		#undef  binary_search_cmp
 
 		A_bucket_id[i] = b;

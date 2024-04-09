@@ -45,19 +45,19 @@ functools_reduce_fun(BUCKETSORT_GEN_TYPE_2 a, BUCKETSORT_GEN_TYPE_2 b)
 
 
 #undef  _TYPE_V
-#define _TYPE_V  BUCKETSORT_GEN_EXPAND(_TYPE_V)
+#define _TYPE_V  BUCKETSORT_GEN_EXPAND_TYPE(_TYPE_V)
 typedef BUCKETSORT_GEN_TYPE_1  _TYPE_V;
 
 #undef  _TYPE_I
-#define _TYPE_I  BUCKETSORT_GEN_EXPAND(_TYPE_I)
+#define _TYPE_I  BUCKETSORT_GEN_EXPAND_TYPE(_TYPE_I)
 typedef BUCKETSORT_GEN_TYPE_2  _TYPE_I;
 
 #undef  _TYPE_BUCKET_I
-#define _TYPE_BUCKET_I  BUCKETSORT_GEN_EXPAND(_TYPE_BUCKET_I)
+#define _TYPE_BUCKET_I  BUCKETSORT_GEN_EXPAND_TYPE(_TYPE_BUCKET_I)
 typedef BUCKETSORT_GEN_TYPE_3  _TYPE_BUCKET_I;
 
 #undef  _TYPE_AD
-#define _TYPE_AD  BUCKETSORT_GEN_EXPAND(_TYPE_AD)
+#define _TYPE_AD  BUCKETSORT_GEN_EXPAND_TYPE(_TYPE_AD)
 typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
 
 
@@ -71,8 +71,8 @@ typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
 /*
  * Array 'A' is not altered.
  * The permutation is returned:
- *     A[i] -> A[permutation[i]]
- *     i.e. to sort the array: A[permutation[i]] = A[i];
+ *     A[i] -> A_sorted[permutation[i]]
+ *     i.e. to sort the array: A_sorted[permutation[i]] = A[i];
  *
  * A serial bucketsort is sometimes faster than the parallel version on a consumer system (Ryzen 3700X)
  * for simple access patterns (e.g. direct access to the array and not through indirection from an array of indexes),
@@ -168,6 +168,8 @@ bucketsort(_TYPE_V * restrict A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * 
 {
 	_TYPE_I * offsets;
 	_TYPE_BUCKET_I * A_bucket_id;
+	if (permutation_out == NULL)
+		error("'permutation_out' can't be NULL");
 	offsets = (offsets_out != NULL) ? offsets_out : (typeof(offsets)) malloc((num_buckets+1) * sizeof(*offsets));
 	A_bucket_id = (A_bucket_id_out != NULL) ? A_bucket_id_out : (typeof(A_bucket_id)) malloc(N * sizeof(*A_bucket_id));
 	#pragma omp parallel

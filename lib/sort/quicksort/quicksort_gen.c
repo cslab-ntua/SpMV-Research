@@ -16,6 +16,16 @@
 // static long exit_after_one = 1;
 
 
+/* Quicksort sorts inplace.
+ *
+ * If we sort the indices of an array A (0, ..., len(A)-1) then the result
+ * will be the REVERSE permutation:
+ *     A[reverse_permutation[i]] -> A_sorted[i]
+ *     i.e. to sort the array: A_sorted[i] = A[reverse_permutation[i]];
+ *
+ */
+
+
 //==========================================================================================================================================
 //= User Functions Declarations
 //==========================================================================================================================================
@@ -62,15 +72,15 @@ partition_cmp(_TYPE_V a, _TYPE_V b, _TYPE_AD * aux_data)
 
 
 #undef  _TYPE_V
-#define _TYPE_V  QUICKSORT_GEN_EXPAND(_TYPE_V)
+#define _TYPE_V  QUICKSORT_GEN_EXPAND_TYPE(_TYPE_V)
 typedef QUICKSORT_GEN_TYPE_1  _TYPE_V;
 
 #undef  _TYPE_I
-#define _TYPE_I  QUICKSORT_GEN_EXPAND(_TYPE_I)
+#define _TYPE_I  QUICKSORT_GEN_EXPAND_TYPE(_TYPE_I)
 typedef QUICKSORT_GEN_TYPE_2  _TYPE_I;
 
 #undef  _TYPE_AD
-#define _TYPE_AD  QUICKSORT_GEN_EXPAND(_TYPE_AD)
+#define _TYPE_AD  QUICKSORT_GEN_EXPAND_TYPE(_TYPE_AD)
 typedef QUICKSORT_GEN_TYPE_3  _TYPE_AD;
 
 
@@ -314,7 +324,7 @@ insertionsort(_TYPE_V * A, long N, _TYPE_AD * aux_data)
 		for (i=0;i<i_e;i++)
 		{
 			if (quicksort_cmp(A[i], A[i+1], aux_data) > 0)
-				SWAP(&A[i], &A[i+1]);
+				macros_swap(&A[i], &A[i+1]);
 		}
 	}
 }

@@ -18,37 +18,43 @@ extern "C"{
 	#include "array_metrics.h"
 	#include "x86_util.h"
 
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_predict.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_predict_0_base_naive_prev_value.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_predict_1_ratio.h"
-
-	#include "spmv_kernel_csr_cv_stream_compression_kernels.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_24_rf.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_23_int_sort_abs_nzp_r0_select_dense_select.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_17_int_sort_abs_nzp_r0_select_dense_select.h"
-
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_0.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_0_size_of_fraction.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_1_total_entry_size.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_2_y_buf.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_3_coord_bytes.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_4_abs.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_5_all_bytes.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_6_vector.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_7_vector_lanes.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_8_vector_lanes_y_buf.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_9_vps.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_10_select.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_11_int_sort_abs.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_12_int_sort_abs_sgn.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_13_int_sort_abs_znp.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_14_int_sort_abs_znp_avx_coords.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_15_int_sort_abs_znp_avx_coords_multadd_select.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_16_int_sort_abs_znp_multadd_select.h"
-	// #include "spmv_kernel_csr_cv_stream_compression_kernels_18_int_sort_abs_nzp_r0_select_dense_select_2_shifts.h"
-
 #ifdef __cplusplus
 }
+#endif
+
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_predict.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_predict_0_base_naive_prev_value.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_predict_1_ratio.h"
+
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_0.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_0_size_of_fraction.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_1_total_entry_size.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_2_y_buf.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_3_coord_bytes.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_4_abs.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_5_all_bytes.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_6_vector.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_7_vector_lanes.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_8_vector_lanes_y_buf.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_9_vps.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_10_select.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_11_int_sort_abs.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_12_int_sort_abs_sgn.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_13_int_sort_abs_znp.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_14_int_sort_abs_znp_avx_coords.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_15_int_sort_abs_znp_avx_coords_multadd_select.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_16_int_sort_abs_znp_multadd_select.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_18_int_sort_abs_nzp_r0_select_dense_select_2_shifts.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_23_int_sort_abs_nzp_r0_select_dense_select.h"
+
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_24_no_initial_values.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_25_rf.h"
+// #include "spmv_kernel_csr_cv_stream_compression_kernels_26_rf_vector.h"
+
+#ifdef REPLICATION_FACTORS
+	#include "spmv_kernel_csr_cv_stream_compression_kernels_rf.h"
+#else
+	#include "spmv_kernel_csr_cv_stream_compression_kernels.h"
 #endif
 
 
@@ -90,38 +96,6 @@ extern long num_loops_out;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-static inline
-void
-compress_init(ValueType * vals, const long num_vals, const long packet_size)
-{
-	compress_init_sort_diff(vals, num_vals, packet_size);
-}
-
-
-static inline
-long
-compress(INT_T * ia, INT_T * ja, ValueType * vals, long i_s, long j_s, unsigned char * buf, const long num_vals, long * num_vals_out)
-{
-	return compress_kernel_sort_diff(ia, ja, vals, i_s, j_s, buf, num_vals, num_vals_out);
-}
-
-
-static inline
-long
-decompress_and_compute(unsigned char * restrict buf, ValueType * restrict x, ValueType * restrict y)
-{
-	return decompress_and_compute_kernel_sort_diff(buf, x, y);
-}
-
-
-static inline
-long
-decompress(ValueType * vals, unsigned char * restrict buf)
-{
-	return decompress_kernel_sort_diff(vals, buf);
-}
-
-
 struct CSRCVSArrays : Matrix_Format
 {
 	INT_T * ia;                                  // the usual rowptr (of size m+1)
@@ -132,6 +106,9 @@ struct CSRCVSArrays : Matrix_Format
 	double * a;
 
 	double error_matrix;
+
+	double matrix_mae, matrix_max_ae, matrix_mse, matrix_mape, matrix_smape;
+	double matrix_lnQ_error, matrix_mlare, matrix_gmare;
 
 	void calculate_matrix_compression_error(ValueType * a_new);
 
@@ -164,7 +141,7 @@ struct CSRCVSArrays : Matrix_Format
 			long num_packet_vals;
 
 			num_packet_vals = get_num_uncompressed_packet_vals();
-			compress_init(a, nnz, num_packet_vals);
+			compress_init_sort_diff(a, nnz, num_packet_vals);
 
 			_Pragma("omp parallel")
 			{
@@ -203,7 +180,7 @@ struct CSRCVSArrays : Matrix_Format
 					if (j >= j_e)
 						break;
 
-					// Correctness testing for binary_search().
+					// Correctness testing for macros_binary_search().
 					long tmp = i;
 					while (ia[tmp] < j)
 						tmp++;
@@ -214,7 +191,7 @@ struct CSRCVSArrays : Matrix_Format
 					 *
 					 * This removes leading empty rows.
 					 */
-					binary_search(ia, i_s, i_e, j, NULL, &upper_boundary);
+					macros_binary_search(ia, i_s, i_e, j, NULL, &upper_boundary);
 					i = upper_boundary;
 					if (j != ia[i])
 						i--;
@@ -223,7 +200,7 @@ struct CSRCVSArrays : Matrix_Format
 						error("wrong i = %ld, correct i = %ld", i, tmp);
 
 					num_vals = (j + num_packet_vals <= j_e) ? num_packet_vals : j_e - j;
-					size = compress(ia, ja, &a[j], i, j, &data[pos], num_vals, &num_vals);
+					size = compress_kernel_sort_diff(ia, ja, &a[j], i, j, &data[pos], num_vals, &num_vals);
 
 					// for (;i<i_e;i++)
 					// {
@@ -234,7 +211,7 @@ struct CSRCVSArrays : Matrix_Format
 						// printf("%d: i=[%ld,%ld] , j=%ld[%ld,%ld] , p=%ld , num_vals=%ld , packet_i=[%d, %d] (%d) , t_nnz=%ld\n",
 								// tnum, i_s, i_e, j, j_s, j_e, p, num_vals, packet_i_s[p], packet_i_e[p], packet_i_e[p] - packet_i_s[p], t_nnz);
 
-					long s = decompress(&a_new[j], &data[pos]);
+					long s = decompress_kernel_sort_diff(&a_new[j], &data[pos]);
 					if (s != size)
 						error("size compress = %ld != size decompress = %ld", size, s);
 					pos += size;
@@ -302,7 +279,11 @@ struct Matrix_Format *
 csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
 {
 	struct CSRCVSArrays * csr = new CSRCVSArrays(row_ptr, col_ind, values, m, n, nnz);
-	csr->format_name = (char *) "CSR_CV_STREAM";
+	#ifdef REPLICATION_FACTORS
+		csr->format_name = (char *) "CSR_CV_STREAM_RF";
+	#else
+		csr->format_name = (char *) "CSR_CV_STREAM";
+	#endif
 	return csr;
 }
 
@@ -329,6 +310,14 @@ CSRCVSArrays::calculate_matrix_compression_error(double * a_new)
 		array_gmare_concurrent(a, a_new, nnz, &gmare, val_to_double);
 		#pragma omp single
 		{
+			matrix_mae = mae;
+			matrix_max_ae = max_ae;
+			matrix_mse = mse;
+			matrix_mape = mape;
+			matrix_smape = smape;
+			matrix_lnQ_error = lnQ_error;
+			matrix_mlare = mlare;
+			matrix_gmare = gmare;
 			printf("errors matrix: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g, lnQ_error=%g, mlare=%g, gmare=%g\n", mae, max_ae, mse, mape, smape, lnQ_error, mlare, gmare);
 		}
 	}
@@ -377,7 +366,7 @@ compute_csr_cv_stream(CSRCVSArrays * restrict csr, ValueType * restrict x, Value
 				y[i] = 0;
 			for (p=0;p<num_packets;p++)
 			{
-				pos += decompress_and_compute(&(data[pos]), x, y);
+				pos += decompress_and_compute_kernel_sort_diff(&(data[pos]), x, y);
 			}
 		);
 	}
@@ -405,11 +394,21 @@ int
 statistics_print_labels(char * buf, long buf_n)
 {
 	long len = 0;
+	len += snprintf(buf + len, buf_n - len, ",%s", "CSRCV_NUM_PACKET_VALS");
+	len += snprintf(buf + len, buf_n - len, ",%s", "matrix_mae");
+	len += snprintf(buf + len, buf_n - len, ",%s", "matrix_max_ae");
+	len += snprintf(buf + len, buf_n - len, ",%s", "matrix_mse");
+	len += snprintf(buf + len, buf_n - len, ",%s", "matrix_mape");
+	len += snprintf(buf + len, buf_n - len, ",%s", "matrix_smape");
+	len += snprintf(buf + len, buf_n - len, ",%s", "matrix_lnQ_error");
+	len += snprintf(buf + len, buf_n - len, ",%s", "matrix_mlare");
+	len += snprintf(buf + len, buf_n - len, ",%s", "matrix_gmare");
 	len += snprintf(buf + len, buf_n - len, ",%s", "unbalance_time");
 	len += snprintf(buf + len, buf_n - len, ",%s", "unbalance_size");
 	len += snprintf(buf + len, buf_n - len, ",%s", "row_bits_avg");
 	len += snprintf(buf + len, buf_n - len, ",%s", "col_bits_avg");
 	len += snprintf(buf + len, buf_n - len, ",%s", "row_col_bytes_avg");
+	len += snprintf(buf + len, buf_n - len, ",%s", "compression_time");
 	len += snprintf(buf + len, buf_n - len, ",%s", "compression_spmv_loops");
 	len += snprintf(buf + len, buf_n - len, ",%s", "tolerance");
 	return len;
@@ -460,11 +459,21 @@ CSRCVSArrays::statistics_print_data(char * buf, long buf_n)
 	double tolerance = atof(getenv("VC_TOLERANCE"));
 
 	len = 0;
+	len += snprintf(buf + len, buf_n - len, ",%ld", atol(getenv("CSRCV_NUM_PACKET_VALS")));
+	len += snprintf(buf + len, buf_n - len, ",%g", matrix_mae);
+	len += snprintf(buf + len, buf_n - len, ",%g", matrix_max_ae);
+	len += snprintf(buf + len, buf_n - len, ",%g", matrix_mse);
+	len += snprintf(buf + len, buf_n - len, ",%g", matrix_mape);
+	len += snprintf(buf + len, buf_n - len, ",%g", matrix_smape);
+	len += snprintf(buf + len, buf_n - len, ",%g", matrix_lnQ_error);
+	len += snprintf(buf + len, buf_n - len, ",%g", matrix_mlare);
+	len += snprintf(buf + len, buf_n - len, ",%g", matrix_gmare);
 	len += snprintf(buf + len, buf_n - len, ",%.2lf", (time_max - time_avg) / time_avg * 100); // unbalance time
 	len += snprintf(buf + len, buf_n - len, ",%.2lf",  (data_size_max - data_size_avg) / data_size_avg * 100); // unbalance size
 	len += snprintf(buf + len, buf_n - len, ",%.4lf",  row_bits_avg);
 	len += snprintf(buf + len, buf_n - len, ",%.4lf",  col_bits_avg);
 	len += snprintf(buf + len, buf_n - len, ",%.4lf",  row_col_bytes_avg);
+	len += snprintf(buf + len, buf_n - len, ",%.4lf",  time_compress);
 	len += snprintf(buf + len, buf_n - len, ",%.4lf",  compression_spmv_loops);
 	len += snprintf(buf + len, buf_n - len, ",%g",  tolerance);
 	return len;

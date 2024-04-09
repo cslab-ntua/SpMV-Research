@@ -1,0 +1,12 @@
+[submodule "lib/cxxopts"]
+	path = lib/cxxopts
+	url = https://github.com/jarro2783/cxxopts
+[submodule "lib/CSR5"]
+	path = lib/CSR5
+	url = https://github.com/weifengliu-ssslab/Benchmark_SpMV_using_CSR5
+[submodule "lib/CVR"]
+	path = lib/CVR
+	url = https://github.com/puckbee/CVR
+[submodule "lib/aggregation"]
+	path = lib/aggregation
+	url = https://github.com/sympiler/aggregation.git

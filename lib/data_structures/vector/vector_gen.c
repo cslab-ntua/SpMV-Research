@@ -27,7 +27,7 @@
 
 
 #undef  _TYPE
-#define _TYPE  VECTOR_GEN_EXPAND(_TYPE)
+#define _TYPE  VECTOR_GEN_EXPAND_TYPE(_TYPE)
 typedef VECTOR_GEN_TYPE_1  _TYPE;
 
 

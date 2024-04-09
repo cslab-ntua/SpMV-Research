@@ -13,10 +13,10 @@
 #include "functools_gen.h"
 
 
-/* Parallel reduction requires that the reduction operation be independent of the equivalent serial running partial result,
- * i.e. it requires Associativity: for all a, b, c in G: (a * b) * c = a * (b * c)
+/* Parallel reduction requires that the reduction operation is independent of the equivalent serial running partial result,
+ * i.e., it requires Associativity: for all a, b, c in G: (a * b) * c = a * (b * c)
  *
- * e.g. This is not an acceptable reduction function:
+ * e.g., This is not an acceptable reduction function:
  *     a*b = a^2 + b^2
  * because:
  *     (a*b)*c = (a^2+b^2)^2 + c^2
@@ -55,11 +55,11 @@ static _TYPE_OUT functools_reduce_fun(_TYPE_OUT a, _TYPE_OUT b);
 
 
 #undef  _TYPE_IN
-#define _TYPE_IN  FUNCTOOLS_GEN_EXPAND(_TYPE_IN)
+#define _TYPE_IN  FUNCTOOLS_GEN_EXPAND_TYPE(_TYPE_IN)
 typedef FUNCTOOLS_GEN_TYPE_1  _TYPE_IN;
 
 #undef  _TYPE_OUT
-#define _TYPE_OUT  FUNCTOOLS_GEN_EXPAND(_TYPE_OUT)
+#define _TYPE_OUT  FUNCTOOLS_GEN_EXPAND_TYPE(_TYPE_OUT)
 typedef FUNCTOOLS_GEN_TYPE_2  _TYPE_OUT;
 
 

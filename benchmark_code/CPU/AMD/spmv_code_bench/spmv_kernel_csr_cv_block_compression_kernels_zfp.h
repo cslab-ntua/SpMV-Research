@@ -132,7 +132,7 @@ compress_kernel(double * vals, unsigned char * buf, long num_vals)
 {
 	double tolerance;
 	tolerance = 0;
-	// tolerance = 1e-6;
+	// tolerance = 1e-3;
 	return compress_base(vals, buf, &num_vals, tolerance, 0);
 }
 
@@ -143,7 +143,7 @@ decompress_kernel(double * vals, unsigned char * buf, long * num_vals_out)
 {
 	double tolerance;
 	tolerance = 0;
-	// tolerance = 1e-6;
+	// tolerance = 1e-3;
 	return compress_base(vals, buf, num_vals_out, tolerance, 1);
 }
 

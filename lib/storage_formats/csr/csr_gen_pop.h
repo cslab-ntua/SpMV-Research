@@ -8,3 +8,4 @@
 #pragma pop_macro("_TYPE_I")
 #pragma pop_macro("csr_sort_columns")
 #pragma pop_macro("coo_to_csr")
+#pragma pop_macro("csr_save_to_mtx")

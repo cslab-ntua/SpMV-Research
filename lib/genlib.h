@@ -36,15 +36,10 @@
 
 
 //==========================================================================================================================================
-//= Type Checks
-//==========================================================================================================================================
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                            Type Checking                                                               -
 //------------------------------------------------------------------------------------------------------------------------------------------
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 
 
 #define gen_type_equals(var, T)    \
@@ -217,11 +212,11 @@ do {                                                                            
 } while (0)
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                             Conversions                                                                -
 //------------------------------------------------------------------------------------------------------------------------------------------
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 
 
 //==========================================================================================================================================
@@ -245,11 +240,11 @@ do {                                                                            
 })
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                     String / Printing Utilities                                                        -
 //------------------------------------------------------------------------------------------------------------------------------------------
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 
 
 //==========================================================================================================================================
@@ -336,7 +331,7 @@ do {                                                                            
 //==========================================================================================================================================
 
 
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 int
 GENLIB_find_ws(char * str, int len)
@@ -351,7 +346,7 @@ GENLIB_find_ws(char * str, int len)
 }
 
 
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 int
 GENLIB_find_non_ws(char * str, int len)
@@ -366,7 +361,7 @@ GENLIB_find_non_ws(char * str, int len)
 }
 
 
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 int
 GENLIB_find_next_token(char * str, int len)
@@ -378,7 +373,7 @@ GENLIB_find_next_token(char * str, int len)
 }
 
 
-__attribute__((always_inline))
+[[gnu::always_inline]]
 static inline
 void
 GENLIB_cpy(char * restrict src, char * restrict dst, int N)
@@ -398,33 +393,33 @@ GENLIB_cpy(char * restrict src, char * restrict dst, int N)
  * This means we need to copy the string and put an extra NULL at the end for safety, because strtox functions expect it.
  */
 
-#define GENLIB_safe_strtox(strtox, _str, _N, _len_ptr, _base...)                                                                         \
-({                                                                                                                                       \
-	RENAME((_str, str, char *), (_N, N, long), (_len_ptr, len_ptr), (DEFAULT_ARG_1(10, _base), base, , __attribute__((unused))));    \
-	char * endptr;                                                                                                                   \
-	int len;                                                                                                                         \
-	long i = 0;                                                                                                                      \
-	len = N;                                                                                                                         \
-	if (N > 100) /* It is faster to copy the whole string than search for whitespace. */                                             \
-	{                                                                                                                                \
-		i += GENLIB_find_non_ws(str + i, N - i);                                                                                 \
-		len = GENLIB_find_ws(str + i, N - i);                                                                                    \
-	}                                                                                                                                \
-	char buf[len + 1];                                                                                                               \
-	memcpy(buf, str + i, len);                                                                                                       \
-	buf[len] = '\0';                                                                                                                 \
-	errno = 0;                                                                                                                       \
-	__auto_type ret = OPT_TERNARY((_base),                                                                                           \
-			strtox(buf, &endptr, base),                                                                                      \
-			strtox(buf, &endptr));                                                                                           \
-	if (errno != 0)                                                                                                                  \
-		error(STRING(strtox));                                                                                                   \
-	len = endptr - buf;                                                                                                              \
-	if (len == 0)                                                                                                                    \
-		*len_ptr = 0;                                                                                                            \
-	else                                                                                                                             \
-		*len_ptr = i + len;                                                                                                      \
-	ret;                                                                                                                             \
+#define GENLIB_safe_strtox(strtox, _str, _N, _len_ptr, _base...)                                                                 \
+({                                                                                                                               \
+	RENAME((_str, str, char *), (_N, N, long), (_len_ptr, len_ptr), (DEFAULT_ARG_1(10, _base), base, , [[gnu::unused]]));    \
+	char * endptr;                                                                                                           \
+	int len;                                                                                                                 \
+	long i = 0;                                                                                                              \
+	len = N;                                                                                                                 \
+	if (N > 100) /* It is faster to copy the whole string than search for whitespace. */                                     \
+	{                                                                                                                        \
+		i += GENLIB_find_non_ws(str + i, N - i);                                                                         \
+		len = GENLIB_find_ws(str + i, N - i);                                                                            \
+	}                                                                                                                        \
+	char buf[len + 1];                                                                                                       \
+	memcpy(buf, str + i, len);                                                                                               \
+	buf[len] = '\0';                                                                                                         \
+	errno = 0;                                                                                                               \
+	__auto_type ret = OPT_TERNARY((_base),                                                                                   \
+			strtox(buf, &endptr, base),                                                                              \
+			strtox(buf, &endptr));                                                                                   \
+	if (errno != 0)                                                                                                          \
+		error(STRING(strtox));                                                                                           \
+	len = endptr - buf;                                                                                                      \
+	if (len == 0)                                                                                                            \
+		*len_ptr = 0;                                                                                                    \
+	else                                                                                                                     \
+		*len_ptr = i + len;                                                                                              \
+	ret;                                                                                                                     \
 })
 
 static inline
@@ -562,11 +557,11 @@ do {                                                                            
 } while (0)
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                   Type Conversion / Type Casting                                                       -
 //------------------------------------------------------------------------------------------------------------------------------------------
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 
 
 //==========================================================================================================================================
@@ -574,23 +569,23 @@ do {                                                                            
 //==========================================================================================================================================
 
 
-__attribute__((hot)) static inline double gen_c2d  (void * A, long i) { return (double)      (((char *)                A)[i]); }
-__attribute__((hot)) static inline double gen_sc2d (void * A, long i) { return (double)      (((signed char *)         A)[i]); }
-__attribute__((hot)) static inline double gen_uc2d (void * A, long i) { return (double)      (((unsigned char *)       A)[i]); }
-__attribute__((hot)) static inline double gen_s2d  (void * A, long i) { return (double)      (((short *)               A)[i]); }
-__attribute__((hot)) static inline double gen_us2d (void * A, long i) { return (double)      (((unsigned short *)      A)[i]); }
-__attribute__((hot)) static inline double gen_i2d  (void * A, long i) { return (double)      (((int *)                 A)[i]); }
-__attribute__((hot)) static inline double gen_ui2d (void * A, long i) { return (double)      (((unsigned int *)        A)[i]); }
-__attribute__((hot)) static inline double gen_l2d  (void * A, long i) { return (double)      (((long *)                A)[i]); }
-__attribute__((hot)) static inline double gen_ul2d (void * A, long i) { return (double)      (((unsigned long *)       A)[i]); }
-__attribute__((hot)) static inline double gen_ll2d (void * A, long i) { return (double)      (((long long *)           A)[i]); }
-__attribute__((hot)) static inline double gen_ull2d(void * A, long i) { return (double)      (((unsigned long long *)  A)[i]); }
-__attribute__((hot)) static inline double gen_f2d  (void * A, long i) { return (double)      (((float *)               A)[i]); }
-__attribute__((hot)) static inline double gen_d2d  (void * A, long i) { return (double)      (((double *)              A)[i]); }
-__attribute__((hot)) static inline double gen_ld2d (void * A, long i) { return (double)      (((long double *)         A)[i]); }
-__attribute__((hot)) static inline double gen_cf2d (void * A, long i) { return (double) cabsf(((complex float *)       A)[i]); }
-__attribute__((hot)) static inline double gen_cd2d (void * A, long i) { return (double) cabs (((complex double *)      A)[i]); }
-__attribute__((hot)) static inline double gen_cld2d(void * A, long i) { return (double) cabsl(((complex long double *) A)[i]); }
+[[gnu::hot]] static inline double gen_c2d  (void * A, long i) { return (double)      (((char *)                A)[i]); }
+[[gnu::hot]] static inline double gen_sc2d (void * A, long i) { return (double)      (((signed char *)         A)[i]); }
+[[gnu::hot]] static inline double gen_uc2d (void * A, long i) { return (double)      (((unsigned char *)       A)[i]); }
+[[gnu::hot]] static inline double gen_s2d  (void * A, long i) { return (double)      (((short *)               A)[i]); }
+[[gnu::hot]] static inline double gen_us2d (void * A, long i) { return (double)      (((unsigned short *)      A)[i]); }
+[[gnu::hot]] static inline double gen_i2d  (void * A, long i) { return (double)      (((int *)                 A)[i]); }
+[[gnu::hot]] static inline double gen_ui2d (void * A, long i) { return (double)      (((unsigned int *)        A)[i]); }
+[[gnu::hot]] static inline double gen_l2d  (void * A, long i) { return (double)      (((long *)                A)[i]); }
+[[gnu::hot]] static inline double gen_ul2d (void * A, long i) { return (double)      (((unsigned long *)       A)[i]); }
+[[gnu::hot]] static inline double gen_ll2d (void * A, long i) { return (double)      (((long long *)           A)[i]); }
+[[gnu::hot]] static inline double gen_ull2d(void * A, long i) { return (double)      (((unsigned long long *)  A)[i]); }
+[[gnu::hot]] static inline double gen_f2d  (void * A, long i) { return (double)      (((float *)               A)[i]); }
+[[gnu::hot]] static inline double gen_d2d  (void * A, long i) { return (double)      (((double *)              A)[i]); }
+[[gnu::hot]] static inline double gen_ld2d (void * A, long i) { return (double)      (((long double *)         A)[i]); }
+[[gnu::hot]] static inline double gen_cf2d (void * A, long i) { return (double) cabsf(((complex float *)       A)[i]); }
+[[gnu::hot]] static inline double gen_cd2d (void * A, long i) { return (double) cabs (((complex double *)      A)[i]); }
+[[gnu::hot]] static inline double gen_cld2d(void * A, long i) { return (double) cabsl(((complex long double *) A)[i]); }
 
 #define gen_functor_convert_basic_type_to_double(var_ptr)                                \
 ({                                                                                       \
@@ -622,11 +617,11 @@ __attribute__((hot)) static inline double gen_cld2d(void * A, long i) { return (
 })
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                          Generic Functions                                                             -
 //------------------------------------------------------------------------------------------------------------------------------------------
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//==========================================================================================================================================
 
 
 //==========================================================================================================================================

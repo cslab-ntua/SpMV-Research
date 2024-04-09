@@ -243,7 +243,8 @@ do {                                                         \
  * Loads an image in regular ppm format as a pixel array,
  * with each pixel represented as 3 2-byte integers (rgb), MSB first.
  */
-static __attribute__((unused))
+[[gnu::unused]]
+static
 struct Pixel_Array *
 load_ppm_image(char * filename)
 {
@@ -313,7 +314,8 @@ do {                                                          \
 /*
  * Saves the image in regular ppm format.
  */
-static __attribute__((unused))
+[[gnu::unused]]
+static
 void
 save_ppm_image(struct Pixel_Array * pa, int fd)
 {
@@ -343,7 +345,8 @@ save_ppm_image(struct Pixel_Array * pa, int fd)
 /*
  * Print the image in (r g b) values.
  */
-static __attribute__((unused))
+[[gnu::unused]]
+static
 void
 print_ppm_image(struct Pixel_Array * pa)
 {

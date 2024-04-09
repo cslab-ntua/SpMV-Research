@@ -16,16 +16,27 @@ source "$script_dir"/../config.sh
 export AMG_PATH=../../../../artificial-matrix-generator
 
 
-# CC=gcc
-CC=/home/jim/Documents/gcc_versions/gcc_12/bin/gcc
-# CC=/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/gcc
+if [[ -d "/home/jim/lib/gcc/gcc_12/bin" ]]; then
+    gcc_bin=/home/jim/lib/gcc/gcc_12/bin/gcc
+    gpp_bin=/home/jim/lib/gcc/gcc_12/bin/g++
+elif [[ -d "/home/jim/Documents/gcc_versions/gcc_12/bin" ]]; then
+    gcc_bin=/home/jim/Documents/gcc_versions/gcc_12/bin/gcc
+    gpp_bin=/home/jim/Documents/gcc_versions/gcc_12/bin/g++
+elif [[ -d "/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin" ]]; then
+    gcc_bin=/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/gcc
+    gpp_bin=/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/g++
+else
+    gcc_bin=gcc
+    gpp_bin=g++
+fi
+
+
+CC="$gcc_bin"
 # CC=clang
 # CC=xlc
 export CC
 
-# CPP=g++
-CPP=/home/jim/Documents/gcc_versions/gcc_12/bin/g++
-# CPP=/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/g++
+CPP="$gpp_bin"
 # CPP=clang++
 # CPP=xlc++
 export CPP
@@ -55,10 +66,15 @@ CFLAGS+=" -O3"
 # CFLAGS+=" -ffast-math"
 
 CFLAGS+=" -flto=auto"
+
 if [[ ${ARCH} == x86_64 ]]; then
     CFLAGS+=" -mbmi"
     CFLAGS+=" -mbmi2"
     CFLAGS+=" -march=native"
+    # CFLAGS+=" -mfma"
+    # CFLAGS+=" -mavx"
+    # CFLAGS+=" -mavx2"
+    # CFLAGS+=" -mavx512f"
 elif [[ ${ARCH} == ppc64le ]]; then
     CFLAGS+=" -mcpu=power9"
 else
@@ -79,7 +95,8 @@ CFLAGS+=" -D'LEVEL1_DCACHE_SIZE=$(getconf LEVEL1_DCACHE_SIZE)'"
 CFLAGS+=" -D'LEVEL2_CACHE_SIZE=$(getconf LEVEL2_CACHE_SIZE)'"
 CFLAGS+=" -D'LEVEL3_CACHE_SIZE=$(getconf LEVEL3_CACHE_SIZE)'"
 
-CFLAGS+=" -D'MATRIX_MARKET_FLOAT_T=ValueType'"
+# Always read matrix in double-precision for checking accuracy against doubles.
+CFLAGS+=" -D'MATRIX_MARKET_FLOAT_T=double'"
 
 
 CPPFLAGS=''

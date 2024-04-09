@@ -31,6 +31,34 @@ calc_cpu_pinning()
 }
 
 
+calc_numa_nodes()
+{
+    local cores="$1" max_cores="$2" affinity="$3"
+    local -A dict
+    local -a aff
+    local -A nodes
+    local -A nodes
+    local i j c
+    out="$(numactl -H)"
+    avail="$(printf "$out" | awk '/available/ {printf("%d", $2)}')"
+    dict=()
+    for ((i=0;i<avail;i++)); do
+        node_cores=( $(printf "$out" | awk '/node '"$i"' cpus:/ { for (i=4;i<=NF;i++) {printf "%s ", $i} }') )
+        for n in "${node_cores[@]}"; do
+            dict["$n"]="$i"
+        done
+    done
+    aff=(${affinity//,/' '})
+    nodes=()
+    for c in "${aff[@]}"; do
+        nodes["${dict["$c"]}"]=1
+    done
+    nodes="$(printf "%s\n" "${!nodes[@]}" | sort -n | tr '\n' ',')"
+    nodes="${nodes%,}"
+    printf "${nodes}"
+}
+
+
 export SPARSEX_ROOT_DIR="${HOME}/lib"
 # export SPARSEX_ROOT_DIR=/various/dgal/epyc1
 # export SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
@@ -84,10 +112,10 @@ conf_vars=(
     # ['cores']=48
     # ['cores']=32
     # ['cores']=24
-    ['cores']=16
+    # ['cores']=16
     # ['cores']=12
     # ['cores']=8
-    # ['cores']=6
+    ['cores']=6
     # ['cores']=4
     # ['cores']=2
     # ['cores']=1
@@ -107,6 +135,9 @@ conf_vars=(
 
     # Thread pinning policy (auto-generated from the above).
     ['cpu_affinity']=''
+
+    # Numa nodes of the selected cores.
+    ['numa_nodes']=''
 
     # Rapl registers.
     ['RAPL_REGISTERS']='0'         # 1 socket : Epyc1, Gold
@@ -207,6 +238,8 @@ conf_vars=(
 
 conf_vars['cpu_affinity']="$(calc_cpu_pinning "${conf_vars["cores"]}" "${conf_vars["max_cores"]}" "${conf_vars["cpu_pinning_step"]}" "${conf_vars["cpu_pinning_group_size"]}")"
 
+conf_vars['numa_nodes']="$(calc_numa_nodes "${conf_vars["cores"]}" "${conf_vars["max_cores"]}" "${conf_vars["cpu_affinity"]}")"
+
 
 path_artificial="${script_dir}/../../../matrix_generation_parameters"
 
@@ -302,6 +335,12 @@ declare -A progs
 
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
+    # CG
+    # ['cg_csr_d']="${script_dir}/spmv_code_bench/cg_csr_d.exe"
+    # ['cg_mkl_ie_d']="${script_dir}/spmv_code_bench/cg_mkl_ie_d.exe"
+    # ['cg_mkl_ie_f']="${script_dir}/spmv_code_bench/cg_mkl_ie_f.exe"
+    # ['cg_csr_cv_stream_d']="${script_dir}/spmv_code_bench/cg_csr_cv_stream_d.exe"
+
     # Custom csr
     # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive_d.exe"
     # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr_d.exe"
@@ -311,6 +350,7 @@ progs=(
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_d.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_balanced_distribute_early_d.exe"
     # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance_d.exe"
+    # ['csr_f']="${script_dir}/spmv_code_bench/spmv_csr_f.exe"
 
     # Custom csr x86
     # ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86_d.exe"
@@ -333,11 +373,12 @@ progs=(
     # ['csr_cv_block_id_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_id_d.exe"
     # ['csr_cv_block_d2f_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_d2f_d.exe"
     # ['csr_cv_block_fpc_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_fpc_d.exe"
-    ['csr_cv_block_zfp_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_zfp_d.exe"
+    # ['csr_cv_block_zfp_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_zfp_d.exe"
     # ['csr_cv_block_fpzip_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_fpzip_d.exe"
 
     # Custom compressed values stream
     # ['csr_cv_stream_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream_d.exe"
+    # ['csr_cv_stream_rf_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream_rf_d.exe"
     # ['csr_cv_stream_opt_compress_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream_opt_compress_d.exe"
 
     # MKL IE
@@ -367,6 +408,12 @@ progs=(
     # ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex_d.exe"
     # ['sparsex_d']="${script_dir}/spmv_code_sparsex/spmv_sparsex_d.exe"
     # ['sparsex_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sparsex/spmv_sparsex_d.exe"
+
+    # SpV8
+    # ['spv8_d']="${script_dir}/spmv_code_bench/spmv_spv8_d.exe"
+
+    # LCM - partially strided codelet
+    ['lcm_d']="${script_dir}/spmv_code_bench/LCM-partially-strided-codelet/spmv_lcm_d.exe"
 
     # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell_d.exe"
     # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu_d.exe"

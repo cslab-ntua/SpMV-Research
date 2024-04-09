@@ -219,7 +219,7 @@ struct CSRCVArrays : Matrix_Format
 					else
 					{
 						// Index boundaries are inclusive. 'upper_boundary' is certainly the first row after the rows belonging to the packet (last packet row can be partial).
-						binary_search(ia, i_s, i_e, j+num_vals, NULL, &upper_boundary);
+						macros_binary_search(ia, i_s, i_e, j+num_vals, NULL, &upper_boundary);
 						packet_info[p].i_e = upper_boundary;
 					}
 					// for (;i<i_e;i++)
@@ -634,6 +634,7 @@ statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unuse
 {
 	long len = 0;
 	// printf("STATISTICS: %lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n", tot_avg, tot_max, io_avg, io_max, decompress_avg, decompress_max, exec_avg, exec_max);
+	len += snprintf(buf + len, buf_n - len, ",%s", "CSRCV_NUM_PACKET_VALS");
 	len += snprintf(buf + len, buf_n - len, ",%s", "time_io_frac_avg");
 	len += snprintf(buf + len, buf_n - len, ",%s", "time_decompress_frac_avg");
 	len += snprintf(buf + len, buf_n - len, ",%s", "time_execute_frac_avg");
@@ -674,6 +675,7 @@ CSRCVArrays::statistics_print_data(char * buf, long buf_n)
 	// printf("STATISTICS: %lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n", tot_avg, tot_max, io_avg, io_max, decompress_avg, decompress_max, exec_avg, exec_max);
 
 	len = 0;
+	len += snprintf(buf + len, buf_n - len, ",%ld", atol(getenv("CSRCV_NUM_PACKET_VALS")));
 	len += snprintf(buf + len, buf_n - len, ",%.4lf", io_avg / tot_avg);
 	len += snprintf(buf + len, buf_n - len, ",%.4lf", decompress_avg / tot_avg);
 	len += snprintf(buf + len, buf_n - len, ",%.4lf", exec_avg / tot_avg);
