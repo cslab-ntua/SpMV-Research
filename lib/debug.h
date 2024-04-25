@@ -56,7 +56,7 @@
 	static __attribute__((cold)) __attribute__((unused))
 	int error_backtrace_print(char *buf, int size)
 	{
-		int bt_buf_size = 500;
+		int bt_buf_size = 1024;
 		void *bt_buf[bt_buf_size];
 		char **strings;
 		int i, ptr_num, n;
@@ -70,7 +70,7 @@
 		}
 		
 		n = snprintf(buf, size, "Backtrace:\n");
-		for (i=2;i<ptr_num;i++)     // We start from [2] to exclude error_backtrace_print() and display_error().
+		for (i=0;i<ptr_num;i++)
 			n += snprintf(buf + n, size - n, "%s\n", strings[i]);
 		n += snprintf(buf + n, size - n, "end\n");
 		

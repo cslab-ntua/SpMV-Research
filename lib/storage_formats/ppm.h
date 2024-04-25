@@ -56,6 +56,8 @@ static inline
 void
 pixel_array_clean(struct Pixel_Array * pa)
 {
+	if (pa == NULL)
+		return;
 	free(pa->pixels);
 	pa->pixels = NULL;
 	free(pa->locks);

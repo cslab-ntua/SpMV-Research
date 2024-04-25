@@ -75,6 +75,8 @@ samplesort_cmp(double a, double b, __attribute__((unused)) void * unused)
 	{                                                                                                                                  \
 		struct ARRAY_METRICS_ ## _name ## _s _s_global;                                                                            \
 		long _i;                                                                                                                   \
+		if (_i_start == _i_end)                                                                                                    \
+			error("empty array given");                                                                                        \
 		ARRAY_METRICS_ ## _name ## _init(0, &_s_global, UNPACK(_tupple_call_args));                                                \
 		for (_i=_i_start;_i<_i_end;_i++)                                                                                           \
 			ARRAY_METRICS_ ## _name ## _process(&_s_global, _i, _get_val_as_double);                                           \
@@ -93,6 +95,8 @@ samplesort_cmp(double a, double b, __attribute__((unused)) void * unused)
 		int _tnum = omp_get_thread_num();                                                                                          \
 		long _i, _i_s, _i_e;                                                                                                       \
 		assert_omp_nesting_level(1);                                                                                               \
+		if (_i_start == _i_end)                                                                                                    \
+			error("empty array given");                                                                                        \
 		loop_partitioner_balance_iterations(_num_threads, _tnum, _i_start, _i_end, &_i_s, &_i_e);                                  \
 		ARRAY_METRICS_ ## _name ## _init(1, _s_local_ptr, UNPACK(_tupple_call_args));                                              \
 		for (_i=_i_s;_i<_i_e;_i++)                                                                                                 \
@@ -947,7 +951,7 @@ static inline
 void
 ARRAY_METRICS_quantile_method(const char * method, long N, double q, long * idx_out, double * frac_out)
 {
-	double virt_idx, m, diff, zero_threshold;
+	double virt_idx, m=0, diff, zero_threshold;
 	long idx;
 	double frac;
 

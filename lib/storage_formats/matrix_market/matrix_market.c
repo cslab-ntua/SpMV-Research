@@ -379,13 +379,8 @@ mtx_plot_base(struct Matrix_Market * MTX, char * filename, int plot_density)
 	char * matrix_name;
 	long len;
 
-	// int num_pixels = 1024;
-	int num_pixels = 2000;
+	int num_pixels = 1024;
 	int num_pixels_x = num_pixels, num_pixels_y = num_pixels;
-	// if (MTX->m < MTX->n)
-		// num_pixels_x *= ((double) MTX->m) / ((double) MTX->n);
-	// else if (MTX->m > MTX->n)
-		// num_pixels_y *= ((double) MTX->n) / ((double) MTX->m);
 
 	fig = malloc(sizeof(*fig));
 
@@ -411,7 +406,8 @@ mtx_plot_base(struct Matrix_Market * MTX, char * filename, int plot_density)
 	if (plot_density)
 		figure_series_type_density_map(s);
 
-	figure_plot(fig, filename);
+	figure_plot(fig);
+	figure_save(fig, filename);
 }
 
 

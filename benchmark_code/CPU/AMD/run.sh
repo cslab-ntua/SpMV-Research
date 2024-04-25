@@ -219,35 +219,35 @@ done
 
 matrices_compression=(
 
-    spal_004
+    # spal_004
     ldoor
-    dielFilterV2real
-    nv2
-    af_shell10
-    boneS10
-    circuit5M
-    Hook_1498
-    Geo_1438
-    Serena
-    vas_stokes_2M
-    bone010
-    audikw_1
-    Long_Coup_dt0
-    Long_Coup_dt6
-    dielFilterV3real
-    nlpkkt120
-    cage15
-    ML_Geer
-    Flan_1565
-    Cube_Coup_dt0
-    Cube_Coup_dt6
-    Bump_2911
-    vas_stokes_4M
-    nlpkkt160
-    HV15R
-    Queen_4147
-    stokes
-    nlpkkt200
+    # dielFilterV2real
+    # nv2
+    # af_shell10
+    # boneS10
+    # circuit5M
+    # Hook_1498
+    # Geo_1438
+    # Serena
+    # vas_stokes_2M
+    # bone010
+    # audikw_1
+    # Long_Coup_dt0
+    # Long_Coup_dt6
+    # dielFilterV3real
+    # nlpkkt120
+    # cage15
+    # ML_Geer
+    # Flan_1565
+    # Cube_Coup_dt0
+    # Cube_Coup_dt6
+    # Bump_2911
+    # vas_stokes_4M
+    # nlpkkt160
+    # HV15R
+    # Queen_4147
+    # stokes
+    # nlpkkt200
 
     # Transport
     # Freescale2
@@ -416,7 +416,9 @@ bench()
                 "$prog" "${prog_args[@]}"  2>'tmp.err'
                 ret="$?"
             fi
-            cat 'tmp.err'
+            if ((output_to_files)); then   # If outputing to files, also print stderr to stdout.
+                cat 'tmp.err'
+            fi
             if ((!ret || !force_retry_on_error)); then      # If not retrying then print the error text to be able to notice it.
                 cat 'tmp.err' >&2
                 break
@@ -435,15 +437,25 @@ matrices=(
     # "${matrices_validation[@]}"
     # "${matrices_paper_csr_rv[@]}"
     # "${matrices_compression_small[@]}"
-    # "${matrices_compression[@]}"
+    "${matrices_compression[@]}"
     # "${matrices_M3E[@]}"
     # "${matrices_cg[@]}"
 
-    # '/home/jim/Synced_Folder/lib/C/tests/kmeans/matrices/kron_g500-logn18_reordered_both.mtx'
-    # '/home/jim/Synced_Folder/lib/C/tests/kmeans/matrices/kron_g500-logn18_reordered_rows.mtx'
     # "$path_tamu"/matrices/kron_g500-logn18/kron_g500-logn18.mtx
+    # '/home/jim/Synced_Folder/Data/kmeans/matrices/kron_g500-logn18_c1024_wl26214_reordered_rows.mtx'
+    # '/home/jim/Synced_Folder/Data/kmeans/matrices/kron_g500-logn18_c1024_wl26214_reordered_both.mtx'
+    # '/home/jim/Synced_Folder/Data/kmeans/matrices/kron_g500-logn18_reordered.mtx'
+    # '/home/jim/Synced_Folder/Data/kmeans/matrices/kron_g500-logn18_reordered_0.mtx'
+    # '/home/jim/Synced_Folder/lib/C/tests/kmeans/kron_g500-logn18_reordered.mtx'
 
-    "$path_tamu"/matrices/ASIC_680k/ASIC_680k.mtx
+    # "$path_tamu"/matrices/cop20k_A/cop20k_A.mtx
+    # '/home/jim/Synced_Folder/Data/kmeans/matrices/cop20k_A_reordered_tom_down_inner_clusters.mtx'
+    # '/home/jim/Synced_Folder/lib/C/tests/kmeans/cop20k_A_reordered.mtx'
+    # '/home/jim/Synced_Folder/Data/kmeans/matrices/cop20k_A_reordered.mtx'
+    # '/home/jim/Synced_Folder/Data/kmeans/matrices/cop20k_A_reordered_top_down.mtx'
+    # '/home/jim/Synced_Folder/Data/kmeans/matrices/cop20k_A_reordered_top_down_incr_clusters.mtx'
+
+    # "$path_tamu"/matrices/ASIC_680k/ASIC_680k.mtx
     # '682862 682862 5.6699201303 659.8073579974 normal random 0.3746622132 69710.5639935502 0.6690077130 0.8254737741 14 ASIC_680k'
 
     # nr_rows nr_cols avg_nnz_per_row std_nnz_per_row distribution placement bw           skew          avg_num_neighbours cross_row_similarity seed
@@ -533,6 +545,8 @@ for format_name in "${!progs[@]}"; do
         # csrcv_num_packet_vals=( $( declare -i i; for (( i=64;i<=2**24;i*=2 )); do echo "$i"; done ) )
     # fi
 
+    ts1="$(date '+%s')"
+
     for ((i=0;i<rep;i++)); do
         for a in "${prog_args[@]}"
         do
@@ -555,5 +569,9 @@ for format_name in "${!progs[@]}"; do
             done
         done
     done
+
+    ts2="$(date '+%s')"
+    printf "\n\nTotal time = $(( (ts2 - ts1) / 60 )) minutes $(( (ts2 - ts1) % 60 )) seconds\n"
+
 done
 

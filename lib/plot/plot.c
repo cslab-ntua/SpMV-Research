@@ -124,10 +124,8 @@ static
 void
 write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 {
-	// __label__ out;
-	[[gnu::cleanup(cleanup_free)]] char * buf = NULL;
 	char * base = NULL, * ext = NULL;
-	long len, buf_n;
+	long len;
 	int fd, ret;
 	long i;
 
@@ -142,9 +140,10 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 	base = f;
 	ext = &f[i+1];
 
+	long buf_n;
 	buf_n = len + 4; // +4 to be sure it fits 'ppm\0' at the end.
 	buf_n = 2 * buf_n + 1000; // More space to fit a command line.
-	buf = malloc(buf_n);
+	[[gnu::cleanup(cleanup_free)]] char * buf = (typeof(buf)) malloc(buf_n);
 
 	snprintf(buf, buf_n, "%s.ppm", base);
 	[[gnu::cleanup(cleanup_free)]] char * const f_ppm = strdup(buf);
@@ -159,7 +158,6 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 
 	if (system("hash convert"))
 		return;
-		// goto out;
 
 	// Adding the legend in ppm format, before converting, is MUCH faster than working on an e.g. png file.
 	if (fig->legend_conf.legend_enabled)
@@ -167,7 +165,6 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 
 	if (!strcmp(ext, "ppm"))
 		return;
-		// goto out;
 
 	// File conversion.
 	// Actually, the conversion to e.g. png takes most of the time, but the file sizes are orders of magnitude smaller.
@@ -177,19 +174,10 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 	{
 		printf("convert failed with code: %d\n", ret);
 		return;
-		// goto out;
 	}
 	snprintf(buf, buf_n, "rm '%s'", f_ppm);
 	if (system(buf))
 		return;
-		// goto out;
-
-// out:
-	// Freeing NULL is well defined, manpage: If ptr is NULL, no operation is performed.
-	// free(f);
-	// free(f_ppm);
-	// free(f_conv);
-	// free(buf);
 }
 
 
@@ -270,6 +258,7 @@ figure_series_init(struct Figure_Series * s, const char * name, void * x, void *
 	s->barplot_bar_width = 0;
 
 	s->type_bounded_median_curve = 0;
+	s->bounded_median_curve_axis = 0;
 
 	s->deallocate_data = 0;
 }
@@ -279,6 +268,8 @@ static
 void
 figure_series_clean(struct Figure_Series * s)
 {
+	if (s == NULL)
+		return;
 	if (s->deallocate_data)
 	{
 		free(s->x);
@@ -295,15 +286,18 @@ figure_series_clean(struct Figure_Series * s)
 void
 figure_init(struct Figure * fig, int x_num_pixels, int y_num_pixels)
 {
-	fig->num_series = 0;
 	fig->max_num_series = 4;
-	fig->series = malloc(fig->max_num_series * sizeof(*fig->series));
+	fig->num_series = 0;
+	fig->series = (typeof(fig->series)) malloc(fig->max_num_series * sizeof(*fig->series));
 	fig->x_num_pixels = x_num_pixels <= 0 ? 1920 : x_num_pixels;
 	fig->y_num_pixels = y_num_pixels <= 0 ? 1920 : y_num_pixels;
 	fig->axes_flip_x = 0;
 	fig->axes_flip_y = 0;
 	fig->custom_bounds_x = 0;
 	fig->custom_bounds_y = 0;
+	fig->pa = (typeof(fig->pa)) malloc(sizeof(*fig->pa));
+	fig->legend_conf.x_in_percentages = 0;
+	fig->legend_conf.y_in_percentages = 0;
 	fig->legend_conf.legend_enabled = 0;
 	fig->legend_conf.title = NULL;
 }
@@ -313,12 +307,17 @@ void
 figure_clean(struct Figure * fig)
 {
 	long i;
+	if (fig == NULL)
+		return;
 	for (i=0;i<fig->num_series;i++)
 		figure_series_clean(&(fig->series[i]));
 	free(fig->series);
 	fig->series = NULL;
 	free(fig->legend_conf.title);
 	fig->legend_conf.title = NULL;
+	pixel_array_clean(fig->pa);
+	free(fig->pa);
+	fig->pa = NULL;
 }
 
 
@@ -339,18 +338,21 @@ figure_add_series_base(struct Figure * fig, void * x, void * y, void * z, long N
 		)
 {
 	struct Figure_Series * s;
-	long i, max_num_series;
+	long i, new_max_num_series;
 	long buf_n = 1000;
 	char buf[buf_n];
 
+	if (N <= 0)
+		error("emtpy series given");
+
 	if (fig->num_series == fig->max_num_series)
 	{
-		max_num_series = 2 * fig->max_num_series;
-		s = malloc(max_num_series * sizeof(*s));
+		new_max_num_series = 2 * fig->max_num_series;
+		s = (typeof(s)) malloc(new_max_num_series * sizeof(*s));
 		for (i=0;i<fig->max_num_series;i++)
 			s[i] = fig->series[i];
 		free(fig->series);
-		fig->max_num_series = max_num_series;
+		fig->max_num_series = new_max_num_series;
 		fig->series = s;
 	}
 	fig->num_series++;
@@ -518,7 +520,6 @@ figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, doubl
 	void * values;
 	long num_values;
 	double (* get_value_as_double)(void * val, long i);
-	long * freq;
 	double * x, * y;
 	double quantum_size;
 	double min, max;
@@ -548,9 +549,9 @@ figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, doubl
 
 	// if (num_bins > 1000000000)
 		// warning("too many bins: %ld", num_bins);
-	freq = malloc(num_bins * sizeof(*freq));
-	x = malloc(num_bins * sizeof(*x));
-	y = malloc(num_bins * sizeof(*y));
+	[[gnu::cleanup(cleanup_free)]] long * freq = (typeof(freq)) malloc(num_bins * sizeof(*freq));
+	x = (typeof(x)) malloc(num_bins * sizeof(*x));
+	y = (typeof(y)) malloc(num_bins * sizeof(*y));
 
 	#pragma omp parallel
 	{
@@ -589,8 +590,6 @@ figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, doubl
 				y[i] = y[i] / num_values * 100;
 		}
 	}
-
-	free(freq);
 
 	/* User might have set various things already, so we can't just use figure_series_init().
 	 */
@@ -994,11 +993,10 @@ series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pi
 	// struct Pixel_8 * pixels = pa->pixels;
 	long x_num_pixels = fig->x_num_pixels;
 	long y_num_pixels = fig->y_num_pixels;
-	long counts_n = x_num_pixels * y_num_pixels;
-	int * counts;
 	double min, max;
 
-	counts = malloc(counts_n * sizeof(*counts));
+	long counts_n = x_num_pixels * y_num_pixels;
+	[[gnu::cleanup(cleanup_free)]] int * counts = (typeof(counts)) malloc(counts_n * sizeof(*counts));
 
 	// Calculate densities for the pixels.
 	#pragma omp parallel
@@ -1061,8 +1059,6 @@ series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pi
 			}
 		}
 	}
-
-	free(counts);
 }
 
 
@@ -1085,8 +1081,6 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 	long y_num_pixels = fig->y_num_pixels;
 	long num_buckets;
 	// long bucket_size;
-	int * offsets;
-	int * indexes;
 
 	if (s->bounded_median_curve_axis == 0)
 	{
@@ -1099,8 +1093,8 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 		// bucket_size = x_num_pixels;
 	}
 
-	offsets = malloc((num_buckets+1) * sizeof(*offsets));
-	indexes = malloc(s->L * sizeof(*indexes));
+	[[gnu::cleanup(cleanup_free)]] int * offsets = (typeof(offsets)) malloc((num_buckets+1) * sizeof(*offsets));
+	[[gnu::cleanup(cleanup_free)]] int * indices = (typeof(indices)) malloc(s->L * sizeof(*indices));
 
 	/* Create a CSR structure that describes the colored pixels of each x column or y row (primary axis), depending on bounded_median_curve_axis value.
 	 */
@@ -1118,7 +1112,7 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 			offsets[i] = 0;
 		#pragma omp for
 		for (i=0;i<s->L;i++)
-			indexes[i] = 0;
+			indices[i] = 0;
 
 		// Find offsets, i.e., primary axis pixel slices (y:rows or x:columns).
 		step = (s->cart_prod) ? ((s->bounded_median_curve_axis == 0) ? s->M : s->N) : 1;
@@ -1145,7 +1139,7 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 
 		scan_reduce_concurrent_plot_i_i(offsets, offsets, num_buckets+1, 0, 0, 0);
 
-		// Place indexes, i.e., colored pixel secondary axis coordinates.
+		// Place indices, i.e., colored pixel secondary axis coordinates.
 		#pragma omp for
 		for (i=0;i<s->M;i++)
 		{
@@ -1160,14 +1154,14 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 						if (x_pix < 0 || x_pix >= x_num_pixels)
 							continue;
 						pos = __atomic_sub_fetch(&offsets[x_pix], 1, __ATOMIC_RELAXED);
-						indexes[pos] = y_pix;
+						indices[pos] = y_pix;
 					}
 					else
 					{
 						if (y_pix < 0 || y_pix >= y_num_pixels)
 							continue;
 						pos = __atomic_sub_fetch(&offsets[y_pix], 1, __ATOMIC_RELAXED);
-						indexes[pos] = x_pix;
+						indices[pos] = x_pix;
 					}
 				}
 			}
@@ -1179,14 +1173,14 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 					if (x_pix < 0 || x_pix >= x_num_pixels)
 						continue;
 					pos = __atomic_sub_fetch(&offsets[x_pix], 1, __ATOMIC_RELAXED);
-					indexes[pos] = y_pix;
+					indices[pos] = y_pix;
 				}
 				else
 				{
 					if (y_pix < 0 || y_pix >= y_num_pixels)
 						continue;
 					pos = __atomic_sub_fetch(&offsets[y_pix], 1, __ATOMIC_RELAXED);
-					indexes[pos] = x_pix;
+					indices[pos] = x_pix;
 				}
 			}
 		}
@@ -1201,10 +1195,10 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 			if (degree < 0)
 				error("degree < 0");
 			if (reverse_order)
-				array_min_max_serial(&indexes[offsets[i]], degree, &max, NULL, &min, NULL, gen_i2d);
+				array_min_max_serial(&indices[offsets[i]], degree, &max, NULL, &min, NULL, gen_i2d);
 			else
-				array_min_max_serial(&indexes[offsets[i]], degree, &min, NULL, &max, NULL, gen_i2d);
-			array_mean_serial(&indexes[offsets[i]], degree, &mean, gen_i2d);
+				array_min_max_serial(&indices[offsets[i]], degree, &min, NULL, &max, NULL, gen_i2d);
+			array_mean_serial(&indices[offsets[i]], degree, &mean, gen_i2d);
 			if (s->bounded_median_curve_axis == 0)
 			{
 				color_pixels(pa, i, min, fig, s, 0, 1, 0x00, 0x00, 0xDD);
@@ -1223,7 +1217,7 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 		for (i=0;i<num_buckets;i++)
 		{
 			degree = offsets[i+1] - offsets[i];
-			array_quantile_serial(&indexes[offsets[i]], degree, (reverse_order) ? 0.75 : 0.25, "", &quantile, gen_i2d);
+			array_quantile_serial(&indices[offsets[i]], degree, (reverse_order) ? 0.75 : 0.25, "", &quantile, gen_i2d);
 			if (s->bounded_median_curve_axis == 0)
 			{
 				color_pixels(pa, i, quantile, fig, s, 0, 1, 0x00, 0xDD, 0xDD);
@@ -1232,7 +1226,7 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 			{
 				color_pixels(pa, quantile, i, fig, s, 0, 1, 0x00, 0xDD, 0xDD);
 			}
-			array_quantile_serial(&indexes[offsets[i]], degree, (reverse_order) ? 0.25 : 0.75, "", &quantile, gen_i2d);
+			array_quantile_serial(&indices[offsets[i]], degree, (reverse_order) ? 0.25 : 0.75, "", &quantile, gen_i2d);
 			if (s->bounded_median_curve_axis == 0)
 			{
 				color_pixels(pa, i, quantile, fig, s, 0, 1, 0xDD, 0xDD, 0x00);
@@ -1247,7 +1241,7 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 		for (i=0;i<num_buckets;i++)
 		{
 			degree = offsets[i+1] - offsets[i];
-			array_quantile_serial(&indexes[offsets[i]], degree, 0.5, "", &quantile, gen_i2d);
+			array_quantile_serial(&indices[offsets[i]], degree, 0.5, "", &quantile, gen_i2d);
 			if (s->bounded_median_curve_axis == 0)
 			{
 				color_pixels(pa, i, quantile, fig, s, 0, 1, 0x00, 0xDD, 0x00);
@@ -1258,9 +1252,6 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 			}
 		}
 	}
-
-	free(offsets);
-	free(indexes);
 }
 
 
@@ -1280,7 +1271,7 @@ static
 double
 closest_pair_distance(void * A, long N, double (* get_val_as_double)(void * A, long i))
 {
-	double * B = malloc(N * sizeof(*B));
+	[[gnu::cleanup(cleanup_free)]] double * B = (typeof(B)) malloc(N * sizeof(*B));
 	double dist, min;
 	long i;
 	if (N <= 1)
@@ -1295,7 +1286,6 @@ closest_pair_distance(void * A, long N, double (* get_val_as_double)(void * A, l
 		if (dist < min)
 			min = dist;
 	}
-	free(B);
 	return min;
 }
 
@@ -1345,7 +1335,7 @@ calc_series_bounds(struct Figure_Series * s)
 	else
 	{
 		s->x_min = 0;
-		s->x_max = s->N - 1;
+		s->x_max = (s->N > 0) ? s->N - 1 : 0;
 		s->x_avg = s->N / 2;
 	}
 	if (s->y != NULL)
@@ -1356,7 +1346,7 @@ calc_series_bounds(struct Figure_Series * s)
 	else
 	{
 		s->y_min = 0;
-		s->y_max = s->M - 1;
+		s->y_max = (s->M > 0) ? s->M - 1 : 0;
 		s->y_avg = s->M / 2;
 	}
 	if (s->z != NULL && !s->type_density_map)
@@ -1447,7 +1437,14 @@ calc_figure_bounds(struct Figure * fig)
 
 
 void
-figure_plot(struct Figure * fig, char * filename)
+figure_clear(struct Figure * fig)
+{
+	pixel_array_clean(fig->pa);
+}
+
+
+void
+figure_plot(struct Figure * fig)
 {
 	double x_num_pixels = fig->x_num_pixels;
 	double y_num_pixels = fig->y_num_pixels;
@@ -1457,7 +1454,7 @@ figure_plot(struct Figure * fig, char * filename)
 	struct Figure_Series * s;
 	long i;
 
-	pa = malloc(sizeof(*pa));
+	pa = fig->pa;
 	pixel_array_init(pa, (long) x_num_pixels, (long) y_num_pixels, 0xFF);
 	pixel_array_fill(pa, 0xFF, 0xFF, 0xFF);
 
@@ -1490,10 +1487,12 @@ figure_plot(struct Figure * fig, char * filename)
 		else
 			series_plot(fig, s, pa);
 	}
+}
 
-	write_image_file(fig, pa, filename);
 
-	pixel_array_destroy(&pa);
-	free(pa);
+void
+figure_save(struct Figure * fig, char * filename)
+{
+	write_image_file(fig, fig->pa, filename);
 }
 

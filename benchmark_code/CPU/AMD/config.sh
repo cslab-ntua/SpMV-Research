@@ -39,11 +39,11 @@ calc_numa_nodes()
     local -A nodes
     local -A nodes
     local i j c
-    out="$(numactl -H)"
-    avail="$(printf "$out" | awk '/available/ {printf("%d", $2)}')"
+    numactl_output="$(numactl -H)"
+    avail="$(printf "$numactl_output" | awk '/available/ {printf("%d", $2)}')"
     dict=()
     for ((i=0;i<avail;i++)); do
-        node_cores=( $(printf "$out" | awk '/node '"$i"' cpus:/ { for (i=4;i<=NF;i++) {printf "%s ", $i} }') )
+        node_cores=( $(printf "$numactl_output" | awk '/node '"$i"' cpus:/ { for (i=4;i<=NF;i++) {printf("%s ", $i)} }') )   # $i in awk expands the 'i' awk variable and if a number prints the ith line token, else $0.
         for n in "${node_cores[@]}"; do
             dict["$n"]="$i"
         done
@@ -51,7 +51,9 @@ calc_numa_nodes()
     aff=(${affinity//,/' '})
     nodes=()
     for c in "${aff[@]}"; do
-        nodes["${dict["$c"]}"]=1
+        if [[ -v dict["$c"] ]]; then
+            nodes["${dict["$c"]}"]=1
+        fi
     done
     nodes="$(printf "%s\n" "${!nodes[@]}" | sort -n | tr '\n' ',')"
     nodes="${nodes%,}"
@@ -89,7 +91,7 @@ conf_vars=(
     # ['VC_TOLERANCE']='1e-6'
     # ['VC_TOLERANCE']='1e-3'
 
-    # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
+    # Benchmark with the artificially generated matrices (1) or real matrices (0).
     ['USE_ARTIFICIAL_MATRICES']=0
     # ['USE_ARTIFICIAL_MATRICES']=1
 
@@ -112,10 +114,10 @@ conf_vars=(
     # ['cores']=48
     # ['cores']=32
     # ['cores']=24
-    # ['cores']=16
+    ['cores']=16
     # ['cores']=12
     # ['cores']=8
-    ['cores']=6
+    # ['cores']=6
     # ['cores']=4
     # ['cores']=2
     # ['cores']=1
@@ -238,7 +240,11 @@ conf_vars=(
 
 conf_vars['cpu_affinity']="$(calc_cpu_pinning "${conf_vars["cores"]}" "${conf_vars["max_cores"]}" "${conf_vars["cpu_pinning_step"]}" "${conf_vars["cpu_pinning_group_size"]}")"
 
-conf_vars['numa_nodes']="$(calc_numa_nodes "${conf_vars["cores"]}" "${conf_vars["max_cores"]}" "${conf_vars["cpu_affinity"]}")"
+if hash numactl 2>/dev/null; then
+    conf_vars['numa_nodes']="$(calc_numa_nodes "${conf_vars["cores"]}" "${conf_vars["max_cores"]}" "${conf_vars["cpu_affinity"]}")"
+else
+    conf_vars['numa_nodes']="0"
+fi
 
 
 path_artificial="${script_dir}/../../../matrix_generation_parameters"
@@ -364,6 +370,7 @@ progs=(
     # Custom cuda
     # ['csr_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_nv_d.exe"
     # ['csr_cuda_buffer_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_nv_d.exe"
+    # ['csr_cuda_reduce_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_reduce_nv_d.exe"
 
     # cusparse
     # ['cusparse_csr_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
@@ -382,7 +389,7 @@ progs=(
     # ['csr_cv_stream_opt_compress_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream_opt_compress_d.exe"
 
     # MKL IE
-    # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie_d.exe"
+    ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie_d.exe"
     # ['mkl_ie_f']="${script_dir}/spmv_code_bench/spmv_mkl_ie_f.exe"
 
     # MKL CSR
@@ -413,7 +420,7 @@ progs=(
     # ['spv8_d']="${script_dir}/spmv_code_bench/spmv_spv8_d.exe"
 
     # LCM - partially strided codelet
-    ['lcm_d']="${script_dir}/spmv_code_bench/LCM-partially-strided-codelet/spmv_lcm_d.exe"
+    # ['lcm_d']="${script_dir}/spmv_code_bench/LCM-partially-strided-codelet/spmv_lcm_d.exe"
 
     # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell_d.exe"
     # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu_d.exe"

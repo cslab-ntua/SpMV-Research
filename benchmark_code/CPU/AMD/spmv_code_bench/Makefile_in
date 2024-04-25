@@ -128,6 +128,8 @@ spmv_csr_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_cuda.cu $(
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 spmv_csr_cuda_buffer$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_cuda_buffer.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+spmv_csr_cuda_reduce$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_cuda_reduce.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 
 
 CPPFLAGS_CUSPARSE =

@@ -101,6 +101,7 @@ struct Figure {
 	double y_step;
 	double z_step;
 
+	struct Pixel_Array * pa;
 	struct Figure_Legend_Conf legend_conf;
 };
 
@@ -109,7 +110,8 @@ void figure_init(struct Figure * fig, int x_num_pixels, int y_num_pixels);
 void figure_clean(struct Figure * fig);
 void figure_destroy(struct Figure ** fig_ptr);
 
-void figure_plot(struct Figure * fig, char * filename);
+void figure_plot(struct Figure * fig);
+void figure_save(struct Figure * fig, char * filename);
 
 struct Figure_Series * figure_add_series_base(struct Figure * fig, void * x, void * y, void * z, long N, long M,
 		double (* get_x_as_double)(void * x, long i),
@@ -178,16 +180,15 @@ void figure_series_type_bounded_median_curve(struct Figure_Series * s, int axis)
  *     _fig : struct Figure *
  *     _s   : struct Figure_Series *
  */
-#define figure_simple_plot(file_out, x_num_pixels, y_num_pixels, series_args, ...)    \
-do {                                                                                  \
-	struct Figure * _fig;                                                         \
-	[[gnu::unused]] struct Figure_Series * _s;                                    \
-	_fig = (typeof(_fig)) malloc(sizeof(*_fig));                                  \
-	figure_init(_fig, x_num_pixels, y_num_pixels);                                \
-	_s = _figure_simple_plot_add_series(_fig, UNPACK(series_args));               \
-	__VA_ARGS__                                                                   \
-	figure_plot(_fig, file_out);                                                  \
-	figure_destroy(&_fig);                                                        \
+#define figure_simple_plot(file_out, x_num_pixels, y_num_pixels, series_args, ...)                       \
+do {                                                                                                     \
+	[[gnu::unused]] struct Figure_Series * _s;                                                       \
+	[[gnu::cleanup(figure_destroy)]] struct Figure * _fig = (typeof(_fig)) malloc(sizeof(*_fig));    \
+	figure_init(_fig, x_num_pixels, y_num_pixels);                                                   \
+	_s = _figure_simple_plot_add_series(_fig, UNPACK(series_args));                                  \
+	__VA_ARGS__                                                                                      \
+	figure_plot(_fig);                                                                               \
+	figure_save(_fig, file_out);                                                                     \
 } while (0)
 
 

@@ -29,8 +29,8 @@ then
 	rm cmake-3.26.0-rc3.tar.gz
 	cd cmake-3.26.0-rc3
 	./bootstrap --prefix="$CMAKE_DIR"
-	make -j
-	make -j install
+	make -j8
+	make -j8 install
 	cd ../
 fi
 

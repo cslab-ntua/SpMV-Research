@@ -41,8 +41,13 @@ CPP="$gpp_bin"
 # CPP=xlc++
 export CPP
 
-export NVCC="nvcc -ccbin=${CC}"
-# export NVCC="/various/dgal/epyc1/cuda/cuda_11_4_4/bin/nvcc -ccbin=${CC}"
+if [[ -d "/various/dgal/epyc1/cuda/cuda_11_4_4/bin" ]]; then
+    # NVCC="/various/dgal/epyc1/cuda/cuda_11_4_4/bin/nvcc -ccbin=${CC}"
+    NVCC="/various/dgal/epyc1/cuda/cuda_11_4_4/bin/nvcc -ccbin=gcc"
+else
+    NVCC="nvcc -ccbin=${CC}"
+fi
+export NVCC
 
 export ARCH="$(uname -m)"
 
@@ -183,6 +188,8 @@ if ((${#targets_f[@]} > 0)); then
 fi
 
 if ((${#targets_nv_d[@]} > 0)); then
+    export CC=gcc
+    export CPP=g++
     export CFLAGS="${CFLAGS_NV_D}"
     export CPPFLAGS="${CPPFLAGS_NV_D}"
     export SUFFIX='_nv_d'
@@ -191,10 +198,13 @@ if ((${#targets_nv_d[@]} > 0)); then
 fi
 
 if ((${#targets_nv_f[@]} > 0)); then
+    export CC=gcc
+    export CPP=g++
     export CFLAGS="${CFLAGS_NV_F}"
     export CPPFLAGS="${CPPFLAGS_NV_F}"
     export SUFFIX='_nv_f'
     export TARGETS="${targets_nv_f[*]}"
     make -f Makefile_in "$@"
 fi
+
 

@@ -72,9 +72,10 @@ struct CSRArrays : Matrix_Format
 		// num_threads = 1024;
 		// num_threads = 3584;
 		// num_threads = 4096;
-		num_threads = 8192;
+		// num_threads = 8192;
 		// num_threads = 14336;
 		// num_threads = 16384;
+		num_threads = m;
 
 		thread_i_s = (INT_T *) malloc(num_threads * sizeof(*thread_i_s));
 		thread_i_e = (INT_T *) malloc(num_threads * sizeof(*thread_i_e));

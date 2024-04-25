@@ -1427,7 +1427,8 @@ csr_value_distances_from_cluster_centers(char * title_base, double * vals, doubl
 			figure_enable_legend(fig);
 			figure_set_title(fig, buf_title);
 			figure_set_bounds_y(fig, -1, 1);
-			figure_plot(fig, buf);
+			figure_plot(fig);
+			figure_save(fig, buf);
 			figure_destroy(&fig);
 		}
 	}
@@ -2348,8 +2349,6 @@ csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYP
 }
 
 
-
-
 //==========================================================================================================================================
 //= Quantize
 //==========================================================================================================================================
@@ -2361,14 +2360,13 @@ csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYP
 #define csr_quantize_columns  CSR_UTIL_GEN_EXPAND(csr_quantize_columns)
 void
 csr_quantize_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, [[gnu::unused]] long n, long nnz, long window_len,
-		_TYPE_I ** q_row_ptr_out, _TYPE_I ** q_col_idx_out, int ** q_frequencies_out, int * q_nnz_out)
+		_TYPE_I ** q_row_ptr_out, _TYPE_I ** q_col_idx_out, _TYPE_I ** q_frequencies_out, _TYPE_I * q_nnz_out)
 {
 	int num_threads = omp_get_max_threads();
 	long q_nnz;
 
-	int * q_row_ptr = (typeof(q_row_ptr)) malloc((m+1) * sizeof(*q_row_ptr));
+	_TYPE_I * q_row_ptr = (typeof(q_row_ptr)) malloc((m+1) * sizeof(*q_row_ptr));
 
-	printf("1\n");
 	_Pragma("omp parallel")
 	{
 		int tnum = omp_get_thread_num();
@@ -2392,20 +2390,17 @@ csr_quantize_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, [[gnu::unused
 	}
 	q_row_ptr[m] = 0;
 
-	printf("2\n");
 	q_nnz = scan_reduce(q_row_ptr, q_row_ptr, m+1, 0, 1, 0);
 
-	int * q_col_idx = (typeof(q_col_idx)) malloc(q_nnz * sizeof(*q_col_idx));
-	int * q_frequencies = (typeof(q_frequencies)) malloc(q_nnz * sizeof(*q_frequencies));
+	_TYPE_I * q_col_idx = (typeof(q_col_idx)) malloc(q_nnz * sizeof(*q_col_idx));
+	_TYPE_I * q_frequencies = (typeof(q_frequencies)) malloc(q_nnz * sizeof(*q_frequencies));
 
-	printf("3\n");
 	_Pragma("omp parallel")
 	{
 		int tnum = omp_get_thread_num();
 		long win, win_prev;
 		long i, i_s, i_e, j, w_j;
 		loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &i_s, &i_e);
-		printf("3a\n");
 		for (i=i_s;i<i_e;i++)
 		{
 			win_prev = -1;
@@ -2424,13 +2419,61 @@ csr_quantize_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, [[gnu::unused
 			}
 		}
 	}
-	printf("4\n");
 
 	*q_row_ptr_out = q_row_ptr;
 	*q_col_idx_out = q_col_idx;
 	*q_frequencies_out = q_frequencies;
 
 	*q_nnz_out = q_nnz;
+}
+
+
+//==========================================================================================================================================
+//= Quantize
+//==========================================================================================================================================
+
+
+#undef  csr_reorder_rows
+#define csr_reorder_rows  CSR_UTIL_GEN_EXPAND(csr_reorder_rows)
+void
+csr_reorder_rows(_TYPE_I * permutation, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, [[gnu::unused]] long n, long nnz,
+		_TYPE_I * reordered_row_ptr, _TYPE_I * reordered_col_idx, _TYPE_V * reordered_values)
+{
+	int num_threads = omp_get_max_threads();
+
+	_Pragma("omp parallel")
+	{
+		long i, pi;
+		_Pragma("omp for")
+		for (i=0;i<m;i++)
+		{
+			pi = permutation[i];
+			reordered_row_ptr[pi] = row_ptr[i+1] - row_ptr[i];
+		}
+	}
+	reordered_row_ptr[m] = 0;
+
+	scan_reduce(reordered_row_ptr, reordered_row_ptr, m+1, 0, 1, 0);
+
+	_Pragma("omp parallel")
+	{
+		int tnum = omp_get_thread_num();
+		long i, i_s, i_e, j, pi, pj, k, degree;
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &i_s, &i_e);
+		for (i=i_s;i<i_e;i++)
+		{
+			degree = row_ptr[i+1] - row_ptr[i];
+			pi = permutation[i];
+			for (k=0;k<degree;k++)
+			{
+				j = row_ptr[i] + k;
+				pj = reordered_row_ptr[pi] + k;
+				reordered_col_idx[pj] = col_idx[j];
+				if (values != NULL)
+					reordered_values[pj] = values[j];
+			}
+		}
+	}
 }
 
 

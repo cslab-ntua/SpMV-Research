@@ -26,21 +26,38 @@ extern "C"{
 INT_T * thread_block_i_s = NULL;
 INT_T * thread_block_i_e = NULL;
 
+INT_T * thread_block_j_s = NULL;
+INT_T * thread_block_j_e = NULL;
+
+
 INT_T * thread_block_i_s_dev = NULL;
 INT_T * thread_block_i_e_dev = NULL;
+
+INT_T * thread_block_j_s_dev = NULL;
+INT_T * thread_block_j_e_dev = NULL;
 
 
 extern int prefetch_distance;
 
 double * thread_time_compute, * thread_time_barrier;
 
+void
+cuda_push_duplicate_base(void ** dst_ptr, void * src, long bytes)
+{
+	cudaMalloc(dst_ptr, bytes);
+	cudaMemcpy(*((char **) dst_ptr), src, bytes, cudaMemcpyHostToDevice);
+}
+#define cuda_push_duplicate(dst_ptr, src, bytes) cuda_push_duplicate_base((void **) dst_ptr, src, bytes)
+
 
 struct CSRArrays : Matrix_Format
 {
-	INT_T * ia;      // the usual rowptr (of size m+1)
-	INT_T * ja;      // the colidx of each NNZ (of size nnz)
-	ValueType * a;   // the values (of size NNZ)
+	INT_T * row_ptr;
+	INT_T * ia;
+	INT_T * ja;
+	ValueType * a;
 
+	INT_T * row_ptr_dev;
 	INT_T * ia_dev;
 	INT_T * ja_dev;
 	ValueType * a_dev;
@@ -50,24 +67,12 @@ struct CSRArrays : Matrix_Format
 	ValueType * x_dev = NULL;
 	ValueType * y_dev = NULL;
 
-	unsigned char * rel_row_idx;
-	unsigned char * rel_row_idx_dev;
-
 	int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, max_threads_per_multiproc, max_block_dim_x;
 	int num_threads;
 	int block_size;
 	int num_blocks;
 
-	// int row_cluster_size = 256;
-	// int row_cluster_size = 192;
-	// int row_cluster_size = 128;
-	// int row_cluster_size = 64;
-	// int row_cluster_size = 32;
-	// int row_cluster_size = 16;
-	// int row_cluster_size = 8;
-	int row_cluster_size = 4;
-
-	CSRArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	CSRArrays(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
 	{
 		double time_balance;
 		long i;
@@ -85,13 +90,14 @@ struct CSRArrays : Matrix_Format
 		printf("max_threads_per_multiproc=%d\n", max_threads_per_multiproc);
 		printf("max_block_dim_x=%d\n", max_block_dim_x);
 
-		// block_size = warp_size / 2;
-		block_size = warp_size;
-		// block_size = warp_size * 2;
+		// block_size = 32;
+		// block_size = 64;
+		block_size = 128;
+		// block_size = 256;
+		// block_size = 512;
 
 		// num_threads = 128;
 		// num_threads = 1ULL << 10;
-		// num_threads = 3584;
 		// num_threads = 1ULL << 12;
 		// num_threads = 1ULL << 13;
 		// num_threads = 1ULL << 14;
@@ -99,6 +105,8 @@ struct CSRArrays : Matrix_Format
 		// num_threads = 1ULL << 16;
 		// num_threads = 1ULL << 17;
 		num_threads = 1ULL << 21;
+		// num_threads = 1ULL << 24;
+		// num_threads = nnz / 32;
 
 		num_threads = ((num_threads + block_size - 1) / block_size) * block_size;
 
@@ -108,69 +116,58 @@ struct CSRArrays : Matrix_Format
 
 		thread_block_i_s = (INT_T *) malloc(num_blocks * sizeof(*thread_block_i_s));
 		thread_block_i_e = (INT_T *) malloc(num_blocks * sizeof(*thread_block_i_e));
+		thread_block_j_s = (INT_T *) malloc(num_blocks * sizeof(*thread_block_j_s));
+		thread_block_j_e = (INT_T *) malloc(num_blocks * sizeof(*thread_block_j_e));
 		time_balance = time_it(1,
 			for (i=0;i<num_blocks;i++)
 			{
 				// loop_partitioner_balance_iterations(num_blocks, i, 0, m, &thread_block_i_s[i], &thread_block_i_e[i]);
-				loop_partitioner_balance_prefix_sums(num_blocks, i, ia, m, nnz, &thread_block_i_s[i], &thread_block_i_e[i]);
+				loop_partitioner_balance_prefix_sums(num_blocks, i, row_ptr, m, nnz, &thread_block_i_s[i], &thread_block_i_e[i]);
+				thread_block_j_s[i] = row_ptr[thread_block_i_s[i]];
+				thread_block_j_e[i] = row_ptr[thread_block_i_e[i]];
 			}
 		);
 		printf("balance time = %g\n", time_balance);
 
-		rel_row_idx = (typeof(rel_row_idx)) malloc(nnz * sizeof(*rel_row_idx));
-		#pragma omp parallel
+		ia = (typeof(ia)) malloc(nnz * sizeof(*ia));
+		_Pragma("omp parallel")
 		{
-			long i, i_s, i_e, i_rel, j, k;
-			#pragma omp for
-			for (k=0;k<num_blocks;k++)
+			long i, j;
+			_Pragma("omp for")
+			for (i=0;i<m;i++)
 			{
-				i_s = thread_block_i_s[k];
-				i_e = thread_block_i_e[k];
-				for (i=i_s;i<i_e;i++)
+				for (j=row_ptr[i];j<row_ptr[i+1];j++)
 				{
-					i_rel = (i - i_s) % row_cluster_size;
-					for (j=ia[i];j<ia[i+1];j++)
-					{
-						rel_row_idx[j] = i_rel;
-					}
+					ia[j] = i;
 				}
 			}
 		}
 
-
-		cudaMalloc(&ia_dev, (m+1) * sizeof(*ia_dev));
-		cudaMemcpy(ia_dev, ia, (m+1) * sizeof(*ia_dev), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&ja_dev, nnz * sizeof(*ja_dev));
-		cudaMemcpy(ja_dev, ja, nnz * sizeof(*ja_dev), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&a_dev, nnz * sizeof(*a_dev));
-		cudaMemcpy(a_dev, a, nnz * sizeof(*a_dev), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&rel_row_idx_dev, nnz * sizeof(*rel_row_idx_dev));
-		cudaMemcpy(rel_row_idx_dev, rel_row_idx, nnz * sizeof(*rel_row_idx_dev), cudaMemcpyHostToDevice);
+		cuda_push_duplicate(&row_ptr_dev, row_ptr, (m+1) * sizeof(*row_ptr_dev));
+		cuda_push_duplicate(&ia_dev, ia, nnz * sizeof(*ia_dev));
+		cuda_push_duplicate(&ja_dev, ja, nnz * sizeof(*ja_dev));
+		cuda_push_duplicate(&a_dev, a, nnz * sizeof(*a_dev));
 
 		cudaMalloc(&x_dev, n * sizeof(*x_dev));
-
 		cudaMalloc(&y_dev, m * sizeof(*y_dev));
 
-		cudaMalloc(&thread_block_i_s_dev, num_blocks * sizeof(*thread_block_i_s_dev));
-		cudaMemcpy(thread_block_i_s_dev, thread_block_i_s, num_blocks * sizeof(*thread_block_i_s_dev), cudaMemcpyHostToDevice);
-
-		cudaMalloc(&thread_block_i_e_dev, num_blocks * sizeof(*thread_block_i_e_dev));
-		cudaMemcpy(thread_block_i_e_dev, thread_block_i_e, num_blocks * sizeof(*thread_block_i_e_dev), cudaMemcpyHostToDevice);
+		cuda_push_duplicate(&thread_block_i_s_dev, thread_block_i_s, num_blocks * sizeof(*thread_block_i_s_dev));
+		cuda_push_duplicate(&thread_block_i_e_dev, thread_block_i_e, num_blocks * sizeof(*thread_block_i_e_dev));
+		cuda_push_duplicate(&thread_block_j_s_dev, thread_block_j_s, num_blocks * sizeof(*thread_block_j_s_dev));
+		cuda_push_duplicate(&thread_block_j_e_dev, thread_block_j_e, num_blocks * sizeof(*thread_block_j_e_dev));
 
 	}
 
 	~CSRArrays()
 	{
 		free(a);
+		free(row_ptr);
 		free(ia);
 		free(ja);
 		free(thread_block_i_s);
 		free(thread_block_i_e);
-		free(rel_row_idx);
 
+		cudaFree(row_ptr_dev);
 		cudaFree(ia_dev);
 		cudaFree(ja_dev);
 		cudaFree(a_dev);
@@ -204,7 +201,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	// for (long i=0;i<10;i++)
 		// printf("%d\n", row_ptr[i]);
 	csr->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
-	csr->format_name = (char *) "Custom_CSR_CUDA_buffer";
+	csr->format_name = (char *) "Custom_CSR_CUDA_reduce";
 	return csr;
 }
 
@@ -220,66 +217,101 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 // }
 
 
-__global__ void gpu_kernel_csr_basic(INT_T * thread_block_i_s, INT_T * thread_block_i_e, INT_T * ia, INT_T * ja, ValueType * a, ValueType * restrict x, ValueType * restrict y, unsigned char * rel_row_idx, int row_cluster_size)
+__global__ void gpu_kernel_spmv(INT_T * thread_block_i_s, INT_T * thread_block_i_e, INT_T * thread_block_j_s, INT_T * thread_block_j_e, INT_T * row_ptr, INT_T * ia, INT_T * ja, ValueType * a, ValueType * restrict x, ValueType * restrict y)
 {
-	extern __shared__ ValueType sdata[];
+	extern __shared__ ValueType val_buf[];
 	int tidg = cuda_get_thread_num();
 	int tidb = threadIdx.x;
 	int block_id = blockIdx.x;
 	int block_size = blockDim.x;
-	long i, i_s, i_e, i_rel, i_rel_e, j, j_s, j_e, k;
-	ValueType sum;
-	for (i=0;i<row_cluster_size;i++)
-		sdata[i*block_size + tidb] = 0;
-	__syncthreads();
+	INT_T * ia_rel;
+	INT_T * ja_rel;
+	ValueType * a_rel;
+	int i, i_s, i_e, j, j_s, j_e, k;
 	i_s = thread_block_i_s[block_id];
 	i_e = thread_block_i_e[block_id];
-	// printf("%d,%d: bs=%d , bid=%d , %ld %ld\n", tidg, tidb, block_size, block_id, i_s, i_e);
-	for (k=i_s;k<i_e;k+=row_cluster_size)
-	{
-		i_rel_e = k + row_cluster_size > i_e ? i_e - k : row_cluster_size;
-		j_s = ia[k];
-		j_e = ia[k+i_rel_e];
-		for (j=j_s+tidb;j<j_e;j+=block_size)
+	j_s = thread_block_j_s[block_id];
+	j_e = thread_block_j_e[block_id];
+
+	// val_buf[tidb] = 0;
+
+	// __syncthreads();
+
+	// if (tidb == 0)
+		// printf("%d,%d: bid=%d, bs=%d, i=(%ld %ld), j=(%ld %ld)\n", tidg, tidb, block_id, block_size, i_s, i_e, j_s, j_e);
+
+	#if 1
+		int j_e_div = j_e - ((j_e-j_s) % block_size);
+		for (j=j_s;j<j_e_div;j+=block_size)
 		{
-			i_rel = rel_row_idx[j];
-			sdata[i_rel*block_size + tidb] += a[j] * x[ja[j]];
+			ia_rel = &ia[j];
+			ja_rel = &ja[j];
+			a_rel = &a[j];
+			val_buf[tidb] = a_rel[tidb] * x[ja_rel[tidb]];
+			__syncthreads();
+			#if 0
+				if (tidb == 0)
+				{
+					// for (i=0;i<block_size;i++)
+					// {
+						// y[ia_rel[i]] += val_buf[i];
+					// }
+					for (i=0;i<block_size-1;i++)
+					{
+						if (ia_rel[i] == ia_rel[i+1])
+							val_buf[i+1] += val_buf[i];
+						else
+							y[ia_rel[i]] += val_buf[i];
+					}
+					y[ia_rel[block_size-1]] += val_buf[block_size-1];
+				}
+			#endif
+			#if 1
+				for (i=1;i<block_size;i*=2)
+				{
+					// if (tidb % (2*i) == i-1)
+					if ((tidb & (2*i-1)) == i-1)
+					{
+						if (ia_rel[tidb] == ia_rel[tidb+i])
+							val_buf[tidb+i] += val_buf[tidb];
+						else
+							y[ia_rel[tidb]] += val_buf[tidb];
+					}
+					__syncthreads();
+				}
+				if (tidb == 0)
+					y[ia_rel[block_size-1]] += val_buf[block_size-1];
+			#endif
+			__syncthreads();
 		}
-
-		__syncthreads();
-
-		for (i_rel=tidb;i_rel<i_rel_e;i_rel+=block_size)
+		if (tidb == 0)
 		{
-			sum = 0;
-			for (j=0;j<block_size;j++)
+			for (j=j_e_div;j<j_e;j++)
 			{
-				sum += sdata[i_rel*block_size + j];
-				sdata[i_rel*block_size + j] = 0;
+				y[ia[j]] += a[j] * x[ja[j]];
 			}
-			y[k + i_rel] = sum;
 		}
+	#endif
 
-		// for (i_rel=0;i_rel<i_rel_e;i_rel++)
+	// if (tidb == 0)
+	// {
+		// for (j=j_s;j<j_e;j++)
 		// {
-			// sum = 0;
-			// for (j=1;j<block_size;j*=2)
+			// y[ia[j]] += a[j] * x[ja[j]];
+		// }
+	// }
+
+	// if (tidb == 0)
+	// {
+		// for (i=i_s;i<i_e;i++)
+		// {
+			// for (j=row_ptr[i];j<row_ptr[i+1];j++)
 			// {
-				// if (tidb % (2*j) == 0)
-				// {
-					// sdata[i_rel*block_size + tidb] += sdata[i_rel*block_size + tidb + j];
-					// sdata[i_rel*block_size + tidb + j] = 0;
-				// }
-				// __syncthreads();
-			// }
-			// if (tidb == 0)
-			// {
-				// y[k + i_rel] = sdata[i_rel*block_size];
-				// sdata[i_rel*block_size] = 0;
+				// y[i] += a[j] * x[ja[j]];
 			// }
 		// }
+	// }
 
-		__syncthreads();
-	}
 }
 
 
@@ -291,7 +323,7 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 	int num_blocks = csr->num_blocks;
 	dim3 block_dims(block_size);
 	dim3 grid_dims(num_blocks);
-	// long shared_mem_size = block_size * sizeof(*C_dev);
+	long shared_mem_size = block_size * (sizeof(ValueType));
 
 	if (csr->x == NULL)
 	{
@@ -299,13 +331,14 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		cudaMemcpy(csr->x_dev, csr->x, csr->n * sizeof(*csr->x), cudaMemcpyHostToDevice);
 	}
 
-	gpu_kernel_csr_basic<<<grid_dims, block_dims, (csr->row_cluster_size*block_size*sizeof(ValueType))>>>(thread_block_i_s_dev, thread_block_i_e_dev, csr->ia_dev, csr->ja_dev, csr->a_dev, csr->x_dev, csr->y_dev, csr->rel_row_idx_dev, csr->row_cluster_size);
-	// gpu_kernel_csr_flat<<<grid_dims, block_dims>>>(thread_block_i_s_dev, thread_block_i_e_dev, csr->ia_dev, csr->ja_dev, csr->a_dev, csr->x_dev, csr->y_dev);
+	cudaMemset(csr->y_dev, 0, csr->m * sizeof(csr->y_dev));
+
+	gpu_kernel_spmv<<<grid_dims, block_dims, shared_mem_size>>>(thread_block_i_s_dev, thread_block_i_e_dev, thread_block_j_s_dev, thread_block_j_e_dev, csr->row_ptr_dev, csr->ia_dev, csr->ja_dev, csr->a_dev, csr->x_dev, csr->y_dev);
 
 	cudaError_t err;
 	err = cudaDeviceSynchronize();
 	if (err != cudaSuccess)
-		error("gpu kernel error: %s\n", cudaGetErrorString(err));
+		error("cudaDeviceSynchronize: %s\n", cudaGetErrorString(err));
 	err = cudaGetLastError();
 	if (err != cudaSuccess)
 		error("gpu kernel error: %s\n", cudaGetErrorString(err));
