@@ -78,7 +78,7 @@ matrices_validation=(
     # Chebyshev4.mtx
     # consph.mtx
     # com-Youtube.mtx
-    rajat30.mtx
+    # rajat30.mtx
     # radiation.mtx
     # Stanford_Berkeley.mtx
     # shipsec1.mtx
@@ -356,6 +356,45 @@ for ((i=0;i<${#matrices_cg[@]};i++)); do
 done
 
 
+matrices_underperform_gpu=(
+
+    kmer_V2a.mtx
+    wikipedia-20070206.mtx
+    sx-stackoverflow.mtx
+    wikipedia-20061104.mtx
+    wikipedia-20060925.mtx
+    GL7d20.mtx
+    GL7d19.mtx
+    GL7d17.mtx
+    soc-LiveJournal1.mtx
+    soc-Pokec.mtx
+    GL7d21.mtx
+    GL7d18.mtx
+    dgreen.mtx
+    kron_g500-logn18.mtx
+    wikipedia-20051105.mtx
+    kron_g500-logn21.mtx
+    kron_g500-logn20.mtx
+    com-LiveJournal.mtx
+    kron_g500-logn19.mtx
+    ljournal-2008.mtx
+    wiki-topcats.mtx
+
+)
+matrices_underperform_gpu=( $(
+    for ((i=0;i<${#matrices_underperform_gpu[@]};i++)); do
+        m="${matrices_underperform_gpu[i]}"
+        for d in "${validation_dirs[@]}"; do
+            if [[ -f "${d}/${m}" ]]; then
+                echo "${d}/${m}"
+                break
+            fi
+        done
+    done
+) )
+
+
+
 matrices_validation_loop=()
 for ((i=0;i<${#matrices_validation[@]};i++)); do
     path="${matrices_validation[i]}"
@@ -369,6 +408,7 @@ for ((i=0;i<${#matrices_validation[@]};i++)); do
     done
     matrices_validation_loop+=( "${matrices_validation[i]}" )
 done
+
 
 
 bench()
@@ -413,6 +453,26 @@ bench()
                 # "$prog" 4690000 4 1.6 normal random 1 14  2>'tmp.err'
 
                 # numactl -i all "$prog" "${prog_args[@]}"  2>'tmp.err'
+
+                echo '------------------------'
+                export PATH=/various/dgal/epyc1/cuda/cuda_11_4_4/bin:$PATH
+                echo "${prog_args[0]}"
+                mtx_name=$(basename "${prog_args[0]}")
+                # mtx_name=artificial_${mtx_name%.mtx}
+                mtx_name=${mtx_name%.mtx}
+                
+                prog_name=$(basename "$prog")
+                prog_name=${prog_name#"spmv_"}
+                # prog_name=${prog_name#"spmv_csr_cuda_"}
+                prog_name=${prog_name%"_nv_d.exe"}
+                
+                echo "${mtx_name}_${prog_name}"
+
+                # ncu -o ./ncu_reports_new/ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={ComputeWorkloadAnalysis,InstructionStats,LaunchStats,MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Deprecated,MemoryWorkloadAnalysis_Tables,Occupancy,SchedulerStats,SourceCounters,SpeedOfLight,SpeedOfLight_RooflineChart,WarpStateStats} "$prog" "${prog_args[@]}"  2>'tmp.err'
+                # ncu -o ./ncu_reports_new/ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Deprecated,MemoryWorkloadAnalysis_Tables} "$prog" "${prog_args[@]}"  2>'tmp.err'
+ 
+                # nsys profile -o ./nsys_reports/nsys_report_${mtx_name}_${prog_name} -f true -t cuda,cublas --cuda-memory-usage=true --stats=true -w true --verbose "$prog" "${prog_args[@]}"  2>'tmp.err'
+
                 "$prog" "${prog_args[@]}"  2>'tmp.err'
                 ret="$?"
             fi
@@ -437,9 +497,10 @@ matrices=(
     # "${matrices_validation[@]}"
     # "${matrices_paper_csr_rv[@]}"
     # "${matrices_compression_small[@]}"
-    "${matrices_compression[@]}"
+    # "${matrices_compression[@]}"
     # "${matrices_M3E[@]}"
     # "${matrices_cg[@]}"
+    "${matrices_underperform_gpu[@]}"
 
     # "$path_tamu"/matrices/kron_g500-logn18/kron_g500-logn18.mtx
     # '/home/jim/Synced_Folder/Data/kmeans/matrices/kron_g500-logn18_c1024_wl26214_reordered_rows.mtx'
@@ -508,10 +569,10 @@ for format_name in "${!progs[@]}"; do
     prog="${progs["$format_name"]}"
 
     if ((output_to_files)); then
-        > out/"${format_name}.out"
-        exec 1>>out/"${format_name}.out"
-        > out/"${format_name}.csv"
-        exec 2>>out/"${format_name}.csv"
+        > out_logs/"${format_name}.out"
+        exec 1>>out_logs/"${format_name}.out"
+        > out_logs/"${format_name}.csv"
+        exec 2>>out_logs/"${format_name}.csv"
     fi
 
     echo "$config_str"

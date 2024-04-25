@@ -98,9 +98,9 @@ conf_vars=(
     # Maximum number of the machine's cores.
     # ['max_cores']=160
     # ['max_cores']=256
-    ['max_cores']=128
+    # ['max_cores']=128
     # ['max_cores']=64
-    # ['max_cores']=96
+    ['max_cores']=96
     # ['max_cores']=48
     # ['max_cores']=16
     # ['max_cores']=8
@@ -113,8 +113,8 @@ conf_vars=(
     # ['cores']=64
     # ['cores']=48
     # ['cores']=32
-    # ['cores']=24
-    ['cores']=16
+    ['cores']=24
+    # ['cores']=16
     # ['cores']=12
     # ['cores']=8
     # ['cores']=6
@@ -369,12 +369,24 @@ progs=(
 
     # Custom cuda
     # ['csr_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_nv_d.exe"
-    # ['csr_cuda_buffer_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_nv_d.exe"
-    # ['csr_cuda_reduce_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_reduce_nv_d.exe"
+    # ['csr_cuda_buffer_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_nv_d.exe"    
+
+    # ['csr_cuda_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_t1769472_nv_d.exe"
+    # ['csr_cuda_s4_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t1769472_nv_d.exe"
+
+    # ['csr_cuda_buffer_t221184_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_t221184_rc4_nv_d.exe"
+    # ['csr_cuda_buffer_s4_t221184_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_s4_t221184_rc4_nv_d.exe"
+
+    # ['csr_cuda_vector_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_vector_b256_nv_d.exe"
+    # ['csr_cuda_vector_s4_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_vector_s4_b256_nv_d.exe"
+
+    # ['csr_cuda_adaptive_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_nv_d.exe"
+    ['csr_cuda_adaptive_s4_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_nv_d.exe"
 
     # cusparse
-    # ['cusparse_csr_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
-    # ['cusparse_coo_d']="${script_dir}/spmv_code_bench/spmv_cusparse_coo_nv_d.exe"
+    # ['cusparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
+    # ['cusparse_csr_s4_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_s4_nv_d.exe"
+    # ['cusparse_coo_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_coo_nv_d.exe"
 
     # Custom compressed values block
     # ['csr_cv_block_id_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_id_d.exe"
@@ -389,7 +401,7 @@ progs=(
     # ['csr_cv_stream_opt_compress_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream_opt_compress_d.exe"
 
     # MKL IE
-    ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie_d.exe"
+    # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie_d.exe"
     # ['mkl_ie_f']="${script_dir}/spmv_code_bench/spmv_mkl_ie_f.exe"
 
     # MKL CSR
