@@ -113,6 +113,11 @@ void csr_kmeans_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V 
 								  int m, int n, int nnz, int batch, 
 								  int numClusters, float threshold, int loop_threshold, int num_windows, int seed, _TYPE_I * rc_r, _TYPE_I * rc_c, float * rc_v);
 
+#undef  csr_extract_subgroups
+#define csr_extract_subgroups  CSR_REORDER_GEN_EXPAND(csr_extract_subgroups)
+void csr_extract_subgroups(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val,
+						   int m, int n, int nnz, float threshold);
+
 #undef  csr_kmeans_char_reorder_row
 #define csr_kmeans_char_reorder_row  CSR_REORDER_GEN_EXPAND(csr_kmeans_char_reorder_row)
 void csr_kmeans_char_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 

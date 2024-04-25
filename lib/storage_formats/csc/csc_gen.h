@@ -16,18 +16,21 @@
 
 
 #define CSC_GEN_EXPAND(name)  CONCAT(name, CSC_GEN_SUFFIX)
+#define CSC_GEN_EXPAND_TYPE(name)  CONCAT(CSC_GEN_, CSC_GEN_EXPAND(name))
 
 #undef  _TYPE_V
-#define _TYPE_V  CSC_GEN_EXPAND(_TYPE_V)
+#define _TYPE_V  CSC_GEN_EXPAND_TYPE(_TYPE_V)
 typedef CSC_GEN_TYPE_1  _TYPE_V;
 
 #undef  _TYPE_I
-#define _TYPE_I  CSC_GEN_EXPAND(_TYPE_I)
+#define _TYPE_I  CSC_GEN_EXPAND_TYPE(_TYPE_I)
 typedef CSC_GEN_TYPE_2  _TYPE_I;
 
 
 //==========================================================================================================================================
-//= Functions
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                              Functions                                                                 -
+//------------------------------------------------------------------------------------------------------------------------------------------
 //==========================================================================================================================================
 
 

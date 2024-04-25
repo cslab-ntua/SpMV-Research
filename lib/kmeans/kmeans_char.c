@@ -418,8 +418,13 @@ void kmeans_char2_csc(int           * cc_r,           /* in: [numObjs] */
 		int * stats = (typeof(stats)) calloc(numClusters, sizeof(*stats));
 		for(int i=0;i<numObjs;i++)
 			stats[membership[i]]++;
-		for(int i=0;i<numClusters;i++)
-			printf("I = %d\t%d\t( %.3f %% )\n", i, stats[i], stats[i]*100.0/numObjs);
+		for(int i=0;i<numClusters;i++){
+			printf("I = %d", i);
+			if(stats[i] != 0)
+				printf("\t%d\t( %.2f %% )\n", stats[i], stats[i]*100.0/numObjs);
+			else
+				printf("\n");
+		}
 		free(stats);
 
 		loop++;
@@ -439,7 +444,12 @@ void kmeans_char2_csc(int           * cc_r,           /* in: [numObjs] */
 	for(int i=0;i<numObjs;i++)
 		stats[membership[i]]++;
 	printf("\n");
-	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f %% )\n", i, stats[i], stats[i]*100.0/numObjs);
+	for(int i=0;i<numClusters;i++){
+		printf("I = %d", i);
+		if(stats[i] != 0)
+			printf("\t%d\t( %.2f %% )\n", stats[i], stats[i]*100.0/numObjs);
+		else
+			printf("\n");
+	}
 	free(stats);
 }

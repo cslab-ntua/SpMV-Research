@@ -281,7 +281,7 @@ csc_save_to_mtx(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, int num_row
 	for (int i = 0; i < num_cols; i++) {
 		for (int j = col_ptr[i]; j < col_ptr[i + 1]; j++) {
 			k = 0;
-			k += snprintf(buf, buf_n-k, "%d %d %.15g", row_idx[j] + 1, j + 1, val[j]);
+			k += snprintf(buf, buf_n-k, "%d %d %.15g", row_idx[j] + 1, i + 1, val[j]);
 			fprintf(file, "%s\n", buf);
 		}
 	}
@@ -368,6 +368,63 @@ csc_col_size_histogram_plot(char * title_base, __attribute__((unused)) _TYPE_I *
 	);
 
 	free(degrees_cols);
+}
+
+#undef  csc_nnz_size_batch_n_bar_plot
+#define csc_nnz_size_batch_n_bar_plot  CSC_UTIL_GEN_EXPAND(csc_nnz_size_batch_n_bar_plot)
+void
+csc_nnz_size_batch_n_bar_plot(__attribute__((unused)) char * title_base, __attribute__((unused)) _TYPE_I * row_idx, _TYPE_I * col_ptr, __attribute__((unused)) _TYPE_V * val, __attribute__((unused)) long m, long n, __attribute__((unused)) long nnz, int batch_n,
+		__attribute__((unused)) int enable_legend, __attribute__((unused)) long num_pixels_x, __attribute__((unused)) long num_pixels_y)
+{
+
+	// _TYPE_I * degrees_cols;
+	// degrees_cols = (typeof(degrees_cols)) malloc(n * sizeof(*degrees_cols));
+	// #pragma omp parallel for
+	// for(int i=0; i<n; i++)
+	// 	degrees_cols[i] = col_ptr[i+1] - col_ptr[i];
+	// _TYPE_I empty_cols = 0;
+	// for(int i=0; i<n; i++)
+	// 	if(degrees_cols[i] == 0)
+	// 		empty_cols++;
+	// printf("Empty cols: %ld\n", empty_cols);
+
+	_TYPE_I * nnz_part;
+	_TYPE_I n_b = (n-1 + batch_n)/batch_n;
+	nnz_part = (typeof(nnz_part)) malloc(n_b * sizeof(*nnz_part));
+
+	_Pragma("omp parallel")
+	{
+		_Pragma("omp for")
+		for(int i=0; i<n_b; i++){
+			_TYPE_I col_s = i*batch_n;
+			// col_f is a variable that is either (i+1)*batch_n or n, whatever is smaller
+			_TYPE_I col_f = (i+1)*batch_n > n ? n : (i+1)*batch_n;
+			nnz_part[i] = col_ptr[col_f] - col_ptr[col_s];
+		}
+	}
+
+	printf("n = %ld, batch_n = %d, n_b = %d\n", n, batch_n, n_b);
+	// for(int i=0; i<10; i++)
+	// 	printf("%d/%d\t-> %d values (%.4f\%)\n", i+1, n_b, nnz_part[i], nnz_part[i]*100.0/nnz);
+
+	int empty_col_cnt = 0;
+	for(int i=0; i<n_b; i++)
+		if(nnz_part[i]==0)
+			empty_col_cnt++;
+	printf("empty_col_cnt = %d\n", empty_col_cnt);
+
+	// Degree histogram. this can be commented out
+	double nnz_part_min, nnz_part_max, nnz_part_avg, nnz_part_std;
+	array_min_max(nnz_part, n_b, &nnz_part_min, NULL, &nnz_part_max, NULL);
+	array_mean(nnz_part, n_b, &nnz_part_avg);
+	array_std(nnz_part, n_b, &nnz_part_std);
+	printf("%d batches of %d cols\n", n_b, batch_n);
+	printf("nnz_part_max = %.4lf\n", nnz_part_max);
+	printf("nnz_part_min = %.4lf\n", nnz_part_min);
+	printf("nnz_part_avg = %.4lf\n", nnz_part_avg);
+	printf("nnz_part_std = %.4lf\n", nnz_part_std);
+
+	free(nnz_part);
 }
 
 #undef  csc_num_neigh_histogram_plot

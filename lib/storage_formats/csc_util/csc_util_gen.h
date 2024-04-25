@@ -88,6 +88,10 @@ void csc_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V *
 #define csc_col_size_histogram_plot  CSC_UTIL_GEN_EXPAND(csc_col_size_histogram_plot)
 void csc_col_size_histogram_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
 
+#undef  csc_nnz_size_batch_n_bar_plot
+#define csc_nnz_size_batch_n_bar_plot  CSC_UTIL_GEN_EXPAND(csc_nnz_size_batch_n_bar_plot)
+void csc_nnz_size_batch_n_bar_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, long m, long n, long nnz, int batch_n, int enable_legend, long num_pixels_x, long num_pixels_y);
+
 #undef  csc_num_neigh_histogram_plot
 #define csc_num_neigh_histogram_plot  CSC_UTIL_GEN_EXPAND(csc_num_neigh_histogram_plot)
 void csc_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);

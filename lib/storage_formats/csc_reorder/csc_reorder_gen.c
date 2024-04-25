@@ -13,6 +13,8 @@
 #include "kmeans/kmeans.h"
 #include "kmeans/kmeans_char.h"
 
+#include "string_util.h"
+
 #include "csc_reorder_gen.h"
 
 
@@ -884,12 +886,12 @@ csc_reorder_matrix_by_col_batch(__attribute__((unused)) int m, int n, __attribut
 
 /*****************************************/
 /* csc_kmeans_reorder_col util functions */
-void random_selection_csc(_TYPE_I * start_cc_r, _TYPE_I * start_cc_c, float * start_cc_v, float * target_array, int numObjs, int numClusters, int numCoords)
+void random_selection_csc(_TYPE_I * start_cc_r, _TYPE_I * start_cc_c, float * start_cc_v, float * target_array, int numObjs, int numClusters, int numCoords, int seed)
 {
 	int * indices = (int *) malloc(numObjs * sizeof(int));
 	for(int i = 0; i < numObjs; i++)
 		indices[i] = i;
-	srand(14);
+	srand(seed);
 	for(int i = 0; i < numClusters ; i++) {
 		int k = rand() % (numObjs - i);
 		float *start_array = (typeof(start_array)) calloc(numCoords, sizeof(*start_array));
@@ -903,14 +905,43 @@ void random_selection_csc(_TYPE_I * start_cc_r, _TYPE_I * start_cc_c, float * st
 		free(start_array);
 	}
 	free(indices);
-	// for (int i=0; i<numClusters; i++){
-	// 	printf("cluster[%3d] = [ ", i);
-	// 	for (int j=0; j<numCoords; j++)
-	// 		printf("%2.0f ", target_array[i*numCoords + j]);
-	// 	printf("]\n");
-	// }
+	/*
+	for (int i=0; i<numClusters; i++){
+		printf("cluster[%3d] = [ ", i);
+		for (int j=0; j<numCoords; j++)
+			printf("%2.0f ", target_array[i*numCoords + j]);
+		printf("]\n");
+	}
+	*/
 }
 
+void diagonal_selection_csc(float * target_array, int numClusters, int numCoords, float max_value)
+{
+	int width = (numCoords-1 + numClusters) / numClusters;
+	for(int i = 0; i < numClusters; i++){
+		for(int j = 0; j < numCoords; j++){
+			if(j >= i*width && j < (i+1)*width)
+				target_array[i * numCoords + j] = max_value;
+			else
+				target_array[i * numCoords + j] = 0;
+		}
+	}
+	/*
+	for (int i=0; i<numClusters; i++){
+		printf("cluster[%3d] = [ ", i);
+		for (int j=0; j<numCoords; j++){
+			int decision = 0;
+			if(target_array[i*numCoords + j]>0)
+				decision=1;
+			printf("%d", decision);
+			// printf("%.0f ", target_array[i*numCoords + j]);
+		}
+		printf("]\n");
+	}
+	*/
+}
+
+// TODO: add seed in random selection of random_selection_csc
 #undef  csc_kmeans_reorder_col
 #define csc_kmeans_reorder_col  CSC_REORDER_GEN_EXPAND(csc_kmeans_reorder_col)
 void 
@@ -924,7 +955,14 @@ csc_kmeans_reorder_col(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val,
 	int * membership = (typeof(membership)) malloc(numObjs * sizeof(*membership));
 
 	float * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
-	random_selection_csc(cc_r, cc_c, cc_v, clusters, numObjs, numClusters, numCoords);
+	int seed = 14;
+	random_selection_csc(cc_r, cc_c, cc_v, clusters, numObjs, numClusters, numCoords, seed);
+	// float max_value = -1;
+	// for(int i=0; i<numObjs; i++)
+	// 	if(max_value < cc_v[i])
+	// 		max_value = cc_v[i];
+	// printf("max_value = %lf\n", max_value);
+	// diagonal_selection_csc(clusters, numClusters, numCoords, max_value);
 
 	int type = 0; // cosine similarity
 	double time_kmeans2_csc = time_it(1,
@@ -970,8 +1008,8 @@ csc_kmeans_reorder_col(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val,
 	}
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
-	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+	// for(int i=0;i<numClusters;i++)
+	// 	printf("I = %d\t%d\t( %.2f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_col_positions = (typeof(*original_col_positions)) malloc(n * sizeof(**original_col_positions));
@@ -983,6 +1021,7 @@ csc_kmeans_reorder_col(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val,
 	free(membership);
 }
 
+// TODO: add seed in random selection of random_selection_csc
 #undef  csc_kmeans_reorder_col_batch
 #define csc_kmeans_reorder_col_batch  CSC_REORDER_GEN_EXPAND(csc_kmeans_reorder_col_batch)
 void 
@@ -997,7 +1036,14 @@ csc_kmeans_reorder_col_batch(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val
 	int * membership = (typeof(membership)) malloc(numObjs * sizeof(*membership));
 
 	float * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
-	random_selection_csc(cc_r, cc_c, cc_v, clusters, numObjs, numClusters, numCoords);
+	int seed = 14;
+	random_selection_csc(cc_r, cc_c, cc_v, clusters, numObjs, numClusters, numCoords, seed);
+	// float max_value = -1;
+	// for(int i=0; i<numObjs; i++)
+	// 	if(max_value < cc_v[i])
+	// 		max_value = cc_v[i];
+	// printf("max_value = %lf\n", max_value);
+	// diagonal_selection_csc(clusters, numClusters, numCoords, max_value);
 
 	int type = 0; // cosine similarity
 	double time_kmeans2_csc = time_it(1,
@@ -1043,8 +1089,8 @@ csc_kmeans_reorder_col_batch(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val
 	// }
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
-	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+	// for(int i=0;i<numClusters;i++)
+	// 	printf("I = %d\t%d\t( %.2f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_col_positions = (typeof(*original_col_positions)) malloc(n * sizeof(**original_col_positions));
@@ -1055,6 +1101,101 @@ csc_kmeans_reorder_col_batch(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val
 
 	free(membership);
 }
+
+/*****************************************/
+// Struct definition for row subgroups
+typedef struct col_subgroup {
+	int row_start;	// Starting row index
+	int row_finish;	// Finishing row index
+	int population;	// Number of cols that belong to the subgroup
+} col_subgroup;
+
+
+int belongs_to_col_subgroup(int row_start, int row_finish, col_subgroup subgroup, float threshold) {
+    // Check if row_start and row_finish fall within the bounds of the subgroup
+    if (row_start >= (subgroup.row_start*1.0*(1-threshold)) && row_finish <= (subgroup.row_finish*1.0*(1+threshold)))
+        return 1; // Col belongs to subgroup
+    return 0; // Col does not belong to subgroup
+}
+
+void update_or_create_col_subgroup(int col, int row_start, int row_finish, col_subgroup subgroups[], int * num_subgroups, float threshold){
+	for (int i = 0; i < *num_subgroups; i++) {
+		// Check if the col belongs to any existing subgroup
+		if (belongs_to_col_subgroup(row_start, row_finish, subgroups[i], threshold)) {
+			// Increment the population count of the subgroup
+			subgroups[i].population++;
+			if(row_start < subgroups[i].row_start)
+				subgroups[i].row_start = row_start;
+			if(row_finish > subgroups[i].row_finish)
+				subgroups[i].row_finish = row_finish;
+			return;
+		}
+	}
+
+	// If the row doesn't belong to any existing subgroup, create a new one
+	subgroups[*num_subgroups].row_start = row_start;
+	subgroups[*num_subgroups].row_finish = row_finish;
+	subgroups[*num_subgroups].population = 1; // Initialize population count to 1
+	(*num_subgroups)++;
+	printf("\t\t>>> col %d (start = %d, finish = %d) created a new subgroup (#%d)\n", col, row_start, row_finish, *num_subgroups);
+}
+
+#undef  csc_extract_subgroups
+#define csc_extract_subgroups  CSC_REORDER_GEN_EXPAND(csc_extract_subgroups)
+void
+csc_extract_subgroups(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, 
+					  int m, int n, int nnz, float threshold)
+{
+	// Assuming a maximum of 1000 subgroups
+	col_subgroup subgroups[1000];
+	int extra_population = 0, extra_population2 = 0;
+
+	// TODO: need to fix this, so that it account for non_empty_cols only when calculating bw values.
+	_TYPE_I * bandwidth_cols = (typeof(bandwidth_cols)) malloc(n * sizeof(*bandwidth_cols));
+	#pragma omp parallel for
+	for(int i=0; i<n; i++){
+		if((col_ptr[i+1] - col_ptr[i]) == 0)
+			bandwidth_cols[i] = 0;
+		else
+			bandwidth_cols[i] = row_idx[col_ptr[i+1]-1] - row_idx[col_ptr[i]];
+	}
+
+	// Degree histogram. this can be commented out
+	double bandwidth_min, bandwidth_max, bandwidth_avg, bandwidth_std;
+	array_min_max(bandwidth_cols, n, &bandwidth_min, NULL, &bandwidth_max, NULL);
+	array_mean(bandwidth_cols, n, &bandwidth_avg);
+	array_std(bandwidth_cols, n, &bandwidth_std);
+	printf("bandwidth_max = %.0lf\n", bandwidth_max);
+	printf("bandwidth_min = %.0lf\n", bandwidth_min);
+	printf("bandwidth_avg = %.4lf\n", bandwidth_avg);
+	printf("bandwidth_std = %.4lf\n", bandwidth_std);
+
+	free(bandwidth_cols);
+
+	// float bandwidth_avg = 144664.4825;
+	// subgroup[0] will be reserved for larger than avg bw cols
+	int num_subgroups = 0;
+	for(int i=0; i<n; i++){
+		int row_start = row_idx[col_ptr[i]];
+		int row_finish = row_idx[col_ptr[i+1] - 1];
+		int row_size = col_ptr[i+1] - col_ptr[i];
+		if(row_size <= 1)
+			extra_population2++;
+		else{
+			if((row_finish - row_start) > bandwidth_avg)
+				extra_population++;
+			else
+				update_or_create_col_subgroup(i, row_start, row_finish, subgroups, &num_subgroups, threshold);
+		}
+	}
+	printf("extra_population = %d (%.4lf \%)\n", extra_population, extra_population*100.0/n);
+	printf("empty            = %d (%.4lf \%)\n", extra_population2, extra_population2*100.0/n);
+	printf("in the end, there are %d subgroups\n", num_subgroups);
+	for (int i = 0; i < num_subgroups; i++) 
+		printf("subgroup #%d: %d - %d\t(population %d - %.4lf %)\n", i+1, subgroups[i].row_start, subgroups[i].row_finish, subgroups[i].population, subgroups[i].population*100.0/n);
+}
+
+/*****************************************/
 
 /* csc_kmeans_reorder_col util functions */
 void random_selection_char_csc(_TYPE_I * start_cc_r, _TYPE_I * start_cc_c, unsigned char * start_cc_v, unsigned char * target_array, int numObjs, int numClusters, int numCoords)
@@ -1143,8 +1284,8 @@ csc_kmeans_char_reorder_col(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val,
 	}
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
-	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+	// for(int i=0;i<numClusters;i++)
+	// 	printf("I = %d\t%d\t( %.2f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_col_positions = (typeof(*original_col_positions)) malloc(n * sizeof(**original_col_positions));
@@ -1216,8 +1357,8 @@ csc_kmeans_char_reorder_col_batch(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V 
 	}
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
-	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+	// for(int i=0;i<numClusters;i++)
+	// 	printf("I = %d\t%d\t( %.2f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_col_positions = (typeof(*original_col_positions)) malloc(n * sizeof(**original_col_positions));
@@ -1228,6 +1369,204 @@ csc_kmeans_char_reorder_col_batch(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V 
 
 	free(membership);
 }
+
+
+void save_to_mtx(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, int num_rows, int num_cols, const char* filename)
+{
+	printf("Storing: %s\n", filename);
+	FILE* file;
+	file = fopen(filename, "w");
+	if (file == NULL) {
+		printf("Error opening file %s\n", filename);
+		return;
+	}
+
+	fprintf(file, "%%%%MatrixMarket matrix coordinate real general\n");
+	fprintf(file, "%d %d %d\n", num_rows, num_cols, col_ptr[num_cols]);
+	long buf_n = 1000;
+	char buf[buf_n];
+	long k;
+	for (int i = 0; i < num_cols; i++) {
+		for (int j = col_ptr[i]; j < col_ptr[i + 1]; j++) {
+			k = 0;
+			k += snprintf(buf, buf_n-k, "%d %d %.15g", row_idx[j] + 1, i + 1, val[j]);
+			fprintf(file, "%s\n", buf);
+		}
+	}
+	fclose(file);
+}
+
+void replace_substring(char* str, const char* find, const char* replace)
+{
+	char* pos = strstr(str, find);
+	if (pos != NULL) {
+		size_t find_len = strlen(find);
+		size_t replace_len = strlen(replace);
+		size_t tail_len = strlen(pos + find_len);
+
+		memmove(pos + replace_len, pos + find_len, tail_len + 1);
+		memcpy(pos, replace, replace_len);
+	}
+}
+
+char * mtx_name_gen(const char * file_basename, const char * replace_str)
+{
+	long buf_n = 1000;
+	char buf[buf_n];
+
+	char * path, * filename;
+	str_path_split_path(file_basename, strlen(file_basename) + 1, buf, buf_n, &path, &filename);
+	path = strdup(path);
+	filename = strdup(filename);
+	char file_new[1000];
+	char replace[1000];
+
+	sprintf(file_new, "%s", file_basename);
+	sprintf(replace, "_%s.mtx", replace_str);
+	replace_substring(file_new, ".mtx", replace);
+	char * file_mtx;
+	str_path_split_path(file_new, strlen(file_new) + 1, buf, buf_n, &path, &filename);
+	
+	path = strdup(path);
+	filename = strdup(filename);
+	snprintf(buf, buf_n, "matrices/%s", filename);
+	file_mtx = strdup(buf);
+	return file_mtx;
+}
+
+#undef  csc_split_matrix_batch_n
+#define csc_split_matrix_batch_n  CSC_REORDER_GEN_EXPAND(csc_split_matrix_batch_n)
+void 
+csc_split_matrix_batch_n(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, 
+						 _TYPE_I *** row_idx_split_n_out, _TYPE_I *** col_ptr_split_n_out, _TYPE_V *** val_split_n_out, 
+						 _TYPE_I ** nnz_part_out, _TYPE_I ** n_part_out, 
+						 char *file_in,
+						 int m, int n, int nnz, int batch_n)
+{
+	int n_b = (n-1 + batch_n) / batch_n;
+	_TYPE_I * nnz_part, * n_part;
+	nnz_part = (typeof(nnz_part)) malloc(n_b * sizeof(*nnz_part));
+	n_part = (typeof(n_part)) malloc(n_b * sizeof(*n_part));
+
+	_Pragma("omp parallel")
+	{
+		_Pragma("omp for")
+		for(int i=0; i<n_b; i++){
+			_TYPE_I col_s = i*batch_n;
+			// col_f is a variable that is either (i+1)*batch_n or n, whatever is smaller
+			_TYPE_I col_f = (i+1)*batch_n > n ? n : (i+1)*batch_n;
+			nnz_part[i] = col_ptr[col_f] - col_ptr[col_s];
+			n_part[i] = col_f - col_s;
+		}
+	}
+
+	// _TYPE_I ** row_idx_split_n, ** col_ptr_split_n;
+	// _TYPE_V ** val_split_n;
+
+	// *row_idx_split_n = (_TYPE_I**) malloc(n_b * sizeof(_TYPE_I*));
+	// *col_ptr_split_n = (_TYPE_I**) malloc(n_b * sizeof(_TYPE_I*));
+	// *val_split_n = (_TYPE_V**) malloc(n_b * sizeof(_TYPE_V*));
+
+	_TYPE_I * row_idx_split_n[n_b], * col_ptr_split_n[n_b];
+	_TYPE_V * val_split_n[n_b];
+
+	for(int i=0; i<n_b; i++){
+		if(nnz_part[i] != 0){
+			row_idx_split_n[i] = (_TYPE_I*) malloc(nnz_part[i] * sizeof(_TYPE_I));
+			col_ptr_split_n[i] = (_TYPE_I*) malloc((n_part[i]+1) * sizeof(_TYPE_I));
+			val_split_n[i] = (_TYPE_V*) malloc(nnz_part[i] * sizeof(_TYPE_V));
+			printf("part %d: n_part = %d, nnz_part = %d, memory workload %.2lf MB\n", i, n_part[i], nnz_part[i], (nnz_part[i]*(sizeof(_TYPE_I)+sizeof(_TYPE_V)) + (n_part[i]+1)*sizeof(_TYPE_I))/(1024.0*1024.0));
+		}
+	}
+
+	double time_split = time_it(1,
+	for(int i=0; i<n_b; i++){
+		if(nnz_part[i] != 0){
+			_TYPE_I col_s = i*batch_n;
+			// col_f is a variable that is either (i+1)*batch_n or n, whatever is smaller
+			_TYPE_I col_f = (i+1)*batch_n > n ? n : (i+1)*batch_n;
+			_TYPE_I cnt = 0;
+			for(_TYPE_I j=col_s; j<col_f; j++){
+				col_ptr_split_n[i][j-col_s] = cnt;
+				for(_TYPE_I k=col_ptr[j]; k<col_ptr[j+1]; k++){
+					row_idx_split_n[i][cnt] = row_idx[k];
+					val_split_n[i][cnt] = val[k];
+					cnt++;
+				}
+			}
+			col_ptr_split_n[i][col_f-col_s] = cnt;
+
+
+			char * membership_suffix;
+			membership_suffix = (typeof(membership_suffix)) malloc(100*sizeof(*membership_suffix));
+			sprintf(membership_suffix, "sorted_cols_batch_%d_n_part_%d", batch_n, i);
+
+			char * file_new_mat = mtx_name_gen(file_in, membership_suffix);
+			free(membership_suffix);
+
+			if(i<8){
+				printf("file_new_mat = %s\n", file_new_mat);
+				double time = time_it(1,
+				save_to_mtx(row_idx_split_n[i], col_ptr_split_n[i], val_split_n[i], m, n_part[i], file_new_mat);
+				);
+				printf("time for csr_save_to_mtx = %lf (%s)\n", time, file_new_mat);
+			}
+		}
+	}
+	);
+
+	// for(int i=0; i<n_b; i++){
+	// 	if(nnz_part[i] != 0){
+	// 		printf("---------------------------\n");
+			
+	// 		_TYPE_I col_s = i*batch_n;
+	// 		_TYPE_I col_f = (i+1)*batch_n > n ? n : (i+1)*batch_n;
+	// 		printf("part %d (range of columns %d - %d)\n", i, col_s, col_f);
+	// 		for(int j=0;j<3;j++){
+	// 			printf("part %d: col_ptr[%d] = %d - %d (total nnz = %d)\n", i, j, col_ptr_split_n[i][j], col_ptr_split_n[i][j+1], col_ptr_split_n[i][j+1]-col_ptr_split_n[i][j]);
+	// 			// for(int k=col_ptr_split_n[i][j]; k<col_ptr_split_n[i][j+1]; k++){
+				
+	// 			for(int k=col_ptr_split_n[i][j]; k<col_ptr_split_n[i][j]+5 && k<col_ptr_split_n[i][j+1]; k++)
+	// 				printf("\trow_idx[%d] = %d, val[%d] = %f\n", k-col_ptr_split_n[i][j], row_idx_split_n[i][k], k-col_ptr_split_n[i][j], val_split_n[i][k]);
+	// 			printf("\t...\n");
+	// 			for(int k=col_ptr_split_n[i][j+1]-5; k<col_ptr_split_n[i][j+1]; k++){
+	// 				if(k>=col_ptr_split_n[i][j]+5)
+	// 					printf("\trow_idx[%d] = %d, val[%d] = %f\n", k-col_ptr_split_n[i][j], row_idx_split_n[i][k], k-col_ptr_split_n[i][j], val_split_n[i][k]);
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+
+
+
+	// for(int i=0; i<n_b; i++){
+	// 	if(nnz_part[i] != 0){
+	// 		free(row_idx_split_n[i]);
+	// 		free(col_ptr_split_n[i]);
+	// 		free(val_split_n[i]);
+	// 	}
+	// }
+
+	// free(row_idx_split_n);
+	// free(col_ptr_split_n);
+	// free(val_split_n);
+
+	// free(nnz_part);
+	// free(n_part);
+
+	if(*row_idx_split_n_out != NULL)
+		*row_idx_split_n_out = row_idx_split_n;
+	if(*col_ptr_split_n_out != NULL)
+		*col_ptr_split_n_out = col_ptr_split_n;
+	if(*val_split_n_out != NULL)
+		*val_split_n_out = val_split_n;
+	if(*nnz_part_out != NULL)
+		*nnz_part_out = nnz_part;
+	if(*n_part_out != NULL)
+		*n_part_out = n_part;
+}
+
 
 //==========================================================================================================================================
 //= Includes Undefs

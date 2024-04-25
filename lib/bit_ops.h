@@ -41,7 +41,11 @@ bits_print_bytestream(unsigned char * data, long N)
 	long i;
 	for (i=N-1;i>=0;i--)
 	{
-		fprintf(stdout, "%08b", data[i]);
+		// fprintf(stdout, "%08b", data[i]);
+		for(int j=7; j>=0; j--)
+		{
+			fprintf(stdout, "%d", (data[i] >> j) & 1);
+		}
 	}
 	fprintf(stdout, "\n");
 }

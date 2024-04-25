@@ -88,6 +88,10 @@ void csc_kmeans_reorder_col_batch(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V 
 								  int m, int n, int nnz, int batch, 
 								  int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * cc_r, _TYPE_I * cc_c, float * cc_v);
 
+#undef  csc_extract_subgroups
+#define csc_extract_subgroups  CSC_REORDER_GEN_EXPAND(csc_extract_subgroups)
+void csc_extract_subgroups(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, int m, int n, int nnz, float threshold);
+
 #undef  csc_kmeans_char_reorder_col
 #define csc_kmeans_char_reorder_col  CSC_REORDER_GEN_EXPAND(csc_kmeans_char_reorder_col)
 void csc_kmeans_char_reorder_col(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, 
@@ -101,3 +105,11 @@ void csc_kmeans_char_reorder_col_batch(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TY
 									   _TYPE_I * row_idx_reorder_c, _TYPE_I * col_ptr_reorder_c, _TYPE_V * val_reorder_c, _TYPE_I ** original_col_positions,
 									   int m, int n, int nnz, int batch, 
 									   int numClusters, float threshold, int loop_threshold, int num_windows, _TYPE_I * cc_r, _TYPE_I * cc_c, unsigned char * cc_v);
+
+#undef  csc_split_matrix_batch_n
+#define csc_split_matrix_batch_n  CSC_REORDER_GEN_EXPAND(csc_split_matrix_batch_n)
+void csc_split_matrix_batch_n(_TYPE_I * row_idx, _TYPE_I * col_ptr, _TYPE_V * val, 
+	_TYPE_I *** row_idx_split_n_out, _TYPE_I *** col_ptr_split_n_out, _TYPE_V *** val_split_n_out, 
+	_TYPE_I ** nnz_part_out, _TYPE_I ** n_part_out, 
+	char *file_in,
+	int m, int n, int nnz, int batch_n);

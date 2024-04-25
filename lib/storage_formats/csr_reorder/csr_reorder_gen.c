@@ -800,6 +800,20 @@ csr_extract_row_cross2_batch(_TYPE_I *row_ptr, _TYPE_I *col_idx, __attribute__((
 	if (rc_v_out != NULL)
 		*rc_v_out = rc_v;
 
+	_TYPE_I * degrees_rows_batched = (_TYPE_I *) malloc(m_batch * sizeof(*degrees_rows_batched));
+	#pragma omp parallel for
+	for(int i=0; i<m_batch; i++)
+		degrees_rows_batched[i] = rc_r[i+1] - rc_r[i];
+	double deg_min, deg_max, deg_avg, deg_std;
+	array_min_max(degrees_rows_batched, m_batch, &deg_min, NULL, &deg_max, NULL);
+	array_mean(degrees_rows_batched, m_batch, &deg_avg);
+	array_std(degrees_rows_batched, m_batch, &deg_std);
+	printf("\n----\ndeg_max = %.4lf\n", deg_max);
+	printf("deg_min = %.4lf\n", deg_min);
+	printf("deg_avg = %.4lf\n", deg_avg);
+	printf("deg_std = %.4lf\n----\n", deg_std);
+	free(degrees_rows_batched);
+
 	free(thread_i_s);
 	free(thread_i_e);
 }
@@ -1224,17 +1238,45 @@ void random_selection_csr(_TYPE_I * start_rc_r, _TYPE_I * start_rc_c, float * st
 		free(start_array);
 	}
 	free(indices);
-	// for (int i=0; i<numClusters; i++){
-	// 	printf("cluster[%3d] = [ ", i);
-	// 	for (int j=0; j<numCoords; j++){
-	// 		int decision = 0;
-	// 		if(target_array[i*numCoords + j]>0)
-	// 			decision=1;
-	// 		printf("%d", decision);
-	// 		// printf("%.0f ", target_array[i*numCoords + j]);
-	// 	}
-	// 	printf("]\n");
-	// }
+	/*
+	for (int i=0; i<numClusters; i++){
+		printf("cluster[%3d] = [ ", i);
+		for (int j=0; j<numCoords; j++){
+			int decision = 0;
+			if(target_array[i*numCoords + j]>0)
+				decision=1;
+			printf("%d", decision);
+			// printf("%.0f ", target_array[i*numCoords + j]);
+		}
+		printf("]\n");
+	}
+	*/
+}
+
+void diagonal_selection_csr(float * target_array, int numClusters, int numCoords, float max_value)
+{
+	int width = (numCoords-1 + numClusters) / numClusters;
+	for(int i = 0; i < numClusters; i++){
+		for(int j = 0; j < numCoords; j++){
+			if(j >= i*width && j < (i+1)*width)
+				target_array[i * numCoords + j] = max_value;
+			else
+				target_array[i * numCoords + j] = 0;
+		}
+	}
+	/*
+	for (int i=0; i<numClusters; i++){
+		printf("cluster[%3d] = [ ", i);
+		for (int j=0; j<numCoords; j++){
+			int decision = 0;
+			if(target_array[i*numCoords + j]>0)
+				decision=1;
+			printf("%d", decision);
+			// printf("%.0f ", target_array[i*numCoords + j]);
+		}
+		printf("]\n");
+	}
+	*/
 }
 
 #undef  csr_kmeans_reorder_row
@@ -1251,6 +1293,12 @@ csr_kmeans_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val,
 
 	float * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
 	random_selection_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords, seed);
+	// float max_value = -1;
+	// for(int i=0; i<numObjs; i++)
+	// 	if(max_value < rc_v[i])
+	// 		max_value = rc_v[i];
+	// printf("max_value = %lf\n", max_value);
+	// diagonal_selection_csr(clusters, numClusters, numCoords, max_value);
 
 	int type = 0; // cosine similarity
 	double time_kmeans2_csr = time_it(1,
@@ -1289,8 +1337,8 @@ csr_kmeans_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val,
 	}
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
-	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+	// for(int i=0;i<numClusters;i++)
+	// 	printf("I = %d\t%d\t( %.2f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
@@ -1363,6 +1411,12 @@ csr_kmeans_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val
 
 	float * clusters = (typeof(clusters)) malloc(numClusters * numCoords * sizeof(*clusters));
 	random_selection_csr(rc_r, rc_c, rc_v, clusters, numObjs, numClusters, numCoords, seed);
+	// float max_value = -1;
+	// for(int i=0; i<numObjs; i++)
+	// 	if(max_value < rc_v[i])
+	// 		max_value = rc_v[i];
+	// printf("max_value = %lf\n", max_value);
+	// diagonal_selection_csr(clusters, numClusters, numCoords, max_value);
 
 	int type = 0; // cosine similarity
 	double time_kmeans2_csr = time_it(1,
@@ -1414,8 +1468,8 @@ csr_kmeans_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val
 	// }
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
-	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+	// for(int i=0;i<numClusters;i++)
+	// 	printf("I = %d\t%d\t( %.2f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
@@ -1426,6 +1480,104 @@ csr_kmeans_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val
 
 	free(membership);
 }
+
+/*****************************************/
+// Struct definition for row subgroups
+typedef struct row_subgroup {
+	int col_start;	// Starting column index
+	int col_finish;	// Finishing column index
+	int population;	// Number of rows that belong to the subgroup
+} row_subgroup;
+
+
+int belongs_to_row_subgroup(int col_start, int col_finish, row_subgroup subgroup, float threshold) {
+    // Check if col_start and col_finish fall within the bounds of the subgroup
+    if (col_start >= (subgroup.col_start*1.0*(1-threshold)) && col_finish <= (subgroup.col_finish*1.0*(1+threshold)))
+        return 1; // Row belongs to subgroup
+    return 0; // Row does not belong to subgroup
+}
+
+void update_or_create_row_subgroup(int row, int col_start, int col_finish, row_subgroup subgroups[], int * num_subgroups, float threshold){
+	for (int i = 0; i < *num_subgroups; i++) {
+		// Check if the row belongs to any existing subgroup
+		if (belongs_to_row_subgroup(col_start, col_finish, subgroups[i], threshold)) {
+			// Increment the population count of the subgroup
+			subgroups[i].population++;
+			if(col_start < subgroups[i].col_start)
+				subgroups[i].col_start = col_start;
+			if(col_finish > subgroups[i].col_finish)
+				subgroups[i].col_finish = col_finish;
+			return;
+		}
+	}
+
+	// If the row doesn't belong to any existing subgroup, create a new one
+	subgroups[*num_subgroups].col_start = col_start;
+	subgroups[*num_subgroups].col_finish = col_finish;
+	subgroups[*num_subgroups].population = 1; // Initialize population count to 1
+	(*num_subgroups)++;
+	printf("\t\t>>> row %d (start = %d, finish = %d) created a new subgroup (#%d)\n", row, col_start, col_finish, *num_subgroups);
+}
+
+#undef  csr_extract_subgroups
+#define csr_extract_subgroups  CSR_REORDER_GEN_EXPAND(csr_extract_subgroups)
+void
+csr_extract_subgroups(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, 
+					  int m, int n, int nnz, float threshold)
+{
+	// Assuming a maximum of 1000 subgroups
+	row_subgroup subgroups[1000];
+	int extra_population = 0, extra_population2 = 0;
+
+	// TODO: need to fix this, so that it account for non_empty_rows only when calculating bw values.
+	_TYPE_I * bandwidth_rows = (typeof(bandwidth_rows)) malloc(m * sizeof(*bandwidth_rows));
+	#pragma omp parallel for
+	for(int i=0; i<m; i++){
+		if((row_ptr[i+1] - row_ptr[i]) == 0)
+			bandwidth_rows[i] = 0;
+		else
+			bandwidth_rows[i] = col_idx[row_ptr[i+1]-1] - col_idx[row_ptr[i]];
+	}
+
+	// Degree histogram. this can be commented out
+	double bandwidth_min, bandwidth_max, bandwidth_avg, bandwidth_std;
+	array_min_max(bandwidth_rows, m, &bandwidth_min, NULL, &bandwidth_max, NULL);
+	array_mean(bandwidth_rows, m, &bandwidth_avg);
+	array_std(bandwidth_rows, m, &bandwidth_std);
+	printf("bandwidth_max = %.0lf\n", bandwidth_max);
+	printf("bandwidth_min = %.0lf\n", bandwidth_min);
+	printf("bandwidth_avg = %.4lf\n", bandwidth_avg);
+	printf("bandwidth_std = %.4lf\n", bandwidth_std);
+
+	free(bandwidth_rows);
+
+	double bandwidth_selection = bandwidth_avg;
+	if(bandwidth_selection > 131072)
+		bandwidth_selection = 131072;
+
+	// subgroup[0] will be reserved for larger than avg bw rows
+	int num_subgroups = 0;
+	for(int i=0; i<m; i++){
+		int col_start = col_idx[row_ptr[i]];
+		int col_finish = col_idx[row_ptr[i+1] - 1];
+		int row_size = row_ptr[i+1] - row_ptr[i];
+		if(row_size < 1)
+			extra_population2++;
+		else{
+			if((col_finish - col_start) > bandwidth_selection)
+				extra_population++;
+			else
+				update_or_create_row_subgroup(i, col_start, col_finish, subgroups, &num_subgroups, threshold);
+		}
+	}
+	printf("extra_population = %d (%.4lf \%)\n", extra_population, extra_population*100.0/m);
+	printf("empty            = %d (%.4lf \%)\n", extra_population2, extra_population2*100.0/n);
+	printf("in the end, there are %d subgroups\n", num_subgroups);
+	for (int i = 0; i < num_subgroups; i++) 
+		printf("subgroup #%d: %d - %d\t width %d\t(population %d - %.4lf %)\n", i+1, subgroups[i].col_start, subgroups[i].col_finish, subgroups[i].col_finish-subgroups[i].col_start ,subgroups[i].population, subgroups[i].population*100.0/m);
+}
+
+/*****************************************/
 
 /* csr_kmeans_reorder_row util functions */
 void random_selection_char_csr(_TYPE_I * start_rc_r, _TYPE_I * start_rc_c, unsigned char * start_rc_v, unsigned char * target_array, int numObjs, int numClusters, int numCoords, int seed)
@@ -1507,8 +1659,8 @@ csr_kmeans_char_reorder_row(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val,
 	}
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
-	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+	// for(int i=0;i<numClusters;i++)
+	// 	printf("I = %d\t%d\t( %.2f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
@@ -1573,8 +1725,8 @@ csr_kmeans_char_reorder_row_batch(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V 
 	// }
 	for(int i=0;i<numObjs;i++)
 		ordered_membership[membership[i]]++;
-	for(int i=0;i<numClusters;i++)
-		printf("I = %d\t%d\t( %.3f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
+	// for(int i=0;i<numClusters;i++)
+	// 	printf("I = %d\t%d\t( %.2f%% )\n", i, ordered_membership[i], ordered_membership[i]*100.0/numObjs);
 	free(ordered_membership);
 
 	*original_row_positions = (typeof(*original_row_positions)) malloc(m * sizeof(**original_row_positions));
