@@ -45,11 +45,7 @@ double * thread_time_compute, * thread_time_barrier;
 #endif
 
 #ifndef TIME_IT
-#define TIME_IT 1
-#endif
-
-#ifndef VERIFIED
-#define VERIFIED 1
+#define TIME_IT 0
 #endif
 
 struct COOArrays : Matrix_Format
@@ -481,75 +477,21 @@ compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restri
 		}
 	}
 
-	for(int i=0; i<coo->num_streams; i++)
-		gpuCudaErrorCheck(cudaEventRecord(coo->startEvent_execution[i], coo->stream[i]));
+	for(int i=0; i<coo->num_streams; i++){
+		gpuCusparseErrorCheck(cusparseSpMV(coo->handle[i], CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, coo->matA[i], coo->vecX[i], &beta, coo->vecY[i], ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, coo->dBuffer[i]));
+	}
 
-	int num_loops = 128;
-	double time_execution = time_it(1,
-		for(int k=0;k<num_loops;k++){
-			for(int i=0; i<coo->num_streams; i++){
-				gpuCusparseErrorCheck(cusparseSpMV(coo->handle[i], CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, coo->matA[i], coo->vecX[i], &beta, coo->vecY[i], ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, coo->dBuffer[i]));
-			}
-			// gpuCudaErrorCheck(cudaPeekAtLastError());
-			gpuCudaErrorCheck(cudaDeviceSynchronize());
-		}
-	);
-
-	double gflops = coo->nnz / time_execution * num_loops * 2 * 1e-9;
-	printf("(DGAL timing) Execution time = %.4lf ms (%.4lf GFLOPS %d streams for %.2lf MB workload)\n", time_execution*1e3, gflops, coo->num_streams, coo->mem_footprint/(1024*1024.0));
-
-	for(int i=0; i<coo->num_streams; i++)
-		gpuCudaErrorCheck(cudaEventRecord(coo->endEvent_execution[i], coo->stream[i]));
-
+	gpuCudaErrorCheck(cudaPeekAtLastError());
 	for(int i=0; i<coo->num_streams; i++)
 		gpuCudaErrorCheck(cudaStreamSynchronize(coo->stream[i]));
-
-	if(TIME_IT){
-		for(int i=0; i<coo->num_streams; i++){
-			float executionTime_cuda;
-			gpuCudaErrorCheck(cudaEventElapsedTime(&executionTime_cuda, coo->startEvent_execution[i], coo->endEvent_execution[i]));
-
-			double gflops_cuda = coo->nnz_stream[i] / executionTime_cuda * num_loops * 2 * 1e-6;
-			double mem_footprint = (coo->nnz_stream[i] * (sizeof(ValueType) + sizeof(INT_T)) + (coo->m+1) * sizeof(INT_T))/(1024*1024.0);
-			printf("(CUDA) (stream %d) Execution time = %.4lf ms (%.4lf GFLOPS for %.2lf MB workload)\n", i, executionTime_cuda, gflops_cuda, mem_footprint);
-		}
-	}
 
 	if (coo->y == NULL)
 	{
 		coo->y = y;
 
-		// for(int i=0; i<coo->num_streams; i++){
-		// 	if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(coo->startEvent_memcpy_y[i], coo->stream[i]));
-		// 	gpuCudaErrorCheck(cudaMemcpyAsync(coo->y_h[i], coo->y_d[i], coo->m * sizeof(ValueType), cudaMemcpyDeviceToHost, coo->stream[i]));
-		// 	if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(coo->endEvent_memcpy_y[i], coo->stream[i]));
-		// }
-
-		// if(TIME_IT){
-		// 	for(int i=0; i<coo->num_streams; i++){
-		// 		gpuCudaErrorCheck(cudaEventSynchronize(coo->endEvent_memcpy_y[i]));
-		// 		float memcpyTime_cuda;
-		// 		gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda, coo->startEvent_memcpy_y[i], coo->endEvent_memcpy_y[i]));
-		// 		printf("(CUDA) (stream %d) Memcpy y time = %.4lf ms\n", i, memcpyTime_cuda);
-		// 	}
-		// }
-
-		// // for(int i=0; i<coo->num_streams; i++)
-		// // 	memcpy(y, coo->y_h[i], coo->m * sizeof(ValueType));
-		// double time_y_reduction = time_it(1,
-		// 	for(int i=0; i<coo->m; i++){
-		// 		coo->y_h_final[i] = 0;
-		// 		for(int k=0; k<coo->num_streams; k++)
-		// 			coo->y_h_final[i] += coo->y_h[k][i];
-		// 	}
-		// 	memcpy(y, coo->y_h_final, coo->m * sizeof(ValueType));
-		// );
-		// printf("time_y_reduction = %.4lf ms\n", time_y_reduction);
-
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(coo->startEvent_memcpy_y, coo->stream[0]));
 
 		ValueType *ones_host, *ones_device;
-
 		gpuCudaErrorCheck(cudaMallocHost(&ones_host, coo->num_streams * sizeof(ValueType)));
 		for (int i=0; i<coo->num_streams; i++) ones_host[i] = 1.0;
 		gpuCudaErrorCheck(cudaMalloc(&ones_device, coo->num_streams * sizeof(ValueType)));	

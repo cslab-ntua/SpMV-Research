@@ -19,8 +19,6 @@ extern "C"{
 	#include "parallel_util.h"
 	#include "array_metrics.h"
 
-	// #include "string_util.h" // REMOVE THIS
-
 	#include "cuda/cuda_util.h"
 	#include "cuda/cublas_util.h"
 	#include "aux/csr_util.h"
@@ -59,64 +57,9 @@ double * thread_time_compute, * thread_time_barrier;
 #define TIME_IT 0
 #endif
 
-#ifndef VERIFIED
-#define VERIFIED 1
-#endif
-
 INT_T * thread_block_i_s[NUM_STREAMS];
 INT_T * thread_block_i_e[NUM_STREAMS];
 unsigned char * rel_row_idx[NUM_STREAMS];
-
-// REMOVE THIS
-/*
-void replace_substring(char* str, const char* find, const char* replace)
-{
-	char* pos = strstr(str, find);
-	if (pos != NULL) {
-		size_t find_len = strlen(find);
-		size_t replace_len = strlen(replace);
-		size_t tail_len = strlen(pos + find_len);
-
-		memmove(pos + replace_len, pos + find_len, tail_len + 1);
-		memcpy(pos, replace, replace_len);
-	}
-}
-// REMOVE THIS
-char * fig_name_gen(const char * file_basename, const char * replace_str)
-{
-	long buf_n = 1000;
-	char buf[buf_n];
-
-	char * path, * filename, * filename_base;
-	str_path_split_path(file_basename, strlen(file_basename) + 1, buf, buf_n, &path, &filename);
-
-	path = strdup(path);
-	filename = strdup(filename);
-	char file_new[1000];
-	char replace[1000];
-
-	sprintf(file_new, "%s", file_basename);
-	sprintf(replace, "_%s.mtx", replace_str);
-	// replace_substring(file_new, ".mtx", replace);
-	if(replace_str == NULL || replace_str[0] == '\0')
-		replace_substring(file_new, ".mtx", "");
-	else{
-		replace_substring(file_new, ".mtx", "_|");
-		replace_substring(file_new, "|", replace_str);
-	}
-
-	char * file_fig;
-	str_path_split_path(file_new, strlen(file_new) + 1, buf, buf_n, &path, &filename);
-	
-	path = strdup(path);
-	filename = strdup(filename);
-	str_path_split_ext(filename, strlen(filename) + 1, buf, buf_n, &filename_base, NULL);
-	filename_base = strdup(filename_base);
-	snprintf(buf, buf_n, "figures/%s", filename_base);
-	file_fig = strdup(buf);
-	return file_fig;
-}
-*/
 
 struct CSRArrays : Matrix_Format
 {
@@ -343,46 +286,35 @@ struct CSRArrays : Matrix_Format
 		printf("/********************************************************************************************************/\n");
 		/********************************************************************************************************/
 
-		// time_balance = time_it(1,
-			for(int i=0; i<num_streams; i++){
-				thread_block_i_s[i] = (INT_T *) malloc(num_blocks * sizeof(INT_T));
-				thread_block_i_e[i] = (INT_T *) malloc(num_blocks * sizeof(INT_T));
-				for (int j=0; j<num_blocks; j++)
-				{
-					// loop_partitioner_balance_iterations(num_blocks, i, 0, m, &thread_block_i_s[i], &thread_block_i_e[i]);
-					loop_partitioner_balance_prefix_sums(num_blocks, j, row_ptr_stream[i], m, nnz_stream[i], &(thread_block_i_s[i][j]), &(thread_block_i_e[i][j]));
-				}
+		for(int i=0; i<num_streams; i++){
+			thread_block_i_s[i] = (INT_T *) malloc(num_blocks * sizeof(INT_T));
+			thread_block_i_e[i] = (INT_T *) malloc(num_blocks * sizeof(INT_T));
+			for (int j=0; j<num_blocks; j++)
+			{
+				// loop_partitioner_balance_iterations(num_blocks, i, 0, m, &thread_block_i_s[i], &thread_block_i_e[i]);
+				loop_partitioner_balance_prefix_sums(num_blocks, j, row_ptr_stream[i], m, nnz_stream[i], &(thread_block_i_s[i][j]), &(thread_block_i_e[i][j]));
+			}
 
-				rel_row_idx[i] = (unsigned char *) malloc(nnz_stream[i] * sizeof(unsigned char));
-				#pragma omp parallel
+			rel_row_idx[i] = (unsigned char *) malloc(nnz_stream[i] * sizeof(unsigned char));
+			#pragma omp parallel
+			{
+				long ii, i_s, i_e, i_rel, j, k;
+				#pragma omp for
+				for (k=0;k<num_blocks;k++)
 				{
-					long ii, i_s, i_e, i_rel, j, k;
-					#pragma omp for
-					for (k=0;k<num_blocks;k++)
+					i_s = thread_block_i_s[i][k];
+					i_e = thread_block_i_e[i][k];
+					for (ii=i_s;ii<i_e;ii++)
 					{
-						i_s = thread_block_i_s[i][k];
-						i_e = thread_block_i_e[i][k];
-						for (ii=i_s;ii<i_e;ii++)
+						i_rel = (ii - i_s) % row_cluster_size;
+						for (j=row_ptr_stream[i][ii];j<row_ptr_stream[i][ii+1];j++)
 						{
-							i_rel = (ii - i_s) % row_cluster_size;
-							for (j=row_ptr_stream[i][ii];j<row_ptr_stream[i][ii+1];j++)
-							{
-								rel_row_idx[i][j] = i_rel;
-							}
+							rel_row_idx[i][j] = i_rel;
 						}
 					}
 				}
 			}
-		// );
-		// printf("balance time = %g\n", time_balance);
-		// INT_T offset=0;
-		// for(int i=0; i<num_streams; i++){
-		// 	printf("stream %d: ",i);
-		// 	for(int j=0; j<num_threads; j++){
-		// 		printf("%d, ", thread_block_i_s[i][j]);
-		// 	}
-		// 	printf("\n");
-		// }
+		}
 
 		for(int i=0; i<num_streams; i++){
 			gpuCudaErrorCheck(cudaMalloc(&ia_d[i], (m+1) * sizeof(INT_T)));
@@ -663,7 +595,7 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 	int num_blocks = csr->num_blocks;
 	dim3 block_dims(block_size);
 	dim3 grid_dims(num_blocks);
-	printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims.x, grid_dims.y, grid_dims.z, block_dims.x, block_dims.y, block_dims.z);
+	// printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims.x, grid_dims.y, grid_dims.z, block_dims.x, block_dims.y, block_dims.z);
 	// long shared_mem_size = block_size * sizeof(*C_d);
 
 	if (csr->x == NULL)
@@ -693,86 +625,21 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		}
 	}
 
-	if(VERIFIED){
-		int num_loops = 1000;
-		for(int k=0;k<num_loops;k++){
-			for(int i=0; i<csr->num_streams; i++){
-				gpu_kernel_csr_basic<<<grid_dims, block_dims, (csr->row_cluster_size*block_size*sizeof(ValueType)), csr->stream[i]>>>(csr->thread_block_i_s_d[i], csr->thread_block_i_e_d[i], csr->ia_d[i], csr->ja_d[i], csr->a_d[i], csr->x_d[i], csr->y_d2 + i*csr->m, csr->rel_row_idx_d[i], csr->row_cluster_size);
-			}
-		}
-		gpuCudaErrorCheck(cudaPeekAtLastError());
-		gpuCudaErrorCheck(cudaDeviceSynchronize());
+	for(int i=0; i<csr->num_streams; i++){
+		gpu_kernel_csr_basic<<<grid_dims, block_dims, (csr->row_cluster_size*block_size*sizeof(ValueType)), csr->stream[i]>>>(csr->thread_block_i_s_d[i], csr->thread_block_i_e_d[i], csr->ia_d[i], csr->ja_d[i], csr->a_d[i], csr->x_d[i], csr->y_d2 + i*csr->m, csr->rel_row_idx_d[i], csr->row_cluster_size);
 	}
 
-	for(int i=0; i<csr->num_streams; i++)
-		gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution[i], csr->stream[i]));
-
-	int num_loops = 128;
-	double time_execution = time_it(1,
-		for(int k=0;k<num_loops;k++){
-			for(int i=0; i<csr->num_streams; i++){
-				gpu_kernel_csr_basic<<<grid_dims, block_dims, (csr->row_cluster_size*block_size*sizeof(ValueType)), csr->stream[i]>>>(csr->thread_block_i_s_d[i], csr->thread_block_i_e_d[i], csr->ia_d[i], csr->ja_d[i], csr->a_d[i], csr->x_d[i], csr->y_d2 + i*csr->m, csr->rel_row_idx_d[i], csr->row_cluster_size);
-				// gpu_kernel_csr_flat<<<grid_dims, block_dims>>>(thread_block_i_s_d, thread_block_i_e_d, csr->ia_d, csr->ja_d, csr->a_d, csr->x_d, csr->y_d);
-			}
-			gpuCudaErrorCheck(cudaPeekAtLastError());
-			gpuCudaErrorCheck(cudaDeviceSynchronize());
-		}
-	);
-	double gflops = csr->nnz / time_execution * num_loops * 2 * 1e-9;
-	printf("(DGAL timing) Execution time = %.4lf ms (%.4lf GFLOPS buffer-t%d_rc%d and %d streams for %.2lf MB workload)\n", time_execution*1e3, gflops, csr->num_threads, csr->row_cluster_size, csr->num_streams, csr->mem_footprint/(1024*1024.0));
-
-	for(int i=0; i<csr->num_streams; i++)
-		gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution[i], csr->stream[i]));
-
+	gpuCudaErrorCheck(cudaPeekAtLastError());
 	for(int i=0; i<csr->num_streams; i++)
 		gpuCudaErrorCheck(cudaStreamSynchronize(csr->stream[i]));
-
-	if(TIME_IT){
-		for(int i=0; i<csr->num_streams; i++){
-			float executionTime_cuda;
-			gpuCudaErrorCheck(cudaEventElapsedTime(&executionTime_cuda, csr->startEvent_execution[i], csr->endEvent_execution[i]));
-
-			double gflops_cuda = csr->nnz_stream[i] / executionTime_cuda * num_loops * 2 * 1e-6;
-			double mem_footprint = (csr->nnz_stream[i] * (sizeof(ValueType) + sizeof(INT_T)) + (csr->m+1) * sizeof(INT_T))/(1024*1024.0);
-			printf("(CUDA) (stream %d) Execution time = %.4lf ms (%.4lf GFLOPS @ t%d_rc%d for %.2lf MB workload)\n", i, executionTime_cuda, gflops_cuda, csr->num_threads, csr->row_cluster_size, csr->mem_footprint/(1024*1024.0));
-		}
-	}
 
 	if (csr->y == NULL)
 	{
 		csr->y = y;
 
-		// for(int i=0; i<csr->num_streams; i++){
-		// 	if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_memcpy_y[i], csr->stream[i]));
-		// 	gpuCudaErrorCheck(cudaMemcpyAsync(csr->y_h[i], csr->y_d[i], csr->m * sizeof(ValueType), cudaMemcpyDeviceToHost, csr->stream[i]));
-		// 	if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_memcpy_y[i], csr->stream[i]));
-		// }
-
-		// if(TIME_IT){
-		// 	for(int i=0; i<csr->num_streams; i++){
-		// 		gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_memcpy_y[i]));
-		// 		float memcpyTime_cuda;
-		// 		gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda, csr->startEvent_memcpy_y[i], csr->endEvent_memcpy_y[i]));
-		// 		printf("(CUDA) (stream %d) Memcpy y time = %.4lf ms\n", i, memcpyTime_cuda);
-		// 	}
-		// }
-
-		// // for(int i=0; i<csr->num_streams; i++)
-		// // 	memcpy(y, csr->y_h[i], csr->m * sizeof(ValueType));
-		// double time_y_reduction = time_it(1,
-		// 	for(int i=0; i<csr->m; i++){
-		// 		csr->y_h_final[i] = 0;
-		// 		for(int k=0; k<csr->num_streams; k++)
-		// 			csr->y_h_final[i] += csr->y_h[k][i];
-		// 	}
-		// 	memcpy(y, csr->y_h_final, csr->m * sizeof(ValueType));
-		// );
-		// printf("time_y_reduction = %.4lf ms\n", time_y_reduction);
-
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_memcpy_y, csr->stream[0]));
 
 		ValueType *ones_host, *ones_device;
-
 		gpuCudaErrorCheck(cudaMallocHost(&ones_host, csr->num_streams * sizeof(ValueType)));
 		for (int i=0; i<csr->num_streams; i++) ones_host[i] = 1.0;
 		gpuCudaErrorCheck(cudaMalloc(&ones_device, csr->num_streams * sizeof(ValueType)));	

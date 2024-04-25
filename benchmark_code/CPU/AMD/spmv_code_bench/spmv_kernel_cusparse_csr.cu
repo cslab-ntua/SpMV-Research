@@ -34,11 +34,7 @@ extern "C"{
 double * thread_time_compute, * thread_time_barrier;
 
 #ifndef TIME_IT
-#define TIME_IT 1
-#endif
-
-#ifndef VERIFIED
-#define VERIFIED 1
+#define TIME_IT 0
 #endif
 
 struct CSRArrays : Matrix_Format
@@ -303,36 +299,9 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		}
 	}
 
-	if(VERIFIED){
-		int num_loops = 1000;
-		for(int k=0;k<num_loops;k++)
-			gpuCusparseErrorCheck(cusparseSpMV(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer));
-		gpuCudaErrorCheck(cudaPeekAtLastError());
-		gpuCudaErrorCheck(cudaDeviceSynchronize());
-	}
-
-	// Execute SpMV
-	gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution));
-
-	int num_loops = 128;
-	double time_execution = time_it(1,
-		for(int k=0;k<num_loops;k++){
-			gpuCusparseErrorCheck(cusparseSpMV(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer));
-			gpuCudaErrorCheck(cudaPeekAtLastError());
-			gpuCudaErrorCheck(cudaDeviceSynchronize());
-		}
-	);
-
-	double gflops = csr->nnz / time_execution * num_loops * 2 * 1e-9;
-	printf("(DGAL timing) Execution time = %.4lf ms (%.4lf GFLOPS for %.2lf MB workload)\n", time_execution*1e3, gflops, csr->mem_footprint/(1024*1024.0));
-
-	gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution));
-	float executionTime_cuda;
-	gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution));
-	gpuCudaErrorCheck(cudaEventElapsedTime(&executionTime_cuda, csr->startEvent_execution, csr->endEvent_execution));
-
-	double gflops_cuda = csr->nnz / executionTime_cuda * num_loops * 2 * 1e-6;
-	printf("(CUDA) Execution time = %.4lf ms (%.4lf GFLOPS for %.2lf MB workload)\n", executionTime_cuda, gflops_cuda, csr->mem_footprint/(1024*1024.0));
+	gpuCusparseErrorCheck(cusparseSpMV(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer));
+	gpuCudaErrorCheck(cudaPeekAtLastError());
+	gpuCudaErrorCheck(cudaDeviceSynchronize());
 
 	if (csr->y == NULL)
 	{

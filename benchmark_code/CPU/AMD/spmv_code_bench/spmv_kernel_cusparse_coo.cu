@@ -34,11 +34,7 @@ extern "C"{
 double * thread_time_compute, * thread_time_barrier;
 
 #ifndef TIME_IT
-#define TIME_IT 1
-#endif
-
-#ifndef VERIFIED
-#define VERIFIED 1
+#define TIME_IT 0
 #endif
 
 struct COOArrays : Matrix_Format
@@ -286,6 +282,12 @@ compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restri
 		gpuCudaErrorCheck(cudaMemcpy(coo->x_d, coo->x, coo->n * sizeof(*coo->x), cudaMemcpyHostToDevice));
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(coo->endEvent_memcpy_x));
 
+		if(TIME_IT){
+			gpuCudaErrorCheck(cudaEventSynchronize(coo->endEvent_memcpy_x));
+			float memcpyTime_cuda;
+			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda, coo->startEvent_memcpy_x, coo->endEvent_memcpy_x));
+			printf("(CUDA) Memcpy x time = %.4lf ms\n", memcpyTime_cuda);
+		}
 
 		// Create dense vector X
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(coo->startEvent_create_vecX));
@@ -316,36 +318,9 @@ compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restri
 		}
 	}
 
-	if(VERIFIED){
-		int num_loops = 1000;
-		for(int k=0;k<num_loops;k++)
-			gpuCusparseErrorCheck(cusparseSpMV(coo->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, coo->matA, coo->vecX, &beta, coo->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, coo->dBuffer));
-		gpuCudaErrorCheck(cudaPeekAtLastError());
-		gpuCudaErrorCheck(cudaDeviceSynchronize());
-	}
-
-	// Execute SpMV
-	gpuCudaErrorCheck(cudaEventRecord(coo->startEvent_execution));
-
-	int num_loops = 128;
-	double time_execution = time_it(1,
-		for(int k=0;k<num_loops;k++){
-			gpuCusparseErrorCheck(cusparseSpMV(coo->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, coo->matA, coo->vecX, &beta, coo->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, coo->dBuffer));
-			gpuCudaErrorCheck(cudaPeekAtLastError());
-			gpuCudaErrorCheck(cudaDeviceSynchronize());
-		}
-	);
-
-	double gflops = coo->nnz / time_execution * num_loops * 2 * 1e-9;
-	printf("(DGAL timing) Execution time = %.4lf ms (%.4lf GFLOPS for %.2lf MB workload)\n", time_execution*1e3, gflops, coo->mem_footprint/(1024*1024.0));
-
-	gpuCudaErrorCheck(cudaEventRecord(coo->endEvent_execution));
-	float executionTime_cuda;
-	gpuCudaErrorCheck(cudaEventSynchronize(coo->endEvent_execution));
-	gpuCudaErrorCheck(cudaEventElapsedTime(&executionTime_cuda, coo->startEvent_execution, coo->endEvent_execution));
-
-	double gflops_cuda = coo->nnz / executionTime_cuda * num_loops * 2 * 1e-6;
-	printf("(CUDA) Execution time = %.4lf ms (%.4lf GFLOPS for %.2lf MB workload)\n", executionTime_cuda, gflops_cuda, coo->mem_footprint/(1024*1024.0));
+	gpuCusparseErrorCheck(cusparseSpMV(coo->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, coo->matA, coo->vecX, &beta, coo->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, coo->dBuffer));
+	gpuCudaErrorCheck(cudaPeekAtLastError());
+	gpuCudaErrorCheck(cudaDeviceSynchronize());
 
 	if (coo->y == NULL)
 	{

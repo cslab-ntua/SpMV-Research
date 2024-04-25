@@ -38,17 +38,13 @@ double * thread_time_compute, * thread_time_barrier;
 #define NUM_THREADS 1024
 #endif
 
-// #ifndef NUM_STREAMS
-// #define NUM_STREAMS 1
-// #endif
-
 #ifndef TIME_IT
-#define TIME_IT 1
+#define TIME_IT 0
 #endif
 
-#ifndef VERIFIED
-#define VERIFIED 1
-#endif
+// #ifndef VERIFIED
+// #define VERIFIED 1
+// #endif
 
 struct CSRArrays : Matrix_Format
 {
@@ -87,7 +83,6 @@ struct CSRArrays : Matrix_Format
 
 	int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, max_threads_per_multiproc;
 	int num_threads;
-	// int num_streams;
 
 	CSRArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
 	{
@@ -106,7 +101,6 @@ struct CSRArrays : Matrix_Format
 		printf("max_threads_per_multiproc=%d\n", max_threads_per_multiproc);
 
 		num_threads = NUM_THREADS;
-		// num_streams = NUM_STREAMS;
 
 		thread_i_s = (INT_T *) malloc(num_threads * sizeof(*thread_i_s));
 		thread_i_e = (INT_T *) malloc(num_threads * sizeof(*thread_i_e));
@@ -318,7 +312,7 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 	int block_size = csr->warp_size;
 	dim3 block_dims(block_size);
 	dim3 grid_dims(num_threads / block_size);
-	printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims.x, grid_dims.y, grid_dims.z, block_dims.x, block_dims.y, block_dims.z);
+	// printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims.x, grid_dims.y, grid_dims.z, block_dims.x, block_dims.y, block_dims.z);
 
 	if (csr->x == NULL)
 	{
@@ -336,35 +330,35 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		}
 	}
 
-	if(VERIFIED){
-		int num_loops = 1000;
-		for(int k=0;k<num_loops;k++)
-			gpu_kernel_csr_basic<<<grid_dims, block_dims>>>(thread_i_s_d, thread_i_e_d, csr->ia_d, csr->ja_d, csr->a_d, csr->x_d, csr->y_d);
-		gpuCudaErrorCheck(cudaPeekAtLastError());
-		gpuCudaErrorCheck(cudaDeviceSynchronize());
-	}
+	// if(VERIFIED){
+	// 	int num_loops = 1000;
+	// 	for(int k=0;k<num_loops;k++)
+	// 		gpu_kernel_csr_basic<<<grid_dims, block_dims>>>(thread_i_s_d, thread_i_e_d, csr->ia_d, csr->ja_d, csr->a_d, csr->x_d, csr->y_d);
+	// 	gpuCudaErrorCheck(cudaPeekAtLastError());
+	// 	gpuCudaErrorCheck(cudaDeviceSynchronize());
+	// }
 
-	gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution));
+	// gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution));
 
-	int num_loops = 128;
-	double time_execution = time_it(1,
-		for(int k=0;k<num_loops;k++){
-			gpu_kernel_csr_basic<<<grid_dims, block_dims>>>(thread_i_s_d, thread_i_e_d, csr->ia_d, csr->ja_d, csr->a_d, csr->x_d, csr->y_d);
-			gpuCudaErrorCheck(cudaPeekAtLastError());
-			gpuCudaErrorCheck(cudaDeviceSynchronize());
-		}
-	);
+	// int num_loops = 128;
+	// double time_execution = time_it(1,
+	// 	for(int k=0;k<num_loops;k++){
+	gpu_kernel_csr_basic<<<grid_dims, block_dims>>>(thread_i_s_d, thread_i_e_d, csr->ia_d, csr->ja_d, csr->a_d, csr->x_d, csr->y_d);
+	gpuCudaErrorCheck(cudaPeekAtLastError());
+	gpuCudaErrorCheck(cudaDeviceSynchronize());
+	// 	}
+	// );
 
-	double gflops = csr->nnz / time_execution * num_loops * 2 * 1e-9;
-	printf("(DGAL timing) Execution time = %.4lf ms (%.4lf GFLOPS scalar-%d)\n", time_execution*1e3, gflops, csr->num_threads);
+	// double gflops = csr->nnz / time_execution * num_loops * 2 * 1e-9;
+	// printf("(DGAL timing) Execution time = %.4lf ms (%.4lf GFLOPS scalar-%d)\n", time_execution*1e3, gflops, csr->num_threads);
 
-	gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution));
-	float executionTime_cuda;
-	gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution));
-	gpuCudaErrorCheck(cudaEventElapsedTime(&executionTime_cuda, csr->startEvent_execution, csr->endEvent_execution));
+	// gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution));
+	// float executionTime_cuda;
+	// gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution));
+	// gpuCudaErrorCheck(cudaEventElapsedTime(&executionTime_cuda, csr->startEvent_execution, csr->endEvent_execution));
 
-	double gflops_cuda = csr->nnz / executionTime_cuda * num_loops * 2 * 1e-6;
-	printf("(CUDA) Execution time = %.4lf ms (%.4lf GFLOPS @ %d threads for %.2lf MB workload)\n", executionTime_cuda, gflops_cuda, csr->num_threads, csr->mem_footprint/(1024*1024.0));
+	// double gflops_cuda = csr->nnz / executionTime_cuda * num_loops * 2 * 1e-6;
+	// printf("(CUDA) Execution time = %.4lf ms (%.4lf GFLOPS @ %d threads for %.2lf MB workload)\n", executionTime_cuda, gflops_cuda, csr->num_threads, csr->mem_footprint/(1024*1024.0));
 
 	if (csr->y == NULL)
 	{

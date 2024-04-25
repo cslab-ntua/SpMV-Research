@@ -214,7 +214,7 @@ conf_vars=(
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
-                        "$HOME/Data/graphs/validation_matrices"
+                        # "$HOME/Data/graphs/validation_matrices"
                         # "${script_dir}/../../../validation_matrices"
                         '/various/pmpakos/SpMV-Research/validation_matrices'
                     )
@@ -373,7 +373,9 @@ progs=(
 
     # ['csr_cuda_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_t1769472_nv_d.exe"
     # ['csr_cuda_s4_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t1769472_nv_d.exe"
+    ['csr_cuda_s4_t221184_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t221184_nv_d.exe"
 
+    # ['csr_cuda_buffer_t4194304_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_t4194304_rc4_nv_d.exe"
     # ['csr_cuda_buffer_t221184_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_t221184_rc4_nv_d.exe"
     # ['csr_cuda_buffer_s4_t221184_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_s4_t221184_rc4_nv_d.exe"
 
@@ -381,7 +383,7 @@ progs=(
     # ['csr_cuda_vector_s4_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_vector_s4_b256_nv_d.exe"
 
     # ['csr_cuda_adaptive_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_nv_d.exe"
-    ['csr_cuda_adaptive_s4_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_nv_d.exe"
+    # ['csr_cuda_adaptive_s4_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_nv_d.exe"
 
     # cusparse
     # ['cusparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"

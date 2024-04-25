@@ -35,16 +35,8 @@ double * thread_time_compute, * thread_time_barrier;
 #define BLOCK_SIZE 1024
 #endif
 
-// #ifndef NUM_STREAMS
-// #define NUM_STREAMS 1
-// #endif
-
 #ifndef TIME_IT
-#define TIME_IT 1
-#endif
-
-#ifndef VERIFIED
-#define VERIFIED 1
+#define TIME_IT 0
 #endif
 
 INT_T spmv_csr_adaptive_rowblocks(INT_T *row_ptr, INT_T m, INT_T *row_blocks){
@@ -345,7 +337,7 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 {
 	dim3 block_dims(csr->block_size);
 	dim3 grid_dims(csr->row_blocks_cnt-1);
-	printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims.x, grid_dims.y, grid_dims.z, block_dims.x, block_dims.y, block_dims.z);
+	// printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims.x, grid_dims.y, grid_dims.z, block_dims.x, block_dims.y, block_dims.z);
 
 	if (csr->x == NULL)
 	{
@@ -363,35 +355,9 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		}
 	}
 
-	if(VERIFIED){
-		int num_loops = 1000;
-		for(int k=0;k<num_loops;k++)
-			gpu_kernel_csr_adaptive<<<grid_dims, block_dims>>>(csr->ia_d, csr->ja_d, csr->a_d, csr->row_blocks_d, csr->x_d, csr->y_d);
-		gpuCudaErrorCheck(cudaPeekAtLastError());
-		gpuCudaErrorCheck(cudaDeviceSynchronize());
-	}
-
-	gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution));
-
-	int num_loops = 128;
-	double time_execution = time_it(1,
-		for(int k=0;k<num_loops;k++){
-			gpu_kernel_csr_adaptive<<<grid_dims, block_dims>>>(csr->ia_d, csr->ja_d, csr->a_d, csr->row_blocks_d, csr->x_d, csr->y_d);
-			gpuCudaErrorCheck(cudaPeekAtLastError());
-			gpuCudaErrorCheck(cudaDeviceSynchronize());
-		}
-	);
-
-	double gflops = csr->nnz / time_execution * num_loops * 2 * 1e-9;
-	printf("(DGAL timing) Execution time = %.4lf ms (%.4lf GFLOPS adaptive-b%d)\n", time_execution*1e3, gflops, csr->block_size);
-
-	gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution));
-	float executionTime_cuda;
-	gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution));
-	gpuCudaErrorCheck(cudaEventElapsedTime(&executionTime_cuda, csr->startEvent_execution, csr->endEvent_execution));
-
-	double gflops_cuda = csr->nnz / executionTime_cuda * num_loops * 2 * 1e-6;
-	printf("(CUDA) Execution time = %.4lf ms (%.4lf GFLOPS @ %d block_size for %.2lf MB workload)\n", executionTime_cuda, gflops_cuda, csr->block_size, csr->mem_footprint/(1024*1024.0));
+	gpu_kernel_csr_adaptive<<<grid_dims, block_dims>>>(csr->ia_d, csr->ja_d, csr->a_d, csr->row_blocks_d, csr->x_d, csr->y_d);
+	gpuCudaErrorCheck(cudaPeekAtLastError());
+	gpuCudaErrorCheck(cudaDeviceSynchronize());
 
 	if (csr->y == NULL)
 	{

@@ -358,27 +358,27 @@ done
 
 matrices_underperform_gpu=(
 
-    kmer_V2a.mtx
-    wikipedia-20070206.mtx
-    sx-stackoverflow.mtx
-    wikipedia-20061104.mtx
-    wikipedia-20060925.mtx
-    GL7d20.mtx
-    GL7d19.mtx
-    GL7d17.mtx
-    soc-LiveJournal1.mtx
-    soc-Pokec.mtx
-    GL7d21.mtx
-    GL7d18.mtx
-    dgreen.mtx
+    # kmer_V2a.mtx
+    # wikipedia-20070206.mtx
+    # sx-stackoverflow.mtx
+    # wikipedia-20061104.mtx
+    # wikipedia-20060925.mtx
+    # GL7d20.mtx
+    # GL7d19.mtx
+    # GL7d17.mtx
+    # soc-LiveJournal1.mtx
+    # soc-Pokec.mtx
+    # GL7d21.mtx
+    # GL7d18.mtx
+    # dgreen.mtx
     kron_g500-logn18.mtx
-    wikipedia-20051105.mtx
-    kron_g500-logn21.mtx
-    kron_g500-logn20.mtx
-    com-LiveJournal.mtx
-    kron_g500-logn19.mtx
-    ljournal-2008.mtx
-    wiki-topcats.mtx
+    # wikipedia-20051105.mtx
+    # kron_g500-logn21.mtx
+    # kron_g500-logn20.mtx
+    # com-LiveJournal.mtx
+    # kron_g500-logn19.mtx
+    # ljournal-2008.mtx
+    # wiki-topcats.mtx
 
 )
 matrices_underperform_gpu=( $(
@@ -450,6 +450,13 @@ bench()
                 echo numactl -i "$numa_nodes"
                 numactl -i "$numa_nodes" "$prog" "${prog_args[@]}"  2>'tmp.err'
             else
+                # If a GPU kernel is tested, then set env variable accordingly. This is used in spmv_bench, so that the warm up is performed 1000 times, instead of just once (CPU warm up)
+                if [[ "$prog" == *"cuda"* ]] || [[ "$prog" == *"cusparse"* ]]; then
+                    export GPU_KERNEL=1
+                else
+                    export GPU_KERNEL=0
+                fi
+
                 # "$prog" 4690000 4 1.6 normal random 1 14  2>'tmp.err'
 
                 # numactl -i all "$prog" "${prog_args[@]}"  2>'tmp.err'
@@ -465,6 +472,7 @@ bench()
                 prog_name=${prog_name#"spmv_"}
                 # prog_name=${prog_name#"spmv_csr_cuda_"}
                 prog_name=${prog_name%"_nv_d.exe"}
+                export PROGG=${prog_name}
                 
                 echo "${mtx_name}_${prog_name}"
 

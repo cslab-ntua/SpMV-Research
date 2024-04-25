@@ -194,6 +194,7 @@ if ((${#targets_nv_d[@]} > 0)); then
     export CPPFLAGS="${CPPFLAGS_NV_D}"
     export SUFFIX='_nv_d'
     export TARGETS="${targets_nv_d[*]}"
+    export TIME_IT=0
     # make -j -f Makefile_in "$@"
     for target in $TARGETS; do
         echo $target

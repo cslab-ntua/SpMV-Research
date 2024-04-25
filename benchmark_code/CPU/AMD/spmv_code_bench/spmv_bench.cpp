@@ -166,7 +166,9 @@ check_accuracy(char * buf, long buf_n, INT_T * csr_ia, INT_T * csr_ja, double * 
 			maxDiff = Max(maxDiff, diff);
 		}
 		// if (diff > epsilon_relaxed)
-			// printf("error: i=%ld/%d , a=%.10g f=%.10g\n", i, csr_m-1, (double) y_gold[i], (double) y_test[i]);
+		// 	printf("error: i=%ld/%d , a=%.10g f=%.10g\n", i, csr_m-1, (double) y_gold[i], (double) y_test[i]);
+		// if(i<5)
+		// 	printf("y_gold[%ld] = %.4lf, y_test[%ld] = %.4lf\n", i, (double)y_gold[i], i, (double)y_test[i]);
 		// std::cout << i << ": " << y_gold[i]-y_test[i] << "\n";
 		// if (y_gold[i] != 0.0)
 		// {
@@ -303,10 +305,19 @@ compute(char * matrix_name,
 		);
 		printf("time warm up %lf\n", time_warm_up);
 
-		// Warm up caches.
-		time_warm_up = time_it(1,
-			MF->spmv(x, y);
-		);
+		int gpu_kernel = atoi(getenv("GPU_KERNEL"));
+		if (gpu_kernel) {
+			time_warm_up = time_it(1,
+				for(int i=0;i<1000;i++)
+					MF->spmv(x, y);
+			);
+		}
+		else {
+			// Warm up caches.
+			time_warm_up = time_it(1,
+				MF->spmv(x, y);
+			);			
+		}
 
 		// /* Calculate number of loops so that the total running time is at least 1 second for stability reasons
 		// (some cpus show frequency inconsistencies when running times are too small). */
@@ -383,6 +394,7 @@ compute(char * matrix_name,
 		//=============================================================================
 
 		gflops = csr_nnz / time * num_loops * 2 * 1e-9;    // Use csr_nnz to be sure we have the initial nnz (there is no coo for artificial AM).
+		printf("GFLOPS = %lf (%s)\n", gflops, getenv("PROGG"));
 	}
 
 	if (!use_artificial_matrices)
@@ -778,6 +790,9 @@ child_proc_label:
 		free(AM->col_ind);
 		AM->col_ind = NULL;
 	}
+
+	// for(int i=0;i<mtx_nnz;i++)
+	// 	csr_ja[i]=0;
 
 	x_ref = (typeof(x_ref)) aligned_alloc(64, csr_n * sizeof(*x_ref));
 	x = (typeof(x)) aligned_alloc(64, csr_n * sizeof(*x));
