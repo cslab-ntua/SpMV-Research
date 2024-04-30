@@ -38,12 +38,20 @@ double * thread_time_compute, * thread_time_barrier;
 #define BLOCK_SIZE 1024
 #endif
 
+#ifndef MULTIBLOCK_SIZE
+#define MULTIBLOCK_SIZE 4
+#endif
+
 #ifndef NUM_STREAMS
 #define NUM_STREAMS 1
 #endif
 
 #ifndef TIME_IT
 #define TIME_IT 0
+#endif
+
+#ifndef TIME_IT2
+#define TIME_IT2 1
 #endif
 
 INT_T spmv_csr_adaptive_rowblocks(INT_T *row_ptr, INT_T m, INT_T *row_blocks)
@@ -75,6 +83,9 @@ INT_T spmv_csr_adaptive_rowblocks(INT_T *row_ptr, INT_T m, INT_T *row_blocks)
 			sum = 0;
 		}
 	}
+	//  fill remaining positions of row_blocks until cnt % MULTIBLOCK_SIZE equals zero
+	while (cnt % MULTIBLOCK_SIZE != 0)
+		row_blocks[cnt++] = m;
 	row_blocks[cnt++] = m;
 	return cnt;
 }
@@ -118,6 +129,8 @@ struct CSRArrays : Matrix_Format
 	// cudaEvent_t is useful for timing, but for performance use " cudaEventCreateWithFlags ( &event, cudaEventDisableTiming) "
 	cudaEvent_t startEvent_execution[NUM_STREAMS];
 	cudaEvent_t endEvent_execution[NUM_STREAMS];
+	float execution_time[NUM_STREAMS];
+	int iterations;
 	
 	cudaEvent_t startEvent_memcpy_ia[NUM_STREAMS];
 	cudaEvent_t endEvent_memcpy_ia[NUM_STREAMS];
@@ -135,7 +148,7 @@ struct CSRArrays : Matrix_Format
 
 	cublasHandle_t handle;
 
-	int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, block_size, max_threads_per_multiproc;
+	int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, block_size, block_size2, max_threads_per_multiproc;
 	int num_streams;
 
 	CSRArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
@@ -152,6 +165,7 @@ struct CSRArrays : Matrix_Format
 		printf("max_threads_per_multiproc=%d\n", max_threads_per_multiproc);
 
 		block_size = BLOCK_SIZE;
+		block_size2 = MULTIBLOCK_SIZE;
 		num_streams = NUM_STREAMS;
 
 		/********************************************************************************************************/
@@ -185,7 +199,7 @@ struct CSRArrays : Matrix_Format
 		for(int i=0; i<num_streams; i++){
 			nnz_stream[i] = col_ptr[local_stream_j_e[i]] - col_ptr[local_stream_j_s[i]];
 			n_stream[i] = local_stream_j_e[i] - local_stream_j_s[i];
-			// printf("local_stream[%d] = %d - %d (%d cols) (%d nnz)\n", i, local_stream_j_s[i], local_stream_j_e[i], n_stream[i], nnz_stream[i]);
+			printf("local_stream[%d] = %d - %d (%d cols) (%d nnz)\n", i, local_stream_j_s[i], local_stream_j_e[i], n_stream[i], nnz_stream[i]);
 
 			cnt  += nnz_stream[i];
 			cnt2 += n_stream[i];
@@ -291,7 +305,9 @@ struct CSRArrays : Matrix_Format
 
 			gpuCudaErrorCheck(cudaEventCreate(&startEvent_execution[i]));
 			gpuCudaErrorCheck(cudaEventCreate(&endEvent_execution[i]));
+			execution_time[i] = 0.0;
 		}
+		iterations=0;
 		gpuCublasErrorCheck(cublasSetStream(handle, stream[0]));
 
 		if(TIME_IT){
@@ -423,7 +439,8 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	csr->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	char *format_name;
 	format_name = (char *)malloc(100*sizeof(char));
-	snprintf(format_name, 100, "Custom_CSR_CUDA_ADAPTIVE_b%d_s%d", csr->block_size, csr->num_streams);
+	snprintf(format_name, 100, "Custom_CSR_CUDA_ADAPTIVE_b%d_%d_s%d", csr->block_size, csr->block_size2, csr->num_streams);
+
 	csr->format_name = format_name;
 	return csr;
 }
@@ -433,7 +450,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 //= CSR Custom
 //==========================================================================================================================================
 
-__global__ void gpu_kernel_csr_adaptive(INT_T * ia, INT_T * ja, ValueType * a, INT_T * row_blocks, ValueType * restrict x, ValueType * restrict y)
+/*__global__ void gpu_kernel_csr_adaptive(INT_T * ia, INT_T * ja, ValueType * a, INT_T * row_blocks, ValueType * restrict x, ValueType * restrict y)
 {
 	INT_T startRow = row_blocks[blockIdx.x];
 	INT_T nextStartRow = row_blocks[blockIdx.x + 1];
@@ -449,6 +466,7 @@ __global__ void gpu_kernel_csr_adaptive(INT_T * ia, INT_T * ja, ValueType * a, I
 		int col_offset = ia[startRow];
 
 		// Each thread writes to shared memory the result of multiplication for one nonzero
+		// However, if there are less nonzeros than the block size, some threads will not be utilized
 		if (i < nnz)
 			LDS[i] = a[col_offset + i] * x[ja[col_offset + i]];
  		// After all positions of LDS have been filled, proceed. 
@@ -501,6 +519,169 @@ __global__ void gpu_kernel_csr_adaptive(INT_T * ia, INT_T * ja, ValueType * a, I
 			y[startRow] = LDS[i];
 		}
 	}
+}*/
+
+
+__global__ void gpu_kernel_csr_adaptive(INT_T * ia, INT_T * ja, ValueType * a, INT_T * row_blocks, ValueType * restrict x, ValueType * restrict y)
+{
+	__shared__ volatile ValueType LDS[MULTIBLOCK_SIZE][BLOCK_SIZE];
+	INT_T i = threadIdx.x;
+
+	INT_T startRow[MULTIBLOCK_SIZE];
+	INT_T nextStartRow[MULTIBLOCK_SIZE];
+	INT_T num_rows[MULTIBLOCK_SIZE];
+
+	for(int kk = 0; kk < MULTIBLOCK_SIZE; kk++){
+		startRow[kk]     = row_blocks[blockIdx.x*MULTIBLOCK_SIZE + kk];
+		nextStartRow[kk] = row_blocks[blockIdx.x*MULTIBLOCK_SIZE + kk + 1];
+		num_rows[kk]     = nextStartRow[kk] - startRow[kk];
+	}
+
+	for(int kk = 0; kk < MULTIBLOCK_SIZE; kk++){
+		// If the block consists of more than one row then run CSR Stream
+		if (num_rows[kk] > 1) {
+			// how many nonzeros does this rowblock hold?
+			// they will be less than the BLOCK_SIZE (the size of LDS)
+			int nnz = ia[nextStartRow[kk]] - ia[startRow[kk]];
+			int col_offset = ia[startRow[kk]];
+
+			// Each thread writes to shared memory the result of multiplication for one nonzero
+			if (i < nnz)
+				LDS[kk][i] = a[col_offset + i] * x[ja[col_offset + i]];
+	 		// After all positions of LDS have been filled, proceed. 
+			__syncthreads();
+			
+			// Threads that fall within a range sum up the partial results
+			// Thread0 of the block will be assigned with the first row of the thread block (startRow+0) and then the next row will be (startRow+BLOCK_SIZE) etc...
+			// How many rows per thread depends on how few nonzeros this specific block can hold...
+			for (int k = startRow[kk] + i; k < nextStartRow[kk]; k += BLOCK_SIZE){
+				ValueType temp = 0;
+				// Sum partial results that this row (k) has results in LDS
+				for (INT_T j = (ia[k] - col_offset); j < (ia[k + 1] - col_offset); j++)
+					temp = temp + LDS[kk][j];
+				// And finally store result in the output y vector.
+				y[k] = temp;
+			}
+		}
+		// If the block consists of only one row then run CSR Vector
+		else if(num_rows[kk] == 1) {
+			// Thread ID in warp
+			INT_T ia_Start = ia[startRow[kk]];
+			INT_T ia_End   = ia[nextStartRow[kk]];
+			ValueType sum  = 0;
+
+			// Use all threads in a warp to accumulate multiplied elements
+			// Due to the fact that each for loop starts from "ia_Start" + some i (the index inside the thread block) 
+			// LDS will be filled with all partial results from this specific row
+			// It may be underutilized, considering the fact that this row will consist of less than BLOCK_SIZE elements
+			for (INT_T j = ia_Start + i; j < ia_End; j += BLOCK_SIZE){
+				INT_T col = ja[j];
+				sum += a[j] * x[col];
+			}
+			// write partial sum at position i (index in thread block) in the LDS array
+			LDS[kk][i] = sum;
+			__syncthreads();
+
+			// Reduce partial sums
+			// reduce results as in 
+			// (BS/2 sums)  LDS[i] = LDS[i] + LDS[i + BS/2];, LDS[i+1] = LDS[i+1] + LDS[i+1 + BS/2];
+			// (BS/4 sums)  LDS[i] = LDS[i] + LDS[i + BS/4]
+			// ...
+			// (1 sum)      LDS[i] = LDS[i] + LDS[i+1]; and then finish
+			for (int stride = BLOCK_SIZE >> 1; stride > 0; stride >>= 1) {
+				__syncthreads();
+				if (i < stride)
+					LDS[kk][i] += LDS[kk][i + stride]; 
+			}
+			// Write result
+			if (i == 0){
+				y[startRow[kk]] = LDS[kk][i];
+			}
+		}
+	}
+}
+
+__global__ void gpu_kernel_csr_adaptive_local2048(INT_T * ia, INT_T * ja, ValueType * a, INT_T * row_blocks, ValueType * restrict x, ValueType * restrict y)
+{
+	__shared__ volatile ValueType LDS[MULTIBLOCK_SIZE][BLOCK_SIZE];
+	INT_T i = threadIdx.x;
+	__shared__ volatile ValueType x_local[2048];
+	// instruct each thread of block to fetch some values of x to x_local
+	for(int j=i; j<2048; j+=BLOCK_SIZE)
+		x_local[j] = x[j];
+
+	INT_T startRow[MULTIBLOCK_SIZE];
+	INT_T nextStartRow[MULTIBLOCK_SIZE];
+	INT_T num_rows[MULTIBLOCK_SIZE];
+
+	for(int kk = 0; kk < MULTIBLOCK_SIZE; kk++){
+		startRow[kk]     = row_blocks[blockIdx.x*MULTIBLOCK_SIZE + kk];
+		nextStartRow[kk] = row_blocks[blockIdx.x*MULTIBLOCK_SIZE + kk + 1];
+		num_rows[kk]     = nextStartRow[kk] - startRow[kk];
+	}
+
+	for(int kk = 0; kk < MULTIBLOCK_SIZE; kk++){
+		// If the block consists of more than one row then run CSR Stream
+		if (num_rows[kk] > 1) {
+			// how many nonzeros does this rowblock hold?
+			// they will be less than the BLOCK_SIZE (the size of LDS)
+			int nnz = ia[nextStartRow[kk]] - ia[startRow[kk]];
+			int col_offset = ia[startRow[kk]];
+
+			// Each thread writes to shared memory the result of multiplication for one nonzero
+			if (i < nnz)
+				LDS[kk][i] = a[col_offset + i] * x_local[ja[col_offset + i]];
+	 		// After all positions of LDS have been filled, proceed. 
+			__syncthreads();
+			
+			// Threads that fall within a range sum up the partial results
+			// Thread0 of the block will be assigned with the first row of the thread block (startRow+0) and then the next row will be (startRow+BLOCK_SIZE) etc...
+			// How many rows per thread depends on how few nonzeros this specific block can hold...
+			for (int k = startRow[kk] + i; k < nextStartRow[kk]; k += BLOCK_SIZE){
+				ValueType temp = 0;
+				// Sum partial results that this row (k) has results in LDS
+				for (INT_T j = (ia[k] - col_offset); j < (ia[k + 1] - col_offset); j++)
+					temp = temp + LDS[kk][j];
+				// And finally store result in the output y vector.
+				y[k] = temp;
+			}
+		}
+		// If the block consists of only one row then run CSR Vector
+		else if(num_rows[kk] == 1) {
+			// Thread ID in warp
+			INT_T ia_Start = ia[startRow[kk]];
+			INT_T ia_End   = ia[nextStartRow[kk]];
+			ValueType sum  = 0;
+
+			// Use all threads in a warp to accumulate multiplied elements
+			// Due to the fact that each for loop starts from "ia_Start" + some i (the index inside the thread block) 
+			// LDS will be filled with all partial results from this specific row
+			// It may be underutilized, considering the fact that this row will consist of less than BLOCK_SIZE elements
+			for (INT_T j = ia_Start + i; j < ia_End; j += BLOCK_SIZE){
+				INT_T col = ja[j];
+				sum += a[j] * x_local[col];
+			}
+			// write partial sum at position i (index in thread block) in the LDS array
+			LDS[kk][i] = sum;
+			__syncthreads();
+
+			// Reduce partial sums
+			// reduce results as in 
+			// (BS/2 sums)  LDS[i] = LDS[i] + LDS[i + BS/2];, LDS[i+1] = LDS[i+1] + LDS[i+1 + BS/2];
+			// (BS/4 sums)  LDS[i] = LDS[i] + LDS[i + BS/4]
+			// ...
+			// (1 sum)      LDS[i] = LDS[i] + LDS[i+1]; and then finish
+			for (int stride = BLOCK_SIZE >> 1; stride > 0; stride >>= 1) {
+				__syncthreads();
+				if (i < stride)
+					LDS[kk][i] += LDS[kk][i + stride]; 
+			}
+			// Write result
+			if (i == 0){
+				y[startRow[kk]] = LDS[kk][i];
+			}
+		}
+	}
 }
 
 
@@ -509,13 +690,16 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 {
 	dim3 block_dims(csr->block_size);
 	dim3 grid_dims[csr->num_streams];
-	for(int i=0; i<csr->num_streams; i++){
-		grid_dims[i] = dim3(csr->row_blocks_cnt[i]-1);
-		// printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims[i].x, grid_dims[i].y, grid_dims[i].z, block_dims.x, block_dims.y, block_dims.z);
-	}
+		// dim3 grid_dims(csr->row_blocks_cnt-1);
+	// dim3 grid_dims(ceil((csr->row_blocks_cnt-1)/MULTIBLOCK_SIZE));
+
+	for(int i=0; i<csr->num_streams; i++)
+		grid_dims[i] = dim3(ceil((csr->row_blocks_cnt[i]-1)/MULTIBLOCK_SIZE));
 
 	if (csr->x == NULL)
 	{
+		for(int i=0; i<csr->num_streams; i++)
+			printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims[i].x, grid_dims[i].y, grid_dims[i].z, block_dims.x, block_dims.y, block_dims.z);
 		csr->x = x;
 		int offset = 0;
 		for(int i=0; i<csr->num_streams; i++){
@@ -541,14 +725,29 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		}
 	}
 
+	if(TIME_IT2){
+		for(int i=0; i<csr->num_streams; i++)
+			gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution[i], csr->stream[i]));
+	}
+
 	for(int i=0; i<csr->num_streams; i++){
-		// gpu_kernel_csr_adaptive<<<grid_dims[i], block_dims, 0, csr->stream[i]>>>(csr->ia_d[i], csr->ja_d[i], csr->a_d[i], csr->row_blocks_d[i], csr->x_d[i], csr->y_d[i]);
 		gpu_kernel_csr_adaptive<<<grid_dims[i], block_dims, 0, csr->stream[i]>>>(csr->ia_d[i], csr->ja_d[i], csr->a_d[i], csr->row_blocks_d[i], csr->x_d[i], csr->y_d2 + i*csr->m);
 	}
 
 	gpuCudaErrorCheck(cudaPeekAtLastError());
 	for(int i=0; i<csr->num_streams; i++)
 		gpuCudaErrorCheck(cudaStreamSynchronize(csr->stream[i]));
+
+	if(TIME_IT2){
+		for(int i=0; i<csr->num_streams; i++){
+			gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution[i], csr->stream[i]));
+			gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution[i]));
+			float curr_execution_time;
+			gpuCudaErrorCheck(cudaEventElapsedTime(&curr_execution_time, csr->startEvent_execution[i], csr->endEvent_execution[i]));
+			csr->execution_time[i] += curr_execution_time;	
+		}
+	}
+	csr->iterations++;
 
 	if (csr->y == NULL)
 	{
@@ -590,6 +789,11 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 void
 CSRArrays::statistics_start()
 {
+	#ifdef PRINT_STATISTICS
+	iterations=0;
+	for(int i=0; i<num_streams; i++)
+		execution_time[i]=0.0;
+	#endif
 }
 
 
@@ -603,6 +807,14 @@ statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unuse
 int
 CSRArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
+	#ifdef PRINT_STATISTICS
+	printf("--------\n");
+	for(int i=0; i<num_streams; i++){
+		double gflops = 2.0 * nnz_stream[i] / execution_time[i] / 1e6 * iterations;
+		printf("Stream %d: %lf ms (GFLOPs = %.4lf)\n", i, execution_time[i], gflops);
+	}
+	printf("--------\n");
+	#endif
 	return 0;
 }
 

@@ -35,6 +35,10 @@ double * thread_time_compute, * thread_time_barrier;
 #define BLOCK_SIZE 1024
 #endif
 
+#ifndef MULTIBLOCK_SIZE
+#define MULTIBLOCK_SIZE 4
+#endif
+
 #ifndef TIME_IT
 #define TIME_IT 0
 #endif
@@ -67,6 +71,9 @@ INT_T spmv_csr_adaptive_rowblocks(INT_T *row_ptr, INT_T m, INT_T *row_blocks){
 			sum = 0;
 		}
 	}
+	//  fill remaining positions of row_blocks until cnt % MULTIBLOCK_SIZE equals zero
+	while (cnt % MULTIBLOCK_SIZE != 0)
+		row_blocks[cnt++] = m;
 	row_blocks[cnt++] = m;
 	return cnt;
 }
@@ -109,7 +116,7 @@ struct CSRArrays : Matrix_Format
 	cudaEvent_t startEvent_memcpy_y;
 	cudaEvent_t endEvent_memcpy_y;
 
-	int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, block_size, max_threads_per_multiproc;
+	int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, block_size, block_size2, max_threads_per_multiproc;
 	// int num_streams;
 
 	CSRArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
@@ -126,11 +133,12 @@ struct CSRArrays : Matrix_Format
 		printf("max_threads_per_multiproc=%d\n", max_threads_per_multiproc);
 
 		block_size = BLOCK_SIZE;
+		block_size2 = MULTIBLOCK_SIZE;
 
 		row_blocks = (typeof(row_blocks)) malloc(m * sizeof(*row_blocks));
 		row_blocks_cnt = spmv_csr_adaptive_rowblocks(ia, m, row_blocks);
-		printf("%ld nnz, %d row_blocks ( %.0lf nnz/row_block )\n", nnz, row_blocks_cnt, nnz*1.0/row_blocks_cnt);
-
+		printf("%ld nnz, %d row_blocks ( %lf row blocks per thread block, %.0lf nnz/row_block )\n", nnz, row_blocks_cnt, row_blocks_cnt*1.0/MULTIBLOCK_SIZE, nnz*1.0/row_blocks_cnt);
+		
 		gpuCudaErrorCheck(cudaMalloc(&ia_d, (m+1) * sizeof(*ia_d)));
 		gpuCudaErrorCheck(cudaMalloc(&row_blocks_d, row_blocks_cnt * sizeof(*row_blocks_d)));
 		gpuCudaErrorCheck(cudaMalloc(&ja_d, nnz * sizeof(*ja_d)));
@@ -251,7 +259,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	csr->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	char *format_name;
 	format_name = (char *)malloc(100*sizeof(char));
-	snprintf(format_name, 100, "Custom_CSR_CUDA_ADAPTIVE_b%d", csr->block_size);
+	snprintf(format_name, 100, "Custom_CSR_CUDA_ADAPTIVE_b%d_%d", csr->block_size, csr->block_size2);
 	csr->format_name = format_name;
 	return csr;
 }
@@ -260,7 +268,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 //==========================================================================================================================================
 //= CSR Custom
 //==========================================================================================================================================
-
+/*
 __global__ void gpu_kernel_csr_adaptive(INT_T * ia, INT_T * ja, ValueType * a, INT_T * row_blocks, ValueType * restrict x, ValueType * restrict y)
 {
 	INT_T startRow = row_blocks[blockIdx.x];
@@ -330,17 +338,97 @@ __global__ void gpu_kernel_csr_adaptive(INT_T * ia, INT_T * ja, ValueType * a, I
 		}
 	}
 }
+*/
+__global__ void gpu_kernel_csr_adaptive(INT_T * ia, INT_T * ja, ValueType * a, INT_T * row_blocks, ValueType * restrict x, ValueType * restrict y)
+{
+	__shared__ volatile ValueType LDS[MULTIBLOCK_SIZE][BLOCK_SIZE];
+	INT_T i = threadIdx.x;
+
+	INT_T startRow[MULTIBLOCK_SIZE];
+	INT_T nextStartRow[MULTIBLOCK_SIZE];
+	INT_T num_rows[MULTIBLOCK_SIZE];
+
+	for(int kk = 0; kk < MULTIBLOCK_SIZE; kk++){
+		startRow[kk]     = row_blocks[blockIdx.x*MULTIBLOCK_SIZE + kk];
+		nextStartRow[kk] = row_blocks[blockIdx.x*MULTIBLOCK_SIZE + kk + 1];
+		num_rows[kk]     = nextStartRow[kk] - startRow[kk];
+	}
+
+	for(int kk = 0; kk < MULTIBLOCK_SIZE; kk++){
+		// If the block consists of more than one row then run CSR Stream
+		if (num_rows[kk] > 1) {
+			// how many nonzeros does this rowblock hold?
+			// they will be less than the BLOCK_SIZE (the size of LDS)
+			int nnz = ia[nextStartRow[kk]] - ia[startRow[kk]];
+			int col_offset = ia[startRow[kk]];
+
+			// Each thread writes to shared memory the result of multiplication for one nonzero
+			if (i < nnz)
+				LDS[kk][i] = a[col_offset + i] * x[ja[col_offset + i]];
+	 		// After all positions of LDS have been filled, proceed. 
+			__syncthreads();
+			
+			// Threads that fall within a range sum up the partial results
+			// Thread0 of the block will be assigned with the first row of the thread block (startRow+0) and then the next row will be (startRow+BLOCK_SIZE) etc...
+			// How many rows per thread depends on how few nonzeros this specific block can hold...
+			for (int k = startRow[kk] + i; k < nextStartRow[kk]; k += BLOCK_SIZE){
+				ValueType temp = 0;
+				// Sum partial results that this row (k) has results in LDS
+				for (INT_T j = (ia[k] - col_offset); j < (ia[k + 1] - col_offset); j++)
+					temp = temp + LDS[kk][j];
+				// And finally store result in the output y vector.
+				y[k] = temp;
+			}
+		}
+		// If the block consists of only one row then run CSR Vector
+		else if(num_rows[kk] == 1) {
+			// Thread ID in warp
+			INT_T ia_Start = ia[startRow[kk]];
+			INT_T ia_End   = ia[nextStartRow[kk]];
+			ValueType sum  = 0;
+
+			// Use all threads in a warp to accumulate multiplied elements
+			// Due to the fact that each for loop starts from "ia_Start" + some i (the index inside the thread block) 
+			// LDS will be filled with all partial results from this specific row
+			// It may be underutilized, considering the fact that this row will consist of less than BLOCK_SIZE elements
+			for (INT_T j = ia_Start + i; j < ia_End; j += BLOCK_SIZE){
+				INT_T col = ja[j];
+				sum += a[j] * x[col];
+			}
+			// write partial sum at position i (index in thread block) in the LDS array
+			LDS[kk][i] = sum;
+			__syncthreads();
+
+			// Reduce partial sums
+			// reduce results as in 
+			// (BS/2 sums)  LDS[i] = LDS[i] + LDS[i + BS/2];, LDS[i+1] = LDS[i+1] + LDS[i+1 + BS/2];
+			// (BS/4 sums)  LDS[i] = LDS[i] + LDS[i + BS/4]
+			// ...
+			// (1 sum)      LDS[i] = LDS[i] + LDS[i+1]; and then finish
+			for (int stride = BLOCK_SIZE >> 1; stride > 0; stride >>= 1) {
+				__syncthreads();
+				if (i < stride)
+					LDS[kk][i] += LDS[kk][i + stride]; 
+			}
+			// Write result
+			if (i == 0){
+				y[startRow[kk]] = LDS[kk][i];
+			}
+		}
+	}
+}
 
 
 void
 compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
 {
 	dim3 block_dims(csr->block_size);
-	dim3 grid_dims(csr->row_blocks_cnt-1);
-	// printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims.x, grid_dims.y, grid_dims.z, block_dims.x, block_dims.y, block_dims.z);
+	// dim3 grid_dims(csr->row_blocks_cnt-1);
+	dim3 grid_dims(ceil((csr->row_blocks_cnt-1)/MULTIBLOCK_SIZE));
 
 	if (csr->x == NULL)
 	{
+		printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims.x, grid_dims.y, grid_dims.z, block_dims.x, block_dims.y, block_dims.z);
 		csr->x = x;
 
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_memcpy_x));

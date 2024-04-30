@@ -216,7 +216,8 @@ conf_vars=(
     ['path_validation']="$( options=(
                         # "$HOME/Data/graphs/validation_matrices"
                         # "${script_dir}/../../../validation_matrices"
-                        '/various/pmpakos/SpMV-Research/validation_matrices'
+                        # '/various/pmpakos/SpMV-Research/validation_matrices'
+                        '/various/pmpakos/SpMV-Research/validation_matrices/matrix_features/matrices'
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -373,7 +374,7 @@ progs=(
 
     # ['csr_cuda_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_t1769472_nv_d.exe"
     # ['csr_cuda_s4_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t1769472_nv_d.exe"
-    ['csr_cuda_s4_t221184_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t221184_nv_d.exe"
+    # ['csr_cuda_s4_t221184_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t221184_nv_d.exe"
 
     # ['csr_cuda_buffer_t4194304_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_t4194304_rc4_nv_d.exe"
     # ['csr_cuda_buffer_t221184_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_t221184_rc4_nv_d.exe"
@@ -383,7 +384,44 @@ progs=(
     # ['csr_cuda_vector_s4_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_vector_s4_b256_nv_d.exe"
 
     # ['csr_cuda_adaptive_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_nv_d.exe"
-    # ['csr_cuda_adaptive_s4_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_nv_d.exe"
+    # ['csr_cuda_adaptive_s8_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s8_b256_nv_d.exe"
+
+
+    # ['csr_cuda_adaptive_b1024_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b1024_mb2_nv_d.exe"
+    # ['csr_cuda_adaptive_b1024_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b1024_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_b128_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb2_nv_d.exe"
+    # ['csr_cuda_adaptive_b128_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_b128_mb8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb8_nv_d.exe"
+    # ['csr_cuda_adaptive_b128_mb16_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb16_nv_d.exe"
+    # ['csr_cuda_adaptive_b128_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb24_nv_d.exe"
+    # ['csr_cuda_adaptive_b128_mb48_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb48_nv_d.exe"
+
+    # ['csr_cuda_adaptive_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb1_nv_d.exe"
+    # ['csr_cuda_adaptive_b256_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb2_nv_d.exe"
+    # ['csr_cuda_adaptive_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_b256_mb8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb8_nv_d.exe"
+    # ['csr_cuda_adaptive_b256_mb16_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb16_nv_d.exe"
+    # ['csr_cuda_adaptive_b256_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb24_nv_d.exe"
+
+    # ['csr_cuda_adaptive_v3_s4_c16_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c16_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_v3_s4_c16_b256_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c16_b256_mb2_nv_d.exe"
+    # ['csr_cuda_adaptive_v3_s4_c16_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c16_b256_mb1_nv_d.exe"
+    # ['csr_cuda_adaptive_v3_s4_c128_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c128_b256_mb1_nv_d.exe"
+    # ['csr_cuda_adaptive_v3_s4_c64_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c64_b256_mb1_nv_d.exe"
+    # ['csr_cuda_adaptive_v3_s4_c32_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c32_b256_mb1_nv_d.exe"
+    # ['csr_cuda_adaptive_v3_s4_c16_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c16_b256_mb1_nv_d.exe"
+    # ['csr_cuda_adaptive_v3_s4_c8_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c8_b256_mb1_nv_d.exe"
+    # ['csr_cuda_adaptive_v3_s4_c4_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c4_b256_mb1_nv_d.exe"
+
+    # ['csr_cuda_adaptive_s16_b256_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb2_nv_d.exe"
+    # ['csr_cuda_adaptive_s8_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s8_b256_mb4_nv_d.exe"
+    ['csr_cuda_adaptive_s8_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s8_b256_mb4_nv_d.exe"
+    ['csr_cuda_adaptive_s4_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_mb4_nv_d.exe"
+    ['csr_cuda_adaptive_s1_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s1_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_s4_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_s16_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_s16_b256_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb24_nv_d.exe"
+
 
     # cusparse
     # ['cusparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"

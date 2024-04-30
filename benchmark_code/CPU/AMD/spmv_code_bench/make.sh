@@ -212,10 +212,25 @@ if ((${#targets_nv_d[@]} > 0)); then
             export ROW_CLUSTER_SIZE="${BASH_REMATCH[4]}"
         fi
 
-        # csr_cuda_vector and csr_cuda_adaptive
+        # csr_cuda_vector
         if [[ $target =~ (s([0-9]+)_)?b([0-9]+)${SUFFIX}.exe ]]; then
             export NUM_STREAMS="${BASH_REMATCH[2]}"
             export BLOCK_SIZE="${BASH_REMATCH[3]}"
+        fi
+
+        # csr_cuda_adaptive
+        if [[ $target =~ (s([0-9]+)_)?b([0-9]+)_mb([0-9]+)${SUFFIX}.exe ]]; then
+            export NUM_STREAMS="${BASH_REMATCH[2]}"
+            export BLOCK_SIZE="${BASH_REMATCH[3]}"
+            export MULTIBLOCK_SIZE="${BASH_REMATCH[4]}"
+        fi
+
+        # csr_cuda_adaptive_v2
+        if [[ $target =~ (s([0-9]+)_)?c([0-9]+)_b([0-9]+)_mb([0-9]+)${SUFFIX}.exe ]]; then
+            export NUM_STREAMS="${BASH_REMATCH[2]}"
+            export COL_SIZE="${BASH_REMATCH[3]}"
+            export BLOCK_SIZE="${BASH_REMATCH[4]}"
+            export MULTIBLOCK_SIZE="${BASH_REMATCH[5]}"
         fi
 
         # cusparse_csr (stream variant only)

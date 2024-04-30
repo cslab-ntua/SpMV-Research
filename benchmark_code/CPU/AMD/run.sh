@@ -371,7 +371,8 @@ matrices_underperform_gpu=(
     # GL7d21.mtx
     # GL7d18.mtx
     # dgreen.mtx
-    kron_g500-logn18.mtx
+    kron_g500-logn18_sorted_cols.mtx
+    # kron_g500-logn18.mtx
     # wikipedia-20051105.mtx
     # kron_g500-logn21.mtx
     # kron_g500-logn20.mtx
