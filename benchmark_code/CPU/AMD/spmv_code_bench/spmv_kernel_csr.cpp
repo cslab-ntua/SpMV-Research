@@ -35,13 +35,13 @@ double * thread_time_compute, * thread_time_barrier;
 
 struct CSRArrays : Matrix_Format
 {
-	INT_T * ia;      // the usual rowptr (of size m+1)
+	INT_T * row_ptr;      // the usual rowptr (of size m+1)
 	INT_T * ja;      // the colidx of each NNZ (of size nnz)
 	ValueType * a;   // the values (of size NNZ)
 
 	long num_loops;
 
-	CSRArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	CSRArrays(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
 	{
 		int num_threads = omp_get_max_threads();
 		double time_balance;
@@ -69,9 +69,9 @@ struct CSRArrays : Matrix_Format
 							long lower_boundary;
 							// long higher_boundary;
 							loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
-							macros_binary_search(ia, 0, m, thread_j_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
+							macros_binary_search(row_ptr, 0, m, thread_j_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
 							thread_i_s[tnum] = lower_boundary;
-							// macros_binary_search(ia, 0, m, thread_j_e[tnum] - 1, NULL, &higher_boundary);     // Index boundaries are inclusive.
+							// macros_binary_search(row_ptr, 0, m, thread_j_e[tnum] - 1, NULL, &higher_boundary);     // Index boundaries are inclusive.
 							// thread_i_e[tnum] = higher_boundary;
 							_Pragma("omp barrier")
 							if (tnum == num_threads - 1)   // If we calculate each thread's boundaries individually some empty rows might be unassigned.
@@ -80,13 +80,13 @@ struct CSRArrays : Matrix_Format
 								thread_i_e[tnum] = thread_i_s[tnum+1] + 1;
 							// _Pragma("omp single")
 							// {
-								// this->ia = (INT_T *) aligned_alloc(64, (m+1 + VECTOR_ELEM_NUM) * sizeof(INT_T));
+								// this->row_ptr = (INT_T *) aligned_alloc(64, (m+1 + VECTOR_ELEM_NUM) * sizeof(INT_T));
 							// }
 							// _Pragma("omp barrier")
 							// for (long i=thread_i_s[tnum];i<thread_i_e[tnum];i++)
-								// this->ia[i] = ia[i];
+								// this->row_ptr[i] = row_ptr[i];
 							// if (tnum == num_threads - 1)
-								// this->ia[m] = ia[m];
+								// this->row_ptr[m] = row_ptr[m];
 							#if 0
 								_Pragma("omp barrier")
 								_Pragma("omp single")
@@ -98,19 +98,19 @@ struct CSRArrays : Matrix_Format
 										i_e = thread_i_e[t];
 										j_s = thread_j_s[t];
 										j_e = thread_j_e[t];
-										printf("%3d:  i=[%7d,%7d]  |  j=[%7d,%7d] (%7d)  ,  ia[i]=[%7d,%7d] (%7d)  ,  ia[i+1]=[%7d,%7d]\n",
+										printf("%3d:  i=[%7d,%7d]  |  j=[%7d,%7d] (%7d)  ,  row_ptr[i]=[%7d,%7d] (%7d)  ,  row_ptr[i+1]=[%7d,%7d]\n",
 											t,
 											i_s, i_e,
 											j_s, j_e, (j_e - j_s),
-											ia[i_s], ia[i_e], (ia[i_e] - ia[i_s]),
-											ia[i_s+1], ia[i_e+1]
+											row_ptr[i_s], row_ptr[i_e], (row_ptr[i_e] - row_ptr[i_s]),
+											row_ptr[i_s+1], row_ptr[i_e+1]
 										);
 									}
 								}
 							#endif
 						#else
-							loop_partitioner_balance_prefix_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
-							// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+							loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+							// loop_partitioner_balance(num_threads, tnum, 2, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 						#endif
 					}
 				#endif
@@ -132,8 +132,8 @@ struct CSRArrays : Matrix_Format
 				j_s = thread_j_s[i];
 				j_e = thread_j_e[i];
 				rows = i_e - i_s;
-				nnz = ia[i_e] - ia[i_s];
-				printf("%10ld: rows=[%10d(%10d), %10d(%10d)] : %10ld(%10ld)   ,   nnz=[%10d, %10d]:%10d\n", i, i_s, ia[i_s], i_e, ia[i_e], rows, nnz, j_s, j_e, j_e-j_s);
+				nnz = row_ptr[i_e] - row_ptr[i_s];
+				printf("%10ld: rows=[%10d(%10d), %10d(%10d)] : %10ld(%10ld)   ,   nnz=[%10d, %10d]:%10d\n", i, i_s, row_ptr[i_s], i_e, row_ptr[i_e], rows, nnz, j_s, j_e, j_e-j_s);
 			}
 		#endif
 	}
@@ -141,7 +141,7 @@ struct CSRArrays : Matrix_Format
 	~CSRArrays()
 	{
 		free(a);
-		free(ia);
+		free(row_ptr);
 		free(ja);
 		free(thread_i_s);
 		free(thread_i_e);
@@ -283,12 +283,12 @@ subkernel_row_csr_vector(CSRArrays * restrict csr, ValueType * restrict x, INT_T
 // {
 	// ValueType sum;
 	// long i, j, j_s, j_e;
-	// j_e = csr->ia[i_s];
+	// j_e = csr->row_ptr[i_s];
 	// for (i=i_s;i<i_e;i++)
 	// {
 		// y[i] = 0;
 		// j_s = j_e;
-		// j_e = csr->ia[i+1];
+		// j_e = csr->row_ptr[i+1];
 		// if (j_s == j_e)
 			// continue;
 		// sum = 0;
@@ -306,10 +306,10 @@ subkernel_csr_scalar(CSRArrays * restrict csr, ValueType * restrict x, ValueType
 {
 	ValueType sum;
 	long i, j, j_e;
-	j = csr->ia[i_s];
+	j = csr->row_ptr[i_s];
 	for (i=i_s;i<i_e;i++)
 	{
-		j_e = csr->ia[i+1];
+		j_e = csr->row_ptr[i+1];
 		sum = 0;
 		for (;j<j_e;j++)
 		{
@@ -325,10 +325,10 @@ subkernel_csr_scalar_kahan(CSRArrays * restrict csr, ValueType * restrict x, Val
 {
 	ValueType sum, val, tmp, compensation = 0;
 	long i, j, j_e;
-	j = csr->ia[i_s];
+	j = csr->row_ptr[i_s];
 	for (i=i_s;i<i_e;i++)
 	{
-		j_e = csr->ia[i+1];
+		j_e = csr->row_ptr[i+1];
 		sum = 0;
 		compensation = 0;
 		for (;j<j_e;j++)
@@ -412,8 +412,8 @@ compute_csr_prefetch(CSRArrays * restrict csr, ValueType * restrict x, ValueType
 		i_e = thread_i_e[tnum];
 		for (i=i_s;i<i_e;i++)
 		{
-			j_s = csr->ia[i];
-			j_e = csr->ia[i+1];
+			j_s = csr->row_ptr[i];
+			j_e = csr->row_ptr[i+1];
 			if (j_s == j_e)
 				continue;
 			sum = 0;
@@ -446,8 +446,8 @@ compute_csr_omp_simd(CSRArrays * restrict csr, ValueType * restrict x, ValueType
 		i_e = thread_i_e[tnum];
 		for (i=i_s;i<i_e;i++)
 		{
-			j_s = csr->ia[i];
-			j_e = csr->ia[i+1];
+			j_s = csr->row_ptr[i];
+			j_e = csr->row_ptr[i+1];
 			if (j_s == j_e)
 				continue;
 			sum = 0;
@@ -483,8 +483,8 @@ compute_csr_omp_simd(CSRArrays * restrict csr, ValueType * restrict x, ValueType
 		{
 			v_sum = zero;
 			y[i] = 0;
-			j_s = csr->ia[i];
-			j_e = csr->ia[i+1];
+			j_s = csr->row_ptr[i];
+			j_e = csr->row_ptr[i+1];
 			if (j_s == j_e)
 				continue;
 			v_a = *(Vector_Value_t *) &csr->a[0];
@@ -528,8 +528,8 @@ compute_csr_vector(CSRArrays * restrict csr, ValueType * restrict x, ValueType *
 		for (i=i_s;i<i_e;i++)
 		{
 			y[i] = 0;
-			j_s = csr->ia[i];
-			j_e = csr->ia[i+1];
+			j_s = csr->row_ptr[i];
+			j_e = csr->row_ptr[i+1];
 			if (j_s == j_e)
 				continue;
 			v_sum = zero;
@@ -586,8 +586,8 @@ compute_csr_vector_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * res
 
 		i = i_s;
 		y[i] = 0;
-		j_s = csr->ia[i];
-		j_e = csr->ia[i+1];
+		j_s = csr->row_ptr[i];
+		j_e = csr->row_ptr[i+1];
 		if (thread_j_s[tnum] > j_s)
 			j_s = thread_j_s[tnum];
 		if (thread_j_e[tnum] < j_e)
@@ -603,8 +603,8 @@ compute_csr_vector_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * res
 		if (i > i_s)
 		{
 			y[i] = 0;
-			j_s = csr->ia[i];
-			j_e = csr->ia[i+1];
+			j_s = csr->row_ptr[i];
+			j_e = csr->row_ptr[i+1];
 			if (thread_j_s[tnum] > j_s)
 				j_s = thread_j_s[tnum];
 			if (thread_j_e[tnum] < j_e)
@@ -646,7 +646,7 @@ compute_csr_vector_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * res
 		j = j_s;
 		for (i=i_s;i<i_e-1;i++)
 		{
-			j_e = csr->ia[i+1];
+			j_e = csr->row_ptr[i+1];
 			// sum = 0;
 			// for (;j<j_e;j++)
 			// {
@@ -661,7 +661,7 @@ compute_csr_vector_perfect_nnz_balance(CSRArrays * restrict csr, ValueType * res
 		}
 
 		i = i_e - 1;
-		j =  csr->ia[i];
+		j =  csr->row_ptr[i];
 		if (j_s > j)
 			j = j_s;
 		j_e = thread_j_e[tnum];
@@ -724,8 +724,8 @@ CSRArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute
 		i_s = thread_i_s[i];
 		i_e = thread_i_e[i];
 		iters_per_t[i] = i_e - i_s;
-		// nnz_per_t[i] = &(a[ia[i_e]]) - &(a[ia[i_s]]);
-		nnz_per_t[i] = ia[i_e] - ia[i_s];
+		// nnz_per_t[i] = &(a[row_ptr[i_e]]) - &(a[row_ptr[i_s]]);
+		nnz_per_t[i] = row_ptr[i_e] - row_ptr[i_s];
 		gflops_per_t[i] = nnz_per_t[i] / thread_time_compute[i] * num_loops * 2 * 1e-9;   // Calculate before making nnz_per_t a ratio.
 		iters_per_t[i] /= m;    // As a fraction of m.
 		nnz_per_t[i] /= nnz;    // As a fraction of nnz.

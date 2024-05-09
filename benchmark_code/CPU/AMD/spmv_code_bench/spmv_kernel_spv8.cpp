@@ -335,14 +335,14 @@ spmv_tr_spvv8_kernel(tr_matrix &tr, int threads)
 
 struct SpV8_Array : Matrix_Format
 {
-	INT_T * ia;      // the usual rowptr (of size m+1)
+	INT_T * row_ptr;      // the usual rowptr (of size m+1)
 	INT_T * ja;      // the colidx of each NNZ (of size nnz)
 	ValueType * a;   // the values (of size NNZ)
 
 	spv8_csr_matrix mat;
 	tr_matrix tr;
 
-	SpV8_Array(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	SpV8_Array(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
 	{
 		int num_threads = omp_get_max_threads();
 		long i;
@@ -356,11 +356,11 @@ struct SpV8_Array : Matrix_Format
 
 		mat.nnz = a;
 		mat.col = ja;
-		mat.rowb = ia;
+		mat.rowb = row_ptr;
 		mat.rowe = (typeof(mat.rowe)) malloc(mat.rows * sizeof(mat.rowe));
 		for (i=0;i<m;i++)
 		{
-			mat.rowe[i] = ia[i+1];
+			mat.rowe[i] = row_ptr[i+1];
 		}
 
 		mat.tstart = NULL;

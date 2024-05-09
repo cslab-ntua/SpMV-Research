@@ -37,13 +37,13 @@ extern int prefetch_distance;
 
 struct CSRArrays : Matrix_Format
 {
-	INT_T * ia;      // the usual rowptr (of size m+1)
+	INT_T * row_ptr;      // the usual rowptr (of size m+1)
 	INT_T * ja;      // the colidx of each NNZ (of size nnz)
 	ValueType * a;   // the values (of size NNZ)
 
 	void compute_csr_vector_x86_timings(ValueType * restrict x, ValueType * restrict y, long * timings);
 
-	CSRArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	CSRArrays(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
 	{
 		int num_threads = omp_get_max_threads();
 		double time_balance;
@@ -79,7 +79,7 @@ struct CSRArrays : Matrix_Format
 				{
 					int tnum = omp_get_thread_num();
 					long i;
-					loop_partitioner_balance_prefix_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+					loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 					_Pragma("omp for")
 					for (i=0;i<m;i++)
 						timings[i] = 0;
@@ -107,7 +107,7 @@ struct CSRArrays : Matrix_Format
 					{
 						long i_s = thread_i_s[i];
 						long i_e = thread_i_e[i];
-						printf("%3ld: i=[%8ld, %8ld] (%8ld) , nnz=%8d , timings=%ld\n", i, i_s, i_e, i_e - i_s, ia[i_e] - ia[i_s], (prefix_sums[i_e] - prefix_sums[i_s]));
+						printf("%3ld: i=[%8ld, %8ld] (%8ld) , nnz=%8d , timings=%ld\n", i, i_s, i_e, i_e - i_s, row_ptr[i_e] - row_ptr[i_s], (prefix_sums[i_e] - prefix_sums[i_s]));
 					}
 					printf("\n");
 				}
@@ -132,7 +132,7 @@ struct CSRArrays : Matrix_Format
 						#ifdef CUSTOM_X86_VECTOR_PERFECT_NNZ_BALANCE
 							long lower_boundary;
 							loop_partitioner_balance_iterations(num_threads, tnum, 0, nnz, &thread_j_s[tnum], &thread_j_e[tnum]);
-							macros_binary_search(ia, 0, m, thread_j_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
+							macros_binary_search(row_ptr, 0, m, thread_j_s[tnum], &lower_boundary, NULL);           // Index boundaries are inclusive.
 							thread_i_s[tnum] = lower_boundary;
 							_Pragma("omp barrier")
 							if (tnum == num_threads - 1)   // If we calculate each thread's boundaries individually some empty rows might be unassigned.
@@ -140,8 +140,8 @@ struct CSRArrays : Matrix_Format
 							else
 								thread_i_e[tnum] = thread_i_s[tnum+1] + 1;
 						#else
-							loop_partitioner_balance_prefix_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
-							// loop_partitioner_balance(num_threads, tnum, 2, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+							loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+							// loop_partitioner_balance(num_threads, tnum, 2, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 						#endif
 					}
 				}
@@ -153,7 +153,7 @@ struct CSRArrays : Matrix_Format
 	~CSRArrays()
 	{
 		free(a);
-		free(ia);
+		free(row_ptr);
 		free(ja);
 		free(thread_i_s);
 		free(thread_i_e);
@@ -219,9 +219,9 @@ compute_csr_vector_x86(CSRArrays * restrict csr, ValueType * restrict x, ValueTy
 		long i_s, i_e;
 		i_s = thread_i_s[tnum];
 		i_e = thread_i_e[tnum];
-		// subkernel_csr_scalar(csr->ia, csr->ja, csr->a, x, y, i_s, i_e);
-		subkernel_csr_x86_density(csr->ia, csr->ja, csr->a, x, y, i_s, i_e);
-		// subkernel_csr_vector_x86_512d(csr->ia, csr->ja, csr->a, x, y, i_s, i_e);
+		// subkernel_csr_scalar(csr->row_ptr, csr->ja, csr->a, x, y, i_s, i_e);
+		subkernel_csr_x86_density(csr->row_ptr, csr->ja, csr->a, x, y, i_s, i_e);
+		// subkernel_csr_vector_x86_512d(csr->row_ptr, csr->ja, csr->a, x, y, i_s, i_e);
 	}
 }
 
@@ -242,25 +242,25 @@ CSRArrays::compute_csr_vector_x86_timings(ValueType * restrict x, ValueType * re
 		long cycles;
 		i_s = thread_i_s[tnum];
 		i_e = thread_i_e[tnum];
-		j_e = ia[i_s];
+		j_e = row_ptr[i_s];
 		for (i=i_s;i<i_e;i+=num_rows)
 		{
 			// for (k_e=i+1;k_e<i_e;k_e++)
 			// {
-				// if (ia[k_e] - ia[k_e-1] > 1)
+				// if (row_ptr[k_e] - row_ptr[k_e-1] > 1)
 				// {
 					// if (k_e > i+1) // If not alone then time it alone next time.
 						// k_e--;
 					// break;
 				// }
-				// if (ia[k_e] - ia[i] > 64)
+				// if (row_ptr[k_e] - row_ptr[i] > 64)
 					// break;
 			// }
 			// num_rows = k_e - i;
 			cycles = time_it_tsc(1,
 				for (k_e=i+1;k_e<i_e;k_e++)
 				{
-					if (ia[k_e] - ia[k_e-1] > 8)
+					if (row_ptr[k_e] - row_ptr[k_e-1] > 8)
 					{
 						if (k_e > i+1) // If not alone then time it alone next time.
 							k_e--;
@@ -273,7 +273,7 @@ CSRArrays::compute_csr_vector_x86_timings(ValueType * restrict x, ValueType * re
 				for (k=i;k<k_e;k++)
 				{
 					j_s = j_e;
-					j_e = ia[k+1];
+					j_e = row_ptr[k+1];
 					if (j_s == j_e)
 						continue;
 					// y[k] = subkernel_row_csr_scalar(ja, a, x, j_s, j_e);
@@ -344,8 +344,8 @@ compute_csr_vector_x86_queues(CSRArrays * restrict csr, ValueType * restrict x, 
 		for (i=i_s;i<i_e;i++)
 		{
 			y[i] = 0;
-			j_s = csr->ia[i];
-			j_e = csr->ia[i+1];
+			j_s = csr->row_ptr[i];
+			j_e = csr->row_ptr[i+1];
 			if (j_s == j_e)
 				continue;
 			degree = j_e - j_s;
@@ -414,8 +414,8 @@ compute_csr_vector_x86_perfect_nnz_balance(CSRArrays * restrict csr, ValueType *
 
 		i = i_s;
 		y[i] = 0;
-		j_s = csr->ia[i];
-		j_e = csr->ia[i+1];
+		j_s = csr->row_ptr[i];
+		j_e = csr->row_ptr[i+1];
 		if (thread_j_s[tnum] > j_s)
 			j_s = thread_j_s[tnum];
 		if (thread_j_e[tnum] < j_e)
@@ -425,14 +425,14 @@ compute_csr_vector_x86_perfect_nnz_balance(CSRArrays * restrict csr, ValueType *
 			thread_v_s[tnum] = subkernel_row_csr_vector_x86(csr->ja, csr->a, x, j_s, j_e);
 		}
 
-		subkernel_csr_x86_density(csr->ia, csr->ja, csr->a, x, y, i_s+1, i_e-1);
+		subkernel_csr_x86_density(csr->row_ptr, csr->ja, csr->a, x, y, i_s+1, i_e-1);
 
 		i = i_e-1;
 		if (i > i_s)
 		{
 			y[i] = 0;
-			j_s = csr->ia[i];
-			j_e = csr->ia[i+1];
+			j_s = csr->row_ptr[i];
+			j_e = csr->row_ptr[i+1];
 			if (thread_j_s[tnum] > j_s)
 				j_s = thread_j_s[tnum];
 			if (thread_j_e[tnum] < j_e)
@@ -474,7 +474,7 @@ compute_csr_vector_x86_perfect_nnz_balance(CSRArrays * restrict csr, ValueType *
 		j = j_s;
 		for (i=i_s;i<i_e-1;i++)
 		{
-			j_e = csr->ia[i+1];
+			j_e = csr->row_ptr[i+1];
 			// sum = 0;
 			// for (;j<j_e;j++)
 			// {
@@ -507,7 +507,7 @@ compute_csr_vector_x86_perfect_nnz_balance(CSRArrays * restrict csr, ValueType *
 		}
 
 		i = i_e - 1;
-		j =  csr->ia[i];
+		j =  csr->row_ptr[i];
 		if (j_s > j)
 			j = j_s;
 		j_e = thread_j_e[tnum];
@@ -553,7 +553,7 @@ CSRArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute
 	// {
 		// i_s = thread_i_s[i];
 		// i_e = thread_i_e[i];
-		// printf("%3ld: i=[%8ld, %8ld] (%8ld) , nnz=%8d\n", i, i_s, i_e, i_e - i_s, ia[i_e] - ia[i_s]);
+		// printf("%3ld: i=[%8ld, %8ld] (%8ld) , nnz=%8d\n", i, i_s, i_e, i_e - i_s, row_ptr[i_e] - row_ptr[i_s]);
 	// }
 	return 0;
 }

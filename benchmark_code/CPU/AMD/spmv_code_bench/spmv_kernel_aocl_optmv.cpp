@@ -25,7 +25,7 @@ extern "C"{
 struct CSRArrays : Matrix_Format
 {
 	ValueType * a;   // the values (of size NNZ)
-	INT_T * ia;      // the usual rowptr (of size m+1)
+	INT_T * row_ptr;      // the usual rowptr (of size m+1)
 	INT_T * ja;      // the colidx of each NNZ (of size nnz)
 	aoclsparse_matrix A;
 	aoclsparse_mat_descr descr; // aoclsparse_matrix_type_general
@@ -34,7 +34,7 @@ struct CSRArrays : Matrix_Format
 	CSRArrays(long m, long n, long nnz) : Matrix_Format(m, n, nnz)
 	{
 		a = NULL;
-		ia = NULL;
+		row_ptr = NULL;
 		ja= NULL;
 		aoclsparse_create_mat_descr(&descr);
 	}
@@ -42,7 +42,7 @@ struct CSRArrays : Matrix_Format
 	~CSRArrays()
 	{
 		free(a);
-		free(ia);
+		free(row_ptr);
 		free(ja);
 		aoclsparse_destroy_mat_descr(descr);
 	}
@@ -72,7 +72,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	aoclsparse_index_base base = aoclsparse_index_base_zero;
 
 	csr->format_name = (char *) "AOCL_OPTMV";
-	csr->ia = row_ptr;
+	csr->row_ptr = row_ptr;
 	csr->ja = col_ind;
 	csr->a = values;
 

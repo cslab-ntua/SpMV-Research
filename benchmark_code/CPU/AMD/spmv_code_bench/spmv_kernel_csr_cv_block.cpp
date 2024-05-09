@@ -113,7 +113,7 @@ struct packet_info_s {
 
 struct CSRCVArrays : Matrix_Format
 {
-	INT_T * ia;                                  // the usual rowptr (of size m+1)
+	INT_T * row_ptr;                                  // the usual rowptr (of size m+1)
 	INT_T * ja;                                  // the colidx of each NNZ (of size nnz)
 	long * t_compr_data_size;                    // size of the compressed data
 	unsigned char ** t_compr_data;               // the compressed values
@@ -134,7 +134,7 @@ struct CSRCVArrays : Matrix_Format
 	unsigned char ** t_packet_data = NULL;
 	long * t_num_vals = NULL;
 
-	CSRCVArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	CSRCVArrays(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
 	{
 		int num_threads = omp_get_max_threads();
 		double time_balance, time_compress;
@@ -147,7 +147,7 @@ struct CSRCVArrays : Matrix_Format
 			_Pragma("omp parallel")
 			{
 				int tnum = omp_get_thread_num();
-				loop_partitioner_balance_prefix_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+				loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 			}
 		);
 		printf("balance time = %g\n", time_balance);
@@ -179,8 +179,8 @@ struct CSRCVArrays : Matrix_Format
 
 				i_s = thread_i_s[tnum];
 				i_e = thread_i_e[tnum];
-				j_s = ia[i_s];
-				j_e = ia[i_e];
+				j_s = row_ptr[i_s];
+				j_e = row_ptr[i_e];
 
 				_Pragma("omp single nowait")
 				{
@@ -212,19 +212,19 @@ struct CSRCVArrays : Matrix_Format
 					// else
 					// {
 						// i = packet_info[p-1].i_e;
-						// packet_info[p].i_s = j < ia[i] ? i-1 : i;  // Test for partial row.
+						// packet_info[p].i_s = j < row_ptr[i] ? i-1 : i;  // Test for partial row.
 					// }
 					if (p == num_packets - 1)
 						packet_info[p].i_e = i_e;
 					else
 					{
 						// Index boundaries are inclusive. 'upper_boundary' is certainly the first row after the rows belonging to the packet (last packet row can be partial).
-						macros_binary_search(ia, i_s, i_e, j+num_vals, NULL, &upper_boundary);
+						macros_binary_search(row_ptr, i_s, i_e, j+num_vals, NULL, &upper_boundary);
 						packet_info[p].i_e = upper_boundary;
 					}
 					// for (;i<i_e;i++)
 					// {
-						// if (ia[i] >= j+num_vals)
+						// if (row_ptr[i] >= j+num_vals)
 							// break;
 					// }
 					// if (packet_info[p].i_e != i)
@@ -260,7 +260,7 @@ struct CSRCVArrays : Matrix_Format
 		}
 		free(t_compr_data);
 		free(t_packet_info);
-		free(ia);
+		free(row_ptr);
 		free(ja);
 		free(thread_i_s);
 		free(thread_i_e);
@@ -304,7 +304,7 @@ CSRCVArrays::calculate_matrix_compression_error(ValueType * a)
 		unsigned char * data = t_compr_data[tnum];
 		long pos, p, i_s, j;
 		i_s = thread_i_s[tnum];
-		j = ia[i_s];
+		j = row_ptr[i_s];
 		pos = 0;
 		for (p=0;p<num_packets;p++)
 		{
@@ -398,7 +398,7 @@ compute_csr_cv_statistics(CSRCVArrays * restrict csr, ValueType * restrict x, Va
 		i_s = thread_i_s[tnum];
 		i_e = thread_i_e[tnum];
 		i = i_s;
-		j = csr->ia[i_s];
+		j = csr->row_ptr[i_s];
 		pos = 0;
 		double time_total = 0, time_io = 0, time_decompress = 0, time_exec = 0;
 		for (p=0;p<num_packets;p++)
@@ -428,30 +428,30 @@ compute_csr_cv_statistics(CSRCVArrays * restrict csr, ValueType * restrict x, Va
 				i_e = packet_info[p].i_e;
 				k = 0;
 				j_packet_e = j + num_vals;
-				if (j > csr->ia[i])   // Partial first row.
+				if (j > csr->row_ptr[i])   // Partial first row.
 				{
-					j_e = csr->ia[i+1];
+					j_e = csr->row_ptr[i+1];
 					if (j_e > j_packet_e)
 						j_e = j_packet_e;
 					// for (long z=j;z<j_e;z++)
 					// {
 						// if (csr->a[z] != vals[k+z-j])
-							// error("ia:[%d,%d] , packet=%ld , a[%ld]=%lf , vals[%ld]=%lf", csr->ia[i], csr->ia[i+1], p, z, csr->a[z], z-j, vals[k+z-j]);
+							// error("row_ptr:[%d,%d] , packet=%ld , a[%ld]=%lf , vals[%ld]=%lf", csr->row_ptr[i], csr->row_ptr[i+1], p, z, csr->a[z], z-j, vals[k+z-j]);
 					// }
 					sum = subkernel_row_csr(csr->ja, &vals[k], x, j, j_e);
 					k += j_e - j;
 					j = j_e;
 					y[i] += sum;
-					if (j == csr->ia[i+1])
+					if (j == csr->row_ptr[i+1])
 						i++;
 				}
 				for (;i<i_e-1;i++)  // Except last row.
 				{
-					j_e = csr->ia[i+1];
+					j_e = csr->row_ptr[i+1];
 					// for (long z=j;z<j_e;z++)
 					// {
 						// if (csr->a[z] != vals[k+z-j])
-							// error("ia:[%d,%d] , packet=%ld , a[%ld]=%lf , vals[%ld]=%lf", csr->ia[i], csr->ia[i+1], p, z, csr->a[z], z-j, vals[k+z-j]);
+							// error("row_ptr:[%d,%d] , packet=%ld , a[%ld]=%lf , vals[%ld]=%lf", csr->row_ptr[i], csr->row_ptr[i+1], p, z, csr->a[z], z-j, vals[k+z-j]);
 					// }
 					sum = subkernel_row_csr(csr->ja, &vals[k], x, j, j_e);
 					k += j_e - j;
@@ -465,13 +465,13 @@ compute_csr_cv_statistics(CSRCVArrays * restrict csr, ValueType * restrict x, Va
 					// for (long z=j;z<j_e;z++)
 					// {
 						// if (csr->a[z] != vals[k+z-j])
-							// error("ia:[%d,%d] , packet=%ld , a[%ld]=%lf , vals[%ld]=%lf", csr->ia[i], csr->ia[i+1], p, z, csr->a[z], z-j, vals[k+z-j]);
+							// error("row_ptr:[%d,%d] , packet=%ld , a[%ld]=%lf , vals[%ld]=%lf", csr->row_ptr[i], csr->row_ptr[i+1], p, z, csr->a[z], z-j, vals[k+z-j]);
 					// }
 					sum = subkernel_row_csr(csr->ja, &vals[k], x, j, j_packet_e);
 					k += j_packet_e - j;
 					j = j_packet_e;
 					y[i] = sum;
-					if (j == csr->ia[i+1])
+					if (j == csr->row_ptr[i+1])
 						i++;
 				}
 			);
@@ -504,7 +504,7 @@ compute_csr_cv_base(CSRCVArrays * restrict csr, ValueType * restrict x, ValueTyp
 		i_s = thread_i_s[tnum];
 		i_e = thread_i_e[tnum];
 		i = i_s;
-		j = csr->ia[i_s];
+		j = csr->row_ptr[i_s];
 		pos = 0;
 		for (p=0;p<num_packets;p++)
 		{
@@ -513,30 +513,30 @@ compute_csr_cv_base(CSRCVArrays * restrict csr, ValueType * restrict x, ValueTyp
 			i_e = packet_info[p].i_e;
 			k = 0;
 			j_packet_e = j + num_vals;
-			if (j > csr->ia[i])   // Partial first row.
+			if (j > csr->row_ptr[i])   // Partial first row.
 			{
-				j_e = csr->ia[i+1];
+				j_e = csr->row_ptr[i+1];
 				if (j_e > j_packet_e)
 					j_e = j_packet_e;
 				// for (long z=j;z<j_e;z++)
 				// {
 					// if (csr->a[z] != vals[k+z-j])
-						// error("ia:[%d,%d] , packet=%ld , a[%ld]=%lf , vals[%ld]=%lf", csr->ia[i], csr->ia[i+1], p, z, csr->a[z], z-j, vals[k+z-j]);
+						// error("row_ptr:[%d,%d] , packet=%ld , a[%ld]=%lf , vals[%ld]=%lf", csr->row_ptr[i], csr->row_ptr[i+1], p, z, csr->a[z], z-j, vals[k+z-j]);
 				// }
 				sum = subkernel_row_csr(csr->ja, &vals[k], x, j, j_e);
 				k += j_e - j;
 				j = j_e;
 				y[i] += sum;
-				if (j == csr->ia[i+1])
+				if (j == csr->row_ptr[i+1])
 					i++;
 			}
 			for (;i<i_e-1;i++)  // Except last row.
 			{
-				j_e = csr->ia[i+1];
+				j_e = csr->row_ptr[i+1];
 				// for (long z=j;z<j_e;z++)
 				// {
 					// if (csr->a[z] != vals[k+z-j])
-						// error("ia:[%d,%d] , packet=%ld , a[%ld]=%lf , vals[%ld]=%lf", csr->ia[i], csr->ia[i+1], p, z, csr->a[z], z-j, vals[k+z-j]);
+						// error("row_ptr:[%d,%d] , packet=%ld , a[%ld]=%lf , vals[%ld]=%lf", csr->row_ptr[i], csr->row_ptr[i+1], p, z, csr->a[z], z-j, vals[k+z-j]);
 				// }
 				sum = subkernel_row_csr(csr->ja, &vals[k], x, j, j_e);
 				k += j_e - j;
@@ -550,13 +550,13 @@ compute_csr_cv_base(CSRCVArrays * restrict csr, ValueType * restrict x, ValueTyp
 				// for (long z=j;z<j_e;z++)
 				// {
 					// if (csr->a[z] != vals[k+z-j])
-						// error("ia:[%d,%d] , packet=%ld , a[%ld]=%lf , vals[%ld]=%lf", csr->ia[i], csr->ia[i+1], p, z, csr->a[z], z-j, vals[k+z-j]);
+						// error("row_ptr:[%d,%d] , packet=%ld , a[%ld]=%lf , vals[%ld]=%lf", csr->row_ptr[i], csr->row_ptr[i+1], p, z, csr->a[z], z-j, vals[k+z-j]);
 				// }
 				sum = subkernel_row_csr(csr->ja, &vals[k], x, j, j_packet_e);
 				k += j_packet_e - j;
 				j = j_packet_e;
 				y[i] = sum;
-				if (j == csr->ia[i+1])
+				if (j == csr->row_ptr[i+1])
 					i++;
 			}
 		}

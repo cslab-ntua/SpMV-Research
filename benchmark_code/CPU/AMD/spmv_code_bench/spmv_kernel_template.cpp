@@ -20,11 +20,11 @@ extern "C"{
 
 struct New_Array : Matrix_Format
 {
-	INT_T * ia;      // the usual rowptr (of size m+1)
+	INT_T * row_ptr;      // the usual rowptr (of size m+1)
 	INT_T * ja;      // the colidx of each NNZ (of size nnz)
 	ValueType * a;   // the values (of size NNZ)
 
-	New_Array(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	New_Array(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
 	{
 
 	}

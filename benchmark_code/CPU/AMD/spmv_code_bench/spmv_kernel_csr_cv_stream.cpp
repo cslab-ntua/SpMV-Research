@@ -98,7 +98,7 @@ extern long num_loops_out;
 
 struct CSRCVSArrays : Matrix_Format
 {
-	INT_T * ia;                                  // the usual rowptr (of size m+1)
+	INT_T * row_ptr;                                  // the usual rowptr (of size m+1)
 	INT_T * ja;                                  // the colidx of each NNZ (of size nnz)
 	long * t_compr_data_size;                    // size of the compressed data
 	unsigned char ** t_compr_data;               // the compressed values
@@ -112,7 +112,7 @@ struct CSRCVSArrays : Matrix_Format
 
 	void calculate_matrix_compression_error(ValueType * a_new);
 
-	CSRCVSArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	CSRCVSArrays(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
 	{
 		int num_threads = omp_get_max_threads();
 		double time_balance;
@@ -130,7 +130,7 @@ struct CSRCVSArrays : Matrix_Format
 			_Pragma("omp parallel")
 			{
 				int tnum = omp_get_thread_num();
-				loop_partitioner_balance_prefix_sums(num_threads, tnum, ia, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
+				loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &thread_i_s[tnum], &thread_i_e[tnum]);
 			}
 		);
 		printf("balance time = %g\n", time_balance);
@@ -156,8 +156,8 @@ struct CSRCVSArrays : Matrix_Format
 
 				i_s = thread_i_s[tnum];
 				i_e = thread_i_e[tnum];
-				j_s = ia[i_s];
-				j_e = ia[i_e];
+				j_s = row_ptr[i_s];
+				j_e = row_ptr[i_e];
 
 				_Pragma("omp single nowait")
 				{
@@ -168,7 +168,7 @@ struct CSRCVSArrays : Matrix_Format
 				num_packets = (t_nnz + num_packet_vals - 1) / num_packet_vals;
 				// long leftover = t_nnz % num_packet_vals;
 
-				max_data_size = t_nnz * (sizeof(*ia) + sizeof(*ja) + 2 * sizeof(ValueType));    // We assume worst case scenario:  compr_data = 2 * data
+				max_data_size = t_nnz * (sizeof(*row_ptr) + sizeof(*ja) + 2 * sizeof(ValueType));    // We assume worst case scenario:  compr_data = 2 * data
 				data = (typeof(data)) aligned_alloc(64, max_data_size);
 
 				pos = 0;
@@ -182,29 +182,29 @@ struct CSRCVSArrays : Matrix_Format
 
 					// Correctness testing for macros_binary_search().
 					long tmp = i;
-					while (ia[tmp] < j)
+					while (row_ptr[tmp] < j)
 						tmp++;
-					if (j != ia[tmp])
+					if (j != row_ptr[tmp])
 						tmp--;
 
 					/* Index boundaries are inclusive. 'upper_boundary' is certainly the first row after the rows belonging to the packet (last packet row can be partial).
 					 *
 					 * This removes leading empty rows.
 					 */
-					macros_binary_search(ia, i_s, i_e, j, NULL, &upper_boundary);
+					macros_binary_search(row_ptr, i_s, i_e, j, NULL, &upper_boundary);
 					i = upper_boundary;
-					if (j != ia[i])
+					if (j != row_ptr[i])
 						i--;
 
 					if (i != tmp)
 						error("wrong i = %ld, correct i = %ld", i, tmp);
 
 					num_vals = (j + num_packet_vals <= j_e) ? num_packet_vals : j_e - j;
-					size = compress_kernel_sort_diff(ia, ja, &a[j], i, j, &data[pos], num_vals, &num_vals);
+					size = compress_kernel_sort_diff(row_ptr, ja, &a[j], i, j, &data[pos], num_vals, &num_vals);
 
 					// for (;i<i_e;i++)
 					// {
-						// if (ia[i] >= j+num_vals)
+						// if (row_ptr[i] >= j+num_vals)
 							// break;
 					// }
 					// if (tnum == 0)
@@ -263,7 +263,7 @@ struct CSRCVSArrays : Matrix_Format
 			free(t_compr_data[i]);
 		}
 		free(t_compr_data);
-		free(ia);
+		free(row_ptr);
 		free(ja);
 		free(thread_i_s);
 		free(thread_i_e);

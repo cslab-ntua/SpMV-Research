@@ -98,9 +98,9 @@ conf_vars=(
     # Maximum number of the machine's cores.
     # ['max_cores']=160
     # ['max_cores']=256
-    # ['max_cores']=128
+    ['max_cores']=128
     # ['max_cores']=64
-    ['max_cores']=96
+    # ['max_cores']=96
     # ['max_cores']=48
     # ['max_cores']=16
     # ['max_cores']=8
@@ -113,8 +113,8 @@ conf_vars=(
     # ['cores']=64
     # ['cores']=48
     # ['cores']=32
-    ['cores']=24
-    # ['cores']=16
+    # ['cores']=24
+    ['cores']=16
     # ['cores']=12
     # ['cores']=8
     # ['cores']=6
@@ -214,10 +214,9 @@ conf_vars=(
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
-                        # "$HOME/Data/graphs/validation_matrices"
+                        "$HOME/Data/graphs/validation_matrices"
                         # "${script_dir}/../../../validation_matrices"
-                        # '/various/pmpakos/SpMV-Research/validation_matrices'
-                        '/various/pmpakos/SpMV-Research/validation_matrices/matrix_features/matrices'
+                        '/various/pmpakos/SpMV-Research/validation_matrices'
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -370,7 +369,9 @@ progs=(
 
     # Custom cuda
     # ['csr_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_nv_d.exe"
-    # ['csr_cuda_buffer_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_nv_d.exe"    
+    # ['csr_cuda_buffer_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_nv_d.exe"
+    # ['csr_cuda_reduce_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_reduce_nv_d.exe"
+    ['csr_cuda_const_nnz_per_thread_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nv_d.exe"
 
     # ['csr_cuda_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_t1769472_nv_d.exe"
     # ['csr_cuda_s4_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t1769472_nv_d.exe"
@@ -383,9 +384,11 @@ progs=(
     # ['csr_cuda_vector_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_vector_b256_nv_d.exe"
     # ['csr_cuda_vector_s4_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_vector_s4_b256_nv_d.exe"
 
+
+    # Cuda Adaptive
+
     # ['csr_cuda_adaptive_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_nv_d.exe"
     # ['csr_cuda_adaptive_s8_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s8_b256_nv_d.exe"
-
 
     # ['csr_cuda_adaptive_b1024_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b1024_mb2_nv_d.exe"
     # ['csr_cuda_adaptive_b1024_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b1024_mb4_nv_d.exe"
@@ -415,9 +418,9 @@ progs=(
 
     # ['csr_cuda_adaptive_s16_b256_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb2_nv_d.exe"
     # ['csr_cuda_adaptive_s8_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s8_b256_mb4_nv_d.exe"
-    ['csr_cuda_adaptive_s8_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s8_b256_mb4_nv_d.exe"
-    ['csr_cuda_adaptive_s4_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_mb4_nv_d.exe"
-    ['csr_cuda_adaptive_s1_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s1_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_s8_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s8_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_s4_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_s1_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s1_b256_mb4_nv_d.exe"
     # ['csr_cuda_adaptive_s4_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_mb4_nv_d.exe"
     # ['csr_cuda_adaptive_s16_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb4_nv_d.exe"
     # ['csr_cuda_adaptive_s16_b256_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb24_nv_d.exe"

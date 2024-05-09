@@ -118,7 +118,7 @@ csr2csrv(const floatType *h_vals, const int &nItems, void *csv_vals_ptr, floatTy
 
 struct CSRRVArrays : Matrix_Format
 {
-	INT_T * ia;
+	INT_T * row_ptr;
 	INT_T * ja;
 	ValueType * a;
 
@@ -138,11 +138,11 @@ struct CSRRVArrays : Matrix_Format
 	floatType * csv_vals;
 	void * csv_vals_ptr;
 
-	CSRRVArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	CSRRVArrays(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
 	{
 		h_val = a;
 		h_cols = ja;
-		h_rowDelimiters = ia;
+		h_rowDelimiters = row_ptr;
 		nItems = nnz;
 		numRows = m;
 		numCols = n;
@@ -155,7 +155,7 @@ struct CSRRVArrays : Matrix_Format
 	~CSRRVArrays()
 	{
 		free(a);
-		free(ia);
+		free(row_ptr);
 		free(ja);
 		free(csv_vals);
 		free(csv_vals_ptr);

@@ -204,14 +204,14 @@ subkernel_row_csr_vector_x86(INT_T * restrict ja, ValueType * restrict a, ValueT
 
 
 void
-subkernel_csr_scalar(INT_T * restrict ia, INT_T * restrict ja, ValueType * restrict a, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
+subkernel_csr_scalar(INT_T * restrict row_ptr, INT_T * restrict ja, ValueType * restrict a, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
 {
 	ValueType sum;
 	long i, j, j_e;
-	j = ia[i_s];
+	j = row_ptr[i_s];
 	for (i=i_s;i<i_e;i++)
 	{
-		j_e = ia[i+1];
+		j_e = row_ptr[i+1];
 		sum = 0;
 		for (;j<j_e;j++)
 			sum += a[j] * x[ja[j]];
@@ -221,15 +221,15 @@ subkernel_csr_scalar(INT_T * restrict ia, INT_T * restrict ja, ValueType * restr
 
 
 void
-subkernel_csr_vector_x86_128d(INT_T * restrict ia, INT_T * restrict ja, ValueType * restrict a, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
+subkernel_csr_vector_x86_128d(INT_T * restrict row_ptr, INT_T * restrict ja, ValueType * restrict a, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
 {
 	long i, j_s, j_e;
-	j_e = ia[i_s];
+	j_e = row_ptr[i_s];
 	for (i=i_s;i<i_e;i++)
 	{
 		y[i] = 0;
 		j_s = j_e;
-		j_e = ia[i+1];
+		j_e = row_ptr[i+1];
 		if (j_s == j_e)
 			continue;
 		y[i] = subkernel_row_csr_vector_x86_128d(ja, a, x, j_s, j_e);
@@ -238,15 +238,15 @@ subkernel_csr_vector_x86_128d(INT_T * restrict ia, INT_T * restrict ja, ValueTyp
 
 
 void
-subkernel_csr_vector_x86_256d(INT_T * restrict ia, INT_T * restrict ja, ValueType * restrict a, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
+subkernel_csr_vector_x86_256d(INT_T * restrict row_ptr, INT_T * restrict ja, ValueType * restrict a, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
 {
 	long i, j_s, j_e;
-	j_e = ia[i_s];
+	j_e = row_ptr[i_s];
 	for (i=i_s;i<i_e;i++)
 	{
 		y[i] = 0;
 		j_s = j_e;
-		j_e = ia[i+1];
+		j_e = row_ptr[i+1];
 		if (j_s == j_e)
 			continue;
 		y[i] = subkernel_row_csr_vector_x86_256d(ja, a, x, j_s, j_e);
@@ -255,15 +255,15 @@ subkernel_csr_vector_x86_256d(INT_T * restrict ia, INT_T * restrict ja, ValueTyp
 
 
 void
-subkernel_csr_vector_x86_512d(INT_T * restrict ia, INT_T * restrict ja, ValueType * restrict a, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
+subkernel_csr_vector_x86_512d(INT_T * restrict row_ptr, INT_T * restrict ja, ValueType * restrict a, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
 {
 	long i, j_s, j_e;
-	j_e = ia[i_s];
+	j_e = row_ptr[i_s];
 	for (i=i_s;i<i_e;i++)
 	{
 		y[i] = 0;
 		j_s = j_e;
-		j_e = ia[i+1];
+		j_e = row_ptr[i+1];
 		if (j_s == j_e)
 			continue;
 		y[i] = subkernel_row_csr_vector_x86_512d(ja, a, x, j_s, j_e);
@@ -277,31 +277,31 @@ subkernel_csr_vector_x86_512d(INT_T * restrict ia, INT_T * restrict ja, ValueTyp
 
 
 void
-subkernel_csr_x86_density(INT_T * restrict ia, INT_T * restrict ja, ValueType * restrict a, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
+subkernel_csr_x86_density(INT_T * restrict row_ptr, INT_T * restrict ja, ValueType * restrict a, ValueType * restrict x, ValueType * restrict y, long i_s, long i_e)
 {
 	double density;
 	if (i_s >= i_e)
 		return;
-	density = ((double) ia[i_e] - ia[i_s]) / (i_e - i_s);
+	density = ((double) row_ptr[i_e] - row_ptr[i_s]) / (i_e - i_s);
 	if (density < 4)
 	{
 		// printf("%d: scalar %lf\n", tnum, density);
-		subkernel_csr_scalar(ia, ja, a, x, y, i_s, i_e);
+		subkernel_csr_scalar(row_ptr, ja, a, x, y, i_s, i_e);
 	}
 	else if (density < 8)
 	{
 		// printf("%d: 128 %lf\n", tnum, density);
-		subkernel_csr_vector_x86_128d(ia, ja, a, x, y, i_s, i_e);
+		subkernel_csr_vector_x86_128d(row_ptr, ja, a, x, y, i_s, i_e);
 	}
 	else if (density < 16)
 	{
 		// printf("%d: 256 %lf\n", tnum, density);
-		subkernel_csr_vector_x86_256d(ia, ja, a, x, y, i_s, i_e);
+		subkernel_csr_vector_x86_256d(row_ptr, ja, a, x, y, i_s, i_e);
 	}
 	else
 	{
 		// printf("%d: 512 %lf\n", tnum, density);
-		subkernel_csr_vector_x86_512d(ia, ja, a, x, y, i_s, i_e);
+		subkernel_csr_vector_x86_512d(row_ptr, ja, a, x, y, i_s, i_e);
 	}
 }
 

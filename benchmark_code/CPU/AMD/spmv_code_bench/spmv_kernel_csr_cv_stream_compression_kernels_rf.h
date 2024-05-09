@@ -204,7 +204,7 @@ compress_init_sort_diff(__attribute__((unused)) ValueType * vals, __attribute__(
 
 static inline
 long
-select_num_vals(INT_T * ia, long i_s, long j_s, long num_vals, long force_row_index_lte_1_byte)
+select_num_vals(INT_T * row_ptr, long i_s, long j_s, long num_vals, long force_row_index_lte_1_byte)
 {
 	long i_e, j_e;
 	long num_rows;
@@ -213,12 +213,12 @@ select_num_vals(INT_T * ia, long i_s, long j_s, long num_vals, long force_row_in
 	long num_vals_min = 64;
 	j_e = j_s + num_vals;
 	i_e = i_s;
-	while (ia[i_e] < j_e)
+	while (row_ptr[i_e] < j_e)
 		i_e++;
 	num_rows = i_e - i_s;
 	if (num_rows > num_rows_max)
 		i_e = i_s + num_rows_max;
-	num_vals_ret = ia[i_e] - j_s;
+	num_vals_ret = row_ptr[i_e] - j_s;
 	if (!force_row_index_lte_1_byte)
 	{
 		if (num_vals_ret < num_vals_min)
@@ -349,7 +349,7 @@ test_permutation(long num_vals, ValueType * vals, ValueType * window, int * rev_
  */
 static inline
 long
-compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals, long i_s, long j_s, unsigned char * buf, long num_vals, long * num_vals_out)
+compress_kernel_sort_diff(INT_T * row_ptr, INT_T * ja, ValueType * vals, long i_s, long j_s, unsigned char * buf, long num_vals, long * num_vals_out)
 {
 	int tnum = omp_get_thread_num();
 	long num_vals_unique;
@@ -398,7 +398,7 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals, long i_s, lo
 
 	row_min = i_s;   // 'i_s' is certain to be the first non-empty row.
 
-	long new_num_vals = select_num_vals(ia, row_min, j_s, num_vals, force_row_index_lte_1_byte);
+	long new_num_vals = select_num_vals(row_ptr, row_min, j_s, num_vals, force_row_index_lte_1_byte);
 	if (new_num_vals != 0)
 		num_vals = new_num_vals;
 	else
@@ -409,7 +409,7 @@ compress_kernel_sort_diff(INT_T * ia, INT_T * ja, ValueType * vals, long i_s, lo
 
 	for (k=0,i=row_min,j=j_s; k<num_vals; k++,j++)
 	{
-		if (j >= ia[i+1])
+		if (j >= row_ptr[i+1])
 			i++;
 		rows[k] = i;
 	}

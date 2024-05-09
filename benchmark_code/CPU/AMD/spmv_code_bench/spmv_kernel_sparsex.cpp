@@ -35,12 +35,12 @@ struct CSXArrays : Matrix_Format
 	spx_matrix_t * A;
 	spx_input_t * input;
 	spx_partition_t * parts;
-	INT_T * ia;      // the usual rowptr (of size m+1)
+	INT_T * row_ptr;      // the usual rowptr (of size m+1)
 	INT_T * ja;      // the colidx of each NNZ (of size nnz)
 	ValueType * a;   // the values (of size NNZ)
 	double time_create_vector;
 
-	CSXArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	CSXArrays(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
 	{
 		time_create_vector = 0;
 	}

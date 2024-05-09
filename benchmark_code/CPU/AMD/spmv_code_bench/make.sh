@@ -139,6 +139,7 @@ export LDFLAGS
 NVCCFLAGS=
 NVCCFLAGS+=" -allow-unsupported-compiler"
 # NVCCFLAGS+=" --dlink-time-opt"
+NVCCFLAGS+=' -arch=sm_80'
 
 export NVCCFLAGS
 
@@ -176,7 +177,7 @@ if ((${#targets_d[@]} > 0)); then
     export CPPFLAGS="${CPPFLAGS_D}"
     export SUFFIX='_d'
     export TARGETS="${targets_d[*]}"
-    make -j -f Makefile_in "$@"
+    make -f Makefile_in "$@"
 fi
 
 if ((${#targets_f[@]} > 0)); then
@@ -184,7 +185,7 @@ if ((${#targets_f[@]} > 0)); then
     export CPPFLAGS="${CPPFLAGS_F}"
     export SUFFIX='_f'
     export TARGETS="${targets_f[*]}"
-    make -j -f Makefile_in "$@"
+    make -f Makefile_in "$@"
 fi
 
 if ((${#targets_nv_d[@]} > 0)); then
@@ -194,8 +195,7 @@ if ((${#targets_nv_d[@]} > 0)); then
     export CPPFLAGS="${CPPFLAGS_NV_D}"
     export SUFFIX='_nv_d'
     export TARGETS="${targets_nv_d[*]}"
-    export TIME_IT=0
-    # make -j -f Makefile_in "$@"
+    # make -f Makefile_in "$@"
     for target in $TARGETS; do
         echo $target
         # need to handle each target separately to extract compilation parameters as env variables
@@ -240,7 +240,6 @@ if ((${#targets_nv_d[@]} > 0)); then
 
         make -j -f Makefile_in "$target"
     done
-
 fi
 
 if ((${#targets_nv_f[@]} > 0)); then
@@ -250,7 +249,7 @@ if ((${#targets_nv_f[@]} > 0)); then
     export CPPFLAGS="${CPPFLAGS_NV_F}"
     export SUFFIX='_nv_f'
     export TARGETS="${targets_nv_f[*]}"
-    make -j -f Makefile_in "$@"
+    make -f Makefile_in "$@"
 fi
 
 

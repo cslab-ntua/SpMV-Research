@@ -25,14 +25,14 @@ using namespace std;
 struct MERGEArrays : Matrix_Format
 {
 	ValueType * a;   // the values (of size NNZ)
-	INT_T * ia;      // the usual rowptr (of size m+1)
+	INT_T * row_ptr;      // the usual rowptr (of size m+1)
 	INT_T * ja;      // the colidx of each NNZ (of size nnz)
 	int num_threads;
 
 	MERGEArrays(long m, long n, long nnz) : Matrix_Format(m, n, nnz)
 	{
 		a = NULL;
-		ia = NULL;
+		row_ptr = NULL;
 		ja= NULL;
 		num_threads = omp_get_max_threads();
 	}
@@ -40,7 +40,7 @@ struct MERGEArrays : Matrix_Format
 	~MERGEArrays()
 	{
 		free(a);
-		free(ia);
+		free(row_ptr);
 		free(ja);
 	}
 
@@ -65,7 +65,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 {
 	struct MERGEArrays * merge = new MERGEArrays(m, n, nnz);
 	merge->format_name = (char *) "MERGE";
-	merge->ia = row_ptr;
+	merge->row_ptr = row_ptr;
 	merge->ja = col_ind;
 	merge->a = values;
 	merge->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
@@ -308,7 +308,7 @@ void OmpMergeCsrmv(
 void
 compute_merge(MERGEArrays * merge, ValueType * x , ValueType * y)
 {
-	OmpMergeCsrmv(merge->num_threads, merge->ia + 1, merge->ja, merge->a, x, y, merge->m, merge->nnz);
+	OmpMergeCsrmv(merge->num_threads, merge->row_ptr + 1, merge->ja, merge->a, x, y, merge->m, merge->nnz);
 }
 
 

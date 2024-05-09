@@ -23,7 +23,7 @@ extern "C"{
 struct CSRArrays : Matrix_Format
 {
 	ValueType * a;   // the values (of size NNZ)
-	INT_T * ia;      // the usual rowptr (of size m+1)
+	INT_T * row_ptr;      // the usual rowptr (of size m+1)
 	INT_T * ja;      // the colidx of each NNZ (of size nnz)
 	sparse_matrix_t A;
 	matrix_descr descr;
@@ -31,14 +31,14 @@ struct CSRArrays : Matrix_Format
 	CSRArrays(long m, long n, long nnz) : Matrix_Format(m, n, nnz)
 	{
 		a = NULL;
-		ia = NULL;
+		row_ptr = NULL;
 		ja= NULL;
 	}
 
 	~CSRArrays()
 	{
 		free(a);
-		free(ia);
+		free(row_ptr);
 		free(ja);
 	}
 
@@ -67,7 +67,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	mkl_verbose(1);
 
 	csr->format_name = (char *) "MKL_IE";
-	csr->ia = row_ptr;
+	csr->row_ptr = row_ptr;
 	csr->ja = col_ind;
 	csr->a = values;
 	time = time_it(1,
