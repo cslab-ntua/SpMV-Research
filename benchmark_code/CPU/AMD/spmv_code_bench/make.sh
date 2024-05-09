@@ -177,7 +177,7 @@ if ((${#targets_d[@]} > 0)); then
     export CPPFLAGS="${CPPFLAGS_D}"
     export SUFFIX='_d'
     export TARGETS="${targets_d[*]}"
-    make -f Makefile_in "$@"
+    make -j -f Makefile_in "$@"
 fi
 
 if ((${#targets_f[@]} > 0)); then
@@ -185,7 +185,7 @@ if ((${#targets_f[@]} > 0)); then
     export CPPFLAGS="${CPPFLAGS_F}"
     export SUFFIX='_f'
     export TARGETS="${targets_f[*]}"
-    make -f Makefile_in "$@"
+    make -j -f Makefile_in "$@"
 fi
 
 if ((${#targets_nv_d[@]} > 0)); then
@@ -195,7 +195,8 @@ if ((${#targets_nv_d[@]} > 0)); then
     export CPPFLAGS="${CPPFLAGS_NV_D}"
     export SUFFIX='_nv_d'
     export TARGETS="${targets_nv_d[*]}"
-    # make -f Makefile_in "$@"
+    export TIME_IT=1
+    # make -j -f Makefile_in "$@"
     for target in $TARGETS; do
         echo $target
         # need to handle each target separately to extract compilation parameters as env variables
@@ -210,6 +211,12 @@ if ((${#targets_nv_d[@]} > 0)); then
             export NUM_STREAMS="${BASH_REMATCH[2]}"
             export NUM_THREADS="${BASH_REMATCH[3]}"
             export ROW_CLUSTER_SIZE="${BASH_REMATCH[4]}"
+        fi
+
+        # csr_cuda_const_nnz_per_thread
+        if [[ $target =~ (s([0-9]+)_)?nnz([0-9]+)${SUFFIX}.exe ]]; then
+            export NUM_STREAMS="${BASH_REMATCH[2]}"
+            export NNZ_PER_THREAD="${BASH_REMATCH[3]}"
         fi
 
         # csr_cuda_vector
@@ -249,7 +256,7 @@ if ((${#targets_nv_f[@]} > 0)); then
     export CPPFLAGS="${CPPFLAGS_NV_F}"
     export SUFFIX='_nv_f'
     export TARGETS="${targets_nv_f[*]}"
-    make -f Makefile_in "$@"
+    make -j -f Makefile_in "$@"
 fi
 
 

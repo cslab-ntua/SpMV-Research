@@ -330,19 +330,19 @@ struct CSRArrays : Matrix_Format
 
 		for(int i=0; i<num_streams; i++){
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_ia[i], stream[i]));
-			gpuCudaErrorCheck(cudaMemcpyAsync(ia_d[i], row_ptr_stream[i], (m+1) * sizeof(INT_T), cudaMemcpyHostToDevice, stream[i]));
+			gpuCudaErrorCheck(cudaMemcpyAsync(ia_d[i], ia_h[i], (m+1) * sizeof(INT_T), cudaMemcpyHostToDevice, stream[i]));
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_ia[i], stream[i]));
 			
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_row_blocks[i], stream[i]));
-			gpuCudaErrorCheck(cudaMemcpyAsync(row_blocks_d[i], row_blocks[i], row_blocks_cnt[i] * sizeof(INT_T), cudaMemcpyHostToDevice, stream[i]));
+			gpuCudaErrorCheck(cudaMemcpyAsync(row_blocks_d[i], row_blocks_h[i], row_blocks_cnt[i] * sizeof(INT_T), cudaMemcpyHostToDevice, stream[i]));
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_row_blocks[i], stream[i]));
 
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_ja[i], stream[i]));
-			gpuCudaErrorCheck(cudaMemcpyAsync(ja_d[i], col_idx_stream[i], nnz_stream[i] * sizeof(INT_T), cudaMemcpyHostToDevice, stream[i]));
+			gpuCudaErrorCheck(cudaMemcpyAsync(ja_d[i], ja_h[i], nnz_stream[i] * sizeof(INT_T), cudaMemcpyHostToDevice, stream[i]));
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_ja[i], stream[i]));
 			
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_a[i], stream[i]));
-			gpuCudaErrorCheck(cudaMemcpyAsync(a_d[i], val_stream[i], nnz_stream[i] * sizeof(ValueType), cudaMemcpyHostToDevice, stream[i]));
+			gpuCudaErrorCheck(cudaMemcpyAsync(a_d[i], a_h[i], nnz_stream[i] * sizeof(ValueType), cudaMemcpyHostToDevice, stream[i]));
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_a[i], stream[i]));
 		}
 

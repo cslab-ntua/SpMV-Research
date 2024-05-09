@@ -78,8 +78,8 @@ conf_vars=(
     ['force_retry_on_error']=0
     # ['force_retry_on_error']=1
 
-    ['output_to_files']=0
-    # ['output_to_files']=1
+    # ['output_to_files']=0
+    ['output_to_files']=1
 
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
@@ -98,9 +98,9 @@ conf_vars=(
     # Maximum number of the machine's cores.
     # ['max_cores']=160
     # ['max_cores']=256
-    ['max_cores']=128
+    # ['max_cores']=128
     # ['max_cores']=64
-    # ['max_cores']=96
+    ['max_cores']=96
     # ['max_cores']=48
     # ['max_cores']=16
     # ['max_cores']=8
@@ -113,8 +113,8 @@ conf_vars=(
     # ['cores']=64
     # ['cores']=48
     # ['cores']=32
-    # ['cores']=24
-    ['cores']=16
+    ['cores']=24
+    # ['cores']=16
     # ['cores']=12
     # ['cores']=8
     # ['cores']=6
@@ -214,9 +214,11 @@ conf_vars=(
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
-                        "$HOME/Data/graphs/validation_matrices"
+                        # "$HOME/Data/graphs/validation_matrices"
                         # "${script_dir}/../../../validation_matrices"
                         '/various/pmpakos/SpMV-Research/validation_matrices'
+                        # '/various/pmpakos/SpMV-Research/validation_matrices/matrix_features/matrices'
+                        # '/various/pmpakos/SpMV-Research/validation_matrices/download_matrices'
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -371,7 +373,21 @@ progs=(
     # ['csr_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_nv_d.exe"
     # ['csr_cuda_buffer_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_nv_d.exe"
     # ['csr_cuda_reduce_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_reduce_nv_d.exe"
-    ['csr_cuda_const_nnz_per_thread_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nnz4_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nnz8_nv_d.exe"
+
+    ['csr_cuda_const_nnz_per_thread_s2_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_nnz2_nv_d.exe"
+    ['csr_cuda_const_nnz_per_thread_s4_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_nnz2_nv_d.exe"
+    ['csr_cuda_const_nnz_per_thread_s8_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_nnz2_nv_d.exe"
+
+    ['csr_cuda_const_nnz_per_thread_s2_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_nnz4_nv_d.exe"
+    ['csr_cuda_const_nnz_per_thread_s4_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_nnz4_nv_d.exe"
+    ['csr_cuda_const_nnz_per_thread_s8_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_nnz4_nv_d.exe"
+
+    ['csr_cuda_const_nnz_per_thread_s2_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_nnz8_nv_d.exe"
+    ['csr_cuda_const_nnz_per_thread_s4_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_nnz8_nv_d.exe"
+    ['csr_cuda_const_nnz_per_thread_s8_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_nnz8_nv_d.exe"
 
     # ['csr_cuda_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_t1769472_nv_d.exe"
     # ['csr_cuda_s4_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t1769472_nv_d.exe"
