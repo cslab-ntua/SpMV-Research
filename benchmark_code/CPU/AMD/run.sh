@@ -33,7 +33,7 @@ export LD_LIBRARY_PATH="${AOCL_PATH}/lib:${MKL_PATH}/lib/intel64:${LD_LIBRARY_PA
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${SPARSEX_LIB_PATH}"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/home/jim/lib/gcc/gcc_12/lib64"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/various/dgal/gcc/gcc-12.2.0/gcc_bin/lib64"
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/various/dgal/epyc1/cuda/cuda_11_4_4/lib64"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CUDA_PATH}/lib64"
 
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'
@@ -371,8 +371,7 @@ matrices_underperform_gpu=(
     # GL7d21.mtx
     # GL7d18.mtx
     # dgreen.mtx
-    kron_g500-logn18_sorted_cols.mtx
-    # kron_g500-logn18.mtx
+    kron_g500-logn18.mtx
     # wikipedia-20051105.mtx
     # kron_g500-logn21.mtx
     # kron_g500-logn20.mtx
@@ -381,6 +380,27 @@ matrices_underperform_gpu=(
     # ljournal-2008.mtx
     # wiki-topcats.mtx
 
+    # kmer_V2a_sorted_cols.mtx
+    # wikipedia-20070206_sorted_cols.mtx
+    # sx-stackoverflow_sorted_cols.mtx
+    # wikipedia-20061104_sorted_cols.mtx
+    # wikipedia-20060925_sorted_cols.mtx
+    # GL7d20_sorted_cols.mtx
+    # GL7d19_sorted_cols.mtx
+    # GL7d17_sorted_cols.mtx
+    # soc-LiveJournal1_sorted_cols.mtx
+    # soc-Pokec_sorted_cols.mtx
+    # GL7d21_sorted_cols.mtx
+    # GL7d18_sorted_cols.mtx
+    # dgreen_sorted_cols.mtx
+    # kron_g500-logn18_sorted_cols.mtx
+    # wikipedia-20051105_sorted_cols.mtx
+    # kron_g500-logn21_sorted_cols.mtx
+    # kron_g500-logn20_sorted_cols.mtx
+    # com-LiveJournal_sorted_cols.mtx
+    # kron_g500-logn19_sorted_cols.mtx
+    # ljournal-2008_sorted_cols.mtx
+    # wiki-topcats_sorted_cols.mtx
 )
 matrices_underperform_gpu=( $(
     for ((i=0;i<${#matrices_underperform_gpu[@]};i++)); do
@@ -463,7 +483,7 @@ bench()
                 # numactl -i all "$prog" "${prog_args[@]}"  2>'tmp.err'
 
                 echo '------------------------'
-                export PATH=/various/dgal/epyc1/cuda/cuda_11_4_4/bin:$PATH
+                export PATH=${CUDA_PATH}/bin:$PATH
                 echo "${prog_args[0]}"
                 mtx_name=$(basename "${prog_args[0]}")
                 # mtx_name=artificial_${mtx_name%.mtx}
@@ -476,10 +496,11 @@ bench()
                 export PROGG=${prog_name}
                 
                 echo "${mtx_name}_${prog_name}"
+                # compute-sanitizer --tool initcheck --track-unused-memory yes "$prog" "${prog_args[@]}"  2>'tmp.err'
 
-                # ncu -o ./ncu_reports_new/ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={ComputeWorkloadAnalysis,InstructionStats,LaunchStats,MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Deprecated,MemoryWorkloadAnalysis_Tables,Occupancy,SchedulerStats,SourceCounters,SpeedOfLight,SpeedOfLight_RooflineChart,WarpStateStats} "$prog" "${prog_args[@]}"  2>'tmp.err'
-                # ncu -o ./ncu_reports_new/ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Deprecated,MemoryWorkloadAnalysis_Tables} "$prog" "${prog_args[@]}"  2>'tmp.err'
- 
+                # ncu -o ./ncu_reports_final/ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={ComputeWorkloadAnalysis,InstructionStats,LaunchStats,MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Deprecated,MemoryWorkloadAnalysis_Tables,Occupancy,SchedulerStats,SourceCounters,SpeedOfLight,SpeedOfLight_RooflineChart,WarpStateStats} "$prog" "${prog_args[@]}"  2>'tmp.err'
+                # ncu -o ./ncu_reports_final/ncu_report_${mtx_name}_${prog_name}_colind0 -f --print-summary=per-kernel --section={MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Deprecated,MemoryWorkloadAnalysis_Tables} "$prog" "${prog_args[@]}"  2>'tmp.err'
+
                 # nsys profile -o ./nsys_reports/nsys_report_${mtx_name}_${prog_name} -f true -t cuda,cublas --cuda-memory-usage=true --stats=true -w true --verbose "$prog" "${prog_args[@]}"  2>'tmp.err'
 
                 "$prog" "${prog_args[@]}"  2>'tmp.err'
@@ -506,10 +527,10 @@ matrices=(
     # "${matrices_validation[@]}"
     # "${matrices_paper_csr_rv[@]}"
     # "${matrices_compression_small[@]}"
-    "${matrices_compression[@]}"
+    # "${matrices_compression[@]}"
     # "${matrices_M3E[@]}"
     # "${matrices_cg[@]}"
-    # "${matrices_underperform_gpu[@]}"
+    "${matrices_underperform_gpu[@]}"
 
     # "$path_tamu"/matrices/kron_g500-logn18/kron_g500-logn18.mtx
     # '/home/jim/Synced_Folder/Data/kmeans/matrices/kron_g500-logn18_c1024_wl26214_reordered_rows.mtx'
@@ -578,7 +599,7 @@ for format_name in "${!progs[@]}"; do
     prog="${progs["$format_name"]}"
 
     if ((output_to_files)); then
-        mkdir -p out_logs
+    	mkdir -p out_logs
         > out_logs/"${format_name}.out"
         exec 1>>out_logs/"${format_name}.out"
         > out_logs/"${format_name}.csv"

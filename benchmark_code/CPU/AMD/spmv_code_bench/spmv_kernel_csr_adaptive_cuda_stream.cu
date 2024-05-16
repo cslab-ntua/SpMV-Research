@@ -576,7 +576,7 @@ __global__ void gpu_kernel_csr_adaptive(INT_T * ia, INT_T * ja, ValueType * a, I
 			// It may be underutilized, considering the fact that this row will consist of less than BLOCK_SIZE elements
 			for (INT_T j = ia_Start + i; j < ia_End; j += BLOCK_SIZE){
 				INT_T col = ja[j];
-				sum += a[j] * x[col];
+				sum = __fma_rn(a[j], x[col], sum); // sum += a[j] * x[col];
 			}
 			// write partial sum at position i (index in thread block) in the LDS array
 			LDS[kk][i] = sum;
@@ -790,9 +790,11 @@ void
 CSRArrays::statistics_start()
 {
 	#ifdef PRINT_STATISTICS
-	iterations=0;
-	for(int i=0; i<num_streams; i++)
-		execution_time[i]=0.0;
+	if(TIME_IT2){
+		iterations = 0;
+		for(int i=0; i<num_streams; i++)
+			execution_time[i]=0.0;
+	}
 	#endif
 }
 
@@ -808,12 +810,14 @@ int
 CSRArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
 	#ifdef PRINT_STATISTICS
-	printf("--------\n");
-	for(int i=0; i<num_streams; i++){
-		double gflops = 2.0 * nnz_stream[i] / execution_time[i] / 1e6 * iterations;
-		printf("Stream %d: %lf ms (GFLOPs = %.4lf)\n", i, execution_time[i], gflops);
+	if(TIME_IT2){		
+		printf("--------\n");
+		for(int i=0; i<num_streams; i++){
+			double gflops = 2.0 * nnz_stream[i] / execution_time[i] / 1e6 * iterations;
+			printf("Stream %d: %lf ms (GFLOPs = %.4lf)\n", i, execution_time[i], gflops);
+		}
+		printf("--------\n");
 	}
-	printf("--------\n");
 	#endif
 	return 0;
 }

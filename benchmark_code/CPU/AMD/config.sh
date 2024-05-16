@@ -78,8 +78,8 @@ conf_vars=(
     ['force_retry_on_error']=0
     # ['force_retry_on_error']=1
 
-    # ['output_to_files']=0
-    ['output_to_files']=1
+    ['output_to_files']=0
+    # ['output_to_files']=1
 
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
@@ -163,6 +163,13 @@ conf_vars=(
                     find_valid_dir "${options[@]}"
                 )"
 
+    ['CUDA_PATH']="$( options=(
+                        # '/usr/local/cuda'
+                        '/various/dgal/epyc1/cuda/cuda_11_4_4'
+                        # '/various/pmpakos/epyc5_libs/cuda_12_4_1'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
     # SparseX ecosystem environment variables that have to be set.
     # These are environment variables that have to be set for SparseX to work
     # Need to install specific library versions
@@ -375,19 +382,23 @@ progs=(
     # ['csr_cuda_reduce_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_reduce_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nnz4_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nnz8_nv_d.exe"
 
-    ['csr_cuda_const_nnz_per_thread_s2_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_nnz2_nv_d.exe"
-    ['csr_cuda_const_nnz_per_thread_s4_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_nnz2_nv_d.exe"
-    ['csr_cuda_const_nnz_per_thread_s8_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_nnz2_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d.exe"
+    ['csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d.exe"
 
-    ['csr_cuda_const_nnz_per_thread_s2_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_nnz4_nv_d.exe"
-    ['csr_cuda_const_nnz_per_thread_s4_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_nnz4_nv_d.exe"
-    ['csr_cuda_const_nnz_per_thread_s8_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_nnz4_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz2_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz2_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s8_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_b1024_nnz2_nv_d.exe"
 
-    ['csr_cuda_const_nnz_per_thread_s2_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_nnz8_nv_d.exe"
-    ['csr_cuda_const_nnz_per_thread_s4_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_nnz8_nv_d.exe"
-    ['csr_cuda_const_nnz_per_thread_s8_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_nnz8_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz4_nv_d.exe"
+    ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz4_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s8_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_b1024_nnz4_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s32_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s32_b1024_nnz4_nv_d.exe"
+
+    # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz8_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz8_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s8_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_b1024_nnz8_nv_d.exe"
 
     # ['csr_cuda_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_t1769472_nv_d.exe"
     # ['csr_cuda_s4_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t1769472_nv_d.exe"

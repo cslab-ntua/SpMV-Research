@@ -41,9 +41,9 @@ CPP="$gpp_bin"
 # CPP=xlc++
 export CPP
 
-if [[ -d "/various/dgal/epyc1/cuda/cuda_11_4_4/bin" ]]; then
-    # NVCC="/various/dgal/epyc1/cuda/cuda_11_4_4/bin/nvcc -ccbin=${CC}"
-    NVCC="/various/dgal/epyc1/cuda/cuda_11_4_4/bin/nvcc -ccbin=gcc"
+if [[ -d "${CUDA_PATH}/bin" ]]; then
+    # NVCC="${CUDA_PATH}/bin/nvcc -ccbin=${CC}"
+    NVCC="${CUDA_PATH}/bin/nvcc -ccbin=gcc"
 else
     NVCC="nvcc -ccbin=${CC}"
 fi
@@ -140,6 +140,7 @@ NVCCFLAGS=
 NVCCFLAGS+=" -allow-unsupported-compiler"
 # NVCCFLAGS+=" --dlink-time-opt"
 NVCCFLAGS+=' -arch=sm_80'
+# NVCCFLAGS+=' -lineinfo'
 
 export NVCCFLAGS
 
@@ -214,9 +215,10 @@ if ((${#targets_nv_d[@]} > 0)); then
         fi
 
         # csr_cuda_const_nnz_per_thread
-        if [[ $target =~ (s([0-9]+)_)?nnz([0-9]+)${SUFFIX}.exe ]]; then
+        if [[ $target =~ (s([0-9]+)_)?b([0-9]+)_nnz([0-9]+)${SUFFIX}.exe ]]; then
             export NUM_STREAMS="${BASH_REMATCH[2]}"
-            export NNZ_PER_THREAD="${BASH_REMATCH[3]}"
+            export BLOCK_SIZE="${BASH_REMATCH[3]}"
+            export NNZ_PER_THREAD="${BASH_REMATCH[4]}"
         fi
 
         # csr_cuda_vector
@@ -258,4 +260,5 @@ if ((${#targets_nv_f[@]} > 0)); then
     export TARGETS="${targets_nv_f[*]}"
     make -f Makefile_in "$@"
 fi
+
 

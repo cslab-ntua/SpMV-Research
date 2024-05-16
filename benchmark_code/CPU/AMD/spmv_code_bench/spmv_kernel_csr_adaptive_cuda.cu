@@ -393,7 +393,7 @@ __global__ void gpu_kernel_csr_adaptive(INT_T * ia, INT_T * ja, ValueType * a, I
 			// It may be underutilized, considering the fact that this row will consist of less than BLOCK_SIZE elements
 			for (INT_T j = ia_Start + i; j < ia_End; j += BLOCK_SIZE){
 				INT_T col = ja[j];
-				sum += a[j] * x[col];
+				sum = __fma_rn(a[j], x[col], sum); // sum += a[j] * x[col];
 			}
 			// write partial sum at position i (index in thread block) in the LDS array
 			LDS[kk][i] = sum;

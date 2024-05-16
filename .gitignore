@@ -30,6 +30,7 @@ benchmark_code/CPU/ARM/spmv_code_bench/merge/*.csv
 benchmark_code/CPU/ARM/spmv_code_bench/*.csv
 
 benchmark_code/CPU/AMD/*.out
+benchmark_code/CPU/AMD/out_logs
 benchmark_code/CPU/ARM/*.out
 benchmark_code/CPU/ARM/spmv_code_bench/merge/*.out
 benchmark_code/CPU/ARM/spmv_code_bench/*.out

@@ -144,10 +144,10 @@ spmv_csr_cuda_buffer_t${NUM_THREADS}_rc${ROW_CLUSTER_SIZE}$(SUFFIX).exe: obj/spm
 spmv_csr_cuda_buffer_s${NUM_STREAMS}_t${NUM_THREADS}_rc${ROW_CLUSTER_SIZE}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_cuda_buffer_stream.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) -DNUM_STREAMS=${NUM_STREAMS} -DNUM_THREADS=${NUM_THREADS} -DROW_CLUSTER_SIZE=${ROW_CLUSTER_SIZE} --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 
-spmv_csr_cuda_const_nnz_per_thread_nnz${NNZ_PER_THREAD}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_cuda_const_nnz_per_thread.cu $(LIB_OBJ)
-	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) -DNNZ_PER_THREAD=${NNZ_PER_THREAD} --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
-spmv_csr_cuda_const_nnz_per_thread_s${NUM_STREAMS}_nnz${NNZ_PER_THREAD}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_cuda_const_nnz_per_thread_stream.cu $(LIB_OBJ)
-	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) -DNUM_STREAMS=${NUM_STREAMS} -DNNZ_PER_THREAD=${NNZ_PER_THREAD} --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+spmv_csr_cuda_const_nnz_per_thread_b${BLOCK_SIZE}_nnz${NNZ_PER_THREAD}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_cuda_const_nnz_per_thread.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) -DBLOCK_SIZE=${BLOCK_SIZE} -DNNZ_PER_THREAD=${NNZ_PER_THREAD} --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+spmv_csr_cuda_const_nnz_per_thread_s${NUM_STREAMS}_b${BLOCK_SIZE}_nnz${NNZ_PER_THREAD}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_cuda_const_nnz_per_thread_stream.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) -DNUM_STREAMS=${NUM_STREAMS} -DBLOCK_SIZE=${BLOCK_SIZE} -DNNZ_PER_THREAD=${NNZ_PER_THREAD} --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 
 
 spmv_csr_cuda_vector_b${BLOCK_SIZE}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_vector_cuda.cu $(LIB_OBJ)
