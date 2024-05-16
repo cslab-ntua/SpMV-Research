@@ -578,6 +578,7 @@ for format_name in "${!progs[@]}"; do
     prog="${progs["$format_name"]}"
 
     if ((output_to_files)); then
+        mkdir -p out_logs
         > out_logs/"${format_name}.out"
         exec 1>>out_logs/"${format_name}.out"
         > out_logs/"${format_name}.csv"
