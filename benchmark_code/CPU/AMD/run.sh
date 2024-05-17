@@ -498,10 +498,10 @@ bench()
                 echo "${mtx_name}_${prog_name}"
                 # compute-sanitizer --tool initcheck --track-unused-memory yes "$prog" "${prog_args[@]}"  2>'tmp.err'
 
-                # ncu -o ./ncu_reports_final/ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={ComputeWorkloadAnalysis,InstructionStats,LaunchStats,MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Deprecated,MemoryWorkloadAnalysis_Tables,Occupancy,SchedulerStats,SourceCounters,SpeedOfLight,SpeedOfLight_RooflineChart,WarpStateStats} "$prog" "${prog_args[@]}"  2>'tmp.err'
-                # ncu -o ./ncu_reports_final/ncu_report_${mtx_name}_${prog_name}_colind0 -f --print-summary=per-kernel --section={MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Deprecated,MemoryWorkloadAnalysis_Tables} "$prog" "${prog_args[@]}"  2>'tmp.err'
+                # ncu -o ./out_logs/reports/ncu_reports/ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={ComputeWorkloadAnalysis,InstructionStats,LaunchStats,MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Deprecated,MemoryWorkloadAnalysis_Tables,Occupancy,SchedulerStats,SourceCounters,SpeedOfLight,SpeedOfLight_RooflineChart,WarpStateStats} "$prog" "${prog_args[@]}"  2>'tmp.err'
+                # ncu -o ./out_logs/reports/ncu_reports/ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Deprecated,MemoryWorkloadAnalysis_Tables} "$prog" "${prog_args[@]}"  2>'tmp.err'
 
-                # nsys profile -o ./nsys_reports/nsys_report_${mtx_name}_${prog_name} -f true -t cuda,cublas --cuda-memory-usage=true --stats=true -w true --verbose "$prog" "${prog_args[@]}"  2>'tmp.err'
+                # nsys profile -o ./out_logs/reports/nsys_reports/nsys_report_${mtx_name}_${prog_name} -f true -t cuda,cublas --cuda-memory-usage=true --stats=true -w true --verbose "$prog" "${prog_args[@]}"  2>'tmp.err'
 
                 "$prog" "${prog_args[@]}"  2>'tmp.err'
                 ret="$?"
