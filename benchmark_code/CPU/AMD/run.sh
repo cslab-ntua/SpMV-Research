@@ -502,7 +502,6 @@ bench()
                 # ncu -o ./out_logs/reports/ncu_reports/ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Deprecated,MemoryWorkloadAnalysis_Tables} "$prog" "${prog_args[@]}"  2>'tmp.err'
 
                 # nsys profile -o ./out_logs/reports/nsys_reports/nsys_report_${mtx_name}_${prog_name} -f true -t cuda,cublas --cuda-memory-usage=true --stats=true -w true --verbose "$prog" "${prog_args[@]}"  2>'tmp.err'
-
                 "$prog" "${prog_args[@]}"  2>'tmp.err'
                 ret="$?"
             fi

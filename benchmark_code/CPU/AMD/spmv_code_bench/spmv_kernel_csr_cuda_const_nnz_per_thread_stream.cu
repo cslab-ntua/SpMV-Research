@@ -579,7 +579,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	format_name = (char *)malloc(100*sizeof(char));
 	snprintf(format_name, 100, "Custom_CSR_CUDA_constant_nnz_per_thread_b%d_nnz%d_s%d", BLOCK_SIZE, NNZ_PER_THREAD, csr->num_streams);
 	csr->format_name = format_name;
-	if(0){
+	/*if(0){
 		for(int i=0; i<csr->num_streams; i++){
 			char matrix_part[100];
 			sprintf(matrix_part, "Stream%d", i);
@@ -606,7 +606,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 
 			csr_plot(file_fig, csr->row_ptr_h[i], csr->ja_h[i], csr->a_h[i], csr->m, csr->n_stream[i], csr->nnz_stream[i], 0, num_pixels_x, num_pixels_y);
 		}
-	}
+	}*/
 	return csr;
 }
 

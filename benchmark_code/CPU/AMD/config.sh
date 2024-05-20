@@ -148,9 +148,10 @@ conf_vars=(
     # Path for the mkl library.
     # ['MKL_PATH']='/opt/intel/oneapi/mkl/latest'
     ['MKL_PATH']="$( options=(
-                        '/opt/intel/oneapi/mkl/latest'
-                        '/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl'
-                        "${HOME}/spack/23.03/0.20.0/intel-oneapi-mkl-2023.1.0-cafkcjc/mkl/latest"
+                        # '/opt/intel/oneapi/mkl/latest'
+                        # '/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl'
+                        '/various/pmpakos/intel/oneapi/mkl/2024.1'
+                        # "${HOME}/spack/23.03/0.20.0/intel-oneapi-mkl-2023.1.0-cafkcjc/mkl/latest"
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -381,10 +382,10 @@ progs=(
     # ['csr_cuda_buffer_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_nv_d.exe"
     # ['csr_cuda_reduce_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_reduce_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nnz4_nv_d.exe"
 
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d.exe"
     ['csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d.exe"
 
     # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz2_nv_d.exe"

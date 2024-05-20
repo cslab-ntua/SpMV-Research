@@ -23,6 +23,8 @@ build*/
 *cnpy/
 *.exe
 *.d
+*_feature_extraction_plus_generator.zip
+SpMV_collab/
 
 benchmark_code/CPU/AMD/*.csv
 benchmark_code/CPU/ARM/*.csv
@@ -102,3 +104,4 @@ validation_matrices/dcomex
 validation_matrices/images
 validation_matrices/new_matrices/
 validation_matrices/*.mtx
+validation_matrices/matrix_features/old

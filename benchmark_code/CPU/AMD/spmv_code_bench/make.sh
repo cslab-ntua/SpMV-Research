@@ -142,6 +142,7 @@ NVCCFLAGS+=" -allow-unsupported-compiler"
 NVCCFLAGS+=' -arch=sm_80'
 NVCCFLAGS+=' -DPERSISTENT_L2_PREFETCH'
 # NVCCFLAGS+=' -lineinfo'
+export NUM_STREAMS=;export NUM_THREADS=;export ROW_CLUSTER_SIZE=;export BLOCK_SIZE=;export NNZ_PER_THREAD=;export MULTIBLOCK_SIZE=;
 
 export NVCCFLAGS
 
@@ -201,7 +202,6 @@ if ((${#targets_nv_d[@]} > 0)); then
     # make -f Makefile_in "$@"
     for target in $TARGETS; do
         echo $target
-		export NUM_STREAMS=;export NUM_THREADS=;export ROW_CLUSTER_SIZE=;export BLOCK_SIZE=;export NNZ_PER_THREAD=;export MULTIBLOCK_SIZE=;export COL_SIZE=;
         # need to handle each target separately to extract compilation parameters as env variables
         if [[ $target =~ (s([0-9]+)_)?t([0-9]+)_rc([0-9]+)${SUFFIX}.exe ]]; then # csr_cuda_buffer
             export NUM_STREAMS="${BASH_REMATCH[2]}"
@@ -215,13 +215,6 @@ if ((${#targets_nv_d[@]} > 0)); then
             export NUM_STREAMS="${BASH_REMATCH[2]}"
             export BLOCK_SIZE="${BASH_REMATCH[3]}"
             export MULTIBLOCK_SIZE="${BASH_REMATCH[4]}"
-            echo ${BLOCK_SIZE}
-            echo ${MULTIBLOCK_SIZE}
-        elif [[ $target =~ (s([0-9]+)_)?c([0-9]+)_b([0-9]+)_mb([0-9]+)${SUFFIX}.exe ]]; then # csr_cuda_adaptive_v2
-            export NUM_STREAMS="${BASH_REMATCH[2]}"
-            export COL_SIZE="${BASH_REMATCH[3]}"
-            export BLOCK_SIZE="${BASH_REMATCH[4]}"
-            export MULTIBLOCK_SIZE="${BASH_REMATCH[5]}"
         elif [[ $target =~ _s([0-9]+)${SUFFIX}.exe ]]; then # cusparse_csr (stream variant only)
             export NUM_STREAMS="${BASH_REMATCH[1]}"
         elif [[ $target =~ (s([0-9]+)_)?t([0-9]+)${SUFFIX}.exe ]]; then # csr_cuda

@@ -43,7 +43,6 @@ using namespace cooperative_groups;
 #define TIME_IT 0
 #endif
 
-
 extern int prefetch_distance;
 
 double * thread_time_compute, * thread_time_barrier;
@@ -90,10 +89,10 @@ struct CSRArrays : Matrix_Format
 
 	ValueType * x = NULL;
 	ValueType * y = NULL;
-	ValueType * x_h = NULL;
-	ValueType * y_h = NULL;
 	ValueType * x_d = NULL;
 	ValueType * y_d = NULL;
+	ValueType * x_h = NULL;
+	ValueType * y_h = NULL;
 
 	cudaStream_t stream;
 	// cudaEvent_t is useful for timing, but for performance use " cudaEventCreateWithFlags ( &event, cudaEventDisableTiming) "
@@ -280,25 +279,25 @@ struct CSRArrays : Matrix_Format
 			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_y));
 		}
 
-		gpuCudaErrorCheck(cudaMallocHost(&row_ptr_h, (m+1) * sizeof(INT_T)));
-		gpuCudaErrorCheck(cudaMallocHost(&ia_h, nnz * sizeof(INT_T)));
-		gpuCudaErrorCheck(cudaMallocHost(&ja_h, nnz * sizeof(INT_T)));
-		gpuCudaErrorCheck(cudaMallocHost(&a_h, nnz * sizeof(ValueType)));
-		gpuCudaErrorCheck(cudaMallocHost(&thread_block_i_s_h, num_blocks * sizeof(INT_T)));
-		gpuCudaErrorCheck(cudaMallocHost(&thread_block_i_e_h, num_blocks * sizeof(INT_T)));
-		gpuCudaErrorCheck(cudaMallocHost(&thread_block_j_s_h, num_blocks * sizeof(INT_T)));
-		gpuCudaErrorCheck(cudaMallocHost(&thread_block_j_e_h, num_blocks * sizeof(INT_T)));
-		gpuCudaErrorCheck(cudaMallocHost(&x_h, n * sizeof(ValueType)));
-		gpuCudaErrorCheck(cudaMallocHost(&y_h, m * sizeof(ValueType)));
+		gpuCudaErrorCheck(cudaMallocHost(&row_ptr_h, (m+1) * sizeof(*row_ptr_h)));
+		gpuCudaErrorCheck(cudaMallocHost(&ia_h, nnz * sizeof(*ia_h)));
+		gpuCudaErrorCheck(cudaMallocHost(&ja_h, nnz * sizeof(*ja_h)));
+		gpuCudaErrorCheck(cudaMallocHost(&a_h, nnz * sizeof(*a_h)));
+		gpuCudaErrorCheck(cudaMallocHost(&thread_block_i_s_h, num_blocks * sizeof(*thread_block_i_s_h)));
+		gpuCudaErrorCheck(cudaMallocHost(&thread_block_i_e_h, num_blocks * sizeof(*thread_block_i_e_h)));
+		gpuCudaErrorCheck(cudaMallocHost(&thread_block_j_s_h, num_blocks * sizeof(*thread_block_j_s_h)));
+		gpuCudaErrorCheck(cudaMallocHost(&thread_block_j_e_h, num_blocks * sizeof(*thread_block_j_e_h)));
+		gpuCudaErrorCheck(cudaMallocHost(&x_h, n * sizeof(*x_h)));
+		gpuCudaErrorCheck(cudaMallocHost(&y_h, m * sizeof(*y_h)));
 
-		memcpy(row_ptr_h, row_ptr, (m + 1) * sizeof(INT_T));
-		memcpy(ia_h, ia, nnz * sizeof(INT_T));
-		memcpy(ja_h, ja, nnz * sizeof(INT_T));
-		memcpy(a_h, a, nnz * sizeof(ValueType));
-		memcpy(thread_block_i_s_h, thread_block_i_s, num_blocks * sizeof(INT_T));
-		memcpy(thread_block_i_e_h, thread_block_i_e, num_blocks * sizeof(INT_T));
-		memcpy(thread_block_j_s_h, thread_block_j_s, num_blocks * sizeof(INT_T));
-		memcpy(thread_block_j_e_h, thread_block_j_e, num_blocks * sizeof(INT_T));
+		memcpy(row_ptr_h, row_ptr, (m + 1) * sizeof(*row_ptr_h));
+		memcpy(ia_h, ia, nnz * sizeof(*ia_h));
+		memcpy(ja_h, ja, nnz * sizeof(*ja_h));
+		memcpy(a_h, a, nnz * sizeof(*a_h));
+		memcpy(thread_block_i_s_h, thread_block_i_s, num_blocks * sizeof(*thread_block_i_s_h));
+		memcpy(thread_block_i_e_h, thread_block_i_e, num_blocks * sizeof(*thread_block_i_e_h));
+		memcpy(thread_block_j_s_h, thread_block_j_s, num_blocks * sizeof(*thread_block_j_s_h));
+		memcpy(thread_block_j_e_h, thread_block_j_e, num_blocks * sizeof(*thread_block_j_e_h));
 
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_row_ptr, stream));
 		gpuCudaErrorCheck(cudaMemcpyAsync(row_ptr_d, row_ptr_h, (m+1) * sizeof(*row_ptr_d), cudaMemcpyHostToDevice, stream));
@@ -972,10 +971,8 @@ __global__ void gpu_kernel_spmv_row_indices_continuous(INT_T * thread_block_i_s,
 void
 compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
 {
-	// int num_threads = csr->num_threads;
-	int num_blocks = csr->num_blocks;
 	dim3 block_dims(BLOCK_SIZE);
-	dim3 grid_dims(num_blocks);
+	dim3 grid_dims(csr->num_blocks);
 	// long shared_mem_size = BLOCK_SIZE * (sizeof(ValueType));
 	// long shared_mem_size = BLOCK_SIZE * (sizeof(ValueType) + sizeof(INT_T));
 	long shared_mem_size = 0;
@@ -986,9 +983,8 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		csr->x = x;
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_memcpy_x, csr->stream));
 		memcpy(csr->x_h, x, csr->n * sizeof(ValueType));
-		gpuCudaErrorCheck(cudaMemcpyAsync(csr->x_d, csr->x_h, csr->n * sizeof(*csr->x), cudaMemcpyHostToDevice, csr->stream));
+		gpuCudaErrorCheck(cudaMemcpyAsync(csr->x_d, csr->x_h, csr->n * sizeof(*csr->x_d), cudaMemcpyHostToDevice, csr->stream));
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_memcpy_x, csr->stream));
-		gpuCudaErrorCheck(cudaStreamSynchronize(csr->stream));
 		if(TIME_IT){
 			gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_memcpy_x));
 			float memcpyTime_cuda;
@@ -1021,14 +1017,12 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 	gpu_kernel_spmv_row_indices_continuous<<<grid_dims, block_dims, shared_mem_size, csr->stream>>>(csr->thread_block_i_s_d, csr->thread_block_i_e_d, csr->thread_block_j_s_d, csr->thread_block_j_e_d, csr->row_ptr_d, csr->ia_d, csr->ja_d, csr->a_d, csr->m, csr->n, csr->nnz, csr->x_d, csr->y_d);
 	gpuCudaErrorCheck(cudaPeekAtLastError());
 	gpuCudaErrorCheck(cudaDeviceSynchronize());
-	// gpuCudaErrorCheck(cudaStreamSynchronize(csr->stream));
 
 	if (csr->y == NULL)
 	{
 		csr->y = y;
-
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_memcpy_y, csr->stream));
-		gpuCudaErrorCheck(cudaMemcpyAsync(csr->y_h, csr->y_d, csr->m * sizeof(*csr->y), cudaMemcpyDeviceToHost, csr->stream));
+		gpuCudaErrorCheck(cudaMemcpyAsync(csr->y_h, csr->y_d, csr->m * sizeof(*csr->y_d), cudaMemcpyDeviceToHost, csr->stream));
 		gpuCudaErrorCheck(cudaStreamSynchronize(csr->stream));
 		memcpy(y, csr->y_h, csr->m * sizeof(ValueType));
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_memcpy_y, csr->stream));
