@@ -203,7 +203,6 @@ struct COOArrays : Matrix_Format
 			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_colind, startEvent_memcpy_colind, endEvent_memcpy_colind));
 			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_a, startEvent_memcpy_a, endEvent_memcpy_a));
 			gpuCudaErrorCheck(cudaEventElapsedTime(&create_matA_Time, startEvent_create_matA, endEvent_create_matA));
-
 			printf("(CUDA) Memcpy rowind time = %.4lf ms, colind time = %.4lf ms, a time = %.4lf ms, matA time = %.4lf ms\n", memcpyTime_cuda_rowind, memcpyTime_cuda_colind, memcpyTime_cuda_a, create_matA_Time);
 		}
 	}

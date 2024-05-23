@@ -708,8 +708,8 @@ __device__ void reduce_warp(group_t g, INT_T row, ValueType val, ValueType * res
 	INT_T row_prev;
 	ValueType val_prev;
 	flag = 0xaaaaaaaa; // 10101010101010101010101010101010
-	row_prev = __shfl_sync(flag, row, tidl-1);
-	val_prev = __shfl_sync(flag, val, tidl-1);
+	row_prev = g.shfl_up(row, 1); // __shfl_sync(flag, row, tidl-1);
+	val_prev = g.shfl_up(val, 1); // __shfl_sync(flag, val, tidl-1);
 	if (tidl_one_hot & flag)
 	{
 		if (row == row_prev)
@@ -722,8 +722,8 @@ __device__ void reduce_warp(group_t g, INT_T row, ValueType val, ValueType * res
 		}
 	}
 	flag = 0x88888888; // 10001000100010001000100010001000
-	row_prev = __shfl_sync(flag, row, tidl-2);
-	val_prev = __shfl_sync(flag, val, tidl-2);
+	row_prev = g.shfl_up(row, 2); // __shfl_sync(flag, row, tidl-2);
+	val_prev = g.shfl_up(val, 2); // __shfl_sync(flag, val, tidl-2);
 	if (tidl_one_hot & flag)
 	{
 		if (row == row_prev)
@@ -736,8 +736,8 @@ __device__ void reduce_warp(group_t g, INT_T row, ValueType val, ValueType * res
 		}
 	}
 	flag = 0x80808080; // 10000000100000001000000010000000
-	row_prev = __shfl_sync(flag, row, tidl-4);
-	val_prev = __shfl_sync(flag, val, tidl-4);
+	row_prev = g.shfl_up(row, 4); // __shfl_sync(flag, row, tidl-4);
+	val_prev = g.shfl_up(val, 4); // __shfl_sync(flag, val, tidl-4);
 	if (tidl_one_hot & flag)
 	{
 		if (row == row_prev)
@@ -750,8 +750,8 @@ __device__ void reduce_warp(group_t g, INT_T row, ValueType val, ValueType * res
 		}
 	}
 	flag = 0x80008000; // 10000000000000001000000000000000
-	row_prev = __shfl_sync(flag, row, tidl-8);
-	val_prev = __shfl_sync(flag, val, tidl-8);
+	row_prev = g.shfl_up(row, 8); // __shfl_sync(flag, row, tidl-8);
+	val_prev = g.shfl_up(val, 8); // __shfl_sync(flag, val, tidl-8);
 	if (tidl_one_hot & flag)
 	{
 		if (row == row_prev)
@@ -764,8 +764,8 @@ __device__ void reduce_warp(group_t g, INT_T row, ValueType val, ValueType * res
 		}
 	}
 	flag = 0x80000000; // 10000000000000000000000000000000
-	row_prev = __shfl_sync(flag, row, tidl-16);
-	val_prev = __shfl_sync(flag, val, tidl-16);
+	row_prev = g.shfl_up(row, 16); // __shfl_sync(flag, row, tidl-16);
+	val_prev = g.shfl_up(val, 16); // __shfl_sync(flag, val, tidl-16);
 	if (tidl_one_hot & flag)
 	{
 		if (row == row_prev)
@@ -845,7 +845,7 @@ __device__ ValueType reduce_warp_single_line(group_t g, ValueType val, ValueType
 	// Use XOR mode to perform butterfly reduction
 	for (int i=g.size()/2; i>=1; i/=2)
 	{
-		val += __shfl_xor_sync(0xffffffff, val, i, g.size());   // 'sum' is same on all threads
+		val += g.shfl_xor(val, i); // __shfl_xor_sync(0xffffffff, val, i, g.size());   // 'sum' is same on all threads
 		// val += __shfl_down_sync(0xffffffff, val, i, g.size());   // Only thread 0 has the total sum.
 	}
 	return val;

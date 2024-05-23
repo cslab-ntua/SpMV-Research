@@ -165,9 +165,7 @@ conf_vars=(
                 )"
 
     ['CUDA_PATH']="$( options=(
-                        # '/usr/local/cuda'
-                        '/various/dgal/epyc1/cuda/cuda_11_4_4'
-                        # '/various/pmpakos/epyc5_libs/cuda_12_4_1'
+                        '/usr/local/cuda' # cuda 12.5
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -413,9 +411,6 @@ progs=(
     # ['csr_cuda_vector_s4_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_vector_s4_b256_nv_d.exe"
 
     # Cuda Adaptive
-    # ['csr_cuda_adaptive_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_nv_d.exe"
-    # ['csr_cuda_adaptive_s8_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s8_b256_nv_d.exe"
-
     # ['csr_cuda_adaptive_b1024_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b1024_mb2_nv_d.exe"
     # ['csr_cuda_adaptive_b1024_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b1024_mb4_nv_d.exe"
     # ['csr_cuda_adaptive_b128_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb2_nv_d.exe"

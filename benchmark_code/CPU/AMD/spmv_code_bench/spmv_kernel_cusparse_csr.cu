@@ -87,6 +87,8 @@ struct CSRArrays : Matrix_Format
 	cudaEvent_t endEvent_create_matA;
 	cudaEvent_t startEvent_spmv_buffersize;
 	cudaEvent_t endEvent_spmv_buffersize;
+	cudaEvent_t startEvent_spmv_preprocess;
+	cudaEvent_t endEvent_spmv_preprocess;
 
 	cudaEvent_t startEvent_create_vecX;
 	cudaEvent_t endEvent_create_vecX;
@@ -135,6 +137,8 @@ struct CSRArrays : Matrix_Format
 			gpuCudaErrorCheck(cudaEventCreate(&endEvent_create_matA));
 			gpuCudaErrorCheck(cudaEventCreate(&startEvent_spmv_buffersize));
 			gpuCudaErrorCheck(cudaEventCreate(&endEvent_spmv_buffersize));
+			gpuCudaErrorCheck(cudaEventCreate(&startEvent_spmv_preprocess));
+			gpuCudaErrorCheck(cudaEventCreate(&endEvent_spmv_preprocess));
 
 			gpuCudaErrorCheck(cudaEventCreate(&startEvent_create_vecX));
 			gpuCudaErrorCheck(cudaEventCreate(&endEvent_create_vecX));
@@ -184,7 +188,6 @@ struct CSRArrays : Matrix_Format
 			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_ja, startEvent_memcpy_ja, endEvent_memcpy_ja));
 			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_a, startEvent_memcpy_a, endEvent_memcpy_a));
 			gpuCudaErrorCheck(cudaEventElapsedTime(&create_matA_Time, startEvent_create_matA, endEvent_create_matA));
-
 			printf("(CUDA) Memcpy ia time = %.4lf ms, ja time = %.4lf ms, a time = %.4lf ms, matA time = %.4lf ms\n", memcpyTime_cuda_ia, memcpyTime_cuda_ja, memcpyTime_cuda_a, create_matA_Time);
 		}
 	}
@@ -230,6 +233,8 @@ struct CSRArrays : Matrix_Format
 			gpuCudaErrorCheck(cudaEventDestroy(endEvent_create_matA));
 			gpuCudaErrorCheck(cudaEventDestroy(startEvent_spmv_buffersize));
 			gpuCudaErrorCheck(cudaEventDestroy(endEvent_spmv_buffersize));
+			gpuCudaErrorCheck(cudaEventDestroy(startEvent_spmv_preprocess));
+			gpuCudaErrorCheck(cudaEventDestroy(endEvent_spmv_preprocess));
 
 			gpuCudaErrorCheck(cudaEventDestroy(startEvent_create_vecX));
 			gpuCudaErrorCheck(cudaEventDestroy(endEvent_create_vecX));
@@ -314,15 +319,21 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_spmv_buffersize));
 		// printf("SpMV_bufferSize = %zu bytes\n", csr->bufferSize, csr->bufferSize); // size of the workspace that is needed by cusparseSpMV()
 
+		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_spmv_preprocess));
+		gpuCusparseErrorCheck(cusparseSpMV_preprocess(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer));
+		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_spmv_preprocess));
+
 		if(TIME_IT){
 			gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_create_vecX));
 			gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_create_vecY));
 			gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_spmv_buffersize));
-			float create_vecX_time, create_vecY_time, spmv_buffersize_time;
+			gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_spmv_preprocess));
+			float create_vecX_time, create_vecY_time, spmv_buffersize_time, spmv_preprocess_time;
 			gpuCudaErrorCheck(cudaEventElapsedTime(&create_vecX_time, csr->startEvent_create_vecX, csr->endEvent_create_vecX));
 			gpuCudaErrorCheck(cudaEventElapsedTime(&create_vecY_time, csr->startEvent_create_vecY, csr->endEvent_create_vecY));
 			gpuCudaErrorCheck(cudaEventElapsedTime(&spmv_buffersize_time, csr->startEvent_spmv_buffersize, csr->endEvent_spmv_buffersize));
-			printf("(CUDA) Create vecX time = %.4lf ms, vecY time = %.4lf ms, spmv_buffersize time = %.4lf (SpMV_bufferSize = %zu)\n", create_vecX_time, create_vecY_time, spmv_buffersize_time, csr->bufferSize);
+			gpuCudaErrorCheck(cudaEventElapsedTime(&spmv_preprocess_time, csr->startEvent_spmv_preprocess, csr->endEvent_spmv_preprocess));
+			printf("(CUDA) Create vecX time = %.4lf ms, vecY time = %.4lf ms, spmv_buffersize time = %.4lf (SpMV_bufferSize = %zu), spmv_preprocess time = %.4lf\n", create_vecX_time, create_vecY_time, spmv_buffersize_time, csr->bufferSize, spmv_preprocess_time);
 		}
 
 		#ifdef PERSISTENT_L2_PREFETCH

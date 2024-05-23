@@ -108,6 +108,8 @@ struct CSRArrays : Matrix_Format
 	cudaEvent_t endEvent_create_matA[NUM_STREAMS];
 	cudaEvent_t startEvent_spmv_buffersize[NUM_STREAMS];
 	cudaEvent_t endEvent_spmv_buffersize[NUM_STREAMS];
+	cudaEvent_t startEvent_spmv_preprocess[NUM_STREAMS];
+	cudaEvent_t endEvent_spmv_preprocess[NUM_STREAMS];
 
 	cudaEvent_t startEvent_create_vecX[NUM_STREAMS];
 	cudaEvent_t endEvent_create_vecX[NUM_STREAMS];
@@ -274,6 +276,8 @@ struct CSRArrays : Matrix_Format
 				gpuCudaErrorCheck(cudaEventCreate(&endEvent_create_matA[i]));
 				gpuCudaErrorCheck(cudaEventCreate(&startEvent_spmv_buffersize[i]));
 				gpuCudaErrorCheck(cudaEventCreate(&endEvent_spmv_buffersize[i]));
+				gpuCudaErrorCheck(cudaEventCreate(&startEvent_spmv_preprocess[i]));
+				gpuCudaErrorCheck(cudaEventCreate(&endEvent_spmv_preprocess[i]));
 
 				gpuCudaErrorCheck(cudaEventCreate(&startEvent_create_vecX[i]));
 				gpuCudaErrorCheck(cudaEventCreate(&endEvent_create_vecX[i]));
@@ -367,6 +371,8 @@ struct CSRArrays : Matrix_Format
 				gpuCudaErrorCheck(cudaEventDestroy(endEvent_create_matA[i]));
 				gpuCudaErrorCheck(cudaEventDestroy(startEvent_spmv_buffersize[i]));
 				gpuCudaErrorCheck(cudaEventDestroy(endEvent_spmv_buffersize[i]));
+				gpuCudaErrorCheck(cudaEventDestroy(startEvent_spmv_preprocess[i]));
+				gpuCudaErrorCheck(cudaEventDestroy(endEvent_spmv_preprocess[i]));
 
 				gpuCudaErrorCheck(cudaEventDestroy(startEvent_create_vecX[i]));
 				gpuCudaErrorCheck(cudaEventDestroy(endEvent_create_vecX[i]));
@@ -467,16 +473,21 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 			gpuCudaErrorCheck(cudaMalloc(&csr->dBuffer[i], csr->bufferSize[i]));
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_spmv_buffersize[i], csr->stream[i]));
 			// printf("(stream %d) SpMV_bufferSize = %ld\n", i, csr->bufferSize[i]); // size of the workspace that is needed by cusparseSpMV()
+
+			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_spmv_preprocess[i], csr->stream[i]));
+			gpuCusparseErrorCheck(cusparseSpMV_preprocess(csr->handle[i], CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA[i], csr->vecX[i], &beta, csr->vecY[i], ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer[i]));
+			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_spmv_preprocess[i], csr->stream[i]));
 		}
 
 		if(TIME_IT){
 			for(int i=0; i<csr->num_streams; i++){
 				gpuCudaErrorCheck(cudaStreamSynchronize(csr->stream[i]));
-				float create_vecX_time, create_vecY_time, spmv_buffersize_time;
+				float create_vecX_time, create_vecY_time, spmv_buffersize_time, spmv_preprocess_time;
 				gpuCudaErrorCheck(cudaEventElapsedTime(&create_vecX_time, csr->startEvent_create_vecX[i], csr->endEvent_create_vecX[i]));
 				gpuCudaErrorCheck(cudaEventElapsedTime(&create_vecY_time, csr->startEvent_create_vecY[i], csr->endEvent_create_vecY[i]));
 				gpuCudaErrorCheck(cudaEventElapsedTime(&spmv_buffersize_time, csr->startEvent_spmv_buffersize[i], csr->endEvent_spmv_buffersize[i]));
-				printf("(CUDA) (stream %d) Create vecX time = %.4lf ms, vecY time = %.4lf ms, spmv_buffersize time = %.4lf (SpMV_bufferSize = %zu)\n", i, create_vecX_time, create_vecY_time, spmv_buffersize_time, csr->bufferSize[i]);
+				gpuCudaErrorCheck(cudaEventElapsedTime(&spmv_preprocess_time, csr->startEvent_spmv_preprocess[i], csr->endEvent_spmv_preprocess[i]));
+				printf("(CUDA) (stream %d) Create vecX time = %.4lf ms, vecY time = %.4lf ms, spmv_buffersize time = %.4lf (SpMV_bufferSize = %zu), spmv_preprocess time = %.4lf\n", i, create_vecX_time, create_vecY_time, spmv_buffersize_time, csr->bufferSize, spmv_preprocess_time);
 			}
 		}
 	}
