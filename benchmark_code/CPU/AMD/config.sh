@@ -165,7 +165,7 @@ conf_vars=(
                 )"
 
     ['CUDA_PATH']="$( options=(
-                        '/usr/local/cuda' # cuda 12.5
+                        '/usr/local/cuda-12.5'
                     )
                     find_valid_dir "${options[@]}"
                 )"
