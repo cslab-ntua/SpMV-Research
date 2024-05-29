@@ -2,9 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include "essexamples.h"
+#include <omp.h>
 
 #include "artificial_matrix_generation.h"
-#include "monitoring/power/rapl_arm.h"
+// #include "monitoring/power/rapl_arm.h"
 
 extern char *matstr;
 extern char *matformatstr;
@@ -68,25 +69,25 @@ static void compute(char * matrix_file, ghost_sparsemat *mat, struct csr_matrix 
     ghost_barrier();
 
     /*****************************************************************************************/
-    struct RAPL_Register * regs;
-    long regs_n;
-    char * reg_ids;
+    // struct RAPL_Register * regs;
+    // long regs_n;
+    // char * reg_ids;
 
-    reg_ids = NULL;
-    reg_ids = (char *) getenv("RAPL_REGISTERS");
+    // reg_ids = NULL;
+    // reg_ids = (char *) getenv("RAPL_REGISTERS");
 
-    rapl_open(reg_ids, &regs, &regs_n);
+    // rapl_open(reg_ids, &regs, &regs_n);
     /*****************************************************************************************/
 
     ghost_timing_wcmilli(&start);
 
-    rapl_read_start(regs, regs_n);
+    // rapl_read_start(regs, regs_n);
     for (size_t i = 0; i < loop; i++) {
 
         ghost_spmv(y,mat,x,spmvtraits);
 
     }
-    rapl_read_end(regs, regs_n);
+    // rapl_read_end(regs, regs_n);
 
     ghost_barrier();
     ghost_timing_wcmilli(&end);
@@ -94,12 +95,12 @@ static void compute(char * matrix_file, ghost_sparsemat *mat, struct csr_matrix 
 
     /*****************************************************************************************/
     double J_estimated = 0;
-    for (int i=0;i<regs_n;i++){
-        // printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
-        J_estimated += ((double) regs[i].uj_accum) / 1e6;
-    }
-    rapl_close(regs, regs_n);
-    free(regs);
+    // for (int i=0;i<regs_n;i++){
+    //     // printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
+    //     J_estimated += ((double) regs[i].uj_accum) / 1e6;
+    // }
+    // rapl_close(regs, regs_n);
+    // free(regs);
     double W_avg = J_estimated / time;
     printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
     /*****************************************************************************************/

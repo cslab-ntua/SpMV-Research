@@ -323,6 +323,9 @@ scan_reduce_segment_concurrent(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i
 			 */
 			long l1_cache_size;
 			l1_cache_size = sysconf(_SC_LEVEL1_DCACHE_SIZE);
+			#ifdef __aarch64__
+			l1_cache_size = 4718592; // size of L1 cache of GraceHopper machine (4608 KB)
+			#endif
 			// l1_cache_size = sysconf(_SC_LEVEL2_CACHE_SIZE);
 			// printf("block_size = %ld\n", block_size);
 			block_size = l1_cache_size / sizeof(_TYPE_OUT) * num_threads;

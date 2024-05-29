@@ -5,14 +5,17 @@ SpMV targeting ARM CPUs
 **Hardware :**
 
 * Altra Q80-33 processor (Ampere 'Mount Jade' server)
+* NVIDIA GH200 Grace Hopper Superchip (SuperMicro 'ARS-111GL-NHR' server)
 
 **Software :**
 
-* [ARM C/C++ Compiler](https://www.arm.com/products/development-tools/server-and-hpc/allinea-studio/cpp-compiler) 22.0.1
-* Kernel version 5.10.27 from [ampere-lts-kernel](https://github.com/AmpereComputing/ampere-lts-kernel/tree/linux-5.10.y) (for power measurements)
-* [Arm Performance Libraries](https://www.arm.com/products/development-tools/server-and-hpc/allinea-studio/performance-libraries) 22.0.1
+* [ARM C/C++ Compiler](https://www.arm.com/products/development-tools/server-and-hpc/allinea-studio/cpp-compiler) 24.04)
+* [Arm Performance Libraries](https://www.arm.com/products/development-tools/server-and-hpc/allinea-studio/performance-libraries) 24.04
 * [SparseX](https://github.com/cslab-ntua/sparsex)
 * ghost, physics, ghost-apps from [ESSEX-GHOST](https://bitbucket.org/essex/) project
+* (optional for Ampere server) Kernel version 5.10.27 from [ampere-lts-kernel](https://github.com/AmpereComputing/ampere-lts-kernel/tree/linux-5.10.y) (for power measurements)
+
+Note: Power measurements are for now disabled. It will be fixed in later versions.
 
 ### Test different formats
 To test different formats/implementations, you can use the class template provided [here](./spmv_code_bench/spmv_kernel_template.cpp). The new class inherits properties from the `Matrix_Format` class defined [here](./spmv_code_bench/spmv_kernel.h). A conversion function (`csr_to_format`) and an execution function (`spmv`) have to be defined for the new format.
@@ -28,3 +31,5 @@ The SparseX and SELL-C-σ projects have to be built beforehand. The `install_spa
 ### How to run
 
 To run SpMV you simply run the `run.sh` bash script. All the configuration needed is in the `config.sh` file, along with documentation comments for each option.
+
+Note: SELL-C-σ is not currently running on GraceHopper system. It recognizes 8 NUMA nodes, while there is only 1 for the CPU. The other are GPU MIG instances. It will be fixed in later versions.

@@ -25,9 +25,14 @@ struct lock_padded_ptr {
 static inline
 void lock_cpu_relax()
 {
-	// __asm volatile ("pause" : : : "memory");
-	__asm volatile ("rep; pause" : : : "memory");
-	// __asm volatile ("rep; nop" : : : "memory");
+	#ifdef __x86_64__
+		// __asm volatile ("pause" : : : "memory");
+		__asm volatile ("rep; pause" : : : "memory");   // relax
+		// __asm volatile ("rep; nop" : : : "memory");
+	#else
+		for (volatile int i = 0; i < 1000; ++i); // Adjust the loop count as needed
+	#endif
+
 }
 
 

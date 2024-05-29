@@ -31,37 +31,118 @@ calc_cpu_pinning()
 }
 
 
+calc_numa_nodes()
+{
+    local cores="$1" max_cores="$2" affinity="$3"
+    local -A dict
+    local -a aff
+    local -A nodes
+    local -A nodes
+    local i j c
+    numactl_output="$(numactl -H)"
+    avail="$(printf "$numactl_output" | awk '/available/ {printf("%d", $2)}')"
+    dict=()
+    for ((i=0;i<avail;i++)); do
+        node_cores=( $(printf "$numactl_output" | awk '/node '"$i"' cpus:/ { for (i=4;i<=NF;i++) {printf("%s ", $i)} }') )   # $i in awk expands the 'i' awk variable and if a number prints the ith line token, else $0.
+        for n in "${node_cores[@]}"; do
+            dict["$n"]="$i"
+        done
+    done
+    aff=(${affinity//,/' '})
+    nodes=()
+    for c in "${aff[@]}"; do
+        if [[ -v dict["$c"] ]]; then
+            nodes["${dict["$c"]}"]=1
+        fi
+    done
+    nodes="$(printf "%s\n" "${!nodes[@]}" | sort -n | tr '\n' ',')"
+    nodes="${nodes%,}"
+    printf "${nodes}"
+}
+
+
 # To reproduce results, this environment variable has to change to the root directory of the ARM Compiler (<ARM-Compiler-Path> in README.md)
 # export ARM_ROOT_DIR="<ARM-Compiler-Path>"
-export ARM_ROOT_DIR=/home/spmv/arm/
 
-export ARMCLANG_ROOT_DIR=${ARM_ROOT_DIR}/arm-linux-compiler-22.0.1_Generic-AArch64_Ubuntu-20.04_aarch64-linux
-export GCC_ROOT_DIR=${ARM_ROOT_DIR}/gcc-11.2.0_Generic-AArch64_Ubuntu-20.04_aarch64-linux
-export ARMPL_ROOT_DIR=${ARM_ROOT_DIR}/armpl-22.0.1_AArch64_Ubuntu-20.04_gcc_aarch64-linux/
+# export ARM_ROOT_DIR=/home/spmv/arm/
+export ARM_ROOT_DIR=/local/pmpakos/arm-compiler/
 
-# These are environment variables that have to be set for SparseX to work
-# Need to install specific library versions
-export SPARSEX_ROOT_DIR=/home/spmv/000/lib
+# export ARMCLANG_ROOT_DIR=${ARM_ROOT_DIR}/arm-linux-compiler-22.0.1_Generic-AArch64_Ubuntu-20.04_aarch64-linux
+export ARMCLANG_ROOT_DIR=${ARM_ROOT_DIR}/arm-linux-compiler-24.04_Ubuntu-22.04/
+
+# export GCC_ROOT_DIR=${ARM_ROOT_DIR}/gcc-11.2.0_Generic-AArch64_Ubuntu-20.04_aarch64-linux/
+export GCC_ROOT_DIR=${ARM_ROOT_DIR}/gcc-13.2.0_Ubuntu-22.04/
+
+# export ARMPL_ROOT_DIR=${ARM_ROOT_DIR}/armpl-22.0.1_AArch64_Ubuntu-20.04_gcc_aarch64-linux/
+export ARMPL_ROOT_DIR=${ARM_ROOT_DIR}/armpl-24.04.0_Ubuntu-22.04_gcc/
+
+
+# export SPARSEX_ROOT_DIR="${HOME}/lib"
+# export SPARSEX_ROOT_DIR=/various/dgal/epyc1
+# export SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
+export SPARSEX_ROOT_DIR=/local/pmpakos/ROOT_DIR/
+
 
 declare -A conf_vars
 conf_vars=(
-    # ['output_to_files']=0
-    ['output_to_files']=1
+    # ['PRINT_STATISTICS']=0
+    ['PRINT_STATISTICS']=1
+
+    ['USE_PROCESSES']=0
+    # ['USE_PROCESSES']=1
+
+    ['force_retry_on_error']=0
+    # ['force_retry_on_error']=1
+
+    ['output_to_files']=0
+    # ['output_to_files']=1
 
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
 
-    # Benchmark with the artificially generated matrices (1) or the real validation matrices (0).
-    ['use_artificial_matrices']=0
-    # ['use_artificial_matrices']=1
+    ['VC_TOLERANCE']=0
+    # ['VC_TOLERANCE']='1e-12'
+    # ['VC_TOLERANCE']='1e-9'
+    # ['VC_TOLERANCE']='1e-7'
+    # ['VC_TOLERANCE']='1e-6'
+    # ['VC_TOLERANCE']='1e-3'
+
+    # Benchmark with the artificially generated matrices (1) or real matrices (0).
+    ['USE_ARTIFICIAL_MATRICES']=0
+    # ['USE_ARTIFICIAL_MATRICES']=1
 
     # Maximum number of the machine's cores.
-    ['max_cores']=160
-    
+    # ['max_cores']=160
+    # ['max_cores']=256
+    ['max_cores']=144
+    # ['max_cores']=128
+    # ['max_cores']=64
+    # ['max_cores']=96
+    # ['max_cores']=48
+    # ['max_cores']=16
+    # ['max_cores']=8
+
     # Cores / Threads to utilize. Use spaces to define a set of different thread numbers to benchmark.
-    ['cores']=80
-    # ['cores']=160
-    
+    # ['cores']=1
+    # ['cores']='1 2 4 8 16 32 64 128'
+    # ['cores']='64 128'
+    # ['cores']=128
+    ['cores']=72
+    # ['cores']=64
+    # ['cores']=48
+    # ['cores']=32
+    # ['cores']=24
+    # ['cores']=16
+    # ['cores']=12
+    # ['cores']=8
+    # ['cores']=6
+    # ['cores']=4
+    # ['cores']=2
+    # ['cores']=1
+    # ['cores']='1 2 4 8 16 24 48'
+    # ['cores']='24 48'
+    # ['cores']='1 2 4 8'
+
     # Cpu pinning distance for contiguous thread ids, 1 means adjacent core numbers.
     ['cpu_pinning_step']=1
     # ['cpu_pinning_step']=4
@@ -75,6 +156,9 @@ conf_vars=(
     # Thread pinning policy (auto-generated from the above).
     ['cpu_affinity']=''
 
+    # Numa nodes of the selected cores.
+    ['numa_nodes']=''
+
     # Rapl registers.
     # For ARM, they are not RAPL_REGISTERS, but directories hwmon1 and hwmon3 under /sys/class/hwmon directory.
     # hwmon1 is for socket-1 and hwmon3 for socket-2
@@ -82,21 +166,14 @@ conf_vars=(
     ['RAPL_REGISTERS']='1'         # 1 socket : Armor
     # ['RAPL_REGISTERS']='1,3'       # 2 sockets: Armor 
 
-    # Path for the validation matrices.
-    # ['path_validation']='/various/pmpakos/SpMV-Research/validation_matrices/'
-    ['path_validation']='../../../validation_matrices/'
-
-    # Path for the validation matrices.
-    ['path_validation']="$( options=(
-                        # "$HOME/Data/graphs/validation_matrices"
-                        # "${script_dir}/../../../validation_matrices"
-                        '/various/pmpakos/SpMV-Research/validation_matrices'
+    ['CUDA_PATH']="$( options=(
+                        '/usr/local/cuda-12.5'
                     )
                     find_valid_dir "${options[@]}"
                 )"
-
-    ########################################################################################################
-    # SparseX ecosystem environment variables that have to be set
+    # SparseX ecosystem environment variables that have to be set.
+    # These are environment variables that have to be set for SparseX to work
+    # Need to install specific library versions
     ['BOOST_INC_PATH']="$( options=(
                         "${SPARSEX_ROOT_DIR}/boost_1_55_0/bin/include"
                         "${SPARSEX_ROOT_DIR}/boost_1_55_0/local/include"
@@ -138,12 +215,13 @@ conf_vars=(
                     find_valid_dir "${options[@]}"
                 )"
 
-    ########################################################################################################
     # SELL-C-s ecosystem environment variables that have to be set
-    ['GHOST_ROOT_DIR']='/home/spmv/000/lib'
-    ['GHOST_APPS_ROOT_DIR']="${script_dir}/spmv_code_sell-C-s/"
+    # These are environment variables that have to be set for SELL-C-s to work
+    # ['GHOST_ROOT_DIR']='/home/pmpakos/ESSEX'
+    ['GHOST_ROOT_DIR']='/local/pmpakos/ROOT_DIR'
+    ['GHOST_APPS_ROOT_DIR']=${script_dir}'/spmv_code_bench/sell-C-s'
 
-    ########################################################################################################
+
     # ARM ecosystem environment variables that have to be set
     ['ARM_ROOT_DIR']=${ARM_ROOT_DIR}
 
@@ -155,12 +233,12 @@ conf_vars=(
 
     # Arm-specific environment variables
     ['ARM_LINUX_COMPILER_DIR']=${ARMCLANG_ROOT_DIR}
-    ['ARM_LINUX_COMPILER_BUILD']=1630
+    ['ARM_LINUX_COMPILER_BUILD']=9
     ['ARM_LINUX_COMPILER_INCLUDES']=${ARMCLANG_ROOT_DIR}/includes
 
     # GNU-specific environment variables
     ['GCC_ROOT_DIR']=${GCC_ROOT_DIR}
-    ['GCC_BUILD']=213
+    ['GCC_BUILD']=348
     ['GCC_DIR']=${GCC_ROOT_DIR}
     ['GCC_INCLUDES']=${GCC_ROOT_DIR}/include
     ['COMPILER_PATH']=${GCC_ROOT_DIR}
@@ -174,7 +252,7 @@ conf_vars=(
 
     # Arm-PL-specific environment variables
     ['ARMPL_LIBRARIES']=${ARMPL_ROOT_DIR}/lib
-    ['ARMPL_BUILD']=870
+    ['ARMPL_BUILD']=12 # 
     ['ARMPL_DIR']=${ARMPL_ROOT_DIR}
     ['ARMPL_INCLUDES']=${ARMPL_ROOT_DIR}/include
     ['ARMPL_INCLUDES_ILP64']=${ARMPL_ROOT_DIR}/include_ilp64
@@ -191,10 +269,42 @@ conf_vars=(
     ['LAPACK']=${ARMPL_ROOT_DIR}/lib/libarmpl_lp64.a
     ['LAPACK_SHARED']=${ARMPL_ROOT_DIR}/lib/libarmpl_lp64.so
     ['LAPACK_STATIC']=${ARMPL_ROOT_DIR}/lib/libarmpl_lp64.a
-    ########################################################################################################
+
+    # Path for the validation matrices.
+    ['path_validation']="$( options=(
+                        # "$HOME/Data/graphs/validation_matrices"
+                        # "${script_dir}/../../../validation_matrices"
+                        '/various/pmpakos/SpMV-Research/validation_matrices'
+                        # '/various/pmpakos/SpMV-Research/validation_matrices/matrix_features/matrices'
+                        # '/various/pmpakos/SpMV-Research/validation_matrices/download_matrices'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+
+    # Path for the openFoam matrices.
+    ['path_openFoam']="$( options=(
+                        '/m100_work/ExaF_prod22/wp2-matrices'
+                        "${HOME}/Data/graphs/matrices_openFoam"
+                        '/zhome/academic/HLRS/xex/xexdgala/Data/graphs/openFoam'
+                        '/various/dgal/graphs/matrices_openFoam'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+
+    ['path_tamu']="${HOME}/Data/graphs/tamu"
+    ['path_M3E']="${HOME}/Data/graphs/M3E-Matrix-Collection"
+
+    ['ZFP_ROOT_DIR']="${HOME}/lib/zfp"
+    ['FPZIP_ROOT_DIR']="${HOME}/lib/fpzip"
 )
 
 conf_vars['cpu_affinity']="$(calc_cpu_pinning "${conf_vars["cores"]}" "${conf_vars["max_cores"]}" "${conf_vars["cpu_pinning_step"]}" "${conf_vars["cpu_pinning_group_size"]}")"
+
+if hash numactl 2>/dev/null; then
+    conf_vars['numa_nodes']="$(calc_numa_nodes "${conf_vars["cores"]}" "${conf_vars["max_cores"]}" "${conf_vars["cpu_affinity"]}")"
+else
+    conf_vars['numa_nodes']="0"
+fi
 
 
 path_artificial="${script_dir}/../../../matrix_generation_parameters"
@@ -210,13 +320,26 @@ artificial_matrices_files=(
     "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
 
     # The synthetic dataset studied in the paper.
-    # "$path_artificial"/synthetic_matrices_medium_dataset.txt
+    # "$path_artificial"/synthetic_matrices_small_dataset.txt
+    # "$path_artificial"/synthetic_matrices_small_dataset5.txt
 )
 
 
 # Artificial twins.
+#     nr_rows
+#     nr_cols
+#     avg_nnz_per_row
+#     std_nnz_per_row
+#     distribution
+#     placement
+#     bw
+#     skew
+#     avg_num_neighbours
+#     cross_row_similarity
+#     seed
 declare -A matrices_validation_artificial_twins
 matrices_validation_artificial_twins=(
+
     ['scircuit']='170998 170998 5.6078784547 4.3921621102 normal random 0.2972525308 61.9471560146 0.8033653966 0.6330185674 14 scircuit'
     ['mac_econ_fwd500']='206500 206500 6.1665326877 4.4358653323 normal random 0.0019079565 6.1352901588 0.1766859930 0.3305090836 14 mac_econ_fwd500'
     ['raefsky3']='21200 21200 70.2249056604 6.3269998323 normal random 0.0662003204 0.1391969736 1.9160003439 0.9630195886 14 raefsky3'
@@ -231,8 +354,8 @@ matrices_validation_artificial_twins=(
     ['webbase-1M']='1000005 1000005 3.1055204724 25.3452097343 normal random 0.1524629001 1512.4339128576 0.3156807714 0.9360952482 14 webbase-1M'
     ['cant']='62451 62451 64.1684360539 14.0562609915 normal random 0.0086040976 0.2155508969 1.6157502290 0.9147287701 14 cant'
     ['ASIC_680k']='682862 682862 5.6699201303 659.8073579974 normal random 0.3746622132 69710.5639935502 0.6690077130 0.8254737741 14 ASIC_680k'
-    ['pdb1HYS']='36417 36417 119.3059560096 31.8603842202 normal random 0.1299377034 0.7098894877 1.8377583137 0.9317263989 14 pdb1HYS'
     ['roadNet-TX']='1393383 1393383 2.7582653154 1.0370252134 normal random 0.0049447584 3.3505604529 0.1617289219 0.3009518706 14 roadNet-TX'
+    ['pdb1HYS']='36417 36417 119.3059560096 31.8603842202 normal random 0.1299377034 0.7098894877 1.8377583137 0.9317263989 14 pdb1HYS'
     ['TSOPF_RS_b300_c3']='42138 42138 104.7379799706 102.4431671584 normal random 0.6066963064 0.9954557082 1.9234585015 0.9921541433 14 TSOPF_RS_b300_c3'
     ['Chebyshev4']='68121 68121 78.9442462677 1061.4399700423 normal random 0.0453574243 861.9001253496 0.8959855226 0.9937056942 14 Chebyshev4'
     ['consph']='83334 83334 72.1251829985 19.0801941463 normal random 0.0698113380 0.1230474105 1.7133496826 0.8826334255 14 consph'
@@ -270,18 +393,114 @@ matrices_validation_artificial_twins=(
     ['audikw_1']='943695 943695 82.2848981927 42.4452546211 normal random 0.6231501275 3.1927499162 1.5811026362 0.8197043756 14 audikw_1'
     ['cage15']='5154859 5154859 19.2438922190 5.7367193687 normal random 0.2119567644 1.4423333630 0.1975483538 0.7941057325 14 cage15'
     ['kmer_V2a']='55042369 55042369 2.1295885720 0.6731069663 normal random 0.3370633097 17.3133965463 0.0573248727 0.1163647359 14 kmer_V2a'
+
 )
 
 
 declare -A progs
 
-# SpMV kernels to benchmark.
+# SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
-    ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive.exe"
-    ['armpl_d']="${script_dir}/spmv_code_bench/spmv_armpl.exe"
-    ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge.exe"
-    ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex.exe"
-    ['sell_C_s_d']="${script_dir}/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s.exe"
+    # CG
+    # ['cg_csr_d']="${script_dir}/spmv_code_bench/cg_csr_d.exe"
+    # ['cg_mkl_ie_d']="${script_dir}/spmv_code_bench/cg_mkl_ie_d.exe"
+    # ['cg_mkl_ie_f']="${script_dir}/spmv_code_bench/cg_mkl_ie_f.exe"
+    # ['cg_csr_cv_stream_d']="${script_dir}/spmv_code_bench/cg_csr_cv_stream_d.exe"
+
+    # Custom csr
+    # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive_d.exe"
+    # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr_d.exe"
+    # ['csr_kahan_d']="${script_dir}/spmv_code_bench/spmv_csr_kahan_d.exe"
+    # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch_d.exe"
+    # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd_d.exe"
+    # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_d.exe"
+    # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_balanced_distribute_early_d.exe"
+    # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance_d.exe"
+    # ['csr_f']="${script_dir}/spmv_code_bench/spmv_csr_f.exe"
+    # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell_d.exe"
+    # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu_d.exe"
+
+    # Custom cuda
+    # ['csr_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_nv_d.exe"
+    # ['csr_cuda_buffer_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_nv_d.exe"
+    # ['csr_cuda_reduce_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_reduce_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nv_d.exe"
+
+    # ['csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d.exe"
+    ['csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d.exe"
+
+    # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz2_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz2_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s8_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_b1024_nnz2_nv_d.exe"
+
+    # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz4_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz4_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s8_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_b1024_nnz4_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s32_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s32_b1024_nnz4_nv_d.exe"
+
+    # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz8_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz8_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s8_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_b1024_nnz8_nv_d.exe"
+
+    # ['csr_cuda_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_t1769472_nv_d.exe"
+    # ['csr_cuda_s4_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t1769472_nv_d.exe"
+    # ['csr_cuda_s4_t221184_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t221184_nv_d.exe"
+
+    # ['csr_cuda_buffer_t4194304_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_t4194304_rc4_nv_d.exe"
+    # ['csr_cuda_buffer_t221184_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_t221184_rc4_nv_d.exe"
+    # ['csr_cuda_buffer_s4_t221184_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_s4_t221184_rc4_nv_d.exe"
+
+    # ['csr_cuda_vector_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_vector_b256_nv_d.exe"
+    # ['csr_cuda_vector_s4_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_vector_s4_b256_nv_d.exe"
+
+    # Cuda Adaptive
+    # ['csr_cuda_adaptive_b1024_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b1024_mb2_nv_d.exe"
+    # ['csr_cuda_adaptive_b1024_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b1024_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_b128_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb2_nv_d.exe"
+    # ['csr_cuda_adaptive_b128_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_b128_mb8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb8_nv_d.exe"
+    # ['csr_cuda_adaptive_b128_mb16_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb16_nv_d.exe"
+    # ['csr_cuda_adaptive_b128_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb24_nv_d.exe"
+    # ['csr_cuda_adaptive_b128_mb48_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb48_nv_d.exe"
+
+    # ['csr_cuda_adaptive_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb1_nv_d.exe"
+    # ['csr_cuda_adaptive_b256_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb2_nv_d.exe"
+    # ['csr_cuda_adaptive_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_b256_mb8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb8_nv_d.exe"
+    # ['csr_cuda_adaptive_b256_mb16_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb16_nv_d.exe"
+    # ['csr_cuda_adaptive_b256_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb24_nv_d.exe"
+
+    # ['csr_cuda_adaptive_s16_b256_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb2_nv_d.exe"
+    # ['csr_cuda_adaptive_s8_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s8_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_s8_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s8_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_s4_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_s1_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s1_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_s4_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_s16_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb4_nv_d.exe"
+    # ['csr_cuda_adaptive_s16_b256_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb24_nv_d.exe"
+
+    # UNDER DEVELOPMENT - not working yet
+    # ['merge_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_merge_cuda_nv_d.exe"
+    # ['csr_cuda_light_b1024_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_light_b1024_nv_d.exe"
+
+    # cusparse
+    # ['cusparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
+    # ['cusparse_csr_s4_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_s4_nv_d.exe"
+    # ['cusparse_coo_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_coo_nv_d.exe"
+
+    # armpl
+    # ['armpl_d']="${script_dir}/spmv_code_bench/spmv_armpl_d.exe"
+    
+    # sparsex
+    # ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex_d.exe"
+
+    # sell C sigma
+    # ['sell_C_s_d']="${script_dir}/spmv_code_bench/sell-C-s/build/spmvbench/spmv_sell-C-s_d.exe"
+
+    # merge spmv
+    # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge_d.exe"
 )
 
 
@@ -292,5 +511,5 @@ for index in "${!conf_vars[@]}"; do
     config_str="${config_str}${index}=${conf_vars["$index"]};"
     # printf "%s=%s;" "$index"  "${conf_vars["$index"]}"
 done
-printf "%s" "$config_str"
+printf "%s\n" "$config_str"
 

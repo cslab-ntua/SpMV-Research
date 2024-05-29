@@ -31,7 +31,7 @@ struct CSRArrays : Matrix_Format
 	{
 		a = NULL;
 		ia = NULL;
-		ja= NULL;
+		ja = NULL;
 	}
 
 	~CSRArrays(){
@@ -41,6 +41,8 @@ struct CSRArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	int statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -129,5 +131,29 @@ void compute_sparse_mv(CSRArrays * csr, ValueType * x , ValueType * y)
 		info = armpl_spmv_exec_d(ARMPL_SPARSE_OPERATION_NOTRANS, 1.0f, csr->A, x, 0.0f, y);
 		if (info!=ARMPL_STATUS_SUCCESS) printf("ERROR: armpl_spmv_exec_d warm_up returned %d\n", info);
         #endif
+}
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+CSRArrays::statistics_start()
+{
+}
+
+
+int
+statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
+}
+
+
+int
+CSRArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
 }
 

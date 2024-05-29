@@ -5,6 +5,7 @@ set -e
 
 # Change the install root directory for the libraries to what you prefer.
 export ROOT_DIR="<<Insert ROOT_DIR>>"
+# export ROOT_DIR=/local/pmpakos/ROOT_DIR/
 
 
 export BOOST_ROOT_DIR="${ROOT_DIR}/boost_1_55_0"

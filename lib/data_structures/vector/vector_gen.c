@@ -187,13 +187,23 @@ vector_push_back_atomic(struct Vector * restrict v, _TYPE elem)
 	{
 		if (pos == v->max_size) // It is our responsibitily to resize.
 		{
-			while (pos > __atomic_load_n(&v->semaphore, __ATOMIC_ACQUIRE))        // Wait all previous to complete.
-				__asm volatile ("rep; pause" : : : "memory");   // relax
+			// Wait all previous to complete.
+			while (pos > __atomic_load_n(&v->semaphore, __ATOMIC_ACQUIRE)){
+				#ifdef __x86_64__
+					__asm volatile ("rep; pause" : : : "memory");   // relax
+				#else
+					for (volatile int i = 0; i < 1000; ++i); // Adjust the loop count as needed
+				#endif
+			}
 			vector_resize_base(v, 2 * v->capacity);
 			__atomic_store_n(&v->max_size, v->capacity / sizeof(*(v->data)), __ATOMIC_RELEASE);
 			break;
 		}
-		__asm volatile ("rep; pause" : : : "memory");   // relax
+		#ifdef __x86_64__
+			__asm volatile ("rep; pause" : : : "memory");   // relax
+		#else
+			for (volatile int i = 0; i < 1000; ++i); // Adjust the loop count as needed
+		#endif
 	}
 	v->data[pos] = elem;
 	__atomic_fetch_add(&v->semaphore, 1, __ATOMIC_RELEASE);

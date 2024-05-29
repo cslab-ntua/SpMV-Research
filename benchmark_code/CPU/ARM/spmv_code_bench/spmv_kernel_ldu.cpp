@@ -38,7 +38,8 @@ struct LDUArrays : Matrix_Format
 		col_idx = NULL;
 	}
 
-	~LDUArrays(){
+	~LDUArrays()
+	{
 		free(diag);
 		free(upper);
 		free(lower);
@@ -47,6 +48,8 @@ struct LDUArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	int statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -120,7 +123,8 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 }
 
 
-void compute_ldu(LDUArrays * ldu, ValueType * x , ValueType * y)
+void
+compute_ldu(LDUArrays * ldu, ValueType * x , ValueType * y)
 {
 	long i;
 	long row, col;
@@ -133,5 +137,30 @@ void compute_ldu(LDUArrays * ldu, ValueType * x , ValueType * y)
 		y[row] += ldu->upper[i] * x[col];
 		y[col] += ldu->lower[i] * x[row];
 	}
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+LDUArrays::statistics_start()
+{
+}
+
+
+int
+statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
+}
+
+
+int
+LDUArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
 }
 

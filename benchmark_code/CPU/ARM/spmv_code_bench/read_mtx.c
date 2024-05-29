@@ -1,47 +1,29 @@
-#include <iostream>
-#include <cstring> // memset
-#include <cstdlib> // for random generation
-#include <cstdio>  // for printf
-#include <cmath>
-#include <omp.h>   // just for timer
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h> // memset
+#include <math.h>
+#include <omp.h>
 
-// #include <stdio.h>
-#include <string>
-#include <fstream>
-
-// #include <cassert> // for assert
-// #include <iterator>
-// #include <algorithm>
-// #include <queue>
-// #include <set>
-// #include <list>
-// #include <sys/time.h>
+#include "macros/cpp_defines.h"
+#include "debug.h"
+#include "io.h"
+#include "genlib.h"
+#include "parallel_util.h"
+#include "string_util.h"
+#include "parallel_io.h"
+#include "time_it.h"
 
 #include "spmv_bench_common.h"
-
-
-#ifdef __cplusplus
-extern "C"{
-#endif
-	#include "macros/cpp_defines.h"
-	#include "debug.h"
-	#include "io.h"
-	#include "genlib.h"
-	#include "parallel_util.h"
-	#include "string_util.h"
-	#include "parallel_io.h"
-#ifdef __cplusplus
-}
-#endif
 
 #include "read_mtx.h"
 
 
 /**
- * Builds a MARKET COO sparse from the given file.
+ * Builds a COO matrix from the given matrix market file.
  */
-void create_coo_matrix(const std::string & market_filename,
-	ValueType ** V_out, INT_T ** R_out, INT_T ** C_out, INT_T * m_ptr, INT_T * n_ptr, INT_T * nnz_ptr)
+void
+create_coo_matrix(const char * market_filename,
+	double ** V_out, INT_T ** R_out, INT_T ** C_out, INT_T * m_ptr, INT_T * n_ptr, INT_T * nnz_ptr)
 {
 	int num_threads = omp_get_max_threads();
 	struct File_Atoms * A;
@@ -49,10 +31,10 @@ void create_coo_matrix(const std::string & market_filename,
 
 	INT_T nr_rows=0, nr_cols=0, nr_nnzs=0;
 	INT_T * R = NULL, * C = NULL;
-	ValueType * V = NULL;
-	bool array = false;
-	bool symmetric = false;
-	bool skew = false;
+	double * V = NULL;
+	int array = 0;
+	int symmetric = 0;
+	int skew = 0;
 
 	int num_lines;
 	int non_diag_total = 0;
@@ -60,13 +42,11 @@ void create_coo_matrix(const std::string & market_filename,
 	long i;
 
 	A = (typeof(A)) malloc(sizeof(*A));
-	file_to_lines(A, market_filename.c_str(), 0);
+	// double time = time_it(1,
+	file_to_lines(A, market_filename, 0);
+	// );
+	// printf("t_read = %lf\n", time);
 	lines = A->atoms;
-
-	// std::ifstream ifs;
-	// ifs.open(market_filename.c_str(), std::ifstream::in);
-	// if (!ifs.good())
-		// error("Error opening file\n");
 
 	i = 0;
 
@@ -86,17 +66,14 @@ void create_coo_matrix(const std::string & market_filename,
 	// Problem description
 	INT_T nparsed = sscanf(lines[i], "%d %d %d", &nr_rows, &nr_cols, &num_lines);
 	nr_nnzs = num_lines;
-	// std::cout << "rows " << nr_rows << ", cols " << nr_cols << ", nnz " << num_lines << "\n";
+	// printf("rows %ld, cols %ld, nnz %ld\n", nr_rows, nr_cols, nr_nnzs);
 	if ((!array) && (nparsed == 3))
 	{
 		if (symmetric)
 			nr_nnzs *= 2;
-		// V = (ValueType *) aligned_alloc(64, nr_nnzs * sizeof(ValueType));
-		V = (ValueType *) malloc(nr_nnzs * sizeof(ValueType));
-		// R = (INT_T *) aligned_alloc(64, nr_nnzs * sizeof(INT_T));
-		R = (INT_T *) malloc(nr_nnzs * sizeof(INT_T));
-		// C = (INT_T *) aligned_alloc(64, nr_nnzs * sizeof(INT_T));
-		C = (INT_T *) malloc(nr_nnzs * sizeof(INT_T));
+		V = (double *) aligned_alloc(64, nr_nnzs * sizeof(double));
+		R = (INT_T *) aligned_alloc(64, nr_nnzs * sizeof(INT_T));
+		C = (INT_T *) aligned_alloc(64, nr_nnzs * sizeof(INT_T));
 	}
 	else
 		error("Error parsing MARKET matrix: invalid problem description: %s\n", lines[i]);
@@ -112,11 +89,13 @@ void create_coo_matrix(const std::string & market_filename,
 		long i, i_s, i_e, j;
 		long non_diag = 0;
 		INT_T row=1, col=1;
-		ValueType val=1.0;
+		double val=1.0;
 		char * l, * t;
+		// double time;
 
 		loop_partitioner_balance_iterations(num_threads, tnum, 0, num_lines, &i_s, &i_e);
 
+		// time = time_it(1,
 		// Parse nonzero (note: using strtol and strtod is 2x faster than sscanf or istream parsing)
 		for (i=i_s;i<i_e;i++)
 		{
@@ -139,13 +118,14 @@ void create_coo_matrix(const std::string & market_filename,
 			R[i] = row - 1;
 			C[i] = col-1;
 			V[i] = val;
-			// if((tnum == 0) && (i<15)){
-			// 	printf("tnum = %d\t%d\tR = %d, C = %d, V = %lf\n", tnum, i, R[i], C[i], V[i]);
-			// }
 			if (symmetric && (row != col))
 				non_diag++;
 		}
+		// );
+		// if (tnum == 0)
+			// printf("t1 = %lf\n", time);
 
+		// time = time_it(1,
 		if (symmetric)
 		{
 			__atomic_fetch_add(&non_diag_total, non_diag, __ATOMIC_RELAXED);
@@ -164,7 +144,7 @@ void create_coo_matrix(const std::string & market_filename,
 					offsets[i] = a;
 					a += tmp;
 				}
-				// std::cout << "rows " << nr_rows << ", cols " << nr_cols << ", nnz " << nr_nnzs << "\n";
+				// printf("rows %ld, cols %ld, nnz %ld\n", nr_rows, nr_cols, nr_nnzs);
 			}
 
 			_Pragma("omp barrier")
@@ -181,6 +161,9 @@ void create_coo_matrix(const std::string & market_filename,
 				}
 			}
 		}
+		// );
+		// if (tnum == 0)
+			// printf("t2 = %lf\n", time);
 	}
 
 	*V_out = V;

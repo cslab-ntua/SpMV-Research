@@ -10,24 +10,31 @@
 #include <unistd.h>
 
 #include "spmv_bench_common.h"
-#include "read_mtx.h"
 
 #ifdef __cplusplus
 extern "C"{
 #endif
+
 	#include "macros/cpp_defines.h"
 	#include "macros/macrolib.h"
 	#include "time_it.h"
 	#include "parallel_util.h"
 	#include "pthread_functions.h"
 	#include "matrix_util.h"
+	#include "array_metrics.h"
 
 	#include "string_util.h"
+	#include "io.h"
 	#include "parallel_io.h"
-	#include "file_formats/openfoam/openfoam_matrix.h"
-	#include "aux/csr_converter.h"
+	#include "storage_formats/matrix_market/matrix_market.h"
+	#include "storage_formats/openfoam/openfoam_matrix.h"
+	#include "read_mtx.h"
 
-	#include "monitoring/power/rapl_arm.h"
+	#include "aux/csr_converter_double.h"
+
+	#include "aux/csr_util.h"
+
+	// #include "monitoring/power/rapl.h"
 
 	#include "artificial_matrix_generation.h"
 
@@ -38,49 +45,18 @@ extern "C"{
 #include "spmv_kernel.h"
 
 
-// #define VERBOSE
-// #define PER_THREAD_STATS
-
-#if !defined(USE_CUSTOM_CSR)
-	#undef PER_THREAD_STATS
-#endif
-
 #ifndef BLOCK_SIZE
 	#define BLOCK_SIZE  64
 #endif
 
 
-extern INT_T * thread_i_s;
-extern INT_T * thread_i_e;
-
-extern INT_T * thread_j_s;
-extern INT_T * thread_j_e;
-
-extern ValueType * thread_v_s;
-extern ValueType * thread_v_e;
-
 int prefetch_distance = 8;
 
-
-double * thread_time_compute, * thread_time_barrier;
 
 int num_procs;
 int process_custom_id;
 
-
-ValueType * mtx_val;
-INT_T * mtx_rowind;
-INT_T * mtx_colind;
-INT_T mtx_m;
-INT_T mtx_n;
-INT_T mtx_nnz;
-
-ValueType * csr_a; // values (of size NNZ)
-INT_T * csr_ia;    // rowptr (of size m+1)
-INT_T * csr_ja;    // colidx of each NNZ (of size nnz)
-INT_T csr_m;
-INT_T csr_n;
-INT_T csr_nnz;
+long num_loops_out;
 
 
 // Utils macro
@@ -88,283 +64,449 @@ INT_T csr_nnz;
 #define Max(x,y) ((x)>(y)?(x):(y))
 #define Abs(x) ((x)>(0)?(x):-(x))
 
-/** Simply return the max relative diff */
-void
-CheckAccuracy(ValueType * val, INT_T * rowind, INT_T * colind, INT_T m, INT_T nnz, ValueType * x, ValueType * y)
+
+// #define ReferenceType  double
+// #define ReferenceType  long double
+// #define ReferenceType  __float128
+#define ReferenceType  _Float128
+
+/* ldoor, mkl_ie, 8 threads:
+ *     ValueType | ReferenceType       | Errors
+ *     double    | double              | errors spmv: mae=2.0679e-10, max_ae=7.45058e-08, mse=1.11396e-18, mape=3.7028e-17, smape=1.8514e-17
+ *     double    | double + kahan      | errors spmv: mae=1.20597e-10, max_ae=4.47035e-08, mse=3.30276e-19, mape=2.11222e-17, smape=1.05611e-17
+ *     double    | long double         | errors spmv: mae=1.11432e-10, max_ae=4.47035e-08, mse=3.05508e-19, mape=1.14059e-17, smape=5.70295e-18
+ *     double    | long double + kahan | errors spmv: mae=1.11426e-10, max_ae=4.47035e-08, mse=3.05491e-19, mape=1.14059e-17, smape=5.70295e-18
+ *     double    | __float128          | errors spmv: mae=1.11425e-10, max_ae=4.47035e-08, mse=3.05482e-19, mape=1.14059e-17, smape=5.70295e-18
+ *     double    | __float128 + kahan  | errors spmv: mae=1.11425e-10, max_ae=4.47035e-08, mse=3.05482e-19, mape=1.14059e-17, smape=5.70295e-18
+ *
+ *     double    | double              | errors spmv: mae=2.01305e-10, max_ae=7.45058e-08, mse=1.04495e-18, mape=6.95171e-17, smape=3.47585e-17
+ *     double    | double + kahan:     | errors spmv: mae=1.47387e-10, max_ae=5.96046e-08, mse=5.21976e-19, mape=5.22525e-17, smape=2.61262e-17
+ *     double    | __float128          | errors spmv: mae=1.39996e-10, max_ae=5.96046e-08, mse=4.99829e-19, mape=4.049e-17, smape=2.0245e-17
+ *     double    | __float128 + kahan  | errors spmv: mae=1.39996e-10, max_ae=5.96046e-08, mse=4.99829e-19, mape=4.049e-17, smape=2.0245e-17
+ *
+ *     float     | double              | errors spmv: mae=0.0628685, max_ae=21.1667, mse=0.0826114, mape=1.63995e-08, smape=8.20012e-09
+ *     float     | long double         | errors spmv: mae=0.0628685, max_ae=21.1667, mse=0.0826114, mape=1.63995e-08, smape=8.20012e-09
+ *     float     | __float128          | errors spmv: mae=0.0628685, max_ae=21.1667, mse=0.0826114, mape=1.63995e-08, smape=8.20012e-09
+ */
+
+static inline
+double
+reference_to_double(void * A, long i)
 {
+	return (double) ((ReferenceType *) A)[i];
+}
+
+
+long
+check_accuracy_labels(char * buf, long buf_n)
+{
+	long len = 0;
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_mae");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_max_ae");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_mse");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_mape");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_smape");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_lnQ_error");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_mlare");
+	len += snprintf(buf + len, buf_n - len, ",%s", "spmv_gmare");
+	return len;
+}
+
+long
+check_accuracy(char * buf, long buf_n, INT_T * csr_ia, INT_T * csr_ja, double * csr_a_ref, INT_T csr_m, __attribute__((unused)) INT_T csr_n, __attribute__((unused)) INT_T csr_nnz, double * x_ref, ValueType * y)
+{
+	__attribute__((unused)) ReferenceType epsilon_relaxed = 1e-4;
 	#if DOUBLE == 0
-		ValueType epsilon = 1e-7;
+		ReferenceType epsilon = 1e-7;
 	#elif DOUBLE == 1
-		ValueType epsilon = 1e-10;
+		ReferenceType epsilon = 1e-10;
 	#endif
-	int i, j;
-	// ValueType val, tmp;
-	// ValueType* kahan = new ValueType[m * sizeof(*kahan)];
-	ValueType* y_gold = new ValueType[m * sizeof(*y_gold)];
-	for(i=0;i<m;i++)
+	long i;
+	ReferenceType * y_gold = (typeof(y_gold)) malloc(csr_m * sizeof(*y_gold));
+	ReferenceType * y_test = (typeof(y_test)) malloc(csr_m * sizeof(*y_test));
+	#pragma omp parallel
 	{
-		// kahan[i] = 0;
-		y_gold[i] = 0;
-	}
-	for (INT_T curr_nnz = 0; curr_nnz < nnz; ++curr_nnz)
-	{
-		i = rowind[curr_nnz];
-		j = colind[curr_nnz];
-		y_gold[i] += x[j] * val[curr_nnz];
-		// val = x[j] * val[curr_nnz] - kahan[i];
-		// tmp = y_gold[i] + val;
-		// kahan[i] = (tmp - y_gold[i]) - val;
-		// y_gold[i] = tmp;
-	}
-	ValueType maxDiff = 0;
-	// int cnt=0;
-	for(int idx = 0 ; idx < m ; idx++)
-	{
-		maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
-		// std::cout << idx << ": " << y_gold[idx]-y[idx] << "\n";
-		if (y_gold[idx] != 0.0)
+		ReferenceType sum;
+		long i, j;
+		#pragma omp for
+		for(i=0;i<csr_m;i++)
 		{
-			// if (Abs((y_gold[idx]-y[idx])/y_gold[idx]) > epsilon)
-				// printf("Error: %g != %g , diff=%g , diff_frac=%g\n", y_gold[idx], y[idx], Abs(y_gold[idx]-y[idx]), Abs((y_gold[idx]-y[idx])/y_gold[idx]));
-			// maxDiff = Max(maxDiff, Abs((y_gold[idx]-y[idx])/y_gold[idx]));
-			maxDiff = Max(maxDiff, Abs(y_gold[idx]-y[idx]));
+			y_gold[i] = 0;
+			y_test[i] = y[i];
+		}
+		#pragma omp for
+		for (i=0;i<csr_m;i++)
+		{
+			ReferenceType val, tmp, compensation;
+			compensation = 0;
+			sum = 0;
+			for (j=csr_ia[i];j<csr_ia[i+1];j++)
+			{
+
+				// sum += csr_a_ref[j] * x_ref[csr_ja[j]];
+
+				val = csr_a_ref[j] * x_ref[csr_ja[j]] - compensation;
+				tmp = sum + val;
+				compensation = (tmp - sum) - val;
+				sum = tmp;
+
+			}
+			y_gold[i] = sum;
 		}
 	}
-	if(maxDiff>epsilon)
-		std::cout << "Test failed! (" << maxDiff << ")\n";
-	delete[] y_gold;
+
+	ReferenceType maxDiff = 0, diff;
+	// int cnt=0;
+	for(i=0;i<csr_m;i++)
+	{
+		diff = Abs(y_gold[i] - y_test[i]);
+		// maxDiff = Max(maxDiff, diff);
+		if (y_gold[i] > epsilon)
+		{
+			diff = diff / abs(y_gold[i]);
+			maxDiff = Max(maxDiff, diff);
+		}
+		// if (diff > epsilon_relaxed)
+		// 	printf("error: i=%ld/%d , a=%.10g f=%.10g\n", i, csr_m-1, (double) y_gold[i], (double) y_test[i]);
+		// if(i<5)
+		// 	printf("y_gold[%ld] = %.4lf, y_test[%ld] = %.4lf\n", i, (double)y_gold[i], i, (double)y_test[i]);
+		// std::cout << i << ": " << y_gold[i]-y_test[i] << "\n";
+		// if (y_gold[i] != 0.0)
+		// {
+			// if (Abs((y_gold[i]-y_test[i])/y_gold[i]) > epsilon)
+				// printf("Error: %g != %g , diff=%g , diff_frac=%g\n", y_gold[i], y_test[i], Abs(y_gold[i]-y_test[i]), Abs((y_gold[i]-y_test[i])/y_gold[i]));
+			// maxDiff = Max(maxDiff, Abs((y_gold[i]-y_test[i])/y_gold[i]));
+			// maxDiff = Max(maxDiff, Abs(y_gold[i]-y_test[i]));
+		// }
+	}
+	if(maxDiff > epsilon)
+		printf("Test failed! (%g)\n", reference_to_double(&maxDiff, 0));
+	long len = 0;
+	#pragma omp parallel
+	{
+		double mae, max_ae, mse, mape, smape;
+		double lnQ_error, mlare, gmare;
+		array_mae_concurrent(y_gold, y_test, csr_m, &mae, reference_to_double);
+		array_max_ae_concurrent(y_gold, y_test, csr_m, &max_ae, reference_to_double);
+		array_mse_concurrent(y_gold, y_test, csr_m, &mse, reference_to_double);
+		array_mape_concurrent(y_gold, y_test, csr_m, &mape, reference_to_double);
+		array_smape_concurrent(y_gold, y_test, csr_m, &smape, reference_to_double);
+		array_lnQ_error_concurrent(y_gold, y_test, csr_m, &lnQ_error, reference_to_double);
+		array_mlare_concurrent(y_gold, y_test, csr_m, &mlare, reference_to_double);
+		array_gmare_concurrent(y_gold, y_test, csr_m, &gmare, reference_to_double);
+		#pragma omp single
+		{
+			printf("errors spmv: mae=%g, max_ae=%g, mse=%g, mape=%g, smape=%g, lnQ_error=%g, mlare=%g, gmare=%g\n", mae, max_ae, mse, mape, smape, lnQ_error, mlare, gmare);
+			len += snprintf(buf + len, buf_n - len, ",%g", mae);
+			len += snprintf(buf + len, buf_n - len, ",%g", max_ae);
+			len += snprintf(buf + len, buf_n - len, ",%g", mse);
+			len += snprintf(buf + len, buf_n - len, ",%g", mape);
+			len += snprintf(buf + len, buf_n - len, ",%g", smape);
+			len += snprintf(buf + len, buf_n - len, ",%g", lnQ_error);
+			len += snprintf(buf + len, buf_n - len, ",%g", mlare);
+			len += snprintf(buf + len, buf_n - len, ",%g", gmare);
+		}
+	}
+	free(y_gold);
+	free(y_test);
+	return len;
 }
 
 
 int
-is_directory(const char *path)
+get_pinning_position_from_affinity_string(const char * range_string, long len, int target_pos)
 {
-    struct stat stats;
-    stat(path, &stats);
-    // Check for file existence
-    if (S_ISDIR(stats.st_mode))
-        return 1;
-    return 0;
+	long pos = 0;
+	int aff = -1;
+	int n1, n2;
+	long i;
+	for (i=0;i<len;)
+	{
+		n1 = atoi(&range_string[i]);
+		if (pos == target_pos)
+		{
+			aff = n1;
+			break;
+		}
+		while ((i < len) && (range_string[i] != ',') && (range_string[i] != '-'))
+			i++;
+		if (i+1 >= len)
+			break;
+		if (range_string[i] == ',')
+		{
+			pos++;
+			i++;
+		}
+		else
+		{
+			i++;
+			n2 = atoi(&range_string[i]);
+			if (n2 < n1)
+				error("Bad affinity string format.");
+			if (pos + n2 - n1 >= target_pos)
+			{
+				aff = n1 + target_pos - pos;
+				break;
+			}
+			pos += n2 - n1 + 1;
+			while ((i < len) && (range_string[i] != ','))
+				i++;
+			i++;
+			if (i >= len)
+				break;
+		}
+	}
+	if (aff < 0)
+		error("Bad affinity string format.");
+	return aff;
 }
 
 
 void
-compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueType * x, ValueType * y, const int loop = 128)
+compute(char * matrix_name,
+		__attribute__((unused)) INT_T * csr_ia, __attribute__((unused)) INT_T * csr_ja, __attribute__((unused)) ValueType * csr_a, double * csr_a_ref, INT_T csr_m, INT_T csr_n, INT_T csr_nnz,
+		struct Matrix_Format * MF,
+		csr_matrix * AM,
+		ValueType * x, double * x_ref, ValueType * y,
+		long min_num_loops,
+		long print_labels)
 {
-	__attribute__((unused)) int num_threads = omp_get_max_threads();
+	int num_threads = omp_get_max_threads();
+	int use_processes = atoi(getenv("USE_PROCESSES"));
+	long num_loops;
 	double gflops;
 	__attribute__((unused)) double time, time_warm_up, time_after_warm_up;
 	long buf_n = 10000;
-	char buf[buf_n];
-	long i;
+	char buf[buf_n + 1];
+	long i, j;
+	double J_estimated, W_avg;
+	int use_artificial_matrices = atoi(getenv("USE_ARTIFICIAL_MATRICES"));
 
-	#if defined(PER_THREAD_STATS)
-		thread_time_barrier = (double *) malloc(num_threads * sizeof(*thread_time_barrier));
-		thread_time_compute = (double *) malloc(num_threads * sizeof(*thread_time_compute));
-		for (i=0;i<num_threads;i++)
-		{
-			long rows, nnz;
-			INT_T i_s, i_e, j_s, j_e;
-			i_s = thread_i_s[i];
-			i_e = thread_i_e[i];
-			j_s = thread_j_s[i];
-			j_e = thread_j_e[i];
-			rows = i_e - i_s;
-			nnz = csr_ia[i_e] - csr_ia[i_s];
-			printf("%ld: rows=[%d(%d), %d(%d)]:%ld(%ld), nnz=[%d, %d]:%d\n", i, i_s, csr_ia[i_s], i_e, csr_ia[i_e], rows, nnz, j_s, j_e, j_e-j_s);
-		}
-	#endif
-
-	// Warm up cpu.
-	volatile double warmup_total;
-	long A_warmup_n = (1<<20) * num_threads;
-	double * A_warmup;
-	time_warm_up = time_it(1,
-		A_warmup = (typeof(A_warmup)) malloc(A_warmup_n * sizeof(*A_warmup));
-		_Pragma("omp parallel for")
-		for (long i=0;i<A_warmup_n;i++)
-			A_warmup[i] = 0;
-		for (long j=0;j<16;j++)
-		{
-			_Pragma("omp parallel for")
-			for (long i=1;i<A_warmup_n;i++)
-			{
-				A_warmup[i] += A_warmup[i-1] * 7 + 3;
-			}
-		}
-		warmup_total = A_warmup[A_warmup_n];
-		free(A_warmup);
-	);
-	// fprintf(stderr, "time warm up %lf , n = %ld, total = %lf\n", time_warm_up, A_warmup_n, warmup_total);
-
-	// warm up caches
-	time_warm_up = time_it(1,
-		MF->spmv(x, y);
-	);
-
-	time_after_warm_up = time_it(1,
-		MF->spmv(x, y);
-	);
-
-	#if defined(PER_THREAD_STATS)
-		// Clear times after warmup.
-		for (i=0;i<num_threads;i++)
-		{
-			thread_time_compute[i] = 0;
-			thread_time_barrier[i] = 0;
-		}
-	#endif
-
-	#ifdef PROC_BENCH
-		raise(SIGSTOP);
-	#endif
-
-	/*****************************************************************************************/
-	struct RAPL_Register * regs;
-	long regs_n;
-	char * reg_ids;
-
-	reg_ids = NULL;
-	reg_ids = (char *) getenv("RAPL_REGISTERS"); // For Xeon(Gold1), these two are for package-0 and package-1E
-
-	rapl_open(reg_ids, &regs, &regs_n);
-	/*****************************************************************************************/
-
-	time = 0;
-	rapl_read_start(regs, regs_n);
-	for(int idxLoop = 0 ; idxLoop < loop ; ++idxLoop){
-
-		time += time_it(1,
-			MF->spmv(x, y);
-		);
-
-	}
-	rapl_read_end(regs, regs_n);
-
-	/*****************************************************************************************/
-	double J_estimated = 0;
-	for (int i=0;i<regs_n;i++){
-		// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
-		J_estimated += ((double) regs[i].uj_accum) / 1e6;
-	}
-	rapl_close(regs, regs_n);
-	free(regs);
-	double W_avg = J_estimated / time;
-	printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
-	/*****************************************************************************************/
-
-	//=============================================================================
-	//= Output section.
-	//=============================================================================
-
-	#if defined(PER_THREAD_STATS)
-		double iters_per_t[num_threads];
-		double nnz_per_t[num_threads];
-		__attribute__((unused)) double gflops_per_t[num_threads];
-		double iters_per_t_min, iters_per_t_max, iters_per_t_avg, iters_per_t_std, iters_per_t_balance;
-		double nnz_per_t_min, nnz_per_t_max, nnz_per_t_avg, nnz_per_t_std, nnz_per_t_balance;
-		__attribute__((unused)) double time_per_t_min, time_per_t_max, time_per_t_avg, time_per_t_std, time_per_t_balance;
-		__attribute__((unused)) double gflops_per_t_min, gflops_per_t_max, gflops_per_t_avg, gflops_per_t_std, gflops_per_t_balance;
-		long i_s, i_e;
-
-		for (i=0;i<num_threads;i++)
-		{
-			i_s = thread_i_s[i];
-			i_e = thread_i_e[i];
-			iters_per_t[i] = i_e - i_s;
-			// nnz_per_t[i] = &(csr_a[csr_ia[i_e]]) - &(csr_a[csr_ia[i_s]]);
-			nnz_per_t[i] = csr_ia[i_e] - csr_ia[i_s];
-			gflops_per_t[i] = nnz_per_t[i] / thread_time_compute[i] * loop * 2 * 1e-9;   // Calculate before making nnz_per_t a ratio.
-			iters_per_t[i] /= csr_m;    // As a fraction of m.
-			nnz_per_t[i] /= csr_nnz;    // As a fraction of nnz.
-		}
-
-		matrix_min_max(iters_per_t, num_threads, &iters_per_t_min, &iters_per_t_max);
-		iters_per_t_avg = matrix_mean(iters_per_t, num_threads);
-		iters_per_t_std = matrix_std_base(iters_per_t, num_threads, iters_per_t_avg);
-		iters_per_t_balance = iters_per_t_avg / iters_per_t_max;
-
-		matrix_min_max(nnz_per_t, num_threads, &nnz_per_t_min, &nnz_per_t_max);
-		nnz_per_t_avg = matrix_mean(nnz_per_t, num_threads);
-		nnz_per_t_std = matrix_std_base(nnz_per_t, num_threads, nnz_per_t_avg);
-		nnz_per_t_balance = nnz_per_t_avg / nnz_per_t_max;
-
-		matrix_min_max(thread_time_compute, num_threads, &time_per_t_min, &time_per_t_max);
-		time_per_t_avg = matrix_mean(thread_time_compute, num_threads);
-		time_per_t_std = matrix_std_base(thread_time_compute, num_threads, time_per_t_avg);
-		time_per_t_balance = time_per_t_avg / time_per_t_max;
-
-		matrix_min_max(gflops_per_t, num_threads, &gflops_per_t_min, &gflops_per_t_max);
-		gflops_per_t_avg = matrix_mean(gflops_per_t, num_threads);
-		gflops_per_t_std = matrix_std_base(gflops_per_t, num_threads, gflops_per_t_avg);
-		gflops_per_t_balance = gflops_per_t_avg / gflops_per_t_max;
-
-		printf("i:%g,%g,%g,%g,%g\n", iters_per_t_min, iters_per_t_max, iters_per_t_avg, iters_per_t_std, iters_per_t_balance);
-		printf("nnz:%g,%g,%g,%g,%g\n", nnz_per_t_min, nnz_per_t_max, nnz_per_t_avg, nnz_per_t_std, nnz_per_t_balance);
-		printf("time:%g,%g,%g,%g,%g\n", time_per_t_min, time_per_t_max, time_per_t_avg, time_per_t_std, time_per_t_balance);
-		printf("gflops:%g,%g,%g,%g,%g\n", gflops_per_t_min, gflops_per_t_max, gflops_per_t_avg, gflops_per_t_std, gflops_per_t_balance);
-		printf("tnum i_s i_e num_rows_frac nnz_frac\n");
-		for (i=0;i<num_threads;i++)
-		{
-			i_s = thread_i_s[i];
-			i_e = thread_i_e[i];
-			printf("%ld %ld %ld %g %g\n", i, i_s, i_e, iters_per_t[i], nnz_per_t[i]);
-		}
-		printf("tnum gflops compute barrier total barrier/compute%%\n");
-		for (i=0;i<num_threads;i++)
-		{
-			double time_compute, time_barrier, time_total, percent;
-			time_compute = thread_time_compute[i];
-			time_barrier = thread_time_barrier[i];
-			time_total = time_compute + time_barrier;
-			percent = time_barrier / time_compute * 100;
-			printf("%ld %g %g %g %g %g\n", i, gflops_per_t[i], time_compute, time_barrier, time_total, percent);
-		}
-	#endif
-
-	double csr_mem_footprint = csr_nnz * (sizeof(ValueType) + sizeof(INT_T)) + (csr_m+1) * sizeof(INT_T);
-	std::stringstream stream;
-	gflops = csr_nnz / time * loop * 2 * 1e-9;    // Use csr_nnz to be sure we have the initial nnz (there is no coo for artificial AM).
-
-	if (AM == NULL)
+	if (!print_labels)
 	{
+		// Warm up cpu.
+		__attribute__((unused)) volatile double warmup_total;
+		long A_warmup_n = (1<<20) * num_threads;
+		double * A_warmup;
+		time_warm_up = time_it(1,
+			A_warmup = (typeof(A_warmup)) malloc(A_warmup_n * sizeof(*A_warmup));
+			_Pragma("omp parallel for")
+			for (long i=0;i<A_warmup_n;i++)
+				A_warmup[i] = 0;
+			for (j=0;j<16;j++)
+			{
+				_Pragma("omp parallel for")
+				for (long i=1;i<A_warmup_n;i++)
+				{
+					A_warmup[i] += A_warmup[i-1] * 7 + 3;
+				}
+			}
+			warmup_total = A_warmup[A_warmup_n];
+			free(A_warmup);
+		);
+		printf("time warm up %lf\n", time_warm_up);
+
+		int gpu_kernel = atoi(getenv("GPU_KERNEL"));
+		if (gpu_kernel) {
+			time_warm_up = time_it(1,
+				for(int i=0;i<1000;i++)
+					MF->spmv(x, y);
+			);
+		}
+		else {
+			// Warm up caches.
+			time_warm_up = time_it(1,
+				MF->spmv(x, y);
+			);			
+		}
+
+		// /* Calculate number of loops so that the total running time is at least 1 second for stability reasons
+		// (some cpus show frequency inconsistencies when running times are too small). */
+		// long num_calc_loops_runs_1 = 5;
+		// long num_calc_loops_runs_2;
+		// time_after_warm_up = 0;
+		// time_after_warm_up += time_it(1,
+			// for (i=0;i<num_calc_loops_runs_1;i++)
+				// MF->spmv(x, y);
+		// );
+		// num_calc_loops_runs_2 = 0.1 / (time_after_warm_up / num_calc_loops_runs_1);
+		// if (num_calc_loops_runs_2 < 5)
+			// num_calc_loops_runs_2 = 5;
+		// time_after_warm_up += time_it(1,
+			// for (i=0;i<num_calc_loops_runs_2;i++)
+				// MF->spmv(x, y);
+		// );
+		// printf("time after warm up %lf\n", time_after_warm_up);
+		// num_loops = 1.0 / (time_after_warm_up / (num_calc_loops_runs_1 + num_calc_loops_runs_2));
+		// if (num_loops < min_num_loops)
+			// num_loops = min_num_loops;
+		// num_loops_out = num_loops;
+		// printf("number of loops = %ld\n", num_loops);
+
+		if (use_processes)
+			raise(SIGSTOP);
+
+		#ifdef PRINT_STATISTICS
+			MF->statistics_start();
+		#endif
+
+		/*****************************************************************************************/
+		// struct RAPL_Register * regs;
+		// long regs_n;
+		// char * reg_ids;
+
+		// reg_ids = NULL;
+		// reg_ids = (char *) getenv("RAPL_REGISTERS");
+
+		// rapl_open(reg_ids, &regs, &regs_n);
+		/*****************************************************************************************/
+
+		time = 0;
+		num_loops = 0;
+		while (time < 1.0 || num_loops < min_num_loops)
+		{
+			// rapl_read_start(regs, regs_n);
+
+			time += time_it(1,
+				MF->spmv(x, y);
+			);
+
+			// rapl_read_end(regs, regs_n);
+
+			num_loops++;
+		}
+		num_loops_out = num_loops;
+		printf("number of loops = %ld\n", num_loops);
+
+		/*****************************************************************************************/
+		J_estimated = 0;
+		// for (i=0;i<regs_n;i++){
+		// 	// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
+		// 	J_estimated += ((double) regs[i].uj_accum) / 1e6;
+		// }
+		// rapl_close(regs, regs_n);
+		// free(regs);
+		W_avg = J_estimated / time;
+		// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
+		/*****************************************************************************************/
+
+		//=============================================================================
+		//= Output section.
+		//=============================================================================
+
+		gflops = csr_nnz / time * num_loops * 2 * 1e-9;    // Use csr_nnz to be sure we have the initial nnz (there is no coo for artificial AM).
+		printf("GFLOPS = %lf (%s)\n", gflops, getenv("PROGG"));
+	}
+
+	if (!use_artificial_matrices)
+	{
+		if (print_labels)
+		{
+			i = 0;
+			i += snprintf(buf + i, buf_n - i, "%s", "matrix_name");
+			if (use_processes)
+			{
+				i += snprintf(buf + i, buf_n - i, ",%s", "num_procs");
+			}
+			else
+			{
+				i += snprintf(buf + i, buf_n - i, ",%s", "num_threads");
+			}
+			i += snprintf(buf + i, buf_n - i, ",%s", "csr_m");
+			i += snprintf(buf + i, buf_n - i, ",%s", "csr_n");
+			i += snprintf(buf + i, buf_n - i, ",%s", "csr_nnz");
+			i += snprintf(buf + i, buf_n - i, ",%s", "time");
+			i += snprintf(buf + i, buf_n - i, ",%s", "gflops");
+			i += snprintf(buf + i, buf_n - i, ",%s", "csr_mem_footprint");
+			i += snprintf(buf + i, buf_n - i, ",%s", "W_avg");
+			i += snprintf(buf + i, buf_n - i, ",%s", "J_estimated");
+			i += snprintf(buf + i, buf_n - i, ",%s", "format_name");
+			i += snprintf(buf + i, buf_n - i, ",%s", "m");
+			i += snprintf(buf + i, buf_n - i, ",%s", "n");
+			i += snprintf(buf + i, buf_n - i, ",%s", "nnz");
+			i += snprintf(buf + i, buf_n - i, ",%s", "mem_footprint");
+			i += snprintf(buf + i, buf_n - i, ",%s", "mem_ratio");
+			i += snprintf(buf + i, buf_n - i, ",%s", "num_loops");
+			i += check_accuracy_labels(buf + i, buf_n - i);
+			#ifdef PRINT_STATISTICS
+				i += statistics_print_labels(buf + i, buf_n - i);
+			#endif
+			buf[i] = '\0';
+			fprintf(stderr, "%s\n", buf);
+			return;
+		}
 		i = 0;
 		i += snprintf(buf + i, buf_n - i, "%s", matrix_name);
-		i += snprintf(buf + i, buf_n - i, ",%d", omp_get_max_threads());
+		if (use_processes)
+		{
+			i += snprintf(buf + i, buf_n - i, ",%d", num_procs);
+		}
+		else
+		{
+			i += snprintf(buf + i, buf_n - i, ",%d", omp_get_max_threads());
+		}
 		i += snprintf(buf + i, buf_n - i, ",%u", csr_m);
 		i += snprintf(buf + i, buf_n - i, ",%u", csr_n);
 		i += snprintf(buf + i, buf_n - i, ",%u", csr_nnz);
 		i += snprintf(buf + i, buf_n - i, ",%lf", time);
 		i += snprintf(buf + i, buf_n - i, ",%lf", gflops);
-		i += snprintf(buf + i, buf_n - i, ",%lf", csr_mem_footprint / (1024*1024));
+		i += snprintf(buf + i, buf_n - i, ",%lf", MF->csr_mem_footprint / (1024*1024));
 		i += snprintf(buf + i, buf_n - i, ",%lf", W_avg);
 		i += snprintf(buf + i, buf_n - i, ",%lf", J_estimated);
 		i += snprintf(buf + i, buf_n - i, ",%s", MF->format_name);
 		i += snprintf(buf + i, buf_n - i, ",%u", MF->m);
 		i += snprintf(buf + i, buf_n - i, ",%u", MF->n);
 		i += snprintf(buf + i, buf_n - i, ",%u", MF->nnz);
-		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint/(1024*1024));
-		#ifdef PER_THREAD_STATS
-			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_balance);
-			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_balance);
-			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_balance);
-			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_balance);
+		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / (1024*1024));
+		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / MF->csr_mem_footprint);
+		i += snprintf(buf + i, buf_n - i, ",%ld", num_loops);
+		i += check_accuracy(buf + i, buf_n - i, csr_ia, csr_ja, csr_a_ref, csr_m, csr_n, csr_nnz, x_ref, y);
+		#ifdef PRINT_STATISTICS
+			i += MF->statistics_print_data(buf + i, buf_n - i);
 		#endif
-		buf[i-1] = '\0';
+		buf[i] = '\0';
 		fprintf(stderr, "%s\n", buf);
-
-		CheckAccuracy(mtx_val, mtx_rowind, mtx_colind, mtx_m, mtx_nnz, x, y);
 	}
 	else
 	{
+		if (print_labels)
+		{
+			i = 0;
+			i += snprintf(buf + i, buf_n - i, "%s",  "matrix_name");
+			i += snprintf(buf + i, buf_n - i, ",%s", "distribution");
+			i += snprintf(buf + i, buf_n - i, ",%s", "placement");
+			i += snprintf(buf + i, buf_n - i, ",%s", "seed");
+			i += snprintf(buf + i, buf_n - i, ",%s", "nr_rows");
+			i += snprintf(buf + i, buf_n - i, ",%s", "nr_cols");
+			i += snprintf(buf + i, buf_n - i, ",%s", "nr_nzeros");
+			i += snprintf(buf + i, buf_n - i, ",%s", "density");
+			i += snprintf(buf + i, buf_n - i, ",%s", "mem_footprint");
+			i += snprintf(buf + i, buf_n - i, ",%s", "mem_range");
+			i += snprintf(buf + i, buf_n - i, ",%s", "avg_nnz_per_row");
+			i += snprintf(buf + i, buf_n - i, ",%s", "std_nnz_per_row");
+			i += snprintf(buf + i, buf_n - i, ",%s", "avg_bw");
+			i += snprintf(buf + i, buf_n - i, ",%s", "std_bw");
+			i += snprintf(buf + i, buf_n - i, ",%s", "avg_bw_scaled");
+			i += snprintf(buf + i, buf_n - i, ",%s", "std_bw_scaled");
+			i += snprintf(buf + i, buf_n - i, ",%s", "avg_sc");
+			i += snprintf(buf + i, buf_n - i, ",%s", "std_sc");
+			i += snprintf(buf + i, buf_n - i, ",%s", "avg_sc_scaled");
+			i += snprintf(buf + i, buf_n - i, ",%s", "std_sc_scaled");
+			i += snprintf(buf + i, buf_n - i, ",%s", "skew");
+			i += snprintf(buf + i, buf_n - i, ",%s", "avg_num_neighbours");
+			i += snprintf(buf + i, buf_n - i, ",%s", "cross_row_similarity");
+			i += snprintf(buf + i, buf_n - i, ",%s", "format_name");
+			i += snprintf(buf + i, buf_n - i, ",%s", "time");
+			i += snprintf(buf + i, buf_n - i, ",%s", "gflops");
+			i += snprintf(buf + i, buf_n - i, ",%s", "W_avg");
+			i += snprintf(buf + i, buf_n - i, ",%s", "J_estimated");
+			#ifdef PRINT_STATISTICS
+				i += statistics_print_labels(buf + i, buf_n - i);
+			#endif
+			buf[i] = '\0';
+			fprintf(stderr, "%s\n", buf);
+			return;
+		}
 		i = 0;
 		i += snprintf(buf + i, buf_n - i, "synthetic");
 		i += snprintf(buf + i, buf_n - i, ",%s" , AM->distribution);
@@ -394,46 +536,51 @@ compute(char * matrix_name, struct Matrix_Format * MF, csr_matrix * AM, ValueTyp
 		i += snprintf(buf + i, buf_n - i, ",%lf", gflops);
 		i += snprintf(buf + i, buf_n - i, ",%lf", W_avg);
 		i += snprintf(buf + i, buf_n - i, ",%lf", J_estimated);
-		#ifdef PER_THREAD_STATS
-			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", iters_per_t_balance);
-			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", nnz_per_t_balance);
-			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", time_per_t_balance);
-			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_avg);
-			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_std);
-			i += snprintf(buf + i, buf_n - i, ",%lf", gflops_per_t_balance);
+		#ifdef PRINT_STATISTICS
+			i += MF->statistics_print_data(buf + i, buf_n - i);
 		#endif
-		buf[i-1] = '\0';
+		buf[i] = '\0';
 		fprintf(stderr, "%s\n", buf);
 	}
-
-	#if defined(PER_THREAD_STATS)
-		free(thread_time_barrier);
-		free(thread_time_compute);
-	#endif
 }
 
 
 //==========================================================================================================================================
-//= main
+//= Main
 //==========================================================================================================================================
 
 int
 main(int argc, char **argv)
 {
 	__attribute__((unused)) int num_threads;
+
+	struct Matrix_Market * MTX;
+	double * mtx_val = NULL;
+	INT_T * mtx_rowind = NULL;
+	INT_T * mtx_colind = NULL;
+	INT_T mtx_m = 0;
+	INT_T mtx_n = 0;
+	INT_T mtx_nnz = 0;
+	double * x_ref;
+
+	double * csr_a_ref = NULL;
+
+	ValueType * csr_a = NULL; // values (of size NNZ)
+	INT_T * csr_ia = NULL;    // rowptr (of size m+1)
+	INT_T * csr_ja = NULL;    // colidx of each NNZ (of size nnz)
+	INT_T csr_m = 0;
+	INT_T csr_n = 0;
+	INT_T csr_nnz = 0;
+
 	struct Matrix_Format * MF;   // Real matrices.
 	csr_matrix * AM = NULL;
 	ValueType * x;
 	ValueType * y;
 	char matrix_name[1000];
 	__attribute__((unused)) double time;
-	long i;
+	__attribute__((unused)) long i, j;
+
+	int use_artificial_matrices = atoi(getenv("USE_ARTIFICIAL_MATRICES"));
 
 	// Wake omp up from eternal slumber.
 	#pragma omp parallel
@@ -442,60 +589,66 @@ main(int argc, char **argv)
 	}
 	printf("max threads %d\n", num_threads);
 
-	if (argc < 6)
+	// Just print the labels and exit.
+	if (argc == 1)
 	{
-		char * file_in;
-		i = 1;
-		#ifdef PROC_BENCH
-			num_procs = atoi(argv[i++]);
+		compute(NULL, NULL, NULL, NULL, NULL, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 1);
+		return 0;
+	}
 
-			pid_t pids[num_procs];
-			pid_t pid;
-			pthread_t tid;
-			int core;
-			long j;
-
-			for (j=0;j<num_procs;j++)
+	int use_processes = atoi(getenv("USE_PROCESSES"));
+	if (use_processes)
+	{
+		num_procs = atoi(getenv("NUM_PROCESSES"));
+		pid_t pids[num_procs];
+		pid_t pid;
+		pthread_t tid;
+		int core;
+		long j;
+		for (j=0;j<num_procs;j++)
+		{
+			pid = fork();
+			if (pid == -1)
+				error("fork");
+			if (pid == 0)
 			{
-				pid = fork();
-				if (pid == -1)
-					error("fork");
-				if (pid == 0)
-				{
-					process_custom_id = j;
-
-					core = process_custom_id;
-					// int max_cores = 128;
-					// int cores_per_numa_node = 16;
-					// int num_numa_nodes = max_cores / cores_per_numa_node;
-					// core = (j*cores_per_numa_node + j/num_numa_nodes) % max_cores;    // cycle numa nodes
-					// printf("%d -> %d\n", process_custom_id, core);
-
-					tid = pthread_self();
-					set_affinity(tid, core);
-					goto child_proc_label;
-				}
-				pids[j] = pid;
+				char * gomp_aff_str = getenv("GOMP_CPU_AFFINITY");
+				long len = strlen(gomp_aff_str);
+				long buf_n = 1000;
+				char buf[buf_n];
+				process_custom_id = j;
+				core = get_pinning_position_from_affinity_string(gomp_aff_str, len, j);
+				tid = pthread_self();
+				set_affinity(tid, core);
+				snprintf(buf, buf_n, "%d", core);             // Also set environment variables for other libraries that might try to change affinity themselves.
+				setenv("GOMP_CPU_AFFINITY", buf, 1);          // Setting 'XLSMPOPTS' has no effect after the program has started.
+				// printf("%ld: affinity=%d\n", j, core);
+				goto child_proc_label;
 			}
-			tid = pthread_self();
-			set_affinity(tid, 0);
-			for (j=0;j<num_procs;j++)
-				waitpid(-1, NULL, WUNTRACED);
-			for (j=0;j<num_procs;j++)
-				kill(pids[j], SIGCONT);
-			for (j=0;j<num_procs;j++)
-				waitpid(-1, NULL, WUNTRACED);
-			exit(0);
+			pids[j] = pid;
+		}
+		tid = pthread_self();
+		set_affinity(tid, 0);
+		for (j=0;j<num_procs;j++)
+			waitpid(-1, NULL, WUNTRACED);
+		for (j=0;j<num_procs;j++)
+			kill(pids[j], SIGCONT);
+		for (j=0;j<num_procs;j++)
+			waitpid(-1, NULL, WUNTRACED);
+		exit(0);
+	}
 
 child_proc_label:
 
-		#endif
-
+	if (!use_artificial_matrices)
+	{
+		char * file_in;
+		i = 1;
 		file_in = argv[i++];
 		snprintf(matrix_name, sizeof(matrix_name), "%s", file_in);
 
 		time = time_it(1,
-			if (is_directory(file_in))
+			if (stat_isdir(file_in))
 			{
 				int nnz_non_diag, N;
 				int * rowind, * colind;
@@ -503,10 +656,11 @@ child_proc_label:
 				mtx_m = N;
 				mtx_n = N;
 				mtx_nnz = N + nnz_non_diag;
-				mtx_rowind = (INT_T *) aligned_alloc(64, mtx_nnz * sizeof(INT_T));
-				mtx_colind = (INT_T *) aligned_alloc(64, mtx_nnz * sizeof(INT_T));
-				mtx_val = (ValueType *) aligned_alloc(64, mtx_nnz * sizeof(ValueType));
-				for (i=0;i<mtx_nnz;i++)
+				mtx_rowind = (typeof(mtx_rowind)) aligned_alloc(64, mtx_nnz * sizeof(*mtx_rowind));
+				mtx_colind = (typeof(mtx_colind)) aligned_alloc(64, mtx_nnz * sizeof(*mtx_colind));
+				mtx_val = (typeof(mtx_val)) aligned_alloc(64, mtx_nnz * sizeof(*mtx_val));
+				_Pragma("omp parallel for")
+				for (long i=0;i<mtx_nnz;i++)
 				{
 					mtx_rowind[i] = rowind[i];
 					mtx_colind[i] = colind[i];
@@ -516,28 +670,71 @@ child_proc_label:
 				free(colind);
 			}
 			else
-				create_coo_matrix(file_in, &mtx_val, &mtx_rowind, &mtx_colind, &mtx_m, &mtx_n, &mtx_nnz);
+			{
+				// create_coo_matrix(file_in, &mtx_val, &mtx_rowind, &mtx_colind, &mtx_m, &mtx_n, &mtx_nnz);
+				long expand_symmetry = 1;
+				long pattern_dummy_vals = 1;
+				MTX = mtx_read(file_in, expand_symmetry, pattern_dummy_vals);
+				mtx_rowind = MTX->R;
+				mtx_colind = MTX->C;
+				mtx_m = MTX->m;
+				mtx_n = MTX->n;
+				mtx_nnz = MTX->nnz;
+				if (!strcmp(MTX->field, "integer"))
+				{
+					mtx_val = (typeof(mtx_val)) malloc(mtx_nnz * sizeof(*mtx_val));
+					_Pragma("omp parallel for")
+					for (long i=0;i<mtx_nnz;i++)
+					{
+						mtx_val[i] = ((int *) MTX->V)[i];
+					}
+					free(MTX->V);
+					MTX->V = NULL;
+				}
+				else if (!strcmp(MTX->field, "complex"))
+				{
+					mtx_val = (typeof(mtx_val)) malloc(mtx_nnz * sizeof(*mtx_val));
+					_Pragma("omp parallel for")
+					for (long i=0;i<mtx_nnz;i++)
+					{
+						#if DOUBLE == 0
+							mtx_val[i] = cabsf(((complex ValueType *) MTX->V)[i]);
+						#else
+							mtx_val[i] = cabs(((complex ValueType *) MTX->V)[i]);
+						#endif
+					}
+					free(MTX->V);
+					MTX->V = NULL;
+				}
+				else
+					mtx_val = (double *) MTX->V;
+			}
 		);
 		printf("time read: %lf\n", time);
 		time = time_it(1,
-			csr_a = (ValueType *) aligned_alloc(64, (mtx_nnz + VECTOR_ELEM_NUM) * sizeof(ValueType));
-			csr_ja = (INT_T *) aligned_alloc(64, (mtx_nnz + VECTOR_ELEM_NUM) * sizeof(INT_T));
-			csr_ia = (INT_T *) aligned_alloc(64, (mtx_m+1 + VECTOR_ELEM_NUM) * sizeof(INT_T));
+			csr_a_ref = (typeof(csr_a_ref)) aligned_alloc(64, (mtx_nnz + VECTOR_ELEM_NUM) * sizeof(*csr_a_ref));
+			csr_a = (typeof(csr_a)) aligned_alloc(64, (mtx_nnz + VECTOR_ELEM_NUM) * sizeof(*csr_a));
+			csr_ja = (typeof(csr_ja)) aligned_alloc(64, (mtx_nnz + VECTOR_ELEM_NUM) * sizeof(*csr_ja));
+			csr_ia = (typeof(csr_ia)) aligned_alloc(64, (mtx_m+1 + VECTOR_ELEM_NUM) * sizeof(*csr_ia));
 			csr_m = mtx_m;
 			csr_n = mtx_n;
 			csr_nnz = mtx_nnz;
 			_Pragma("omp parallel for")
-			for (int i=0;i<mtx_nnz + VECTOR_ELEM_NUM;i++)
+			for (long i=0;i<mtx_nnz + VECTOR_ELEM_NUM;i++)
 			{
-				csr_a[i] = 0.0;
+				csr_a_ref[i] = 0.0;
 				csr_ja[i] = 0;
 			}
 			_Pragma("omp parallel for")
-			for (int i=0;i<mtx_m+1 + VECTOR_ELEM_NUM;i++)
+			for (long i=0;i<mtx_m+1 + VECTOR_ELEM_NUM;i++)
 				csr_ia[i] = 0;
-			coo_to_csr(mtx_rowind, mtx_colind, mtx_val, mtx_m, mtx_n, mtx_nnz, csr_ia, csr_ja, csr_a, 1);
+			coo_to_csr(mtx_rowind, mtx_colind, mtx_val, mtx_m, mtx_n, mtx_nnz, csr_ia, csr_ja, csr_a_ref, 1, 0);
+			_Pragma("omp parallel for")
+			for (long i=0;i<mtx_nnz + VECTOR_ELEM_NUM;i++)
+				csr_a[i] = (ValueType) csr_a_ref[i];
 		);
 		printf("time coo to csr: %lf\n", time);
+		mtx_destroy(&MTX);
 	}
 	else
 	{
@@ -562,9 +759,11 @@ child_proc_label:
 			avg_num_neighbours = atof(argv[i++]);
 			cross_row_similarity = atof(argv[i++]);
 			seed = atoi(argv[i++]);
-
 			AM = artificial_matrix_generation(nr_rows, nr_cols, avg_nnz_per_row, std_nnz_per_row, distribution, seed, placement, bw, skew, avg_num_neighbours, cross_row_similarity);
-
+			if (i < argc)
+				snprintf(matrix_name, sizeof(matrix_name), "%s_artificial", argv[i++]);
+			else
+				snprintf(matrix_name, sizeof(matrix_name), "%d_%d_%d_%g_%g_%g_%g", AM->nr_rows, AM->nr_cols, AM->nr_nzeros, AM->avg_bw, AM->std_bw, AM->avg_sc, AM->std_sc);
 		);
 		printf("time generate artificial matrix: %lf\n", time);
 
@@ -572,15 +771,15 @@ child_proc_label:
 		csr_n = AM->nr_cols;
 		csr_nnz = AM->nr_nzeros;
 
-		csr_ia = (INT_T *) aligned_alloc(64, (csr_m+1 + VECTOR_ELEM_NUM) * sizeof(INT_T));
+		csr_ia = (typeof(csr_ia)) aligned_alloc(64, (csr_m+1 + VECTOR_ELEM_NUM) * sizeof(*csr_ia));
 		#pragma omp parallel for
 		for (long i=0;i<csr_m+1;i++)
 			csr_ia[i] = AM->row_ptr[i];
 		free(AM->row_ptr);
 		AM->row_ptr = NULL;
 
-		csr_a = (ValueType *) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(ValueType));
-		csr_ja = (INT_T *) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(INT_T));
+		csr_a = (typeof(csr_a)) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(*csr_a));
+		csr_ja = (typeof(csr_ja)) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(*csr_ja));
 		#pragma omp parallel for
 		for (long i=0;i<csr_nnz;i++)
 		{
@@ -591,20 +790,22 @@ child_proc_label:
 		AM->values = NULL;
 		free(AM->col_ind);
 		AM->col_ind = NULL;
-
-		snprintf(matrix_name, sizeof(matrix_name), "'%d_%d_%d_%g_%g_%g_%g'", AM->nr_rows, AM->nr_cols, AM->nr_nzeros, AM->avg_bw, AM->std_bw, AM->avg_sc, AM->std_sc);
 	}
 
-	int dimMultipleBlock, dimMultipleBlock_y;
-	dimMultipleBlock = ((csr_m+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
-	dimMultipleBlock_y = ((csr_n+BLOCK_SIZE-1)/BLOCK_SIZE)*BLOCK_SIZE;
-	x = (ValueType *) aligned_alloc(64, dimMultipleBlock_y * sizeof(ValueType));
+	// for(int i=0;i<mtx_nnz;i++)
+	// 	csr_ja[i]=0;
+
+	x_ref = (typeof(x_ref)) aligned_alloc(64, csr_n * sizeof(*x_ref));
+	x = (typeof(x)) aligned_alloc(64, csr_n * sizeof(*x));
 	#pragma omp parallel for
-	for(int idx=0;idx<dimMultipleBlock_y;++idx)
-		x[idx] = 1.0;
-	y = (ValueType *) aligned_alloc(64, dimMultipleBlock * sizeof(ValueType));
+	for(int i=0;i<csr_n;++i)
+	{
+		x_ref[i] = 1.0;
+		x[i] = x_ref[i];
+	}
+	y = (typeof(y)) aligned_alloc(64, csr_m * sizeof(sizeof(*y)));
 	#pragma omp parallel for
-	for(long i=0;i<dimMultipleBlock;i++)
+	for(long i=0;i<csr_m;i++)
 		y[i] = 0.0;
 
 	#if 0
@@ -623,22 +824,102 @@ child_proc_label:
 			_Pragma("omp parallel for")
 			for (i=0;i<csr_nnz;i++)
 			{
-				// csr_ja[i] = 0;                      // idx0 - Remove X access pattern dependency.
+				csr_ja[i] = 0;                      // idx0 - Remove X access pattern dependency.
 				// csr_ja[i] = i % csr_n;              // idx_serial - Remove X access pattern dependency.
-				csr_ja[i] = i_s + (i % i_per_t);    // idx_t_local - Remove X access pattern dependency.
+				// csr_ja[i] = i_s + (i % i_per_t);    // idx_t_local - Remove X access pattern dependency.
 			}
 		}
 	#endif
 
-	MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
+	long buf_n = strlen(matrix_name) + 1 + 1000;
+	char buf[buf_n];
+	char * path, * filename, * filename_base;
+	str_path_split_path(matrix_name, strlen(matrix_name) + 1, buf, buf_n, &path, &filename);
+	path = strdup(path);
+	filename = strdup(filename);
+	str_path_split_ext(filename, strlen(filename) + 1, buf, buf_n, &filename_base, NULL);
+	filename_base = strdup(filename_base);
+	if (0)
+	{
+		long num_pixels = 1024;
+		long num_pixels_x = (csr_n < num_pixels) ? csr_n : num_pixels;
+		long num_pixels_y = (csr_m < num_pixels) ? csr_m : num_pixels;
+
+		printf("ploting : %s\n", filename_base);
+		csr_plot(filename_base, csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz, 0, num_pixels_x, num_pixels_y);
+		return 0;
+	}
+
+
+	long split_matrix = 0;
+	long nnz_per_row_cutoff = 50;
+
+	ValueType * gpu_csr_a = NULL;
+	INT_T * gpu_csr_ia = NULL;
+	INT_T * gpu_csr_ja = NULL;
+	INT_T gpu_csr_nnz = 0;
+	if (split_matrix)
+	{
+		long k;
+		long degree;
+		gpu_csr_ia = (typeof(gpu_csr_ia)) aligned_alloc(64, (csr_m+1 + VECTOR_ELEM_NUM) * sizeof(*gpu_csr_ia));
+		gpu_csr_a = (typeof(gpu_csr_a)) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(*gpu_csr_a));
+		gpu_csr_ja = (typeof(gpu_csr_ja)) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(*gpu_csr_ja));
+		k = 0;
+		gpu_csr_ia[0] = 0;
+		for (i=0;i<csr_m+1;i++)
+		{
+			degree = csr_ia[i+1] - csr_ia[i];
+			if (degree > nnz_per_row_cutoff)
+			{
+				for (j=csr_ia[i];j<csr_ia[i+1];j++,k++)
+				{
+					gpu_csr_ja[k] = csr_ja[j];
+					gpu_csr_a[k] = csr_a[j];
+				}
+				gpu_csr_ia[i+1] = k;
+			}
+			else
+			{
+				gpu_csr_ia[i+1] = gpu_csr_ia[i];
+			}
+		}
+		gpu_csr_nnz = k;
+		printf("GPU part nnz = %d (%.2lf%%)\n", gpu_csr_nnz, ((double) gpu_csr_nnz) / csr_nnz * 100);
+	}
+
+	time = time_it(1,
+		if (split_matrix)
+		{
+			MF = csr_to_format(gpu_csr_ia, gpu_csr_ja, gpu_csr_a, csr_m, csr_n, gpu_csr_nnz);
+		}
+		else
+		{
+			MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
+		}
+	);
+	printf("time convert to format: %lf\n", time);
+
+	long min_num_loops;
+	min_num_loops = 128;
 
 	prefetch_distance = 1;
 	time = time_it(1,
 		// for (i=0;i<5;i++)
 		{
-			// fprintf(stderr, "prefetch_distance = %d\n", prefetch_distance);
-			compute(matrix_name, MF, AM, x, y);
-			// compute(matrix_name, MF, AM, x, y, 128 * 10);
+			// printf("prefetch_distance = %d\n", prefetch_distance);
+			if (split_matrix)
+			{
+				compute(matrix_name,
+					gpu_csr_ia, gpu_csr_ja, gpu_csr_a, csr_a_ref, csr_m, csr_n, gpu_csr_nnz,
+					MF, AM, x, x_ref, y, min_num_loops, 0);
+			}
+			else
+			{
+				compute(matrix_name,
+					csr_ia, csr_ja, csr_a, csr_a_ref, csr_m, csr_n, csr_nnz,
+					MF, AM, x, x_ref, y, min_num_loops, 0);
+			}
 			prefetch_distance++;
 		}
 	);

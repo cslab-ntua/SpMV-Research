@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <omp.h>
-#include <x86intrin.h>
+#ifdef __x86_64__
+	#include <x86intrin.h>
+#endif
 
 #include "bitstream.h"
 

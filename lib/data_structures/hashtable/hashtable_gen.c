@@ -119,9 +119,13 @@ typedef HASHTABLE_GEN_TYPE_3  _TYPE_BS;
 static inline
 void hashtable_cpu_relax()
 {
-	// __asm volatile ("pause" : : : "memory");
-	__asm volatile ("rep; pause" : : : "memory");
-	// __asm volatile ("rep; nop" : : : "memory");
+	#ifdef __x86_64__
+		// __asm volatile ("pause" : : : "memory");
+		__asm volatile ("rep; pause" : : : "memory");
+		// __asm volatile ("rep; nop" : : : "memory");
+	#else
+		for (volatile int i = 0; i < 1000; ++i); // Adjust the loop count as needed
+	#endif
 }
 
 

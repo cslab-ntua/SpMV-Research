@@ -5,7 +5,10 @@ set -e
 
 export CUR_PATH=`pwd`
 export ROOT_DIR="<<Insert ROOT_DIR>>"
+# export ROOT_DIR=/local/pmpakos/ROOT_DIR/
+
 export ARMPL_CBLAS_PATH="<<Insert ARMPL_CBLAS_PATH>>"
+# export ARMPL_CBLAS_PATH="/local/pmpakos/arm-compiler/armpl-24.04.0_Ubuntu-22.04_gcc/"
 
 #==========================================================================================================================================
 # Install SELL-C-σ prerequisites
@@ -25,11 +28,12 @@ then
 	cd ../
 fi
 
-wget https://download.open-mpi.org/release/hwloc/v1.11/hwloc-1.11.13.tar.gz
-tar -xf hwloc-1.11.13.tar.gz
-rm hwloc-1.11.13.tar.gz
-cd hwloc-1.11.13
-export HW_LOC_DIR="$ROOT_DIR"/hwloc-1.11.13/build
+wget https://download.open-mpi.org/release/hwloc/v2.10/hwloc-2.10.0.tar.gz
+tar -xf hwloc-2.10.0.tar.gz
+rm hwloc-2.10.0.tar.gz
+cd hwloc-2.10.0
+export HW_LOC_DIR="$ROOT_DIR"/hwloc-2.10.0/build
+
 ./configure --prefix="$HW_LOC_DIR"
 make -j
 make install
@@ -96,7 +100,8 @@ mv CMakeLists2.txt CMakeLists.txt
 
 # 5) in "src/machine.c" delete all code of "ghost_machine_alignment" function calling "cpuid" function (leave only flags set to False and alignment variable set)
 # sed 's/#include <cpuid.h>/#include \"cpuid.h\"/; 341,393d' src/machine.c > src/machine2.c
-sed 's/#include <cpuid.h>//; 341,393d' src/machine.c > src/machine2.c
+# sed 's/#include <cpuid.h>//; 341,393d' src/machine.c > src/machine2.c
+sed 's/#include <cpuid.h>//; 346,398d' src/machine.c > src/machine2.c
 mv src/machine2.c src/machine.c
 
 # 6) in "src/gemm.c" file, place all cblas calls in comments (where "BLAS_CALL_GOTO" function calls occur)
@@ -104,8 +109,8 @@ sed '385,406d' src/gemm.c > src/gemm2.c
 mv src/gemm2.c src/gemm.c
 
 # In "ghost" root directory, create two folders, build and objdir
-mkdir build
-mkdir objdir
+mkdir -p build
+mkdir -p objdir
 
 # Change directory to objdir
 cd objdir
@@ -144,8 +149,8 @@ sed '339,345d; 375,377d' matfuncs/SpinChainSZ.c > matfuncs/SpinChainSZ2.c
 mv matfuncs/SpinChainSZ2.c matfuncs/SpinChainSZ.c
 
 # In "physics" root directory, create two folders, build and objdir
-mkdir build
-mkdir objdir
+mkdir -p build
+mkdir -p objdir
 
 # Change directory to objdir
 cd objdir
@@ -176,7 +181,7 @@ mv common/essexamples2.c common/essexamples.c
 sed '/essexamples_create_matrix_ft/d' common/essexamples.h > common/essexamples2.h
 mv common/essexamples2.h common/essexamples.h
 
-mkdir build
+mkdir -p build
 cd build
 
 cmake .. -DCMAKE_INSTALL_PREFIX="$GHOST_APPS_DIR" -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
@@ -186,10 +191,10 @@ make -j20
 # Finale
 #==========================================================================================================================================
 # now go back to benchmark for CPUs path, and build sell-C-s
-cd "$CUR_PATH"/spmv_code_sell-C-s/
-mkdir build
+cd "$CUR_PATH"/spmv_code_bench/sell-C-s/
+mkdir -p build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX="$CUR_PATH"/spmv_code_sell-C-s/build -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
+cmake .. -DCMAKE_INSTALL_PREFIX="$CUR_PATH"/spmv_code_bench/sell-C-s/build -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
 
 # replace placeholders with correct paths and compile sell-C-s
 sed  "s|<<ROOT_DIR>>|${ROOT_DIR}|g;" ../link.txt > ./link.txt
@@ -199,4 +204,4 @@ sed  "s|<<CMAKE_DIR>>/bin/cmake|${CMAKE_DIR}/bin/cmake|g" ../build.make > ./buil
 mv build.make ./spmvbench/CMakeFiles/spmvbench.dir
 
 make -j
-cd ../../
+cd ../../../

@@ -668,9 +668,13 @@ struct CsrMatrix
         num_nonzeros    = coo_matrix.num_nonzeros;
 
         // Sort by rows, then columns
-        if (verbose) printf("Ordering..."); fflush(stdout);
+        if (verbose)
+		printf("Ordering...");
+	fflush(stdout);
         std::stable_sort(coo_matrix.coo_tuples, coo_matrix.coo_tuples + num_nonzeros, CooComparator());
-        if (verbose) printf("done."); fflush(stdout);
+        if (verbose)
+		printf("done.");
+	fflush(stdout);
 
         /* if (IsNumaMalloc())
         {
@@ -685,7 +689,7 @@ struct CsrMatrix
             else
                 values          = (ValueT*) numa_alloc_onnode(sizeof(ValueT) * num_nonzeros, 0);
             // values          = (ValueT*) numa_alloc_onnode(sizeof(ValueT) * num_nonzeros, 0);
-        } 
+        }
         else */
         {
             //

@@ -18,22 +18,13 @@ extern "C"{
 #endif
 
 
-// extern INT_T * thread_i_s;
-// extern INT_T * thread_i_e;
-
-// extern INT_T * thread_j_s;
-// extern INT_T * thread_j_e;
-
-// extern ValueType * thread_v_s;
-// extern ValueType * thread_v_e;
-
-extern int prefetch_distance;
-
-
 struct New_Array : Matrix_Format
 {
+	INT_T * row_ptr;      // the usual rowptr (of size m+1)
+	INT_T * ja;      // the colidx of each NNZ (of size nnz)
+	ValueType * a;   // the values (of size NNZ)
 
-	New_Array(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	New_Array(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
 	{
 
 	}
@@ -44,6 +35,8 @@ struct New_Array : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	int statistics_print_data(char * buf, long buf_n);
 };
 
 void
@@ -58,3 +51,29 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 {
 
 }
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+New_Array::statistics_start()
+{
+}
+
+
+int
+statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
+}
+
+
+int
+SpV8_Array::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
+}
+

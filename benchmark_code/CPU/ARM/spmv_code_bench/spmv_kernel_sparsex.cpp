@@ -23,18 +23,24 @@ extern "C"{
 }
 #endif
 
+#undef binary_search
+#pragma push_macro("ValueType")
+#undef ValueType
+#include <sparsex/internals/CsxUtil.hpp>
+#pragma pop_macro("ValueType")
+
 
 struct CSXArrays : Matrix_Format
 {
 	spx_matrix_t * A;
 	spx_input_t * input;
 	spx_partition_t * parts;
-	INT_T * ia;      // the usual rowptr (of size m+1)
+	INT_T * row_ptr;      // the usual rowptr (of size m+1)
 	INT_T * ja;      // the colidx of each NNZ (of size nnz)
 	ValueType * a;   // the values (of size NNZ)
 	double time_create_vector;
 
-	CSXArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	CSXArrays(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
 	{
 		time_create_vector = 0;
 	}
@@ -49,6 +55,8 @@ struct CSXArrays : Matrix_Format
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void statistics_start();
+	int statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
 
 
@@ -107,6 +115,19 @@ CSXArrays::spmv(ValueType * x, ValueType * y)
 }
 
 
+/* Copied from sparsex/include/sparsex/matvec.c
+ * (not in a header file for some reason)
+ */
+struct matrix {
+  spx_index_t nrows, ncols, nnz;
+  int symmetric;              /**< Flag that indicates whether the symmetric
+				 version of CSX will be used */
+  spx_perm_t *permutation;    /**< The permutation, in case the matrix has
+				 been reordered */
+  void *csx;                  /**< The tuned matrix representation, i.e. the
+				 input matrix transformed to the CSX format */
+};
+
 struct Matrix_Format *
 csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
 {
@@ -153,9 +174,37 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	);
 	printf("time preprocessing: %g\n", time);
 
+	spm_mt_t *spm_mt = (spm_mt_t *) A->csx;
+	csx->mem_footprint = sparsex::csx::CsxSize<INT_T, ValueType>(spm_mt);
+
 	csx->A = A;
 	csx->input = input;
 	csx->parts = parts;
 	return csx;
+}
+
+
+//==========================================================================================================================================
+//= Print Statistics
+//==========================================================================================================================================
+
+
+void
+CSXArrays::statistics_start()
+{
+}
+
+
+int
+statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
+}
+
+
+int
+CSXArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+{
+	return 0;
 }
 
