@@ -7,8 +7,10 @@ export CUR_PATH=`pwd`
 export ROOT_DIR="<<Insert ROOT_DIR>>"
 # export ROOT_DIR=/various/pmpakos/icy3_libs
 # export ROOT_DIR=/various/pmpakos/epyc5_libs
+
 export MKL_PATH="<<Insert MKL_PATH>>"
 # export MKL_PATH=/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl
+# export MKL_PATH=/various/pmpakos/intel/oneapi/mkl/2024.1
 
 #==========================================================================================================================================
 # Install SELL-C-σ prerequisites
@@ -28,11 +30,11 @@ then
 	cd ../
 fi
 
-wget https://download.open-mpi.org/release/hwloc/v1.11/hwloc-1.11.13.tar.gz
-tar -xf hwloc-1.11.13.tar.gz
-rm hwloc-1.11.13.tar.gz
-cd hwloc-1.11.13
-export HW_LOC_DIR="$ROOT_DIR"/hwloc-1.11.13/build
+wget https://download.open-mpi.org/release/hwloc/v2.10/hwloc-2.10.0.tar.gz
+tar -xf hwloc-2.10.0.tar.gz
+rm hwloc-2.10.0.tar.gz
+cd hwloc-2.10.0
+export HW_LOC_DIR="$ROOT_DIR"/hwloc-2.10.0/build
 ./configure --prefix="$HW_LOC_DIR"
 make -j
 make install
@@ -85,8 +87,8 @@ sed 's/ghost_lidx n, ghost_gidx \*col, void \*val/ghost_lidx m, ghost_lidx n, gh
 mv include/ghost/sparsemat2.h include/ghost/sparsemat.h
 
 # In "ghost" root directory, create two folders, build and objdir
-mkdir build
-mkdir objdir
+mkdir -p build
+mkdir -p objdir
 
 # Change directory to objdir
 cd objdir
@@ -125,8 +127,8 @@ sed '339,345d; 375,377d' matfuncs/SpinChainSZ.c > matfuncs/SpinChainSZ2.c
 mv matfuncs/SpinChainSZ2.c matfuncs/SpinChainSZ.c
 
 # In "physics" root directory, create two folders, build and objdir
-mkdir build
-mkdir objdir
+mkdir -p build
+mkdir -p objdir
 
 # Change directory to objdir
 cd objdir
@@ -157,7 +159,7 @@ mv common/essexamples2.c common/essexamples.c
 sed '/essexamples_create_matrix_ft/d' common/essexamples.h > common/essexamples2.h
 mv common/essexamples2.h common/essexamples.h
 
-mkdir build
+mkdir -p build
 cd build
 
 cmake .. -DCMAKE_INSTALL_PREFIX="$GHOST_APPS_DIR" -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
@@ -167,13 +169,10 @@ make -j20
 # Finale
 #==========================================================================================================================================
 # now go back to benchmark for CPUs path, and build sell-C-s
-cp -r "$CUR_PATH"/spmv_code_sell-C-s/ "$ROOT_DIR"/spmv_code_sell-C-s/
-cp "$CUR_PATH"/config.sh "$ROOT_DIR"/config.sh
-cd "$ROOT_DIR"/spmv_code_sell-C-s/
-
-mkdir build
+cd "$CUR_PATH"/spmv_code_bench/sell-C-s/
+mkdir -p build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX="$ROOT_DIR"/spmv_code_sell-C-s/build -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
+cmake .. -DCMAKE_INSTALL_PREFIX="$CUR_PATH"/spmv_code_bench/sell-C-s/build -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
 
 # replace placeholders with correct paths and compile sell-C-s
 sed  "s|<<ROOT_DIR>>|${ROOT_DIR}|g; s|<<MKL_PATH>>|${MKL_PATH}|g" ../link.txt > ./link.txt
@@ -183,4 +182,4 @@ sed  "s|<<CMAKE_DIR>>/bin/cmake|${CMAKE_DIR}/bin/cmake|g" ../build.make > ./buil
 mv build.make ./spmvbench/CMakeFiles/spmvbench.dir
 
 make -j
-cd ../../
+cd ../../../

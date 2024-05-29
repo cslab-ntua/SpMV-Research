@@ -371,7 +371,8 @@ matrices_underperform_gpu=(
     # GL7d21.mtx
     # GL7d18.mtx
     # dgreen.mtx
-    kron_g500-logn18.mtx
+    # kron_g500-logn18.mtx
+    scircuit.mtx
     # wikipedia-20051105.mtx
     # kron_g500-logn21.mtx
     # kron_g500-logn20.mtx
@@ -458,7 +459,7 @@ bench()
                 # fi
                 # export GOMP_CPU_AFFINITY="${GOMP_CPU_AFFINITY_backup}"
             # elif [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
-            if [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
+            if [[ "$prog" == *"spmv_sell-C-s_d.exe"* ]]; then
                 if ((!USE_ARTIFICIAL_MATRICES)); then
                     "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1  2>'tmp.err'
                     ret="$?"

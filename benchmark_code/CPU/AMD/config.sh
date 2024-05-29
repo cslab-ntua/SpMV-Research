@@ -215,8 +215,8 @@ conf_vars=(
 
     # SELL-C-s ecosystem environment variables that have to be set
     # These are environment variables that have to be set for SELL-C-s to work
-    ['GHOST_ROOT_DIR']='/home/pmpakos/ESSEX'
-    ['GHOST_APPS_ROOT_DIR']='/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s'
+    ['GHOST_ROOT_DIR']='/various/pmpakos/epyc5_libs/'
+    ['GHOST_APPS_ROOT_DIR']=${script_dir}'/spmv_code_bench/sell-C-s'
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
@@ -382,7 +382,7 @@ progs=(
     # ['csr_cuda_const_nnz_per_thread_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nv_d.exe"
 
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d.exe"
-    ['csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d.exe"
 
@@ -487,8 +487,7 @@ progs=(
     # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge_d.exe"
 
     # sell C sigma
-    # ['sell_C_s_d']="${script_dir}/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s_d.exe"
-    # ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s_d.exe"
+    # ['sell_C_s_d']="${script_dir}/spmv_code_bench/sell-C-s/build/spmvbench/spmv_sell-C-s_d.exe"
 
     # sparsex
     # ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex_d.exe"

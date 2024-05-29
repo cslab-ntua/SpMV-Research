@@ -42,8 +42,7 @@ CPP="$gpp_bin"
 export CPP
 
 if [[ -d "${CUDA_PATH}/bin" ]]; then
-    # NVCC="${CUDA_PATH}/bin/nvcc -ccbin=${CC}"
-    NVCC="${CUDA_PATH}/bin/nvcc -ccbin=gcc"
+    NVCC="${CUDA_PATH}/bin/nvcc -ccbin=${CC}"
 else
     NVCC="nvcc -ccbin=${CC}"
 fi
