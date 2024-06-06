@@ -17,8 +17,8 @@
 
 
 // #define VECTOR_SIZE  16
-#define VECTOR_SIZE  32
-// #define VECTOR_SIZE  64
+// #define VECTOR_SIZE  32
+#define VECTOR_SIZE  64
 
 #ifndef __XLC__
 

@@ -487,43 +487,43 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 				gpuCudaErrorCheck(cudaEventElapsedTime(&create_vecY_time, csr->startEvent_create_vecY[i], csr->endEvent_create_vecY[i]));
 				gpuCudaErrorCheck(cudaEventElapsedTime(&spmv_buffersize_time, csr->startEvent_spmv_buffersize[i], csr->endEvent_spmv_buffersize[i]));
 				gpuCudaErrorCheck(cudaEventElapsedTime(&spmv_preprocess_time, csr->startEvent_spmv_preprocess[i], csr->endEvent_spmv_preprocess[i]));
-				printf("(CUDA) (stream %d) Create vecX time = %.4lf ms, vecY time = %.4lf ms, spmv_buffersize time = %.4lf (SpMV_bufferSize = %zu), spmv_preprocess time = %.4lf\n", i, create_vecX_time, create_vecY_time, spmv_buffersize_time, csr->bufferSize, spmv_preprocess_time);
+				printf("(CUDA) (stream %d) Create vecX time = %.4lf ms, vecY time = %.4lf ms, spmv_buffersize time = %.4lf (SpMV_bufferSize = %zu), spmv_preprocess time = %.4lf\n", i, create_vecX_time, create_vecY_time, spmv_buffersize_time, csr->bufferSize[i], spmv_preprocess_time);
 			}
 		}
 	}
 
-	if(TIME_IT2){
-		for(int i=0; i<csr->num_streams; i++)
-			gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution[i], csr->stream[i]));
-	}
+	// if(TIME_IT2){
+	// 	for(int i=0; i<csr->num_streams; i++)
+	// 		gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution[i], csr->stream[i]));
+	// }
 
 	for(int i=0; i<csr->num_streams; i++){
 		if(TIME_IT2){
 			gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution[i], csr->stream[i]));
 		}
 		gpuCusparseErrorCheck(cusparseSpMV(csr->handle[i], CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA[i], csr->vecX[i], &beta, csr->vecY[i], ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer[i]));
-		// if(TIME_IT2){
-		// 	gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution[i], csr->stream[i]));
-		// 	gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution[i]));
-		// 	float curr_execution_time;
-		// 	gpuCudaErrorCheck(cudaEventElapsedTime(&curr_execution_time, csr->startEvent_execution[i], csr->endEvent_execution[i]));
-		// 	csr->execution_time[i] += curr_execution_time;
-		// }
+		if(TIME_IT2){
+			gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution[i], csr->stream[i]));
+			gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution[i]));
+			float curr_execution_time;
+			gpuCudaErrorCheck(cudaEventElapsedTime(&curr_execution_time, csr->startEvent_execution[i], csr->endEvent_execution[i]));
+			csr->execution_time[i] += curr_execution_time;
+		}
 	}
 
 	gpuCudaErrorCheck(cudaPeekAtLastError());
 	for(int i=0; i<csr->num_streams; i++)
 		gpuCudaErrorCheck(cudaStreamSynchronize(csr->stream[i]));
 
-	if(TIME_IT2){
-		for(int i=0; i<csr->num_streams; i++){
-			gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution[i], csr->stream[i]));
-			gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution[i]));
-			float curr_execution_time;
-			gpuCudaErrorCheck(cudaEventElapsedTime(&curr_execution_time, csr->startEvent_execution[i], csr->endEvent_execution[i]));
-			csr->execution_time[i] += curr_execution_time;	
-		}
-	}
+	// if(TIME_IT2){
+	// 	for(int i=0; i<csr->num_streams; i++){
+	// 		gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution[i], csr->stream[i]));
+	// 		gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution[i]));
+	// 		float curr_execution_time;
+	// 		gpuCudaErrorCheck(cudaEventElapsedTime(&curr_execution_time, csr->startEvent_execution[i], csr->endEvent_execution[i]));
+	// 		csr->execution_time[i] += curr_execution_time;	
+	// 	}
+	// }
 	csr->iterations++;
 
 	if (csr->y == NULL)

@@ -37,7 +37,6 @@ export CPP
 
 if [[ -d "${CUDA_PATH}/bin" ]]; then
     NVCC="${CUDA_PATH}/bin/nvcc -ccbin=${CC}"
-    # NVCC="${CUDA_PATH}/bin/nvcc -ccbin=gcc"
 else
     NVCC="nvcc -ccbin=${CC}"
 fi
@@ -77,7 +76,9 @@ if [[ ${ARCH} == x86_64 ]]; then
 elif [[ ${ARCH} == ppc64le ]]; then
     CFLAGS+=" -mcpu=power9"
 else
+    # CFLAGS+=" -march=armv8.6-a+sve2" # NOTE: this may produce better results? wtf
     CFLAGS+=" -mcpu=native"
+    CFLAGS+=" -flax-vector-conversions"
 fi
 
 CFLAGS+=" -I'${library}'"
@@ -142,6 +143,9 @@ NVCCFLAGS+=" -allow-unsupported-compiler"
 NVCCFLAGS+=' -arch=sm_90' # GraceHopper H100
 NVCCFLAGS+=' -DPERSISTENT_L2_PREFETCH'
 # NVCCFLAGS+=' -lineinfo'
+# NVCCFLAGS+=' -G -g'
+# NVCCFLAGS+=' --ptxas-options=-v'
+
 export NUM_STREAMS=;export NUM_THREADS=;export ROW_CLUSTER_SIZE=;export BLOCK_SIZE=;export NNZ_PER_THREAD=;export MULTIBLOCK_SIZE=;
 
 export NVCCFLAGS
@@ -198,7 +202,7 @@ if ((${#targets_nv_d[@]} > 0)); then
     export CPPFLAGS="${CPPFLAGS_NV_D}"
     export SUFFIX='_nv_d'
     export TARGETS="${targets_nv_d[*]}"
-    export TIME_IT=0
+    export TIME_IT=1
     # make -f Makefile_in "$@"
     for target in $TARGETS; do
         echo $target

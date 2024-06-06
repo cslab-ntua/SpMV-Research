@@ -58,59 +58,59 @@ IFS="$IFS_buf"
 
 matrices_validation=(
 
-    # scircuit.mtx
-    # mac_econ_fwd500.mtx
-    # raefsky3.mtx
-    # rgg_n_2_17_s0.mtx
-    # bbmat.mtx
-    # appu.mtx
-    # conf5_4-8x8-15.mtx
-    # mc2depi.mtx
-    # rma10.mtx
-    # cop20k_A.mtx
-    # thermomech_dK.mtx
-    # webbase-1M.mtx
-    # cant.mtx
-    # ASIC_680k.mtx
-    # roadNet-TX.mtx
-    # pdb1HYS.mtx
-    # TSOPF_RS_b300_c3.mtx
-    # Chebyshev4.mtx
-    # consph.mtx
-    # com-Youtube.mtx
-    # rajat30.mtx
-    # radiation.mtx
-    # Stanford_Berkeley.mtx
-    # shipsec1.mtx
-    # PR02R.mtx
-    # CurlCurl_2.mtx
-    # gupta3.mtx
-    # mip1.mtx
-    # rail4284.mtx
-    # pwtk.mtx
-    # crankseg_2.mtx
-    # Si41Ge41H72.mtx
-    # TSOPF_RS_b2383.mtx
-    # in-2004.mtx
-    # Ga41As41H72.mtx
-    # eu-2005.mtx
-    # wikipedia-20051105.mtx
-    # kron_g500-logn18.mtx
-    # rajat31.mtx
-    # human_gene1.mtx
-    # delaunay_n22.mtx
-    # GL7d20.mtx
-    # sx-stackoverflow.mtx
-    # dgreen.mtx
-    # mawi_201512012345.mtx
-    # ldoor.mtx
-    # dielFilterV2real.mtx
-    # circuit5M.mtx
-    # soc-LiveJournal1.mtx
-    # bone010.mtx
-    # audikw_1.mtx
-    # cage15.mtx
-    # kmer_V2a.mtx
+    scircuit.mtx
+    mac_econ_fwd500.mtx
+    raefsky3.mtx
+    rgg_n_2_17_s0.mtx
+    bbmat.mtx
+    appu.mtx
+    conf5_4-8x8-15.mtx
+    mc2depi.mtx
+    rma10.mtx
+    cop20k_A.mtx
+    thermomech_dK.mtx
+    webbase-1M.mtx
+    cant.mtx
+    ASIC_680k.mtx
+    roadNet-TX.mtx
+    pdb1HYS.mtx
+    TSOPF_RS_b300_c3.mtx
+    Chebyshev4.mtx
+    consph.mtx
+    com-Youtube.mtx
+    rajat30.mtx
+    radiation.mtx
+    Stanford_Berkeley.mtx
+    shipsec1.mtx
+    PR02R.mtx
+    CurlCurl_2.mtx
+    gupta3.mtx
+    mip1.mtx
+    rail4284.mtx
+    pwtk.mtx
+    crankseg_2.mtx
+    Si41Ge41H72.mtx
+    TSOPF_RS_b2383.mtx
+    in-2004.mtx
+    Ga41As41H72.mtx
+    eu-2005.mtx
+    wikipedia-20051105.mtx
+    kron_g500-logn18.mtx
+    rajat31.mtx
+    human_gene1.mtx
+    delaunay_n22.mtx
+    GL7d20.mtx
+    sx-stackoverflow.mtx
+    dgreen.mtx
+    mawi_201512012345.mtx
+    ldoor.mtx
+    dielFilterV2real.mtx
+    circuit5M.mtx
+    soc-LiveJournal1.mtx
+    bone010.mtx
+    audikw_1.mtx
+    cage15.mtx
+    kmer_V2a.mtx
 
 )
 validation_dirs=(
@@ -358,27 +358,27 @@ done
 
 matrices_underperform_gpu=(
 
-    # kmer_V2a.mtx
-    # wikipedia-20070206.mtx
-    # sx-stackoverflow.mtx
-    # wikipedia-20061104.mtx
-    # wikipedia-20060925.mtx
-    # GL7d20.mtx
-    # GL7d19.mtx
-    # GL7d17.mtx
-    # soc-LiveJournal1.mtx
-    # soc-Pokec.mtx
-    # GL7d21.mtx
-    # GL7d18.mtx
-    # dgreen.mtx
+    kmer_V2a.mtx
+    wikipedia-20070206.mtx
+    sx-stackoverflow.mtx
+    wikipedia-20061104.mtx
+    wikipedia-20060925.mtx
+    GL7d20.mtx
+    GL7d19.mtx
+    GL7d17.mtx
+    soc-LiveJournal1.mtx
+    soc-Pokec.mtx
+    GL7d21.mtx
+    GL7d18.mtx
+    dgreen.mtx
     kron_g500-logn18.mtx
-    # wikipedia-20051105.mtx
-    # kron_g500-logn21.mtx
-    # kron_g500-logn20.mtx
-    # com-LiveJournal.mtx
-    # kron_g500-logn19.mtx
-    # ljournal-2008.mtx
-    # wiki-topcats.mtx
+    wikipedia-20051105.mtx
+    kron_g500-logn21.mtx
+    kron_g500-logn20.mtx
+    com-LiveJournal.mtx
+    kron_g500-logn19.mtx
+    ljournal-2008.mtx
+    wiki-topcats.mtx
 
     # kmer_V2a_sorted_cols.mtx
     # wikipedia-20070206_sorted_cols.mtx
@@ -401,6 +401,21 @@ matrices_underperform_gpu=(
     # kron_g500-logn19_sorted_cols.mtx
     # ljournal-2008_sorted_cols.mtx
     # wiki-topcats_sorted_cols.mtx
+    
+    # kron_g500-logn18_Stream0
+    # kron_g500-logn18_Stream1
+    # kron_g500-logn18_Stream2
+    # kron_g500-logn18_Stream3
+
+    # kron_g500-logn19_Stream0
+    # kron_g500-logn19_Stream1
+    # kron_g500-logn19_Stream2
+    # kron_g500-logn19_Stream3
+
+    # kron_g500-logn21_Stream0
+    # kron_g500-logn21_Stream1
+    # kron_g500-logn21_Stream2
+    # kron_g500-logn21_Stream3
 )
 matrices_underperform_gpu=( $(
     for ((i=0;i<${#matrices_underperform_gpu[@]};i++)); do
@@ -497,10 +512,10 @@ bench()
                 
                 echo "${mtx_name}_${prog_name}"
                 # compute-sanitizer --tool initcheck --track-unused-memory "$prog" "${prog_args[@]}"  2>'tmp.err'
+                # compute-sanitizer --tool memcheck "$prog" "${prog_args[@]}"  2>'tmp.err'
                 # ncu -o ./out_logs/reports/ncu_reports/ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={ComputeWorkloadAnalysis,InstructionStats,LaunchStats,MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Tables,Occupancy,SchedulerStats,SourceCounters,SpeedOfLight,SpeedOfLight_RooflineChart,WarpStateStats} "$prog" "${prog_args[@]}"  2>'tmp.err'
                 # nsys profile -o ./out_logs/reports/nsys_reports/nsys_report_${mtx_name}_${prog_name} -f true -t cuda,cublas --cuda-memory-usage=true --stats=true -w true "$prog" "${prog_args[@]}"  2>'tmp.err'
                 "$prog" "${prog_args[@]}"  2>'tmp.err'
-                ret="$?"
             fi
             if ((output_to_files)); then   # If outputing to files, also print stderr to stdout.
                 cat 'tmp.err'
@@ -520,13 +535,13 @@ bench()
 matrices=(
 
     # "${matrices_openFoam[@]}"
-    # "${matrices_validation[@]}"
+    "${matrices_validation[@]}"
     # "${matrices_paper_csr_rv[@]}"
     # "${matrices_compression_small[@]}"
     # "${matrices_compression[@]}"
     # "${matrices_M3E[@]}"
     # "${matrices_cg[@]}"
-    "${matrices_underperform_gpu[@]}"
+    # "${matrices_underperform_gpu[@]}"
 
     # "$path_tamu"/matrices/kron_g500-logn18/kron_g500-logn18.mtx
     # '/home/jim/Synced_Folder/Data/kmeans/matrices/kron_g500-logn18_c1024_wl26214_reordered_rows.mtx'

@@ -72,6 +72,11 @@ spmv_ldu$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_ldu.cpp $(LIB_OBJ)
 spmv_ell$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_ell.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 
+spmv_csr_vector_sve$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_sve.cpp $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_SVE_VECTOR' $^ -o $@ $(LDFLAGS)
+spmv_csr_vector_perfect_nnz_balance_sve$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_sve.cpp $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_SVE_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
+
 
 CPPFLAGS_ARMPL =
 CPPFLAGS_ARMPL += -I$(ARMPL_ROOT_DIR)/include
@@ -149,6 +154,20 @@ spmv_cusparse_coo$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_c
 spmv_cusparse_coo_s${NUM_STREAMS}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_coo_stream.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) -DNUM_STREAMS=$(NUM_STREAMS) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CUSPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_CUSPARSE)
 
+spmv_cusparse_csc$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_csc.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CUSPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_CUSPARSE)
+
+CPPFLAGS_NVPL_SPARSE =
+# CPPFLAGS_NVPL_SPARSE += -I'$(CUDA_TOOLKIT)/include'
+
+LDFLAGS_NVPL_SPARSE =
+LDFLAGS_NVPL_SPARSE += -lcuda
+LDFLAGS_NVPL_SPARSE += -lcudart
+LDFLAGS_NVPL_SPARSE += -lnvpl_sparse
+LDFLAGS_NVPL_SPARSE += -lcublas
+
+spmv_nvpl_csr$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_nvpl_csr.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_NVPL_SPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NVPL_SPARSE)
 
 CPPFLAGS_MERGE =
 # CPPFLAGS_MERGE += -D'CUB_MKL'

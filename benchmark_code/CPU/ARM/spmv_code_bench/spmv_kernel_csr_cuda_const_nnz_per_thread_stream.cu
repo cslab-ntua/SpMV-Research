@@ -579,7 +579,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	format_name = (char *)malloc(100*sizeof(char));
 	snprintf(format_name, 100, "Custom_CSR_CUDA_constant_nnz_per_thread_b%d_nnz%d_s%d", BLOCK_SIZE, NNZ_PER_THREAD, csr->num_streams);
 	csr->format_name = format_name;
-	/*if(0){
+	if(0){
 		for(int i=0; i<csr->num_streams; i++){
 			char matrix_part[100];
 			sprintf(matrix_part, "Stream%d", i);
@@ -606,7 +606,17 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 
 			csr_plot(file_fig, csr->row_ptr_h[i], csr->ja_h[i], csr->a_h[i], csr->m, csr->n_stream[i], csr->nnz_stream[i], 0, num_pixels_x, num_pixels_y);
 		}
-	}*/
+	}
+	if(1){
+		for(int i=0; i<csr->num_streams; i++){
+			char file_new_mat[100];
+			sprintf(file_new_mat, "mtx/Stream%d", i);
+			double time = time_it(1,
+			csr_save_to_mtx(csr->row_ptr_h[i], csr->ja_h[i], csr->a_h[i], csr->m, csr->n_stream[i], file_new_mat);
+			);
+			printf("time save to mtx (%d) = %g ms\n", i, time*1e3);
+		}
+	}
 	return csr;
 }
 
@@ -1159,10 +1169,10 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		}
 	}
 
-	if(TIME_IT2){
-		for(int i=0; i<csr->num_streams; i++)
-			gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution[i], csr->stream[i]));
-	}
+	// if(TIME_IT2){
+	// 	for(int i=0; i<csr->num_streams; i++)
+	// 		gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution[i], csr->stream[i]));
+	// }
 
 	cudaMemset(csr->y_d2, 0, csr->m * csr->num_streams * sizeof(csr->y_d2));
 	// cudaFuncCachePreferNone:   no preference for shared memory or L1 (default);
@@ -1170,36 +1180,32 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 	// cudaFuncCachePreferL1:     prefer larger L1 cache and smaller shared memory;
 	gpuCudaErrorCheck(cudaFuncSetCacheConfig(gpu_kernel_spmv_row_indices_continuous, cudaFuncCachePreferL1));
 	for(int i=0; i<csr->num_streams; i++){
-		// if(TIME_IT2){
-		// 	gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution[i], csr->stream[i]));
-		// }
+		if(TIME_IT2){
+			gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution[i], csr->stream[i]));
+		}
 		gpu_kernel_spmv_row_indices_continuous<<<grid_dims[i], block_dims, shared_mem_size, csr->stream[i]>>>(csr->thread_block_i_s_d[i], csr->thread_block_i_e_d[i], csr->thread_block_j_s_d[i], csr->thread_block_j_e_d[i], csr->row_ptr_d[i], csr->ia_d[i], csr->ja_d[i], csr->a_d[i], csr->m, csr->n_stream[i], csr->nnz_stream[i], csr->x_d[i], csr->y_d2 + i*csr->m);
-		// if(TIME_IT2){
-		// 	gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution[i], csr->stream[i]));
-		// 	gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution[i]));
-		// 	float curr_execution_time;
-		// 	gpuCudaErrorCheck(cudaEventElapsedTime(&curr_execution_time, csr->startEvent_execution[i], csr->endEvent_execution[i]));
-		// 	csr->execution_time[i] += curr_execution_time;
-		// }
-		// printf("arxi %d\n", i);
-		// gpuCudaErrorCheck(cudaStreamSynchronize(csr->stream[i]));
-		// printf("telos %d\n", i);
-	}
-
-	gpuCudaErrorCheck(cudaPeekAtLastError());
-	// for(int i=0; i<csr->num_streams; i++)
-	// 	gpuCudaErrorCheck(cudaStreamSynchronize(csr->stream[i]));
-	gpuCudaErrorCheck(cudaDeviceSynchronize());
-
-	if(TIME_IT2){
-		for(int i=0; i<csr->num_streams; i++){
+		if(TIME_IT2){
 			gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution[i], csr->stream[i]));
 			gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution[i]));
 			float curr_execution_time;
 			gpuCudaErrorCheck(cudaEventElapsedTime(&curr_execution_time, csr->startEvent_execution[i], csr->endEvent_execution[i]));
-			csr->execution_time[i] += curr_execution_time;	
+			csr->execution_time[i] += curr_execution_time;
 		}
 	}
+
+	gpuCudaErrorCheck(cudaPeekAtLastError());
+	for(int i=0; i<csr->num_streams; i++)
+		gpuCudaErrorCheck(cudaStreamSynchronize(csr->stream[i]));
+
+	// if(TIME_IT2){
+	// 	for(int i=0; i<csr->num_streams; i++){
+	// 		gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution[i], csr->stream[i]));
+	// 		gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution[i]));
+	// 		float curr_execution_time;
+	// 		gpuCudaErrorCheck(cudaEventElapsedTime(&curr_execution_time, csr->startEvent_execution[i], csr->endEvent_execution[i]));
+	// 		csr->execution_time[i] += curr_execution_time;	
+	// 	}
+	// }
 	csr->iterations++;
 
 	if (csr->y == NULL)
