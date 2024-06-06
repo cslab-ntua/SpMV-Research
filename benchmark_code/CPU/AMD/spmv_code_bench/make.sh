@@ -141,6 +141,9 @@ NVCCFLAGS+=" -allow-unsupported-compiler"
 NVCCFLAGS+=' -arch=sm_80'
 NVCCFLAGS+=' -DPERSISTENT_L2_PREFETCH'
 # NVCCFLAGS+=' -lineinfo'
+# NVCCFLAGS+=' -G -g'
+# NVCCFLAGS+=' --ptxas-options=-v'
+
 export NUM_STREAMS=;export NUM_THREADS=;export ROW_CLUSTER_SIZE=;export BLOCK_SIZE=;export NNZ_PER_THREAD=;export MULTIBLOCK_SIZE=;
 
 export NVCCFLAGS

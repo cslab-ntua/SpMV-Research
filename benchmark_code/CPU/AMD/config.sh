@@ -370,7 +370,7 @@ progs=(
     # ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86_d.exe"
     # ['csr_vector_oracle_balance_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_oracle_balance_x86_d.exe"
     # ['csr_vector_queues_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_queues_x86_d.exe"
-    # ['csr_vector_perfect_nnz_balance_x86_d']="${script_dir}/spmv_code_bench/spmv_csr__vector_perfect_nnz_balance_x86_d.exe"
+    # ['csr_vector_perfect_nnz_balance_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance_x86_d.exe"
 
     # Custom lut
     # ['csr_vector_lut_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_lut_x86_d.exe"
@@ -384,6 +384,7 @@ progs=(
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d.exe"
 
     # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz2_nv_d.exe"
@@ -392,6 +393,7 @@ progs=(
 
     # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz4_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz4_nv_d.exe"
+    # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz6_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz6_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_s8_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_b1024_nnz4_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_s32_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s32_b1024_nnz4_nv_d.exe"
 
@@ -454,6 +456,9 @@ progs=(
     # ['cusparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
     # ['cusparse_csr_s4_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_s4_nv_d.exe"
     # ['cusparse_coo_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_coo_nv_d.exe"
+    # ['cusparse_coo_s4_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_coo_s4_nv_d.exe"
+    ['cusparse_csc_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csc_nv_d.exe"
+    # ['cusparse_csc_s4_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csc_s4_nv_d.exe"
 
     # Custom compressed values block
     # ['csr_cv_block_id_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_id_d.exe"

@@ -3,7 +3,6 @@
 #include <omp.h>
 
 #include <cuda.h>
-#include <cusparse.h>
 #include <cublas_v2.h>
 #include <cuda_runtime.h>
 
@@ -22,7 +21,6 @@ extern "C"{
 
 	#include "cuda/cuda_util.h"
 	#include "cuda/cublas_util.h"
-	#include "cuda/cusparse_util.h"
 	#include "aux/csr_util.h"
 	#include "aux/csr_converter.h"
 	#include "aux/csc_util.h"
@@ -32,24 +30,20 @@ extern "C"{
 #endif
 
 
-#if DOUBLE == 0
-	#define ValueTypeCuda  CUDA_R_32F
-#elif DOUBLE == 1
-	#define ValueTypeCuda  CUDA_R_64F
-#endif
+extern int prefetch_distance;
 
 double * thread_time_compute, * thread_time_barrier;
 
+#ifndef BLOCK_SIZE
+#define BLOCK_SIZE 1024
+#endif
+
 #ifndef NUM_STREAMS
-#define NUM_STREAMS 128
+#define NUM_STREAMS 1
 #endif
 
 #ifndef TIME_IT
 #define TIME_IT 0
-#endif
-
-#ifndef TIME_IT2
-#define TIME_IT2 0
 #endif
 
 struct CSRArrays : Matrix_Format
@@ -65,15 +59,6 @@ struct CSRArrays : Matrix_Format
 	INT_T * ja_d[NUM_STREAMS];
 	ValueType * a_d[NUM_STREAMS];
 
-	cudaStream_t stream[NUM_STREAMS];
-	INT_T n_stream[NUM_STREAMS];
-	INT_T nnz_stream[NUM_STREAMS];
-
-	cusparseHandle_t     handle[NUM_STREAMS];
-	cusparseSpMatDescr_t matA[NUM_STREAMS];
-	void*                dBuffer[NUM_STREAMS];
-	size_t               bufferSize[NUM_STREAMS];
-
 	ValueType * x = NULL;
 	ValueType * y = NULL;
 	ValueType * x_h[NUM_STREAMS];
@@ -83,20 +68,14 @@ struct CSRArrays : Matrix_Format
 	ValueType * y_d2;
 	ValueType * y_d_reduction;
 
-	cusparseDnVecDescr_t vecX[NUM_STREAMS];
-	cusparseDnVecDescr_t vecY[NUM_STREAMS];
+	cudaStream_t stream[NUM_STREAMS];
+	INT_T n_stream[NUM_STREAMS];
+	INT_T nnz_stream[NUM_STREAMS];
 
 	// cudaEvent_t is useful for timing, but for performance use " cudaEventCreateWithFlags ( &event, cudaEventDisableTiming) "
 	cudaEvent_t startEvent_execution[NUM_STREAMS];
 	cudaEvent_t endEvent_execution[NUM_STREAMS];
-	float execution_time[NUM_STREAMS];
-	int iterations;
-
-	cudaEvent_t startEvent_memcpy_x[NUM_STREAMS];
-	cudaEvent_t endEvent_memcpy_x[NUM_STREAMS];
-	cudaEvent_t startEvent_memcpy_y;
-	cudaEvent_t endEvent_memcpy_y;
-
+	
 	cudaEvent_t startEvent_memcpy_ia[NUM_STREAMS];
 	cudaEvent_t endEvent_memcpy_ia[NUM_STREAMS];
 	cudaEvent_t startEvent_memcpy_ja[NUM_STREAMS];
@@ -104,36 +83,30 @@ struct CSRArrays : Matrix_Format
 	cudaEvent_t startEvent_memcpy_a[NUM_STREAMS];
 	cudaEvent_t endEvent_memcpy_a[NUM_STREAMS];
 
-	cudaEvent_t startEvent_create_matA[NUM_STREAMS];
-	cudaEvent_t endEvent_create_matA[NUM_STREAMS];
-	cudaEvent_t startEvent_spmv_buffersize[NUM_STREAMS];
-	cudaEvent_t endEvent_spmv_buffersize[NUM_STREAMS];
-	cudaEvent_t startEvent_spmv_preprocess[NUM_STREAMS];
-	cudaEvent_t endEvent_spmv_preprocess[NUM_STREAMS];
+	cudaEvent_t startEvent_memcpy_x[NUM_STREAMS];
+	cudaEvent_t endEvent_memcpy_x[NUM_STREAMS];
+	cudaEvent_t startEvent_memcpy_y;
+	cudaEvent_t endEvent_memcpy_y;
 
-	cudaEvent_t startEvent_create_vecX[NUM_STREAMS];
-	cudaEvent_t endEvent_create_vecX[NUM_STREAMS];
-	cudaEvent_t startEvent_create_vecY[NUM_STREAMS];
-	cudaEvent_t endEvent_create_vecY[NUM_STREAMS];
+	cublasHandle_t handle;
 
-	cublasHandle_t handle_blas;
-
+	int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, block_size, max_threads_per_multiproc;
 	int num_streams;
 
 	CSRArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
 	{
-		int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, max_threads_per_multiproc;
 		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_smem_per_block, cudaDevAttrMaxSharedMemoryPerBlock, 0));
 		gpuCudaErrorCheck(cudaDeviceGetAttribute(&multiproc_count, cudaDevAttrMultiProcessorCount, 0));
 		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_block, cudaDevAttrMaxThreadsPerBlock , 0));
 		gpuCudaErrorCheck(cudaDeviceGetAttribute(&warp_size, cudaDevAttrWarpSize , 0));
 		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_multiproc, cudaDevAttrMaxThreadsPerMultiProcessor, 0));
-		// printf("max_smem_per_block=%d\n", max_smem_per_block);
-		// printf("multiproc_count=%d\n", multiproc_count);
-		// printf("max_threads_per_block=%d\n", max_threads_per_block);
-		// printf("warp_size=%d\n", warp_size);
-		// printf("max_threads_per_multiproc=%d\n", max_threads_per_multiproc);
+		printf("max_smem_per_block=%d\n", max_smem_per_block);
+		printf("multiproc_count=%d\n", multiproc_count);
+		printf("max_threads_per_block=%d\n", max_threads_per_block);
+		printf("warp_size=%d\n", warp_size);
+		printf("max_threads_per_multiproc=%d\n", max_threads_per_multiproc);
 
+		block_size = BLOCK_SIZE;
 		num_streams = NUM_STREAMS;
 
 		/********************************************************************************************************/
@@ -172,6 +145,7 @@ struct CSRArrays : Matrix_Format
 			cnt  += nnz_stream[i];
 			cnt2 += n_stream[i];
 		}
+
 		printf("balance time (col) = %g ms\n", time_balance*1e3);
 
 		INT_T * row_idx_stream[num_streams];
@@ -209,7 +183,6 @@ struct CSRArrays : Matrix_Format
 			val_stream[i] = (ValueType *) malloc(nnz_stream[i] * sizeof(ValueType));
 
 			coo_to_csr(row_idx_stream[i], col_indices, val_c_stream[i], m, n_stream[i], nnz_stream[i], row_ptr_stream[i], col_idx_stream[i], val_stream[i], 1, 0);
-
 			free(col_indices);
 		}
 
@@ -234,7 +207,7 @@ struct CSRArrays : Matrix_Format
 		}
 		gpuCudaErrorCheck(cudaMalloc(&y_d2, m * num_streams * sizeof(ValueType)));
 		gpuCudaErrorCheck(cudaMalloc(&y_d_reduction, m * sizeof(ValueType)));
-		gpuCublasErrorCheck(cublasCreate(&handle_blas));
+		gpuCublasErrorCheck(cublasCreate(&handle));
 
 		for(int i=0; i<num_streams; i++){
 			gpuCudaErrorCheck(cudaMallocHost(&ia_h[i], (m+1) * sizeof(INT_T)));
@@ -253,16 +226,14 @@ struct CSRArrays : Matrix_Format
 		);
 		printf("time_memcpy (ia_h, ja_h, a_h) = %lf ms\n", time_memcpy*1e3);
 
+		// cuda events for timing measurements
 		for(int i=0; i<num_streams; i++){
 			gpuCudaErrorCheck(cudaStreamCreate(&stream[i]));
-			gpuCusparseErrorCheck(cusparseCreate(&handle[i]));
-			gpuCusparseErrorCheck(cusparseSetStream(handle[i], stream[i]));
 
-			// cuda events for timing measurements
 			gpuCudaErrorCheck(cudaEventCreate(&startEvent_execution[i]));
 			gpuCudaErrorCheck(cudaEventCreate(&endEvent_execution[i]));
 		}
-		gpuCublasErrorCheck(cublasSetStream(handle_blas, stream[0]));
+		gpuCublasErrorCheck(cublasSetStream(handle, stream[0]));
 
 		if(TIME_IT){
 			for(int i=0; i<num_streams; i++){
@@ -272,17 +243,7 @@ struct CSRArrays : Matrix_Format
 				gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_ja[i]));
 				gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_a[i]));
 				gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_a[i]));
-				gpuCudaErrorCheck(cudaEventCreate(&startEvent_create_matA[i]));
-				gpuCudaErrorCheck(cudaEventCreate(&endEvent_create_matA[i]));
-				gpuCudaErrorCheck(cudaEventCreate(&startEvent_spmv_buffersize[i]));
-				gpuCudaErrorCheck(cudaEventCreate(&endEvent_spmv_buffersize[i]));
-				gpuCudaErrorCheck(cudaEventCreate(&startEvent_spmv_preprocess[i]));
-				gpuCudaErrorCheck(cudaEventCreate(&endEvent_spmv_preprocess[i]));
 
-				gpuCudaErrorCheck(cudaEventCreate(&startEvent_create_vecX[i]));
-				gpuCudaErrorCheck(cudaEventCreate(&endEvent_create_vecX[i]));
-				gpuCudaErrorCheck(cudaEventCreate(&startEvent_create_vecY[i]));
-				gpuCudaErrorCheck(cudaEventCreate(&endEvent_create_vecY[i]));
 				gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_x[i]));
 				gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_x[i]));
 			}
@@ -294,31 +255,25 @@ struct CSRArrays : Matrix_Format
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_ia[i], stream[i]));
 			gpuCudaErrorCheck(cudaMemcpyAsync(ia_d[i], ia_h[i], (m+1) * sizeof(INT_T), cudaMemcpyHostToDevice, stream[i]));
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_ia[i], stream[i]));
-
+			
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_ja[i], stream[i]));
 			gpuCudaErrorCheck(cudaMemcpyAsync(ja_d[i], ja_h[i], nnz_stream[i] * sizeof(INT_T), cudaMemcpyHostToDevice, stream[i]));
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_ja[i], stream[i]));
-
+			
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_a[i], stream[i]));
 			gpuCudaErrorCheck(cudaMemcpyAsync(a_d[i], a_h[i], nnz_stream[i] * sizeof(ValueType), cudaMemcpyHostToDevice, stream[i]));
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_a[i], stream[i]));
-
-			// Create sparse matrix A in CSR format
-			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_create_matA[i], stream[i]));
-			gpuCusparseErrorCheck(cusparseCreateCsr(&matA[i], m, n_stream[i], nnz_stream[i], ia_d[i], ja_d[i], a_d[i], CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I, CUSPARSE_INDEX_BASE_ZERO, ValueTypeCuda));
-			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_create_matA[i], stream[i]));
 		}
 
 		if(TIME_IT){
 			for(int i=0; i<num_streams; i++){
 				gpuCudaErrorCheck(cudaStreamSynchronize(stream[i]));
-				float memcpyTime_cuda_ia, memcpyTime_cuda_ja, memcpyTime_cuda_a, create_matA_Time;//memcpyTime_cuda_thread_i_e;
+				float memcpyTime_cuda_ia, memcpyTime_cuda_ja, memcpyTime_cuda_a;
 				gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_ia, startEvent_memcpy_ia[i], endEvent_memcpy_ia[i]));
 				gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_ja, startEvent_memcpy_ja[i], endEvent_memcpy_ja[i]));
 				gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_a, startEvent_memcpy_a[i], endEvent_memcpy_a[i]));
-				gpuCudaErrorCheck(cudaEventElapsedTime(&create_matA_Time, startEvent_create_matA[i], endEvent_create_matA[i]));
-				printf("(CUDA) (stream %d): Memcpy ia time = %.4lf ms, ja time = %.4lf ms, a time = %.4lf ms, matA time = %.4lf ms\n", i, memcpyTime_cuda_ia, memcpyTime_cuda_ja, memcpyTime_cuda_a, create_matA_Time);
-			}			
+				printf("(CUDA) (stream %d) Memcpy ia time = %.4lf ms, ja time = %.4lf ms, a time = %.4lf ms\n", i, memcpyTime_cuda_ia, memcpyTime_cuda_ja, memcpyTime_cuda_a);
+			}
 		}
 	}
 
@@ -327,8 +282,6 @@ struct CSRArrays : Matrix_Format
 		free(a);
 		free(ia);
 		free(ja);
-
-		// destroy matrix/vector descriptors
 		for(int i=0; i<num_streams; i++){
 			gpuCudaErrorCheck(cudaFree(ia_d[i]));
 			gpuCudaErrorCheck(cudaFree(ja_d[i]));
@@ -346,40 +299,22 @@ struct CSRArrays : Matrix_Format
 
 			gpuCudaErrorCheck(cudaEventDestroy(startEvent_execution[i]));
 			gpuCudaErrorCheck(cudaEventDestroy(endEvent_execution[i]));
-
-			gpuCusparseErrorCheck(cusparseDestroy(handle[i]));
-			gpuCusparseErrorCheck(cusparseDestroySpMat(matA[i]));
-			gpuCusparseErrorCheck(cusparseDestroyDnVec(vecX[i]));
-			gpuCusparseErrorCheck(cusparseDestroyDnVec(vecY[i]));
-			
-			gpuCudaErrorCheck(cudaFree(dBuffer[i]));
 		}
 		gpuCudaErrorCheck(cudaFree(y_d2));
 		gpuCudaErrorCheck(cudaFree(y_d_reduction));
-		gpuCublasErrorCheck(cublasDestroy(handle_blas));
+		gpuCublasErrorCheck(cublasDestroy(handle));
 
 		if(TIME_IT){
 			for(int i=0; i<num_streams; i++){
+				gpuCudaErrorCheck(cudaEventDestroy(startEvent_memcpy_x[i]));
+				gpuCudaErrorCheck(cudaEventDestroy(endEvent_memcpy_x[i]));
+
 				gpuCudaErrorCheck(cudaEventDestroy(startEvent_memcpy_ia[i]));
 				gpuCudaErrorCheck(cudaEventDestroy(endEvent_memcpy_ia[i]));
 				gpuCudaErrorCheck(cudaEventDestroy(startEvent_memcpy_ja[i]));
 				gpuCudaErrorCheck(cudaEventDestroy(endEvent_memcpy_ja[i]));
 				gpuCudaErrorCheck(cudaEventDestroy(startEvent_memcpy_a[i]));
 				gpuCudaErrorCheck(cudaEventDestroy(endEvent_memcpy_a[i]));
-
-				gpuCudaErrorCheck(cudaEventDestroy(startEvent_create_matA[i]));
-				gpuCudaErrorCheck(cudaEventDestroy(endEvent_create_matA[i]));
-				gpuCudaErrorCheck(cudaEventDestroy(startEvent_spmv_buffersize[i]));
-				gpuCudaErrorCheck(cudaEventDestroy(endEvent_spmv_buffersize[i]));
-				gpuCudaErrorCheck(cudaEventDestroy(startEvent_spmv_preprocess[i]));
-				gpuCudaErrorCheck(cudaEventDestroy(endEvent_spmv_preprocess[i]));
-
-				gpuCudaErrorCheck(cudaEventDestroy(startEvent_create_vecX[i]));
-				gpuCudaErrorCheck(cudaEventDestroy(endEvent_create_vecX[i]));
-				gpuCudaErrorCheck(cudaEventDestroy(startEvent_create_vecY[i]));
-				gpuCudaErrorCheck(cudaEventDestroy(endEvent_create_vecY[i]));
-				gpuCudaErrorCheck(cudaEventDestroy(startEvent_memcpy_x[i]));
-				gpuCudaErrorCheck(cudaEventDestroy(endEvent_memcpy_x[i]));
 			}
 			gpuCudaErrorCheck(cudaEventDestroy(startEvent_memcpy_y));
 			gpuCudaErrorCheck(cudaEventDestroy(endEvent_memcpy_y));
@@ -413,7 +348,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	csr->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	char *format_name;
 	format_name = (char *)malloc(100*sizeof(char));
-	snprintf(format_name, 100, "CUSPARSE_CSR_STREAM_%d", csr->num_streams);
+	snprintf(format_name, 100, "Custom_CSR_CUDA_VECTOR_b%d_s%d", csr->block_size, csr->num_streams);
 	csr->format_name = format_name;
 	return csr;
 }
@@ -423,12 +358,58 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 //= CSR Custom
 //==========================================================================================================================================
 
+__global__ void gpu_kernel_csr_vector(INT_T * ia, INT_T * ja, ValueType * a, INT_T m, int block_size, int warp_size, ValueType * restrict x, ValueType * restrict y)
+{
+	// Thread ID in block
+	INT_T t = threadIdx.x;
+
+	// Thread ID in warp
+	INT_T lane = t & (warp_size-1);
+
+	// Number of warps per block
+	INT_T warpsPerBlock = blockDim.x / warp_size;
+
+	// One row per warp
+	INT_T row = (blockIdx.x * warpsPerBlock) + (t / warp_size);
+
+	__shared__ volatile ValueType LDS[BLOCK_SIZE];
+
+	if (row < m){
+		INT_T rowStart = ia[row];
+		INT_T rowEnd = ia[row+1];
+		ValueType sum = 0;
+
+		// Use all threads in a warp accumulate multiplied elements
+		for (INT_T j = rowStart + lane; j < rowEnd; j += warp_size){
+			INT_T col = ja[j];
+			sum += a[j] * x[col];
+		}
+		LDS[t] = sum;
+		__syncthreads();
+	
+		// Reduce partial sums
+		if (lane < 16) LDS[t] += LDS[t + 16];
+		if (lane <  8) LDS[t] += LDS[t + 8];
+		if (lane <  4) LDS[t] += LDS[t + 4];
+		if (lane <  2) LDS[t] += LDS[t + 2];
+		if (lane <  1) LDS[t] += LDS[t + 1];
+		__syncthreads();
+	
+		// Write result
+		if (lane == 0){
+			y[row] = LDS[t];
+		}
+	}
+}
+
 
 void
 compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
 {
-	const double alpha = 1.0;
-	const double beta = 0.0;
+	dim3 block_dims(csr->block_size);
+	dim3 grid_dims(ceil(csr->m/((float)csr->block_size/csr->warp_size)));
+	// printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims.x, grid_dims.y, grid_dims.z, block_dims.x, block_dims.y, block_dims.z);
+
 	if (csr->x == NULL)
 	{
 		csr->x = x;
@@ -440,7 +421,7 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 
 		for(int i=0; i<csr->num_streams; i++){
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_memcpy_x[i], csr->stream[i]));
-			gpuCudaErrorCheck(cudaMemcpyAsync(csr->x_d[i], csr->x_h[i], csr->n_stream[i] * sizeof(*csr->x), cudaMemcpyHostToDevice, csr->stream[i]));
+			gpuCudaErrorCheck(cudaMemcpyAsync(csr->x_d[i], csr->x_h[i], csr->n_stream[i] * sizeof(ValueType), cudaMemcpyHostToDevice, csr->stream[i]));
 			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_memcpy_x[i], csr->stream[i]));
 		}
 
@@ -454,77 +435,16 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 				printf("(CUDA) (stream %d) Memcpy x time = %.4lf ms\n", i, memcpyTime_cuda);
 			}
 		}
-
-		for(int i=0; i<csr->num_streams; i++){
-			// Create dense vector X
-			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_create_vecX[i], csr->stream[i]));
-			gpuCusparseErrorCheck(cusparseCreateDnVec(&csr->vecX[i], csr->n_stream[i], csr->x_d[i], ValueTypeCuda));
-			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_create_vecX[i], csr->stream[i]));
-
-			// Create dense vector y
-			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_create_vecY[i], csr->stream[i]));
-			// gpuCusparseErrorCheck(cusparseCreateDnVec(&csr->vecY[i], csr->m, csr->y_d[i], ValueTypeCuda));
-			gpuCusparseErrorCheck(cusparseCreateDnVec(&csr->vecY[i], csr->m, csr->y_d2 + i*csr->m, ValueTypeCuda));
-			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_create_vecY[i], csr->stream[i]));
-
-			// Allocate an external buffer if needed
-			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_spmv_buffersize[i], csr->stream[i]));
-			gpuCusparseErrorCheck(cusparseSpMV_bufferSize(csr->handle[i], CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA[i], csr->vecX[i], &beta, csr->vecY[i], ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, &csr->bufferSize[i]));
-			gpuCudaErrorCheck(cudaMalloc(&csr->dBuffer[i], csr->bufferSize[i]));
-			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_spmv_buffersize[i], csr->stream[i]));
-			// printf("(stream %d) SpMV_bufferSize = %ld\n", i, csr->bufferSize[i]); // size of the workspace that is needed by cusparseSpMV()
-
-			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_spmv_preprocess[i], csr->stream[i]));
-			gpuCusparseErrorCheck(cusparseSpMV_preprocess(csr->handle[i], CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA[i], csr->vecX[i], &beta, csr->vecY[i], ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer[i]));
-			if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_spmv_preprocess[i], csr->stream[i]));
-		}
-
-		if(TIME_IT){
-			for(int i=0; i<csr->num_streams; i++){
-				gpuCudaErrorCheck(cudaStreamSynchronize(csr->stream[i]));
-				float create_vecX_time, create_vecY_time, spmv_buffersize_time, spmv_preprocess_time;
-				gpuCudaErrorCheck(cudaEventElapsedTime(&create_vecX_time, csr->startEvent_create_vecX[i], csr->endEvent_create_vecX[i]));
-				gpuCudaErrorCheck(cudaEventElapsedTime(&create_vecY_time, csr->startEvent_create_vecY[i], csr->endEvent_create_vecY[i]));
-				gpuCudaErrorCheck(cudaEventElapsedTime(&spmv_buffersize_time, csr->startEvent_spmv_buffersize[i], csr->endEvent_spmv_buffersize[i]));
-				gpuCudaErrorCheck(cudaEventElapsedTime(&spmv_preprocess_time, csr->startEvent_spmv_preprocess[i], csr->endEvent_spmv_preprocess[i]));
-				printf("(CUDA) (stream %d) Create vecX time = %.4lf ms, vecY time = %.4lf ms, spmv_buffersize time = %.4lf (SpMV_bufferSize = %zu), spmv_preprocess time = %.4lf\n", i, create_vecX_time, create_vecY_time, spmv_buffersize_time, csr->bufferSize[i], spmv_preprocess_time);
-			}
-		}
-	}
-
-	if(TIME_IT2){
-		for(int i=0; i<csr->num_streams; i++)
-			gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution[i], csr->stream[i]));
 	}
 
 	for(int i=0; i<csr->num_streams; i++){
-		// if(TIME_IT2){
-		// 	gpuCudaErrorCheck(cudaEventRecord(csr->startEvent_execution[i], csr->stream[i]));
-		// }
-		gpuCusparseErrorCheck(cusparseSpMV(csr->handle[i], CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA[i], csr->vecX[i], &beta, csr->vecY[i], ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer[i]));
-		// if(TIME_IT2){
-		// 	gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution[i], csr->stream[i]));
-		// 	gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution[i]));
-		// 	float curr_execution_time;
-		// 	gpuCudaErrorCheck(cudaEventElapsedTime(&curr_execution_time, csr->startEvent_execution[i], csr->endEvent_execution[i]));
-		// 	csr->execution_time[i] += curr_execution_time;
-		// }
+		// gpu_kernel_csr_vector<<<grid_dims, block_dims, 0, csr->stream[i]>>>(csr->ia_d[i], csr->ja_d[i], csr->a_d[i], csr->m, csr->block_size, csr->warp_size, csr->x_d[i], csr->y_d[i]);
+		gpu_kernel_csr_vector<<<grid_dims, block_dims, 0, csr->stream[i]>>>(csr->ia_d[i], csr->ja_d[i], csr->a_d[i], csr->m, csr->block_size, csr->warp_size, csr->x_d[i], csr->y_d2 + i*csr->m);
 	}
 
 	gpuCudaErrorCheck(cudaPeekAtLastError());
 	for(int i=0; i<csr->num_streams; i++)
 		gpuCudaErrorCheck(cudaStreamSynchronize(csr->stream[i]));
-
-	if(TIME_IT2){
-		for(int i=0; i<csr->num_streams; i++){
-			gpuCudaErrorCheck(cudaEventRecord(csr->endEvent_execution[i], csr->stream[i]));
-			gpuCudaErrorCheck(cudaEventSynchronize(csr->endEvent_execution[i]));
-			float curr_execution_time;
-			gpuCudaErrorCheck(cudaEventElapsedTime(&curr_execution_time, csr->startEvent_execution[i], csr->endEvent_execution[i]));
-			csr->execution_time[i] += curr_execution_time;	
-		}
-	}
-	csr->iterations++;
 
 	if (csr->y == NULL)
 	{
@@ -539,7 +459,7 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		gpuCudaErrorCheck(cudaMemcpyAsync(ones_device, ones_host, csr->num_streams * sizeof(ValueType), cudaMemcpyHostToDevice, csr->stream[0]));
 	
 		ValueType  alpha = 1.0, beta = 0.0;
-		gpuCublasErrorCheck(cublasDgemv(csr->handle_blas, CUBLAS_OP_N, csr->m, csr->num_streams, &alpha, csr->y_d2, csr->m, ones_device, 1, &beta, csr->y_d_reduction, 1));
+		gpuCublasErrorCheck(cublasDgemv(csr->handle, CUBLAS_OP_N, csr->m, csr->num_streams, &alpha, csr->y_d2, csr->m, ones_device, 1, &beta, csr->y_d_reduction, 1));
 
 		gpuCudaErrorCheck(cudaPeekAtLastError());
 		gpuCudaErrorCheck(cudaMemcpyAsync(csr->y, csr->y_d_reduction, csr->m * sizeof(csr->y), cudaMemcpyDeviceToHost, csr->stream[0]));
@@ -566,13 +486,6 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 void
 CSRArrays::statistics_start()
 {
-	#ifdef PRINT_STATISTICS
-	if(TIME_IT2){
-		iterations = 0;
-		for(int i=0; i<num_streams; i++)
-			execution_time[i]=0.0;
-	}
-	#endif
 }
 
 
@@ -586,16 +499,6 @@ statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unuse
 int
 CSRArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
-	#ifdef PRINT_STATISTICS
-	if(TIME_IT2){
-		printf("--------\n");
-		for(int i=0; i<num_streams; i++){
-			double gflops = 2.0 * nnz_stream[i] / execution_time[i] / 1e6 * iterations;
-			printf("Stream %d: %lf ms (GFLOPs = %.4lf)\n", i, execution_time[i], gflops);
-		}
-		printf("--------\n");
-	}
-	#endif
 	return 0;
 }
 

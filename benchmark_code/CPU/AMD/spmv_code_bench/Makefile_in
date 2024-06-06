@@ -106,7 +106,7 @@ spmv_csr_vector_x86$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_x86.
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR' $^ -o $@ $(LDFLAGS)
 spmv_csr_vector_oracle_balance_x86$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR' -D'CUSTOM_X86_VECTOR_ORACLE_BALANCE' $^ -o $@ $(LDFLAGS)
-spmv_csr__vector_perfect_nnz_balance_x86$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
+spmv_csr_vector_perfect_nnz_balance_x86$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
 spmv_csr_vector_queues_x86$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_X86_VECTOR_QUEUES' $^ -o $@ $(LDFLAGS)
@@ -186,6 +186,8 @@ spmv_cusparse_coo$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_c
 spmv_cusparse_coo_s${NUM_STREAMS}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_coo_stream.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) -DNUM_STREAMS=$(NUM_STREAMS) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CUSPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_CUSPARSE)
 
+spmv_cusparse_csc$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_csc.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CUSPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_CUSPARSE)
 
 CPPFLAGS_MKL = 
 CPPFLAGS_MKL += -I'$(MKL_PATH)/include' -I'/usr/include/mkl'
