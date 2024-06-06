@@ -111,7 +111,7 @@ struct hashtable {
 	struct hashtable_bucket * buckets;
 	struct hashtable_kv_pair * buf_kv_pairs;
 	struct hashtable_kv_pair * buf_kv_pairs_end;
-	char * buf_kv_pairs_ownership;
+	signed char * buf_kv_pairs_ownership;
 };
 
 
