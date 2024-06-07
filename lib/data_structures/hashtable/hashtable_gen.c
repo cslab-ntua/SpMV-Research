@@ -291,7 +291,7 @@ hashtable_init_base(struct hashtable * ht, long buckets_n)
 {
 	struct hashtable_bucket * buckets;
 	struct hashtable_kv_pair * buf_kv_pairs;
-	signed char * buf_kv_pairs_ownership;
+	char * buf_kv_pairs_ownership;
 	long buf_kv_pairs_n;
 
 	// buckets_n *= 2;
@@ -628,7 +628,7 @@ hashtable_bucket_resize_concurrent(struct hashtable * ht, long pos, long new_siz
 	struct hashtable_kv_pair * kv_pairs;
 	long space_is_malloced;
 	long n;
-	signed char ownership;
+	char ownership;
 	char zero = 0;
 	n = bucket->n;
 	space_is_malloced = (bucket->kv_pairs < ht->buf_kv_pairs) || (bucket->kv_pairs > ht->buf_kv_pairs_end);
@@ -888,7 +888,7 @@ hashtable_insert_concurrent(struct hashtable * ht, _TYPE_K key  _VC(, _TYPE_V va
 	uint64_t hash;
 	long pos;
 	long n;
-	signed char ownership;
+	char ownership;
 	char zero = 0;
 	hash = hashtable_hash(key);
 	pos = (((uint64_t) ((uint32_t) hash)) * ((uint64_t) ht->buckets_n)) >> 32;

@@ -50,6 +50,7 @@ CFLAGS+=" -Wall -Wextra"
 CFLAGS+=" -pipe"  # Tells the compiler to use pipes instead of temporary files (faster compilation, but uses more memory).
 # CFLAGS+=" -Wno-unused-variable"
 CFLAGS+=" -Wno-alloc-size-larger-than"
+CFLAGS+=" -fno-unsigned-char"
 CFLAGS+=" -fopenmp"
 
 CFLAGS+=" -D'_GNU_SOURCE'"
