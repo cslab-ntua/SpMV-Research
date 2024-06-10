@@ -93,7 +93,7 @@ matrices_validation=(
     # TSOPF_RS_b2383.mtx
     # in-2004.mtx
     # Ga41As41H72.mtx
-    # eu-2005.mtx
+    eu-2005.mtx
     # wikipedia-20051105.mtx
     # kron_g500-logn18.mtx
     # rajat31.mtx
@@ -521,13 +521,13 @@ bench()
 matrices=(
 
     # "${matrices_openFoam[@]}"
-    # "${matrices_validation[@]}"
+    "${matrices_validation[@]}"
     # "${matrices_paper_csr_rv[@]}"
     # "${matrices_compression_small[@]}"
     # "${matrices_compression[@]}"
     # "${matrices_M3E[@]}"
     # "${matrices_cg[@]}"
-    "${matrices_underperform_gpu[@]}"
+    # "${matrices_underperform_gpu[@]}"
 
     # "$path_tamu"/matrices/kron_g500-logn18/kron_g500-logn18.mtx
     # '/home/jim/Synced_Folder/Data/kmeans/matrices/kron_g500-logn18_c1024_wl26214_reordered_rows.mtx'

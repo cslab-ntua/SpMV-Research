@@ -417,8 +417,8 @@ progs=(
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_d.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_balanced_distribute_early_d.exe"
     # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance_d.exe"
-    ['csr_vector_sve_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_sve_d.exe"
-    ['csr_vector_perfect_nnz_balance_sve_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance_sve_d.exe"
+    # ['csr_vector_sve_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_sve_d.exe"
+    # ['csr_vector_perfect_nnz_balance_sve_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance_sve_d.exe"
     # ['csr_f']="${script_dir}/spmv_code_bench/spmv_csr_f.exe"
     # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell_d.exe"
     # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu_d.exe"
@@ -437,6 +437,9 @@ progs=(
 
     # nvpl (nvidia performance libraries - optimized for arm nvidia cpu)
     # ['nvpl_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_nvpl_csr_nv_d.exe"
+
+    # CSR5
+    ['csr5_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr5_cuda_nv_d.exe"
 
     # Custom cuda
     # ['csr_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_nv_d.exe"

@@ -457,7 +457,7 @@ progs=(
     # ['cusparse_csr_s4_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_s4_nv_d.exe"
     # ['cusparse_coo_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_coo_nv_d.exe"
     # ['cusparse_coo_s4_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_coo_s4_nv_d.exe"
-    ['cusparse_csc_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csc_nv_d.exe"
+    # ['cusparse_csc_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csc_nv_d.exe"
     # ['cusparse_csc_s4_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csc_s4_nv_d.exe"
 
     # Custom compressed values block
@@ -487,6 +487,7 @@ progs=(
 
     # CSR5
     # ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5_d.exe"
+    ['csr5_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr5_cuda_nv_d.exe"
 
     # merge spmv
     # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge_d.exe"

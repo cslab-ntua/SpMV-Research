@@ -257,6 +257,20 @@ CPPFLAGS_CSR5 += -Wno-deprecated-writable-strings -Wno-unused-parameter -Wno-unu
 spmv_csr5$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr5.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CSR5) $^ -o $@ $(LDFLAGS)
 
+CPPFLAGS_CSR5_CUDA = 
+CPPFLAGS_CSR5_CUDA += -Wno-deprecated-writable-strings -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-sign-compare -Wno-unknown-pragmas -Wno-write-strings -Wno-unused-result
+# CPPFLAGS_CSR5_CUDA += -I/various/pmpakos/epyc5_libs/cuda-samples/Common
+CPPFLAGS_CSR5_CUDA += -Icsr5_cuda/Common
+
+LDFLAGS_CSR5_CUDA =
+LDFLAGS_CSR5_CUDA += -lcudart
+
+# diag-suppress is used to suppress warnings
+# warning #68-D  : integer conversion resulted in a change of sign
+# warning #2464-D: conversion from a string literal to "char *" is deprecated
+spmv_csr5_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr5_cuda.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CSR5_CUDA)" -diag-suppress=68,2464 $^ -o $@ $(LDFLAGS) $(LDFLAGS_CSR5_CUDA)
+
 
 CPPFLAGS_MERGE =
 # CPPFLAGS_MERGE += -D'CUB_MKL'
