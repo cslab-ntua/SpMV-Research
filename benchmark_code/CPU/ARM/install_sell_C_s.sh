@@ -4,11 +4,11 @@
 set -e
 
 export CUR_PATH=`pwd`
-export ROOT_DIR="<<Insert ROOT_DIR>>"
-# export ROOT_DIR=/local/pmpakos/ROOT_DIR/
+# export ROOT_DIR="<<Insert ROOT_DIR>>"
+export ROOT_DIR=/local/pmpakos/ROOT_DIR/
 
-export ARMPL_CBLAS_PATH="<<Insert ARMPL_CBLAS_PATH>>"
-# export ARMPL_CBLAS_PATH="/local/pmpakos/arm-compiler/armpl-24.04.0_Ubuntu-22.04_gcc/"
+# export ARMPL_CBLAS_PATH="<<Insert ARMPL_CBLAS_PATH>>"
+export ARMPL_CBLAS_PATH="/local/pmpakos/arm-compiler/armpl-24.04.0_Ubuntu-22.04_gcc/"
 
 #==========================================================================================================================================
 # Install SELL-C-σ prerequisites
@@ -35,6 +35,7 @@ cd hwloc-2.10.0
 export HW_LOC_DIR="$ROOT_DIR"/hwloc-2.10.0/build
 
 ./configure --prefix="$HW_LOC_DIR"
+make clean
 make -j
 make install
 cd ../
@@ -45,6 +46,7 @@ rm fftw-3.3.10.tar.gz
 cd fftw-3.3.10
 export FFTW_DIR="$ROOT_DIR"/fftw-3.3.10/build/
 ./configure --prefix="$FFTW_DIR"
+make clean
 make -j
 make install
 cd ../
@@ -119,6 +121,7 @@ cmake .. -DCMAKE_INSTALL_PREFIX="$GHOST_DIR" -DHWLOC_INCLUDE_DIR="$HW_LOC_DIR"/i
 #(optional : )
 #(if GPU used, add -DGHOST_USE_CUDA=1)
 
+make clean
 make -j
 make install
 
@@ -157,6 +160,7 @@ cd objdir
 
 cmake .. -DCMAKE_INSTALL_PREFIX="$PHYSICS_DIR" -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DFFTW3_INCLUDE_DIR="$FFTW_DIR"/include -DFFTW3_LIBRARY="$FFTW_DIR"/lib
 
+make clean
 make -j
 make install
 
@@ -185,6 +189,7 @@ mkdir -p build
 cd build
 
 cmake .. -DCMAKE_INSTALL_PREFIX="$GHOST_APPS_DIR" -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
+make clean
 make -j20
 
 #==========================================================================================================================================

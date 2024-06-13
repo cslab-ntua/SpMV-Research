@@ -5,7 +5,6 @@
 #include <cmath>
 
 #include "csr5/anonymouslib_avx2.h"
-#include "csr5/mmio.h"
 
 #include "macros/cpp_defines.h"
 

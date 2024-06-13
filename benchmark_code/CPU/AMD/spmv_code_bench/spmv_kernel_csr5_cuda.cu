@@ -5,7 +5,6 @@
 #include <cmath>
 
 #include "csr5_cuda/anonymouslib_cuda.h"
-#include "csr5_cuda/mmio.h"
 
 #include "macros/cpp_defines.h"
 

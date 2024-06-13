@@ -185,6 +185,16 @@ spmv_csr5_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr5_cuda.cu 
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CSR5_CUDA)" -diag-suppress=68,2464 $^ -o $@ $(LDFLAGS) $(LDFLAGS_CSR5_CUDA)
 
 
+CPPFLAGS_DASP_CUDA = 
+CPPFLAGS_DASP_CUDA +=
+
+LDFLAGS_DASP_CUDA =
+LDFLAGS_DASP_CUDA += -lcudart
+
+spmv_dasp_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_dasp_cuda.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_DASP_CUDA)" -D f64 -diag-suppress=550 -Xcompiler -fopenmp-simd $^ -o $@ $(LDFLAGS) $(LDFLAGS_DASP_CUDA)
+
+
 CPPFLAGS_MERGE =
 # CPPFLAGS_MERGE += -D'CUB_MKL'
 ifeq ($(ARCH), x86_64)

@@ -496,7 +496,7 @@ bench()
                 export PROGG=${prog_name}
                 
                 echo "${mtx_name}_${prog_name}"
-                # compute-sanitizer --tool initcheck --track-unused-memory "$prog" "${prog_args[@]}"  2>'tmp.err'
+                # compute-sanitizer --tool initcheck --track-unused-memory --print-limit 10000000 "$prog" "${prog_args[@]}"  2>'tmp.err'
                 # compute-sanitizer --tool memcheck --print-limit 10000000 "$prog" "${prog_args[@]}"  2>'tmp.err'
                 # ncu -o ./out_logs/reports/ncu_reports/ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={ComputeWorkloadAnalysis,InstructionStats,LaunchStats,MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Tables,Occupancy,SchedulerStats,SourceCounters,SpeedOfLight,SpeedOfLight_RooflineChart,WarpStateStats} "$prog" "${prog_args[@]}"  2>'tmp.err'
                 # nsys profile -o ./out_logs/reports/nsys_reports/nsys_report_${mtx_name}_${prog_name} -f true -t cuda,cublas --cuda-memory-usage=true --stats=true -w true "$prog" "${prog_args[@]}"  2>'tmp.err'

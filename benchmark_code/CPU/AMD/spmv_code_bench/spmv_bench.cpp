@@ -168,6 +168,7 @@ check_accuracy(char * buf, long buf_n, INT_T * csr_ia, INT_T * csr_ja, double * 
 		// if (diff > epsilon_relaxed)
 		// 	printf("error: i=%ld/%d , a=%.10g f=%.10g\n", i, csr_m-1, (double) y_gold[i], (double) y_test[i]);
 		// if(i<5)
+		// if((double)y_gold[i]-(double)y_test[i])
 		// 	printf("y_gold[%ld] = %.4lf, y_test[%ld] = %.4lf\n", i, (double)y_gold[i], i, (double)y_test[i]);
 		// std::cout << i << ": " << y_gold[i]-y_test[i] << "\n";
 		// if (y_gold[i] != 0.0)
@@ -308,7 +309,7 @@ compute(char * matrix_name,
 		int gpu_kernel = atoi(getenv("GPU_KERNEL"));
 		if (gpu_kernel) {
 			time_warm_up = time_it(1,
-				for(int i=0;i<1000;i++)
+				for(int i=10000;i<1000;i++)
 					MF->spmv(x, y);
 			);
 		}

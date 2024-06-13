@@ -139,7 +139,7 @@ export LDFLAGS
 NVCCFLAGS=
 NVCCFLAGS+=" -allow-unsupported-compiler"
 # NVCCFLAGS+=" --dlink-time-opt"
-NVCCFLAGS+=' -arch=sm_80'
+NVCCFLAGS+=' -gencode arch=compute_80,code=sm_80'
 NVCCFLAGS+=' -DPERSISTENT_L2_PREFETCH'
 # NVCCFLAGS+=' -lineinfo'
 # NVCCFLAGS+=' -G -g'

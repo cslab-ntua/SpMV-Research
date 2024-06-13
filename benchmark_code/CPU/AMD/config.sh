@@ -487,7 +487,10 @@ progs=(
 
     # CSR5
     # ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5_d.exe"
-    ['csr5_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr5_cuda_nv_d.exe"
+    # ['csr5_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr5_cuda_nv_d.exe"
+    
+    # DASP
+    ['dasp_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_dasp_cuda_nv_d.exe"
 
     # merge spmv
     # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge_d.exe"
