@@ -189,6 +189,62 @@ spmv_cusparse_coo_s${NUM_STREAMS}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_k
 spmv_cusparse_csc$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_csc.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CUSPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_CUSPARSE)
 
+
+# Custom ROCM kernels (dgal and others...)
+
+CPPFLAGS_ROCM =
+CPPFLAGS_ROCM += -D__HIP_PLATFORM_AMD__
+CPPFLAGS_ROCM += -I$(ROCM_PATH)/include/
+
+LDFLAGS_ROCM =
+LDFLAGS_ROCM += -L'$(ROCM_PATH)/lib64'
+LDFLAGS_ROCM += -lamdhip64
+
+spmv_csr_rocm_vector_b${BLOCK_SIZE}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_rocm_vector_b${BLOCK_SIZE}$(SUFFIX).o obj/spmv_subkernel_csr_rocm_vector_b${BLOCK_SIZE}$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) -DTIME_IT=$(TIME_IT) -DBLOCK_SIZE=${BLOCK_SIZE} $(CPPFLAGS) $(CPPFLAGS_ROCM) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ROCM)
+obj/spmv_kernel_csr_rocm_vector_b${BLOCK_SIZE}$(SUFFIX).o: spmv_kernel_csr_rocm_vector.cpp
+	$(CPP) -DTIME_IT=$(TIME_IT) -DBLOCK_SIZE=${BLOCK_SIZE} $(CPPFLAGS) $(CPPFLAGS_ROCM) -c $^ -o $@
+obj/spmv_subkernel_csr_rocm_vector_b${BLOCK_SIZE}$(SUFFIX).o: spmv_subkernel_csr_rocm_vector.cpp
+	$(HIPCC) $(HIPCCFLAGS) -DBLOCK_SIZE=${BLOCK_SIZE} $(CPPFLAGS) $(CPPFLAGS_ROCM) -c $^ -o $@
+
+spmv_csr_rocm_adaptive_b${BLOCK_SIZE}_mb${MULTIBLOCK_SIZE}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_rocm_adaptive_b${BLOCK_SIZE}_mb${MULTIBLOCK_SIZE}$(SUFFIX).o obj/spmv_subkernel_csr_rocm_adaptive_b${BLOCK_SIZE}_mb${MULTIBLOCK_SIZE}$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) -DTIME_IT=$(TIME_IT) -DBLOCK_SIZE=${BLOCK_SIZE} -DMULTIBLOCK_SIZE=${MULTIBLOCK_SIZE} $(CPPFLAGS) $(CPPFLAGS_ROCM) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ROCM)
+obj/spmv_kernel_csr_rocm_adaptive_b${BLOCK_SIZE}_mb${MULTIBLOCK_SIZE}$(SUFFIX).o: spmv_kernel_csr_rocm_adaptive.cpp
+	$(CPP) -DTIME_IT=$(TIME_IT) -DBLOCK_SIZE=${BLOCK_SIZE} -DMULTIBLOCK_SIZE=${MULTIBLOCK_SIZE} $(CPPFLAGS) $(CPPFLAGS_ROCM) -c $^ -o $@
+obj/spmv_subkernel_csr_rocm_adaptive_b${BLOCK_SIZE}_mb${MULTIBLOCK_SIZE}$(SUFFIX).o: spmv_subkernel_csr_rocm_adaptive.cpp
+	$(HIPCC) $(HIPCCFLAGS) -DBLOCK_SIZE=${BLOCK_SIZE} -DMULTIBLOCK_SIZE=${MULTIBLOCK_SIZE} $(CPPFLAGS) $(CPPFLAGS_ROCM) -c $^ -o $@
+
+spmv_csr_rocm_const_nnz_per_thread_b${BLOCK_SIZE}_nnz${NNZ_PER_THREAD}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_rocm_const_nnz_per_thread_b${BLOCK_SIZE}_nnz${NNZ_PER_THREAD}$(SUFFIX).o obj/spmv_subkernel_csr_rocm_const_nnz_per_thread_b${BLOCK_SIZE}_nnz${NNZ_PER_THREAD}$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) -DTIME_IT=$(TIME_IT) -DBLOCK_SIZE=${BLOCK_SIZE} -DNNZ_PER_THREAD=${NNZ_PER_THREAD} $(CPPFLAGS) $(CPPFLAGS_ROCM) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ROCM)
+obj/spmv_kernel_csr_rocm_const_nnz_per_thread_b${BLOCK_SIZE}_nnz${NNZ_PER_THREAD}$(SUFFIX).o: spmv_kernel_csr_rocm_const_nnz_per_thread.cpp
+	$(CPP) -DTIME_IT=$(TIME_IT) -DBLOCK_SIZE=${BLOCK_SIZE} -DNNZ_PER_THREAD=${NNZ_PER_THREAD} $(CPPFLAGS) $(CPPFLAGS_ROCM) -c $^ -o $@
+obj/spmv_subkernel_csr_rocm_const_nnz_per_thread_b${BLOCK_SIZE}_nnz${NNZ_PER_THREAD}$(SUFFIX).o: spmv_subkernel_csr_rocm_const_nnz_per_thread.cpp
+	$(HIPCC) $(HIPCCFLAGS) -DBLOCK_SIZE=${BLOCK_SIZE} -DNNZ_PER_THREAD=${NNZ_PER_THREAD} $(CPPFLAGS) $(CPPFLAGS_ROCM) -c $^ -o $@
+
+
+# rocSPARSE kernels
+
+CPPFLAGS_ROCSPARSE =
+CPPFLAGS_ROCSPARSE += -D__HIP_PLATFORM_AMD__
+CPPFLAGS_ROCSPARSE += -I$(ROCM_PATH)/include/
+
+# CPPFLAGS_ROCSPARSE += -I'$(CUDA_TOOLKIT)/include'
+
+LDFLAGS_ROCSPARSE =
+LDFLAGS_ROCSPARSE += -L'$(ROCM_PATH)/lib64'
+LDFLAGS_ROCSPARSE += -lrocsparse
+LDFLAGS_ROCSPARSE += -lamdhip64
+
+spmv_rocsparse_csr$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_rocsparse_csr.cpp $(LIB_OBJ)
+	$(CPP) -DTIME_IT=$(TIME_IT) $(CPPFLAGS) $(CPPFLAGS_ROCSPARSE) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ROCSPARSE)
+# spmv_rocsparse_csr_deprecated$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_rocsparse_csr_deprecated.cpp $(LIB_OBJ)
+# 	$(CPP) -DTIME_IT=$(TIME_IT) $(CPPFLAGS) $(CPPFLAGS_ROCSPARSE) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ROCSPARSE)
+spmv_rocsparse_coo$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_rocsparse_coo.cpp $(LIB_OBJ)
+	$(CPP) -DTIME_IT=$(TIME_IT) $(CPPFLAGS) $(CPPFLAGS_ROCSPARSE) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ROCSPARSE)
+spmv_rocsparse_hyb$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_rocsparse_hyb.cpp $(LIB_OBJ)
+	$(CPP) -DTIME_IT=$(TIME_IT) $(CPPFLAGS) $(CPPFLAGS_ROCSPARSE) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ROCSPARSE)
+
+
 CPPFLAGS_MKL = 
 CPPFLAGS_MKL += -I'$(MKL_PATH)/include' -I'/usr/include/mkl'
 CPPFLAGS_MKL += -Wno-deprecated-declarations -m64 -mavx2

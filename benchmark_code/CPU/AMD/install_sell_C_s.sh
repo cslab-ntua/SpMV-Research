@@ -75,6 +75,7 @@ export GHOST_DIR="$ROOT_DIR"/ghost/build
 # 		src.gnrows = m;
 # 		src.gncols = n;
 sed 's/ghost_lidx n, ghost_gidx \*col, void \*val/ghost_lidx m, ghost_lidx n, ghost_lidx \*col, double \*val/; s/src.maxrowlen = n;/src.maxrowlen = n;\n\tsrc.gnrows = m; \/\/ needed to add these two, so that create_context did not fail afterwards\n\tsrc.gncols = n;/' src/sparsemat.c > src/sparsemat2.c
+rm src/sparsemat.c
 mv src/sparsemat2.c src/sparsemat.c
 
 # g) In "ESSEX/ghost/include/ghost/sparsemat.h" -> ghost_sparsemat_init_crs, change definition of function, as in sparsemat.c
@@ -84,6 +85,7 @@ mv src/sparsemat2.c src/sparsemat.c
 # 	iv) In "ghost_sparsemat_rowfunc_crs" function, change "ghost_gidx *col" to "ghost_lidx *col"
 # 	v) In "ghost_sparsemat_rowfunc_crs_arg" typedef struct, change "ghost_gidx *col" to "ghost_lidx *col"
 sed 's/ghost_lidx n, ghost_gidx \*col, void \*val/ghost_lidx m, ghost_lidx n, ghost_lidx \*col, double \*val/; s/ghost_gidx \*col;/ghost_lidx \*col;/; s/ghost_gidx \*crscol/ghost_lidx \*crscol/; s/n The local number of rows./m The local number of rows.\n     \* @param n The local number of columns./' include/ghost/sparsemat.h > include/ghost/sparsemat2.h
+rm include/ghost/sparsemat.h
 mv include/ghost/sparsemat2.h include/ghost/sparsemat.h
 
 # In "ghost" root directory, create two folders, build and objdir
@@ -93,7 +95,7 @@ mkdir -p objdir
 # Change directory to objdir
 cd objdir
 
-cmake .. -DCMAKE_INSTALL_PREFIX="$GHOST_DIR" -DHWLOC_INCLUDE_DIR="$HW_LOC_DIR"/include -DGHOST_USE_MPI=0 -DGHOST_USE_CUDA=0 -DCBLAS_INCLUDE_DIR="$MKL_PATH"/include
+CC=gcc cmake .. -DCMAKE_INSTALL_PREFIX="$GHOST_DIR" -DHWLOC_INCLUDE_DIR="$HW_LOC_DIR"/include -DGHOST_USE_MPI=0 -DGHOST_USE_CUDA=0 -DCBLAS_INCLUDE_DIR="$MKL_PATH"/include
 #(optional : )
 #(if GPU used, add -DGHOST_USE_CUDA=1)
 
@@ -110,20 +112,29 @@ export PHYSICS_DIR="$ROOT_DIR"/physics/build
 
 # Remove Fortran support from CMakeLists.txt
 sed 's/project (ESSEX-Physics C CXX Fortran)/project (ESSEX-Physics C CXX)/' CMakeLists.txt > CMakeLists2.txt
+rm CMakeLists.txt
 mv CMakeLists2.txt CMakeLists.txt
 
 # Fix following problems too, to compile without errors
 # 1) In "cheb_toolbox/color_comm_handle.c", move "MPI_Status status" that is defined outside "#ifdef MPI region" inside
 # sed -n '/#ifdef GHOST_HAVE_MPI/ {h; n; s/^[ \t]*MPI_Status mpi_status;$/&/; t ok; x; p; x; p; b skip; :ok p; x; p; b skip}; p; :skip' color_comm_handle.c > sed_color_comm_handle.c # abinis magic
 sed '123d; 124s/.*/\t#ifdef GHOST_HAVE_MPI\n\tMPI_Status mpi_status;/' cheb_toolbox/color_comm_handle.c > cheb_toolbox/color_comm_handle2.c
+rm cheb_toolbox/color_comm_handle.c
 mv cheb_toolbox/color_comm_handle2.c cheb_toolbox/color_comm_handle.c
+
+# This problem appeared in LUMI supercomputer for the first time... Need to remove the reference to this Fortran function, because we got an "undefined reference to..." when compiling ghost-apps
+sed '/bessel_jn_array_/s/^/\/\/ /' cheb_toolbox/time_propagation_coeffs.cpp > cheb_toolbox/time_propagation_coeffs2.cpp
+rm cheb_toolbox/time_propagation_coeffs.cpp
+mv cheb_toolbox/time_propagation_coeffs2.cpp cheb_toolbox/time_propagation_coeffs.cpp
 
 # 2) In "matfuncs/matfuncs_png.c" (a visualization function) remove all code refering to "png_*" functions, as it is not installed, and not needed for SELL-C-s
 sed '42,67d' matfuncs/matfuncs_png.c > matfuncs/matfuncs_png2.c
+rm matfuncs/matfuncs_png.c
 mv matfuncs/matfuncs_png2.c matfuncs/matfuncs_png.c
 
 # 3) In "matfuncs/SpinChainSZ.c", remove all references to "SMALLSPINMATRIX" (some #defines and one line of code too - It's sth in Fortran that we have disabled)
 sed '339,345d; 375,377d' matfuncs/SpinChainSZ.c > matfuncs/SpinChainSZ2.c
+rm matfuncs/SpinChainSZ.c
 mv matfuncs/SpinChainSZ2.c matfuncs/SpinChainSZ.c
 
 # In "physics" root directory, create two folders, build and objdir
@@ -133,7 +144,7 @@ mkdir -p objdir
 # Change directory to objdir
 cd objdir
 
-cmake .. -DCMAKE_INSTALL_PREFIX="$PHYSICS_DIR" -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DFFTW3_INCLUDE_DIR="$FFTW_DIR"/include -DFFTW3_LIBRARY="$FFTW_DIR"/lib
+CC=gcc cmake .. -DCMAKE_INSTALL_PREFIX="$PHYSICS_DIR" -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DFFTW3_INCLUDE_DIR="$FFTW_DIR"/include -DFFTW3_LIBRARY="$FFTW_DIR"/lib
 
 make -j
 make install
@@ -150,19 +161,22 @@ export GHOST_APPS_DIR="$ROOT_DIR"/ghost-apps/build
 # 	1) Remove Fortran support from CMakeLists.txt
 # 	3) In CMakeLists, disable "cg, lanczos, cheb_dos" from being built
 sed 's/project (GHOST-apps C Fortran CXX)/project (GHOST-apps C CXX)/; /lanczos/d; /cg/d; /minimal/d; /cheb_dos/d;' CMakeLists.txt > CMakeLists2.txt
+rm CMakeLists.txt
 mv CMakeLists2.txt CMakeLists.txt
 
 # 	3) In "common/essexamples.c" and header file, remove function "essexamples_create_matrix_ft" (it contains an MPI_Comm in function arguments)
 sed '655,970d' common/essexamples.c > common/essexamples2.c
+rm common/essexamples.c
 mv common/essexamples2.c common/essexamples.c
 
 sed '/essexamples_create_matrix_ft/d' common/essexamples.h > common/essexamples2.h
+rm common/essexamples.h
 mv common/essexamples2.h common/essexamples.h
 
 mkdir -p build
 cd build
 
-cmake .. -DCMAKE_INSTALL_PREFIX="$GHOST_APPS_DIR" -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
+CC=gcc cmake .. -DCMAKE_INSTALL_PREFIX="$GHOST_APPS_DIR" -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
 make -j20
 
 #==========================================================================================================================================
@@ -172,13 +186,15 @@ make -j20
 cd "$CUR_PATH"/spmv_code_bench/sell-C-s/
 mkdir -p build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX="$CUR_PATH"/spmv_code_bench/sell-C-s/build -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
+CC=gcc cmake .. -DCMAKE_INSTALL_PREFIX="$CUR_PATH"/spmv_code_bench/sell-C-s/build -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
 
 # replace placeholders with correct paths and compile sell-C-s
 sed  "s|<<ROOT_DIR>>|${ROOT_DIR}|g; s|<<MKL_PATH>>|${MKL_PATH}|g" ../link.txt > ./link.txt
+rm ./spmvbench/CMakeFiles/spmvbench.dir/link.txt
 mv link.txt ./spmvbench/CMakeFiles/spmvbench.dir
 
 sed  "s|<<CMAKE_DIR>>/bin/cmake|${CMAKE_DIR}/bin/cmake|g" ../build.make > ./build.make
+rm ./spmvbench/CMakeFiles/spmvbench.dir/build.make
 mv build.make ./spmvbench/CMakeFiles/spmvbench.dir
 
 make -j

@@ -20,6 +20,8 @@ fi
 # GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
 # e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
 export GOMP_CPU_AFFINITY="$cpu_affinity"
+# when running on LUMI-G, need to manually set GOMP_CPU_AFFINITY!!! Cores 0, 8, ..., 56 are disabled
+# export GOMP_CPU_AFFINITY="1,2,3,4,5,6,7,9,10,11,12,13,14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,33,34,35,36,37,38,39,41,42,43,44,45,46,47,49,50,51,52,53,54,55,57,58,59,60,61,62,63"
 export XLSMPOPTS="PROCS=$cpu_affinity"
 
 lscpu | grep -q -i amd
@@ -33,7 +35,9 @@ export LD_LIBRARY_PATH="${AOCL_PATH}/lib:${MKL_PATH}/lib/intel64:${LD_LIBRARY_PA
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${SPARSEX_LIB_PATH}"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/home/jim/lib/gcc/gcc_12/lib64"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/various/dgal/gcc/gcc-12.2.0/gcc_bin/lib64"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/gcc/12.2.0/snos/lib64"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CUDA_PATH}/lib64"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${ROCM_PATH}/lib64"
 
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'
@@ -472,7 +476,7 @@ bench()
                 numactl -i "$numa_nodes" "$prog" "${prog_args[@]}"  2>'tmp.err'
             else
                 # If a GPU kernel is tested, then set env variable accordingly. This is used in spmv_bench, so that the warm up is performed 1000 times, instead of just once (CPU warm up)
-                if [[ "$prog" == *"cuda"* ]] || [[ "$prog" == *"cusparse"* ]]; then
+                if [[ "$prog" == *"cuda"* ]] || [[ "$prog" == *"cusparse"* ]] || [[ "$prog" == *"rocm"* ]] || [[ "$prog" == *"rocsparse"* ]]; then
                     export GPU_KERNEL=1
                 else
                     export GPU_KERNEL=0

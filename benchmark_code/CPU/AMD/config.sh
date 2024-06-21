@@ -61,11 +61,11 @@ calc_numa_nodes()
 }
 
 
-export SPARSEX_ROOT_DIR="${HOME}/lib"
+# export SPARSEX_ROOT_DIR="${HOME}/lib"
 # export SPARSEX_ROOT_DIR=/various/dgal/epyc1
 # export SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
 # export SPARSEX_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/sparsex
-
+export SPARSEX_ROOT_DIR=/pfs/lustrep2/scratch/project_465000869/pmpakos/damned_directory/
 
 declare -A conf_vars
 conf_vars=(
@@ -99,8 +99,9 @@ conf_vars=(
     # ['max_cores']=160
     # ['max_cores']=256
     # ['max_cores']=128
-    # ['max_cores']=64
-    ['max_cores']=96
+    ['max_cores']=64
+    # ['max_cores']=56
+    # ['max_cores']=32
     # ['max_cores']=48
     # ['max_cores']=16
     # ['max_cores']=8
@@ -113,7 +114,8 @@ conf_vars=(
     # ['cores']=64
     # ['cores']=48
     # ['cores']=32
-    ['cores']=24
+    ['cores']=64
+    # ['cores']=56
     # ['cores']=16
     # ['cores']=12
     # ['cores']=8
@@ -150,16 +152,16 @@ conf_vars=(
     ['MKL_PATH']="$( options=(
                         # '/opt/intel/oneapi/mkl/latest'
                         # '/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl'
-                        '/various/pmpakos/intel/oneapi/mkl/2024.1'
-                        # "${HOME}/spack/23.03/0.20.0/intel-oneapi-mkl-2023.1.0-cafkcjc/mkl/latest"
+                        # '/various/pmpakos/intel/oneapi/mkl/2024.1'
+                        "${HOME}/spack/23.03/0.20.0/intel-oneapi-mkl-2023.1.0-cafkcjc/mkl/latest"
                     )
                     find_valid_dir "${options[@]}"
                 )"
 
     ['AOCL_PATH']="$( options=(
-                        '/opt/aoclsparse'
+                        # '/opt/aoclsparse'
                         '/various/pmpakos/spmv_paper/aocl-sparse/build/release'
-                        "${HOME}/aocl-sparse/library"
+                        # "/pfs/lustrep2/scratch/project_465000869/pmpakos/aocl-sparse-3.2/build/release"
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -169,6 +171,12 @@ conf_vars=(
                     )
                     find_valid_dir "${options[@]}"
                 )"
+    ['ROCM_PATH']="$( options=(
+                        '/appl/lumi/SW/LUMI-23.09/G/EB/rocm/5.6.1'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+
     # SparseX ecosystem environment variables that have to be set.
     # These are environment variables that have to be set for SparseX to work
     # Need to install specific library versions
@@ -215,14 +223,16 @@ conf_vars=(
 
     # SELL-C-s ecosystem environment variables that have to be set
     # These are environment variables that have to be set for SELL-C-s to work
-    ['GHOST_ROOT_DIR']='/various/pmpakos/epyc5_libs/'
+    # ['GHOST_ROOT_DIR']='/various/pmpakos/epyc5_libs/'
+    ['GHOST_ROOT_DIR']='/pfs/lustrep2/scratch/project_465000869/pmpakos/damned_directory/'
+
     ['GHOST_APPS_ROOT_DIR']=${script_dir}'/spmv_code_bench/sell-C-s'
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
                         # "$HOME/Data/graphs/validation_matrices"
-                        # "${script_dir}/../../../validation_matrices"
-                        '/various/pmpakos/SpMV-Research/validation_matrices'
+                        "${script_dir}/../../../validation_matrices"
+                        # '/various/pmpakos/SpMV-Research/validation_matrices'
                         # '/various/pmpakos/SpMV-Research/validation_matrices/matrix_features/matrices'
                         # '/various/pmpakos/SpMV-Research/validation_matrices/download_matrices'
                     )
@@ -460,6 +470,26 @@ progs=(
     # ['cusparse_csc_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csc_nv_d.exe"
     # ['cusparse_csc_s4_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csc_s4_nv_d.exe"
 
+    # ROCM
+    # rocm vector
+    # ['csr_rocm_vector_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_vector_b256_nv_d.exe"
+    # ['csr_rocm_vector_b512_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_vector_b512_nv_d.exe"
+    # ['csr_rocm_vector_b1024_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_vector_b1024_nv_d.exe"
+
+    # rocm adaptive
+    # ['csr_rocm_adaptive_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_adaptive_b256_mb1_nv_d.exe"
+    # ['csr_rocm_adaptive_b512_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_adaptive_b512_mb1_nv_d.exe"
+    # ['csr_rocm_adaptive_b1024_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_adaptive_b1024_mb1_nv_d.exe"
+
+    # Custom rocm (dgal implementation)
+    # ['csr_rocm_const_nnz_per_thread_b512_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_const_nnz_per_thread_b512_nnz4_nv_d.exe"
+    # ['csr_rocm_const_nnz_per_thread_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_const_nnz_per_thread_b1024_nnz4_nv_d.exe"
+
+    # rocsparse
+    # ['rocparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_csr_nv_d.exe"
+    # ['rocparse_coo_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_coo_nv_d.exe"
+    # ['rocparse_hyb_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_hyb_nv_d.exe"
+
     # Custom compressed values block
     # ['csr_cv_block_id_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_id_d.exe"
     # ['csr_cv_block_d2f_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_d2f_d.exe"
@@ -522,7 +552,6 @@ progs=(
     # ['mkl_bsr_64_d']="${script_dir}/spmv_code_bench/spmv_mkl_bsr_64_d.exe"
     # ['mkl_coo_d']="${script_dir}/spmv_code_bench/spmv_mkl_coo_d.exe"
     # ['mkl_csc_d']="${script_dir}/spmv_code_bench/spmv_mkl_csc_d.exe"
-
 )
 
 

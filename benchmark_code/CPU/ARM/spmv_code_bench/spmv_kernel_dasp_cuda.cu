@@ -59,6 +59,7 @@ struct DASPArrays : Matrix_Format
 
 	int BlockNum_all;
 	int ThreadNum_all;
+	int sumBlockNum;
 
 	int rowloop;
 	int row_long = 0, row_block = 0, row_zero = 0;
@@ -768,6 +769,8 @@ struct DASPArrays : Matrix_Format
 		BlockNum_all = BlockNum_long + BlockNum + BlockNum_short;
 		ThreadNum_all = 4 * WARP_SIZE;
 
+		sumBlockNum = (row_long + 3) / 4;
+
 		/************************************************************************************************************************************************************************/
 		gpuCudaErrorCheck(cudaMalloc(&x_d, n * sizeof(*x_d)));
 		gpuCudaErrorCheck(cudaMalloc(&y_d, m * sizeof(*y_d)));
@@ -1001,42 +1004,6 @@ compute_dasp(DASPArrays * dasp, ValueType * x , ValueType * y)
 			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda, dasp->startEvent_memcpy_x, dasp->endEvent_memcpy_x));
 			printf("(CUDA) Memcpy x time = %.4lf ms\n", memcpyTime_cuda);
 		}
-
-		if(1){
-			if (dasp->rowloop == 1) {
-				dasp_spmv2<1><<<dasp->BlockNum_all, dasp->ThreadNum_all>>>(
-					dasp->x_d, dasp->y_d,
-					dasp->long_val_d, dasp->long_cid_d, dasp->val_by_warp_d, dasp->long_ptr_warp_d, dasp->row_long,
-					dasp->reg_val_d, dasp->reg_cid_d, dasp->block_ptr_d, dasp->row_block, dasp->blocknum,
-					dasp->irreg_val_d, dasp->irreg_cid_d, dasp->irreg_rpt_d,
-					dasp->short_val_d, dasp->short_cid_d, dasp->short_row_1, dasp->common_13, dasp->short_row_34, dasp->short_row_2,
-					dasp->offset_reg, dasp->offset_short1, dasp->offset_short13, dasp->offset_short34, dasp->offset_short22,
-					dasp->fill0_nnz_short13, dasp->fill0_nnz_short34);
-
-			}
-			else if (dasp->rowloop == 2) {
-				dasp_spmv2<2><<<dasp->BlockNum_all, dasp->ThreadNum_all>>>(
-					dasp->x_d, dasp->y_d,
-					dasp->long_val_d, dasp->long_cid_d, dasp->val_by_warp_d, dasp->long_ptr_warp_d, dasp->row_long,
-					dasp->reg_val_d, dasp->reg_cid_d, dasp->block_ptr_d, dasp->row_block, dasp->blocknum,
-					dasp->irreg_val_d, dasp->irreg_cid_d, dasp->irreg_rpt_d,
-					dasp->short_val_d, dasp->short_cid_d, dasp->short_row_1, dasp->common_13, dasp->short_row_34, dasp->short_row_2,
-					dasp->offset_reg, dasp->offset_short1, dasp->offset_short13, dasp->offset_short34, dasp->offset_short22,
-					dasp->fill0_nnz_short13, dasp->fill0_nnz_short34);
-			}
-			else {
-				dasp_spmv2<4><<<dasp->BlockNum_all, dasp->ThreadNum_all>>>(
-					dasp->x_d, dasp->y_d,
-					dasp->long_val_d, dasp->long_cid_d, dasp->val_by_warp_d, dasp->long_ptr_warp_d, dasp->row_long,
-					dasp->reg_val_d, dasp->reg_cid_d, dasp->block_ptr_d, dasp->row_block, dasp->blocknum,
-					dasp->irreg_val_d, dasp->irreg_cid_d, dasp->irreg_rpt_d,
-					dasp->short_val_d, dasp->short_cid_d, dasp->short_row_1, dasp->common_13, dasp->short_row_34, dasp->short_row_2,
-					dasp->offset_reg, dasp->offset_short1, dasp->offset_short13, dasp->offset_short34, dasp->offset_short22,
-					dasp->fill0_nnz_short13, dasp->fill0_nnz_short34);
-			}
-			gpuCudaErrorCheck(cudaPeekAtLastError());
-			gpuCudaErrorCheck(cudaDeviceSynchronize());
-		}
 	}
 
 	cudaMemset(dasp->y_d, 0, dasp->m * sizeof(dasp->y_d));
@@ -1055,7 +1022,6 @@ compute_dasp(DASPArrays * dasp, ValueType * x , ValueType * y)
 			dasp->short_val_d, dasp->short_cid_d, dasp->short_row_1, dasp->common_13, dasp->short_row_34, dasp->short_row_2,
 			dasp->offset_reg, dasp->offset_short1, dasp->offset_short13, dasp->offset_short34, dasp->offset_short22,
 			dasp->fill0_nnz_short13, dasp->fill0_nnz_short34);
-
 	}
 	else if (dasp->rowloop == 2) {
 		dasp_spmv2<2><<<dasp->BlockNum_all, dasp->ThreadNum_all>>>(
@@ -1079,18 +1045,15 @@ compute_dasp(DASPArrays * dasp, ValueType * x , ValueType * y)
 	}
 	gpuCudaErrorCheck(cudaPeekAtLastError());
 	gpuCudaErrorCheck(cudaDeviceSynchronize());
+	if(dasp->row_long)
+		longPart_sum<<<dasp->sumBlockNum, dasp->ThreadNum_all>>>(dasp->long_ptr_warp_d, dasp->val_by_warp_d, dasp->y_d, dasp->row_long);
+	gpuCudaErrorCheck(cudaPeekAtLastError());
+	gpuCudaErrorCheck(cudaDeviceSynchronize());
 
 	if (dasp->y == NULL)
 	{
 		dasp->y = y;
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(dasp->startEvent_memcpy_y));
-		// gpuCudaErrorCheck(cudaMemcpy(dasp->y, dasp->y_d, dasp->m * sizeof(ValueType), cudaMemcpyDeviceToHost));		
-		// ValueType *y_reordered = (typeof(y_reordered))malloc(dasp->m * sizeof(*y_reordered));
-		// for(INT_T i=0; i<dasp->m; i++)
-		// 	y_reordered[dasp->order_rid[i]] = dasp->y[i];
-		// for(INT_T i=0; i<dasp->m; i++)
-		// 	dasp->y[i] = y_reordered[i];
-		// free(y_reordered);
 		ValueType *y_reordered = (typeof(y_reordered))malloc(dasp->m * sizeof(*y_reordered));
 		gpuCudaErrorCheck(cudaMemcpy(y_reordered, dasp->y_d, dasp->m * sizeof(ValueType), cudaMemcpyDeviceToHost));		
 		// Need to perform reordering to result, apart from Copying it back to CPU

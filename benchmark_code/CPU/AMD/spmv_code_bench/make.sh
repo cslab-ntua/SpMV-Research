@@ -25,6 +25,9 @@ elif [[ -d "/home/jim/Documents/gcc_versions/gcc_12/bin" ]]; then
 elif [[ -d "/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin" ]]; then
     gcc_bin=/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/gcc
     gpp_bin=/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/g++
+elif [[ -d "/opt/cray/pe/gcc/12.2.0/snos/bin/" ]]; then
+    gcc_bin=/opt/cray/pe/gcc/12.2.0/snos/bin/gcc
+    gpp_bin=/opt/cray/pe/gcc/12.2.0/snos/bin/g++
 else
     gcc_bin=gcc
     gpp_bin=g++
@@ -47,6 +50,13 @@ else
     NVCC="nvcc -ccbin=${CC}"
 fi
 export NVCC
+
+if [[ -d "${ROCM_PATH}/bin" ]]; then
+    HIPCC="${ROCM_PATH}/bin/hipcc"
+else
+    HIPCC="hipcc"
+fi
+export HIPCC
 
 export ARCH="$(uname -m)"
 
@@ -144,10 +154,15 @@ NVCCFLAGS+=' -DPERSISTENT_L2_PREFETCH'
 # NVCCFLAGS+=' -lineinfo'
 # NVCCFLAGS+=' -G -g'
 # NVCCFLAGS+=' --ptxas-options=-v'
+export NVCCFLAGS
+
+HIPCCFLAGS=
+# HIPCCFLAGS+=' --offload-arch=gfx90a' # MI250
+HIPCCFLAGS+=' --offload-arch=native' # MI250
+export HIPCCFLAGS
 
 export NUM_STREAMS=;export NUM_THREADS=;export ROW_CLUSTER_SIZE=;export BLOCK_SIZE=;export NNZ_PER_THREAD=;export MULTIBLOCK_SIZE=;
 
-export NVCCFLAGS
 
 
 targets_d=()
