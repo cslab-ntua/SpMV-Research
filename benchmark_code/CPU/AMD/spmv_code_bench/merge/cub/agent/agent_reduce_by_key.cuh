@@ -94,7 +94,7 @@ template <
     typename    NumRunsOutputIteratorT,         ///< Output iterator type for recording number of items selected
     typename    EqualityOpT,                    ///< KeyT equality operator type
     typename    ReductionOpT,                   ///< ValueT reduction operator type
-    typename    OffsetT>                        ///< Signed integer type for global offsets
+    typename    OffsetT_NV>                        ///< Signed integer type for global offsets
 struct AgentReduceByKey
 {
     //---------------------------------------------------------------------
@@ -108,13 +108,13 @@ struct AgentReduceByKey
     typedef typename std::iterator_traits<ValuesInputIteratorT>::value_type ValueT;
 
     // Tuple type for scanning (pairs accumulated segment-value with segment-index)
-    typedef KeyValuePair<OffsetT, ValueT> OffsetValuePairT;
+    typedef KeyValuePair<OffsetT_NV, ValueT> OffsetValuePairT;
 
     // Tuple type for pairing keys and values
     typedef KeyValuePair<KeyT, ValueT> KeyValuePairT;
 
     // Tile status descriptor interface type
-    typedef ReduceByKeyScanTileState<ValueT, OffsetT> ScanTileStateT;
+    typedef ReduceByKeyScanTileState<ValueT, OffsetT_NV> ScanTileStateT;
 
     // Constants
     enum
@@ -130,19 +130,19 @@ struct AgentReduceByKey
 
     // Cache-modified Input iterator wrapper type (for applying cache modifier) for keys
     typedef typename If<IsPointer<KeysInputIteratorT>::VALUE,
-            CacheModifiedInputIterator<AgentReduceByKeyPolicyT::LOAD_MODIFIER, KeyT, OffsetT>,      // Wrap the native input pointer with CacheModifiedValuesInputIterator
+            CacheModifiedInputIterator<AgentReduceByKeyPolicyT::LOAD_MODIFIER, KeyT, OffsetT_NV>,      // Wrap the native input pointer with CacheModifiedValuesInputIterator
             KeysInputIteratorT>::Type                                                               // Directly use the supplied input iterator type
         WrappedKeysInputIteratorT;
 
     // Cache-modified Input iterator wrapper type (for applying cache modifier) for values
     typedef typename If<IsPointer<ValuesInputIteratorT>::VALUE,
-            CacheModifiedInputIterator<AgentReduceByKeyPolicyT::LOAD_MODIFIER, ValueT, OffsetT>,    // Wrap the native input pointer with CacheModifiedValuesInputIterator
+            CacheModifiedInputIterator<AgentReduceByKeyPolicyT::LOAD_MODIFIER, ValueT, OffsetT_NV>,    // Wrap the native input pointer with CacheModifiedValuesInputIterator
             ValuesInputIteratorT>::Type                                                             // Directly use the supplied input iterator type
         WrappedValuesInputIteratorT;
 
     // Cache-modified Input iterator wrapper type (for applying cache modifier) for fixup values
     typedef typename If<IsPointer<AggregatesOutputIteratorT>::VALUE,
-            CacheModifiedInputIterator<AgentReduceByKeyPolicyT::LOAD_MODIFIER, ValueT, OffsetT>,    // Wrap the native input pointer with CacheModifiedValuesInputIterator
+            CacheModifiedInputIterator<AgentReduceByKeyPolicyT::LOAD_MODIFIER, ValueT, OffsetT_NV>,    // Wrap the native input pointer with CacheModifiedValuesInputIterator
             AggregatesOutputIteratorT>::Type                                                        // Directly use the supplied input iterator type
         WrappedFixupInputIteratorT;
 
@@ -326,9 +326,9 @@ struct AgentReduceByKey
 
     template <bool IS_LAST_TILE>
     __device__ __forceinline__ void ZipValuesAndFlags(
-        OffsetT         num_remaining,
+        OffsetT_NV         num_remaining,
         ValueT          (&values)[ITEMS_PER_THREAD],
-        OffsetT         (&segment_flags)[ITEMS_PER_THREAD],
+        OffsetT_NV         (&segment_flags)[ITEMS_PER_THREAD],
         OffsetValuePairT (&scan_items)[ITEMS_PER_THREAD])
     {
         // Zip values and segment_flags
@@ -336,7 +336,7 @@ struct AgentReduceByKey
         for (int ITEM = 0; ITEM < ITEMS_PER_THREAD; ++ITEM)
         {
             // Set segment_flags for first out-of-bounds item, zero for others
-            if (IS_LAST_TILE && (OffsetT(threadIdx.x * ITEMS_PER_THREAD) + ITEM == num_remaining))
+            if (IS_LAST_TILE && (OffsetT_NV(threadIdx.x * ITEMS_PER_THREAD) + ITEM == num_remaining))
                 segment_flags[ITEM] = 1;
 
             scan_items[ITEM].value      = values[ITEM];
@@ -346,7 +346,7 @@ struct AgentReduceByKey
 
     __device__ __forceinline__ void ZipKeysAndValues(
         KeyT            (&keys)[ITEMS_PER_THREAD],                  ///< in
-        OffsetT         (&segment_indices)[ITEMS_PER_THREAD],       ///< out
+        OffsetT_NV         (&segment_indices)[ITEMS_PER_THREAD],       ///< out
         OffsetValuePairT   (&scan_items)[ITEMS_PER_THREAD],            ///< in
         KeyValuePairT   (&scatter_items)[ITEMS_PER_THREAD])         ///< out
     {
@@ -370,8 +370,8 @@ struct AgentReduceByKey
      */
     __device__ __forceinline__ void ScatterDirect(
         KeyValuePairT   (&scatter_items)[ITEMS_PER_THREAD],
-        OffsetT         (&segment_flags)[ITEMS_PER_THREAD],
-        OffsetT         (&segment_indices)[ITEMS_PER_THREAD])
+        OffsetT_NV         (&segment_flags)[ITEMS_PER_THREAD],
+        OffsetT_NV         (&segment_indices)[ITEMS_PER_THREAD])
     {
         // Scatter flagged keys and values
         #pragma unroll
@@ -397,10 +397,10 @@ struct AgentReduceByKey
      */
     __device__ __forceinline__ void ScatterTwoPhase(
         KeyValuePairT   (&scatter_items)[ITEMS_PER_THREAD],
-        OffsetT         (&segment_flags)[ITEMS_PER_THREAD],
-        OffsetT         (&segment_indices)[ITEMS_PER_THREAD],
-        OffsetT         num_tile_segments,
-        OffsetT         num_tile_segments_prefix)
+        OffsetT_NV         (&segment_flags)[ITEMS_PER_THREAD],
+        OffsetT_NV         (&segment_indices)[ITEMS_PER_THREAD],
+        OffsetT_NV         num_tile_segments,
+        OffsetT_NV         num_tile_segments_prefix)
     {
         __syncthreads();
 
@@ -430,10 +430,10 @@ struct AgentReduceByKey
      */
     __device__ __forceinline__ void Scatter(
         KeyValuePairT   (&scatter_items)[ITEMS_PER_THREAD],
-        OffsetT         (&segment_flags)[ITEMS_PER_THREAD],
-        OffsetT         (&segment_indices)[ITEMS_PER_THREAD],
-        OffsetT         num_tile_segments,
-        OffsetT         num_tile_segments_prefix)
+        OffsetT_NV         (&segment_flags)[ITEMS_PER_THREAD],
+        OffsetT_NV         (&segment_indices)[ITEMS_PER_THREAD],
+        OffsetT_NV         num_tile_segments,
+        OffsetT_NV         num_tile_segments_prefix)
     {
         // Do a one-phase scatter if (a) two-phase is disabled or (b) the average number of selected items per thread is less than one
         if (TWO_PHASE_SCATTER && (num_tile_segments > BLOCK_THREADS))
@@ -463,8 +463,8 @@ struct AgentReduceByKey
      * Finalize the carry-out from the last tile (specialized for IS_SEGMENTED_REDUCTION_FIXUP == false)
      */
     __device__ __forceinline__ void FinalizeLastTile(
-        OffsetT         num_segments,
-        OffsetT         num_remaining,
+        OffsetT_NV         num_segments,
+        OffsetT_NV         num_remaining,
         KeyT            last_key,
         ValueT          last_value)
     {
@@ -496,15 +496,15 @@ struct AgentReduceByKey
      */
     template <bool IS_LAST_TILE>
     __device__ __forceinline__ void ConsumeFirstTile(
-        OffsetT             num_remaining,      ///< Number of global input items remaining (including this tile)
-        OffsetT             tile_offset,        ///< Tile offset
+        OffsetT_NV             num_remaining,      ///< Number of global input items remaining (including this tile)
+        OffsetT_NV             tile_offset,        ///< Tile offset
         ScanTileStateT&     tile_state)         ///< Global tile state descriptor
     {
         KeyT                keys[ITEMS_PER_THREAD];             // Tile keys
         KeyT                pred_keys[ITEMS_PER_THREAD];        // Tile keys shifted up (predecessor)
         ValueT              values[ITEMS_PER_THREAD];           // Tile values
-        OffsetT             segment_flags[ITEMS_PER_THREAD];    // Segment head flags
-        OffsetT             segment_indices[ITEMS_PER_THREAD];  // Segment indices
+        OffsetT_NV             segment_flags[ITEMS_PER_THREAD];    // Segment head flags
+        OffsetT_NV             segment_indices[ITEMS_PER_THREAD];  // Segment indices
         OffsetValuePairT     scan_items[ITEMS_PER_THREAD];       // Zipped values and segment flags|indices
         KeyValuePairT       scatter_items[ITEMS_PER_THREAD];    // Zipped key value pairs for scattering
 
@@ -577,16 +577,16 @@ struct AgentReduceByKey
      */
     template <bool IS_LAST_TILE>
     __device__ __forceinline__ void ConsumeSubsequentTile(
-        OffsetT             num_remaining,      ///< Number of global input items remaining (including this tile)
+        OffsetT_NV             num_remaining,      ///< Number of global input items remaining (including this tile)
         int                 tile_idx,           ///< Tile index
-        OffsetT             tile_offset,        ///< Tile offset
+        OffsetT_NV             tile_offset,        ///< Tile offset
         ScanTileStateT&     tile_state)         ///< Global tile state descriptor
     {
         KeyT                keys[ITEMS_PER_THREAD];                 // Tile keys
         KeyT                pred_keys[ITEMS_PER_THREAD];            // Tile keys shifted up (predecessor)
         ValueT              values[ITEMS_PER_THREAD];               // Tile values
-        OffsetT             segment_flags[ITEMS_PER_THREAD];        // Segment head flags
-        OffsetT             segment_indices[ITEMS_PER_THREAD];      // Segment indices
+        OffsetT_NV             segment_flags[ITEMS_PER_THREAD];        // Segment head flags
+        OffsetT_NV             segment_indices[ITEMS_PER_THREAD];      // Segment indices
         OffsetValuePairT     scan_items[ITEMS_PER_THREAD];           // Zipped values and segment flags|indices
         KeyValuePairT       scatter_items[ITEMS_PER_THREAD];    // Zipped key value pairs for scattering
 
@@ -651,9 +651,9 @@ struct AgentReduceByKey
     template <
         bool                IS_LAST_TILE>
     __device__ __forceinline__ void ConsumeTile(
-        OffsetT             num_remaining,      ///< Number of global input items remaining (including this tile)
+        OffsetT_NV             num_remaining,      ///< Number of global input items remaining (including this tile)
         int                 tile_idx,           ///< Tile index
-        OffsetT             tile_offset,        ///< Tile offset
+        OffsetT_NV             tile_offset,        ///< Tile offset
         ScanTileStateT&     tile_state)         ///< Global tile state descriptor
     {
 
@@ -678,8 +678,8 @@ struct AgentReduceByKey
     {
         // Blocks are launched in increasing order, so just assign one tile per block
         int     tile_idx        = (blockIdx.x * gridDim.y) + blockIdx.y;    // Current tile index
-        OffsetT tile_offset     = tile_idx * TILE_ITEMS;                    // Global offset for the current tile
-        OffsetT num_remaining   = num_items - tile_offset;                  // Remaining items (including this tile)
+        OffsetT_NV tile_offset     = tile_idx * TILE_ITEMS;                    // Global offset for the current tile
+        OffsetT_NV num_remaining   = num_items - tile_offset;                  // Remaining items (including this tile)
 
         if (num_remaining > TILE_ITEMS)
         {

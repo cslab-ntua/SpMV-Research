@@ -143,11 +143,11 @@ struct WarpReduceShfl
             "{"
             "  .reg .u32 r0;"
             "  .reg .pred p;"
-            "  shfl.down.b32 r0|p, %1, %2, %3;"
+            "  shfl.sync.down.b32 r0|p, %1, %2, %3, %5;"
             "  @p add.u32 r0, r0, %4;"
             "  mov.u32 %0, r0;"
             "}"
-            : "=r"(output) : "r"(input), "r"(offset), "r"(last_lane), "r"(input));
+            : "=r"(output) : "r"(input), "r"(offset), "r"(last_lane), "r"(input), "r"(0xFFFFFFFF));
 
         return output;
     }
@@ -167,11 +167,11 @@ struct WarpReduceShfl
             "{"
             "  .reg .f32 r0;"
             "  .reg .pred p;"
-            "  shfl.down.b32 r0|p, %1, %2, %3;"
+            "  shfl.sync.down.b32 r0|p, %1, %2, %3, %5;"
             "  @p add.f32 r0, r0, %4;"
             "  mov.f32 %0, r0;"
             "}"
-            : "=f"(output) : "f"(input), "r"(offset), "r"(last_lane), "f"(input));
+            : "=f"(output) : "f"(input), "r"(offset), "r"(last_lane), "f"(input), "r"(0xFFFFFFFF));
 
         return output;
     }
@@ -192,12 +192,12 @@ struct WarpReduceShfl
             "  .reg .u32 hi;"
             "  .reg .pred p;"
             "  mov.b64 {lo, hi}, %1;"
-            "  shfl.down.b32 lo|p, lo, %2, %3;"
-            "  shfl.down.b32 hi|p, hi, %2, %3;"
+            "  shfl.sync.down.b32 lo|p, lo, %2, %3, %4;"
+            "  shfl.sync.down.b32 hi|p, hi, %2, %3, %4;"
             "  mov.b64 %0, {lo, hi};"
             "  @p add.u64 %0, %0, %1;"
             "}"
-            : "=l"(output) : "l"(input), "r"(offset), "r"(last_lane));
+            : "=l"(output) : "l"(input), "r"(offset), "r"(last_lane), "r"(0xFFFFFFFF));
 
         return output;
     }
@@ -219,12 +219,12 @@ struct WarpReduceShfl
             "  .reg .u32 hi;"
             "  .reg .pred p;"
             "  mov.b64 {lo, hi}, %1;"
-            "  shfl.down.b32 lo|p, lo, %2, %3;"
-            "  shfl.down.b32 hi|p, hi, %2, %3;"
+            "  shfl.sync.down.b32 lo|p, lo, %2, %3, %4;"
+            "  shfl.sync.down.b32 hi|p, hi, %2, %3, %4;"
             "  mov.b64 %0, {lo, hi};"
             "  @p add.s64 %0, %0, %1;"
             "}"
-            : "=l"(output) : "l"(input), "r"(offset), "r"(last_lane));
+            : "=l"(output) : "l"(input), "r"(offset), "r"(last_lane), "r"(0xFFFFFFFF));
 
         return output;
     }
@@ -248,12 +248,12 @@ struct WarpReduceShfl
             "  .reg .f64 r0;"
             "  mov.b64 %0, %1;"
             "  mov.b64 {lo, hi}, %1;"
-            "  shfl.down.b32 lo|p, lo, %2, %3;"
-            "  shfl.down.b32 hi|p, hi, %2, %3;"
+            "  shfl.sync.down.b32 lo|p, lo, %2, %3, %4;"
+            "  shfl.sync.down.b32 hi|p, hi, %2, %3, %4;"
             "  mov.b64 r0, {lo, hi};"
             "  @p add.f64 %0, %0, r0;"
             "}"
-            : "=d"(output) : "d"(input), "r"(offset), "r"(last_lane));
+            : "=d"(output) : "d"(input), "r"(offset), "r"(last_lane), "r"(0xFFFFFFFF));
 
         return output;
     }
@@ -287,18 +287,18 @@ struct WarpReduceShfl
 
 
 
-    /// Reduction (specialized for swizzled ReduceBySegmentOp<cub::Sum> across KeyValuePair<OffsetT, ValueT> types)
-    template <typename ValueT, typename OffsetT>
-    __device__ __forceinline__ KeyValuePair<OffsetT, ValueT> ReduceStep(
-        KeyValuePair<OffsetT, ValueT>                 input,              ///< [in] Calling thread's input item.
+    /// Reduction (specialized for swizzled ReduceBySegmentOp<cub::Sum> across KeyValuePair<OffsetT_NV, ValueT> types)
+    template <typename ValueT, typename OffsetT_NV>
+    __device__ __forceinline__ KeyValuePair<OffsetT_NV, ValueT> ReduceStep(
+        KeyValuePair<OffsetT_NV, ValueT>                 input,              ///< [in] Calling thread's input item.
         SwizzleScanOp<ReduceBySegmentOp<cub::Sum> >   reduction_op,       ///< [in] Binary reduction operator
         int                                           last_lane,          ///< [in] Index of last lane in segment
         int                                           offset)             ///< [in] Up-offset to pull from
     {
-        KeyValuePair<OffsetT, ValueT> output;
+        KeyValuePair<OffsetT_NV, ValueT> output;
 
         output.value = ReduceStep(input.value, cub::Sum(), last_lane, offset, Int2Type<IsInteger<ValueT>::IS_SMALL_UNSIGNED>());
-        output.key = ReduceStep(input.key, cub::Sum(), last_lane, offset, Int2Type<IsInteger<OffsetT>::IS_SMALL_UNSIGNED>());
+        output.key = ReduceStep(input.key, cub::Sum(), last_lane, offset, Int2Type<IsInteger<OffsetT_NV>::IS_SMALL_UNSIGNED>());
 
         if (input.key > 0)
             output.value = input.value;
@@ -439,7 +439,7 @@ struct WarpReduceShfl
         ReductionOp     reduction_op)       ///< [in] Binary reduction operator
     {
         // Get the start flags for each thread in the warp.
-        int warp_flags = __ballot(flag);
+        int warp_flags = __ballot_sync(0xFFFFFFFF, flag);
 
         if (HEAD_SEGMENTED)
             warp_flags >>= 1;

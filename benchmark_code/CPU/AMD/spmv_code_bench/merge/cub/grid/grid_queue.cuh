@@ -76,9 +76,9 @@ namespace cub {
  * Iterative work management can be implemented simply with a pair of flip-flopping
  * work buffers, each with an associated set of fill and drain GridQueue descriptors.
  *
- * \tparam OffsetT Signed integer type for global offsets
+ * \tparam OffsetT_NV Signed integer type for global offsets
  */
-template <typename OffsetT>
+template <typename OffsetT_NV>
 class GridQueue
 {
 private:
@@ -91,7 +91,7 @@ private:
     };
 
     /// Pair of counters
-    OffsetT *d_counters;
+    OffsetT_NV *d_counters;
 
 public:
 
@@ -99,7 +99,7 @@ public:
     __host__ __device__ __forceinline__
     static size_t AllocationSize()
     {
-        return sizeof(OffsetT) * 2;
+        return sizeof(OffsetT_NV) * 2;
     }
 
 
@@ -114,13 +114,13 @@ public:
     __host__ __device__ __forceinline__ GridQueue(
         void *d_storage)                    ///< Device allocation to back the GridQueue.  Must be at least as big as <tt>AllocationSize()</tt>.
     :
-        d_counters((OffsetT*) d_storage)
+        d_counters((OffsetT_NV*) d_storage)
     {}
 
 
     /// This operation sets the fill-size and resets the drain counter, preparing the GridQueue for draining in the next kernel instance.  To be called by the host or by a kernel prior to that which will be draining.
     __host__ __device__ __forceinline__ cudaError_t FillAndResetDrain(
-        OffsetT fill_size,
+        OffsetT_NV fill_size,
         cudaStream_t stream = 0)
     {
 #if (CUB_PTX_ARCH > 0)
@@ -128,10 +128,10 @@ public:
         d_counters[DRAIN] = 0;
         return cudaSuccess;
 #else
-        OffsetT counters[2];
+        OffsetT_NV counters[2];
         counters[FILL] = fill_size;
         counters[DRAIN] = 0;
-        return CubDebug(cudaMemcpyAsync(d_counters, counters, sizeof(OffsetT) * 2, cudaMemcpyHostToDevice, stream));
+        return CubDebug(cudaMemcpyAsync(d_counters, counters, sizeof(OffsetT_NV) * 2, cudaMemcpyHostToDevice, stream));
 #endif
     }
 
@@ -143,7 +143,7 @@ public:
         d_counters[DRAIN] = 0;
         return cudaSuccess;
 #else
-        return CubDebug(cudaMemsetAsync(d_counters + DRAIN, 0, sizeof(OffsetT), stream));
+        return CubDebug(cudaMemsetAsync(d_counters + DRAIN, 0, sizeof(OffsetT_NV), stream));
 #endif
     }
 
@@ -155,34 +155,34 @@ public:
         d_counters[FILL] = 0;
         return cudaSuccess;
 #else
-        return CubDebug(cudaMemsetAsync(d_counters + FILL, 0, sizeof(OffsetT), stream));
+        return CubDebug(cudaMemsetAsync(d_counters + FILL, 0, sizeof(OffsetT_NV), stream));
 #endif
     }
 
 
     /// Returns the fill-size established by the parent or by the previous kernel.
     __host__ __device__ __forceinline__ cudaError_t FillSize(
-        OffsetT &fill_size,
+        OffsetT_NV &fill_size,
         cudaStream_t stream = 0)
     {
 #if (CUB_PTX_ARCH > 0)
         fill_size = d_counters[FILL];
         return cudaSuccess;
 #else
-        return CubDebug(cudaMemcpyAsync(&fill_size, d_counters + FILL, sizeof(OffsetT), cudaMemcpyDeviceToHost, stream));
+        return CubDebug(cudaMemcpyAsync(&fill_size, d_counters + FILL, sizeof(OffsetT_NV), cudaMemcpyDeviceToHost, stream));
 #endif
     }
 
 
     /// Drain \p num_items from the queue.  Returns offset from which to read items.  To be called from CUDA kernel.
-    __device__ __forceinline__ OffsetT Drain(OffsetT num_items)
+    __device__ __forceinline__ OffsetT_NV Drain(OffsetT_NV num_items)
     {
         return atomicAdd(d_counters + DRAIN, num_items);
     }
 
 
     /// Fill \p num_items into the queue.  Returns offset from which to write items.    To be called from CUDA kernel.
-    __device__ __forceinline__ OffsetT Fill(OffsetT num_items)
+    __device__ __forceinline__ OffsetT_NV Fill(OffsetT_NV num_items)
     {
         return atomicAdd(d_counters + FILL, num_items);
     }
@@ -195,10 +195,10 @@ public:
 /**
  * Reset grid queue (call with 1 block of 1 thread)
  */
-template <typename OffsetT>
+template <typename OffsetT_NV>
 __global__ void FillAndResetDrainKernel(
-    GridQueue<OffsetT>   grid_queue,
-    OffsetT              num_items)
+    GridQueue<OffsetT_NV>   grid_queue,
+    OffsetT_NV              num_items)
 {
     grid_queue.FillAndResetDrain(num_items);
 }

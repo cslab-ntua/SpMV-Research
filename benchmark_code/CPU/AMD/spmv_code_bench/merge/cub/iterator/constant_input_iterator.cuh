@@ -65,7 +65,7 @@ namespace cub {
  *
  * \par Overview
  * - Read references to a ConstantInputIteratorTiterator always return the supplied constant
- *   of type \p ValueType.
+ *   of type \p ValueType_NV.
  * - Can be used with any data type.
  * - Can be constructed, manipulated, dereferenced, and exchanged within and between host and device
  *   functions.
@@ -87,22 +87,22 @@ namespace cub {
  *
  * \endcode
  *
- * \tparam ValueType            The value type of this iterator
- * \tparam OffsetT              The difference type of this iterator (Default: \p ptrdiff_t)
+ * \tparam ValueType_NV            The value type of this iterator
+ * \tparam OffsetT_NV              The difference type of this iterator (Default: \p ptrdiff_t)
  */
 template <
-    typename ValueType,
-    typename OffsetT = ptrdiff_t>
+    typename ValueType_NV,
+    typename OffsetT_NV = ptrdiff_t>
 class ConstantInputIterator
 {
 public:
 
     // Required iterator traits
     typedef ConstantInputIterator               self_type;              ///< My own type
-    typedef OffsetT                             difference_type;        ///< Type to express the result of subtracting one iterator from another
-    typedef ValueType                           value_type;             ///< The type of the element the iterator can point to
-    typedef ValueType*                          pointer;                ///< The type of a pointer to an element the iterator can point to
-    typedef ValueType                           reference;              ///< The type of a reference to an element the iterator can point to
+    typedef OffsetT_NV                             difference_type;        ///< Type to express the result of subtracting one iterator from another
+    typedef ValueType_NV                           value_type;             ///< The type of the element the iterator can point to
+    typedef ValueType_NV*                          pointer;                ///< The type of a pointer to an element the iterator can point to
+    typedef ValueType_NV                           reference;              ///< The type of a reference to an element the iterator can point to
 
 #if (THRUST_VERSION >= 100700)
     // Use Thrust's iterator categories so we can use these iterators in Thrust 1.7 (or newer) methods
@@ -118,18 +118,18 @@ public:
 
 private:
 
-    ValueType   val;
-    OffsetT     offset;
+    ValueType_NV   val;
+    OffsetT_NV     offset;
 #ifdef _WIN32
-    OffsetT     pad[CUB_MAX(1, (16 / sizeof(OffsetT) - 1))];        // Workaround for win32 parameter-passing bug (ulonglong2 argmin DeviceReduce)
+    OffsetT_NV     pad[CUB_MAX(1, (16 / sizeof(OffsetT_NV) - 1))];        // Workaround for win32 parameter-passing bug (ulonglong2 argmin DeviceReduce)
 #endif
 
 public:
 
     /// Constructor
     __host__ __device__ __forceinline__ ConstantInputIterator(
-        ValueType   val,            ///< Starting value for the iterator instance to report
-        OffsetT     offset = 0)     ///< Base offset
+        ValueType_NV   val,            ///< Starting value for the iterator instance to report
+        OffsetT_NV     offset = 0)     ///< Base offset
     :
         val(val),
         offset(offset)

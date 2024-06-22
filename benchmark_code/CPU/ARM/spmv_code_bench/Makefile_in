@@ -128,12 +128,34 @@ spmv_csr_cuda_adaptive_b${BLOCK_SIZE}_mb${MULTIBLOCK_SIZE}$(SUFFIX).exe: obj/spm
 spmv_csr_cuda_adaptive_s${NUM_STREAMS}_b${BLOCK_SIZE}_mb${MULTIBLOCK_SIZE}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_cuda_adaptive_stream.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) -DNUM_STREAMS=${NUM_STREAMS} -DBLOCK_SIZE=${BLOCK_SIZE} -DMULTIBLOCK_SIZE=${MULTIBLOCK_SIZE} --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 
-# UNDER DEVELOPMENT - not working yet
-spmv_merge_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_merge_cuda.cu $(LIB_OBJ)
-	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 
-spmv_csr_cuda_light_b${BLOCK_SIZE}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_cuda_light.cu $(LIB_OBJ)
-	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) -DBLOCK_SIZE=${BLOCK_SIZE} --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+# Research GPU formats
+CPPFLAGS_CSR5_CUDA = 
+CPPFLAGS_CSR5_CUDA += -Wno-deprecated-writable-strings -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-sign-compare -Wno-unknown-pragmas -Wno-write-strings -Wno-unused-result
+# CPPFLAGS_CSR5_CUDA += -I/various/pmpakos/epyc5_libs/cuda-samples/Common
+CPPFLAGS_CSR5_CUDA += -Icsr5_cuda/Common
+
+LDFLAGS_CSR5_CUDA =
+LDFLAGS_CSR5_CUDA += -lcudart
+
+# diag-suppress is used to suppress warnings
+# warning #68-D  : integer conversion resulted in a change of sign
+# warning #2464-D: conversion from a string literal to "char *" is deprecated
+spmv_csr5_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr5_cuda.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CSR5_CUDA)" -diag-suppress=68,2464 $^ -o $@ $(LDFLAGS) $(LDFLAGS_CSR5_CUDA)
+
+spmv_merge_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_merge_cuda.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+
+CPPFLAGS_DASP_CUDA = 
+CPPFLAGS_DASP_CUDA +=
+
+LDFLAGS_DASP_CUDA =
+LDFLAGS_DASP_CUDA += -lcudart
+
+spmv_dasp_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_dasp_cuda.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_DASP_CUDA)" -D f64 -diag-suppress=550 -Xcompiler -fopenmp-simd $^ -o $@ $(LDFLAGS) $(LDFLAGS_DASP_CUDA)
+
 
 CPPFLAGS_CUSPARSE =
 # CPPFLAGS_CUSPARSE += -I'$(CUDA_TOOLKIT)/include'
@@ -168,31 +190,6 @@ LDFLAGS_NVPL_SPARSE += -lcublas
 
 spmv_nvpl_csr$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_nvpl_csr.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_NVPL_SPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NVPL_SPARSE)
-
-
-CPPFLAGS_CSR5_CUDA = 
-CPPFLAGS_CSR5_CUDA += -Wno-deprecated-writable-strings -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-sign-compare -Wno-unknown-pragmas -Wno-write-strings -Wno-unused-result
-# CPPFLAGS_CSR5_CUDA += -I/various/pmpakos/epyc5_libs/cuda-samples/Common
-CPPFLAGS_CSR5_CUDA += -Icsr5_cuda/Common
-
-LDFLAGS_CSR5_CUDA =
-LDFLAGS_CSR5_CUDA += -lcudart
-
-# diag-suppress is used to suppress warnings
-# warning #68-D  : integer conversion resulted in a change of sign
-# warning #2464-D: conversion from a string literal to "char *" is deprecated
-spmv_csr5_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr5_cuda.cu $(LIB_OBJ)
-	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CSR5_CUDA)" -diag-suppress=68,2464 $^ -o $@ $(LDFLAGS) $(LDFLAGS_CSR5_CUDA)
-
-
-CPPFLAGS_DASP_CUDA = 
-CPPFLAGS_DASP_CUDA +=
-
-LDFLAGS_DASP_CUDA =
-LDFLAGS_DASP_CUDA += -lcudart
-
-spmv_dasp_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_dasp_cuda.cu $(LIB_OBJ)
-	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_DASP_CUDA)" -D f64 -diag-suppress=550 -Xcompiler -fopenmp-simd $^ -o $@ $(LDFLAGS) $(LDFLAGS_DASP_CUDA)
 
 
 CPPFLAGS_MERGE =

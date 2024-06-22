@@ -159,19 +159,19 @@ struct DeviceRunLengthEncode
         // Data type of value iterator
         typedef typename std::iterator_traits<LengthsOutputIteratorT>::value_type Value;
 
-        typedef int         OffsetT;                     // Signed integer type for global offsets
+        typedef int         OffsetT_NV;                     // Signed integer type for global offsets
         typedef NullType*   FlagIterator;               // FlagT iterator type (not used)
         typedef NullType    SelectOp;                   // Selection op (not used)
         typedef Equality    EqualityOp;                 // Default == operator
         typedef cub::Sum    ReductionOp;                // Value reduction operator
 
         // Generator type for providing 1s values for run-length reduction
-        typedef ConstantInputIterator<Value, OffsetT> LengthsInputIteratorT;
+        typedef ConstantInputIterator<Value, OffsetT_NV> LengthsInputIteratorT;
 
         Value one_val;
         one_val = 1;
 
-        return DispatchReduceByKey<InputIteratorT, UniqueOutputIteratorT, LengthsInputIteratorT, LengthsOutputIteratorT, NumRunsOutputIteratorT, EqualityOp, ReductionOp, OffsetT>::Dispatch(
+        return DispatchReduceByKey<InputIteratorT, UniqueOutputIteratorT, LengthsInputIteratorT, LengthsOutputIteratorT, NumRunsOutputIteratorT, EqualityOp, ReductionOp, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_in,
@@ -253,10 +253,10 @@ struct DeviceRunLengthEncode
         cudaStream_t            stream             = 0,         ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                    debug_synchronous  = false)     ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
     {
-        typedef int         OffsetT;                     // Signed integer type for global offsets
+        typedef int         OffsetT_NV;                     // Signed integer type for global offsets
         typedef Equality    EqualityOp;                 // Default == operator
 
-        return DeviceRleDispatch<InputIteratorT, OffsetsOutputIteratorT, LengthsOutputIteratorT, NumRunsOutputIteratorT, EqualityOp, OffsetT>::Dispatch(
+        return DeviceRleDispatch<InputIteratorT, OffsetsOutputIteratorT, LengthsOutputIteratorT, NumRunsOutputIteratorT, EqualityOp, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_in,

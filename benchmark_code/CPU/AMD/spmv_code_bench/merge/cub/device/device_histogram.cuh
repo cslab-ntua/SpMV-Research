@@ -113,13 +113,13 @@ struct DeviceHistogram
      * \tparam SampleIteratorT          <b>[inferred]</b> Random-access input iterator type for reading input samples. \iterator
      * \tparam CounterT                 <b>[inferred]</b> Integer type for histogram bin counters
      * \tparam LevelT                   <b>[inferred]</b> Type for specifying boundaries (levels)
-     * \tparam OffsetT                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
+     * \tparam OffsetT_NV                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
      */
     template <
         typename            SampleIteratorT,
         typename            CounterT,
         typename            LevelT,
-        typename            OffsetT>
+        typename            OffsetT_NV>
     CUB_RUNTIME_FUNCTION
     static cudaError_t HistogramEven(
         void*               d_temp_storage,                             ///< [in] %Device-accessible allocation of temporary storage.  When NULL, the required allocation size is written to \p temp_storage_bytes and no work is done.
@@ -129,7 +129,7 @@ struct DeviceHistogram
         int                 num_levels,                                 ///< [in] The number of boundaries (levels) for delineating histogram samples.  Implies that the number of bins is <tt>num_levels</tt> - 1.
         LevelT              lower_level,                                ///< [in] The lower sample value bound (inclusive) for the lowest histogram bin.
         LevelT              upper_level,                                ///< [in] The upper sample value bound (exclusive) for the highest histogram bin.
-        OffsetT             num_samples,                                ///< [in] The number of input samples (i.e., the length of \p d_samples)
+        OffsetT_NV             num_samples,                                ///< [in] The number of input samples (i.e., the length of \p d_samples)
         cudaStream_t        stream                  = 0,                ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous       = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
     {
@@ -212,13 +212,13 @@ struct DeviceHistogram
      * \tparam SampleIteratorT          <b>[inferred]</b> Random-access input iterator type for reading input samples. \iterator
      * \tparam CounterT                 <b>[inferred]</b> Integer type for histogram bin counters
      * \tparam LevelT                   <b>[inferred]</b> Type for specifying boundaries (levels)
-     * \tparam OffsetT                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
+     * \tparam OffsetT_NV                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
      */
     template <
         typename            SampleIteratorT,
         typename            CounterT,
         typename            LevelT,
-        typename            OffsetT>
+        typename            OffsetT_NV>
     CUB_RUNTIME_FUNCTION
     static cudaError_t HistogramEven(
         void*               d_temp_storage,                             ///< [in] %Device-accessible allocation of temporary storage.  When NULL, the required allocation size is written to \p temp_storage_bytes and no work is done.
@@ -228,8 +228,8 @@ struct DeviceHistogram
         int                 num_levels,                                 ///< [in] The number of boundaries (levels) for delineating histogram samples.  Implies that the number of bins is <tt>num_levels</tt> - 1.
         LevelT              lower_level,                                ///< [in] The lower sample value bound (inclusive) for the lowest histogram bin.
         LevelT              upper_level,                                ///< [in] The upper sample value bound (exclusive) for the highest histogram bin.
-        OffsetT             num_row_samples,                            ///< [in] The number of data samples per row in the region of interest
-        OffsetT             num_rows,                                   ///< [in] The number of rows in the region of interest
+        OffsetT_NV             num_row_samples,                            ///< [in] The number of data samples per row in the region of interest
+        OffsetT_NV             num_rows,                                   ///< [in] The number of rows in the region of interest
         size_t              row_stride_bytes,                           ///< [in] The number of bytes between starts of consecutive rows in the region of interest
         cudaStream_t        stream                  = 0,                ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous       = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
@@ -312,7 +312,7 @@ struct DeviceHistogram
      * \tparam SampleIteratorT          <b>[inferred]</b> Random-access input iterator type for reading input samples. \iterator
      * \tparam CounterT                 <b>[inferred]</b> Integer type for histogram bin counters
      * \tparam LevelT                   <b>[inferred]</b> Type for specifying boundaries (levels)
-     * \tparam OffsetT                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
+     * \tparam OffsetT_NV                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
      */
     template <
         int                 NUM_CHANNELS,
@@ -320,7 +320,7 @@ struct DeviceHistogram
         typename            SampleIteratorT,
         typename            CounterT,
         typename            LevelT,
-        typename            OffsetT>
+        typename            OffsetT_NV>
     CUB_RUNTIME_FUNCTION
     static cudaError_t MultiHistogramEven(
         void*               d_temp_storage,                             ///< [in] %Device-accessible allocation of temporary storage.  When NULL, the required allocation size is written to \p temp_storage_bytes and no work is done.
@@ -330,7 +330,7 @@ struct DeviceHistogram
         int                 num_levels[NUM_ACTIVE_CHANNELS],            ///< [in] The number of boundaries (levels) for delineating histogram samples in each active channel.  Implies that the number of bins for channel<sub><em>i</em></sub> is <tt>num_levels[i]</tt> - 1.
         LevelT              lower_level[NUM_ACTIVE_CHANNELS],           ///< [in] The lower sample value bound (inclusive) for the lowest histogram bin in each active channel.
         LevelT              upper_level[NUM_ACTIVE_CHANNELS],           ///< [in] The upper sample value bound (exclusive) for the highest histogram bin in each active channel.
-        OffsetT             num_pixels,                                 ///< [in] The number of multi-channel pixels (i.e., the length of \p d_samples / NUM_CHANNELS)
+        OffsetT_NV             num_pixels,                                 ///< [in] The number of multi-channel pixels (i.e., the length of \p d_samples / NUM_CHANNELS)
         cudaStream_t        stream                  = 0,                ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous       = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
     {
@@ -419,7 +419,7 @@ struct DeviceHistogram
      * \tparam SampleIteratorT          <b>[inferred]</b> Random-access input iterator type for reading input samples. \iterator
      * \tparam CounterT                 <b>[inferred]</b> Integer type for histogram bin counters
      * \tparam LevelT                   <b>[inferred]</b> Type for specifying boundaries (levels)
-     * \tparam OffsetT                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
+     * \tparam OffsetT_NV                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
      */
     template <
         int                 NUM_CHANNELS,
@@ -427,7 +427,7 @@ struct DeviceHistogram
         typename            SampleIteratorT,
         typename            CounterT,
         typename            LevelT,
-        typename            OffsetT>
+        typename            OffsetT_NV>
     CUB_RUNTIME_FUNCTION
     static cudaError_t MultiHistogramEven(
         void*               d_temp_storage,                             ///< [in] %Device-accessible allocation of temporary storage.  When NULL, the required allocation size is written to \p temp_storage_bytes and no work is done.
@@ -437,8 +437,8 @@ struct DeviceHistogram
         int                 num_levels[NUM_ACTIVE_CHANNELS],            ///< [in] The number of boundaries (levels) for delineating histogram samples in each active channel.  Implies that the number of bins for channel<sub><em>i</em></sub> is <tt>num_levels[i]</tt> - 1.
         LevelT              lower_level[NUM_ACTIVE_CHANNELS],           ///< [in] The lower sample value bound (inclusive) for the lowest histogram bin in each active channel.
         LevelT              upper_level[NUM_ACTIVE_CHANNELS],           ///< [in] The upper sample value bound (exclusive) for the highest histogram bin in each active channel.
-        OffsetT             num_row_pixels,                             ///< [in] The number of multi-channel pixels per row in the region of interest
-        OffsetT             num_rows,                                   ///< [in] The number of rows in the region of interest
+        OffsetT_NV             num_row_pixels,                             ///< [in] The number of multi-channel pixels per row in the region of interest
+        OffsetT_NV             num_rows,                                   ///< [in] The number of rows in the region of interest
         size_t              row_stride_bytes,                           ///< [in] The number of bytes between starts of consecutive rows in the region of interest
         cudaStream_t        stream                  = 0,                ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous       = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
@@ -447,9 +447,9 @@ struct DeviceHistogram
         typedef typename std::iterator_traits<SampleIteratorT>::value_type SampleT;
         Int2Type<sizeof(SampleT) == 1> is_byte_sample;
 
-        if ((sizeof(OffsetT) > sizeof(int)) && (row_stride_bytes * num_rows < std::numeric_limits<int>::max()))
+        if ((sizeof(OffsetT_NV) > sizeof(int)) && (row_stride_bytes * num_rows < std::numeric_limits<int>::max()))
         {
-            // Down-convert OffsetT data type
+            // Down-convert OffsetT_NV data type
 
 
             return DipatchHistogram<NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, LevelT, int>::DispatchEven(
@@ -458,9 +458,9 @@ struct DeviceHistogram
                 stream, debug_synchronous, is_byte_sample);
         }
 
-        return DipatchHistogram<NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, LevelT, OffsetT>::DispatchEven(
+        return DipatchHistogram<NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, LevelT, OffsetT_NV>::DispatchEven(
             d_temp_storage, temp_storage_bytes, d_samples, d_histogram, num_levels, lower_level, upper_level,
-            num_row_pixels, num_rows, (OffsetT) (row_stride_bytes / sizeof(SampleT)),
+            num_row_pixels, num_rows, (OffsetT_NV) (row_stride_bytes / sizeof(SampleT)),
             stream, debug_synchronous, is_byte_sample);
     }
 
@@ -516,13 +516,13 @@ struct DeviceHistogram
      * \tparam SampleIteratorT          <b>[inferred]</b> Random-access input iterator type for reading input samples. \iterator
      * \tparam CounterT                 <b>[inferred]</b> Integer type for histogram bin counters
      * \tparam LevelT                   <b>[inferred]</b> Type for specifying boundaries (levels)
-     * \tparam OffsetT                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
+     * \tparam OffsetT_NV                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
      */
     template <
         typename            SampleIteratorT,
         typename            CounterT,
         typename            LevelT,
-        typename            OffsetT>
+        typename            OffsetT_NV>
     CUB_RUNTIME_FUNCTION
     static cudaError_t HistogramRange(
         void*               d_temp_storage,                         ///< [in] %Device-accessible allocation of temporary storage.  When NULL, the required allocation size is written to \p temp_storage_bytes and no work is done.
@@ -531,7 +531,7 @@ struct DeviceHistogram
         CounterT*           d_histogram,                            ///< [out] The pointer to the histogram counter output array of length <tt>num_levels</tt> - 1.
         int                 num_levels,                             ///< [in] The number of boundaries (levels) for delineating histogram samples.  Implies that the number of bins is <tt>num_levels</tt> - 1.
         LevelT*             d_levels,                               ///< [in] The pointer to the array of boundaries (levels).  Bin ranges are defined by consecutive boundary pairings: lower sample value boundaries are inclusive and upper sample value boundaries are exclusive.
-        OffsetT             num_samples,                            ///< [in] The number of data samples per row in the region of interest
+        OffsetT_NV             num_samples,                            ///< [in] The number of data samples per row in the region of interest
         cudaStream_t        stream              = 0,                ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous   = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
     {
@@ -611,13 +611,13 @@ struct DeviceHistogram
      * \tparam SampleIteratorT          <b>[inferred]</b> Random-access input iterator type for reading input samples. \iterator
      * \tparam CounterT                 <b>[inferred]</b> Integer type for histogram bin counters
      * \tparam LevelT                   <b>[inferred]</b> Type for specifying boundaries (levels)
-     * \tparam OffsetT                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
+     * \tparam OffsetT_NV                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
      */
     template <
         typename            SampleIteratorT,
         typename            CounterT,
         typename            LevelT,
-        typename            OffsetT>
+        typename            OffsetT_NV>
     CUB_RUNTIME_FUNCTION
     static cudaError_t HistogramRange(
         void*               d_temp_storage,                         ///< [in] %Device-accessible allocation of temporary storage.  When NULL, the required allocation size is written to \p temp_storage_bytes and no work is done.
@@ -626,8 +626,8 @@ struct DeviceHistogram
         CounterT*           d_histogram,                            ///< [out] The pointer to the histogram counter output array of length <tt>num_levels</tt> - 1.
         int                 num_levels,                             ///< [in] The number of boundaries (levels) for delineating histogram samples.  Implies that the number of bins is <tt>num_levels</tt> - 1.
         LevelT*             d_levels,                               ///< [in] The pointer to the array of boundaries (levels).  Bin ranges are defined by consecutive boundary pairings: lower sample value boundaries are inclusive and upper sample value boundaries are exclusive.
-        OffsetT             num_row_samples,                        ///< [in] The number of data samples per row in the region of interest
-        OffsetT             num_rows,                               ///< [in] The number of rows in the region of interest
+        OffsetT_NV             num_row_samples,                        ///< [in] The number of data samples per row in the region of interest
+        OffsetT_NV             num_rows,                               ///< [in] The number of rows in the region of interest
         size_t              row_stride_bytes,                       ///< [in] The number of bytes between starts of consecutive rows in the region of interest
         cudaStream_t        stream              = 0,                ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous   = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
@@ -708,7 +708,7 @@ struct DeviceHistogram
      * \tparam SampleIteratorT          <b>[inferred]</b> Random-access input iterator type for reading input samples. \iterator
      * \tparam CounterT                 <b>[inferred]</b> Integer type for histogram bin counters
      * \tparam LevelT                   <b>[inferred]</b> Type for specifying boundaries (levels)
-     * \tparam OffsetT                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
+     * \tparam OffsetT_NV                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
      */
     template <
         int                 NUM_CHANNELS,
@@ -716,7 +716,7 @@ struct DeviceHistogram
         typename            SampleIteratorT,
         typename            CounterT,
         typename            LevelT,
-        typename            OffsetT>
+        typename            OffsetT_NV>
     CUB_RUNTIME_FUNCTION
     static cudaError_t MultiHistogramRange(
         void*               d_temp_storage,                         ///< [in] %Device-accessible allocation of temporary storage.  When NULL, the required allocation size is written to \p temp_storage_bytes and no work is done.
@@ -725,7 +725,7 @@ struct DeviceHistogram
         CounterT*           d_histogram[NUM_ACTIVE_CHANNELS],       ///< [out] The pointers to the histogram counter output arrays, one for each active channel.  For channel<sub><em>i</em></sub>, the allocation length of <tt>d_histogram[i]</tt> should be <tt>num_levels[i]</tt> - 1.
         int                 num_levels[NUM_ACTIVE_CHANNELS],        ///< [in] The number of boundaries (levels) for delineating histogram samples in each active channel.  Implies that the number of bins for channel<sub><em>i</em></sub> is <tt>num_levels[i]</tt> - 1.
         LevelT*             d_levels[NUM_ACTIVE_CHANNELS],          ///< [in] The pointers to the arrays of boundaries (levels), one for each active channel.  Bin ranges are defined by consecutive boundary pairings: lower sample value boundaries are inclusive and upper sample value boundaries are exclusive.
-        OffsetT             num_pixels,                             ///< [in] The number of multi-channel pixels (i.e., the length of \p d_samples / NUM_CHANNELS)
+        OffsetT_NV             num_pixels,                             ///< [in] The number of multi-channel pixels (i.e., the length of \p d_samples / NUM_CHANNELS)
         cudaStream_t        stream              = 0,                ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous   = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
     {
@@ -811,7 +811,7 @@ struct DeviceHistogram
      * \tparam SampleIteratorT          <b>[inferred]</b> Random-access input iterator type for reading input samples. \iterator
      * \tparam CounterT                 <b>[inferred]</b> Integer type for histogram bin counters
      * \tparam LevelT                   <b>[inferred]</b> Type for specifying boundaries (levels)
-     * \tparam OffsetT                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
+     * \tparam OffsetT_NV                  <b>[inferred]</b> Signed integer type for sequence offsets, list lengths, pointer differences, etc.  \offset_size1
      */
     template <
         int                 NUM_CHANNELS,
@@ -819,7 +819,7 @@ struct DeviceHistogram
         typename            SampleIteratorT,
         typename            CounterT,
         typename            LevelT,
-        typename            OffsetT>
+        typename            OffsetT_NV>
     CUB_RUNTIME_FUNCTION
     static cudaError_t MultiHistogramRange(
         void*               d_temp_storage,                         ///< [in] %Device-accessible allocation of temporary storage.  When NULL, the required allocation size is written to \p temp_storage_bytes and no work is done.
@@ -828,8 +828,8 @@ struct DeviceHistogram
         CounterT*           d_histogram[NUM_ACTIVE_CHANNELS],       ///< [out] The pointers to the histogram counter output arrays, one for each active channel.  For channel<sub><em>i</em></sub>, the allocation length of <tt>d_histogram[i]</tt> should be <tt>num_levels[i]</tt> - 1.
         int                 num_levels[NUM_ACTIVE_CHANNELS],        ///< [in] The number of boundaries (levels) for delineating histogram samples in each active channel.  Implies that the number of bins for channel<sub><em>i</em></sub> is <tt>num_levels[i]</tt> - 1.
         LevelT*             d_levels[NUM_ACTIVE_CHANNELS],          ///< [in] The pointers to the arrays of boundaries (levels), one for each active channel.  Bin ranges are defined by consecutive boundary pairings: lower sample value boundaries are inclusive and upper sample value boundaries are exclusive.
-        OffsetT             num_row_pixels,                         ///< [in] The number of multi-channel pixels per row in the region of interest
-        OffsetT             num_rows,                               ///< [in] The number of rows in the region of interest
+        OffsetT_NV             num_row_pixels,                         ///< [in] The number of multi-channel pixels per row in the region of interest
+        OffsetT_NV             num_rows,                               ///< [in] The number of rows in the region of interest
         size_t              row_stride_bytes,                       ///< [in] The number of bytes between starts of consecutive rows in the region of interest
         cudaStream_t        stream              = 0,                ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous   = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
@@ -838,18 +838,18 @@ struct DeviceHistogram
         typedef typename std::iterator_traits<SampleIteratorT>::value_type SampleT;
         Int2Type<sizeof(SampleT) == 1> is_byte_sample;
 
-        if ((sizeof(OffsetT) > sizeof(int)) && (row_stride_bytes * num_rows < std::numeric_limits<int>::max()))
+        if ((sizeof(OffsetT_NV) > sizeof(int)) && (row_stride_bytes * num_rows < std::numeric_limits<int>::max()))
         {
-            // Down-convert OffsetT data type
+            // Down-convert OffsetT_NV data type
             return DipatchHistogram<NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, LevelT, int>::DispatchRange(
                 d_temp_storage, temp_storage_bytes, d_samples, d_histogram, num_levels, d_levels,
                 (int) num_row_pixels, (int) num_rows, (int) (row_stride_bytes / sizeof(SampleT)),
                 stream, debug_synchronous, is_byte_sample);
         }
 
-        return DipatchHistogram<NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, LevelT, OffsetT>::DispatchRange(
+        return DipatchHistogram<NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, LevelT, OffsetT_NV>::DispatchRange(
             d_temp_storage, temp_storage_bytes, d_samples, d_histogram, num_levels, d_levels,
-            num_row_pixels, num_rows, (OffsetT) (row_stride_bytes / sizeof(SampleT)),
+            num_row_pixels, num_rows, (OffsetT_NV) (row_stride_bytes / sizeof(SampleT)),
             stream, debug_synchronous, is_byte_sample);
     }
 

@@ -106,7 +106,7 @@ template <
     typename    CounterT,                       ///< Integer type for counting sample occurrences per histogram bin
     typename    PrivatizedDecodeOpT,            ///< The transform operator type for determining privatized counter indices from samples, one for each channel
     typename    OutputDecodeOpT,                ///< The transform operator type for determining output bin-ids from privatized counter indices, one for each channel
-    typename    OffsetT,                        ///< Signed integer type for global offsets
+    typename    OffsetT_NV,                        ///< Signed integer type for global offsets
     int         PTX_ARCH = CUB_PTX_ARCH>        ///< PTX compute capability
 struct AgentHistogram
 {
@@ -150,16 +150,16 @@ struct AgentHistogram
 
     /// Input iterator wrapper type (for applying cache modifier)
     typedef typename If<IsPointer<SampleIteratorT>::VALUE,
-            CacheModifiedInputIterator<LOAD_MODIFIER, SampleT, OffsetT>,     // Wrap the native input pointer with CacheModifiedInputIterator
+            CacheModifiedInputIterator<LOAD_MODIFIER, SampleT, OffsetT_NV>,     // Wrap the native input pointer with CacheModifiedInputIterator
             SampleIteratorT>::Type                                           // Directly use the supplied input iterator type
         WrappedSampleIteratorT;
 
     /// Pixel input iterator type (for applying cache modifier)
-    typedef CacheModifiedInputIterator<LOAD_MODIFIER, PixelT, OffsetT>
+    typedef CacheModifiedInputIterator<LOAD_MODIFIER, PixelT, OffsetT_NV>
         WrappedPixelIteratorT;
 
     /// Qaud input iterator type (for applying cache modifier)
-    typedef CacheModifiedInputIterator<LOAD_MODIFIER, QuadT, OffsetT>
+    typedef CacheModifiedInputIterator<LOAD_MODIFIER, QuadT, OffsetT_NV>
         WrappedQuadIteratorT;
 
     /// Parameterized BlockLoad type for samples
@@ -441,7 +441,7 @@ struct AgentHistogram
     // Load full, aligned tile using pixel iterator (multi-channel)
     template <int _NUM_ACTIVE_CHANNELS>
     __device__ __forceinline__ void LoadFullAlignedTile(
-        OffsetT                         block_offset,
+        OffsetT_NV                         block_offset,
         int                             valid_samples,
         SampleT                         (&samples)[PIXELS_PER_THREAD][NUM_CHANNELS],
         Int2Type<_NUM_ACTIVE_CHANNELS>  num_active_channels)
@@ -458,7 +458,7 @@ struct AgentHistogram
 
     // Load full, aligned tile using quad iterator (single-channel)
     __device__ __forceinline__ void LoadFullAlignedTile(
-        OffsetT                         block_offset,
+        OffsetT_NV                         block_offset,
         int                             valid_samples,
         SampleT                         (&samples)[PIXELS_PER_THREAD][NUM_CHANNELS],
         Int2Type<1>                     num_active_channels)
@@ -475,7 +475,7 @@ struct AgentHistogram
 
     // Load full, aligned tile
     __device__ __forceinline__ void LoadTile(
-        OffsetT         block_offset,
+        OffsetT_NV         block_offset,
         int             valid_samples,
         SampleT         (&samples)[PIXELS_PER_THREAD][NUM_CHANNELS],
         Int2Type<true>  is_full_tile,
@@ -486,7 +486,7 @@ struct AgentHistogram
 
     // Load full, mis-aligned tile using sample iterator
     __device__ __forceinline__ void LoadTile(
-        OffsetT         block_offset,
+        OffsetT_NV         block_offset,
         int             valid_samples,
         SampleT         (&samples)[PIXELS_PER_THREAD][NUM_CHANNELS],
         Int2Type<true>  is_full_tile,
@@ -502,7 +502,7 @@ struct AgentHistogram
 
     // Load partially-full, aligned tile using the pixel iterator
     __device__ __forceinline__ void LoadTile(
-        OffsetT         block_offset,
+        OffsetT_NV         block_offset,
         int             valid_samples,
         SampleT         (&samples)[PIXELS_PER_THREAD][NUM_CHANNELS],
         Int2Type<false> is_full_tile,
@@ -523,7 +523,7 @@ struct AgentHistogram
 
     // Load partially-full, mis-aligned tile using sample iterator
     __device__ __forceinline__ void LoadTile(
-        OffsetT         block_offset,
+        OffsetT_NV         block_offset,
         int             valid_samples,
         SampleT         (&samples)[PIXELS_PER_THREAD][NUM_CHANNELS],
         Int2Type<false> is_full_tile,
@@ -546,7 +546,7 @@ struct AgentHistogram
     template <
         bool IS_ALIGNED,        // Whether the tile offset is aligned (quad-aligned for single-channel, pixel-aligned for multi-channel)
         bool IS_FULL_TILE>      // Whether the tile is full
-    __device__ __forceinline__ void ConsumeTile(OffsetT block_offset, int valid_samples)
+    __device__ __forceinline__ void ConsumeTile(OffsetT_NV block_offset, int valid_samples)
     {
         SampleT     samples[PIXELS_PER_THREAD][NUM_CHANNELS];
         bool        is_valid[PIXELS_PER_THREAD];
@@ -580,9 +580,9 @@ struct AgentHistogram
     // Consume row tiles.  Specialized for work-stealing from queue
     template <bool IS_ALIGNED>
     __device__ __forceinline__ void ConsumeTiles(
-        OffsetT             num_row_pixels,             ///< The number of multi-channel pixels per row in the region of interest
-        OffsetT             num_rows,                   ///< The number of rows in the region of interest
-        OffsetT             row_stride_samples,         ///< The number of samples between starts of consecutive rows in the region of interest
+        OffsetT_NV             num_row_pixels,             ///< The number of multi-channel pixels per row in the region of interest
+        OffsetT_NV             num_rows,                   ///< The number of rows in the region of interest
+        OffsetT_NV             row_stride_samples,         ///< The number of samples between starts of consecutive rows in the region of interest
         int                 tiles_per_row,              ///< Number of image tiles per row
         GridQueue<int>      tile_queue,
         Int2Type<true>      is_work_stealing)
@@ -590,20 +590,20 @@ struct AgentHistogram
 
         int         num_tiles                   = num_rows * tiles_per_row;
         int         tile_idx                    = (blockIdx.y  * gridDim.x) + blockIdx.x;
-        OffsetT     num_even_share_tiles        = gridDim.x * gridDim.y;
+        OffsetT_NV     num_even_share_tiles        = gridDim.x * gridDim.y;
 
         while (tile_idx < num_tiles)
         {
             int     row             = tile_idx / tiles_per_row;
             int     col             = tile_idx - (row * tiles_per_row);
-            OffsetT row_offset      = row * row_stride_samples;
-            OffsetT col_offset      = (col * TILE_SAMPLES);
-            OffsetT tile_offset     = row_offset + col_offset;
+            OffsetT_NV row_offset      = row * row_stride_samples;
+            OffsetT_NV col_offset      = (col * TILE_SAMPLES);
+            OffsetT_NV tile_offset     = row_offset + col_offset;
 
             if (col == tiles_per_row - 1)
             {
                 // Consume a partially-full tile at the end of the row
-                OffsetT num_remaining = (num_row_pixels * NUM_CHANNELS) - col_offset;
+                OffsetT_NV num_remaining = (num_row_pixels * NUM_CHANNELS) - col_offset;
                 ConsumeTile<IS_ALIGNED, false>(tile_offset, num_remaining);
             } 
             else
@@ -628,22 +628,22 @@ struct AgentHistogram
     // Consume row tiles.  Specialized for even-share (striped across thread blocks)
     template <bool IS_ALIGNED>
     __device__ __forceinline__ void ConsumeTiles(
-        OffsetT             num_row_pixels,             ///< The number of multi-channel pixels per row in the region of interest
-        OffsetT             num_rows,                   ///< The number of rows in the region of interest
-        OffsetT             row_stride_samples,         ///< The number of samples between starts of consecutive rows in the region of interest
+        OffsetT_NV             num_row_pixels,             ///< The number of multi-channel pixels per row in the region of interest
+        OffsetT_NV             num_rows,                   ///< The number of rows in the region of interest
+        OffsetT_NV             row_stride_samples,         ///< The number of samples between starts of consecutive rows in the region of interest
         int                 tiles_per_row,              ///< Number of image tiles per row
         GridQueue<int>      tile_queue,
         Int2Type<false>     is_work_stealing)
     {
         for (int row = blockIdx.y; row < num_rows; row += gridDim.y)
         {
-            OffsetT row_begin   = row * row_stride_samples;
-            OffsetT row_end     = row_begin + (num_row_pixels * NUM_CHANNELS);
-            OffsetT tile_offset = row_begin + (blockIdx.x * TILE_SAMPLES);
+            OffsetT_NV row_begin   = row * row_stride_samples;
+            OffsetT_NV row_end     = row_begin + (num_row_pixels * NUM_CHANNELS);
+            OffsetT_NV tile_offset = row_begin + (blockIdx.x * TILE_SAMPLES);
 
             while (tile_offset < row_end)
             {
-                OffsetT num_remaining = row_end - tile_offset;
+                OffsetT_NV num_remaining = row_end - tile_offset;
 
                 if (num_remaining < TILE_SAMPLES)
                 {
@@ -668,8 +668,8 @@ struct AgentHistogram
     template <
         CacheLoadModifier   _MODIFIER,
         typename            _ValueT,
-        typename            _OffsetT>
-    __device__ __forceinline__ SampleT* NativePointer(CacheModifiedInputIterator<_MODIFIER, _ValueT, _OffsetT> itr)
+        typename            _OffsetT_NV>
+    __device__ __forceinline__ SampleT* NativePointer(CacheModifiedInputIterator<_MODIFIER, _ValueT, _OffsetT_NV> itr)
     {
         return itr.ptr;
     }
@@ -727,9 +727,9 @@ struct AgentHistogram
      * Consume image
      */
     __device__ __forceinline__ void ConsumeTiles(
-        OffsetT             num_row_pixels,             ///< The number of multi-channel pixels per row in the region of interest
-        OffsetT             num_rows,                   ///< The number of rows in the region of interest
-        OffsetT             row_stride_samples,         ///< The number of samples between starts of consecutive rows in the region of interest
+        OffsetT_NV             num_row_pixels,             ///< The number of multi-channel pixels per row in the region of interest
+        OffsetT_NV             num_rows,                   ///< The number of rows in the region of interest
+        OffsetT_NV             row_stride_samples,         ///< The number of samples between starts of consecutive rows in the region of interest
         int                 tiles_per_row,              ///< Number of image tiles per row
         GridQueue<int>      tile_queue)                 ///< Queue descriptor for assigning tiles of work to thread blocks
     {

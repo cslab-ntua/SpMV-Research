@@ -137,10 +137,10 @@ struct Max
 struct ArgMax
 {
     /// Boolean max operator, preferring the item having the smaller offset in case of ties
-    template <typename T, typename OffsetT>
-    __host__ __device__ __forceinline__ KeyValuePair<OffsetT, T> operator()(
-        const KeyValuePair<OffsetT, T> &a,
-        const KeyValuePair<OffsetT, T> &b) const
+    template <typename T, typename OffsetT_NV>
+    __host__ __device__ __forceinline__ KeyValuePair<OffsetT_NV, T> operator()(
+        const KeyValuePair<OffsetT_NV, T> &a,
+        const KeyValuePair<OffsetT_NV, T> &b) const
     {
 // Mooch BUG (device reduce argmax gk110 3.2 million random fp32)
 //        return ((b.value > a.value) || ((a.value == b.value) && (b.key < a.key))) ? b : a;
@@ -172,10 +172,10 @@ struct Min
 struct ArgMin
 {
     /// Boolean min operator, preferring the item having the smaller offset in case of ties
-    template <typename T, typename OffsetT>
-    __host__ __device__ __forceinline__ KeyValuePair<OffsetT, T> operator()(
-        const KeyValuePair<OffsetT, T> &a,
-        const KeyValuePair<OffsetT, T> &b) const
+    template <typename T, typename OffsetT_NV>
+    __host__ __device__ __forceinline__ KeyValuePair<OffsetT_NV, T> operator()(
+        const KeyValuePair<OffsetT_NV, T> &a,
+        const KeyValuePair<OffsetT_NV, T> &b) const
     {
 // Mooch BUG (device reduce argmax gk110 3.2 million random fp32)
 //        return ((b.value < a.value) || ((a.value == b.value) && (b.key < a.key))) ? b : a;
@@ -258,7 +258,7 @@ struct ReduceBySegmentOp
     __host__ __device__ __forceinline__ ReduceBySegmentOp(ReductionOpT op) : op(op) {}
 
     /// Scan operator
-    template <typename KeyValuePairT>       ///< KeyValuePair pairing of T (value) and OffsetT (head flag)
+    template <typename KeyValuePairT>       ///< KeyValuePair pairing of T (value) and OffsetT_NV (head flag)
     __host__ __device__ __forceinline__ KeyValuePairT operator()(
         const KeyValuePairT &first,         ///< First partial reduction
         const KeyValuePairT &second)        ///< Second partial reduction

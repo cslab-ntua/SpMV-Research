@@ -67,7 +67,7 @@ template <
     typename            ScanTileStateT,                         ///< Tile status interface type
     typename            EqualityOpT,                            ///< KeyT equality operator type
     typename            ReductionOpT,                           ///< ValueT reduction operator type
-    typename            OffsetT>                                ///< Signed integer type for global offsets
+    typename            OffsetT_NV>                                ///< Signed integer type for global offsets
 __launch_bounds__ (int(AgentReduceByKeyPolicyT::BLOCK_THREADS))
 __global__ void DeviceReduceByKeyKernel(
     KeysInputIteratorT          d_keys_in,                      ///< [in] Pointer to the input sequence of keys
@@ -78,7 +78,7 @@ __global__ void DeviceReduceByKeyKernel(
     ScanTileStateT              tile_state,                    ///< [in] Tile status interface
     EqualityOpT                 equality_op,                    ///< [in] KeyT equality operator
     ReductionOpT                reduction_op,                   ///< [in] ValueT reduction operator
-    OffsetT                     num_items,                      ///< [in] Total number of items to select from
+    OffsetT_NV                     num_items,                      ///< [in] Total number of items to select from
     int                         num_tiles)                      ///< [in] Total number of tiles for the entire problem
 {
     // Thread block type for reducing tiles of value segments
@@ -91,7 +91,7 @@ __global__ void DeviceReduceByKeyKernel(
             NumRunsOutputIteratorT,
             EqualityOpT,
             ReductionOpT,
-            OffsetT>
+            OffsetT_NV>
         AgentReduceByKeyT;
 
     // Shared memory for AgentReduceByKey
@@ -122,7 +122,7 @@ template <
     typename    NumRunsOutputIteratorT,     ///< Output iterator type for recording number of segments encountered
     typename    EqualityOpT,                ///< KeyT equality operator type
     typename    ReductionOpT,               ///< ValueT reduction operator type
-    typename    OffsetT>                    ///< Signed integer type for global offsets
+    typename    OffsetT_NV>                    ///< Signed integer type for global offsets
 struct DispatchReduceByKey
 {
     //-------------------------------------------------------------------------
@@ -143,7 +143,7 @@ struct DispatchReduceByKey
     };
 
     // Tile status descriptor interface type
-    typedef ReduceByKeyScanTileState<ValueT, OffsetT> ScanTileStateT;
+    typedef ReduceByKeyScanTileState<ValueT, OffsetT_NV> ScanTileStateT;
 
 
     //-------------------------------------------------------------------------
@@ -349,7 +349,7 @@ struct DispatchReduceByKey
         NumRunsOutputIteratorT      d_num_runs_out,             ///< [out] Pointer to total number of runs encountered (i.e., the length of d_unique_out)
         EqualityOpT                 equality_op,                ///< [in] KeyT equality operator
         ReductionOpT                reduction_op,               ///< [in] ValueT reduction operator
-        OffsetT                     num_items,                  ///< [in] Total number of items to select from
+        OffsetT_NV                     num_items,                  ///< [in] Total number of items to select from
         cudaStream_t                stream,                     ///< [in] CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                        debug_synchronous,          ///< [in] Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
         int                         ptx_version,                ///< [in] PTX version of dispatch kernels
@@ -480,7 +480,7 @@ struct DispatchReduceByKey
         NumRunsOutputIteratorT      d_num_runs_out,                 ///< [out] Pointer to total number of runs encountered (i.e., the length of d_unique_out)
         EqualityOpT                 equality_op,                    ///< [in] KeyT equality operator
         ReductionOpT                reduction_op,                   ///< [in] ValueT reduction operator
-        OffsetT                     num_items,                      ///< [in] Total number of items to select from
+        OffsetT_NV                     num_items,                      ///< [in] Total number of items to select from
         cudaStream_t                stream,                         ///< [in] CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                        debug_synchronous)              ///< [in] Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
@@ -515,7 +515,7 @@ struct DispatchReduceByKey
                 debug_synchronous,
                 ptx_version,
                 DeviceCompactInitKernel<ScanTileStateT, NumRunsOutputIteratorT>,
-                DeviceReduceByKeyKernel<PtxReduceByKeyPolicy, KeysInputIteratorT, UniqueOutputIteratorT, ValuesInputIteratorT, AggregatesOutputIteratorT, NumRunsOutputIteratorT, ScanTileStateT, EqualityOpT, ReductionOpT, OffsetT>,
+                DeviceReduceByKeyKernel<PtxReduceByKeyPolicy, KeysInputIteratorT, UniqueOutputIteratorT, ValuesInputIteratorT, AggregatesOutputIteratorT, NumRunsOutputIteratorT, ScanTileStateT, EqualityOpT, ReductionOpT, OffsetT_NV>,
                 reduce_by_key_config))) break;
         }
         while (0);

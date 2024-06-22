@@ -85,22 +85,22 @@ namespace cub {
  *
  * \endcode
  *
- * \tparam ValueType            The value type of this iterator
- * \tparam OffsetT              The difference type of this iterator (Default: \p ptrdiff_t)
+ * \tparam ValueType_NV            The value type of this iterator
+ * \tparam OffsetT_NV              The difference type of this iterator (Default: \p ptrdiff_t)
  */
 template <
-    typename ValueType,
-    typename OffsetT = ptrdiff_t>
+    typename ValueType_NV,
+    typename OffsetT_NV = ptrdiff_t>
 class CountingInputIterator
 {
 public:
 
     // Required iterator traits
     typedef CountingInputIterator               self_type;              ///< My own type
-    typedef OffsetT                             difference_type;        ///< Type to express the result of subtracting one iterator from another
-    typedef ValueType                           value_type;             ///< The type of the element the iterator can point to
-    typedef ValueType*                          pointer;                ///< The type of a pointer to an element the iterator can point to
-    typedef ValueType                           reference;              ///< The type of a reference to an element the iterator can point to
+    typedef OffsetT_NV                             difference_type;        ///< Type to express the result of subtracting one iterator from another
+    typedef ValueType_NV                           value_type;             ///< The type of the element the iterator can point to
+    typedef ValueType_NV*                          pointer;                ///< The type of a pointer to an element the iterator can point to
+    typedef ValueType_NV                           reference;              ///< The type of a reference to an element the iterator can point to
 
 #if (THRUST_VERSION >= 100700)
     // Use Thrust's iterator categories so we can use these iterators in Thrust 1.7 (or newer) methods
@@ -116,13 +116,13 @@ public:
 
 private:
 
-    ValueType val;
+    ValueType_NV val;
 
 public:
 
     /// Constructor
     __host__ __device__ __forceinline__ CountingInputIterator(
-        const ValueType &val)          ///< Starting value for the iterator instance to report
+        const ValueType_NV &val)          ///< Starting value for the iterator instance to report
     :
         val(val)
     {}

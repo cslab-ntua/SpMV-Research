@@ -82,7 +82,7 @@
 #include "iterator/constant_input_iterator.cuh"
 #include "iterator/counting_input_iterator.cuh"
 #include "iterator/tex_obj_input_iterator.cuh"
-#include "iterator/tex_ref_input_iterator.cuh"
+// #include "iterator/tex_ref_input_iterator.cuh"
 #include "iterator/transform_input_iterator.cuh"
 
 // Util

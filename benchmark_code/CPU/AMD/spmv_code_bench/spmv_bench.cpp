@@ -309,7 +309,7 @@ compute(char * matrix_name,
 		int gpu_kernel = atoi(getenv("GPU_KERNEL"));
 		if (gpu_kernel) {
 			time_warm_up = time_it(1,
-				for(int i=10000;i<1000;i++)
+				for(int i=0;i<1000;i++)
 					MF->spmv(x, y);
 			);
 		}

@@ -64,14 +64,14 @@ namespace cub {
 template <
     typename    AgentSpmvPolicyT,           ///< Parameterized SpmvPolicy tuning policy type
     typename    ValueT,                     ///< Matrix and vector value type
-    typename    OffsetT>                    ///< Signed integer type for sequence offsets
+    typename    OffsetT_NV>                    ///< Signed integer type for sequence offsets
 __global__ void DeviceSpmv1ColKernel(
-    SpmvParams<ValueT, OffsetT> spmv_params)                ///< [in] SpMV input parameter bundle
+    SpmvParams<ValueT, OffsetT_NV> spmv_params)                ///< [in] SpMV input parameter bundle
 {
     typedef CacheModifiedInputIterator<
             AgentSpmvPolicyT::VECTOR_VALUES_LOAD_MODIFIER,
             ValueT,
-            OffsetT>
+            OffsetT_NV>
         VectorValueIteratorT;
 
     VectorValueIteratorT wrapped_vector_x(spmv_params.d_vector_x);
@@ -79,8 +79,8 @@ __global__ void DeviceSpmv1ColKernel(
     int row_idx = (blockIdx.x * blockDim.x) + threadIdx.x;
     if (row_idx < spmv_params.num_rows)
     {
-        OffsetT     end_nonzero_idx = spmv_params.d_row_end_offsets[row_idx];
-        OffsetT     nonzero_idx = spmv_params.d_row_end_offsets[row_idx - 1];
+        OffsetT_NV     end_nonzero_idx = spmv_params.d_row_end_offsets[row_idx];
+        OffsetT_NV     nonzero_idx = spmv_params.d_row_end_offsets[row_idx - 1];
 
         ValueT value = 0.0;
         if (end_nonzero_idx != nonzero_idx)
@@ -98,7 +98,7 @@ __global__ void DeviceSpmv1ColKernel(
  */
 template <
     typename    SpmvPolicyT,                    ///< Parameterized SpmvPolicy tuning policy type
-    typename    OffsetT,                        ///< Signed integer type for sequence offsets
+    typename    OffsetT_NV,                        ///< Signed integer type for sequence offsets
     typename    CoordinateT,                    ///< Merge path coordinate type
     typename    SpmvParamsT>                    ///< SpmvParams type
 __global__ void DeviceSpmvSearchKernel(
@@ -116,17 +116,17 @@ __global__ void DeviceSpmvSearchKernel(
 
     typedef CacheModifiedInputIterator<
             SpmvPolicyT::ROW_OFFSETS_SEARCH_LOAD_MODIFIER,
-            OffsetT,
-            OffsetT>
+            OffsetT_NV,
+            OffsetT_NV>
         RowOffsetsSearchIteratorT;
 
     // Find the starting coordinate for all tiles (plus the end coordinate of the last one)
     int tile_idx = (blockIdx.x * blockDim.x) + threadIdx.x;
     if (tile_idx < num_merge_tiles + 1)
     {
-        OffsetT                         diagonal = (tile_idx * TILE_ITEMS);
+        OffsetT_NV                         diagonal = (tile_idx * TILE_ITEMS);
         CoordinateT                     tile_coordinate;
-        CountingInputIterator<OffsetT>  nonzero_indices(0);
+        CountingInputIterator<OffsetT_NV>  nonzero_indices(0);
 
         // Search the merge path
         MergePathSearch(
@@ -150,15 +150,15 @@ template <
     typename        SpmvPolicyT,                ///< Parameterized SpmvPolicy tuning policy type
     typename        ScanTileStateT,             ///< Tile status interface type
     typename        ValueT,                     ///< Matrix and vector value type
-    typename        OffsetT,                    ///< Signed integer type for sequence offsets
+    typename        OffsetT_NV,                    ///< Signed integer type for sequence offsets
     typename        CoordinateT,                ///< Merge path coordinate type
     bool            HAS_ALPHA,                  ///< Whether the input parameter Alpha is 1
     bool            HAS_BETA>                   ///< Whether the input parameter Beta is 0
 __launch_bounds__ (int(SpmvPolicyT::BLOCK_THREADS))
 __global__ void DeviceSpmvKernel(
-    SpmvParams<ValueT, OffsetT>     spmv_params,                ///< [in] SpMV input parameter bundle
+    SpmvParams<ValueT, OffsetT_NV>     spmv_params,                ///< [in] SpMV input parameter bundle
     CoordinateT*                    d_tile_coordinates,         ///< [in] Pointer to the temporary array of tile starting coordinates
-    KeyValuePair<OffsetT,ValueT>*   d_tile_carry_pairs,         ///< [out] Pointer to the temporary array carry-out dot product row-ids, one per block
+    KeyValuePair<OffsetT_NV,ValueT>*   d_tile_carry_pairs,         ///< [out] Pointer to the temporary array carry-out dot product row-ids, one per block
     int                             num_tiles,                  ///< [in] Number of merge tiles
     ScanTileStateT                  tile_state,                 ///< [in] Tile status interface for fixup reduce-by-key kernel
     int                             num_segment_fixup_tiles)    ///< [in] Number of reduce-by-key tiles (fixup grid size)
@@ -167,7 +167,7 @@ __global__ void DeviceSpmvKernel(
     typedef AgentSpmv<
             SpmvPolicyT,
             ValueT,
-            OffsetT,
+            OffsetT_NV,
             HAS_ALPHA,
             HAS_BETA>
         AgentSpmvT;
@@ -193,13 +193,13 @@ template <
     typename    AgentSegmentFixupPolicyT,       ///< Parameterized AgentSegmentFixupPolicy tuning policy type
     typename    PairsInputIteratorT,            ///< Random-access input iterator type for keys
     typename    AggregatesOutputIteratorT,      ///< Random-access output iterator type for values
-    typename    OffsetT,                        ///< Signed integer type for global offsets
+    typename    OffsetT_NV,                        ///< Signed integer type for global offsets
     typename    ScanTileStateT>                 ///< Tile status interface type
 __launch_bounds__ (int(AgentSegmentFixupPolicyT::BLOCK_THREADS))
 __global__ void DeviceSegmentFixupKernel(
     PairsInputIteratorT         d_pairs_in,         ///< [in] Pointer to the array carry-out dot product row-ids, one per spmv block
     AggregatesOutputIteratorT   d_aggregates_out,   ///< [in,out] Output value aggregates
-    OffsetT                     num_items,          ///< [in] Total number of items to select from
+    OffsetT_NV                     num_items,          ///< [in] Total number of items to select from
     int                         num_tiles,          ///< [in] Total number of tiles for the entire problem
     ScanTileStateT              tile_state)         ///< [in] Tile status interface
 {
@@ -210,7 +210,7 @@ __global__ void DeviceSegmentFixupKernel(
             AggregatesOutputIteratorT,
             cub::Equality,
             cub::Sum,
-            OffsetT>
+            OffsetT_NV>
         AgentSegmentFixupT;
 
     // Shared memory for AgentSegmentFixup
@@ -233,7 +233,7 @@ __global__ void DeviceSegmentFixupKernel(
  */
 template <
     typename    ValueT,                     ///< Matrix and vector value type
-    typename    OffsetT>                    ///< Signed integer type for global offsets
+    typename    OffsetT_NV>                    ///< Signed integer type for global offsets
 struct DispatchSpmv
 {
     //---------------------------------------------------------------------
@@ -246,16 +246,16 @@ struct DispatchSpmv
     };
 
     // SpmvParams bundle type
-    typedef SpmvParams<ValueT, OffsetT> SpmvParamsT;
+    typedef SpmvParams<ValueT, OffsetT_NV> SpmvParamsT;
 
     // 2D merge path coordinate type
-    typedef typename CubVector<OffsetT, 2>::Type CoordinateT;
+    typedef typename CubVector<OffsetT_NV, 2>::Type CoordinateT;
 
     // Tile status descriptor interface type
-    typedef ReduceByKeyScanTileState<ValueT, OffsetT> ScanTileStateT;
+    typedef ReduceByKeyScanTileState<ValueT, OffsetT_NV> ScanTileStateT;
 
     // Tuple type for scanning (pairs accumulated segment-value with segment-index)
-    typedef KeyValuePair<OffsetT, ValueT> KeyValuePairT;
+    typedef KeyValuePair<OffsetT_NV, ValueT> KeyValuePairT;
 
 
     //---------------------------------------------------------------------
@@ -666,13 +666,13 @@ struct DispatchSpmv
             int search_block_size   = INIT_KERNEL_THREADS;
             int search_grid_size    = (num_merge_tiles + 1 + search_block_size - 1) / search_block_size;
 
-#if (CUB_PTX_ARCH == 0)
-            // Init textures
-            if (CubDebug(error = spmv_params.t_vector_x.BindTexture(spmv_params.d_vector_x))) break;
-#endif
+            // #if (CUB_PTX_ARCH == 0)
+            // // Init textures
+            // if (CubDebug(error = spmv_params.t_vector_x.BindTexture(spmv_params.d_vector_x))) break;
+            // #endif
 
             if (search_grid_size < sm_count)
-//            if (num_merge_tiles < spmv_sm_occupancy * sm_count)
+            // if (num_merge_tiles < spmv_sm_occupancy * sm_count)
             {
                 // Not enough spmv tiles to saturate the device: have spmv blocks search their own staring coords
                 d_tile_coordinates = NULL;
@@ -739,16 +739,16 @@ struct DispatchSpmv
                 if (debug_synchronous && (CubDebug(error = SyncStream(stream)))) break;
             }
 
-#if (CUB_PTX_ARCH == 0)
+            #if (CUB_PTX_ARCH == 0)
             // Free textures
-            if (CubDebug(error = spmv_params.t_vector_x.UnbindTexture())) break;
-#endif
+            // if (CubDebug(error = spmv_params.t_vector_x.UnbindTexture())) break;
+            #endif
         }
         while (0);
 
         return error;
 
-#endif // CUB_RUNTIME_ENABLED
+    #endif // CUB_RUNTIME_ENABLED
     }
 
 
@@ -768,11 +768,11 @@ struct DispatchSpmv
         {
             // Get PTX version
             int ptx_version;
-    #if (CUB_PTX_ARCH == 0)
+            #if (CUB_PTX_ARCH == 0)
             if (CubDebug(error = PtxVersion(ptx_version))) break;
-    #else
+            #else
             ptx_version = CUB_PTX_ARCH;
-    #endif
+            #endif
 
             // Get kernel kernel dispatch configurations
             KernelConfig spmv_config, segment_fixup_config;
@@ -780,13 +780,13 @@ struct DispatchSpmv
 
             if (CubDebug(error = Dispatch(
                 d_temp_storage, temp_storage_bytes, spmv_params, stream, debug_synchronous,
-                DeviceSpmv1ColKernel<PtxSpmvPolicyT, ValueT, OffsetT>,
-                DeviceSpmvSearchKernel<PtxSpmvPolicyT, OffsetT, CoordinateT, SpmvParamsT>,
-                DeviceSpmvKernel<PtxSpmvPolicyT, ScanTileStateT, ValueT, OffsetT, CoordinateT, false, false>,
-                DeviceSegmentFixupKernel<PtxSegmentFixupPolicy, KeyValuePairT*, ValueT*, OffsetT, ScanTileStateT>,
+                DeviceSpmv1ColKernel<PtxSpmvPolicyT, ValueT, OffsetT_NV>,
+                DeviceSpmvSearchKernel<PtxSpmvPolicyT, OffsetT_NV, CoordinateT, SpmvParamsT>,
+                DeviceSpmvKernel<PtxSpmvPolicyT, ScanTileStateT, ValueT, OffsetT_NV, CoordinateT, false, false>,
+                DeviceSegmentFixupKernel<PtxSegmentFixupPolicy, KeyValuePairT*, ValueT*, OffsetT_NV, ScanTileStateT>,
                 spmv_config, segment_fixup_config))) break;
 
-/*
+            /*
             // Dispatch
             if (spmv_params.beta == 0.0)
             {
@@ -795,10 +795,10 @@ struct DispatchSpmv
                     // Dispatch y = A*x
                     if (CubDebug(error = Dispatch(
                         d_temp_storage, temp_storage_bytes, spmv_params, stream, debug_synchronous,
-                        DeviceSpmv1ColKernel<PtxSpmvPolicyT, ValueT, OffsetT>,
-                        DeviceSpmvSearchKernel<PtxSpmvPolicyT, OffsetT, CoordinateT, SpmvParamsT>,
-                        DeviceSpmvKernel<PtxSpmvPolicyT, ScanTileStateT, ValueT, OffsetT, CoordinateT, false, false>,
-                        DeviceSegmentFixupKernel<PtxSegmentFixupPolicy, KeyValuePairT*, ValueT*, OffsetT, ScanTileStateT>,
+                        DeviceSpmv1ColKernel<PtxSpmvPolicyT, ValueT, OffsetT_NV>,
+                        DeviceSpmvSearchKernel<PtxSpmvPolicyT, OffsetT_NV, CoordinateT, SpmvParamsT>,
+                        DeviceSpmvKernel<PtxSpmvPolicyT, ScanTileStateT, ValueT, OffsetT_NV, CoordinateT, false, false>,
+                        DeviceSegmentFixupKernel<PtxSegmentFixupPolicy, KeyValuePairT*, ValueT*, OffsetT_NV, ScanTileStateT>,
                         spmv_config, segment_fixup_config))) break;
                 }
                 else
@@ -806,9 +806,9 @@ struct DispatchSpmv
                     // Dispatch y = alpha*A*x
                     if (CubDebug(error = Dispatch(
                         d_temp_storage, temp_storage_bytes, spmv_params, stream, debug_synchronous,
-                        DeviceSpmvSearchKernel<PtxSpmvPolicyT, ScanTileStateT, OffsetT, CoordinateT, SpmvParamsT>,
-                        DeviceSpmvKernel<PtxSpmvPolicyT, ValueT, OffsetT, CoordinateT, true, false>,
-                        DeviceSegmentFixupKernel<PtxSegmentFixupPolicy, KeyValuePairT*, ValueT*, OffsetT, ScanTileStateT>,
+                        DeviceSpmvSearchKernel<PtxSpmvPolicyT, ScanTileStateT, OffsetT_NV, CoordinateT, SpmvParamsT>,
+                        DeviceSpmvKernel<PtxSpmvPolicyT, ValueT, OffsetT_NV, CoordinateT, true, false>,
+                        DeviceSegmentFixupKernel<PtxSegmentFixupPolicy, KeyValuePairT*, ValueT*, OffsetT_NV, ScanTileStateT>,
                         spmv_config, segment_fixup_config))) break;
                 }
             }
@@ -819,9 +819,9 @@ struct DispatchSpmv
                     // Dispatch y = A*x + beta*y
                     if (CubDebug(error = Dispatch(
                         d_temp_storage, temp_storage_bytes, spmv_params, stream, debug_synchronous,
-                        DeviceSpmvSearchKernel<PtxSpmvPolicyT, ScanTileStateT, OffsetT, CoordinateT, SpmvParamsT>,
-                        DeviceSpmvKernel<PtxSpmvPolicyT, ValueT, OffsetT, CoordinateT, false, true>,
-                        DeviceSegmentFixupKernel<PtxSegmentFixupPolicy, KeyValuePairT*, ValueT*, OffsetT, ScanTileStateT>,
+                        DeviceSpmvSearchKernel<PtxSpmvPolicyT, ScanTileStateT, OffsetT_NV, CoordinateT, SpmvParamsT>,
+                        DeviceSpmvKernel<PtxSpmvPolicyT, ValueT, OffsetT_NV, CoordinateT, false, true>,
+                        DeviceSegmentFixupKernel<PtxSegmentFixupPolicy, KeyValuePairT*, ValueT*, OffsetT_NV, ScanTileStateT>,
                         spmv_config, segment_fixup_config))) break;
                 }
                 else
@@ -829,13 +829,13 @@ struct DispatchSpmv
                     // Dispatch y = alpha*A*x + beta*y
                     if (CubDebug(error = Dispatch(
                         d_temp_storage, temp_storage_bytes, spmv_params, stream, debug_synchronous,
-                        DeviceSpmvSearchKernel<PtxSpmvPolicyT, ScanTileStateT, OffsetT, CoordinateT, SpmvParamsT>,
-                        DeviceSpmvKernel<PtxSpmvPolicyT, ValueT, OffsetT, CoordinateT, true, true>,
-                        DeviceSegmentFixupKernel<PtxSegmentFixupPolicy, KeyValuePairT*, ValueT*, OffsetT, ScanTileStateT>,
+                        DeviceSpmvSearchKernel<PtxSpmvPolicyT, ScanTileStateT, OffsetT_NV, CoordinateT, SpmvParamsT>,
+                        DeviceSpmvKernel<PtxSpmvPolicyT, ValueT, OffsetT_NV, CoordinateT, true, true>,
+                        DeviceSegmentFixupKernel<PtxSegmentFixupPolicy, KeyValuePairT*, ValueT*, OffsetT_NV, ScanTileStateT>,
                         spmv_config, segment_fixup_config))) break;
                 }
             }
-*/
+            */
         }
         while (0);
 

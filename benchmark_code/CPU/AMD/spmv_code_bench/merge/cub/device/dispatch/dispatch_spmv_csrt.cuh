@@ -61,20 +61,20 @@ namespace cub {
 template <
     typename        SpmvPolicyT,                ///< Parameterized SpmvPolicy tuning policy type
     typename        ValueT,                     ///< Matrix and vector value type
-    typename        OffsetT,                    ///< Signed integer type for sequence offsets
+    typename        OffsetT_NV,                    ///< Signed integer type for sequence offsets
     bool            HAS_ALPHA,                  ///< Whether the input parameter Alpha is 1
     bool            HAS_BETA>                   ///< Whether the input parameter Beta is 0
 __launch_bounds__ (int(SpmvPolicyT::BLOCK_THREADS))
 __global__ void DeviceSpmvKernel(
-    SpmvParams<ValueT, OffsetT>     spmv_params,                ///< [in] SpMV input parameter bundle
+    SpmvParams<ValueT, OffsetT_NV>     spmv_params,                ///< [in] SpMV input parameter bundle
     int                             merge_items_per_block,      ///< [in] Number of merge tiles per block
-    KeyValuePair<OffsetT,ValueT>*   d_tile_carry_pairs)         ///< [out] Pointer to the temporary array carry-out dot product row-ids, one per block
+    KeyValuePair<OffsetT_NV,ValueT>*   d_tile_carry_pairs)         ///< [out] Pointer to the temporary array carry-out dot product row-ids, one per block
 {
     // Spmv agent type specialization
     typedef AgentSpmv<
             SpmvPolicyT,
             ValueT,
-            OffsetT,
+            OffsetT_NV,
             HAS_ALPHA,
             HAS_BETA>
         AgentSpmvT;
@@ -96,7 +96,7 @@ __global__ void DeviceSpmvKernel(
  */
 template <
     typename    ValueT,                     ///< Matrix and vector value type
-    typename    OffsetT>                    ///< Signed integer type for global offsets
+    typename    OffsetT_NV>                    ///< Signed integer type for global offsets
 struct DispatchSpmv
 {
     //---------------------------------------------------------------------
@@ -109,10 +109,10 @@ struct DispatchSpmv
     };
 
     // SpmvParams bundle type
-    typedef SpmvParams<ValueT, OffsetT> SpmvParamsT;
+    typedef SpmvParams<ValueT, OffsetT_NV> SpmvParamsT;
 
     // Tuple type for scanning {row id, accumulated value}
-    typedef KeyValuePair<OffsetT, ValueT> KeyValuePairT;
+    typedef KeyValuePair<OffsetT_NV, ValueT> KeyValuePairT;
 
 
     //---------------------------------------------------------------------
@@ -460,7 +460,7 @@ struct DispatchSpmv
                 spmv_params, 
                 stream, 
                 debug_synchronous,
-                DeviceSpmvKernel<PtxSpmvPolicyT, ValueT, OffsetT, false, false>,
+                DeviceSpmvKernel<PtxSpmvPolicyT, ValueT, OffsetT_NV, false, false>,
                 spmv_config))) break;
 
         }

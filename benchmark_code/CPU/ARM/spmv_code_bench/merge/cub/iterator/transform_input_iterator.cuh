@@ -66,7 +66,7 @@ namespace cub {
  * \par Overview
  * - TransformInputIteratorTwraps a unary conversion functor of type \p
  *   ConversionOp and a random-access input iterator of type <tt>InputIteratorT</tt>,
- *   using the former to produce references of type \p ValueType from the latter.
+ *   using the former to produce references of type \p ValueType_NV from the latter.
  * - Can be used with any data type.
  * - Can be constructed, manipulated, and exchanged within and between host and device
  *   functions.  Wrapped host memory can only be dereferenced on the host, and wrapped
@@ -103,27 +103,27 @@ namespace cub {
  *
  * \endcode
  *
- * \tparam ValueType            The value type of this iterator
- * \tparam ConversionOp         Unary functor type for mapping objects of type \p InputType to type \p ValueType.  Must have member <tt>ValueType operator()(const InputType &datum)</tt>.
+ * \tparam ValueType_NV            The value type of this iterator
+ * \tparam ConversionOp         Unary functor type for mapping objects of type \p InputType to type \p ValueType_NV.  Must have member <tt>ValueType_NV operator()(const InputType &datum)</tt>.
  * \tparam InputIteratorT       The type of the wrapped input iterator
- * \tparam OffsetT              The difference type of this iterator (Default: \p ptrdiff_t)
+ * \tparam OffsetT_NV              The difference type of this iterator (Default: \p ptrdiff_t)
  *
  */
 template <
-    typename ValueType,
+    typename ValueType_NV,
     typename ConversionOp,
     typename InputIteratorT,
-    typename OffsetT = ptrdiff_t>
+    typename OffsetT_NV = ptrdiff_t>
 class TransformInputIterator
 {
 public:
 
     // Required iterator traits
     typedef TransformInputIterator              self_type;              ///< My own type
-    typedef OffsetT                             difference_type;        ///< Type to express the result of subtracting one iterator from another
-    typedef ValueType                           value_type;             ///< The type of the element the iterator can point to
-    typedef ValueType*                          pointer;                ///< The type of a pointer to an element the iterator can point to
-    typedef ValueType                           reference;              ///< The type of a reference to an element the iterator can point to
+    typedef OffsetT_NV                             difference_type;        ///< Type to express the result of subtracting one iterator from another
+    typedef ValueType_NV                           value_type;             ///< The type of the element the iterator can point to
+    typedef ValueType_NV*                          pointer;                ///< The type of a pointer to an element the iterator can point to
+    typedef ValueType_NV                           reference;              ///< The type of a reference to an element the iterator can point to
 
 #if (THRUST_VERSION >= 100700)
     // Use Thrust's iterator categories so we can use these iterators in Thrust 1.7 (or newer) methods

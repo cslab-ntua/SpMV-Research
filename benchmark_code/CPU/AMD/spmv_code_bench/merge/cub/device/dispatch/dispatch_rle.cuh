@@ -70,7 +70,7 @@ template <
     typename            NumRunsOutputIteratorT,     ///< Output iterator type for recording the number of runs encountered \iterator
     typename            ScanTileStateT,              ///< Tile status interface type
     typename            EqualityOpT,                 ///< T equality operator type
-    typename            OffsetT>                    ///< Signed integer type for global offsets
+    typename            OffsetT_NV>                    ///< Signed integer type for global offsets
 __launch_bounds__ (int(AgentRlePolicyT::BLOCK_THREADS))
 __global__ void DeviceRleSweepKernel(
     InputIteratorT              d_in,               ///< [in] Pointer to input sequence of data items
@@ -79,7 +79,7 @@ __global__ void DeviceRleSweepKernel(
     NumRunsOutputIteratorT      d_num_runs_out,     ///< [out] Pointer to total number of runs (i.e., length of \p d_offsets_out)
     ScanTileStateT              tile_status,        ///< [in] Tile status interface
     EqualityOpT                 equality_op,        ///< [in] Equality operator for input items
-    OffsetT                     num_items,          ///< [in] Total number of input items (i.e., length of \p d_in)
+    OffsetT_NV                     num_items,          ///< [in] Total number of input items (i.e., length of \p d_in)
     int                         num_tiles)          ///< [in] Total number of tiles for the entire problem
 {
     // Thread block type for selecting data from input tiles
@@ -89,7 +89,7 @@ __global__ void DeviceRleSweepKernel(
         OffsetsOutputIteratorT,
         LengthsOutputIteratorT,
         EqualityOpT,
-        OffsetT> AgentRleT;
+        OffsetT_NV> AgentRleT;
 
     // Shared memory for AgentRle
     __shared__ typename AgentRleT::TempStorage temp_storage;
@@ -117,7 +117,7 @@ template <
     typename            LengthsOutputIteratorT,     ///< Random-access output iterator type for writing run-length values \iterator
     typename            NumRunsOutputIteratorT,     ///< Output iterator type for recording the number of runs encountered \iterator
     typename            EqualityOpT,                ///< T equality operator type
-    typename            OffsetT>                    ///< Signed integer type for global offsets
+    typename            OffsetT_NV>                    ///< Signed integer type for global offsets
 struct DeviceRleDispatch
 {
     /******************************************************************************
@@ -136,7 +136,7 @@ struct DeviceRleDispatch
     };
 
     // Tile status descriptor interface type
-    typedef ReduceByKeyScanTileState<LengthT, OffsetT> ScanTileStateT;
+    typedef ReduceByKeyScanTileState<LengthT, OffsetT_NV> ScanTileStateT;
 
 
     /******************************************************************************
@@ -360,7 +360,7 @@ struct DeviceRleDispatch
         LengthsOutputIteratorT      d_lengths_out,                  ///< [out] Pointer to the output sequence of run-lengths
         NumRunsOutputIteratorT      d_num_runs_out,                 ///< [out] Pointer to the total number of runs encountered (i.e., length of \p d_offsets_out)
         EqualityOpT                 equality_op,                    ///< [in] Equality operator for input items
-        OffsetT                     num_items,                      ///< [in] Total number of input items (i.e., length of \p d_in)
+        OffsetT_NV                     num_items,                      ///< [in] Total number of input items (i.e., length of \p d_in)
         cudaStream_t                stream,                         ///< [in] CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                        debug_synchronous,              ///< [in] Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
         int                         ptx_version,                    ///< [in] PTX version of dispatch kernels
@@ -487,7 +487,7 @@ struct DeviceRleDispatch
         LengthsOutputIteratorT      d_lengths_out,                  ///< [out] Pointer to output sequence of run-lengths
         NumRunsOutputIteratorT      d_num_runs_out,                 ///< [out] Pointer to total number of runs (i.e., length of \p d_offsets_out)
         EqualityOpT                 equality_op,                    ///< [in] Equality operator for input items
-        OffsetT                     num_items,                      ///< [in] Total number of input items (i.e., length of \p d_in)
+        OffsetT_NV                     num_items,                      ///< [in] Total number of input items (i.e., length of \p d_in)
         cudaStream_t                stream,                         ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                        debug_synchronous)              ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
@@ -520,7 +520,7 @@ struct DeviceRleDispatch
                 debug_synchronous,
                 ptx_version,
                 DeviceCompactInitKernel<ScanTileStateT, NumRunsOutputIteratorT>,
-                DeviceRleSweepKernel<PtxRleSweepPolicy, InputIteratorT, OffsetsOutputIteratorT, LengthsOutputIteratorT, NumRunsOutputIteratorT, ScanTileStateT, EqualityOpT, OffsetT>,
+                DeviceRleSweepKernel<PtxRleSweepPolicy, InputIteratorT, OffsetsOutputIteratorT, LengthsOutputIteratorT, NumRunsOutputIteratorT, ScanTileStateT, EqualityOpT, OffsetT_NV>,
                 device_rle_config))) break;
         }
         while (0);

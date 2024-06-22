@@ -67,8 +67,8 @@ namespace cub {
  *
  * \par Overview
  * - CacheModifiedInputIteratorTis a random-access input iterator that wraps a native
- *   device pointer of type <tt>ValueType*</tt>. \p ValueType references are
- *   made by reading \p ValueType values through loads modified by \p MODIFIER.
+ *   device pointer of type <tt>ValueType_NV*</tt>. \p ValueType_NV references are
+ *   made by reading \p ValueType_NV values through loads modified by \p MODIFIER.
  * - Can be used to load any data type from memory using PTX cache load modifiers (e.g., "LOAD_LDG",
  *   "LOAD_CG", "LOAD_CA", "LOAD_CS", "LOAD_CV", etc.).
  * - Can be constructed, manipulated, and exchanged within and between host and device
@@ -97,23 +97,23 @@ namespace cub {
  * \endcode
  *
  * \tparam CacheLoadModifier    The cub::CacheLoadModifier to use when accessing data
- * \tparam ValueType            The value type of this iterator
- * \tparam OffsetT              The difference type of this iterator (Default: \p ptrdiff_t)
+ * \tparam ValueType_NV            The value type of this iterator
+ * \tparam OffsetT_NV              The difference type of this iterator (Default: \p ptrdiff_t)
  */
 template <
     CacheLoadModifier   MODIFIER,
-    typename            ValueType,
-    typename            OffsetT = ptrdiff_t>
+    typename            ValueType_NV,
+    typename            OffsetT_NV = ptrdiff_t>
 class CacheModifiedInputIterator
 {
 public:
 
     // Required iterator traits
     typedef CacheModifiedInputIterator          self_type;              ///< My own type
-    typedef OffsetT                             difference_type;        ///< Type to express the result of subtracting one iterator from another
-    typedef ValueType                           value_type;             ///< The type of the element the iterator can point to
-    typedef ValueType*                          pointer;                ///< The type of a pointer to an element the iterator can point to
-    typedef ValueType                           reference;              ///< The type of a reference to an element the iterator can point to
+    typedef OffsetT_NV                             difference_type;        ///< Type to express the result of subtracting one iterator from another
+    typedef ValueType_NV                           value_type;             ///< The type of the element the iterator can point to
+    typedef ValueType_NV*                          pointer;                ///< The type of a pointer to an element the iterator can point to
+    typedef ValueType_NV                           reference;              ///< The type of a reference to an element the iterator can point to
 
 #if (THRUST_VERSION >= 100700)
     // Use Thrust's iterator categories so we can use these iterators in Thrust 1.7 (or newer) methods
@@ -131,14 +131,14 @@ public:
 public:
 
     /// Wrapped native pointer
-    ValueType* ptr;
+    ValueType_NV* ptr;
 
     /// Constructor
-    template <typename QualifiedValueType>
+    template <typename QualifiedValueType_NV>
     __host__ __device__ __forceinline__ CacheModifiedInputIterator(
-        QualifiedValueType* ptr)     ///< Native pointer to wrap
+        QualifiedValueType_NV* ptr)     ///< Native pointer to wrap
     :
-        ptr(const_cast<typename RemoveQualifiers<QualifiedValueType>::Type *>(ptr))
+        ptr(const_cast<typename RemoveQualifiers<QualifiedValueType_NV>::Type *>(ptr))
     {}
 
     /// Postfix increment

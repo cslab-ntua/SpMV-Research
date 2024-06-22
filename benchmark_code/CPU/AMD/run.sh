@@ -67,7 +67,7 @@ matrices_validation=(
     # raefsky3.mtx
     # rgg_n_2_17_s0.mtx
     # bbmat.mtx
-    # appu.mtx
+    appu.mtx
     # conf5_4-8x8-15.mtx
     # mc2depi.mtx
     # rma10.mtx
@@ -97,7 +97,7 @@ matrices_validation=(
     # TSOPF_RS_b2383.mtx
     # in-2004.mtx
     # Ga41As41H72.mtx
-    eu-2005.mtx
+    # eu-2005.mtx
     # wikipedia-20051105.mtx
     # kron_g500-logn18.mtx
     # rajat31.mtx

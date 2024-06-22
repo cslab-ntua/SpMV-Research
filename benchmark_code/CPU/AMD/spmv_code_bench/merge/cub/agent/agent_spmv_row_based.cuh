@@ -43,7 +43,8 @@
 #include "../thread/thread_operators.cuh"
 #include "../iterator/cache_modified_input_iterator.cuh"
 #include "../iterator/counting_input_iterator.cuh"
-#include "../iterator/tex_ref_input_iterator.cuh"
+// #include "../iterator/tex_ref_input_iterator.cuh"
+#include "../iterator/tex_obj_input_iterator.cuh"
 #include "../util_namespace.cuh"
 
 /// Optional outer namespace(s)
@@ -95,12 +96,12 @@ struct AgentSpmvPolicy
 
 template <
     typename        ValueT,              ///< Matrix and vector value type
-    typename        OffsetT>             ///< Signed integer type for sequence offsets
+    typename        OffsetT_NV>             ///< Signed integer type for sequence offsets
 struct SpmvParams
 {
     ValueT*         d_values;            ///< Pointer to the array of \p num_nonzeros values of the corresponding nonzero elements of matrix <b>A</b>.
-    OffsetT*        d_row_end_offsets;   ///< Pointer to the array of \p m offsets demarcating the end of every row in \p d_column_indices and \p d_values
-    OffsetT*        d_column_indices;    ///< Pointer to the array of \p num_nonzeros column-indices of the corresponding nonzero elements of matrix <b>A</b>.  (Indices are zero-valued.)
+    OffsetT_NV*        d_row_end_offsets;   ///< Pointer to the array of \p m offsets demarcating the end of every row in \p d_column_indices and \p d_values
+    OffsetT_NV*        d_column_indices;    ///< Pointer to the array of \p num_nonzeros column-indices of the corresponding nonzero elements of matrix <b>A</b>.  (Indices are zero-valued.)
     ValueT*         d_vector_x;          ///< Pointer to the array of \p num_cols values corresponding to the dense input vector <em>x</em>
     ValueT*         d_vector_y;          ///< Pointer to the array of \p num_rows values corresponding to the dense output vector <em>y</em>
     int             num_rows;            ///< Number of rows of matrix <b>A</b>.
@@ -109,7 +110,8 @@ struct SpmvParams
     ValueT          alpha;               ///< Alpha multiplicand
     ValueT          beta;                ///< Beta addend-multiplicand
 
-    TexRefInputIterator<ValueT, 66778899, OffsetT>  t_vector_x;
+    // TexRefInputIterator<ValueT, 66778899, OffsetT_NV>  t_vector_x;
+    TexObjInputIterator<ValueT, OffsetT_NV>  t_vector_x;
 };
 
 
@@ -119,7 +121,7 @@ struct SpmvParams
 template <
     typename    AgentSpmvPolicyT,           ///< Parameterized AgentSpmvPolicy tuning policy type
     typename    ValueT,                     ///< Matrix and vector value type
-    typename    OffsetT,                    ///< Signed integer type for sequence offsets
+    typename    OffsetT_NV,                    ///< Signed integer type for sequence offsets
     bool        HAS_ALPHA,                  ///< Whether the input parameter \p alpha is 1
     bool        HAS_BETA,                   ///< Whether the input parameter \p beta is 0
     int         PTX_ARCH = CUB_PTX_ARCH>    ///< PTX compute capability
@@ -138,42 +140,42 @@ struct AgentSpmv
     };
 
     /// 2D merge path coordinate type
-    typedef typename CubVector<OffsetT, 2>::Type CoordinateT;
+    typedef typename CubVector<OffsetT_NV, 2>::Type CoordinateT;
 
     /// Input iterator wrapper types (for applying cache modifiers)
 
     typedef CacheModifiedInputIterator<
             AgentSpmvPolicyT::ROW_OFFSETS_SEARCH_LOAD_MODIFIER,
-            OffsetT,
-            OffsetT>
+            OffsetT_NV,
+            OffsetT_NV>
         RowOffsetsSearchIteratorT;
 
     typedef CacheModifiedInputIterator<
             AgentSpmvPolicyT::ROW_OFFSETS_LOAD_MODIFIER,
-            OffsetT,
-            OffsetT>
+            OffsetT_NV,
+            OffsetT_NV>
         RowOffsetsIteratorT;
 
     typedef CacheModifiedInputIterator<
             AgentSpmvPolicyT::COLUMN_INDICES_LOAD_MODIFIER,
-            OffsetT,
-            OffsetT>
+            OffsetT_NV,
+            OffsetT_NV>
         ColumnIndicesIteratorT;
 
     typedef CacheModifiedInputIterator<
             AgentSpmvPolicyT::VALUES_LOAD_MODIFIER,
             ValueT,
-            OffsetT>
+            OffsetT_NV>
         ValueIteratorT;
 
     typedef CacheModifiedInputIterator<
             AgentSpmvPolicyT::VECTOR_VALUES_LOAD_MODIFIER,
             ValueT,
-            OffsetT>
+            OffsetT_NV>
         VectorValueIteratorT;
 
     // Tuple type for scanning (pairs accumulated segment-value with segment-index)
-    typedef KeyValuePair<OffsetT, ValueT> KeyValuePairT;
+    typedef KeyValuePair<OffsetT_NV, ValueT> KeyValuePairT;
 
     // Reduce-value-by-segment scan operator
     typedef ReduceBySegmentOp<cub::Sum> ReduceBySegmentOpT;
@@ -191,8 +193,8 @@ struct AgentSpmv
     /// Shared memory type required by this thread block
     struct _TempStorage
     {
-        OffsetT tile_nonzero_idx;
-        OffsetT tile_nonzero_idx_end;
+        OffsetT_NV tile_nonzero_idx;
+        OffsetT_NV tile_nonzero_idx_end;
 
         // Smem needed for tile scanning
         typename BlockScanT::TempStorage scan;
@@ -213,7 +215,7 @@ struct AgentSpmv
 
     _TempStorage&                   temp_storage;         /// Reference to temp_storage
 
-    SpmvParams<ValueT, OffsetT>&    spmv_params;
+    SpmvParams<ValueT, OffsetT_NV>&    spmv_params;
 
     ValueIteratorT                  wd_values;            ///< Wrapped pointer to the array of \p num_nonzeros values of the corresponding nonzero elements of matrix <b>A</b>.
     RowOffsetsIteratorT             wd_row_end_offsets;   ///< Wrapped Pointer to the array of \p m offsets demarcating the end of every row in \p d_column_indices and \p d_values
@@ -231,7 +233,7 @@ struct AgentSpmv
      */
     __device__ __forceinline__ AgentSpmv(
         TempStorage&                    temp_storage,           ///< Reference to temp_storage
-        SpmvParams<ValueT, OffsetT>&    spmv_params)            ///< SpMV input parameter bundle
+        SpmvParams<ValueT, OffsetT_NV>&    spmv_params)            ///< SpMV input parameter bundle
     :
         temp_storage(temp_storage.Alias()),
         spmv_params(spmv_params),
@@ -266,10 +268,10 @@ struct AgentSpmv
         ReduceBySegmentOpT& scan_op,
         ValueT&             row_total,
         ValueT&             row_start,
-        OffsetT&            tile_nonzero_idx,
-        OffsetT             tile_nonzero_idx_end,
-        OffsetT             row_nonzero_idx,
-        OffsetT             row_nonzero_idx_end)
+        OffsetT_NV&            tile_nonzero_idx,
+        OffsetT_NV             tile_nonzero_idx_end,
+        OffsetT_NV             row_nonzero_idx,
+        OffsetT_NV             row_nonzero_idx_end)
     {
         ValueT NAN_TOKEN;
         InitNan(NAN_TOKEN);
@@ -285,16 +287,16 @@ struct AgentSpmv
 
             ValueT nonzero = 0.0;
 
-            OffsetT                 local_nonzero_idx   = (ITEM * BLOCK_THREADS) + threadIdx.x;
-            OffsetT                 nonzero_idx         = tile_nonzero_idx + local_nonzero_idx;
+            OffsetT_NV                 local_nonzero_idx   = (ITEM * BLOCK_THREADS) + threadIdx.x;
+            OffsetT_NV                 nonzero_idx         = tile_nonzero_idx + local_nonzero_idx;
 
             bool in_range = nonzero_idx < tile_nonzero_idx_end;
 
-            OffsetT nonzero_idx2 = (in_range) ?
+            OffsetT_NV nonzero_idx2 = (in_range) ?
                 nonzero_idx :
                 tile_nonzero_idx_end - 1;
 
-            OffsetT column_idx          = wd_column_indices[nonzero_idx2];
+            OffsetT_NV column_idx          = wd_column_indices[nonzero_idx2];
             ValueT  value               = wd_values[nonzero_idx2];
             ValueT  vector_value        = wd_vector_x[column_idx];
             nonzero                     = value * vector_value;
@@ -311,7 +313,7 @@ struct AgentSpmv
         // Swap in NANs at local row start offsets
         //
 
-        OffsetT local_row_nonzero_idx = row_nonzero_idx - tile_nonzero_idx;
+        OffsetT_NV local_row_nonzero_idx = row_nonzero_idx - tile_nonzero_idx;
         if ((local_row_nonzero_idx >= 0) && (local_row_nonzero_idx < TILE_ITEMS))
         {
             // Thread's row starts in this strip
@@ -363,7 +365,7 @@ struct AgentSpmv
         // Update row totals
         //
 
-        OffsetT local_row_nonzero_idx_end = row_nonzero_idx_end - tile_nonzero_idx;
+        OffsetT_NV local_row_nonzero_idx_end = row_nonzero_idx_end - tile_nonzero_idx;
         if ((local_row_nonzero_idx_end >= 0) && (local_row_nonzero_idx_end < TILE_ITEMS))
         {
             // Thread's row ends in this strip
@@ -387,17 +389,17 @@ struct AgentSpmv
         //
 
         // Row range for the thread block
-        OffsetT tile_row_idx        = tile_idx * rows_per_tile;
-        OffsetT tile_row_idx_end    = CUB_MIN(tile_row_idx + rows_per_tile, spmv_params.num_rows);
+        OffsetT_NV tile_row_idx        = tile_idx * rows_per_tile;
+        OffsetT_NV tile_row_idx_end    = CUB_MIN(tile_row_idx + rows_per_tile, spmv_params.num_rows);
 
         // Thread's row
-        OffsetT row_idx             = tile_row_idx + threadIdx.x;
+        OffsetT_NV row_idx             = tile_row_idx + threadIdx.x;
         ValueT  row_total           = 0.0;
         ValueT  row_start           = 0.0;
 
         // Nonzero range for the thread's row
-        OffsetT row_nonzero_idx     = -1;
-        OffsetT row_nonzero_idx_end = -1;
+        OffsetT_NV row_nonzero_idx     = -1;
+        OffsetT_NV row_nonzero_idx_end = -1;
 
         if (row_idx < tile_row_idx_end)
         {
@@ -427,8 +429,8 @@ struct AgentSpmv
         //
 
         // Nonzero range for the thread block
-        OffsetT tile_nonzero_idx        = temp_storage.tile_nonzero_idx;
-        OffsetT tile_nonzero_idx_end    = temp_storage.tile_nonzero_idx_end;
+        OffsetT_NV tile_nonzero_idx        = temp_storage.tile_nonzero_idx;
+        OffsetT_NV tile_nonzero_idx_end    = temp_storage.tile_nonzero_idx_end;
 
         KeyValuePairT       tile_prefix = {0, 0.0};
         ReduceBySegmentOpT  scan_op;

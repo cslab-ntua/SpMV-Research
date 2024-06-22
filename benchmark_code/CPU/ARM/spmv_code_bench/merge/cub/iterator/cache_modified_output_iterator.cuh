@@ -66,8 +66,8 @@ namespace cub {
  *
  * \par Overview
  * - CacheModifiedOutputIterator is a random-access output iterator that wraps a native
- *   device pointer of type <tt>ValueType*</tt>. \p ValueType references are
- *   made by writing \p ValueType values through stores modified by \p MODIFIER.
+ *   device pointer of type <tt>ValueType_NV*</tt>. \p ValueType_NV references are
+ *   made by writing \p ValueType_NV values through stores modified by \p MODIFIER.
  * - Can be used to store any data type to memory using PTX cache store modifiers (e.g., "STORE_WB",
  *   "STORE_CG", "STORE_CS", "STORE_WT", etc.).
  * - Can be constructed, manipulated, and exchanged within and between host and device
@@ -99,13 +99,13 @@ namespace cub {
  * - Can only be dereferenced within device code
  *
  * \tparam CacheStoreModifier     The cub::CacheStoreModifier to use when accessing data
- * \tparam ValueType            The value type of this iterator
- * \tparam OffsetT              The difference type of this iterator (Default: \p ptrdiff_t)
+ * \tparam ValueType_NV            The value type of this iterator
+ * \tparam OffsetT_NV              The difference type of this iterator (Default: \p ptrdiff_t)
  */
 template <
     CacheStoreModifier  MODIFIER,
-    typename            ValueType,
-    typename            OffsetT = ptrdiff_t>
+    typename            ValueType_NV,
+    typename            OffsetT_NV = ptrdiff_t>
 class CacheModifiedOutputIterator
 {
 private:
@@ -113,13 +113,13 @@ private:
     // Proxy object
     struct Reference
     {
-        ValueType* ptr;
+        ValueType_NV* ptr;
 
         /// Constructor
-        __host__ __device__ __forceinline__ Reference(ValueType* ptr) : ptr(ptr) {}
+        __host__ __device__ __forceinline__ Reference(ValueType_NV* ptr) : ptr(ptr) {}
 
         /// Assignment
-        __device__ __forceinline__ ValueType operator =(ValueType val)
+        __device__ __forceinline__ ValueType_NV operator =(ValueType_NV val)
         {
             ThreadStore<MODIFIER>(ptr, val);
             return val;
@@ -130,9 +130,9 @@ public:
 
     // Required iterator traits
     typedef CacheModifiedOutputIterator         self_type;              ///< My own type
-    typedef OffsetT                             difference_type;        ///< Type to express the result of subtracting one iterator from another
-    typedef ValueType                           value_type;             ///< The type of the element the iterator can point to
-    typedef ValueType*                          pointer;                ///< The type of a pointer to an element the iterator can point to
+    typedef OffsetT_NV                             difference_type;        ///< Type to express the result of subtracting one iterator from another
+    typedef ValueType_NV                           value_type;             ///< The type of the element the iterator can point to
+    typedef ValueType_NV*                          pointer;                ///< The type of a pointer to an element the iterator can point to
     typedef Reference                           reference;              ///< The type of a reference to an element the iterator can point to
 
 #if (THRUST_VERSION >= 100700)
@@ -149,16 +149,16 @@ public:
 
 private:
 
-    ValueType* ptr;
+    ValueType_NV* ptr;
 
 public:
 
     /// Constructor
-    template <typename QualifiedValueType>
+    template <typename QualifiedValueType_NV>
     __host__ __device__ __forceinline__ CacheModifiedOutputIterator(
-        QualifiedValueType* ptr)     ///< Native pointer to wrap
+        QualifiedValueType_NV* ptr)     ///< Native pointer to wrap
     :
-        ptr(const_cast<typename RemoveQualifiers<QualifiedValueType>::Type *>(ptr))
+        ptr(const_cast<typename RemoveQualifiers<QualifiedValueType_NV>::Type *>(ptr))
     {}
 
     /// Postfix increment

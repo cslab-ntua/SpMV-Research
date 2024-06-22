@@ -154,12 +154,12 @@ struct DeviceSegmentedRadixSort
         bool                debug_synchronous   = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
         DoubleBuffer<KeyT>       d_keys(d_keys_in, d_keys_out);
         DoubleBuffer<ValueT>     d_values(d_values_in, d_values_out);
 
-        return DispatchSegmentedRadixSort<false, KeyT, ValueT, OffsetT>::Dispatch(
+        return DispatchSegmentedRadixSort<false, KeyT, ValueT, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_keys,
@@ -259,9 +259,9 @@ struct DeviceSegmentedRadixSort
         bool                    debug_synchronous   = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
-        return DispatchSegmentedRadixSort<false, KeyT, ValueT, OffsetT>::Dispatch(
+        return DispatchSegmentedRadixSort<false, KeyT, ValueT, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_keys,
@@ -352,12 +352,12 @@ struct DeviceSegmentedRadixSort
         bool                debug_synchronous   = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
         DoubleBuffer<KeyT>       d_keys(d_keys_in, d_keys_out);
         DoubleBuffer<ValueT>     d_values(d_values_in, d_values_out);
 
-        return DispatchSegmentedRadixSort<true, KeyT, ValueT, OffsetT>::Dispatch(
+        return DispatchSegmentedRadixSort<true, KeyT, ValueT, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_keys,
@@ -457,9 +457,9 @@ struct DeviceSegmentedRadixSort
         bool                    debug_synchronous   = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
-        return DispatchSegmentedRadixSort<true, KeyT, ValueT, OffsetT>::Dispatch(
+        return DispatchSegmentedRadixSort<true, KeyT, ValueT, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_keys,
@@ -546,13 +546,13 @@ struct DeviceSegmentedRadixSort
         bool                debug_synchronous   = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
         // Null value type
         DoubleBuffer<KeyT>      d_keys(d_keys_in, d_keys_out);
         DoubleBuffer<NullType>  d_values;
 
-        return DispatchSegmentedRadixSort<false, KeyT, NullType, OffsetT>::Dispatch(
+        return DispatchSegmentedRadixSort<false, KeyT, NullType, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_keys,
@@ -641,12 +641,12 @@ struct DeviceSegmentedRadixSort
         bool                debug_synchronous   = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
         // Null value type
         DoubleBuffer<NullType> d_values;
 
-        return DispatchSegmentedRadixSort<false, KeyT, NullType, OffsetT>::Dispatch(
+        return DispatchSegmentedRadixSort<false, KeyT, NullType, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_keys,
@@ -728,12 +728,12 @@ struct DeviceSegmentedRadixSort
         bool                debug_synchronous   = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
         DoubleBuffer<KeyT>       d_keys(d_keys_in, d_keys_out);
         DoubleBuffer<NullType>  d_values;
 
-        return DispatchSegmentedRadixSort<true, KeyT, NullType, OffsetT>::Dispatch(
+        return DispatchSegmentedRadixSort<true, KeyT, NullType, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_keys,
@@ -822,12 +822,12 @@ struct DeviceSegmentedRadixSort
         bool                debug_synchronous   = false)            ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
         // Null value type
         DoubleBuffer<NullType> d_values;
 
-        return DispatchSegmentedRadixSort<true, KeyT, NullType, OffsetT>::Dispatch(
+        return DispatchSegmentedRadixSort<true, KeyT, NullType, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_keys,

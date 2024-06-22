@@ -63,7 +63,7 @@ namespace cub {
 template <
     int                                             NUM_ACTIVE_CHANNELS,            ///< Number of channels actively being histogrammed
     typename                                        CounterT,                       ///< Integer type for counting sample occurrences per histogram bin
-    typename                                        OffsetT>                        ///< Signed integer type for global offsets
+    typename                                        OffsetT_NV>                        ///< Signed integer type for global offsets
 __global__ void DeviceHistogramInitKernel(
     ArrayWrapper<int, NUM_ACTIVE_CHANNELS>          num_output_bins_wrapper,        ///< Number of output histogram bins per channel
     ArrayWrapper<CounterT*, NUM_ACTIVE_CHANNELS>    d_output_histograms_wrapper,    ///< Histogram counter data having logical dimensions <tt>CounterT[NUM_ACTIVE_CHANNELS][num_bins.array[CHANNEL]]</tt>
@@ -95,7 +95,7 @@ template <
     typename                                            CounterT,                       ///< Integer type for counting sample occurrences per histogram bin
     typename                                            PrivatizedDecodeOpT,            ///< The transform operator type for determining privatized counter indices from samples, one for each channel
     typename                                            OutputDecodeOpT,                ///< The transform operator type for determining output bin-ids from privatized counter indices, one for each channel
-    typename                                            OffsetT>                        ///< Signed integer type for global offsets
+    typename                                            OffsetT_NV>                        ///< Signed integer type for global offsets
 __launch_bounds__ (int(AgentHistogramPolicyT::BLOCK_THREADS))
 __global__ void DeviceHistogramSweepKernel(
     SampleIteratorT                                         d_samples,                          ///< Input data to reduce
@@ -105,9 +105,9 @@ __global__ void DeviceHistogramSweepKernel(
     ArrayWrapper<CounterT*, NUM_ACTIVE_CHANNELS>            d_privatized_histograms_wrapper,    ///< Reference to privatized histograms
     ArrayWrapper<OutputDecodeOpT, NUM_ACTIVE_CHANNELS>      output_decode_op_wrapper,           ///< The transform operator for determining output bin-ids from privatized counter indices, one for each channel
     ArrayWrapper<PrivatizedDecodeOpT, NUM_ACTIVE_CHANNELS>  privatized_decode_op_wrapper,       ///< The transform operator for determining privatized counter indices from samples, one for each channel
-    OffsetT                                                 num_row_pixels,                     ///< The number of multi-channel pixels per row in the region of interest
-    OffsetT                                                 num_rows,                           ///< The number of rows in the region of interest
-    OffsetT                                                 row_stride_samples,                 ///< The number of samples between starts of consecutive rows in the region of interest
+    OffsetT_NV                                                 num_row_pixels,                     ///< The number of multi-channel pixels per row in the region of interest
+    OffsetT_NV                                                 num_rows,                           ///< The number of rows in the region of interest
+    OffsetT_NV                                                 row_stride_samples,                 ///< The number of samples between starts of consecutive rows in the region of interest
     int                                                     tiles_per_row,                      ///< Number of image tiles per row
     GridQueue<int>                                          tile_queue)                         ///< Drain queue descriptor for dynamically mapping tile data onto thread blocks
 {
@@ -121,7 +121,7 @@ __global__ void DeviceHistogramSweepKernel(
             CounterT,
             PrivatizedDecodeOpT,
             OutputDecodeOpT,
-            OffsetT>
+            OffsetT_NV>
         AgentHistogramT;
 
     // Shared memory for AgentHistogram
@@ -171,7 +171,7 @@ template <
     typename    SampleIteratorT,            ///< Random-access input iterator type for reading input items \iterator
     typename    CounterT,                   ///< Integer type for counting sample occurrences per histogram bin
     typename    LevelT,                     ///< Type for specifying bin level boundaries
-    typename    OffsetT>                    ///< Signed integer type for global offsets
+    typename    OffsetT_NV>                    ///< Signed integer type for global offsets
 struct DipatchHistogram
 {
     //---------------------------------------------------------------------
@@ -214,7 +214,7 @@ struct DipatchHistogram
         {
             /// Level iterator wrapper type
             typedef typename If<IsPointer<LevelIteratorT>::VALUE,
-                    CacheModifiedInputIterator<LOAD_MODIFIER, LevelT, OffsetT>,     // Wrap the native input pointer with CacheModifiedInputIterator
+                    CacheModifiedInputIterator<LOAD_MODIFIER, LevelT, OffsetT_NV>,     // Wrap the native input pointer with CacheModifiedInputIterator
                     LevelIteratorT>::Type                                           // Directly use the supplied input iterator type
                 WrappedLevelIteratorT;
 
@@ -525,9 +525,9 @@ struct DipatchHistogram
         int                                 num_output_levels[NUM_ACTIVE_CHANNELS],         ///< [in] The number of bin level boundaries for delineating histogram samples in each active channel.  Implies that the number of bins for channel<sub><em>i</em></sub> is <tt>num_output_levels[i]</tt> - 1.
         OutputDecodeOpT                     output_decode_op[NUM_ACTIVE_CHANNELS],          ///< [in] Transform operators for determining bin-ids from samples, one for each channel
         int                                 max_num_output_bins,                            ///< [in] Maximum number of output bins in any channel
-        OffsetT                             num_row_pixels,                                 ///< [in] The number of multi-channel pixels per row in the region of interest
-        OffsetT                             num_rows,                                       ///< [in] The number of rows in the region of interest
-        OffsetT                             row_stride_samples,                             ///< [in] The number of samples between starts of consecutive rows in the region of interest
+        OffsetT_NV                             num_row_pixels,                                 ///< [in] The number of multi-channel pixels per row in the region of interest
+        OffsetT_NV                             num_rows,                                       ///< [in] The number of rows in the region of interest
+        OffsetT_NV                             row_stride_samples,                             ///< [in] The number of samples between starts of consecutive rows in the region of interest
         DeviceHistogramInitKernelT          histogram_init_kernel,                          ///< [in] Kernel function pointer to parameterization of cub::DeviceHistogramInitKernel
         DeviceHistogramSweepKernelT         histogram_sweep_kernel,                         ///< [in] Kernel function pointer to parameterization of cub::DeviceHistogramSweepKernel
         KernelConfig                        histogram_sweep_config,                         ///< [in] Dispatch parameters that match the policy that \p histogram_sweep_kernel was compiled for
@@ -699,9 +699,9 @@ struct DipatchHistogram
         CounterT*           d_output_histograms[NUM_ACTIVE_CHANNELS],  ///< [out] The pointers to the histogram counter output arrays, one for each active channel.  For channel<sub><em>i</em></sub>, the allocation length of <tt>d_histograms[i]</tt> should be <tt>num_output_levels[i]</tt> - 1.
         int                 num_output_levels[NUM_ACTIVE_CHANNELS],     ///< [in] The number of boundaries (levels) for delineating histogram samples in each active channel.  Implies that the number of bins for channel<sub><em>i</em></sub> is <tt>num_output_levels[i]</tt> - 1.
         LevelT              *d_levels[NUM_ACTIVE_CHANNELS],             ///< [in] The pointers to the arrays of boundaries (levels), one for each active channel.  Bin ranges are defined by consecutive boundary pairings: lower sample value boundaries are inclusive and upper sample value boundaries are exclusive.
-        OffsetT             num_row_pixels,                             ///< [in] The number of multi-channel pixels per row in the region of interest
-        OffsetT             num_rows,                                   ///< [in] The number of rows in the region of interest
-        OffsetT             row_stride_samples,                         ///< [in] The number of samples between starts of consecutive rows in the region of interest
+        OffsetT_NV             num_row_pixels,                             ///< [in] The number of multi-channel pixels per row in the region of interest
+        OffsetT_NV             num_rows,                                   ///< [in] The number of rows in the region of interest
+        OffsetT_NV             row_stride_samples,                         ///< [in] The number of samples between starts of consecutive rows in the region of interest
         cudaStream_t        stream,                                     ///< [in] CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous,                          ///< [in] Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
         Int2Type<false>     is_byte_sample)                             ///< [in] Marker type indicating whether or not SampleT is a 8b type
@@ -759,8 +759,8 @@ struct DipatchHistogram
                     num_row_pixels,
                     num_rows,
                     row_stride_samples,
-                    DeviceHistogramInitKernel<NUM_ACTIVE_CHANNELS, CounterT, OffsetT>,
-                    DeviceHistogramSweepKernel<PtxHistogramSweepPolicy, PRIVATIZED_SMEM_BINS, NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, PrivatizedDecodeOpT, OutputDecodeOpT, OffsetT>,
+                    DeviceHistogramInitKernel<NUM_ACTIVE_CHANNELS, CounterT, OffsetT_NV>,
+                    DeviceHistogramSweepKernel<PtxHistogramSweepPolicy, PRIVATIZED_SMEM_BINS, NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, PrivatizedDecodeOpT, OutputDecodeOpT, OffsetT_NV>,
                     histogram_sweep_config,
                     stream,
                     debug_synchronous))) break;
@@ -783,8 +783,8 @@ struct DipatchHistogram
                     num_row_pixels,
                     num_rows,
                     row_stride_samples,
-                    DeviceHistogramInitKernel<NUM_ACTIVE_CHANNELS, CounterT, OffsetT>,
-                    DeviceHistogramSweepKernel<PtxHistogramSweepPolicy, PRIVATIZED_SMEM_BINS, NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, PrivatizedDecodeOpT, OutputDecodeOpT, OffsetT>,
+                    DeviceHistogramInitKernel<NUM_ACTIVE_CHANNELS, CounterT, OffsetT_NV>,
+                    DeviceHistogramSweepKernel<PtxHistogramSweepPolicy, PRIVATIZED_SMEM_BINS, NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, PrivatizedDecodeOpT, OutputDecodeOpT, OffsetT_NV>,
                     histogram_sweep_config,
                     stream,
                     debug_synchronous))) break;
@@ -807,9 +807,9 @@ struct DipatchHistogram
         CounterT*           d_output_histograms[NUM_ACTIVE_CHANNELS],   ///< [out] The pointers to the histogram counter output arrays, one for each active channel.  For channel<sub><em>i</em></sub>, the allocation length of <tt>d_histograms[i]</tt> should be <tt>num_output_levels[i]</tt> - 1.
         int                 num_output_levels[NUM_ACTIVE_CHANNELS],     ///< [in] The number of boundaries (levels) for delineating histogram samples in each active channel.  Implies that the number of bins for channel<sub><em>i</em></sub> is <tt>num_output_levels[i]</tt> - 1.
         LevelT              *d_levels[NUM_ACTIVE_CHANNELS],             ///< [in] The pointers to the arrays of boundaries (levels), one for each active channel.  Bin ranges are defined by consecutive boundary pairings: lower sample value boundaries are inclusive and upper sample value boundaries are exclusive.
-        OffsetT             num_row_pixels,                             ///< [in] The number of multi-channel pixels per row in the region of interest
-        OffsetT             num_rows,                                   ///< [in] The number of rows in the region of interest
-        OffsetT             row_stride_samples,                         ///< [in] The number of samples between starts of consecutive rows in the region of interest
+        OffsetT_NV             num_row_pixels,                             ///< [in] The number of multi-channel pixels per row in the region of interest
+        OffsetT_NV             num_rows,                                   ///< [in] The number of rows in the region of interest
+        OffsetT_NV             row_stride_samples,                         ///< [in] The number of samples between starts of consecutive rows in the region of interest
         cudaStream_t        stream,                                     ///< [in] CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous,                          ///< [in] Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
         Int2Type<true>      is_byte_sample)                             ///< [in] Marker type indicating whether or not SampleT is a 8b type
@@ -866,8 +866,8 @@ struct DipatchHistogram
                 num_row_pixels,
                 num_rows,
                 row_stride_samples,
-                DeviceHistogramInitKernel<NUM_ACTIVE_CHANNELS, CounterT, OffsetT>,
-                DeviceHistogramSweepKernel<PtxHistogramSweepPolicy, PRIVATIZED_SMEM_BINS, NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, PrivatizedDecodeOpT, OutputDecodeOpT, OffsetT>,
+                DeviceHistogramInitKernel<NUM_ACTIVE_CHANNELS, CounterT, OffsetT_NV>,
+                DeviceHistogramSweepKernel<PtxHistogramSweepPolicy, PRIVATIZED_SMEM_BINS, NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, PrivatizedDecodeOpT, OutputDecodeOpT, OffsetT_NV>,
                 histogram_sweep_config,
                 stream,
                 debug_synchronous))) break;
@@ -890,9 +890,9 @@ struct DipatchHistogram
         int                 num_output_levels[NUM_ACTIVE_CHANNELS],     ///< [in] The number of bin level boundaries for delineating histogram samples in each active channel.  Implies that the number of bins for channel<sub><em>i</em></sub> is <tt>num_output_levels[i]</tt> - 1.
         LevelT              lower_level[NUM_ACTIVE_CHANNELS],           ///< [in] The lower sample value bound (inclusive) for the lowest histogram bin in each active channel.
         LevelT              upper_level[NUM_ACTIVE_CHANNELS],           ///< [in] The upper sample value bound (exclusive) for the highest histogram bin in each active channel.
-        OffsetT             num_row_pixels,                             ///< [in] The number of multi-channel pixels per row in the region of interest
-        OffsetT             num_rows,                                   ///< [in] The number of rows in the region of interest
-        OffsetT             row_stride_samples,                         ///< [in] The number of samples between starts of consecutive rows in the region of interest
+        OffsetT_NV             num_row_pixels,                             ///< [in] The number of multi-channel pixels per row in the region of interest
+        OffsetT_NV             num_rows,                                   ///< [in] The number of rows in the region of interest
+        OffsetT_NV             row_stride_samples,                         ///< [in] The number of samples between starts of consecutive rows in the region of interest
         cudaStream_t        stream,                                     ///< [in] CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous,                          ///< [in] Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
         Int2Type<false>     is_byte_sample)                             ///< [in] Marker type indicating whether or not SampleT is a 8b type
@@ -953,8 +953,8 @@ struct DipatchHistogram
                     num_row_pixels,
                     num_rows,
                     row_stride_samples,
-                    DeviceHistogramInitKernel<NUM_ACTIVE_CHANNELS, CounterT, OffsetT>,
-                    DeviceHistogramSweepKernel<PtxHistogramSweepPolicy, PRIVATIZED_SMEM_BINS, NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, PrivatizedDecodeOpT, OutputDecodeOpT, OffsetT>,
+                    DeviceHistogramInitKernel<NUM_ACTIVE_CHANNELS, CounterT, OffsetT_NV>,
+                    DeviceHistogramSweepKernel<PtxHistogramSweepPolicy, PRIVATIZED_SMEM_BINS, NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, PrivatizedDecodeOpT, OutputDecodeOpT, OffsetT_NV>,
                     histogram_sweep_config,
                     stream,
                     debug_synchronous))) break;
@@ -977,8 +977,8 @@ struct DipatchHistogram
                     num_row_pixels,
                     num_rows,
                     row_stride_samples,
-                    DeviceHistogramInitKernel<NUM_ACTIVE_CHANNELS, CounterT, OffsetT>,
-                    DeviceHistogramSweepKernel<PtxHistogramSweepPolicy, PRIVATIZED_SMEM_BINS, NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, PrivatizedDecodeOpT, OutputDecodeOpT, OffsetT>,
+                    DeviceHistogramInitKernel<NUM_ACTIVE_CHANNELS, CounterT, OffsetT_NV>,
+                    DeviceHistogramSweepKernel<PtxHistogramSweepPolicy, PRIVATIZED_SMEM_BINS, NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, PrivatizedDecodeOpT, OutputDecodeOpT, OffsetT_NV>,
                     histogram_sweep_config,
                     stream,
                     debug_synchronous))) break;
@@ -1002,9 +1002,9 @@ struct DipatchHistogram
         int                 num_output_levels[NUM_ACTIVE_CHANNELS],     ///< [in] The number of bin level boundaries for delineating histogram samples in each active channel.  Implies that the number of bins for channel<sub><em>i</em></sub> is <tt>num_output_levels[i]</tt> - 1.
         LevelT              lower_level[NUM_ACTIVE_CHANNELS],           ///< [in] The lower sample value bound (inclusive) for the lowest histogram bin in each active channel.
         LevelT              upper_level[NUM_ACTIVE_CHANNELS],           ///< [in] The upper sample value bound (exclusive) for the highest histogram bin in each active channel.
-        OffsetT             num_row_pixels,                             ///< [in] The number of multi-channel pixels per row in the region of interest
-        OffsetT             num_rows,                                   ///< [in] The number of rows in the region of interest
-        OffsetT             row_stride_samples,                         ///< [in] The number of samples between starts of consecutive rows in the region of interest
+        OffsetT_NV             num_row_pixels,                             ///< [in] The number of multi-channel pixels per row in the region of interest
+        OffsetT_NV             num_rows,                                   ///< [in] The number of rows in the region of interest
+        OffsetT_NV             row_stride_samples,                         ///< [in] The number of samples between starts of consecutive rows in the region of interest
         cudaStream_t        stream,                                     ///< [in] CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous,                          ///< [in] Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
         Int2Type<true>      is_byte_sample)                             ///< [in] Marker type indicating whether or not SampleT is a 8b type
@@ -1064,8 +1064,8 @@ struct DipatchHistogram
                 num_row_pixels,
                 num_rows,
                 row_stride_samples,
-                DeviceHistogramInitKernel<NUM_ACTIVE_CHANNELS, CounterT, OffsetT>,
-                DeviceHistogramSweepKernel<PtxHistogramSweepPolicy, PRIVATIZED_SMEM_BINS, NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, PrivatizedDecodeOpT, OutputDecodeOpT, OffsetT>,
+                DeviceHistogramInitKernel<NUM_ACTIVE_CHANNELS, CounterT, OffsetT_NV>,
+                DeviceHistogramSweepKernel<PtxHistogramSweepPolicy, PRIVATIZED_SMEM_BINS, NUM_CHANNELS, NUM_ACTIVE_CHANNELS, SampleIteratorT, CounterT, PrivatizedDecodeOpT, OutputDecodeOpT, OffsetT_NV>,
                 histogram_sweep_config,
                 stream,
                 debug_synchronous))) break;

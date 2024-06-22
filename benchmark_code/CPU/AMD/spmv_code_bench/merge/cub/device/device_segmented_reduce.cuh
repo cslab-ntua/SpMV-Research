@@ -141,9 +141,9 @@ struct DeviceSegmentedReduce
         bool                debug_synchronous   = false)        ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
-        return DispatchSegmentedReduce<InputIteratorT, OutputIteratorT, OffsetT, ReductionOp>::Dispatch(
+        return DispatchSegmentedReduce<InputIteratorT, OutputIteratorT, OffsetT_NV, ReductionOp>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_in,
@@ -218,10 +218,10 @@ struct DeviceSegmentedReduce
         cudaStream_t        stream              = 0,            ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous   = false)        ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
-        typedef int OffsetT;                                                    // Signed integer type for global offsets
+        typedef int OffsetT_NV;                                                    // Signed integer type for global offsets
         typedef typename std::iterator_traits<InputIteratorT>::value_type T;    // Data element type
 
-        return DispatchSegmentedReduce<InputIteratorT, OutputIteratorT, OffsetT, cub::Sum>::Dispatch(
+        return DispatchSegmentedReduce<InputIteratorT, OutputIteratorT, OffsetT_NV, cub::Sum>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_in,
@@ -296,10 +296,10 @@ struct DeviceSegmentedReduce
         cudaStream_t        stream              = 0,            ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous   = false)        ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
-        typedef int OffsetT;                                                    // Signed integer type for global offsets
+        typedef int OffsetT_NV;                                                    // Signed integer type for global offsets
         typedef typename std::iterator_traits<InputIteratorT>::value_type T;    // Data element type
 
-        return DispatchSegmentedReduce<InputIteratorT, OutputIteratorT, OffsetT, cub::Min>::Dispatch(
+        return DispatchSegmentedReduce<InputIteratorT, OutputIteratorT, OffsetT_NV, cub::Min>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_in,
@@ -376,14 +376,14 @@ struct DeviceSegmentedReduce
         cudaStream_t        stream              = 0,            ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous   = false)        ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
-        typedef int OffsetT;                                                        // Signed integer type for global offsets
+        typedef int OffsetT_NV;                                                        // Signed integer type for global offsets
         typedef typename std::iterator_traits<InputIteratorT>::value_type T;        // Data element type
         typedef ArgIndexInputIterator<InputIteratorT, int> ArgIndexInputIteratorT;  // Wrapped input iterator type
 
         ArgIndexInputIteratorT      d_argmin_in(d_in);
-        KeyValuePair<OffsetT, T>    init = {1, Traits<T>::Max()};   // replace with std::numeric_limits<T>::max() when C++11 support is more prevalent
+        KeyValuePair<OffsetT_NV, T>    init = {1, Traits<T>::Max()};   // replace with std::numeric_limits<T>::max() when C++11 support is more prevalent
 
-        return DispatchSegmentedReduce<ArgIndexInputIteratorT, OutputIteratorT, OffsetT, cub::ArgMin>::Dispatch(
+        return DispatchSegmentedReduce<ArgIndexInputIteratorT, OutputIteratorT, OffsetT_NV, cub::ArgMin>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_argmin_in,
@@ -458,10 +458,10 @@ struct DeviceSegmentedReduce
         cudaStream_t        stream              = 0,            ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous   = false)        ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
-        typedef int OffsetT;                                                    // Signed integer type for global offsets
+        typedef int OffsetT_NV;                                                    // Signed integer type for global offsets
         typedef typename std::iterator_traits<InputIteratorT>::value_type T;    // Data element type
 
-        return DispatchSegmentedReduce<InputIteratorT, OutputIteratorT, OffsetT, cub::Max>::Dispatch(
+        return DispatchSegmentedReduce<InputIteratorT, OutputIteratorT, OffsetT_NV, cub::Max>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_in,
@@ -538,14 +538,14 @@ struct DeviceSegmentedReduce
         cudaStream_t        stream              = 0,            ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                debug_synchronous   = false)        ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
-        typedef int OffsetT;                                                            // Signed integer type for global offsets
+        typedef int OffsetT_NV;                                                            // Signed integer type for global offsets
         typedef typename std::iterator_traits<InputIteratorT>::value_type T;            // Data element type
         typedef ArgIndexInputIterator<InputIteratorT, int> ArgIndexInputIteratorT;      // Wrapped input iterator
 
         ArgIndexInputIteratorT      d_argmax_in(d_in);
-        KeyValuePair<OffsetT, T>    init = {1, Traits<T>::Lowest()};     // replace with std::numeric_limits<T>::lowest() when C++11 support is more prevalent
+        KeyValuePair<OffsetT_NV, T>    init = {1, Traits<T>::Lowest()};     // replace with std::numeric_limits<T>::lowest() when C++11 support is more prevalent
 
-        return DispatchSegmentedReduce<ArgIndexInputIteratorT, OutputIteratorT, OffsetT, cub::ArgMax>::Dispatch(
+        return DispatchSegmentedReduce<ArgIndexInputIteratorT, OutputIteratorT, OffsetT_NV, cub::ArgMax>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_argmax_in,

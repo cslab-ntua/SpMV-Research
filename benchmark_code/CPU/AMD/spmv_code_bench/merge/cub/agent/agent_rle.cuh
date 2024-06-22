@@ -98,7 +98,7 @@ template <
     typename    OffsetsOutputIteratorT, ///< Random-access output iterator type for offset values
     typename    LengthsOutputIteratorT, ///< Random-access output iterator type for length values
     typename    EqualityOpT,            ///< T equality operator type
-    typename    OffsetT>                ///< Signed integer type for global offsets
+    typename    OffsetT_NV>                ///< Signed integer type for global offsets
 struct AgentRle
 {
     //---------------------------------------------------------------------
@@ -112,10 +112,10 @@ struct AgentRle
     typedef typename std::iterator_traits<LengthsOutputIteratorT>::value_type LengthT;
 
     // Tuple type for scanning (pairs run-length and run-index)
-    typedef KeyValuePair<OffsetT, LengthT> LengthOffsetPair;
+    typedef KeyValuePair<OffsetT_NV, LengthT> LengthOffsetPair;
 
     // Tile status descriptor interface type
-    typedef ReduceByKeyScanTileState<LengthT, OffsetT> ScanTileStateT;
+    typedef ReduceByKeyScanTileState<LengthT, OffsetT_NV> ScanTileStateT;
 
     // Constants
     enum
@@ -144,11 +144,11 @@ struct AgentRle
     template <bool LAST_TILE>
     struct OobInequalityOp
     {
-        OffsetT         num_remaining;
+        OffsetT_NV         num_remaining;
         EqualityOpT      equality_op;
 
         __device__ __forceinline__ OobInequalityOp(
-            OffsetT     num_remaining,
+            OffsetT_NV     num_remaining,
             EqualityOpT  equality_op)
         :
             num_remaining(num_remaining),
@@ -168,7 +168,7 @@ struct AgentRle
 
     // Cache-modified Input iterator wrapper type (for applying cache modifier) for data
     typedef typename If<IsPointer<InputIteratorT>::VALUE,
-            CacheModifiedInputIterator<AgentRlePolicyT::LOAD_MODIFIER, T, OffsetT>,      // Wrap the native input pointer with CacheModifiedVLengthnputIterator
+            CacheModifiedInputIterator<AgentRlePolicyT::LOAD_MODIFIER, T, OffsetT_NV>,      // Wrap the native input pointer with CacheModifiedVLengthnputIterator
             InputIteratorT>::Type                                                       // Directly use the supplied input iterator type
         WrappedInputIteratorT;
 
@@ -201,7 +201,7 @@ struct AgentRle
 
     typedef typename If<STORE_WARP_TIME_SLICING, typename WarpExchangePairs::TempStorage, NullType>::Type WarpExchangePairsStorage;
 
-    typedef WarpExchange<OffsetT, ITEMS_PER_THREAD>                 WarpExchangeOffsets;
+    typedef WarpExchange<OffsetT_NV, ITEMS_PER_THREAD>                 WarpExchangeOffsets;
     typedef WarpExchange<LengthT, ITEMS_PER_THREAD>                 WarpExchangeLengths;
 
     typedef LengthOffsetPair WarpAggregates[WARPS];
@@ -232,7 +232,7 @@ struct AgentRle
             };
         };
 
-        OffsetT             tile_idx;                   // Shared tile index
+        OffsetT_NV             tile_idx;                   // Shared tile index
         LengthOffsetPair    tile_inclusive;             // Inclusive tile prefix
         LengthOffsetPair    tile_exclusive;             // Exclusive tile prefix
     };
@@ -253,7 +253,7 @@ struct AgentRle
 
     EqualityOpT                     equality_op;        ///< T equality operator
     ReduceBySegmentOpT              scan_op;            ///< Reduce-length-by-flag scan operator
-    OffsetT                         num_items;          ///< Total number of input items
+    OffsetT_NV                         num_items;          ///< Total number of input items
 
 
     //---------------------------------------------------------------------
@@ -268,7 +268,7 @@ struct AgentRle
         OffsetsOutputIteratorT      d_offsets_out,      ///< [out] Pointer to output sequence of run offsets
         LengthsOutputIteratorT      d_lengths_out,      ///< [out] Pointer to output sequence of run lengths
         EqualityOpT                  equality_op,        ///< [in] T equality operator
-        OffsetT                     num_items)          ///< [in] Total number of input items
+        OffsetT_NV                     num_items)          ///< [in] Total number of input items
     :
         temp_storage(temp_storage.Alias()),
         d_in(d_in),
@@ -286,8 +286,8 @@ struct AgentRle
 
     template <bool FIRST_TILE, bool LAST_TILE>
     __device__ __forceinline__ void InitializeSelections(
-        OffsetT             tile_offset,
-        OffsetT             num_remaining,
+        OffsetT_NV             tile_offset,
+        OffsetT_NV             num_remaining,
         T                   (&items)[ITEMS_PER_THREAD],
         LengthOffsetPair    (&lengths_and_num_runs)[ITEMS_PER_THREAD])
     {
@@ -414,10 +414,10 @@ struct AgentRle
      */
     template <bool FIRST_TILE>
     __device__ __forceinline__ void ScatterTwoPhase(
-        OffsetT             tile_num_runs_exclusive_in_global,
-        OffsetT             warp_num_runs_aggregate,
-        OffsetT             warp_num_runs_exclusive_in_tile,
-        OffsetT             (&thread_num_runs_exclusive_in_warp)[ITEMS_PER_THREAD],
+        OffsetT_NV             tile_num_runs_exclusive_in_global,
+        OffsetT_NV             warp_num_runs_aggregate,
+        OffsetT_NV             warp_num_runs_exclusive_in_tile,
+        OffsetT_NV             (&thread_num_runs_exclusive_in_warp)[ITEMS_PER_THREAD],
         LengthOffsetPair    (&lengths_and_offsets)[ITEMS_PER_THREAD],
         Int2Type<true>      is_warp_time_slice)
     {
@@ -448,7 +448,7 @@ struct AgentRle
         {
             if ((ITEM * WARP_THREADS) < warp_num_runs_aggregate - lane_id)
             {
-                OffsetT item_offset =
+                OffsetT_NV item_offset =
                     tile_num_runs_exclusive_in_global +
                     warp_num_runs_exclusive_in_tile +
                     (ITEM * WARP_THREADS) + lane_id;
@@ -471,10 +471,10 @@ struct AgentRle
      */
     template <bool FIRST_TILE>
     __device__ __forceinline__ void ScatterTwoPhase(
-        OffsetT             tile_num_runs_exclusive_in_global,
-        OffsetT             warp_num_runs_aggregate,
-        OffsetT             warp_num_runs_exclusive_in_tile,
-        OffsetT             (&thread_num_runs_exclusive_in_warp)[ITEMS_PER_THREAD],
+        OffsetT_NV             tile_num_runs_exclusive_in_global,
+        OffsetT_NV             warp_num_runs_aggregate,
+        OffsetT_NV             warp_num_runs_exclusive_in_tile,
+        OffsetT_NV             (&thread_num_runs_exclusive_in_warp)[ITEMS_PER_THREAD],
         LengthOffsetPair    (&lengths_and_offsets)[ITEMS_PER_THREAD],
         Int2Type<false>     is_warp_time_slice)
     {
@@ -482,7 +482,7 @@ struct AgentRle
         int lane_id = LaneId();
 
         // Unzip
-        OffsetT run_offsets[ITEMS_PER_THREAD];
+        OffsetT_NV run_offsets[ITEMS_PER_THREAD];
         LengthT run_lengths[ITEMS_PER_THREAD];
 
         #pragma unroll
@@ -494,7 +494,7 @@ struct AgentRle
 
         WarpExchangeOffsets(temp_storage.exchange_offsets[warp_id]).ScatterToStriped(run_offsets, thread_num_runs_exclusive_in_warp);
 
-        if (sizeof(LengthT) == sizeof(OffsetT))
+        if (sizeof(LengthT) == sizeof(OffsetT_NV))
             __threadfence_block();
         else
             __syncthreads();
@@ -507,7 +507,7 @@ struct AgentRle
         {
             if ((ITEM * WARP_THREADS) + lane_id < warp_num_runs_aggregate)
             {
-                OffsetT item_offset =
+                OffsetT_NV item_offset =
                     tile_num_runs_exclusive_in_global +
                     warp_num_runs_exclusive_in_tile +
                     (ITEM * WARP_THREADS) + lane_id;
@@ -530,10 +530,10 @@ struct AgentRle
      */
     template <bool FIRST_TILE>
     __device__ __forceinline__ void ScatterDirect(
-        OffsetT             tile_num_runs_exclusive_in_global,
-        OffsetT             warp_num_runs_aggregate,
-        OffsetT             warp_num_runs_exclusive_in_tile,
-        OffsetT             (&thread_num_runs_exclusive_in_warp)[ITEMS_PER_THREAD],
+        OffsetT_NV             tile_num_runs_exclusive_in_global,
+        OffsetT_NV             warp_num_runs_aggregate,
+        OffsetT_NV             warp_num_runs_exclusive_in_tile,
+        OffsetT_NV             (&thread_num_runs_exclusive_in_warp)[ITEMS_PER_THREAD],
         LengthOffsetPair    (&lengths_and_offsets)[ITEMS_PER_THREAD])
     {
         #pragma unroll
@@ -541,7 +541,7 @@ struct AgentRle
         {
             if (thread_num_runs_exclusive_in_warp[ITEM] < warp_num_runs_aggregate)
             {
-                OffsetT item_offset =
+                OffsetT_NV item_offset =
                     tile_num_runs_exclusive_in_global +
                     warp_num_runs_exclusive_in_tile +
                     thread_num_runs_exclusive_in_warp[ITEM];
@@ -564,11 +564,11 @@ struct AgentRle
      */
     template <bool FIRST_TILE>
     __device__ __forceinline__ void Scatter(
-        OffsetT             tile_num_runs_aggregate,
-        OffsetT             tile_num_runs_exclusive_in_global,
-        OffsetT             warp_num_runs_aggregate,
-        OffsetT             warp_num_runs_exclusive_in_tile,
-        OffsetT             (&thread_num_runs_exclusive_in_warp)[ITEMS_PER_THREAD],
+        OffsetT_NV             tile_num_runs_aggregate,
+        OffsetT_NV             tile_num_runs_exclusive_in_global,
+        OffsetT_NV             warp_num_runs_aggregate,
+        OffsetT_NV             warp_num_runs_exclusive_in_tile,
+        OffsetT_NV             (&thread_num_runs_exclusive_in_warp)[ITEMS_PER_THREAD],
         LengthOffsetPair    (&lengths_and_offsets)[ITEMS_PER_THREAD])
     {
         if ((ITEMS_PER_THREAD == 1) || (tile_num_runs_aggregate < BLOCK_THREADS))
@@ -609,10 +609,10 @@ struct AgentRle
     template <
         bool                LAST_TILE>
     __device__ __forceinline__ LengthOffsetPair ConsumeTile(
-        OffsetT             num_items,          ///< Total number of global input items
-        OffsetT             num_remaining,      ///< Number of global input items remaining (including this tile)
+        OffsetT_NV             num_items,          ///< Total number of global input items
+        OffsetT_NV             num_remaining,      ///< Number of global input items remaining (including this tile)
         int                 tile_idx,           ///< Tile index
-        OffsetT             tile_offset,       ///< Tile offset
+        OffsetT_NV             tile_offset,       ///< Tile offset
         ScanTileStateT       &tile_status)       ///< Global list of tile status
     {
         if (tile_idx == 0)
@@ -660,7 +660,7 @@ struct AgentRle
                 thread_exclusive_in_warp.value += warp_exclusive_in_tile.value;
 
             LengthOffsetPair    lengths_and_offsets[ITEMS_PER_THREAD];
-            OffsetT             thread_num_runs_exclusive_in_warp[ITEMS_PER_THREAD];
+            OffsetT_NV             thread_num_runs_exclusive_in_warp[ITEMS_PER_THREAD];
             LengthOffsetPair    lengths_and_num_runs2[ITEMS_PER_THREAD];
 
             // Downsweep scan through lengths_and_num_runs
@@ -678,10 +678,10 @@ struct AgentRle
                                                                 WARP_THREADS * ITEMS_PER_THREAD;            // discard
             }
 
-            OffsetT tile_num_runs_aggregate              = tile_aggregate.key;
-            OffsetT tile_num_runs_exclusive_in_global    = 0;
-            OffsetT warp_num_runs_aggregate              = warp_aggregate.key;
-            OffsetT warp_num_runs_exclusive_in_tile      = warp_exclusive_in_tile.key;
+            OffsetT_NV tile_num_runs_aggregate              = tile_aggregate.key;
+            OffsetT_NV tile_num_runs_exclusive_in_global    = 0;
+            OffsetT_NV warp_num_runs_aggregate              = warp_aggregate.key;
+            OffsetT_NV warp_num_runs_exclusive_in_tile      = warp_exclusive_in_tile.key;
 
             // Scatter
             Scatter<true>(
@@ -753,7 +753,7 @@ struct AgentRle
             // Downsweep scan through lengths_and_num_runs
             LengthOffsetPair    lengths_and_num_runs2[ITEMS_PER_THREAD];
             LengthOffsetPair    lengths_and_offsets[ITEMS_PER_THREAD];
-            OffsetT             thread_num_runs_exclusive_in_warp[ITEMS_PER_THREAD];
+            OffsetT_NV             thread_num_runs_exclusive_in_warp[ITEMS_PER_THREAD];
 
             ThreadScanExclusive(lengths_and_num_runs, lengths_and_num_runs2, scan_op, thread_exclusive_in_warp);
 
@@ -768,10 +768,10 @@ struct AgentRle
                                                                 WARP_THREADS * ITEMS_PER_THREAD;            // discard
             }
 
-            OffsetT tile_num_runs_aggregate              = tile_aggregate.key;
-            OffsetT tile_num_runs_exclusive_in_global    = tile_exclusive_in_global.key;
-            OffsetT warp_num_runs_aggregate              = warp_aggregate.key;
-            OffsetT warp_num_runs_exclusive_in_tile      = warp_exclusive_in_tile.key;
+            OffsetT_NV tile_num_runs_aggregate              = tile_aggregate.key;
+            OffsetT_NV tile_num_runs_exclusive_in_global    = tile_exclusive_in_global.key;
+            OffsetT_NV warp_num_runs_aggregate              = warp_aggregate.key;
+            OffsetT_NV warp_num_runs_exclusive_in_tile      = warp_exclusive_in_tile.key;
 
             // Scatter
             Scatter<false>(
@@ -799,8 +799,8 @@ struct AgentRle
     {
         // Blocks are launched in increasing order, so just assign one tile per block
         int     tile_idx        = (blockIdx.x * gridDim.y) + blockIdx.y;    // Current tile index
-        OffsetT tile_offset     = tile_idx * TILE_ITEMS;                  // Global offset for the current tile
-        OffsetT num_remaining   = num_items - tile_offset;                  // Remaining items (including this tile)
+        OffsetT_NV tile_offset     = tile_idx * TILE_ITEMS;                  // Global offset for the current tile
+        OffsetT_NV num_remaining   = num_items - tile_offset;                  // Remaining items (including this tile)
 
         if (tile_idx < num_tiles - 1)
         {

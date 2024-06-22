@@ -139,12 +139,12 @@ struct DeviceScan
         bool            debug_synchronous   = false)        ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
         // Scan data type
         typedef typename std::iterator_traits<InputIteratorT>::value_type T;
 
-        return DispatchScan<InputIteratorT, OutputIteratorT, Sum, T, OffsetT>::Dispatch(
+        return DispatchScan<InputIteratorT, OutputIteratorT, Sum, T, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_in,
@@ -225,9 +225,9 @@ struct DeviceScan
         bool            debug_synchronous   = false)        ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
-        return DispatchScan<InputIteratorT, OutputIteratorT, ScanOp, Identity, OffsetT>::Dispatch(
+        return DispatchScan<InputIteratorT, OutputIteratorT, ScanOp, Identity, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_in,
@@ -298,9 +298,9 @@ struct DeviceScan
         bool                debug_synchronous  = false)         ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
-        return DispatchScan<InputIteratorT, OutputIteratorT, Sum, NullType, OffsetT>::Dispatch(
+        return DispatchScan<InputIteratorT, OutputIteratorT, Sum, NullType, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_in,
@@ -378,9 +378,9 @@ struct DeviceScan
         bool            debug_synchronous  = false)         ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  May cause significant slowdown.  Default is \p false.
     {
         // Signed integer type for global offsets
-        typedef int OffsetT;
+        typedef int OffsetT_NV;
 
-        return DispatchScan<InputIteratorT, OutputIteratorT, ScanOp, NullType, OffsetT>::Dispatch(
+        return DispatchScan<InputIteratorT, OutputIteratorT, ScanOp, NullType, OffsetT_NV>::Dispatch(
             d_temp_storage,
             temp_storage_bytes,
             d_in,

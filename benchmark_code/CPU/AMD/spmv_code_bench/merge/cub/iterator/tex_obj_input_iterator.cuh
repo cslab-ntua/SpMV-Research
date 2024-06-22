@@ -66,7 +66,7 @@ namespace cub {
  * \brief A random-access input wrapper for dereferencing array values through texture cache.  Uses newer Kepler-style texture objects.
  *
  * \par Overview
- * - TexObjInputIteratorTwraps a native device pointer of type <tt>ValueType*</tt>. References
+ * - TexObjInputIteratorTwraps a native device pointer of type <tt>ValueType_NV*</tt>. References
  *   to elements are to be loaded through texture cache.
  * - Can be used to load any data type from memory through texture cache.
  * - Can be manipulated and exchanged within and between host and device
@@ -103,18 +103,18 @@ namespace cub {
  * \endcode
  *
  * \tparam T                    The value type of this iterator
- * \tparam OffsetT              The difference type of this iterator (Default: \p ptrdiff_t)
+ * \tparam OffsetT_NV              The difference type of this iterator (Default: \p ptrdiff_t)
  */
 template <
     typename    T,
-    typename    OffsetT = ptrdiff_t>
+    typename    OffsetT_NV = ptrdiff_t>
 class TexObjInputIterator
 {
 public:
 
     // Required iterator traits
     typedef TexObjInputIterator                 self_type;              ///< My own type
-    typedef OffsetT                             difference_type;        ///< Type to express the result of subtracting one iterator from another
+    typedef OffsetT_NV                             difference_type;        ///< Type to express the result of subtracting one iterator from another
     typedef T                                   value_type;             ///< The type of the element the iterator can point to
     typedef T*                                  pointer;                ///< The type of a pointer to an element the iterator can point to
     typedef T                                   reference;              ///< The type of a reference to an element the iterator can point to
@@ -162,7 +162,7 @@ public:
     cudaError_t BindTexture(
         QualifiedT      *ptr,               ///< Native pointer to wrap that is aligned to cudaDeviceProp::textureAlignment
         size_t          bytes = size_t(-1),         ///< Number of bytes in the range
-        size_t          tex_offset = 0)     ///< OffsetT (in items) from \p ptr denoting the position of the iterator
+        size_t          tex_offset = 0)     ///< OffsetT_NV (in items) from \p ptr denoting the position of the iterator
     {
         this->ptr = const_cast<typename RemoveQualifiers<QualifiedT>::Type *>(ptr);
         this->tex_offset = tex_offset;

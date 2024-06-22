@@ -103,11 +103,11 @@ namespace cub {
  * \endcode
  *
  * \tparam InputIteratorT       The type of the wrapped input iterator
- * \tparam OffsetT              The difference type of this iterator (Default: \p ptrdiff_t)
+ * \tparam OffsetT_NV              The difference type of this iterator (Default: \p ptrdiff_t)
  */
 template <
     typename    InputIteratorT,
-    typename    OffsetT = ptrdiff_t>
+    typename    OffsetT_NV = ptrdiff_t>
 class ArgIndexInputIterator
 {
 private:
@@ -120,7 +120,7 @@ public:
 
     // Required iterator traits
     typedef ArgIndexInputIterator               self_type;              ///< My own type
-    typedef OffsetT                             difference_type;        ///< Type to express the result of subtracting one iterator from another
+    typedef OffsetT_NV                             difference_type;        ///< Type to express the result of subtracting one iterator from another
     typedef KeyValuePair<difference_type, T>    value_type;             ///< The type of the element the iterator can point to
     typedef value_type*                         pointer;                ///< The type of a pointer to an element the iterator can point to
     typedef value_type                          reference;              ///< The type of a reference to an element the iterator can point to
@@ -147,7 +147,7 @@ public:
     /// Constructor
     __host__ __device__ __forceinline__ ArgIndexInputIterator(
         InputIteratorT  itr,            ///< Input iterator to wrap
-        difference_type offset = 0)     ///< OffsetT (in items) from \p itr denoting the position of the iterator
+        difference_type offset = 0)     ///< OffsetT_NV (in items) from \p itr denoting the position of the iterator
     :
         itr(itr),
         offset(offset)

@@ -81,7 +81,7 @@ struct AgentRadixSortUpsweepPolicy
 template <
     typename AgentRadixSortUpsweepPolicy,   ///< Parameterized AgentRadixSortUpsweepPolicy tuning policy type
     typename KeyT,                          ///< KeyT type
-    typename OffsetT>                       ///< Signed integer type for global offsets
+    typename OffsetT_NV>                       ///< Signed integer type for global offsets
 struct AgentRadixSortUpsweep
 {
 
@@ -135,7 +135,7 @@ struct AgentRadixSortUpsweep
 
 
     // Input iterator wrapper type (for applying cache modifier)s
-    typedef CacheModifiedInputIterator<LOAD_MODIFIER, UnsignedBits, OffsetT> KeysItr;
+    typedef CacheModifiedInputIterator<LOAD_MODIFIER, UnsignedBits, OffsetT_NV> KeysItr;
 
     /**
      * Shared memory storage layout
@@ -146,7 +146,7 @@ struct AgentRadixSortUpsweep
         {
             DigitCounter    digit_counters[COUNTER_LANES][BLOCK_THREADS][PACKING_RATIO];
             PackedCounter   packed_counters[COUNTER_LANES][BLOCK_THREADS];
-            OffsetT         digit_partials[RADIX_DIGITS][WARP_THREADS + 1];
+            OffsetT_NV         digit_partials[RADIX_DIGITS][WARP_THREADS + 1];
         };
     };
 
@@ -163,7 +163,7 @@ struct AgentRadixSortUpsweep
     _TempStorage    &temp_storage;
 
     // Thread-local counters for periodically aggregating composite-counter lanes
-    OffsetT         local_counts[LANES_PER_WARP][PACKING_RATIO];
+    OffsetT_NV         local_counts[LANES_PER_WARP][PACKING_RATIO];
 
     // Input and output device pointers
     KeysItr         d_keys_in;
@@ -282,7 +282,7 @@ struct AgentRadixSortUpsweep
                     #pragma unroll
                     for (int UNPACKED_COUNTER = 0; UNPACKED_COUNTER < PACKING_RATIO; UNPACKED_COUNTER++)
                     {
-                        OffsetT counter = temp_storage.digit_counters[counter_lane][warp_tid + PACKED_COUNTER][UNPACKED_COUNTER];
+                        OffsetT_NV counter = temp_storage.digit_counters[counter_lane][warp_tid + PACKED_COUNTER][UNPACKED_COUNTER];
                         local_counts[LANE][UNPACKED_COUNTER] += counter;
                     }
                 }
@@ -294,7 +294,7 @@ struct AgentRadixSortUpsweep
     /**
      * Places unpacked counters into smem for final digit reduction
      */
-    __device__ __forceinline__ void ReduceUnpackedCounts(OffsetT &bin_count)
+    __device__ __forceinline__ void ReduceUnpackedCounts(OffsetT_NV &bin_count)
     {
         unsigned int warp_id = threadIdx.x >> LOG_WARP_THREADS;
         unsigned int warp_tid = threadIdx.x & (WARP_THREADS - 1);
@@ -332,7 +332,7 @@ struct AgentRadixSortUpsweep
     /**
      * Processes a single, full tile
      */
-    __device__ __forceinline__ void ProcessFullTile(OffsetT block_offset)
+    __device__ __forceinline__ void ProcessFullTile(OffsetT_NV block_offset)
     {
         // Tile of keys
         UnsignedBits keys[KEYS_PER_THREAD];
@@ -351,8 +351,8 @@ struct AgentRadixSortUpsweep
      * Processes a single load (may have some threads masked off)
      */
     __device__ __forceinline__ void ProcessPartialTile(
-        OffsetT block_offset,
-        const OffsetT &block_end)
+        OffsetT_NV block_offset,
+        const OffsetT_NV &block_end)
     {
         // Process partial tile if necessary using single loads
         block_offset += threadIdx.x;
@@ -390,9 +390,9 @@ struct AgentRadixSortUpsweep
      * Compute radix digit histograms from a segment of input tiles.
      */
     __device__ __forceinline__ void ProcessRegion(
-        OffsetT          block_offset,
-        const OffsetT    &block_end,
-        OffsetT          &bin_count)                ///< [out] The digit count for tid'th bin (output param, valid in the first RADIX_DIGITS threads)
+        OffsetT_NV          block_offset,
+        const OffsetT_NV    &block_end,
+        OffsetT_NV          &bin_count)                ///< [out] The digit count for tid'th bin (output param, valid in the first RADIX_DIGITS threads)
     {
         // Reset digit counters in smem and unpacked counters in registers
         ResetDigitCounters();

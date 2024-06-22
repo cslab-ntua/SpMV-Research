@@ -70,7 +70,7 @@ template <
     typename            ScanTileStateT,             ///< Tile status interface type
     typename            SelectOpT,                  ///< Selection operator type (NullType if selection flags or discontinuity flagging is to be used for selection)
     typename            EqualityOpT,                ///< Equality operator type (NullType if selection functor or selection flags is to be used for selection)
-    typename            OffsetT,                    ///< Signed integer type for global offsets
+    typename            OffsetT_NV,                    ///< Signed integer type for global offsets
     bool                KEEP_REJECTS>               ///< Whether or not we push rejected items to the back of the output
 __launch_bounds__ (int(AgentSelectIfPolicyT::BLOCK_THREADS))
 __global__ void DeviceSelectSweepKernel(
@@ -81,7 +81,7 @@ __global__ void DeviceSelectSweepKernel(
     ScanTileStateT          tile_status,            ///< [in] Tile status interface
     SelectOpT               select_op,              ///< [in] Selection operator
     EqualityOpT             equality_op,            ///< [in] Equality operator
-    OffsetT                 num_items,              ///< [in] Total number of input items (i.e., length of \p d_in)
+    OffsetT_NV                 num_items,              ///< [in] Total number of input items (i.e., length of \p d_in)
     int                     num_tiles)              ///< [in] Total number of tiles for the entire problem
 {
     // Thread block type for selecting data from input tiles
@@ -92,7 +92,7 @@ __global__ void DeviceSelectSweepKernel(
         SelectedOutputIteratorT,
         SelectOpT,
         EqualityOpT,
-        OffsetT,
+        OffsetT_NV,
         KEEP_REJECTS> AgentSelectIfT;
 
     // Shared memory for AgentSelectIf
@@ -122,7 +122,7 @@ template <
     typename    NumSelectedIteratorT,           ///< Output iterator type for recording the number of items selected
     typename    SelectOpT,                      ///< Selection operator type (NullType if selection flags or discontinuity flagging is to be used for selection)
     typename    EqualityOpT,                    ///< Equality operator type (NullType if selection functor or selection flags is to be used for selection)
-    typename    OffsetT,                        ///< Signed integer type for global offsets
+    typename    OffsetT_NV,                        ///< Signed integer type for global offsets
     bool        KEEP_REJECTS>                   ///< Whether or not we push rejected items to the back of the output
 struct DispatchSelectIf
 {
@@ -142,7 +142,7 @@ struct DispatchSelectIf
     };
 
     // Tile status descriptor interface type
-    typedef ScanTileState<OffsetT> ScanTileStateT;
+    typedef ScanTileState<OffsetT_NV> ScanTileStateT;
 
 
     /******************************************************************************
@@ -347,7 +347,7 @@ struct DispatchSelectIf
         NumSelectedIteratorT        d_num_selected_out,             ///< [in] Pointer to the total number of items selected (i.e., length of \p d_selected_out)
         SelectOpT                   select_op,                      ///< [in] Selection operator
         EqualityOpT                 equality_op,                    ///< [in] Equality operator
-        OffsetT                     num_items,                      ///< [in] Total number of input items (i.e., length of \p d_in)
+        OffsetT_NV                     num_items,                      ///< [in] Total number of input items (i.e., length of \p d_in)
         cudaStream_t                stream,                         ///< [in] CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                        debug_synchronous,              ///< [in] Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
         int                         ptx_version,                    ///< [in] PTX version of dispatch kernels
@@ -475,7 +475,7 @@ struct DispatchSelectIf
         NumSelectedIteratorT        d_num_selected_out,             ///< [in] Pointer to the total number of items selected (i.e., length of \p d_selected_out)
         SelectOpT                   select_op,                      ///< [in] Selection operator
         EqualityOpT                 equality_op,                    ///< [in] Equality operator
-        OffsetT                     num_items,                      ///< [in] Total number of input items (i.e., length of \p d_in)
+        OffsetT_NV                     num_items,                      ///< [in] Total number of input items (i.e., length of \p d_in)
         cudaStream_t                stream,                         ///< [in] <b>[optional]</b> CUDA stream to launch kernels within.  Default is stream<sub>0</sub>.
         bool                        debug_synchronous)              ///< [in] <b>[optional]</b> Whether or not to synchronize the stream after every kernel launch to check for errors.  Also causes launch configurations to be printed to the console.  Default is \p false.
     {
@@ -509,7 +509,7 @@ struct DispatchSelectIf
                 debug_synchronous,
                 ptx_version,
                 DeviceCompactInitKernel<ScanTileStateT, NumSelectedIteratorT>,
-                DeviceSelectSweepKernel<PtxSelectIfPolicyT, InputIteratorT, FlagsInputIteratorT, SelectedOutputIteratorT, NumSelectedIteratorT, ScanTileStateT, SelectOpT, EqualityOpT, OffsetT, KEEP_REJECTS>,
+                DeviceSelectSweepKernel<PtxSelectIfPolicyT, InputIteratorT, FlagsInputIteratorT, SelectedOutputIteratorT, NumSelectedIteratorT, ScanTileStateT, SelectOpT, EqualityOpT, OffsetT_NV, KEEP_REJECTS>,
                 select_if_config))) break;
         }
         while (0);

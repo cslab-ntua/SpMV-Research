@@ -91,7 +91,7 @@ template <
     typename    AggregatesOutputIteratorT,      ///< Random-access output iterator type for values
     typename    EqualityOpT,                    ///< KeyT equality operator type
     typename    ReductionOpT,                   ///< ValueT reduction operator type
-    typename    OffsetT>                        ///< Signed integer type for global offsets
+    typename    OffsetT_NV>                        ///< Signed integer type for global offsets
 struct AgentSegmentFixup
 {
     //---------------------------------------------------------------------
@@ -105,7 +105,7 @@ struct AgentSegmentFixup
     typedef typename KeyValuePairT::Value ValueT;
 
     // Tile status descriptor interface type
-    typedef ReduceByKeyScanTileState<ValueT, OffsetT> ScanTileStateT;
+    typedef ReduceByKeyScanTileState<ValueT, OffsetT_NV> ScanTileStateT;
 
     // Constants
     enum
@@ -127,13 +127,13 @@ struct AgentSegmentFixup
 
     // Cache-modified Input iterator wrapper type (for applying cache modifier) for keys
     typedef typename If<IsPointer<PairsInputIteratorT>::VALUE,
-            CacheModifiedInputIterator<AgentSegmentFixupPolicyT::LOAD_MODIFIER, KeyValuePairT, OffsetT>,    // Wrap the native input pointer with CacheModifiedValuesInputIterator
+            CacheModifiedInputIterator<AgentSegmentFixupPolicyT::LOAD_MODIFIER, KeyValuePairT, OffsetT_NV>,    // Wrap the native input pointer with CacheModifiedValuesInputIterator
             PairsInputIteratorT>::Type                                                                      // Directly use the supplied input iterator type
         WrappedPairsInputIteratorT;
 
     // Cache-modified Input iterator wrapper type (for applying cache modifier) for fixup values
     typedef typename If<IsPointer<AggregatesOutputIteratorT>::VALUE,
-            CacheModifiedInputIterator<AgentSegmentFixupPolicyT::LOAD_MODIFIER, ValueT, OffsetT>,    // Wrap the native input pointer with CacheModifiedValuesInputIterator
+            CacheModifiedInputIterator<AgentSegmentFixupPolicyT::LOAD_MODIFIER, ValueT, OffsetT_NV>,    // Wrap the native input pointer with CacheModifiedValuesInputIterator
             AggregatesOutputIteratorT>::Type                                                        // Directly use the supplied input iterator type
         WrappedFixupInputIteratorT;
 
@@ -225,9 +225,9 @@ struct AgentSegmentFixup
      */
     template <bool IS_LAST_TILE>
     __device__ __forceinline__ void ConsumeTile(
-        OffsetT             num_remaining,      ///< Number of global input items remaining (including this tile)
+        OffsetT_NV             num_remaining,      ///< Number of global input items remaining (including this tile)
         int                 tile_idx,           ///< Tile index
-        OffsetT             tile_offset,        ///< Tile offset
+        OffsetT_NV             tile_offset,        ///< Tile offset
         ScanTileStateT&     tile_state,         ///< Global tile state descriptor
         Int2Type<true>      use_atomic_fixup)   ///< Marker whether to use atomicAdd (instead of reduce-by-key)
     {
@@ -265,9 +265,9 @@ struct AgentSegmentFixup
      */
     template <bool IS_LAST_TILE>
     __device__ __forceinline__ void ConsumeTile(
-        OffsetT             num_remaining,      ///< Number of global input items remaining (including this tile)
+        OffsetT_NV             num_remaining,      ///< Number of global input items remaining (including this tile)
         int                 tile_idx,           ///< Tile index
-        OffsetT             tile_offset,        ///< Tile offset
+        OffsetT_NV             tile_offset,        ///< Tile offset
         ScanTileStateT&     tile_state,         ///< Global tile state descriptor
         Int2Type<false>     use_atomic_fixup)   ///< Marker whether to use atomicAdd (instead of reduce-by-key)
     {
@@ -333,7 +333,7 @@ struct AgentSegmentFixup
                 if (num_remaining == TILE_ITEMS)
                 {
                     // Update the value at the key location
-                    OffsetT last_key = pairs[ITEMS_PER_THREAD - 1].key;
+                    OffsetT_NV last_key = pairs[ITEMS_PER_THREAD - 1].key;
                     d_aggregates_out[last_key] = reduction_op(tile_aggregate.value, d_fixup_in[last_key]);
                 }
             }
@@ -351,8 +351,8 @@ struct AgentSegmentFixup
     {
         // Blocks are launched in increasing order, so just assign one tile per block
         int     tile_idx        = (blockIdx.x * gridDim.y) + blockIdx.y;    // Current tile index
-        OffsetT tile_offset     = tile_idx * TILE_ITEMS;                    // Global offset for the current tile
-        OffsetT num_remaining   = num_items - tile_offset;                  // Remaining items (including this tile)
+        OffsetT_NV tile_offset     = tile_idx * TILE_ITEMS;                    // Global offset for the current tile
+        OffsetT_NV num_remaining   = num_items - tile_offset;                  // Remaining items (including this tile)
 
         if (num_remaining > TILE_ITEMS)
         {

@@ -48,25 +48,25 @@ namespace cub {
 template <
     typename AIteratorT,
     typename BIteratorT,
-    typename OffsetT,
+    typename OffsetT_NV,
     typename CoordinateT>
 __host__ __device__ __forceinline__ void MergePathSearch(
-    OffsetT         diagonal,
+    OffsetT_NV         diagonal,
     AIteratorT      a,
     BIteratorT      b,
-    OffsetT         a_len,
-    OffsetT         b_len,
+    OffsetT_NV         a_len,
+    OffsetT_NV         b_len,
     CoordinateT&    path_coordinate)
 {
     /// The value type of the input iterator
     typedef typename std::iterator_traits<AIteratorT>::value_type T;
 
-    OffsetT split_min = CUB_MAX(diagonal - b_len, 0);
-    OffsetT split_max = CUB_MIN(diagonal, a_len);
+    OffsetT_NV split_min = CUB_MAX(diagonal - b_len, 0);
+    OffsetT_NV split_max = CUB_MIN(diagonal, a_len);
 
     while (split_min < split_max)
     {
-        OffsetT split_pivot = (split_min + split_max) >> 1;
+        OffsetT_NV split_pivot = (split_min + split_max) >> 1;
         if (a[split_pivot] <= b[diagonal - split_pivot - 1])
         {
             // Move candidate split range up A, down B
@@ -90,17 +90,17 @@ __host__ __device__ __forceinline__ void MergePathSearch(
  */
 template <
     typename InputIteratorT,
-    typename OffsetT,
+    typename OffsetT_NV,
     typename T>
-__device__ __forceinline__ OffsetT LowerBound(
+__device__ __forceinline__ OffsetT_NV LowerBound(
     InputIteratorT      input,              ///< [in] Input sequence
-    OffsetT             num_items,          ///< [in] Input sequence length
+    OffsetT_NV             num_items,          ///< [in] Input sequence length
     T                   val)                ///< [in] Search key
 {
-    OffsetT retval = 0;
+    OffsetT_NV retval = 0;
     while (num_items > 0)
     {
-        OffsetT half = num_items >> 1;
+        OffsetT_NV half = num_items >> 1;
         if (input[retval + half] < val)
         {
             retval = retval + (half + 1);
@@ -121,17 +121,17 @@ __device__ __forceinline__ OffsetT LowerBound(
  */
 template <
     typename InputIteratorT,
-    typename OffsetT,
+    typename OffsetT_NV,
     typename T>
-__device__ __forceinline__ OffsetT UpperBound(
+__device__ __forceinline__ OffsetT_NV UpperBound(
     InputIteratorT      input,              ///< [in] Input sequence
-    OffsetT             num_items,          ///< [in] Input sequence length
+    OffsetT_NV             num_items,          ///< [in] Input sequence length
     T                   val)                ///< [in] Search key
 {
-    OffsetT retval = 0;
+    OffsetT_NV retval = 0;
     while (num_items > 0)
     {
-        OffsetT half = num_items >> 1;
+        OffsetT_NV half = num_items >> 1;
         if (val < input[retval + half])
         {
             num_items = half;

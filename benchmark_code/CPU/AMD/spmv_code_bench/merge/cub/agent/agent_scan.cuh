@@ -94,7 +94,7 @@ template <
     typename OutputIteratorT,       ///< Random-access output iterator type
     typename ScanOpT,               ///< Scan functor type
     typename IdentityT,             ///< The identity element for ScanOpT type (cub::NullType for inclusive scan)
-    typename OffsetT>               ///< Signed integer type for global offsets
+    typename OffsetT_NV>               ///< Signed integer type for global offsets
 struct AgentScan
 {
     //---------------------------------------------------------------------
@@ -109,7 +109,7 @@ struct AgentScan
 
     // Input iterator wrapper type (for applying cache modifier)
     typedef typename If<IsPointer<InputIteratorT>::VALUE,
-            CacheModifiedInputIterator<AgentScanPolicyT::LOAD_MODIFIER, T, OffsetT>,    // Wrap the native input pointer with CacheModifiedInputIterator
+            CacheModifiedInputIterator<AgentScanPolicyT::LOAD_MODIFIER, T, OffsetT_NV>,    // Wrap the native input pointer with CacheModifiedInputIterator
             InputIteratorT>::Type                                                            // Directly use the supplied input iterator type
         WrappedInputIteratorT;
 
@@ -308,10 +308,10 @@ struct AgentScan
      */
     template <bool IS_FULL_TILE>
     __device__ __forceinline__ void ConsumeTile(
-        OffsetT             num_items,          ///< Total number of input items
-        OffsetT             num_remaining,      ///< Total number of items remaining to be processed (including this tile)
+        OffsetT_NV             num_items,          ///< Total number of input items
+        OffsetT_NV             num_remaining,      ///< Total number of items remaining to be processed (including this tile)
         int                 tile_idx,           ///< Tile index
-        OffsetT             tile_offset,        ///< Tile offset
+        OffsetT_NV             tile_offset,        ///< Tile offset
         ScanTileStateT&     tile_state)         ///< Global tile state descriptor
     {
         // Load items
@@ -363,8 +363,8 @@ struct AgentScan
     {
         // Blocks are launched in increasing order, so just assign one tile per block
         int     tile_idx        = (blockIdx.x * gridDim.y) + blockIdx.y;   // Current tile index
-        OffsetT tile_offset     = OffsetT(TILE_ITEMS) * tile_idx;          // Global offset for the current tile
-        OffsetT num_remaining   = num_items - tile_offset;                 // Remaining items (including this tile)
+        OffsetT_NV tile_offset     = OffsetT_NV(TILE_ITEMS) * tile_idx;          // Global offset for the current tile
+        OffsetT_NV num_remaining   = num_items - tile_offset;                 // Remaining items (including this tile)
 
         if (num_remaining > TILE_ITEMS)
         {
@@ -390,7 +390,7 @@ struct AgentScan
         bool                        IS_FULL_TILE,
         bool                        IS_FIRST_TILE>
     __device__ __forceinline__ void ConsumeTile(
-        OffsetT                     tile_offset,               ///< Tile offset
+        OffsetT_NV                     tile_offset,               ///< Tile offset
         RunningPrefixCallbackOp&    prefix_op,                  ///< Running prefix operator
         int                         valid_items = TILE_ITEMS)   ///< Number of valid items in the tile
     {
@@ -431,8 +431,8 @@ struct AgentScan
      * Scan a consecutive share of input tiles
      */
     __device__ __forceinline__ void ConsumeRange(
-        OffsetT  range_offset,      ///< [in] Threadblock begin offset (inclusive)
-        OffsetT  range_end)         ///< [in] Threadblock end offset (exclusive)
+        OffsetT_NV  range_offset,      ///< [in] Threadblock begin offset (inclusive)
+        OffsetT_NV  range_end)         ///< [in] Threadblock end offset (exclusive)
     {
         BlockScanRunningPrefixOp<T, ScanOpT> prefix_op(scan_op);
 
@@ -469,8 +469,8 @@ struct AgentScan
      * Scan a consecutive share of input tiles, seeded with the specified prefix value
      */
     __device__ __forceinline__ void ConsumeRange(
-        OffsetT range_offset,                       ///< [in] Threadblock begin offset (inclusive)
-        OffsetT range_end,                          ///< [in] Threadblock end offset (exclusive)
+        OffsetT_NV range_offset,                       ///< [in] Threadblock begin offset (inclusive)
+        OffsetT_NV range_end,                          ///< [in] Threadblock end offset (exclusive)
         T       prefix)                             ///< [in] The prefix to apply to the scan segment
     {
         BlockScanRunningPrefixOp<T, ScanOpT> prefix_op(prefix, scan_op);

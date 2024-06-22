@@ -438,12 +438,6 @@ progs=(
     # nvpl (nvidia performance libraries - optimized for arm nvidia cpu)
     # ['nvpl_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_nvpl_csr_nv_d.exe"
 
-    # CSR5
-    ['csr5_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr5_cuda_nv_d.exe"
-
-    # DASP
-    ['dasp_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_dasp_cuda_nv_d.exe"
-
     # Custom cuda
     # ['csr_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_nv_d.exe"
     # ['csr_cuda_buffer_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_nv_d.exe"
@@ -507,9 +501,14 @@ progs=(
     # ['csr_cuda_adaptive_s16_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb4_nv_d.exe"
     # ['csr_cuda_adaptive_s16_b256_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb24_nv_d.exe"
 
-    # UNDER DEVELOPMENT - not working yet
-    # ['merge_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_merge_cuda_nv_d.exe"
-    # ['csr_cuda_light_b1024_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_light_b1024_nv_d.exe"
+    # CSR5
+    ['csr5_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr5_cuda_nv_d.exe"
+
+    # Merge
+    ['merge_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_merge_cuda_nv_d.exe"
+
+    # DASP
+    ['dasp_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_dasp_cuda_nv_d.exe"
 
     # cusparse
     # ['cusparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"

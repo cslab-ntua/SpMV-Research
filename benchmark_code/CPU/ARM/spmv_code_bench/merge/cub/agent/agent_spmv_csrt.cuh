@@ -43,7 +43,8 @@
 #include "../thread/thread_operators.cuh"
 #include "../iterator/cache_modified_input_iterator.cuh"
 #include "../iterator/counting_input_iterator.cuh"
-#include "../iterator/tex_ref_input_iterator.cuh"
+// #include "../iterator/tex_ref_input_iterator.cuh"
+#include "../iterator/tex_obj_input_iterator.cuh"
 #include "../util_namespace.cuh"
 
 /// Optional outer namespace(s)
@@ -95,12 +96,12 @@ struct AgentSpmvPolicy
 
 template <
     typename        ValueT,              ///< Matrix and vector value type
-    typename        OffsetT>             ///< Signed integer type for sequence offsets
+    typename        OffsetT_NV>             ///< Signed integer type for sequence offsets
 struct SpmvParams
 {
     ValueT*         d_values;            ///< Pointer to the array of \p num_nonzeros values of the corresponding nonzero elements of matrix <b>A</b>.
-    OffsetT*        d_row_end_offsets;   ///< Pointer to the array of \p m offsets demarcating the end of every row in \p d_column_indices and \p d_values
-    OffsetT*        d_column_indices;    ///< Pointer to the array of \p num_nonzeros column-indices of the corresponding nonzero elements of matrix <b>A</b>.  (Indices are zero-valued.)
+    OffsetT_NV*        d_row_end_offsets;   ///< Pointer to the array of \p m offsets demarcating the end of every row in \p d_column_indices and \p d_values
+    OffsetT_NV*        d_column_indices;    ///< Pointer to the array of \p num_nonzeros column-indices of the corresponding nonzero elements of matrix <b>A</b>.  (Indices are zero-valued.)
     ValueT*         d_vector_x;          ///< Pointer to the array of \p num_cols values corresponding to the dense input vector <em>x</em>
     ValueT*         d_vector_y;          ///< Pointer to the array of \p num_rows values corresponding to the dense output vector <em>y</em>
     int             num_rows;            ///< Number of rows of matrix <b>A</b>.
@@ -109,7 +110,8 @@ struct SpmvParams
     ValueT          alpha;               ///< Alpha multiplicand
     ValueT          beta;                ///< Beta addend-multiplicand
 
-    TexRefInputIterator<ValueT, 66778899, OffsetT>  t_vector_x;
+    // TexRefInputIterator<ValueT, 66778899, OffsetT_NV>  t_vector_x;
+    TexObjInputIterator<ValueT, OffsetT_NV>  t_vector_x;
 };
 
 
@@ -119,7 +121,7 @@ struct SpmvParams
 template <
     typename    AgentSpmvPolicyT,           ///< Parameterized AgentSpmvPolicy tuning policy type
     typename    ValueT,                     ///< Matrix and vector value type
-    typename    OffsetT,                    ///< Signed integer type for sequence offsets
+    typename    OffsetT_NV,                    ///< Signed integer type for sequence offsets
     bool        HAS_ALPHA,                  ///< Whether the input parameter \p alpha is 1
     bool        HAS_BETA,                   ///< Whether the input parameter \p beta is 0
     int         PTX_ARCH = CUB_PTX_ARCH>    ///< PTX compute capability
@@ -138,42 +140,42 @@ struct AgentSpmv
     };
 
     /// 2D merge path coordinate type
-    typedef typename CubVector<OffsetT, 2>::Type CoordinateT;
+    typedef typename CubVector<OffsetT_NV, 2>::Type CoordinateT;
 
     /// Input iterator wrapper types (for applying cache modifiers)
 
     typedef CacheModifiedInputIterator<
             AgentSpmvPolicyT::ROW_OFFSETS_SEARCH_LOAD_MODIFIER,
-            OffsetT,
-            OffsetT>
+            OffsetT_NV,
+            OffsetT_NV>
         RowOffsetsSearchIteratorT;
 
     typedef CacheModifiedInputIterator<
             AgentSpmvPolicyT::ROW_OFFSETS_LOAD_MODIFIER,
-            OffsetT,
-            OffsetT>
+            OffsetT_NV,
+            OffsetT_NV>
         RowOffsetsIteratorT;
 
     typedef CacheModifiedInputIterator<
             AgentSpmvPolicyT::COLUMN_INDICES_LOAD_MODIFIER,
-            OffsetT,
-            OffsetT>
+            OffsetT_NV,
+            OffsetT_NV>
         ColumnIndicesIteratorT;
 
     typedef CacheModifiedInputIterator<
             AgentSpmvPolicyT::VALUES_LOAD_MODIFIER,
             ValueT,
-            OffsetT>
+            OffsetT_NV>
         ValueIteratorT;
 
     typedef CacheModifiedInputIterator<
             AgentSpmvPolicyT::VECTOR_VALUES_LOAD_MODIFIER,
             ValueT,
-            OffsetT>
+            OffsetT_NV>
         VectorValueIteratorT;
 
     // Tuple type for scanning (pairs accumulated segment-value with segment-index)
-    typedef KeyValuePair<OffsetT, ValueT> KeyValuePairT;
+    typedef KeyValuePair<OffsetT_NV, ValueT> KeyValuePairT;
 
     // Reduce-value-by-key scan operator
     typedef ReduceByKeyOp<cub::Sum> ReduceBySegmentOpT;
@@ -195,10 +197,10 @@ struct AgentSpmv
     /// Merge item type (either a non-zero value or a row-end offset)
     union MergeItem
     {
-        // Value type to pair with index type OffsetT (NullType if loading values directly during merge)
+        // Value type to pair with index type OffsetT_NV (NullType if loading values directly during merge)
         typedef typename If<AgentSpmvPolicyT::DIRECT_LOAD_NONZEROS, NullType, ValueT>::Type MergeValueT;
 
-        OffsetT     row_end_offset;
+        OffsetT_NV     row_end_offset;
         MergeValueT nonzero;
     };
 
@@ -207,7 +209,7 @@ struct AgentSpmv
     {
         union {
             CoordinateT tile_coord;
-            OffsetT turnstile;
+            OffsetT_NV turnstile;
         };
 
         union
@@ -234,7 +236,7 @@ struct AgentSpmv
 
     _TempStorage&                   temp_storage;         /// Reference to temp_storage
 
-    SpmvParams<ValueT, OffsetT>&    spmv_params;
+    SpmvParams<ValueT, OffsetT_NV>&    spmv_params;
 
     ValueIteratorT                  wd_values;            ///< Wrapped pointer to the array of \p num_nonzeros values of the corresponding nonzero elements of matrix <b>A</b>.
     RowOffsetsIteratorT             wd_row_end_offsets;   ///< Wrapped Pointer to the array of \p m offsets demarcating the end of every row in \p d_column_indices and \p d_values
@@ -252,7 +254,7 @@ struct AgentSpmv
      */
     __device__ __forceinline__ AgentSpmv(
         TempStorage&                    temp_storage,           ///< Reference to temp_storage
-        SpmvParams<ValueT, OffsetT>&    spmv_params)            ///< SpMV input parameter bundle
+        SpmvParams<ValueT, OffsetT_NV>&    spmv_params)            ///< SpMV input parameter bundle
     :
         temp_storage(temp_storage.Alias()),
         spmv_params(spmv_params),
@@ -277,7 +279,7 @@ struct AgentSpmv
     {
         int         tile_num_rows           = tile_end_coord.x - tile_start_coord.x;
         int         tile_num_nonzeros       = tile_end_coord.y - tile_start_coord.y;
-        OffsetT*    s_tile_row_end_offsets  = &temp_storage.merge_items[0].row_end_offset;
+        OffsetT_NV*    s_tile_row_end_offsets  = &temp_storage.merge_items[0].row_end_offset;
 
         // Gather the row end-offsets for the merge tile into shared memory
         for (int item = threadIdx.x; item <= tile_num_rows; item += BLOCK_THREADS)
@@ -288,11 +290,11 @@ struct AgentSpmv
         __syncthreads();
 
         // Search for the thread's starting coordinate within the merge tile
-        CountingInputIterator<OffsetT>  tile_nonzero_indices(tile_start_coord.y);
+        CountingInputIterator<OffsetT_NV>  tile_nonzero_indices(tile_start_coord.y);
         CoordinateT                     thread_start_coord;
 
         MergePathSearch(
-            OffsetT(threadIdx.x * ITEMS_PER_THREAD),    // Diagonal
+            OffsetT_NV(threadIdx.x * ITEMS_PER_THREAD),    // Diagonal
             s_tile_row_end_offsets,                     // List A
             tile_nonzero_indices,                       // List B
             tile_num_rows,
@@ -310,13 +312,13 @@ struct AgentSpmv
         #pragma unroll
         for (int ITEM = 0; ITEM < ITEMS_PER_THREAD; ++ITEM)
         {
-            OffsetT nonzero_idx         = CUB_MIN(tile_nonzero_indices[thread_current_coord.y], spmv_params.num_nonzeros - 1);
-            OffsetT column_idx          = wd_column_indices[nonzero_idx];
+            OffsetT_NV nonzero_idx         = CUB_MIN(tile_nonzero_indices[thread_current_coord.y], spmv_params.num_nonzeros - 1);
+            OffsetT_NV column_idx          = wd_column_indices[nonzero_idx];
             ValueT  value               = wd_values[nonzero_idx];
             ValueT  vector_value        = wd_vector_x[column_idx];
             ValueT  nonzero             = value * vector_value;
 
-            OffsetT row_end_offset      = s_tile_row_end_offsets[thread_current_coord.x];
+            OffsetT_NV row_end_offset      = s_tile_row_end_offsets[thread_current_coord.x];
 
             if (tile_nonzero_indices[thread_current_coord.y] < row_end_offset)
             {
@@ -400,7 +402,7 @@ struct AgentSpmv
 
 #if (CUB_PTX_ARCH >= 520)
 
-        OffsetT*    s_tile_row_end_offsets  = &temp_storage.merge_items[0].row_end_offset;
+        OffsetT_NV*    s_tile_row_end_offsets  = &temp_storage.merge_items[0].row_end_offset;
         ValueT*     s_tile_nonzeros         = &temp_storage.merge_items[tile_num_rows + ITEMS_PER_THREAD].nonzero;
 
         // Gather the nonzeros for the merge tile into shared memory
@@ -416,7 +418,7 @@ struct AgentSpmv
             if (nonzero_idx < tile_num_nonzeros)
             {
 
-                OffsetT column_idx              = *ci;
+                OffsetT_NV column_idx              = *ci;
                 ValueT  value                   = *a;
                 ValueT  vector_value            = spmv_params.t_vector_x[column_idx];
                 vector_value                    = wd_vector_x[column_idx];
@@ -428,7 +430,7 @@ struct AgentSpmv
 
 #else
 
-        OffsetT*    s_tile_row_end_offsets  = &temp_storage.merge_items[0].row_end_offset;
+        OffsetT_NV*    s_tile_row_end_offsets  = &temp_storage.merge_items[0].row_end_offset;
         ValueT*     s_tile_nonzeros         = &temp_storage.merge_items[tile_num_rows + ITEMS_PER_THREAD].nonzero;
 
         // Gather the nonzeros for the merge tile into shared memory
@@ -440,7 +442,7 @@ struct AgentSpmv
                 int     nonzero_idx             = threadIdx.x + (ITEM * BLOCK_THREADS);
                 nonzero_idx                     = CUB_MIN(nonzero_idx, tile_num_nonzeros - 1);
 
-                OffsetT column_idx              = wd_column_indices[tile_start_coord.y + nonzero_idx];
+                OffsetT_NV column_idx              = wd_column_indices[tile_start_coord.y + nonzero_idx];
                 ValueT  value                   = wd_values[tile_start_coord.y + nonzero_idx];
 
                 ValueT  vector_value            = wd_vector_x[column_idx];
@@ -462,11 +464,11 @@ struct AgentSpmv
         __syncthreads();
 
         // Search for the thread's starting coordinate within the merge tile
-        CountingInputIterator<OffsetT>  tile_nonzero_indices(tile_start_coord.y);
+        CountingInputIterator<OffsetT_NV>  tile_nonzero_indices(tile_start_coord.y);
         CoordinateT                     thread_start_coord;
 
         MergePathSearch(
-            OffsetT(threadIdx.x * ITEMS_PER_THREAD),    // Diagonal
+            OffsetT_NV(threadIdx.x * ITEMS_PER_THREAD),    // Diagonal
             s_tile_row_end_offsets,                     // List A
             tile_nonzero_indices,                       // List B
             tile_num_rows,
@@ -480,7 +482,7 @@ struct AgentSpmv
         KeyValuePairT   scan_segment[ITEMS_PER_THREAD];
         ValueT          running_total = 0.0;
 
-        OffsetT row_end_offset  = s_tile_row_end_offsets[thread_current_coord.x];
+        OffsetT_NV row_end_offset  = s_tile_row_end_offsets[thread_current_coord.x];
         ValueT  nonzero         = s_tile_nonzeros[thread_current_coord.y];
 
         #pragma unroll
@@ -579,9 +581,9 @@ struct AgentSpmv
         if (threadIdx.x == 0)
         {
             // Search our starting coordinates
-            OffsetT                         diagonal = blockIdx.x * merge_items_per_block;
+            OffsetT_NV                         diagonal = blockIdx.x * merge_items_per_block;
             CoordinateT                     tile_coord;
-            CountingInputIterator<OffsetT>  nonzero_indices(0);
+            CountingInputIterator<OffsetT_NV>  nonzero_indices(0);
 
             // Search the merge path
             MergePathSearch(
@@ -601,7 +603,7 @@ struct AgentSpmv
 
 
         // Mooch
-        __shared__ volatile OffsetT x;
+        __shared__ volatile OffsetT_NV x;
         x = tile_start_coord.x;
 
 

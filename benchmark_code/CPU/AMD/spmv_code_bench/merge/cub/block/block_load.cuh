@@ -171,17 +171,17 @@ __device__ __forceinline__ void InternalLoadDirectBlockedVectorized(
     {
         TOTAL_WORDS = sizeof(items) / sizeof(DeviceWord),
 
-        VECTOR_SIZE = (TOTAL_WORDS % 4 == 0) ?
+        VECTOR_SIZE_NV = (TOTAL_WORDS % 4 == 0) ?
             4 :
             (TOTAL_WORDS % 2 == 0) ?
                 2 :
                 1,
 
-        VECTORS_PER_THREAD = TOTAL_WORDS / VECTOR_SIZE,
+        VECTORS_PER_THREAD = TOTAL_WORDS / VECTOR_SIZE_NV,
     };
 
     // Vector type
-    typedef typename CubVector<DeviceWord, VECTOR_SIZE>::Type Vector;
+    typedef typename CubVector<DeviceWord, VECTOR_SIZE_NV>::Type Vector;
 
     // Vector items
     Vector vec_items[VECTORS_PER_THREAD];
@@ -780,10 +780,10 @@ private:
         /// Load a linear segment of items from memory, specialized for native pointer types (attempts vectorization)
         template <
             CacheLoadModifier   MODIFIER,
-            typename            ValueType,
-            typename            OffsetT>
+            typename            ValueType_NV,
+            typename            OffsetT_NV>
         __device__ __forceinline__ void Load(
-            CacheModifiedInputIterator<MODIFIER, ValueType, OffsetT>    block_itr,                      ///< [in] The thread block's base input iterator for loading from
+            CacheModifiedInputIterator<MODIFIER, ValueType_NV, OffsetT_NV>    block_itr,                      ///< [in] The thread block's base input iterator for loading from
             T                                                           (&items)[ITEMS_PER_THREAD])     ///< [out] Data to load
         {
             InternalLoadDirectBlockedVectorized<MODIFIER>(linear_tid, block_itr.ptr, items);

@@ -99,10 +99,11 @@ conf_vars=(
     # ['max_cores']=160
     # ['max_cores']=256
     # ['max_cores']=128
-    ['max_cores']=64
+    # ['max_cores']=64
     # ['max_cores']=56
     # ['max_cores']=32
     # ['max_cores']=48
+    ['max_cores']=24
     # ['max_cores']=16
     # ['max_cores']=8
 
@@ -114,8 +115,9 @@ conf_vars=(
     # ['cores']=64
     # ['cores']=48
     # ['cores']=32
-    ['cores']=64
+    # ['cores']=64
     # ['cores']=56
+    ['cores']=24
     # ['cores']=16
     # ['cores']=12
     # ['cores']=8
@@ -458,9 +460,15 @@ progs=(
     # ['csr_cuda_adaptive_s16_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb4_nv_d.exe"
     # ['csr_cuda_adaptive_s16_b256_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb24_nv_d.exe"
 
-    # UNDER DEVELOPMENT - not working yet
-    # ['merge_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_merge_cuda_nv_d.exe"
-    # ['csr_cuda_light_b1024_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_light_b1024_nv_d.exe"
+    # Research GPU formats
+    # CSR5
+    # ['csr5_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr5_cuda_nv_d.exe"
+
+    # Merge    
+    ['merge_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_merge_cuda_nv_d.exe"
+
+    # DASP
+    # ['dasp_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_dasp_cuda_nv_d.exe"
 
     # cusparse
     # ['cusparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
@@ -517,10 +525,6 @@ progs=(
 
     # CSR5
     # ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5_d.exe"
-    # ['csr5_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr5_cuda_nv_d.exe"
-    
-    # DASP
-    ['dasp_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_dasp_cuda_nv_d.exe"
 
     # merge spmv
     # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge_d.exe"
