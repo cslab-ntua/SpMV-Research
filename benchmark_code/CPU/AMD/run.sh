@@ -20,8 +20,40 @@ fi
 # GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
 # e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
 export GOMP_CPU_AFFINITY="$cpu_affinity"
-# when running on LUMI-G, need to manually set GOMP_CPU_AFFINITY!!! Cores 0, 8, ..., 56 are disabled
-# export GOMP_CPU_AFFINITY="1,2,3,4,5,6,7,9,10,11,12,13,14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,33,34,35,36,37,38,39,41,42,43,44,45,46,47,49,50,51,52,53,54,55,57,58,59,60,61,62,63"
+
+# when running on LUMI-G (dev-g, small-g, standard-g), need to manually set GOMP_CPU_AFFINITY!!! Cores 0, 8, ..., 56 are disabled
+if [[ $(hostname) == nid* ]]; then
+    # Extract the numerical part and convert it to an integer
+    nid=$((10#$(hostname | grep -oP '\d{6}')))
+    # Function to check if a number is within a given range
+    in_range() {
+        (( $1 >= $2 && $1 <= $3 ))
+    }
+
+    # dev-g: [5002-5025], [7954-7977]
+    # small-g: [5026-5123], [7852-7951]
+    # standard-g: [5124-7851]
+    if in_range $nid 5002 5025 || in_range $nid 7954 7977 || in_range $nid 5026 5123 || in_range $nid 7852 7951 || in_range $nid 5124 7851; then # dev-g
+        # Define the numbers to be removed from GOMP_CPU_AFFINITY (the first core from each of the 8 L3 regions of the LUMI-G CPU)
+        numbers_to_remove=(0 8 16 24 32 40 48 56)
+
+        echo "1\t" $GOMP_CPU_AFFINITY
+        # Remove specified numbers from GOMP_CPU_AFFINITY
+        for num in "${numbers_to_remove[@]}"; do
+            export GOMP_CPU_AFFINITY=$(echo $GOMP_CPU_AFFINITY | sed -E "s/(^|,)$num(,|$)/\1\2/g")
+        done
+        echo "2\t" $GOMP_CPU_AFFINITY
+
+        # Remove any leading or trailing commas
+        export GOMP_CPU_AFFINITY=$(echo $GOMP_CPU_AFFINITY | sed 's/^,//' | sed 's/,$//')
+        echo "3\t" $GOMP_CPU_AFFINITY
+
+        # Remove any duplicate commas
+        export GOMP_CPU_AFFINITY=$(echo $GOMP_CPU_AFFINITY | tr -s ',')
+        echo "4\t" $GOMP_CPU_AFFINITY
+    fi
+
+fi
 export XLSMPOPTS="PROCS=$cpu_affinity"
 
 lscpu | grep -q -i amd
