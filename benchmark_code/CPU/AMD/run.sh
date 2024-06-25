@@ -36,23 +36,15 @@ if [[ $(hostname) == nid* ]]; then
     if in_range $nid 5002 5025 || in_range $nid 7954 7977 || in_range $nid 5026 5123 || in_range $nid 7852 7951 || in_range $nid 5124 7851; then # dev-g
         # Define the numbers to be removed from GOMP_CPU_AFFINITY (the first core from each of the 8 L3 regions of the LUMI-G CPU)
         numbers_to_remove=(0 8 16 24 32 40 48 56)
-
-        echo "1\t" $GOMP_CPU_AFFINITY
         # Remove specified numbers from GOMP_CPU_AFFINITY
         for num in "${numbers_to_remove[@]}"; do
             export GOMP_CPU_AFFINITY=$(echo $GOMP_CPU_AFFINITY | sed -E "s/(^|,)$num(,|$)/\1\2/g")
         done
-        echo "2\t" $GOMP_CPU_AFFINITY
-
         # Remove any leading or trailing commas
         export GOMP_CPU_AFFINITY=$(echo $GOMP_CPU_AFFINITY | sed 's/^,//' | sed 's/,$//')
-        echo "3\t" $GOMP_CPU_AFFINITY
-
         # Remove any duplicate commas
         export GOMP_CPU_AFFINITY=$(echo $GOMP_CPU_AFFINITY | tr -s ',')
-        echo "4\t" $GOMP_CPU_AFFINITY
     fi
-
 fi
 export XLSMPOPTS="PROCS=$cpu_affinity"
 
