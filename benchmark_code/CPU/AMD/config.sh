@@ -100,11 +100,13 @@ conf_vars=(
     # ['max_cores']=256
     # ['max_cores']=128
     # ['max_cores']=64
-    # ['max_cores']=56
+    ['max_cores']=56
     # ['max_cores']=32
+    # ['max_cores']=28
     # ['max_cores']=48
-    ['max_cores']=24
+    # ['max_cores']=24
     # ['max_cores']=16
+    # ['max_cores']=14
     # ['max_cores']=8
 
     # Cores / Threads to utilize. Use spaces to define a set of different thread numbers to benchmark.
@@ -113,12 +115,15 @@ conf_vars=(
     # ['cores']='64 128'
     # ['cores']=128
     # ['cores']=64
+    # ['cores']=56
     # ['cores']=48
     # ['cores']=32
     # ['cores']=64
-    # ['cores']=56
-    ['cores']=24
+    ['cores']=56
+    # ['cores']=28
+    # ['cores']=24
     # ['cores']=16
+    # ['cores']=14
     # ['cores']=12
     # ['cores']=8
     # ['cores']=6
@@ -465,7 +470,7 @@ progs=(
     # ['csr5_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr5_cuda_nv_d.exe"
 
     # Merge    
-    ['merge_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_merge_cuda_nv_d.exe"
+    # ['merge_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_merge_cuda_nv_d.exe"
 
     # DASP
     # ['dasp_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_dasp_cuda_nv_d.exe"
@@ -492,6 +497,9 @@ progs=(
     # Custom rocm (dgal implementation)
     # ['csr_rocm_const_nnz_per_thread_b512_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_const_nnz_per_thread_b512_nnz4_nv_d.exe"
     # ['csr_rocm_const_nnz_per_thread_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_const_nnz_per_thread_b1024_nnz4_nv_d.exe"
+
+    ['csr_rocm_acc_flat_b512_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_acc_flat_b512_nv_d.exe"
+    # ['csr_rocm_acc_line_enhance_b512_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_acc_line_enhance_b512_nv_d.exe"
 
     # rocsparse
     # ['rocparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_csr_nv_d.exe"

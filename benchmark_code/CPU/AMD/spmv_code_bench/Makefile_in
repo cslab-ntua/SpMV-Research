@@ -244,6 +244,33 @@ obj/spmv_subkernel_csr_rocm_const_nnz_per_thread_b${BLOCK_SIZE}_nnz${NNZ_PER_THR
 	$(HIPCC) $(HIPCCFLAGS) -DBLOCK_SIZE=${BLOCK_SIZE} -DNNZ_PER_THREAD=${NNZ_PER_THREAD} $(CPPFLAGS) $(CPPFLAGS_ROCM) -c $^ -o $@
 
 
+# Research ROCM kernels (ACC)
+
+ACC_PATH=acc/
+CPPFLAGS_ROCM_ACC = 
+CPPFLAGS_ROCM_ACC += -I$(ACC_PATH) -I$(ACC_PATH)/hip-flat/ -I$(ACC_PATH)/common
+
+spmv_csr_rocm_acc_flat_b${BLOCK_SIZE}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_rocm_acc_flat_b${BLOCK_SIZE}$(SUFFIX).o obj/spmv_subkernel_csr_rocm_acc_flat_b${BLOCK_SIZE}$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) -DTIME_IT=$(TIME_IT) -DBLOCK_SIZE=${BLOCK_SIZE} $(CPPFLAGS) $(CPPFLAGS_ROCM) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ROCM)
+obj/spmv_kernel_csr_rocm_acc_flat_b${BLOCK_SIZE}$(SUFFIX).o: spmv_kernel_csr_rocm_acc_flat.cpp
+	$(CPP) -DTIME_IT=$(TIME_IT) -DBLOCK_SIZE=${BLOCK_SIZE} $(CPPFLAGS) $(CPPFLAGS_ROCM) -c $^ -o $@
+
+obj/spmv_subkernel_csr_rocm_acc_flat_b${BLOCK_SIZE}$(SUFFIX).o: spmv_subkernel_csr_rocm_acc_flat.cpp
+	$(HIPCC) $(HIPCCFLAGS) -DBLOCK_SIZE=${BLOCK_SIZE} $(CPPFLAGS) $(CPPFLAGS_ROCM) $(CPPFLAGS_ROCM_ACC) -c $^ -o $@
+
+ACC_PATH=acc/
+CPPFLAGS_ROCM_ACC = 
+CPPFLAGS_ROCM_ACC += -I$(ACC_PATH) -I$(ACC_PATH)/hip-line-enhance/ -I$(ACC_PATH)/common
+
+spmv_csr_rocm_acc_line_enhance_b${BLOCK_SIZE}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_csr_rocm_acc_line_enhance_b${BLOCK_SIZE}$(SUFFIX).o obj/spmv_subkernel_csr_rocm_acc_line_enhance_b${BLOCK_SIZE}$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) -DTIME_IT=$(TIME_IT) -DBLOCK_SIZE=${BLOCK_SIZE} $(CPPFLAGS) $(CPPFLAGS_ROCM) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ROCM)
+obj/spmv_kernel_csr_rocm_acc_line_enhance_b${BLOCK_SIZE}$(SUFFIX).o: spmv_kernel_csr_rocm_acc_line_enhance.cpp
+	$(CPP) -DTIME_IT=$(TIME_IT) -DBLOCK_SIZE=${BLOCK_SIZE} $(CPPFLAGS) $(CPPFLAGS_ROCM) -c $^ -o $@
+
+obj/spmv_subkernel_csr_rocm_acc_line_enhance_b${BLOCK_SIZE}$(SUFFIX).o: spmv_subkernel_csr_rocm_acc_line_enhance.cpp
+	$(HIPCC) $(HIPCCFLAGS) -DBLOCK_SIZE=${BLOCK_SIZE} $(CPPFLAGS) $(CPPFLAGS_ROCM) $(CPPFLAGS_ROCM_ACC) -c $^ -o $@
+
+
 # rocSPARSE kernels
 
 CPPFLAGS_ROCSPARSE =
