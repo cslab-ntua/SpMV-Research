@@ -424,6 +424,8 @@ spmv_sparsex$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_sparsex$(SU
 obj/spmv_kernel_sparsex$(SUFFIX).o: spmv_kernel_sparsex.cpp
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_SPARSEX) -c $< -o $@
 
+spmv_sell-C-s$(SUFFIX).exe: sell-C-s/build/spmvbench/spmv_sell-C-s_d.exe
+	@echo "sell-C-s is already compiled!"
 
 CPPFLAGS_SPV8 =
 CPPFLAGS_SPV8 += -I'$(MKL_PATH)/include' -I'/usr/include/mkl'

@@ -86,59 +86,58 @@ IFS="$IFS_buf"
 
 matrices_validation=(
 
-    # scircuit.mtx
-    # mac_econ_fwd500.mtx
-    # raefsky3.mtx
-    # rgg_n_2_17_s0.mtx
-    # bbmat.mtx
+    scircuit.mtx
+    mac_econ_fwd500.mtx
+    raefsky3.mtx
+    rgg_n_2_17_s0.mtx
+    bbmat.mtx
     appu.mtx
-    # conf5_4-8x8-15.mtx
-    # mc2depi.mtx
-    # rma10.mtx
-    # cop20k_A.mtx
-    # thermomech_dK.mtx
-    # webbase-1M.mtx
-    # cant.mtx
-    # ASIC_680k.mtx
-    # roadNet-TX.mtx
-    # pdb1HYS.mtx
-    # TSOPF_RS_b300_c3.mtx
-    # Chebyshev4.mtx
-    # consph.mtx
-    # com-Youtube.mtx
-    # rajat30.mtx
-    # radiation.mtx
-    # Stanford_Berkeley.mtx
-    # shipsec1.mtx
-    # PR02R.mtx
-    # CurlCurl_2.mtx
-    # gupta3.mtx
-    # mip1.mtx
-    # rail4284.mtx
-    # pwtk.mtx
-    # crankseg_2.mtx
-    # Si41Ge41H72.mtx
-    # TSOPF_RS_b2383.mtx
-    # in-2004.mtx
-    # Ga41As41H72.mtx
-    # eu-2005.mtx
-    # wikipedia-20051105.mtx
-    # kron_g500-logn18.mtx
-    # rajat31.mtx
-    # human_gene1.mtx
-    # delaunay_n22.mtx
-    # GL7d20.mtx
-    # sx-stackoverflow.mtx
-    # dgreen.mtx
-    # mawi_201512012345.mtx
-    # ldoor.mtx
-    # dielFilterV2real.mtx
-    # circuit5M.mtx
-    # soc-LiveJournal1.mtx
-    # bone010.mtx
-    # audikw_1.mtx
-    # cage15.mtx
-    # kmer_V2a.mtx
+    mc2depi.mtx
+    rma10.mtx
+    cop20k_A.mtx
+    thermomech_dK.mtx
+    webbase-1M.mtx
+    cant.mtx
+    ASIC_680k.mtx
+    roadNet-TX.mtx
+    pdb1HYS.mtx
+    TSOPF_RS_b300_c3.mtx
+    Chebyshev4.mtx
+    consph.mtx
+    com-Youtube.mtx
+    rajat30.mtx
+    radiation.mtx
+    Stanford_Berkeley.mtx
+    shipsec1.mtx
+    PR02R.mtx
+    CurlCurl_2.mtx
+    gupta3.mtx
+    mip1.mtx
+    rail4284.mtx
+    pwtk.mtx
+    crankseg_2.mtx
+    Si41Ge41H72.mtx
+    TSOPF_RS_b2383.mtx
+    in-2004.mtx
+    Ga41As41H72.mtx
+    eu-2005.mtx
+    wikipedia-20051105.mtx
+    kron_g500-logn18.mtx
+    rajat31.mtx
+    human_gene1.mtx
+    delaunay_n22.mtx
+    GL7d20.mtx
+    sx-stackoverflow.mtx
+    dgreen.mtx
+    mawi_201512012345.mtx
+    ldoor.mtx
+    dielFilterV2real.mtx
+    circuit5M.mtx
+    soc-LiveJournal1.mtx
+    bone010.mtx
+    audikw_1.mtx
+    cage15.mtx
+    kmer_V2a.mtx
 
 )
 validation_dirs=(
