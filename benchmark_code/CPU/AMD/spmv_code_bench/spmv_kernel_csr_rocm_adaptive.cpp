@@ -270,7 +270,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	csr->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	char *format_name;
 	format_name = (char *)malloc(100*sizeof(char));
-	snprintf(format_name, 100, "Custom_CSR_CUDA_ADAPTIVE_b%d_%d", csr->block_size, csr->block_size2);
+	snprintf(format_name, 100, "Custom_CSR_ROCM_ADAPTIVE_b%d_%d", csr->block_size, csr->block_size2);
 	csr->format_name = format_name;
 	return csr;
 }

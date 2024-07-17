@@ -288,6 +288,60 @@ static void *mainTask(void *arg)
 
 int main(int argc, char* argv[])
 {
+    // Just print the labels and exit.
+    artificial_flag = atoi(getenv("USE_ARTIFICIAL_MATRICES"));
+    if(argc==1){
+        if(artificial_flag){
+            fprintf(stderr, "%s,", "matrix_name");
+            fprintf(stderr, "%s,", "distribution");
+            fprintf(stderr, "%s,", "placement");
+            fprintf(stderr, "%s,", "seed");
+            fprintf(stderr, "%s,", "nr_rows");
+            fprintf(stderr, "%s,", "nr_cols");
+            fprintf(stderr, "%s,", "nr_nzeros");
+            fprintf(stderr, "%s,", "density");
+            fprintf(stderr, "%s,", "mem_footprint");
+            fprintf(stderr, "%s,", "mem_range");
+            fprintf(stderr, "%s,", "avg_nnz_per_row");
+            fprintf(stderr, "%s,", "std_nnz_per_row");
+            fprintf(stderr, "%s,", "avg_bw");
+            fprintf(stderr, "%s,", "std_bw");
+            fprintf(stderr, "%s,", "avg_bw_scaled");
+            fprintf(stderr, "%s,", "std_bw_scaled");
+            fprintf(stderr, "%s,", "avg_sc");
+            fprintf(stderr, "%s,", "std_sc");
+            fprintf(stderr, "%s,", "avg_sc_scaled");
+            fprintf(stderr, "%s,", "std_sc_scaled");
+            fprintf(stderr, "%s,", "skew");
+            fprintf(stderr, "%s,", "avg_num_neighbours");
+            fprintf(stderr, "%s,", "cross_row_similarity");
+            fprintf(stderr, "%s,", "format_name");
+            fprintf(stderr, "%s,", "time");
+            fprintf(stderr, "%s,", "gflops");
+            fprintf(stderr, "%s,", "W_avg");
+            fprintf(stderr, "%s", "J_estimated");
+            fprintf(stderr, "\n");
+        }
+        else{
+            fprintf(stderr,"%s,", "matrix_name");
+            fprintf(stderr,"%s,", "num_threads");
+            fprintf(stderr,"%s,", "csr_m");
+            fprintf(stderr,"%s,", "csr_n");
+            fprintf(stderr,"%s,", "csr_nnz");
+            fprintf(stderr,"%s,", "time");
+            fprintf(stderr,"%s,", "gflops");
+            fprintf(stderr,"%s,", "csr_mem_footprint");
+            fprintf(stderr,"%s,", "W_avg");
+            fprintf(stderr,"%s,", "J_estimated");
+            fprintf(stderr,"%s,", "format_name");
+            fprintf(stderr,"%s,", "m");
+            fprintf(stderr,"%s,", "n");
+            fprintf(stderr,"%s,", "nnz");
+            fprintf(stderr,"%s,", "mem_footprint");
+            fprintf(stderr, "\n");
+        }
+        return 1;
+    }
     artificial_flag = essexamples_process_options(argc,argv);
 
     ghost_init(argc,argv); // has to be the first call

@@ -504,9 +504,9 @@ progs=(
     # ['csr_rocm_acc_line_enhance_b512_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_acc_line_enhance_b512_nv_d.exe"
 
     # rocsparse
-    # ['rocparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_csr_nv_d.exe"
-    # ['rocparse_coo_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_coo_nv_d.exe"
-    # ['rocparse_hyb_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_hyb_nv_d.exe"
+    # ['rocsparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_csr_nv_d.exe"
+    # ['rocsparse_coo_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_coo_nv_d.exe"
+    # ['rocsparse_hyb_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_hyb_nv_d.exe"
 
     # Custom compressed values block
     # ['csr_cv_block_id_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_id_d.exe"

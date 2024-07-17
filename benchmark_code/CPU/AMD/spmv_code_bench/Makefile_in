@@ -177,7 +177,7 @@ spmv_csr5_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr5_cuda.cu 
 	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CSR5_CUDA)" -diag-suppress=68,2464 $^ -o $@ $(LDFLAGS) $(LDFLAGS_CSR5_CUDA)
 
 spmv_merge_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_merge_cuda.cu $(LIB_OBJ)
-	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS)" -diag-suppress=2809 $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 
 CPPFLAGS_DASP_CUDA = 
 CPPFLAGS_DASP_CUDA +=

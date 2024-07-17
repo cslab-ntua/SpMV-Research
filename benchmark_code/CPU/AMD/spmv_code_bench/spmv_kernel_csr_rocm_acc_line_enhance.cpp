@@ -238,7 +238,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 	csr->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	char *format_name;
 	format_name = (char *)malloc(100*sizeof(char));
-	snprintf(format_name, 100, "ACC_FLAT_b%d", BLOCK_SIZE);
+	snprintf(format_name, 100, "ACC_LINE_ENHANCE_b%d", BLOCK_SIZE);
 	csr->format_name = format_name;
 	return csr;
 }

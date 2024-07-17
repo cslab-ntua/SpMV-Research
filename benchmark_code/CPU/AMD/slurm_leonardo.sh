@@ -8,15 +8,15 @@
 #SBATCH --cpus-per-task=112
 #SBATCH --mem=200000                    # memory per node out of 246000MB
 
-#SBATCH --job-name=job
+#SBATCH --job-name=job_leonardo
 #SBATCH --output=job_leonardo.out
 #SBATCH --error=job_leonardo.err
 
 
 
 cd /leonardo_scratch/fast/EUHPC_D12_058/pmpakos/SpMV-Research/benchmark_code/CPU/AMD
-> job.out
-> job.err
+> job_leonardo.out
+> job_leonardo.err
 
 module load intel-oneapi-mkl/2023.2.0 gcc/12.2.0
 
