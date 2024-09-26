@@ -65,8 +65,8 @@ calc_numa_nodes()
 # export SPARSEX_ROOT_DIR=/various/dgal/epyc1
 # export SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
 # export SPARSEX_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/sparsex
-# export SPARSEX_ROOT_DIR=/pfs/lustrep2/scratch/project_465000869/pmpakos/damned_directory/
-export SPARSEX_ROOT_DIR=/leonardo_scratch/fast/EUHPC_D12_058/pmpakos/damned_directory
+export SPARSEX_ROOT_DIR=/pfs/lustrep2/scratch/project_465000869/pmpakos/damned_directory/
+# export SPARSEX_ROOT_DIR=/leonardo_scratch/fast/EUHPC_D12_058/pmpakos/damned_directory
 
 declare -A conf_vars
 conf_vars=(
@@ -93,15 +93,15 @@ conf_vars=(
     # ['VC_TOLERANCE']='1e-3'
 
     # Benchmark with the artificially generated matrices (1) or real matrices (0).
-    ['USE_ARTIFICIAL_MATRICES']=0
-    # ['USE_ARTIFICIAL_MATRICES']=1
+    # ['USE_ARTIFICIAL_MATRICES']=0
+    ['USE_ARTIFICIAL_MATRICES']=1
 
     # Maximum number of the machine's cores.
     # ['max_cores']=160
     # ['max_cores']=256
     # ['max_cores']=128
-    # ['max_cores']=64
-    ['max_cores']=56
+    ['max_cores']=64
+    # ['max_cores']=56
     # ['max_cores']=32
     # ['max_cores']=28
     # ['max_cores']=48
@@ -115,8 +115,8 @@ conf_vars=(
     # ['cores']='1 2 4 8 16 32 64 128'
     # ['cores']='64 128'
     # ['cores']=128
-    # ['cores']=64
-    ['cores']=56
+    ['cores']=64
+    # ['cores']=56
     # ['cores']=48
     # ['cores']=32
     # ['cores']=64
@@ -161,8 +161,8 @@ conf_vars=(
                         # '/opt/intel/oneapi/mkl/latest'
                         # '/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl'
                         # '/various/pmpakos/intel/oneapi/mkl/2024.1'
-                        # "${HOME}/spack/23.03/0.20.0/intel-oneapi-mkl-2023.1.0-cafkcjc/mkl/latest"
-                        /leonardo/prod/spack/05/install/0.21/linux-rhel8-icelake/gcc-8.5.0/intel-oneapi-mkl-2023.2.0-4sr2vqxowjw5hjteersaff5uzql66ybt/mkl/2023.2.0
+                        "${HOME}/spack/23.03/0.20.0/intel-oneapi-mkl-2023.1.0-cafkcjc/mkl/latest"
+                        # /leonardo/prod/spack/05/install/0.21/linux-rhel8-icelake/gcc-8.5.0/intel-oneapi-mkl-2023.2.0-4sr2vqxowjw5hjteersaff5uzql66ybt/mkl/2023.2.0
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -170,8 +170,8 @@ conf_vars=(
     ['AOCL_PATH']="$( options=(
                         # '/opt/aoclsparse'
                         # '/various/pmpakos/spmv_paper/aocl-sparse/build/release'
-                        # "/pfs/lustrep2/scratch/project_465000869/pmpakos/aocl-sparse-3.2/build/release"
-                        '/leonardo_scratch/fast/EUHPC_D12_058/pmpakos/aocl-sparse-3.2/build/release/'
+                        "/pfs/lustrep2/scratch/project_465000869/pmpakos/aocl-sparse-3.2/build/release"
+                        # '/leonardo_scratch/fast/EUHPC_D12_058/pmpakos/aocl-sparse-3.2/build/release/'
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -234,8 +234,8 @@ conf_vars=(
     # SELL-C-s ecosystem environment variables that have to be set
     # These are environment variables that have to be set for SELL-C-s to work
     # ['GHOST_ROOT_DIR']='/various/pmpakos/epyc5_libs/'
-    # ['GHOST_ROOT_DIR']='/pfs/lustrep2/scratch/project_465000869/pmpakos/damned_directory/'
-    ['GHOST_ROOT_DIR']='/leonardo_scratch/fast/EUHPC_D12_058/pmpakos/damned_directory'
+    ['GHOST_ROOT_DIR']='/pfs/lustrep2/scratch/project_465000869/pmpakos/damned_directory/'
+    # ['GHOST_ROOT_DIR']='/leonardo_scratch/fast/EUHPC_D12_058/pmpakos/damned_directory'
 
     ['GHOST_APPS_ROOT_DIR']=${script_dir}'/spmv_code_bench/sell-C-s'
 
@@ -286,10 +286,12 @@ artificial_matrices_files=(
     # "$path_artificial"/validation_friends/twins_random.txt
 
     # Validation matrices artificial twins in a +-30% value space of each feature.
-    "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
+    # "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
 
     # The synthetic dataset studied in the paper.
     # "$path_artificial"/synthetic_matrices_medium_dataset.txt
+    "$path_artificial"/synthetic_matrices_medium_dataset2.txt
+    # "$path_artificial"/test.txt
 )
 
 
@@ -375,8 +377,8 @@ progs=(
     # ['cg_csr_cv_stream_d']="${script_dir}/spmv_code_bench/cg_csr_cv_stream_d.exe"
 
     # Custom csr
-    ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive_d.exe"
-    ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr_d.exe"
+    # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive_d.exe"
+    # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr_d.exe"
     # ['csr_kahan_d']="${script_dir}/spmv_code_bench/spmv_csr_kahan_d.exe"
     # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch_d.exe"
     # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd_d.exe"
@@ -386,7 +388,7 @@ progs=(
     # ['csr_f']="${script_dir}/spmv_code_bench/spmv_csr_f.exe"
 
     # Custom csr x86
-    ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86_d.exe"
+    # ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86_d.exe"
     # ['csr_vector_oracle_balance_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_oracle_balance_x86_d.exe"
     # ['csr_vector_queues_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_queues_x86_d.exe"
     # ['csr_vector_perfect_nnz_balance_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance_x86_d.exe"
@@ -504,9 +506,9 @@ progs=(
     # ['csr_rocm_acc_line_enhance_b512_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_rocm_acc_line_enhance_b512_nv_d.exe"
 
     # rocsparse
-    # ['rocsparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_csr_nv_d.exe"
-    # ['rocsparse_coo_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_coo_nv_d.exe"
-    # ['rocsparse_hyb_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_hyb_nv_d.exe"
+    # ['rocparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_csr_nv_d.exe"
+    # ['rocparse_coo_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_coo_nv_d.exe"
+    # ['rocparse_hyb_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_hyb_nv_d.exe"
 
     # Custom compressed values block
     # ['csr_cv_block_id_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_id_d.exe"
@@ -521,35 +523,35 @@ progs=(
     # ['csr_cv_stream_opt_compress_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_stream_opt_compress_d.exe"
 
     # MKL IE
-    ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie_d.exe"
+    # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie_d.exe"
     # ['mkl_ie_f']="${script_dir}/spmv_code_bench/spmv_mkl_ie_f.exe"
 
     # MKL CSR
     # ['mkl_csr_d']="${script_dir}/spmv_code_bench/spmv_mkl_csr_d.exe"
 
     # AOCL
-    ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv_d.exe"
+    # ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv_d.exe"
 
     # CSR-RV
     # ['csrrv_d']="${script_dir}/spmv_code_bench/spmv_csrrv_d.exe"
 
     # CSR5
-    ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5_d.exe"
+    # ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5_d.exe"
 
     # merge spmv
-    ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge_d.exe"
+    # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge_d.exe"
 
     # sell C sigma
-    ['sell_C_s_d']="${script_dir}/spmv_code_bench/sell-C-s/build/spmvbench/spmv_sell-C-s_d.exe"
+    # ['sell_C_s_d']="${script_dir}/spmv_code_bench/sell-C-s/build/spmvbench/spmv_sell-C-s_d.exe"
 
     # SparseX
-    ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex_d.exe"
+    # ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex_d.exe"
 
     # SpV8
     # ['spv8_d']="${script_dir}/spmv_code_bench/spmv_spv8_d.exe"
 
     # LCM - partially strided codelet
-    # ['lcm_d']="${script_dir}/spmv_code_bench/LCM-partially-strided-codelet/spmv_lcm_d.exe"
+    ['lcm_d']="${script_dir}/spmv_code_bench/LCM-partially-strided-codelet/spmv_lcm_d.exe"
 
     # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell_d.exe"
     # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu_d.exe"
