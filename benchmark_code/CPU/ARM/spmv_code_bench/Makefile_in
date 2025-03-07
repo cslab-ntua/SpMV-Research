@@ -29,7 +29,7 @@ define Rule_Auto_Dependencies =
 endef
 
 
-LIB_SRC = pthread_functions.c omp_functions.c topology.c hash.c random.c hashtable.c bitstream.c bytestream.c array_metrics.c string_util.c io.c parallel_io.c plot.c read_mtx.c matrix_market.c openfoam_matrix.c rapl.c csr_converter.c csc_converter.c csr_converter_double.c kmeans.c kmeans_char.c csr_util.c csc_util.c artificial_matrix_generation.c ordered_set.c
+LIB_SRC = pthread_functions.c omp_functions.c topology.c hash.c random.c hashtable.c bitstream.c bytestream.c array_metrics.c string_util.c io.c parallel_io.c plot.c read_mtx.c matrix_market.c openfoam_matrix.c rapl_arm_grace.c csr_converter.c csc_converter.c csr_converter_double.c kmeans.c kmeans_char.c csr_util.c csc_util.c csc_reorder.c artificial_matrix_generation.c ordered_set.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%$(SUFFIX).o,$(LIB_OBJ))
@@ -66,6 +66,16 @@ spmv_csr_vector$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr.cpp $(LI
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_VECTOR' $^ -o $@ $(LDFLAGS)
 spmv_csr_vector_perfect_nnz_balance$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_VECTOR_PERFECT_NNZ_BALANCE' $^ -o $@ $(LDFLAGS)
+
+spmv_csr_vector_lut_sve$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_csr_lut_sve.cpp $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+
+spmv_coo_naive$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_coo.cpp $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'NAIVE' $^ -o $@ $(LDFLAGS)
+spmv_coo$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_coo.cpp $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) $^ -o $@ $(LDFLAGS)
+spmv_coo_kahan$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_coo.cpp $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CUSTOM) -D'CUSTOM_KAHAN' $^ -o $@ $(LDFLAGS)
 
 spmv_ldu$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_ldu.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
@@ -171,6 +181,9 @@ spmv_cusparse_csr$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_c
 spmv_cusparse_csr_s${NUM_STREAMS}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_csr_stream.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) -DNUM_STREAMS=$(NUM_STREAMS) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CUSPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_CUSPARSE)
 
+spmv_cusparse_csr_2s${NUM_STREAMS}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_csr_stream2.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) -DNUM_STREAMS=$(NUM_STREAMS) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CUSPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_CUSPARSE)
+
 spmv_cusparse_coo$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_coo.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CUSPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_CUSPARSE)
 spmv_cusparse_coo_s${NUM_STREAMS}$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_coo_stream.cu $(LIB_OBJ)
@@ -254,6 +267,9 @@ spmv_sparsex$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o obj/spmv_kernel_sparsex$(SU
 obj/spmv_kernel_sparsex$(SUFFIX).o: spmv_kernel_sparsex.cpp
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_SPARSEX) -c $< -o $@
 
+spmv_sell-C-s$(SUFFIX).exe: sell-C-s/build/spmvbench/spmv_sell-C-s_d.exe
+	@echo "sell-C-s is already compiled!"
+
 $(call Rule_Auto_Dependencies,obj/spmv_bench$(SUFFIX).o,spmv_bench.cpp,$(CPPFLAGS))
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/cg_bench$(SUFFIX).o,cg_bench.cpp,$(CPPFLAGS))
@@ -296,7 +312,7 @@ $(call Rule_Auto_Dependencies,obj/matrix_market$(SUFFIX).o,$(library)/storage_fo
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/openfoam_matrix$(SUFFIX).o,$(library)/storage_formats/openfoam/openfoam_matrix.c,$(CFLAGS))
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,obj/rapl$(SUFFIX).o,$(library)/monitoring/power/rapl.c,$(CFLAGS))
+$(call Rule_Auto_Dependencies,obj/rapl_arm_grace$(SUFFIX).o,$(library)/monitoring/power/rapl_arm_grace.c,$(CFLAGS))
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/csr_converter$(SUFFIX).o,$(library)/aux/csr_converter.c,$(CFLAGS))
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -311,6 +327,8 @@ $(call Rule_Auto_Dependencies,obj/kmeans_char$(SUFFIX).o,$(library)/kmeans/kmean
 $(call Rule_Auto_Dependencies,obj/csr_util$(SUFFIX).o,$(library)/aux/csr_util.c,$(CFLAGS))
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/csc_util$(SUFFIX).o,$(library)/aux/csc_util.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/csc_reorder$(SUFFIX).o,$(library)/aux/csc_reorder.c,$(CFLAGS))
 	$(CC) $(CFLAGS) -c $< -o $@
 
 

@@ -34,7 +34,7 @@ extern "C"{
 
 	#include "aux/csr_util.h"
 
-	// #include "monitoring/power/rapl.h"
+	#include "monitoring/power/rapl_arm_grace.h"
 
 	#include "artificial_matrix_generation.h"
 
@@ -317,7 +317,7 @@ compute(char * matrix_name,
 			// Warm up caches.
 			time_warm_up = time_it(1,
 				MF->spmv(x, y);
-			);			
+			);
 		}
 
 		// /* Calculate number of loops so that the total running time is at least 1 second for stability reasons
@@ -351,19 +351,21 @@ compute(char * matrix_name,
 		#endif
 
 		/*****************************************************************************************/
-		// struct RAPL_Register * regs;
-		// long regs_n;
-		// char * reg_ids;
+		struct RAPL_Register * regs;
+		long regs_n;
+		char * reg_ids;
 
-		// reg_ids = NULL;
-		// reg_ids = (char *) getenv("RAPL_REGISTERS");
+		reg_ids = NULL;
+		reg_ids = (char *) getenv("RAPL_REGISTERS");
 
-		// rapl_open(reg_ids, &regs, &regs_n);
+		rapl_open(reg_ids, &regs, &regs_n);
 		/*****************************************************************************************/
 
 		time = 0;
 		num_loops = 0;
-		while (time < 1.0 || num_loops < min_num_loops)
+		// while (time < 1.0 || num_loops < min_num_loops)
+		// min_num_loops = 2;
+		while (num_loops < min_num_loops)
 		{
 			// rapl_read_start(regs, regs_n);
 
@@ -377,16 +379,19 @@ compute(char * matrix_name,
 		}
 		num_loops_out = num_loops;
 		printf("number of loops = %ld\n", num_loops);
+		// for(int i=0; i<100; i++){
+		// 	printf("y[%d] = %lf\n", i, y[i]);
+		// }
 
 		/*****************************************************************************************/
-		J_estimated = 0;
-		// for (i=0;i<regs_n;i++){
-		// 	// printf("'%s' total joule = %g\n", regs[i].type, ((double) regs[i].uj_accum) / 1000000);
-		// 	J_estimated += ((double) regs[i].uj_accum) / 1e6;
-		// }
-		// rapl_close(regs, regs_n);
-		// free(regs);
-		W_avg = J_estimated / time;
+		W_avg = 0;
+		for (i=0;i<regs_n;i++){
+			// printf("'%s' total watt = %g, total w_cnt = %ld\n", regs[i].type, ((double) regs[i].w_accum) / 1e6, regs[i].w_cnt);
+			W_avg += ((double) regs[i].w_accum) / regs[i].w_cnt / 1e6;
+		}
+		rapl_close(regs, regs_n);
+		free(regs);
+		J_estimated = W_avg * time;
 		// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
 		/*****************************************************************************************/
 
@@ -396,6 +401,7 @@ compute(char * matrix_name,
 
 		gflops = csr_nnz / time * num_loops * 2 * 1e-9;    // Use csr_nnz to be sure we have the initial nnz (there is no coo for artificial AM).
 		printf("GFLOPS = %lf (%s)\n", gflops, getenv("PROGG"));
+		printf("TIME = %lf (%s)\n", time*1e3, getenv("PROGG"));
 	}
 
 	if (!use_artificial_matrices)
@@ -792,9 +798,6 @@ child_proc_label:
 		AM->col_ind = NULL;
 	}
 
-	// for(int i=0;i<mtx_nnz;i++)
-	// 	csr_ja[i]=0;
-
 	x_ref = (typeof(x_ref)) aligned_alloc(64, csr_n * sizeof(*x_ref));
 	x = (typeof(x)) aligned_alloc(64, csr_n * sizeof(*x));
 	#pragma omp parallel for
@@ -809,24 +812,29 @@ child_proc_label:
 		y[i] = 0.0;
 
 	#if 0
-		_Pragma("omp parallel")
+		int window_size = atoi(getenv("WINDOW_SIZE"));
+		printf("window_size = %d\n", window_size);
+		printf("colind0 testing!\n");
+		// _Pragma("omp parallel")
 		{
-			int tnum = omp_get_thread_num();
+			// int tnum = omp_get_thread_num();
 			long i;
-			long i_per_t = csr_n / num_threads;
-			long i_s = tnum * i_per_t;
+			// long i_per_t = csr_n / num_threads;
+			// long i_s = tnum * i_per_t;
 
 			// No operations.
 			// _Pragma("omp parallel for")
 			// for (i=0;i<csr_m+1;i++)
 				// csr_ia[i] = 0;
 
-			_Pragma("omp parallel for")
-			for (i=0;i<csr_nnz;i++)
+			csr_ja[0] = 0;
+			// _Pragma("omp parallel for")
+			for (i=1;i<csr_nnz;i++)
 			{
-				csr_ja[i] = 0;                      // idx0 - Remove X access pattern dependency.
+				// csr_ja[i] = 0;                      // idx0 - Remove X access pattern dependency.
 				// csr_ja[i] = i % csr_n;              // idx_serial - Remove X access pattern dependency.
 				// csr_ja[i] = i_s + (i % i_per_t);    // idx_t_local - Remove X access pattern dependency.
+				csr_ja[i] = (csr_ja[i-1] + window_size) % csr_n;
 			}
 		}
 	#endif

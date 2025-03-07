@@ -161,15 +161,15 @@ struct CSRArrays : Matrix_Format
 		memcpy(a_h, a, nnz * sizeof(*a_h));
 
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_ia));
-		gpuCudaErrorCheck(cudaMemcpyAsync(ia_d, ia, (m+1) * sizeof(*ia_d), cudaMemcpyHostToDevice, stream));
+		gpuCudaErrorCheck(cudaMemcpyAsync(ia_d, ia_h, (m+1) * sizeof(*ia_d), cudaMemcpyHostToDevice, stream));
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_ia));
 
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_ja));
-		gpuCudaErrorCheck(cudaMemcpyAsync(ja_d, ja, nnz * sizeof(*ja_d), cudaMemcpyHostToDevice, stream));
+		gpuCudaErrorCheck(cudaMemcpyAsync(ja_d, ja_h, nnz * sizeof(*ja_d), cudaMemcpyHostToDevice, stream));
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_ja));
 
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_a));
-		gpuCudaErrorCheck(cudaMemcpyAsync(a_d, a, nnz * sizeof(*a_d), cudaMemcpyHostToDevice, stream));
+		gpuCudaErrorCheck(cudaMemcpyAsync(a_d, a_h, nnz * sizeof(*a_d), cudaMemcpyHostToDevice, stream));
 		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_a));
 
 		// Create sparse matrix A in CSR format

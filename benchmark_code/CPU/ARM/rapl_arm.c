@@ -28,6 +28,8 @@ rapl_register_init(struct RAPL_Register * reg)
 void
 rapl_register_clean(struct RAPL_Register * reg)
 {
+	if (reg == NULL)
+		return;
 	free(reg->dir_name);
 	reg->dir_name = NULL;
 	free(reg->type);
@@ -38,6 +40,8 @@ rapl_register_clean(struct RAPL_Register * reg)
 void
 rapl_register_destroy(struct RAPL_Register ** reg_ptr)
 {
+	if (reg_ptr == NULL)
+		return;
 	rapl_register_clean(*reg_ptr);
 	free(*reg_ptr);
 	*reg_ptr = NULL;

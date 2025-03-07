@@ -80,6 +80,7 @@ else
     # CFLAGS+=" -march=armv8.6-a+sve2" # NOTE: this may produce better results? wtf
     CFLAGS+=" -mcpu=native"
     CFLAGS+=" -flax-vector-conversions"
+    CFLAGS+=" -g"
 fi
 
 CFLAGS+=" -I'${library}'"
@@ -203,7 +204,7 @@ if ((${#targets_nv_d[@]} > 0)); then
     export CPPFLAGS="${CPPFLAGS_NV_D}"
     export SUFFIX='_nv_d'
     export TARGETS="${targets_nv_d[*]}"
-    export TIME_IT=1
+    export TIME_IT=0
     # make -f Makefile_in "$@"
     for target in $TARGETS; do
         echo $target
@@ -221,6 +222,8 @@ if ((${#targets_nv_d[@]} > 0)); then
             export BLOCK_SIZE="${BASH_REMATCH[3]}"
             export MULTIBLOCK_SIZE="${BASH_REMATCH[4]}"
         elif [[ $target =~ _s([0-9]+)${SUFFIX}.exe ]]; then # cusparse_csr (stream variant only)
+            export NUM_STREAMS="${BASH_REMATCH[1]}"
+        elif [[ $target =~ _2s([0-9]+)${SUFFIX}.exe ]]; then # cusparse_csr (stream variant only)
             export NUM_STREAMS="${BASH_REMATCH[1]}"
         elif [[ $target =~ (s([0-9]+)_)?t([0-9]+)${SUFFIX}.exe ]]; then # csr_cuda
             export NUM_STREAMS="${BASH_REMATCH[2]}"

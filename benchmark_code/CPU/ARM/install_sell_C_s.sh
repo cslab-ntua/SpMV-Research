@@ -5,7 +5,7 @@ set -e
 
 export CUR_PATH=`pwd`
 # export ROOT_DIR="<<Insert ROOT_DIR>>"
-export ROOT_DIR=/local/pmpakos/ROOT_DIR/
+export ROOT_DIR="/local/pmpakos/damned_directory"
 
 # export ARMPL_CBLAS_PATH="<<Insert ARMPL_CBLAS_PATH>>"
 export ARMPL_CBLAS_PATH="/local/pmpakos/arm-compiler/armpl-24.04.0_Ubuntu-22.04_gcc/"
@@ -142,6 +142,10 @@ mv CMakeLists2.txt CMakeLists.txt
 # sed -n '/#ifdef GHOST_HAVE_MPI/ {h; n; s/^[ \t]*MPI_Status mpi_status;$/&/; t ok; x; p; x; p; b skip; :ok p; x; p; b skip}; p; :skip' color_comm_handle.c > sed_color_comm_handle.c # abinis magic
 sed '123d; 124s/.*/\t#ifdef GHOST_HAVE_MPI\n\tMPI_Status mpi_status;/' cheb_toolbox/color_comm_handle.c > cheb_toolbox/color_comm_handle2.c
 mv cheb_toolbox/color_comm_handle2.c cheb_toolbox/color_comm_handle.c
+
+# This problem appeared in LUMI supercomputer for the first time... Need to remove the reference to this Fortran function, because we got an "undefined reference to..." when compiling ghost-apps
+sed '/bessel_jn_array_/s/^/\/\/ /' cheb_toolbox/time_propagation_coeffs.cpp > cheb_toolbox/time_propagation_coeffs2.cpp
+mv cheb_toolbox/time_propagation_coeffs2.cpp cheb_toolbox/time_propagation_coeffs.cpp
 
 # 2) In "matfuncs/matfuncs_png.c" (a visualization function) remove all code refering to "png_*" functions, as it is not installed, and not needed for SELL-C-s
 sed '42,67d' matfuncs/matfuncs_png.c > matfuncs/matfuncs_png2.c

@@ -176,6 +176,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 
 	spm_mt_t *spm_mt = (spm_mt_t *) A->csx;
 	csx->mem_footprint = sparsex::csx::CsxSize<INT_T, ValueType>(spm_mt);
+	printf("csx->mem_footprint = %lf MB\n", csx->mem_footprint/(1024*1024));
 
 	csx->A = A;
 	csx->input = input;

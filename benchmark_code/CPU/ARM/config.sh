@@ -80,13 +80,13 @@ export ARMPL_ROOT_DIR=${ARM_ROOT_DIR}/armpl-24.04.0_Ubuntu-22.04_gcc/
 # export SPARSEX_ROOT_DIR="${HOME}/lib"
 # export SPARSEX_ROOT_DIR=/various/dgal/epyc1
 # export SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
-export SPARSEX_ROOT_DIR=/local/pmpakos/ROOT_DIR/
+export SPARSEX_ROOT_DIR=/local/pmpakos/damned_directory/
 
 
 declare -A conf_vars
 conf_vars=(
-    # ['PRINT_STATISTICS']=0
-    ['PRINT_STATISTICS']=1
+    ['PRINT_STATISTICS']=0
+    # ['PRINT_STATISTICS']=1
 
     ['USE_PROCESSES']=0
     # ['USE_PROCESSES']=1
@@ -114,7 +114,8 @@ conf_vars=(
     # Maximum number of the machine's cores.
     # ['max_cores']=160
     # ['max_cores']=256
-    ['max_cores']=144
+    # ['max_cores']=144
+    ['max_cores']=72
     # ['max_cores']=128
     # ['max_cores']=64
     # ['max_cores']=96
@@ -163,8 +164,12 @@ conf_vars=(
     # For ARM, they are not RAPL_REGISTERS, but directories hwmon1 and hwmon3 under /sys/class/hwmon directory.
     # hwmon1 is for socket-1 and hwmon3 for socket-2
     # from this kernel driver (https://github.com/AmpereComputing/ampere-lts-kernel/wiki/hwmon-drivers)
-    ['RAPL_REGISTERS']='1'         # 1 socket : Armor
+    # ['RAPL_REGISTERS']='1'         # 1 socket : Armor
     # ['RAPL_REGISTERS']='1,3'       # 2 sockets: Armor 
+    # ARM-GRACE CPU power can be found under /sys/class/hwmon/hwmon6/device/power1_* (Watt reported)
+    # Keep it as 'RAPL_REGISTERS' in order to be compatible with the x86 (AMD) code...
+    # power1_average_interval is 50 ms 
+    ['RAPL_REGISTERS']='6'         # ARM-GRACE CPU power can be found under
 
     ['CUDA_PATH']="$( options=(
                         '/usr/local/cuda-12.5'
@@ -218,7 +223,7 @@ conf_vars=(
     # SELL-C-s ecosystem environment variables that have to be set
     # These are environment variables that have to be set for SELL-C-s to work
     # ['GHOST_ROOT_DIR']='/home/pmpakos/ESSEX'
-    ['GHOST_ROOT_DIR']='/local/pmpakos/ROOT_DIR'
+    ['GHOST_ROOT_DIR']='/local/pmpakos/damned_directory'
     ['GHOST_APPS_ROOT_DIR']=${script_dir}'/spmv_code_bench/sell-C-s'
 
 
@@ -273,11 +278,30 @@ conf_vars=(
     # Path for the validation matrices.
     ['path_validation']="$( options=(
                         # "$HOME/Data/graphs/validation_matrices"
-                        # "${script_dir}/../../../validation_matrices"
-                        '/various/pmpakos/SpMV-Research/validation_matrices'
+                        "${script_dir}/../../../validation_matrices"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/RCM_didem"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/AMD"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/ND"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/GP8"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/GP16"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/GP64"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/GP128"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/GP256"
+
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/HP8"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/HP16"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/HP64"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/HP128"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/HP256"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/Gray"
+                        # "${script_dir}/../../../validation_matrices/reordered_matrices/Rabbit"
+
+                        # '/various/pmpakos/SpMV-Research/validation_matrices'
                         # '/various/pmpakos/SpMV-Research/validation_matrices/matrix_features/matrices'
                         # '/various/pmpakos/SpMV-Research/benchmark_code/CPU/ARM/mtx/'
-                        # '/various/pmpakos/SpMV-Research/validation_matrices/download_matrices'
+                        # "${script_dir}/../../../validation_matrices/download_matrices"
+                        # "${script_dir}/../../../validation_matrices/download_matrices/symmetric"
+                        # "${script_dir}/../../../validation_matrices/matrix_features/matrices"
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -321,7 +345,6 @@ artificial_matrices_files=(
     "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
 
     # The synthetic dataset studied in the paper.
-    # "$path_artificial"/synthetic_matrices_small_dataset.txt
     # "$path_artificial"/synthetic_matrices_medium_dataset.txt
 )
 
@@ -402,6 +425,21 @@ declare -A progs
 
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
+    # ['cusparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
+    # ['dasp_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_dasp_cuda_nv_d.exe"
+
+    # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge_d.exe"
+    # ['cusparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
+    # ['cusparse_csr_s4_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_s4_nv_d.exe"
+    # ['cusparse_csr_2s256_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_2s256_nv_d.exe"
+
+    
+    # Custom lut
+    # ['armpl_d']="${script_dir}/spmv_code_bench/spmv_armpl_d.exe"
+    # ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex_d.exe"
+    # ['csr_vector_sve_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_sve_d.exe"
+    # ['csr_vector_lut_sve_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_lut_sve_d.exe"
+
     # CG
     # ['cg_csr_d']="${script_dir}/spmv_code_bench/cg_csr_d.exe"
     # ['cg_mkl_ie_d']="${script_dir}/spmv_code_bench/cg_mkl_ie_d.exe"
@@ -410,7 +448,9 @@ progs=(
 
     # Custom csr
     # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive_d.exe"
+    # ['coo_naive_d']="${script_dir}/spmv_code_bench/spmv_coo_naive_d.exe"
     # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr_d.exe"
+    # ['coo_d']="${script_dir}/spmv_code_bench/spmv_coo_d.exe"
     # ['csr_kahan_d']="${script_dir}/spmv_code_bench/spmv_csr_kahan_d.exe"
     # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch_d.exe"
     # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd_d.exe"
@@ -420,7 +460,7 @@ progs=(
     # ['csr_vector_sve_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_sve_d.exe"
     # ['csr_vector_perfect_nnz_balance_sve_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance_sve_d.exe"
     # ['csr_f']="${script_dir}/spmv_code_bench/spmv_csr_f.exe"
-    # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell_d.exe"
+    ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell_d.exe"
     # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu_d.exe"
     
     # armpl
@@ -502,13 +542,13 @@ progs=(
     # ['csr_cuda_adaptive_s16_b256_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb24_nv_d.exe"
 
     # CSR5
-    ['csr5_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr5_cuda_nv_d.exe"
+    # ['csr5_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr5_cuda_nv_d.exe"
 
     # Merge
-    ['merge_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_merge_cuda_nv_d.exe"
+    # ['merge_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_merge_cuda_nv_d.exe"
 
     # DASP
-    ['dasp_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_dasp_cuda_nv_d.exe"
+    # ['dasp_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_dasp_cuda_nv_d.exe"
 
     # cusparse
     # ['cusparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
