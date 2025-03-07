@@ -102,6 +102,7 @@ results_visualization/validation_friends_benchmarks_all-devices_best-of.csv
 results_visualization/validation_friends_benchmarks_all-devices_top*.csv
 results_visualization/validation_real_all-devices_best-of.csv
 results_visualization/validation_real_benchmarks_all-devices_all.csv
+results_visualization/*APE.csv
 
 validation_matrices/trash
 validation_matrices/v2_dgal
