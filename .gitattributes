@@ -1,5 +1,5 @@
 # *.csv filter=lfs diff=lfs merge=lfs -text
-*.xclbin filter=lfs diff=lfs merge=lfs -text
+# *.xclbin filter=lfs diff=lfs merge=lfs -text
 # benchmark_results/amd-epyc1/amd-epyc1_synthetic_t24_d.csv filter=lfs diff=lfs merge=lfs -text
 # benchmark_results/amd-epyc1/amd-epyc1_synthetic_t24_d_large-dataset.csv filter=lfs diff=lfs merge=lfs -text
 # benchmark_results/intel-gold2/intel-gold2_synthetic_t14_d.csv filter=lfs diff=lfs merge=lfs -text
