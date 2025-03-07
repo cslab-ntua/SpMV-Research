@@ -1,0 +1,9 @@
+#pragma push_macro("RCM_GEN_TYPE_1")
+#pragma push_macro("RCM_GEN_TYPE_2")
+#pragma push_macro("RCM_GEN_SUFFIX")
+#pragma push_macro("RCM_GEN_EXPAND")
+#pragma push_macro("RCM_GEN_EXPAND_TYPE")
+#pragma push_macro("_TYPE_V")
+#pragma push_macro("_TYPE_I")
+#pragma push_macro("reverse_cuthill_mckee")
+#include "rcm_gen_undef.h"
