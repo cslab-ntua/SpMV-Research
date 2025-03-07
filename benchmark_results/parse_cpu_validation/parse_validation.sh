@@ -96,6 +96,7 @@ data=(
     "./intel-sapphire/mkl_ie_d.csv                                   ./intel-sapphire_validation_matrices MKL_IE IntelSapphire 56"
     "./intel-sapphire/sell_C_s_d.csv                                 ./intel-sapphire_validation_matrices SELL-32-1 IntelSapphire 56"
     "./intel-sapphire/sparsex_d.csv                                  ./intel-sapphire_validation_matrices SparseX IntelSapphire 56"
+    "./intel-sapphire/lcm_d.csv                                      ./intel-sapphire_validation_matrices LCM IntelSapphire 56"
 
 
 
