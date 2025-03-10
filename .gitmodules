@@ -6,9 +6,9 @@
 	branch = main
 	path = artificial-matrix-generator
 	url = git@github.com:cslab-ntua/artificial-matrix-generator.git
-[submodule "benchmark_code/GPU/NVIDIA-CUDA/spmv_code_merge_cuda_11.x/merge-spmv"]
-	path = benchmark_code/GPU/NVIDIA-CUDA/spmv_code_merge_cuda_11.x/merge-spmv
-	url = git@github.com:dumerrill/merge-spmv.git
-[submodule "benchmark_code/GPU/NVIDIA-CUDA/spmv_code_tilespmv_cuda_11.x/TileSpMV"]
-	path = benchmark_code/GPU/NVIDIA-CUDA/spmv_code_tilespmv_cuda_11.x/TileSpMV
-	url = https://github.com/SuperScientificSoftwareLaboratory/TileSpMV.git
+# [submodule "benchmark_code/GPU/NVIDIA-CUDA/spmv_code_merge_cuda_11.x/merge-spmv"]
+# 	path = benchmark_code/GPU/NVIDIA-CUDA/spmv_code_merge_cuda_11.x/merge-spmv
+# 	url = git@github.com:dumerrill/merge-spmv.git
+# [submodule "benchmark_code/GPU/NVIDIA-CUDA/spmv_code_tilespmv_cuda_11.x/TileSpMV"]
+# 	path = benchmark_code/GPU/NVIDIA-CUDA/spmv_code_tilespmv_cuda_11.x/TileSpMV
+# 	url = https://github.com/SuperScientificSoftwareLaboratory/TileSpMV.git
