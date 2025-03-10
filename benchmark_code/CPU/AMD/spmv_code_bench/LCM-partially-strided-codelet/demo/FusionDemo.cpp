@@ -6,6 +6,7 @@
 #include <cstring>
 #include <cmath>
 #include <utils.h>
+#include <omp.h>
 #include "FusionDemo.h"
 #ifdef METIS
 #include <metis_interface.h>
@@ -17,12 +18,9 @@
 
 namespace sym_lib {
 
-	FusionDemo::FusionDemo():L1_csr_(NULLPNTR), L1_csc_(NULLPNTR),
-	L2_csr_(NULLPNTR), L2_csc_(NULLPNTR),
-	A_csr_(NULLPNTR),A_csc_(NULLPNTR),
-	x_(NULLPNTR),
-	x_in_(NULLPNTR), correct_x_(NULLPNTR){
-		num_test_=128;
+	FusionDemo::FusionDemo() : L1_csr_(NULLPNTR), L1_csc_(NULLPNTR), L2_csr_(NULLPNTR), L2_csc_(NULLPNTR), A_csr_(NULLPNTR),A_csc_(NULLPNTR), x_(NULLPNTR), x_in_(NULLPNTR), correct_x_(NULLPNTR)
+	{
+		num_test_=256;
 		redundant_nodes_=0;
 #ifdef PROFILE
 		pw_ = NULLPNTR;
@@ -89,12 +87,30 @@ namespace sym_lib {
 
 
 	timing_measurement FusionDemo::evaluate() {
+
+		volatile unsigned long * L3_cache_block;
+		long L3_cache_block_n = atol(getenv("LEVEL3_CACHE_SIZE_TOTAL")) / sizeof(*L3_cache_block);
+		L3_cache_block = (typeof(L3_cache_block)) malloc(L3_cache_block_n * sizeof(*L3_cache_block));
+		int clear_caches = atoi(getenv("CLEAR_CACHES"));
+
 		timing_measurement mean_t;
 		std::vector<timing_measurement> time_array;
 		analysis_time_.start_timer();
 		build_set();
 		analysis_time_.measure_elapsed_time();
-		for (int i = 0; i < num_test_; ++i) {
+		for (int i = 0; i < num_test_; ++i)
+		{
+			if (__builtin_expect(clear_caches, 0))
+			{
+				_Pragma("omp parallel")
+				{
+					long i;
+					_Pragma("omp for")
+					for (i=0;i<L3_cache_block_n;i++)
+						L3_cache_block[i] = 0;
+				}
+			}
+
 			// printf("test %d\n", i);
 			setting_up();
 #ifdef PROFILE

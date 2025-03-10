@@ -1,7 +1,6 @@
 #undef CSR_GEN_TYPE_1
 #undef CSR_GEN_TYPE_2
 #undef CSR_GEN_SUFFIX
-#undef CSR_GEN_H
 #undef CSR_GEN_EXPAND
 #undef _TYPE_V
 #undef _TYPE_I

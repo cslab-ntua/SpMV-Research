@@ -70,7 +70,11 @@ build/demo/CMakeFiles/spmv_demo.dir/FusionDemo.cpp.o: build/demo/CMakeFiles/spmv
 build/demo/CMakeFiles/spmv_demo.dir/SPMV_demo.cpp.o: build/demo/CMakeFiles/spmv_demo.dir/flags.make
 build/demo/CMakeFiles/spmv_demo.dir/SPMV_demo.cpp.o: demo/SPMV_demo.cpp
 build/demo/CMakeFiles/spmv_demo.dir/SPMV_demo.cpp.o: build/demo/CMakeFiles/spmv_demo.dir/compiler_depend.ts
+<<<<<<< Updated upstream
 	$(CPP) $(CXX_DEFINES) $(CXX_INCLUDES) -I${AMG_PATH} -I${LIB_PATH} $(CXX_FLAGS) -MD -MT build/demo/CMakeFiles/spmv_demo.dir/SPMV_demo.cpp.o -MF build/demo/CMakeFiles/spmv_demo.dir/SPMV_demo.cpp.o.d -o build/demo/CMakeFiles/spmv_demo.dir/SPMV_demo.cpp.o -c demo/SPMV_demo.cpp
+=======
+	$(CPP) $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT build/demo/CMakeFiles/spmv_demo.dir/SPMV_demo.cpp.o -MF build/demo/CMakeFiles/spmv_demo.dir/SPMV_demo.cpp.o.d -o build/demo/CMakeFiles/spmv_demo.dir/SPMV_demo.cpp.o -c demo/SPMV_demo.cpp
+>>>>>>> Stashed changes
 
 build/demo/CMakeFiles/spmv_demo.dir/SerialSpMVExecutor.cpp.o: build/demo/CMakeFiles/spmv_demo.dir/flags.make
 build/demo/CMakeFiles/spmv_demo.dir/SerialSpMVExecutor.cpp.o: demo/SerialSpMVExecutor.cpp
@@ -212,7 +216,11 @@ spmv_lcm_d.exe: build/demo/CMakeFiles/spmv_demo.dir/__/src/spmv_codelets/Generic
 spmv_lcm_d.exe: build/demo/CMakeFiles/spmv_demo.dir/__/src/spmv_codelets/SpMVGenericCode.cpp.o
 spmv_lcm_d.exe: build/demo/CMakeFiles/spmv_demo.dir/build.make
 spmv_lcm_d.exe:
+<<<<<<< Updated upstream
 	$(CPP)   -march=native -fopenmp -std=c++17  -march=native -O3 -DNDEBUG build/demo/CMakeFiles/spmv_demo.dir/artificial_matrix_generation.o build/demo/CMakeFiles/spmv_demo.dir/ordered_set.o build/demo/CMakeFiles/spmv_demo.dir/FusionDemo.cpp.o build/demo/CMakeFiles/spmv_demo.dir/SPMV_demo.cpp.o build/demo/CMakeFiles/spmv_demo.dir/SerialSpMVExecutor.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/Analyzer.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/DDT.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/DDTUtils.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/Executor.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/Input.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/Inspector.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/PatternMatching.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/trace_gen/PolyModel.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/trace_gen/SpMVModel.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/trace_gen/Trace.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/trace_gen/TraceIR.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/spmv_codelets/GenericCodeletsFSC.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/spmv_codelets/GenericCodeletsPSCT1.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/spmv_codelets/GenericCodeletsPSCT2.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/spmv_codelets/GenericCodeletsPSCT3.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/spmv_codelets/SpMVGenericCode.cpp.o -o spmv_lcm_d.exe  -fopenmp -lm
+=======
+	$(CPP)   -march=native -fopenmp -std=c++17  -march=native -O3 -DNDEBUG build/demo/CMakeFiles/spmv_demo.dir/FusionDemo.cpp.o build/demo/CMakeFiles/spmv_demo.dir/SPMV_demo.cpp.o build/demo/CMakeFiles/spmv_demo.dir/SerialSpMVExecutor.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/Analyzer.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/DDT.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/DDTUtils.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/Executor.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/Input.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/Inspector.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/PatternMatching.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/trace_gen/PolyModel.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/trace_gen/SpMVModel.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/trace_gen/Trace.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/trace_gen/TraceIR.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/spmv_codelets/GenericCodeletsFSC.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/spmv_codelets/GenericCodeletsPSCT1.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/spmv_codelets/GenericCodeletsPSCT2.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/spmv_codelets/GenericCodeletsPSCT3.cpp.o build/demo/CMakeFiles/spmv_demo.dir/__/src/spmv_codelets/SpMVGenericCode.cpp.o -o spmv_lcm_d.exe  -fopenmp -lm
+>>>>>>> Stashed changes
 
 
 clean:

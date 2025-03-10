@@ -2,6 +2,7 @@
 #undef CSR_UTIL_GEN_TYPE_2
 #undef CSR_UTIL_GEN_SUFFIX
 #undef CSR_UTIL_GEN_EXPAND
+#undef CSR_UTIL_GEN_EXPAND_TYPE
 #undef _TYPE_V
 #undef _TYPE_I
 #undef csr_row_indices

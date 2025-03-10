@@ -7,6 +7,7 @@
 #include "csr5/anonymouslib_avx2.h"
 
 #include "macros/cpp_defines.h"
+#include "debug.h"
 
 #include "spmv_bench_common.h"
 #include "spmv_kernel.h"
@@ -16,6 +17,10 @@ using namespace std;
 
 struct CSR5Arrays : Matrix_Format
 {
+	ValueType * a;   // the values (of size NNZ)
+	INT_T * row_ptr;      // the usual rowptr (of size m+1)
+	INT_T * ja;      // the colidx of each NNZ (of size nnz)
+
 	anonymouslibHandle<int, unsigned int, ValueType> * A;
 
 	CSR5Arrays(long m, long n, long nnz) : Matrix_Format(m, n, nnz)
@@ -44,14 +49,29 @@ CSR5Arrays::spmv(ValueType * x, ValueType * y)
 
 
 struct Matrix_Format *
-csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
+csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded)
 {
+	if (symmetric && !symmetry_expanded)
+		error("symmetric matrices have to be expanded to be supported by this format");
 	struct CSR5Arrays * csr5 = new CSR5Arrays(m, n, nnz);
 	__attribute__((unused)) int err = 0;
 	csr5->format_name = (char *) "CSR5";
 
+	csr5->row_ptr = (typeof(csr5->row_ptr)) aligned_alloc(64, (m+1) * sizeof(*csr5->row_ptr));
+	csr5->ja = (typeof(csr5->ja)) aligned_alloc(64, nnz * sizeof(*csr5->ja));
+	csr5->a = (typeof(csr5->a)) aligned_alloc(64, nnz * sizeof(*csr5->a));
+	#pragma omp parallel for
+	for (long i=0;i<m+1;i++)
+		csr5->row_ptr[i] = row_ptr[i];
+	#pragma omp parallel for
+	for(long i=0;i<nnz;i++)
+	{
+		csr5->a[i]=values[i];
+		csr5->ja[i]=col_ind[i];
+	}
+
 	csr5->A = new anonymouslibHandle<int, unsigned int, ValueType>(m, n);
-	err = csr5->A->inputCSR(nnz, row_ptr, col_ind, values);
+	err = csr5->A->inputCSR(nnz, csr5->row_ptr, csr5->ja, csr5->a);
 	//cout << "inputCSR err = " << err << endl;
 
 	int sigma = ANONYMOUSLIB_CSR5_SIGMA;         // defined in common_avx2.h

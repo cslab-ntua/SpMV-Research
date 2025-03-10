@@ -2429,7 +2429,7 @@ csr_quantize_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, [[gnu::unused
 
 
 //==========================================================================================================================================
-//= Quantize
+//= Reorder
 //==========================================================================================================================================
 
 
@@ -2443,12 +2443,12 @@ csr_reorder_rows(_TYPE_I * permutation, _TYPE_I * row_ptr, _TYPE_I * col_idx, _T
 
 	_Pragma("omp parallel")
 	{
-		long i, pi;
+		long i, i_perm;
 		_Pragma("omp for")
 		for (i=0;i<m;i++)
 		{
-			pi = permutation[i];
-			reordered_row_ptr[pi] = row_ptr[i+1] - row_ptr[i];
+			i_perm = permutation[i];
+			reordered_row_ptr[i_perm] = row_ptr[i+1] - row_ptr[i];
 		}
 	}
 	reordered_row_ptr[m] = 0;
@@ -2458,19 +2458,21 @@ csr_reorder_rows(_TYPE_I * permutation, _TYPE_I * row_ptr, _TYPE_I * col_idx, _T
 	_Pragma("omp parallel")
 	{
 		int tnum = omp_get_thread_num();
-		long i, i_s, i_e, j, pi, pj, k, degree;
+		long i, i_s, i_e, j, i_perm, j_perm, k, degree;
 		loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &i_s, &i_e);
 		for (i=i_s;i<i_e;i++)
 		{
 			degree = row_ptr[i+1] - row_ptr[i];
-			pi = permutation[i];
+			i_perm = permutation[i];
+			if (degree != reordered_row_ptr[i_perm+1] - reordered_row_ptr[i_perm])
+				error("rows have different degree");
 			for (k=0;k<degree;k++)
 			{
 				j = row_ptr[i] + k;
-				pj = reordered_row_ptr[pi] + k;
-				reordered_col_idx[pj] = col_idx[j];
+				j_perm = reordered_row_ptr[i_perm] + k;
+				reordered_col_idx[j_perm] = col_idx[j];
 				if (values != NULL)
-					reordered_values[pj] = values[j];
+					reordered_values[j_perm] = values[j];
 			}
 		}
 	}

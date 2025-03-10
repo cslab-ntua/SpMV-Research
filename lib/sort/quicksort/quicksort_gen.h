@@ -51,11 +51,3 @@ void quicksort_parallel(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * part
 void quicksort_parallel_inplace(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitions_buf);
 
 
-//------------------------------------------------------------------------------------------------------------------------------------------
-//- Insertionsort
-//------------------------------------------------------------------------------------------------------------------------------------------
-
-#undef  insertionsort
-#define insertionsort  QUICKSORT_GEN_EXPAND(insertionsort)
-void insertionsort(_TYPE_V * A, long N, _TYPE_AD * aux_data);
-

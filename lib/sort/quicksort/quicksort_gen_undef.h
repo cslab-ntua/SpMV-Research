@@ -9,4 +9,3 @@
 #undef quicksort
 #undef quicksort_parallel
 #undef quicksort_parallel_inplace
-#undef insertionsort

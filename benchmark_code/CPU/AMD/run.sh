@@ -17,6 +17,7 @@ else
 fi
 
 
+<<<<<<< Updated upstream
 # GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
 # e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
 export GOMP_CPU_AFFINITY="$cpu_affinity"
@@ -48,6 +49,8 @@ if [[ $(hostname) == nid* ]]; then
 fi
 export XLSMPOPTS="PROCS=$cpu_affinity"
 
+=======
+>>>>>>> Stashed changes
 lscpu | grep -q -i amd
 if (($? == 0)); then
     export MKL_DEBUG_CPU_TYPE=5
@@ -57,11 +60,19 @@ export MKL_VERBOSE=1
 
 export LD_LIBRARY_PATH="${AOCL_PATH}/lib:${MKL_PATH}/lib/intel64:${LD_LIBRARY_PATH}"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${SPARSEX_LIB_PATH}"
+# export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${SPARSEX_FLOAT_LIB_PATH}"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/home/jim/lib/gcc/gcc_12/lib64"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/various/dgal/gcc/gcc-12.2.0/gcc_bin/lib64"
+<<<<<<< Updated upstream
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/gcc/12.2.0/snos/lib64"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CUDA_PATH}/lib64"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${ROCM_PATH}/lib64"
+=======
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/local/pmpakos/arm-compiler/gcc-13.2.0_Ubuntu-22.04/lib64"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CUDA_PATH}/lib64"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HOME}/spack/23.03/0.20.0/intel-tbb-2021.9.0-xxzbl3f/lib64"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/intel/oneapi/tbb/latest/lib"
+>>>>>>> Stashed changes
 
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'
@@ -84,8 +95,53 @@ matrices_openFoam_own_neigh=( $(printf "${path_openFoam}/%s\n" ${sorted_text}) )
 IFS="$IFS_buf"
 
 
+mapfile -t -d $'\n' matrices_tamu_real < <(
+    awk -F ',' '
+    BEGIN { LINT = "fatal" }
+    function cond(flag) { if (!flag) next }
+    NR==1 { for (i=1;i<=NF;i++) df[$i] = i ; next}
+    // {
+        # filename,type,symmetry,nrows,ncols,nnz_file,nnz_diag,nnz,csr_size_sym,csr_size
+        cond($df["type"] == "real")
+        cond($df["csr_size"] < 6000)
+        # cond($df["csr_size"] >= 1)
+        printf("%s\n", $df["filename"])
+    }
+    ' "${script_dir}"/datasets/tamu_sorted_by_size.csv
+)
+for ((i=0;i<${#matrices_tamu_real[@]};i++)); do
+    m="${matrices_tamu_real[i]}"
+    matrices_tamu_real[i]="${path_tamu}/matrices/${m}/${m}.mtx"
+done
+
+
+mapfile -t -d $'\n' matrices_tamu_real_symmetric < <(
+    awk -F ',' '
+    BEGIN { LINT = "fatal" }
+    function cond(flag) { if (!flag) next }
+    NR==1 { for (i=1;i<=NF;i++) df[$i] = i ; next}
+    // {
+        # filename,type,symmetry,nrows,ncols,nnz_file,nnz_diag,nnz,csr_size_sym,csr_size
+        cond($df["type"] == "real")
+        cond($df["csr_size"] < 6000)
+        # cond($df["csr_size"] >= 1)
+        cond($df["symmetry"] == "symmetric")
+        printf("%s\n", $df["filename"])
+    }
+    ' "${script_dir}"/datasets/tamu_sorted_by_size.csv
+)
+for ((i=0;i<${#matrices_tamu_real_symmetric[@]};i++)); do
+    m="${matrices_tamu_real_symmetric[i]}"
+    matrices_tamu_real_symmetric[i]="${path_tamu}/matrices/${m}/${m}.mtx"
+done
+
+# printf "%s\n" "${matrices_tamu_real_symmetric[@]}"
+# exit
+
+
 matrices_validation=(
 
+<<<<<<< Updated upstream
     scircuit.mtx
     mac_econ_fwd500.mtx
     raefsky3.mtx
@@ -138,15 +194,75 @@ matrices_validation=(
     audikw_1.mtx
     cage15.mtx
     kmer_V2a.mtx
+=======
+    # scircuit
+    # mac_econ_fwd500
+    # raefsky3
+    # rgg_n_2_17_s0
+    # bbmat
+    # appu
+    # conf5_4-8x8-15
+    # mc2depi
+    # rma10
+    # cop20k_A
+    # thermomech_dK
+    # webbase-1M
+    # cant
+    # ASIC_680k
+    # roadNet-TX
+    # pdb1HYS
+    # TSOPF_RS_b300_c3
+    # Chebyshev4
+    # consph
+    # com-Youtube
+    # rajat30
+    # radiation
+    # Stanford_Berkeley
+    # shipsec1
+    # PR02R
+    # CurlCurl_2
+    # gupta3
+    # mip1
+    # rail4284
+    # pwtk
+    # crankseg_2
+    # Si41Ge41H72
+    # TSOPF_RS_b2383
+    # in-2004
+    # Ga41As41H72
+    # eu-2005
+    # wikipedia-20051105
+    # kron_g500-logn18
+    # rajat31
+    # human_gene1
+    # delaunay_n22
+    # GL7d20
+    # sx-stackoverflow
+    # dgreen
+    # mawi_201512012345
+    # ldoor
+    # dielFilterV2real
+    # circuit5M
+    # soc-LiveJournal1
+    # bone010
+    # audikw_1
+    # cage15
+    # kmer_V2a
+>>>>>>> Stashed changes
 
 )
+matrices_validation_tamu=( ${matrices_validation[@]} )
+for ((i=0;i<${#matrices_validation_tamu[@]};i++)); do
+    m="${matrices_validation_tamu[i]}"
+    matrices_validation_tamu[i]="${path_tamu}/matrices/${m}/${m}.mtx"
+done
 validation_dirs=(
     "${path_validation}"
     "${path_validation}/new_matrices" 
 )
 matrices_validation=( $(
     for ((i=0;i<${#matrices_validation[@]};i++)); do
-        m="${matrices_validation[i]}"
+        m="${matrices_validation[i]}.mtx"
         for d in "${validation_dirs[@]}"; do
             if [[ -f "${d}/${m}" ]]; then
                 echo "${d}/${m}"
@@ -200,7 +316,7 @@ done
 matrices_compression_small=(
 
     # scircuit
-    # mac_econ_fwd500
+    mac_econ_fwd500
     # raefsky3
     # bbmat
     # appu
@@ -225,17 +341,6 @@ matrices_compression_small=(
     # TSOPF_RS_b2383
     # Ga41As41H72
     # rajat31
-    # human_gene1
-    # dgreen
-
-    cop20k_A
-    # ASIC_680k
-    # radiation
-    # PR02R
-    # crankseg_2
-    # rajat31
-    # human_gene1
-    # dgreen
 
 )
 for ((i=0;i<${#matrices_compression_small[@]};i++)); do
@@ -244,93 +349,90 @@ for ((i=0;i<${#matrices_compression_small[@]};i++)); do
 done
 
 
+matrices_compression_medium=(
+
+    CoupCons3D
+    Transport
+    Freescale2
+    human_gene1
+    F1
+    CurlCurl_4
+    FullChip
+    cage14
+    ML_Laplace
+    nd24k
+    Fault_639
+    mouse_gene
+    nlpkkt80
+    vas_stokes_1M
+    ss
+    inline_1
+    PFlow_742
+    RM07R
+    dgreen
+    Emilia_923
+    Hardesty3
+
+)
+for ((i=0;i<${#matrices_compression_medium[@]};i++)); do
+    m="${matrices_compression_medium[i]}"
+    matrices_compression_medium[i]="${path_tamu}/matrices/${m}/${m}.mtx"
+done
+
+
+matrices_compression_medium_symmetric=(
+
+    human_gene1
+    F1
+    CurlCurl_4
+    nd24k
+    Fault_639
+    mouse_gene
+    nlpkkt80
+    inline_1
+    Emilia_923
+
+)
+for ((i=0;i<${#matrices_compression_medium_symmetric[@]};i++)); do
+    m="${matrices_compression_medium_symmetric[i]}"
+    matrices_compression_medium_symmetric[i]="${path_tamu}/matrices/${m}/${m}.mtx"
+done
+
+
 matrices_compression=(
 
     # spal_004
-    ldoor
-    # dielFilterV2real
-    # nv2
-    # af_shell10
-    # boneS10
-    # circuit5M
-    # Hook_1498
-    # Geo_1438
-    # Serena
-    # vas_stokes_2M
-    # bone010
-    # audikw_1
-    # Long_Coup_dt0
-    # Long_Coup_dt6
-    # dielFilterV3real
-    # nlpkkt120
-    # cage15
-    # ML_Geer
-    # Flan_1565
-    # Cube_Coup_dt0
-    # Cube_Coup_dt6
-    # Bump_2911
-    # vas_stokes_4M
-    # nlpkkt160
-    # HV15R
-    # Queen_4147
-    # stokes
-    # nlpkkt200
-
-    # Transport
-    # Freescale2
-    # FullChip
-    # cage14
-    # ML_Laplace
-    # vas_stokes_1M
-    # ss
-    # RM07R
-    # dgreen
-    # Hardesty3
-    # nlpkkt240
-
-    # MOLIERE_2016
-
-    # Transport
-    # Freescale2
     # ldoor
     # dielFilterV2real
-    # af_shell10
-    # FullChip
-    # cage14
-    # ML_Laplace
+    af_shell10
+    # nv2
     # boneS10
+    # circuit5M
     # Hook_1498
     # Geo_1438
     # Serena
-    # vas_stokes_1M
-    # ss
+    # vas_stokes_2M
     # bone010
-    # RM07R
-    # dgreen
     # audikw_1
-    # Hardesty3
     # Long_Coup_dt0
     # Long_Coup_dt6
     # dielFilterV3real
-    # spal_004
     # nlpkkt120
-    # nv2
-    # Flan_1565
-    # circuit5M
-    # Cube_Coup_dt0
-    # Cube_Coup_dt6
-    # vas_stokes_2M
-    # Bump_2911
     # cage15
     # ML_Geer
-    # nlpkkt160
+    # Flan_1565
+    # Cube_Coup_dt0
+    # Cube_Coup_dt6
+    # Bump_2911
     # vas_stokes_4M
-    # Queen_4147
-    # nlpkkt200
+    # nlpkkt160
     # HV15R
+    # Queen_4147
     # stokes
-    # nlpkkt240
-    # MOLIERE_2016
+    # nlpkkt200
+
+    # nlpkkt240  # SparseX OOM.
+    # MOLIERE_2016   # This crashes with OOM error.
 
 )
 for ((i=0;i<${#matrices_compression[@]};i++)); do
@@ -339,15 +441,49 @@ for ((i=0;i<${#matrices_compression[@]};i++)); do
 done
 
 
+matrices_compression_symmetric=(
+
+    ldoor
+    dielFilterV2real
+    af_shell10
+    boneS10
+    Hook_1498
+    Geo_1438
+    Serena
+    bone010
+    audikw_1
+    Long_Coup_dt0
+    Long_Coup_dt6
+    dielFilterV3real
+    nlpkkt120
+    Flan_1565
+    Cube_Coup_dt0
+    Cube_Coup_dt6
+    Bump_2911
+    nlpkkt160
+    Queen_4147
+    nlpkkt200
+
+    # nlpkkt240     # SparseX OOM
+
+)
+for ((i=0;i<${#matrices_compression_symmetric[@]};i++)); do
+    m="${matrices_compression_symmetric[i]}"
+    matrices_compression_symmetric[i]="${path_tamu}/matrices/${m}/${m}.mtx"
+done
+
+
 matrices_M3E=(
 
-    # StocF_1465
-
     Heel_1138
-    Hook_1498
     Utemp20m
     guenda11m
     agg14m
+    rtanis44m
+
+    # tripod24m     # SparseX OOM
+    # M20           # SparseX OOM
+    # Pflow73m      # OOM
 
 )
 for ((i=0;i<${#matrices_M3E[@]};i++)); do
@@ -356,11 +492,45 @@ for ((i=0;i<${#matrices_M3E[@]};i++)); do
 done
 
 
+matrices_M3E_symmetric=(
+
+    guenda11m
+    agg14m
+    rtanis44m
+
+    # tripod24m
+
+)
+for ((i=0;i<${#matrices_M3E_symmetric[@]};i++)); do
+    m="${matrices_M3E_symmetric[i]}"
+    matrices_M3E_symmetric[i]="$path_M3E"/"$m"/"$m".mtx
+done
+
+
+matrices_compression_all=(
+
+    "${matrices_compression_medium[@]}"
+    "${matrices_compression[@]}"
+
+    # "${matrices_M3E[@]}"
+
+)
+
+matrices_compression_all_symmetric=(
+
+    "${matrices_compression_medium_symmetric[@]}"
+    "${matrices_compression_symmetric[@]}"
+
+    # "${matrices_M3E_symmetric[@]}"
+
+)
+
+
 matrices_cg=(
 
     # ldoor
-    # dielFilterV2real
-    boneS10
+    dielFilterV2real
+    # boneS10
     # Hook_1498
     # Geo_1438
     # Serena
@@ -380,6 +550,46 @@ matrices_cg=(
 for ((i=0;i<${#matrices_cg[@]};i++)); do
     m="${matrices_cg[i]}"
     matrices_cg[i]="${path_tamu}/matrices/${m}/${m}.mtx"
+done
+
+
+matrices_bicg=(
+
+    # spal_004
+
+    ldoor
+    dielFilterV2real
+    af_shell10
+    nv2
+    boneS10
+    circuit5M
+    Hook_1498
+    Geo_1438
+    Serena
+    vas_stokes_2M
+    bone010
+    audikw_1
+    Long_Coup_dt0
+    Long_Coup_dt6
+    dielFilterV3real
+    nlpkkt120
+    cage15
+    ML_Geer
+    Flan_1565
+    Cube_Coup_dt0
+    Cube_Coup_dt6
+    Bump_2911
+    vas_stokes_4M
+    nlpkkt160
+    HV15R
+    Queen_4147
+    stokes
+    nlpkkt200
+
+)
+for ((i=0;i<${#matrices_bicg[@]};i++)); do
+    m="${matrices_bicg[i]}"
+    matrices_bicg[i]="${path_tamu}/matrices/${m}/${m}.mtx"
 done
 
 
@@ -442,7 +652,6 @@ matrices_underperform_gpu=( $(
 ) )
 
 
-
 matrices_validation_loop=()
 for ((i=0;i<${#matrices_validation[@]};i++)); do
     path="${matrices_validation[i]}"
@@ -464,11 +673,32 @@ bench()
     declare args=("$@")
     declare prog="${args[0]}"
     declare prog_args=("${args[@]:1}")
-    declare t
+    declare array_cores=( $cores )
+    declare array_affinities=()
+    declare c
+    declare i
 
-    for t in $cores
-    do
-        export OMP_NUM_THREADS="$t"
+    export LEVEL1_DCACHE_LINESIZE="$(read v < /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size; echo ${v%K})"
+    export LEVEL1_DCACHE_SIZE="$(read v < /sys/devices/system/cpu/cpu0/cache/index0/size; echo $((${v%K} * 1024)) )"
+    export LEVEL2_CACHE_SIZE="$(read v < /sys/devices/system/cpu/cpu0/cache/index2/size; echo $((${v%K} * 1024)) )"
+    export LEVEL3_CACHE_SIZE="$(read v < /sys/devices/system/cpu/cpu0/cache/index3/size; echo $((${v%K} * 1024)) )"
+    export NUM_CPUS="$(ls /sys/devices/system/cpu/ | grep -c 'cpu[[:digit:]]\+')"
+    export LEVEL3_CACHE_CPUS_PER_NODE="$(for range in $(cat /sys/devices/system/cpu/cpu0/cache/index3/shared_cpu_list | tr ',' ' '); do mapfile -t -d '-' a < <(printf "$range"); seq "${a[@]}"; done | wc -l)"
+    export LEVEL3_CACHE_NUM_NODES="$(( NUM_CPUS / LEVEL3_CACHE_CPUS_PER_NODE ))"
+    export LEVEL3_CACHE_SIZE_TOTAL="$(( LEVEL3_CACHE_SIZE * LEVEL3_CACHE_NUM_NODES ))"
+
+    mapfile -t -d ':' array_affinities < <(printf "$cpu_affinity")
+    for ((i=0;i<${#array_cores[@]};i++)); do
+        c="${array_cores[i]}"
+        aff="${array_affinities[i]}"
+
+        export OMP_NUM_THREADS="$c"
+
+        # GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
+        # e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
+        export GOMP_CPU_AFFINITY="$aff"
+        export XLSMPOPTS="PROCS=$aff"
+
 
         while :; do
             # if [[ "$prog" == *"spmv_sparsex.exe"* ]]; then
@@ -476,27 +706,31 @@ bench()
                 # # mt_conf="${GOMP_CPU_AFFINITY}"
                 # export GOMP_CPU_AFFINITY_backup="${GOMP_CPU_AFFINITY}"
                 # export GOMP_CPU_AFFINITY="0"
-                # mt_conf=$(seq -s ',' 0 1 "$(($t-1))")
+                # mt_conf=$(seq -s ',' 0 1 "$(($c-1))")
                 # if ((!USE_ARTIFICIAL_MATRICES)); then
-                    # "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v  2>'tmp.err'
+                    # "$prog" "${prog_args[@]}" -t -o spx.rt.nr_threads=$c -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v  2>'tmp.err'
                 # else
                     # prog_args2="${prog_args[@]}"
-                    # "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$t -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v  2>'tmp.err'
+                    # "$prog" -p "${prog_args2[@]}" -t -o spx.rt.nr_threads=$c -o spx.rt.cpu_affinity=${mt_conf} -o spx.preproc.xform=all #-v  2>'tmp.err'
                 # fi
                 # export GOMP_CPU_AFFINITY="${GOMP_CPU_AFFINITY_backup}"
             # elif [[ "$prog" == *"spmv_sell-C-s.exe"* ]]; then
             if [[ "$prog" == *"spmv_sell-C-s_d.exe"* ]]; then
                 if ((!USE_ARTIFICIAL_MATRICES)); then
-                    "$prog" -c $OMP_NUM_THREADS -m "${prog_args[@]}" -f SELL-32-1  2>'tmp.err'
+                    "$prog" -c "$OMP_NUM_THREADS" -m "${prog_args[@]}" -f SELL-32-1  2>'tmp.err'
                     ret="$?"
                 else
                     prog_args2="${prog_args[@]}"
-                    "$prog" -c $OMP_NUM_THREADS --artif_args="${prog_args2[@]}" -f SELL-32-1  2>'tmp.err'
+                    "$prog" -c "$OMP_NUM_THREADS" --artif_args="${prog_args2[@]}" -f SELL-32-1  2>'tmp.err'
                     ret="$?"
                 fi
             elif [[ "$prog" == *"spmv_lcm_d.exe" ]]; then
                 echo numactl -i "$numa_nodes"
                 numactl -i "$numa_nodes" "$prog" "${prog_args[@]}"  2>'tmp.err'
+            elif [[ "$prog" == *"spmv_cfs"* ]]; then
+                export CFS_NUM_THREADS="$OMP_NUM_THREADS"
+                # "$prog" "${prog_args[@]}" 1 128  2>'tmp.err'
+                "$prog" "${prog_args[@]}" 1 2>'tmp.err'
             else
                 # If a GPU kernel is tested, then set env variable accordingly. This is used in spmv_bench, so that the warm up is performed 1000 times, instead of just once (CPU warm up)
                 if [[ "$prog" == *"cuda"* ]] || [[ "$prog" == *"cusparse"* ]] || [[ "$prog" == *"rocm"* ]] || [[ "$prog" == *"rocsparse"* ]]; then
@@ -510,17 +744,17 @@ bench()
                 # numactl -i all "$prog" "${prog_args[@]}"  2>'tmp.err'
 
                 echo '------------------------'
-                export PATH=${CUDA_PATH}/bin:$PATH
+                export PATH="${CUDA_PATH}/bin:$PATH"
                 echo "${prog_args[0]}"
-                mtx_name=$(basename "${prog_args[0]}")
-                # mtx_name=artificial_${mtx_name%.mtx}
-                mtx_name=${mtx_name%.mtx}
+                mtx_name="$(basename "${prog_args[0]}")"
+                # mtx_name="artificial_${mtx_name%.mtx}"
+                mtx_name="${mtx_name%.mtx}"
                 
-                prog_name=$(basename "$prog")
-                prog_name=${prog_name#"spmv_"}
-                # prog_name=${prog_name#"spmv_csr_cuda_"}
-                prog_name=${prog_name%"_nv_d.exe"}
-                export PROGG=${prog_name}
+                prog_name="$(basename "$prog")"
+                prog_name="${prog_name#"spmv_"}"
+                # prog_name="${prog_name#"spmv_csr_cuda_"}"
+                prog_name="${prog_name%"_nv_d.exe"}"
+                export PROGG="${prog_name}"
                 
                 echo "${mtx_name}_${prog_name}"
                 # compute-sanitizer --tool initcheck --track-unused-memory --print-limit 10000000 "$prog" "${prog_args[@]}"  2>'tmp.err'
@@ -528,6 +762,7 @@ bench()
                 # ncu -o ./out_logs/reports/ncu_reports/ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={ComputeWorkloadAnalysis,InstructionStats,LaunchStats,MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Tables,Occupancy,SchedulerStats,SourceCounters,SpeedOfLight,SpeedOfLight_RooflineChart,WarpStateStats} "$prog" "${prog_args[@]}"  2>'tmp.err'
                 # nsys profile -o ./out_logs/reports/nsys_reports/nsys_report_${mtx_name}_${prog_name} -f true -t cuda,cublas --cuda-memory-usage=true --stats=true -w true "$prog" "${prog_args[@]}"  2>'tmp.err'
                 "$prog" "${prog_args[@]}"  2>'tmp.err'
+                # "$prog" "${prog_args[@]}"
                 ret="$?"
             fi
             if ((output_to_files)); then   # If outputing to files, also print stderr to stdout.
@@ -548,13 +783,41 @@ bench()
 matrices=(
 
     # "${matrices_openFoam[@]}"
+<<<<<<< Updated upstream
     "${matrices_validation[@]}"
+=======
+    # "${matrices_validation[@]}"
+    # "${matrices_validation_tamu[@]}"
+>>>>>>> Stashed changes
     # "${matrices_paper_csr_rv[@]}"
-    # "${matrices_compression_small[@]}"
+
+    "${matrices_compression_small[@]}"
+    # "${matrices_compression_medium[@]}"
+    # "${matrices_compression_medium_symmetric[@]}"
     # "${matrices_compression[@]}"
+    # "${matrices_compression_symmetric[@]}"
     # "${matrices_M3E[@]}"
+    # "${matrices_compression_all[@]}"
+    # "${matrices_compression_all_symmetric[@]}"
+
+    # ${matrices_tamu_real[@]}
+    # ${matrices_tamu_real_symmetric[@]}
+
     # "${matrices_cg[@]}"
+<<<<<<< Updated upstream
     # "${matrices_underperform_gpu[@]}"
+=======
+    # "${matrices_bicg[@]}"
+
+    # "${matrices_underperform_gpu[@]}"
+
+    # "${path_tamu}/matrices/cop20k_A/cop20k_A.mtx"
+    # "${path_tamu}/matrices/circuit204/circuit204.mtx"
+    # "${path_tamu}/matrices/b1_ss/b1_ss.mtx"
+    # "${path_tamu}/matrices/c-18/c-18.mtx"
+    # "${path_tamu}/matrices/cant/cant.mtx"
+    # '/home/jim/Synced_Folder/University/PHD/SPMV/data_analysis/test_matrices/test_symmetric.mtx'
+>>>>>>> Stashed changes
 
     # "$path_tamu"/matrices/kron_g500-logn18/kron_g500-logn18.mtx
     # '/home/jim/Synced_Folder/Data/kmeans/matrices/kron_g500-logn18_c1024_wl26214_reordered_rows.mtx'
@@ -587,10 +850,8 @@ matrices=(
     # "$path_other"/simple.mtx
     # "$path_other"/simple_symmetric.mtx
 
-    # /home/jim/Documents/Synced_Documents/other/ASIC_680k.mtx
-
-    # "$path_openFoam"/100K.mtx
-    # "$path_openFoam"/600K.mtx
+    # "$path_openFoam"/100K-600K/100K.mtx
+    # "$path_openFoam"/100K-600K/600K.mtx
     # "$path_openFoam"/TestMatrices/HEXmats/5krows/processor0
     # "${matrices_openFoam_own_neigh[@]}"
 
@@ -641,6 +902,7 @@ for format_name in "${!progs[@]}"; do
     rep=1
     # rep=4
     # rep=5
+    # rep=10
     # rep=16
     # rep=1024
 
@@ -652,20 +914,19 @@ for format_name in "${!progs[@]}"; do
         # $((2**10))
         $((2**14))
         # $((2**17))
-        # $((2**20))
+        # $((2**24))
         # $((2**12))
         # $((LEVEL3_CACHE_SIZE / 8 / 8 / 16))
     )
 
-    # if [[ "$prog" == *'spmv_csr_cv'* ]]; then
-        # csrcv_num_packet_vals=( $( declare -i i; for (( i=64;i<=2**24;i*=2 )); do echo "$i"; done ) )
+    # if [[ "$prog" == *'spmv_div_'* ]]; then
+        # csrcv_num_packet_vals=( $( declare -i i; for (( i=64;i<=2**20;i*=2 )); do echo "$i"; done ) )
     # fi
 
     ts1="$(date '+%s')"
 
     for ((i=0;i<rep;i++)); do
-        for a in "${prog_args[@]}"
-        do
+        for a in "${prog_args[@]}"; do
 
             rep_in=1
             # rep_in=10

@@ -96,6 +96,7 @@ typedef QUICKSORT_GEN_TYPE_3  _TYPE_AD;
 //==========================================================================================================================================
 
 
+/* We use a DFS-like traversal for better cache utilization. */
 #undef  quicksort_no_malloc
 #define quicksort_no_malloc  QUICKSORT_GEN_EXPAND(quicksort_no_malloc)
 static inline
@@ -167,23 +168,6 @@ quicksort_no_malloc_parallel(_TYPE_V * A, __attribute__((unused)) _TYPE_V * buf,
 	m = 0;
 	i = 0;
 
-		// if (do_print)
-		// {
-			// printf("INIT\n");
-			// printf(" ");
-			// for (long i=0;i<N;i++)
-			// {
-				// printf("%2ld  ", i);
-			// }
-			// printf("\n");
-			// printf("[");
-			// for (long i=0;i<N;i++)
-			// {
-				// printf("%2d, ", A[i]);
-			// }
-			// printf("]\n");
-		// }
-
 	while (1)
 	{
 		while (s >= e)
@@ -195,30 +179,8 @@ quicksort_no_malloc_parallel(_TYPE_V * A, __attribute__((unused)) _TYPE_V * buf,
 			s = partitions_buf[i];
 		}
 
-		// if (do_print)
-		// {
-			// printf("BEFORE\n");
-			// printf("s = %ld , e = %ld\n", s, e);
-			// printf("pivot_pos = %ld , pivot = %d\n", pivot_pos, pivot);
-			// printf(" ");
-			// for (long i=0;i<N;i++)
-			// {
-				// printf("%2ld  ", i);
-			// }
-			// printf("\n");
-			// printf("[");
-			// for (long i=0;i<N;i++)
-			// {
-				// printf("%2d, ", A[i]);
-			// }
-			// printf("]\n");
-		// }
-
 		if (__builtin_expect(e - s > (1LL << 10), 0))
-		// if (1)
 		{
-			// printf("%ld\n", i);
-			// fprintf(stderr, "in\n");
 			#pragma omp parallel
 			{
 				if (buf == NULL)
@@ -232,47 +194,6 @@ quicksort_no_malloc_parallel(_TYPE_V * A, __attribute__((unused)) _TYPE_V * buf,
 		{
 			m = partition_auto_serial(A, s, e+1, aux_data);
 		}
-
-		// if (do_print)
-		// {
-			// printf("AFTER\n");
-			// printf("pivot_pos = %ld , pivot = %d\n", pivot_pos, pivot);
-			// printf("m = %ld\n", m);
-			// printf(" ");
-			// for (long i=0;i<N;i++)
-			// {
-				// printf("%2ld  ", i);
-			// }
-			// printf("\n");
-			// printf("[");
-			// for (long i=0;i<N;i++)
-			// {
-				// printf("%2d, ", A[i]);
-			// }
-			// printf("]\n");
-		// }
-
-		// if (do_print)
-		// {
-			// printf("AFTER 2\n");
-			// printf("m = %ld\n", m);
-			// printf(" ");
-			// for (long i=0;i<N;i++)
-			// {
-				// printf("%2ld  ", i);
-			// }
-			// printf("\n");
-			// printf("[");
-			// for (long i=0;i<N;i++)
-			// {
-				// printf("%2d, ", A[i]);
-			// }
-			// printf("]\n");
-			// printf("\n");
-		// }
-
-		// if (exit_after_one)
-			// exit(0);
 
 		partitions_buf[i++] = s;
 		s = m;
@@ -310,22 +231,5 @@ quicksort_parallel_inplace(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * p
 	quicksort_no_malloc_parallel(A, NULL, N, aux_data, partitions_buf_tmp);
 	if (partitions_buf == NULL)
 		free(partitions_buf_tmp);
-}
-
-
-#undef  insertionsort
-#define insertionsort  QUICKSORT_GEN_EXPAND(insertionsort)
-void
-insertionsort(_TYPE_V * A, long N, _TYPE_AD * aux_data)
-{
-	long i, i_e;
-	for (i_e=N-1;i_e>0;i_e--)
-	{
-		for (i=0;i<i_e;i++)
-		{
-			if (quicksort_cmp(A[i], A[i+1], aux_data) > 0)
-				macros_swap(&A[i], &A[i+1]);
-		}
-	}
 }
 

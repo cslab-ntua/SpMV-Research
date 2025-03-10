@@ -20,41 +20,35 @@
 
 //==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
-//-                                                     Read And Parse File To Atoms                                                       -
+//-                                                         Load File To Memory                                                            -
 //------------------------------------------------------------------------------------------------------------------------------------------
 //==========================================================================================================================================
 
 
-void
-file_atoms_clean(struct File_Atoms * obj)
-{
-	if (obj == NULL)
-		return;
-	free(obj->atom_len);
-	obj->atom_len = NULL;
-	free(obj->atoms);
-	obj->atoms = NULL;
-	free(obj->string);
-	obj->string = NULL;
-}
-
-
-// Pass a reference (**) to be able to set to NULL,
-// and also so that it can be used with '__attribute__((cleanup()))'.
-void
-file_atoms_destroy(struct File_Atoms ** obj_ptr)
-{
-	if (obj_ptr == NULL)
-		return;
-	file_atoms_clean(*obj_ptr);
-	free(*obj_ptr);
-	*obj_ptr = NULL;
-}
-
-
 static
+long
+extract_cmd(char * buf, long buf_n, char * ext, char * extract_dir)
+{
+	long i;
+
+	i = 0;
+	if (!strcmp(ext, "gz") || !strcmp(ext, "zst"))
+	{
+		i += snprintf(buf, buf_n, "zstdmt -d --stdout ");
+		// i += snprintf(buf, buf_n, "pigz -dc ");
+	}
+	else if (!strcmp(ext, "tar"))
+	{
+		i += snprintf(buf, buf_n, "tar -x -O -C \"%s\" ", extract_dir);
+	}
+	return i;
+}
+
+
+/* Load file to memory as a string. */
 void
-file_to_atoms_base(struct File_Atoms * A, const char * filename, void string_delimiter(char *, long), int keep_empty, int use_mmap)
+file_load(char * path, int use_mmap, long auto_decompress,
+		char ** str_out, long * N_out)
 {
 	struct stat sb;
 	char * mem;
@@ -62,10 +56,68 @@ file_to_atoms_base(struct File_Atoms * A, const char * filename, void string_del
 	long N;
 	int fd;
 
-	safe_stat(filename, &sb);
+	long compressed_file = 0;
+	[[gnu::cleanup(cleanup_free)]] char * basename = NULL, * basename_no_ext = NULL, * ext = NULL, * path_extracted = NULL;
+	[[gnu::cleanup(cleanup_free)]] char * tmp_dir = NULL;
+	long buf_n = 100000 + strlen(path);
+	[[gnu::cleanup(cleanup_free)]] char * buf = (typeof(buf)) malloc(buf_n * sizeof(*buf));
+	[[gnu::cleanup(cleanup_free)]] char * cmd = (typeof(cmd)) malloc(buf_n * sizeof(*cmd));
+	long i;
+
+	if (auto_decompress)
+	{
+		compressed_file = 0;
+
+		tmp_dir = (typeof(tmp_dir)) malloc(buf_n * sizeof(*tmp_dir));
+
+		// printf("path='%s'\n", path);
+		snprintf(tmp_dir, buf_n, "/tmp/temp_XXXXXX");
+		if (mkdtemp(tmp_dir) == NULL)
+			error("mkdtemp(): %s", tmp_dir);
+
+		str_path_split_path(path, strlen(path) + 1, buf, buf_n, NULL, &basename);
+		basename = strdup(basename);
+
+		i = 0;
+		// i += snprintf(cmd + i, buf_n - i, "time -v cat \"%s\" ", path);
+		i += snprintf(cmd + i, buf_n - i, "cat \"%s\" ", path);
+		while(1)
+		{
+			// printf("cmd='%s'\n", cmd);
+			free(basename_no_ext);
+			free(ext);
+			str_path_split_ext(basename, strlen(basename) + 1, buf, buf_n, &basename_no_ext, &ext);
+			basename_no_ext = strdup(basename_no_ext);
+			ext = strdup(ext);
+			// printf("basename='%s' basename_no_ext='%s' ext='%s'\n", basename, basename_no_ext, ext);
+			if (!strcmp(ext, "tar") || !strcmp(ext, "gz") || !strcmp(ext, "zst"))
+			{
+				compressed_file = 1;
+				i += snprintf(cmd + i, buf_n - i, " | ");
+				i += extract_cmd(cmd + i, buf_n - i, ext, tmp_dir);
+				free(basename);
+				basename = strdup(basename_no_ext);
+				continue;
+			}
+			break;
+		}
+
+		if (compressed_file)
+		{
+			snprintf(buf, buf_n, "%s/%s", tmp_dir, basename);
+			path_extracted = strdup(buf);
+			path = path_extracted;
+			i += snprintf(cmd + i, buf_n - i, " > \"%s\" ", path_extracted);
+			printf("cmd='%s'\n", cmd);
+			if (system(cmd))
+				error("system");
+		}
+	}
+
+	safe_stat(path, &sb);
 	if (!S_ISREG(sb.st_mode))
 		error("not a file");
-	fd = safe_open(filename, O_RDONLY);
+	fd = safe_open(path, O_RDONLY);
 
 	if (use_mmap)
 	{
@@ -107,6 +159,58 @@ file_to_atoms_base(struct File_Atoms * A, const char * filename, void string_del
 		safe_close(fd);
 	}
 
+	if (auto_decompress)
+	{
+		remove_recursive(tmp_dir);
+	}
+
+	*str_out = str;
+	*N_out = N;
+}
+
+
+//==========================================================================================================================================
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                     Read And Parse File To Atoms                                                       -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//==========================================================================================================================================
+
+
+void
+file_atoms_clean(struct File_Atoms * obj)
+{
+	if (obj == NULL)
+		return;
+	free(obj->atom_len);
+	obj->atom_len = NULL;
+	free(obj->atoms);
+	obj->atoms = NULL;
+	free(obj->string);
+	obj->string = NULL;
+}
+
+
+// Pass a reference (**) to be able to set to NULL,
+// and also so that it can be used with '__attribute__((cleanup()))'.
+void
+file_atoms_destroy(struct File_Atoms ** obj_ptr)
+{
+	if (obj_ptr == NULL)
+		return;
+	file_atoms_clean(*obj_ptr);
+	free(*obj_ptr);
+	*obj_ptr = NULL;
+}
+
+
+static
+void
+file_to_atoms_base(struct File_Atoms * A, char * path, void string_delimiter(char *, long), int keep_empty, int use_mmap)
+{
+	char * str;
+	long N;
+	file_load(path, use_mmap, 1, &str, &N);
+
 	A->string = str;
 	A->len = N;
 	A->atoms = NULL;
@@ -123,56 +227,56 @@ file_to_atoms_base(struct File_Atoms * A, const char * filename, void string_del
 
 
 void
-file_to_atoms(struct File_Atoms * A, const char * filename, void string_delimiter(char *, long), int keep_empty)
+file_to_atoms(struct File_Atoms * A, char * path, void string_delimiter(char *, long), int keep_empty)
 {
-	file_to_atoms_base(A, filename, string_delimiter, keep_empty, 1);
+	file_to_atoms_base(A, path, string_delimiter, keep_empty, 1);
 }
 
 
 void
-file_to_atoms_no_mmap(struct File_Atoms * A, const char * filename, void string_delimiter(char *, long), int keep_empty)
+file_to_atoms_no_mmap(struct File_Atoms * A, char * path, void string_delimiter(char *, long), int keep_empty)
 {
-	file_to_atoms_base(A, filename, string_delimiter, keep_empty, 0);
+	file_to_atoms_base(A, path, string_delimiter, keep_empty, 0);
 }
 
 
 // File to space-separated words.
 void
-file_to_words(struct File_Atoms * A, const char * filename, int keep_empty)
+file_to_words(struct File_Atoms * A, char * path, int keep_empty)
 {
-	file_to_atoms(A, filename, str_delimiter_word, keep_empty);
+	file_to_atoms(A, path, str_delimiter_word, keep_empty);
 }
 
 
 // CSV file to space-separated words.
 void
-file_csv_to_words(struct File_Atoms * A, const char * filename, int keep_empty)
+file_csv_to_words(struct File_Atoms * A, char * path, int keep_empty)
 {
-	file_to_atoms(A, filename, str_delimiter_csv, keep_empty);
+	file_to_atoms(A, path, str_delimiter_csv, keep_empty);
 }
 
 
 // File to lines.
 void
-file_to_lines(struct File_Atoms * A, const char * filename, int keep_empty)
+file_to_lines(struct File_Atoms * A, char * path, int keep_empty)
 {
-	file_to_atoms(A, filename, str_delimiter_line, keep_empty);
+	file_to_atoms(A, path, str_delimiter_line, keep_empty);
 }
 
 
 // Whole file as one string.
 void
-file_to_string(struct File_Atoms * A, const char * filename)
+file_to_string(struct File_Atoms * A, char * path)
 {
-	file_to_atoms(A, filename, str_delimiter_eof, 0);
+	file_to_atoms(A, path, str_delimiter_eof, 0);
 }
 
 
 // Whole file as binary data (not a NULL terminated string).
 void
-file_to_raw_data(struct File_Atoms * A, const char * filename)
+file_to_raw_data(struct File_Atoms * A, char * path)
 {
-	file_to_atoms(A, filename, NULL, 0);
+	file_to_atoms(A, path, NULL, 0);
 }
 
 
@@ -192,17 +296,17 @@ file_to_raw_data(struct File_Atoms * A, const char * filename)
 
 static __attribute__((unused))
 void
-write_string_to_file(const char * filename, char * str, long str_len)
+write_string_to_file(char * path, char * str, long str_len)
 {
 	char * mem;
 	int fd;
 
 	// struct stat sb;
-	// safe_stat(filename, &sb);
+	// safe_stat(path, &sb);
 	// if (!S_ISREG(sb.st_mode))
 		// error("not a file");
 
-	fd = safe_open(filename, O_RDWR | O_TRUNC | O_CREAT);
+	fd = safe_open(path, O_RDWR | O_TRUNC | O_CREAT);
 	lseek(fd, str_len-1, SEEK_SET);
 	safe_write(fd, "", 1);
 	mem = (char *) safe_mmap(NULL, str_len, PROT_WRITE, MAP_SHARED, fd, 0);

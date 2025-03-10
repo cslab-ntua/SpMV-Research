@@ -9,5 +9,4 @@
 #pragma push_macro("quicksort")
 #pragma push_macro("quicksort_parallel")
 #pragma push_macro("quicksort_parallel_inplace")
-#pragma push_macro("insertionsort")
 #include "quicksort_gen_undef.h"

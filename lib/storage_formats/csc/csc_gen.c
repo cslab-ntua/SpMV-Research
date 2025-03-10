@@ -52,9 +52,9 @@ quicksort_cmp(CSC_GEN_TYPE_2 a, CSC_GEN_TYPE_2 b, CSC_GEN_TYPE_2 * sorting_keys)
 
 static inline
 CSC_GEN_TYPE_2
-bucketsort_find_bucket(CSC_GEN_TYPE_2 a, __attribute__((unused)) void * unused)
+bucketsort_find_bucket(CSC_GEN_TYPE_2 * A, long i, __attribute__((unused)) void * unused)
 {
-	return a;
+	return A[i];
 }
 
 

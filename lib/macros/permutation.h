@@ -4,9 +4,14 @@
 #include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
 
-/* Only one unit can be incomplete.
- * The units are differentiated between the max multiple of number of units that are fully populated (main body),
- * and the remaining ones along with the potentially incomplete one.
+/* Only the last unit can be incomplete.
+ * The units are differentiated between:
+ *     - the max multiple of number of units that are fully populated (main body)
+ *           num_units = N / unit_size
+ *           div = num_units / num_segments
+ *     - the remaining complete units along with the last potentially incomplete one
+ *           mod = num_units % num_segments
+	     rem_unit_size = N - num_units * unit_size
  *
  * If 'solid_units_main' is true, then interleaving for the main body of the elements is done unit-wise, else it is done element-wise.
  * Same for 'solid_units_rem', but specifically for the remaining units.

@@ -7,6 +7,7 @@
 
 #include "debug.h"
 #include "hash/hash.h"
+#include "lock/lock_util.h"
 #include "omp_functions.h"
 #include "parallel_util.h"
 
@@ -23,25 +24,23 @@
  *     - use the address as a key
  *     - use the referenced memory region as a key
  *
- * If 'HASHTABLE_GEN_KEY_IS_REF' is true, then the user also has to define the
- * function 'hashtable_sizeof_key' that returns the number of bytes of the
- * referenced memory region.
+ * If 'HASHTABLE_GEN_KEY_IS_REF' is true,
+ * then the size of the referenced key data can be DYNAMIC (e.g., a string),
+ * so the user has to define the function 'hashtable_sizeof_key'
+ * that returns at RUNTIME the number of bytes of the referenced memory region.
  *
  * Warning:
- *     Key type can NOT be a struct.
+ *     Be careful when the key type is a struct!
  *
- *     Extract from "C: A Reference Manual", by Harbison and Steele:
- *         "Structures and unions cannot be compared for equality, even though assignment for these types is allowed.
- *          The gaps in structures and unions caused by alignment restrictions could contain arbitrary values,
- *          and compensating for this would impose an unacceptable overhead on the equality comparison or on all operations that modified structure and union types."
+ *         ->  Use the gcc builtin 'void __builtin_clear_padding(ptr)' or a similar function to clear paddings.
  *
- *     This means that comparing keys byte to byte (e.g. 'memcmp()') CAN ACTUALLY FAIL if 'key' type is a structure.
- *
- *     Also, the hash of such types is not deterministic!
- *
- * If 'HASHTABLE_GEN_KEY_IS_REF' is false, we expect a basic type whose members can be
- * compared with the standard operators (==, <, <=, >, >=),
- * i.e. NOT a struct or constant size array.
+ *     Details:
+ *         Extract from "C: A Reference Manual", by Harbison and Steele:
+ *             "Structures and unions cannot be compared for equality, even though assignment for these types is allowed.
+ *              The gaps in structures and unions caused by alignment restrictions could contain arbitrary values,
+ *              and compensating for this would impose an unacceptable overhead on the equality comparison or on all operations that modified structure and union types."
+ *         This means that comparing keys byte to byte (e.g. 'memcmp()') CAN ACTUALLY FAIL if 'key' type is a structure.
+ *         Moreover, this means that the hash of such types is not deterministic!
  */
 
 
@@ -89,19 +88,6 @@ typedef HASHTABLE_GEN_TYPE_1  _TYPE_K;
 typedef HASHTABLE_GEN_TYPE_3  _TYPE_BS;
 
 
-#if HASHTABLE_GEN_KEY_IS_REF
-
-	#undef  hashtable_cast_key_to_char_array
-	#define hashtable_cast_key_to_char_array(key)  ((const unsigned char *) key)
-
-#else
-
-	#undef  hashtable_cast_key_to_char_array
-	#define hashtable_cast_key_to_char_array(key)  ((const unsigned char *) &key)
-
-#endif
-
-
 //==========================================================================================================================================
 //------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                              Templates                                                                 -
@@ -109,6 +95,7 @@ typedef HASHTABLE_GEN_TYPE_3  _TYPE_BS;
 //==========================================================================================================================================
 
 
+<<<<<<< Updated upstream
 //==========================================================================================================================================
 //= Locks
 //==========================================================================================================================================
@@ -129,6 +116,8 @@ void hashtable_cpu_relax()
 }
 
 
+=======
+>>>>>>> Stashed changes
 //------------------------------------------------------------------------------------------------------------------------------------------
 //- Spinlock - TTAS
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -147,7 +136,7 @@ hashtable_spinlock_lock(int8_t * lock)
 			if (!__atomic_exchange_n(lock, 1, __ATOMIC_ACQUIRE))
 				break;
 		}
-		hashtable_cpu_relax();
+		lock_cpu_relax();
 	}
 }
 
@@ -181,11 +170,13 @@ hashtable_hash_base(_TYPE_K key, int variant)
 	uint64_t hash;
 	const long len = hashtable_sizeof_key(key);
 	#if HASHTABLE_GEN_KEY_IS_REF
+		// __builtin_clear_padding(key);
 		hash = xorshift64(key, len, variant);
 		// hash = fasthash64(key, len, variant);
 	#else
 		if (len <= 8)
 		{
+			// __builtin_clear_padding(&key);
 			const unsigned char * bytes = (const unsigned char *) &key;
 			uint64_t v = 0;
 			switch (len) {
@@ -218,6 +209,19 @@ hashtable_hash(_TYPE_K key)
 }
 
 
+#undef  hashtable_hash_to_position
+#define hashtable_hash_to_position  HASHTABLE_GEN_EXPAND(hashtable_hash_to_position)
+static inline
+uint64_t
+hashtable_hash_to_position(uint64_t hash, uint64_t num_items)
+{
+	uint64_t pos;
+	// pos = hash % num_items;
+	pos = (((uint64_t) ((uint32_t) hash)) * num_items) >> 32;
+	return pos;
+}
+
+
 //==========================================================================================================================================
 //= Constructors / Destructors
 //==========================================================================================================================================
@@ -237,25 +241,26 @@ static const long hashtable_bucket_initial_size = 2;
 #define hashtable_bucket_init  HASHTABLE_GEN_EXPAND(hashtable_bucket_init)
 static inline
 void
-hashtable_bucket_init(struct hashtable * ht, long pos)
+hashtable_bucket_init(struct hashtable * ht, long bucket_pos)
 {
 	long j;
-	struct hashtable_bucket * bucket = &ht->buckets[pos];
+	struct hashtable_bucket * bucket = &ht->buckets[bucket_pos];
 	struct hashtable_kv_pair * kv_pairs;
 
-	ht->buf_kv_pairs_ownership[pos] = 0;
+	ht->buf_kv_pairs_ownership[bucket_pos] = 0;
 
 	// bucket->size = 0;
 	// bucket->n = 0;
 
 	bucket->lock = 0;
 	bucket->fail_counter = 0;
+	bucket->space_is_malloced = 0;
 	bucket->size = hashtable_bucket_initial_size;
 	bucket->n = 0;
 	bucket->kv_pairs = NULL;
 	bucket->mru_keys = NULL;
 	// This is a good opportunity to touch the buffer memory, as it is serial access, parallel and distributes it across numa nodes.
-	kv_pairs = &ht->buf_kv_pairs[hashtable_bucket_initial_size * pos];
+	kv_pairs = &ht->buf_kv_pairs[hashtable_bucket_initial_size * bucket_pos];
 	for (j=0;j<hashtable_bucket_initial_size;j++)
 		kv_pairs[j].key = 0;
 }
@@ -265,12 +270,10 @@ hashtable_bucket_init(struct hashtable * ht, long pos)
 #define hashtable_bucket_clean  HASHTABLE_GEN_EXPAND(hashtable_bucket_clean)
 static inline
 void
-hashtable_bucket_clean(struct hashtable * ht, long pos)
+hashtable_bucket_clean(struct hashtable * ht, long bucket_pos)
 {
-	struct hashtable_bucket * bucket = &ht->buckets[pos];
-	long space_is_malloced;
-	space_is_malloced = bucket->kv_pairs < ht->buf_kv_pairs || bucket->kv_pairs > ht->buf_kv_pairs_end;
-	if (space_is_malloced)
+	struct hashtable_bucket * bucket = &ht->buckets[bucket_pos];
+	if (bucket->space_is_malloced)
 		free(bucket->kv_pairs);
 	bucket->kv_pairs = NULL;
 	free(bucket->mru_keys);
@@ -291,7 +294,7 @@ hashtable_init_base(struct hashtable * ht, long buckets_n)
 {
 	struct hashtable_bucket * buckets;
 	struct hashtable_kv_pair * buf_kv_pairs;
-	char * buf_kv_pairs_ownership;
+	signed char * buf_kv_pairs_ownership;
 	long buf_kv_pairs_n;
 
 	// buckets_n *= 2;
@@ -305,7 +308,7 @@ hashtable_init_base(struct hashtable * ht, long buckets_n)
 	buf_kv_pairs = (typeof(buf_kv_pairs)) malloc(buf_kv_pairs_n * sizeof(*buf_kv_pairs));
 	ht->buf_kv_pairs = buf_kv_pairs;
 	ht->buf_kv_pairs_end = buf_kv_pairs + buf_kv_pairs_n;
-	buf_kv_pairs_ownership = (typeof(buf_kv_pairs_ownership)) malloc(buf_kv_pairs_n * sizeof(*buf_kv_pairs_ownership));
+	buf_kv_pairs_ownership = (typeof(buf_kv_pairs_ownership)) malloc(buckets_n * sizeof(*buf_kv_pairs_ownership));
 	ht->buf_kv_pairs_ownership = buf_kv_pairs_ownership;
 }
 
@@ -569,13 +572,11 @@ hashtable_empty(struct hashtable * ht)
 #define hashtable_bucket_resize  HASHTABLE_GEN_EXPAND(hashtable_bucket_resize)
 static
 void
-hashtable_bucket_resize(struct hashtable * ht, long pos, long new_size)
+hashtable_bucket_resize(struct hashtable * ht, long bucket_pos, long new_size)
 {
-	struct hashtable_bucket * bucket = &ht->buckets[pos];
+	struct hashtable_bucket * bucket = &ht->buckets[bucket_pos];
 	struct hashtable_kv_pair * kv_pairs;
-	long space_is_malloced;
 	long n = bucket->n;
-	space_is_malloced = (bucket->kv_pairs < ht->buf_kv_pairs) || (bucket->kv_pairs > ht->buf_kv_pairs_end);
 	new_size = (_TYPE_BS) new_size;
 	if (new_size <= bucket->size)
 	{
@@ -592,15 +593,18 @@ hashtable_bucket_resize(struct hashtable * ht, long pos, long new_size)
 		error("possible overflow, new size given is lower of equal to older: old=%ld, new=%ld", bucket->size, new_size);
 		// error("new size must be greater than older: old=%ld, new=%ld", bucket->size, new_size);
 	}
-	if (!space_is_malloced)
+	if (!bucket->space_is_malloced)
 	{
 		long pos_next;
-		pos_next = pos + bucket->size / hashtable_bucket_initial_size;
-		if (ht->buf_kv_pairs_ownership[pos_next] <= 0)    // Only grows downward, so the only nodes we can't steal are root nodes (== 1).
+		pos_next = bucket_pos + bucket->size / hashtable_bucket_initial_size;
+		if (pos_next < ht->buckets_n)
 		{
-			ht->buf_kv_pairs_ownership[pos_next] = -1;
-			bucket->size += hashtable_bucket_initial_size;
-			return;
+			if (ht->buf_kv_pairs_ownership[pos_next] <= 0)    // Only grows downward, so the only nodes we can't steal are claimed root nodes (== 1).
+			{
+				ht->buf_kv_pairs_ownership[pos_next] = -1;
+				bucket->size += hashtable_bucket_initial_size;
+				return;
+			}
 		}
 	}
 	kv_pairs = (typeof(kv_pairs)) malloc(new_size * sizeof(*kv_pairs));
@@ -608,10 +612,11 @@ hashtable_bucket_resize(struct hashtable * ht, long pos, long new_size)
 	{
 		memcpy(kv_pairs, bucket->kv_pairs, n * sizeof(*kv_pairs));
 	}
-	if (space_is_malloced)
+	if (bucket->space_is_malloced)
 		free(bucket->kv_pairs);
 	else
-		ht->buf_kv_pairs_ownership[pos] = 0;   // Only need to free the root node.
+		ht->buf_kv_pairs_ownership[bucket_pos] = 0;   // Only need to free the root node.
+	bucket->space_is_malloced = 1;
 	bucket->kv_pairs = kv_pairs;
 	bucket->size = new_size;
 }
@@ -622,36 +627,37 @@ hashtable_bucket_resize(struct hashtable * ht, long pos, long new_size)
 #define hashtable_bucket_resize_concurrent  HASHTABLE_GEN_EXPAND(hashtable_bucket_resize_concurrent)
 static
 void
-hashtable_bucket_resize_concurrent(struct hashtable * ht, long pos, long new_size)
+hashtable_bucket_resize_concurrent(struct hashtable * ht, long bucket_pos, long new_size)
 {
-	struct hashtable_bucket * bucket = &ht->buckets[pos];
+	struct hashtable_bucket * bucket = &ht->buckets[bucket_pos];
 	struct hashtable_kv_pair * kv_pairs;
-	long space_is_malloced;
 	long n;
-	char ownership;
-	char zero = 0;
+	signed char ownership;
+	signed char zero = 0;
 	n = bucket->n;
-	space_is_malloced = (bucket->kv_pairs < ht->buf_kv_pairs) || (bucket->kv_pairs > ht->buf_kv_pairs_end);
 	new_size = (_TYPE_BS) new_size;
 	if (new_size <= bucket->size)
 		error("possible overflow, new size given is lower of equal to older: old=%ld, new=%ld", bucket->size, new_size);
 		// error("new size must be greater than older: old=%ld, new=%ld", bucket->size, new_size);
-	if (!space_is_malloced)
+	if (!bucket->space_is_malloced)
 	{
 		long pos_next;
-		pos_next = pos + bucket->size / hashtable_bucket_initial_size;
-		ownership = __atomic_load_n(&ht->buf_kv_pairs_ownership[pos_next], __ATOMIC_RELAXED);
-		// Only grows downward, so the only nodes we can't steal are root nodes and when already claimed (== 1).
-		// Therefore if already -1 we can use it without other checks.
-		if (ownership == 0)
+		pos_next = bucket_pos + bucket->size / hashtable_bucket_initial_size;
+		if (pos_next < ht->buckets_n)
 		{
-			ownership = __atomic_compare_exchange_n(&ht->buf_kv_pairs_ownership[pos_next], &zero, -1, 0, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
-		}
-		if (ownership < 0)
-		{
-			ht->buf_kv_pairs_ownership[pos_next] = -1;
-			bucket->size += hashtable_bucket_initial_size;
-			return;
+			ownership = __atomic_load_n(&ht->buf_kv_pairs_ownership[pos_next], __ATOMIC_RELAXED);
+			// Only grows downward, so the only nodes we can't steal are root nodes and when already claimed (== 1).
+			// Therefore if already -1 we can use it without other checks.
+			if (ownership == 0)
+			{
+				ownership = __atomic_compare_exchange_n(&ht->buf_kv_pairs_ownership[pos_next], &zero, -1, 0, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+			}
+			if (ownership < 0)
+			{
+				ht->buf_kv_pairs_ownership[pos_next] = -1;
+				bucket->size += hashtable_bucket_initial_size;
+				return;
+			}
 		}
 	}
 	kv_pairs = (typeof(kv_pairs)) malloc(new_size * sizeof(*kv_pairs));
@@ -659,10 +665,11 @@ hashtable_bucket_resize_concurrent(struct hashtable * ht, long pos, long new_siz
 	{
 		memcpy(kv_pairs, bucket->kv_pairs, n * sizeof(*kv_pairs));
 	}
-	if (space_is_malloced)
+	if (bucket->space_is_malloced)
 		free(bucket->kv_pairs);
 	else
-		ht->buf_kv_pairs_ownership[pos] = 0;   // Only need to free the root node.
+		ht->buf_kv_pairs_ownership[bucket_pos] = 0;   // Only need to free the root node.
+	bucket->space_is_malloced = 1;
 	bucket->kv_pairs = kv_pairs;
 	bucket->size = new_size;
 }
@@ -678,41 +685,55 @@ hashtable_bucket_resize_concurrent(struct hashtable * ht, long pos, long new_siz
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 
-/* Cast to integer type before comparison.
- * For float/double types comparison is unpredictable, e.g., nan==nan is always false!
+/* For some types, comparison can have unpredictable results.
+ * For example, for float/double types "nan == nan" is always false!
+ * Therefore, cast to integer type before comparison.
  */
 #undef  hashtable_bucket_contains
 #define hashtable_bucket_contains  HASHTABLE_GEN_EXPAND(hashtable_bucket_contains)
 static inline
 int
-hashtable_test_equal_keys_basic_type(_TYPE_K target_key, _TYPE_K key)
+hashtable_test_equal_keys_basic_type(_TYPE_K key_1, _TYPE_K key_2)
 {
-	if (sizeof(_TYPE_K) <= 8)
+	if (hashtable_sizeof_key(key_1) <= 1)
 	{
-		union {
-			uint64_t u;
-			_TYPE_K t;
-		} tk, k;
-		tk.u = 0;
-		tk.t = target_key;
-		k.u = 0;
-		k.t = key;
-		return tk.u == k.u;
+		union { uint8_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
+		k1.t = key_1;
+		k2.t = key_2;
+		return k1.u == k2.u;
 	}
-	else if (sizeof(_TYPE_K) <= 16)
+	else if (hashtable_sizeof_key(key_1) <= 2)
 	{
-		union {
-			__uint128_t u;
-			_TYPE_K t;
-		} tk, k;
-		tk.u = 0;
-		tk.t = target_key;
-		k.u = 0;
-		k.t = key;
-		return tk.u == k.u;
+		union { uint16_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
+		k1.t = key_1;
+		k2.t = key_2;
+		return k1.u == k2.u;
+	}
+	else if (hashtable_sizeof_key(key_1) <= 4)
+	{
+		union { uint32_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
+		k1.t = key_1;
+		k2.t = key_2;
+		return k1.u == k2.u;
+	}
+	else if (hashtable_sizeof_key(key_1) <= 8)
+	{
+		union { uint64_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
+		k1.t = key_1;
+		k2.t = key_2;
+		return k1.u == k2.u;
+	}
+	else if (hashtable_sizeof_key(key_1) <= 16)
+	{
+		union { __uint128_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
+		k1.t = key_1;
+		k2.t = key_2;
+		return k1.u == k2.u;
 	}
 	else
-		error("the key is not a basic type, its size should be less or equal to 16 bytes");
+		return !memcmp(&key_1, &key_2, hashtable_sizeof_key(key_1));
+	// else
+		// error("the key is not a basic type, its size should be less or equal to 16 bytes");
 }
 
 
@@ -732,7 +753,7 @@ hashtable_bucket_contains(struct hashtable_bucket * bucket, _TYPE_K target_key  
 		unsigned long target_len;
 		const unsigned char * target_buf, * buf;
 		target_len = hashtable_sizeof_key(target_key);
-		target_buf = hashtable_cast_key_to_char_array(target_key);
+		target_buf = (const unsigned char *) target_key;
 	#endif
 	for (i=0;i<n;i++)
 	{
@@ -740,7 +761,7 @@ hashtable_bucket_contains(struct hashtable_bucket * bucket, _TYPE_K target_key  
 		#if HASHTABLE_GEN_KEY_IS_REF
 			if (hashtable_sizeof_key(key) != target_len)
 				continue;
-			buf = hashtable_cast_key_to_char_array(key);
+			buf = (const unsigned char *) key;
 			if (!memcmp(target_buf, buf, target_len))
 			{
 				_VC(
@@ -778,7 +799,7 @@ hashtable_bucket_contains_mru(struct hashtable_bucket * bucket, _TYPE_K target_k
 		unsigned long target_len;
 		const unsigned char * target_buf, * buf;
 		target_len = hashtable_sizeof_key(target_key);
-		target_buf = hashtable_cast_key_to_char_array(target_key);
+		target_buf = (const unsigned char *) target_key;
 	#endif
 	for (i=0;i<n;i++)
 	{
@@ -786,7 +807,7 @@ hashtable_bucket_contains_mru(struct hashtable_bucket * bucket, _TYPE_K target_k
 		#if HASHTABLE_GEN_KEY_IS_REF
 			if (hashtable_sizeof_key(key) != target_len)
 				continue;
-			buf = hashtable_cast_key_to_char_array(key);
+			buf = (const unsigned char *) key;
 			if (!memcmp(target_buf, buf, target_len))
 				return 1;
 		#else
@@ -809,7 +830,7 @@ hashtable_contains(struct hashtable * ht, _TYPE_K key  _VC(, _TYPE_V * value_out
 	long pos;
 	int ret;
 	hash = hashtable_hash(key);
-	pos = (((uint64_t) ((uint32_t) hash)) * ((uint64_t) ht->buckets_n)) >> 32;
+	pos = hashtable_hash_to_position(hash, ht->buckets_n);
 	bucket = &ht->buckets[pos];
 	ret = hashtable_bucket_contains(bucket, key  _VC(, &kv_pair));
 	_VC(
@@ -836,8 +857,7 @@ hashtable_insert_serial(struct hashtable * ht, _TYPE_K key  _VC(, _TYPE_V value,
 	long pos;
 	long n;
 	hash = hashtable_hash(key);
-	// pos = hash % ht->buckets_n;
-	pos = (((uint64_t) ((uint32_t) hash)) * ((uint64_t) ht->buckets_n)) >> 32;
+	pos = hashtable_hash_to_position(hash, ht->buckets_n);
 	bucket = &ht->buckets[pos];
 	n = bucket->n;
 	if (n > 0)
@@ -859,10 +879,12 @@ hashtable_insert_serial(struct hashtable * ht, _TYPE_K key  _VC(, _TYPE_V value,
 		bucket->size = hashtable_bucket_initial_size;
 		if (ht->buf_kv_pairs_ownership[pos] < 0)
 		{
+			bucket->space_is_malloced = 1;
 			bucket->kv_pairs = (typeof(bucket->kv_pairs)) malloc(hashtable_bucket_initial_size * sizeof(*bucket->kv_pairs));
 		}
 		else
 		{
+			bucket->space_is_malloced = 0;
 			ht->buf_kv_pairs_ownership[pos] = 1;
 			bucket->kv_pairs = &ht->buf_kv_pairs[hashtable_bucket_initial_size * pos];
 		}
@@ -888,10 +910,10 @@ hashtable_insert_concurrent(struct hashtable * ht, _TYPE_K key  _VC(, _TYPE_V va
 	uint64_t hash;
 	long pos;
 	long n;
-	char ownership;
-	char zero = 0;
+	signed char ownership;
+	signed char zero = 0;
 	hash = hashtable_hash(key);
-	pos = (((uint64_t) ((uint32_t) hash)) * ((uint64_t) ht->buckets_n)) >> 32;
+	pos = hashtable_hash_to_position(hash, ht->buckets_n);
 	bucket = &ht->buckets[pos];
 	if (_VC(!replace &&)  bucket->mru_keys != NULL)
 	{
@@ -938,6 +960,7 @@ hashtable_insert_concurrent(struct hashtable * ht, _TYPE_K key  _VC(, _TYPE_V va
 	else
 	{
 		// Root kv_pairs are unmovable, so it is either free (0), or stolen (-1). Can't be ours (1) because n == 0 (first time inserting in this bucket).
+		bucket->space_is_malloced = 0;
 		kv_pairs = &ht->buf_kv_pairs[hashtable_bucket_initial_size * pos]; // Here, to silence 'uninitialized' warning for when ownership > 0 (can't happen).
 		bucket->size = hashtable_bucket_initial_size;
 		ownership = __atomic_load_n(&ht->buf_kv_pairs_ownership[pos], __ATOMIC_RELAXED);
@@ -947,6 +970,7 @@ hashtable_insert_concurrent(struct hashtable * ht, _TYPE_K key  _VC(, _TYPE_V va
 		}
 		if (ownership < 0) // Always check, since above claim might fail.
 		{
+			bucket->space_is_malloced = 1;
 			kv_pairs = (typeof(bucket->kv_pairs)) malloc(hashtable_bucket_initial_size * sizeof(*bucket->kv_pairs));
 			bucket->size = hashtable_bucket_initial_size;
 		}

@@ -3,11 +3,14 @@
 #include <stdint.h>
 #include <float.h>
 #include <math.h>
+#include <omp.h>
 
 #include "random.h"
 
 #include "debug.h"
 #include "hash/hash.h"
+#include "parallel_util.h"
+#include "omp_functions.h"
 
 /*
  * Notes:
@@ -175,9 +178,9 @@ random_reseed(struct Random_State * rs, unsigned int seed)
 void
 random_xs_reseed(struct Random_State * rs, unsigned int seed, int variant)
 {
-	rs->xs_state = xorshift64_int(seed, 0, rs->xs_variant);
 	rs->xs_seed = seed;
 	rs->xs_variant = variant;
+	rs->xs_state = xorshift64_int(seed, 0, rs->xs_variant);
 }
 
 
@@ -425,5 +428,93 @@ random_gamma(struct Random_State * rs, double k, double theta)
 			break;
 	}
 	return theta * d * v;
+}
+
+
+//==========================================================================================================================================
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                          Random Permutation                                                            -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//==========================================================================================================================================
+
+
+// Return a random permutation of longs from a uniform distribution over [0, N).
+
+static inline
+void
+RANDOM_permutation_serial_base(struct Random_State * rs, long * permutation_buf, long N)
+{
+	int64_t i, j;
+	for (i=0;i<N;i++)
+	{
+		j = random_xs_uniform_integer(rs, 0, N);
+		macros_swap(&permutation_buf[i], &permutation_buf[j]);
+	}
+}
+
+
+void
+random_permutation_serial(struct Random_State * rs, long * permutation_buf, long N)
+{
+	int64_t i;
+	for (i=0;i<N;i++)
+		permutation_buf[i] = i;
+	RANDOM_permutation_serial_base(rs, permutation_buf, N);
+}
+
+
+// a) random (uniform) distribution of elements to threads
+// b) serial random permutation of thread-local elements
+void
+random_permutation_parallel(struct Random_State * rs, long * permutation_buf, long N)
+{
+	int num_threads = safe_omp_get_num_threads();
+	[[gnu::cleanup(cleanup_free)]] long * const offsets = (typeof(offsets)) malloc((num_threads * num_threads + 1) * sizeof(*offsets));
+	#pragma omp parallel
+	{
+		int tnum = omp_get_thread_num();
+		[[gnu::cleanup(cleanup_free)]] struct Random_State * rs_t = random_new(0);
+		long counts[num_threads];
+		long i, i_s, i_e, j, j_s, j_e;
+		long N_t;
+		long sum, prev;
+		random_xs_reseed(rs_t, tnum + rs->seed, 0);
+		for (i=0;i<num_threads;i++)
+			counts[i] = 0;
+		loop_partitioner_balance_iterations(num_threads, tnum, 0, N, &i_s, &i_e);
+		for (i=i_s;i<i_e;i++)
+		{
+			j = random_xs_uniform_integer(rs_t, 0, num_threads);
+			counts[j]++;
+		}
+		#pragma omp barrier
+		for (i=0;i<num_threads;i++)
+			offsets[i * num_threads + tnum] = counts[i];
+		#pragma omp barrier
+		#pragma omp single nowait
+		{
+			sum = 0;
+			for (i=0;i<num_threads * num_threads + 1;i++)
+			{
+				prev = offsets[i];
+				offsets[i] = sum;
+				sum += prev;
+			}
+		}
+		#pragma omp barrier
+		j_s = offsets[tnum * num_threads];
+		j_e = offsets[(tnum+1) * num_threads];
+		N_t = j_e - j_s;
+		#pragma omp barrier
+		random_xs_reseed(rs_t, tnum + rs->seed, 0);
+		for (i=i_s;i<i_e;i++)
+		{
+			j = random_xs_uniform_integer(rs_t, 0, num_threads);
+			permutation_buf[offsets[j * num_threads + tnum]] = i;
+			offsets[j * num_threads + tnum]++;
+		}
+		#pragma omp barrier
+		RANDOM_permutation_serial_base(rs_t, &permutation_buf[j_s], N_t);
+	}
 }
 

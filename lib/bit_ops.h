@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#ifdef __x86_64__
+#if defined(__x86_64__)
 	#include <x86intrin.h>
+#elif defined(__ARM_NEON)
+	#include <arm_neon.h>
 #endif
 
 #include "macros/cpp_defines.h"
@@ -41,11 +43,7 @@ bits_print_bytestream(unsigned char * data, long N)
 	long i;
 	for (i=N-1;i>=0;i--)
 	{
-		// fprintf(stdout, "%08b", data[i]);
-		for(int j=7; j>=0; j--)
-		{
-			fprintf(stdout, "%d", (data[i] >> j) & 1);
-		}
+		fprintf(stdout, "%08b", data[i]);
 	}
 	fprintf(stdout, "\n");
 }
@@ -138,13 +136,19 @@ bits_u64_unset_low(uint64_t v, unsigned long num_bits)
 //==========================================================================================================================================
 
 
-/* unsigned __int64 _bextr_u64 (unsigned __int64 a, unsigned int start, unsigned int len)
- *     Extract contiguous bits from unsigned 64-bit integer a, and store the result in dst.
- *     Extract the number of bits specified by len, starting at the bit specified by start.
+/* x86:
+ *     unsigned __int64 _bextr_u64 (unsigned __int64 a, unsigned int start, unsigned int len)
+ *         Extract contiguous bits from unsigned 64-bit integer a, and store the result in dst.
+ *         Extract the number of bits specified by len, starting at the bit specified by start.
  *
- * unsigned int _bextr_u32 (unsigned int a, unsigned int start, unsigned int len)
- *     Extract contiguous bits from unsigned 32-bit integer a, and store the result in dst.
- *     Extract the number of bits specified by len, starting at the bit specified by start.
+ *     unsigned int _bextr_u32 (unsigned int a, unsigned int start, unsigned int len)
+ *         Extract contiguous bits from unsigned 32-bit integer a, and store the result in dst.
+ *         Extract the number of bits specified by len, starting at the bit specified by start.
+ *
+ * ARM:
+ *     SBFX extracts a bitfield from one register, sign extends it to 32 bits, and writes the result to the destination register.
+ *     UBFX extracts a bitfield from one register, zero extends it to 32 bits, and writes the result to the destination register.
+ *         unsigned int _arm_ubfx(unsigned int _Rn, unsigned int _Lsb, unsigned int _Width)
  */
 
 static inline
@@ -152,9 +156,11 @@ uint64_t
 bits_u64_extract(uint64_t v, uint64_t start_pos, uint64_t num_bits)
 {
 
-	#ifdef __x86_64__
+	#if defined(__x86_64__)
 		// return __builtin_ia32_bextr_u64(v, (num_bits << 8) | start_pos);
 		return _bextr_u64(v, start_pos, num_bits);
+	#elif defined(__ARM_NEON)
+		return _arm_ubfx(v, start_pos, num_bits);
 	#else
 		return bits_u64_unset_high(v >> start_pos, num_bits);
 	#endif
@@ -238,6 +244,27 @@ bits_u64_popcnt(uint64_t v)
 
 static inline
 long
+bits_u32_popcnt(uint64_t v)
+{
+	#ifdef __x86_64__
+		return __builtin_popcount(v);
+	#else
+		long num = 0;
+		uint64_t mask = 1;
+		long i;
+		for (i=0;i<32;i++)
+		{
+			if (mask & v)
+				num++;
+			mask <<= 1ULL;
+		}
+		return num;
+	#endif
+}
+
+
+static inline
+long
 bits_hamming_distance(unsigned char * str1, unsigned char * str2, long N)
 {
 	long i;
@@ -289,6 +316,7 @@ bits_mean(unsigned char * matrix, long N, long M, unsigned char * mean)
 		{
 			c = str[j];
 
+<<<<<<< Updated upstream
 			mean_u[j*8 + 0] += bits_u64_extract(c, 0, 1); // _bextr_u64(c, 0, 1);
 			mean_u[j*8 + 1] += bits_u64_extract(c, 1, 1); // _bextr_u64(c, 1, 1);
 			mean_u[j*8 + 2] += bits_u64_extract(c, 2, 1); // _bextr_u64(c, 2, 1);
@@ -297,6 +325,16 @@ bits_mean(unsigned char * matrix, long N, long M, unsigned char * mean)
 			mean_u[j*8 + 5] += bits_u64_extract(c, 5, 1); // _bextr_u64(c, 5, 1);
 			mean_u[j*8 + 6] += bits_u64_extract(c, 6, 1); // _bextr_u64(c, 6, 1);
 			mean_u[j*8 + 7] += bits_u64_extract(c, 7, 1); // _bextr_u64(c, 7, 1);
+=======
+			mean_u[j*8 + 0] += bits_u64_extract(c, 0, 1);
+			mean_u[j*8 + 1] += bits_u64_extract(c, 1, 1);
+			mean_u[j*8 + 2] += bits_u64_extract(c, 2, 1);
+			mean_u[j*8 + 3] += bits_u64_extract(c, 3, 1);
+			mean_u[j*8 + 4] += bits_u64_extract(c, 4, 1);
+			mean_u[j*8 + 5] += bits_u64_extract(c, 5, 1);
+			mean_u[j*8 + 6] += bits_u64_extract(c, 6, 1);
+			mean_u[j*8 + 7] += bits_u64_extract(c, 7, 1);
+>>>>>>> Stashed changes
 
 			// const __m256i mask = _mm256_set_epi32(0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U);
 			// const __m256i shift = _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0);

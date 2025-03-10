@@ -81,8 +81,8 @@ rm cfe-6.0.0.src.tar.xz
 cd "$LLVM_ROOT_DIR"
 
 # In llvm-6.0.0 root directory, create two folders, build and objdir
-mkdir build
-mkdir objdir
+mkdir -p build
+mkdir -p objdir
 
 # Change directory to objdir
 cd objdir

@@ -13,6 +13,34 @@ extern "C"{
 	#include "macros/macrolib.h"
 	#include "time_it.h"
 	#include "parallel_util.h"
+
+	// #define VEC_FORCE
+
+	// #define VEC_X86_512
+	// #define VEC_X86_256
+	// #define VEC_X86_128
+	// #define VEC_ARM_SVE
+
+	#if DOUBLE == 0
+		#define VTI   i32
+		#define VTF   f32
+		// #define VEC_LEN  1
+		// #define VEC_LEN  vec_len_default_f32
+		#define VEC_LEN  vec_len_default_f64
+		// #define VEC_LEN  4
+		// #define VEC_LEN  8
+		// #define VEC_LEN  16
+		// #define VEC_LEN  32
+	#elif DOUBLE == 1
+		#define VTI   i64
+		#define VTF   f64
+		#define VEC_LEN  vec_len_default_f64
+		// #define VEC_LEN  1
+	#endif
+
+	// #include "vectorization.h"
+	#include "vectorization/vectorization_gen.h"
+
 #ifdef __cplusplus
 }
 #endif
@@ -83,17 +111,13 @@ void compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y);
 void
 ELLArrays::spmv(ValueType * x, ValueType * y)
 {
-	#ifndef __XLC__
-		// compute_ell(this, x, y);
-		// compute_ell_v(this, x, y);
-		// compute_ell_v_hor(this, x, y);
-		// compute_ell_unroll(this, x, y);
-		// compute_ell_v_hor_split(this, x, y);
-		// compute_ell_transposed(this, x, y);
-		compute_ell_transposed_v(this, x, y);
-	#else
-		compute_ell(this, x, y);
-	#endif
+	// compute_ell(this, x, y);
+	// compute_ell_v(this, x, y);
+	// compute_ell_v_hor(this, x, y);
+	// compute_ell_unroll(this, x, y);
+	// compute_ell_v_hor_split(this, x, y);
+	// compute_ell_transposed(this, x, y);
+	compute_ell_transposed_v(this, x, y);
 }
 
 
@@ -117,34 +141,32 @@ transpose(T * a, INT_T m, INT_T n)
 
 
 struct Matrix_Format *
-csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
+csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded)
 {
+	if (symmetric && !symmetry_expanded)
+		error("symmetric matrices have to be expanded to be supported by this format");
 	ELLArrays * ell = new ELLArrays(m, n, nnz);
 	long i, j, j_s, j_e;
-	long degree;
-	long max_nnz_per_row;
+	long degree, degree_max;
 
 	ell->format_name = (char *) "ELL";
-	ell->mem_footprint = m * ell->width * (sizeof(ValueType) + sizeof(INT_T));
-	// ell->m = m;
-	ell->m = ((m + VECTOR_ELEM_NUM - 1) / VECTOR_ELEM_NUM) * VECTOR_ELEM_NUM;
-
+	ell->m = ((m + VEC_LEN - 1) / VEC_LEN) * VEC_LEN;
 	ell->n = n;
 	ell->nnz = nnz;
 
-	max_nnz_per_row = 0;
+	degree_max = 0;
 	for (i=0;i<ell->m;i++)
 	{
 		degree = row_ptr[i+1] - row_ptr[i];
-		if (degree > max_nnz_per_row)
-			max_nnz_per_row = degree;
+		if (degree > degree_max)
+			degree_max = degree;
 	}
-	printf("max degree = %ld\n", max_nnz_per_row);
-
-	ell->width = max_nnz_per_row;
-	// ell->width = ((max_nnz_per_row + VECTOR_ELEM_NUM - 1) / VECTOR_ELEM_NUM) * VECTOR_ELEM_NUM;
-
+	printf("max degree = %ld\n", degree_max);
+	ell->width = degree_max;
+	// ell->width = ((degree_max + VEC_LEN - 1) / VEC_LEN) * VEC_LEN;
 	printf("width = %d\n", ell->width);
+
+	ell->mem_footprint = m * ell->width * (sizeof(ValueType) + sizeof(INT_T));
 
 	ell->a = (ValueType *) aligned_alloc(64, ell->m * ell->width * sizeof(ValueType));
 	ell->ja = (INT_T *) aligned_alloc(64, ell->m * ell->width * sizeof(INT_T));
@@ -191,94 +213,6 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long
 //==========================================================================================================================================
 //= ELLPACK
 //==========================================================================================================================================
-
-
-/*
-struct Matrix_Format *
-csr_to_format_sym(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
-{
-	long num_threads = omp_get_max_threads();
-	long t_upper_n[num_threads];
-	long degree;
-	long max_nnz_per_row;
-
-	ellsym->m = m;
-	ellsym->n = n;
-	ellsym->nnz = nnz;
-	ellsym->upper_n = 0;
-
-	// ell->m = m;
-	ell->m = ((m + VECTOR_ELEM_NUM - 1) / VECTOR_ELEM_NUM) * VECTOR_ELEM_NUM;
-
-	ell->n = n;
-	ell->nnz = nnz;
-
-	max_nnz_per_row = 0;
-	for (i=0;i<ell->m;i++)
-	{
-		degree = row_ptr[i+1] - row_ptr[i];
-		if (degree > max_nnz_per_row)
-			max_nnz_per_row = degree;
-	}
-	printf("max degree = %ld\n", max_nnz_per_row);
-
-	ell->width = max_nnz_per_row;
-
-	printf("width = %d\n", ell->width);
-
-	ellsym->diag = (typeof(ellsym->diag)) malloc(ellsym->m * sizeof(*ellsym->diag));
-	#pragma omp parallel
-	{
-		long tnum = omp_get_thread_num();
-		long upper_base = 0;
-		long i, j, i_s, i_e;
-
-		loop_partitioner_balance_iterations(num_threads, tnum, 0, ellsym->m, &i_s, &i_e);
-
-		for (i=i_s;i<i_e;i++)
-			for (j=row_ptr[i];j<row_ptr[i+1];j++)
-				if (i < col_ind[j])
-					upper_base++;
-		t_upper_n[tnum] = upper_base;
-
-		#pragma omp barrier
-		#pragma omp single
-		{
-			long tmp = 0;
-			upper_base = 0;
-			for (i=0;i<num_threads;i++)
-			{
-				tmp = t_upper_n[i];
-				t_upper_n[i] = upper_base;
-				upper_base += tmp;
-			}
-			ellsym->upper_n = upper_base;
-			ellsym->nnz = ellsym->m + 2 * upper_base;
-			ellsym->upper = (typeof(ellsym->upper)) malloc(ellsym->upper_n * sizeof(*ellsym->upper));
-			ellsym->lower = (typeof(ellsym->lower)) malloc(ellsym->upper_n * sizeof(*ellsym->lower));
-			ellsym->row_idx = (typeof(ellsym->row_idx)) malloc(ellsym->upper_n * sizeof(*ellsym->row_idx));
-			ellsym->col_idx = (typeof(ellsym->col_idx)) malloc(ellsym->upper_n * sizeof(*ellsym->col_idx));
-		}
-		#pragma omp barrier
-
-		upper_base = t_upper_n[tnum];
-
-		for (i=i_s;i<i_e;i++)
-			for (j=row_ptr[i];j<row_ptr[i+1];j++)
-			{
-				if (i == col_ind[j])
-					ellsym->diag[i] = values[j];
-				else if (i < col_ind[j])
-				{
-					ellsym->upper[upper_base] = values[j];
-					ellsym->lower[upper_base] = values[j];           // Symmetrical elements will be in the same position in the 'upper' and 'lower' arrays.
-					ellsym->row_idx[upper_base] = i;
-					ellsym->col_idx[upper_base] = col_ind[j];
-					upper_base++;
-				}
-			}
-	}
-} */
 
 
 void
@@ -357,7 +291,7 @@ compute_ell_transposed(ELLArrays * ell, ValueType * x , ValueType * y)
 	const INT_T width = ell->width;
 	for (i=0;i<ell->n;i++)
 		y[i] = 0;
-	for (i=0;i<ell->width;i++)
+	for (i=0;i<width;i++)
 	{
 		PRAGMA(GCC ivdep)
 		for (row=0,j=i*ell->m;j<(i + 1)*ell->m;row++,j++)
@@ -366,19 +300,17 @@ compute_ell_transposed(ELLArrays * ell, ValueType * x , ValueType * y)
 }
 
 
-#ifndef __XLC__
-
 void
 compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, i_vector, j, j_s, j_e, k;
-	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector_Value_t zero = {0};
-	__attribute__((unused)) Vector_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
+	const long mask = ~(((long) VEC_LEN) - 1);      // VEC_LEN is a power of 2.
+	vec_t(VTF, VEC_LEN) zero = {0};
+	__attribute__((unused)) vec_t(VTF, VEC_LEN) v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
 	const INT_T width = ell->width;
 	i_vector = ell->m & mask;
-	for (i=0;i<i_vector;i+=VECTOR_ELEM_NUM)
+	for (i=0;i<i_vector;i+=VEC_LEN)
 	{
 		v_sum = zero;
 		j_s = i * width;
@@ -386,17 +318,17 @@ compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 		for (j=j_s;j<j_e;j++)
 		{
 
-			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+			PRAGMA(GCC unroll VEC_LEN)
 			PRAGMA(GCC ivdep)
-			for (k=0;k<VECTOR_ELEM_NUM;k++)
+			for (k=0;k<VEC_LEN;k++)
 			{
 				v_mul[k] = ell->a[j+k*width] * x[ell->ja[j+k*width]];
 			}
 			v_sum += v_mul;
 
-			// PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+			// PRAGMA(GCC unroll VEC_LEN)
 			// PRAGMA(GCC ivdep)
-			// for (k=0;k<VECTOR_ELEM_NUM;k++)
+			// for (k=0;k<VEC_LEN;k++)
 			// {
 				// v_a[k] = ell->a[j+k*width] ;
 				// v_x[k] = x[ell->ja[j+k*width]];
@@ -404,7 +336,7 @@ compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 			// v_sum += v_a * v_x;
 
 		}
-		*((Vector_Value_t *)&y[i]) = v_sum;
+		*((vec_t(VTF, VEC_LEN) *)&y[i]) = v_sum;
 	}
 	for (i=i_vector;i<ell->m;i++)
 	{
@@ -422,9 +354,9 @@ void
 compute_ell_v_hor(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, j, j_s, j_e, k, j_vector_width, j_e_vector;
-	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector_Value_t zero = {0};
-	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+	const long mask = ~(((long) VEC_LEN) - 1);      // VEC_LEN is a power of 2.
+	vec_t(VTF, VEC_LEN) zero = {0};
+	__attribute__((unused)) vec_t(VTF, VEC_LEN) v_a, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
 	const INT_T width = ell->width;
 	j_vector_width = width & mask;
@@ -434,12 +366,12 @@ compute_ell_v_hor(ELLArrays * ell, ValueType * x , ValueType * y)
 		j_s = i * width;
 		j_e = (i + 1) * width;
 		j_e_vector = j_s + j_vector_width;
-		for (j=j_s;j<j_e_vector;j+=VECTOR_ELEM_NUM)
+		for (j=j_s;j<j_e_vector;j+=VEC_LEN)
 		{
-			v_a = *(Vector_Value_t *) &ell->a[j];
-			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+			v_a = *(vec_t(VTF, VEC_LEN) *) &ell->a[j];
+			PRAGMA(GCC unroll VEC_LEN)
 			PRAGMA(GCC ivdep)
-			for (k=0;k<VECTOR_ELEM_NUM;k++)
+			for (k=0;k<VEC_LEN;k++)
 			{
 				v_mul[k] = v_a[k] * x[ell->ja[j+k]];
 			}
@@ -447,7 +379,7 @@ compute_ell_v_hor(ELLArrays * ell, ValueType * x , ValueType * y)
 		}
 		for (;j<j_e;j++)
 			v_sum[0] += ell->a[j] * x[ell->ja[j]];
-		for (j=1;j<VECTOR_ELEM_NUM;j++)
+		for (j=1;j<VEC_LEN;j++)
 			v_sum[0] += v_sum[j];
 		y[i] = v_sum[0];
 	}
@@ -459,9 +391,9 @@ void
 compute_ell_v_hor_split(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, j, j_s, j_e, k, j_vector_width, j_e_vector;
-	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector_Value_t zero = {0};
-	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
+	const long mask = ~(((long) VEC_LEN) - 1);      // VEC_LEN is a power of 2.
+	vec_t(VTF, VEC_LEN) zero = {0};
+	__attribute__((unused)) vec_t(VTF, VEC_LEN) v_a, v_x = zero, v_mul = zero, v_sum = zero;
 	__attribute__((unused)) ValueType sum = 0;
 	const INT_T width = ell->width;
 	j_vector_width = width & mask;
@@ -470,18 +402,18 @@ compute_ell_v_hor_split(ELLArrays * ell, ValueType * x , ValueType * y)
 		v_sum = zero;
 		j_s = i * width;
 		j_e_vector = j_s + j_vector_width;
-		for (j=j_s;j<j_e_vector;j+=VECTOR_ELEM_NUM)
+		for (j=j_s;j<j_e_vector;j+=VEC_LEN)
 		{
-			v_a = *(Vector_Value_t *) &ell->a[j];
-			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
+			v_a = *(vec_t(VTF, VEC_LEN) *) &ell->a[j];
+			PRAGMA(GCC unroll VEC_LEN)
 			PRAGMA(GCC ivdep)
-			for (k=0;k<VECTOR_ELEM_NUM;k++)
+			for (k=0;k<VEC_LEN;k++)
 			{
 				v_mul[k] = v_a[k] * x[ell->ja[j+k]];
 			}
 			v_sum += v_mul;
 		}
-		for (j=1;j<VECTOR_ELEM_NUM;j++)
+		for (j=1;j<VEC_LEN;j++)
 			v_sum[0] += v_sum[j];
 		y[i] = v_sum[0];
 	}
@@ -499,56 +431,56 @@ compute_ell_v_hor_split(ELLArrays * ell, ValueType * x , ValueType * y)
 void
 compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 {
-	long i, i_vector, j, j_s, j_e, k;
-	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector_Value_t zero = {0};
-	__attribute__((unused)) Vector_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
-	__attribute__((unused)) ValueType sum = 0;
-	const INT_T width = ell->width;
-	i_vector = ell->m & mask;
-	PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-	PRAGMA(GCC ivdep)
-	for (i=0;i<i_vector;i+=VECTOR_ELEM_NUM)
+	#pragma omp parallel
 	{
-		v_sum = zero;
-		j_s = i;
-		j_e = i + (width) * ell->m;
-		for (j=j_s;j<j_e;j+=ell->m)
+		long i, i_vector, j, j_s, j_e, k;
+		const long mask = ~(((long) VEC_LEN) - 1);      // VEC_LEN is a power of 2.
+		vec_t(VTF, VEC_LEN) zero = {0};
+		__attribute__((unused)) vec_t(VTF, VEC_LEN) v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
+		__attribute__((unused)) ValueType sum = 0;
+		const INT_T width = ell->width;
+		i_vector = ell->m & mask;
+		#pragma omp for nowait
+		for (i=0;i<i_vector;i+=VEC_LEN)
 		{
-
-			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-			PRAGMA(GCC ivdep)
-			for (k=0;k<VECTOR_ELEM_NUM;k++)
+			v_sum = zero;
+			j_s = i;
+			j_e = i + (width) * ell->m;
+			for (j=j_s;j<j_e;j+=ell->m)
 			{
-				v_mul[k] = ell->a[j+k] * x[ell->ja[j+k]];
+
+				PRAGMA(GCC unroll VEC_LEN)
+				PRAGMA(GCC ivdep)
+				for (k=0;k<VEC_LEN;k++)
+				{
+					v_mul[k] = ell->a[j+k] * x[ell->ja[j+k]];
+				}
+				v_sum += v_mul;
+
+				// v_a = *(vec_t(VTF, VEC_LEN) *) &ell->a[j];
+				// PRAGMA(GCC unroll VEC_LEN)
+				// PRAGMA(GCC ivdep)
+				// for (k=0;k<VEC_LEN;k++)
+				// {
+					// v_x[k] = x[ell->ja[j+k]];
+				// }
+				// v_sum += v_a * v_x;
+
 			}
-			v_sum += v_mul;
-
-			// v_a = *(Vector_Value_t *) &ell->a[j];
-			// PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-			// PRAGMA(GCC ivdep)
-			// for (k=0;k<VECTOR_ELEM_NUM;k++)
-			// {
-				// v_x[k] = x[ell->ja[j+k]];
-			// }
-			// v_sum += v_a * v_x;
-
+			*((vec_t(VTF, VEC_LEN) *)&y[i]) = v_sum;
 		}
-		*((Vector_Value_t *)&y[i]) = v_sum;
-	}
-	for (i=i_vector;i<ell->m;i++)
-	{
-		j_s = i * ell->m;
-		j_e = (i + 1) * ell->m;
-		sum = 0;
-		for (j=j_s;j<j_e;j++)
-			sum += ell->a[j] * x[ell->ja[j]];
-		y[i] = sum;
+		#pragma omp for nowait
+		for (i=i_vector;i<ell->m;i++)
+		{
+			j_s = i * ell->m;
+			j_e = (i + 1) * ell->m;
+			sum = 0;
+			for (j=j_s;j<j_e;j++)
+				sum += ell->a[j] * x[ell->ja[j]];
+			y[i] = sum;
+		}
 	}
 }
-
-
-#endif /* __XLC__ */
 
 
 //==========================================================================================================================================

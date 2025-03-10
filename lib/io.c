@@ -5,9 +5,11 @@
 #include <string.h>
 #include <stdarg.h>
 #include <fcntl.h>
+#include <ftw.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+
 
 #include "macros/cpp_defines.h"
 #include "debug.h"
@@ -314,36 +316,48 @@ read_until_EOF_base(int fd, char **ret, int strict_size_test)
 	size_t total = 0;
 	ssize_t num;
 	size_t file_size;
+	long buf_n;
 	char * buf;
+	long flag;
 
 	safe_fstat(fd, &sb);
 	if (!S_ISREG(sb.st_mode))
 		error("not a regular file: fd=%d", fd);
-	file_size = sb.st_size + 1;
-	buf = (typeof(buf)) malloc(file_size + 1);     // Add a NULL byte at the end for extra safety and so that it can be used as a string.
+	file_size = sb.st_size;
+	// printf("file_size=%ld\n", file_size);
+
+	/* Malloc _SC_PAGESIZE more bytes to be able to read 'sysfs' and '/proc' files (they report wrong or even zero size).
+	 * Add a NULL byte at the end so that it can be used as a string. */
+	buf_n = sysconf(_SC_PAGESIZE) + file_size + 1;
+	buf = (typeof(buf)) malloc(buf_n);
+
+	flag = 0;
 	while (1)
 	{
-		do {
-			num = read(fd,  buf + total,  file_size - total);
-			if (num < 0)
-			{
-				long error_fd_path_buf_n = 10000;
-				char error_fd_path_buf[error_fd_path_buf_n];
-				unsafe_fd_to_path_preserve_errno(fd, error_fd_path_buf, error_fd_path_buf_n);
-				error("read(): fd=%d , path='%s'", fd, error_fd_path_buf);
-			}
-			if (num == 0)
-			{
-				// Some files report false size, e.g. sysfs files are always of size 'PAGE_SIZE', but 'read()' returns the actual size and always with one call.
-				if (strict_size_test && (total != file_size))
-					error("read(): EOF before reading the whole file (based on size returned by 'fstat') file size = %d, bytes read = %d", file_size, total);
-				buf[total] = '\0';
-				*ret = buf;
-				return (ssize_t) total;
-			}
-			total += num;
-		} while (total < file_size);
-		error("read(): no EOF after reading the whole file (based on size returned by 'fstat')");
+		num = read(fd,  buf + total,  buf_n - total);
+		if (num < 0)
+		{
+			long error_fd_path_buf_n = 10000;
+			char error_fd_path_buf[error_fd_path_buf_n];
+			unsafe_fd_to_path_preserve_errno(fd, error_fd_path_buf, error_fd_path_buf_n);
+			error("read(): fd=%d , path='%s'", fd, error_fd_path_buf);
+		}
+		if (num == 0)
+		{
+			// Some files report false size, e.g. sysfs files are always of size 'PAGE_SIZE', but 'read()' returns the actual size and always with one call.
+			if (strict_size_test && (total != file_size))
+				error("read(): EOF before reading the whole file (based on size returned by 'fstat') file size = %d, bytes read = %d", file_size, total);
+			buf[total] = '\0';
+			*ret = buf;
+			return (ssize_t) total;
+		}
+		total += num;
+		if (total >= file_size)
+		{
+			if (flag)
+				error("read(): no EOF after reading the whole file (based on size returned by 'fstat'), file size=%ld, size read=%ld)", file_size, total);
+			flag = 1;
+		}
 	}
 }
 
@@ -541,6 +555,62 @@ safe_mremap_fixed(void * old_address, size_t old_size, size_t new_size, void * n
 {
 	return safe_mremap(old_address,  old_size,  new_size,  (MREMAP_MAYMOVE | MREMAP_FIXED),  new_address);
 }
+
+
+//==========================================================================================================================================
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                          Recursive Remove                                                              -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//==========================================================================================================================================
+
+
+static
+int
+unlink_cb(const char * fpath, [[gnu::unused]] const struct stat * sb, [[gnu::unused]] int typeflag, [[gnu::unused]] struct FTW * ftwbuf)
+{
+	int rv = remove(fpath);
+	if (rv)
+		error("remove_recursive: %s", fpath);
+	return rv;
+}
+
+
+/* 
+ * int nftw(const char * dirpath,
+ *          int (*fn)(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf),
+ *          int nopenfd,
+ *          int flags);
+ *
+ * File tree walk.
+ *
+ * typeflag:
+ *     FTW_F   : fpath is a regular file.
+ *     FTW_D   : fpath is a directory.
+ *     FTW_DNR : fpath is a directory which can't be read.
+ *     FTW_DP  : fpath is a directory, and FTW_DEPTH was specified in flags.
+ *               (If FTW_DEPTH was not specified in flags, then directories will always be visited with typeflag set to FTW_D.)
+ *               All of the files and subdirectories within fpath have been processed.
+ *     FTW_NS  : The stat(2) call failed on fpath, which is not a symbolic link.
+ *               The probable cause for this is that the caller had read permission on the parent directory, so that the filename fpath could be seen,
+ *               but did not have execute permission, so that the file could not be reached for stat(2).
+ *               The contents of the buffer pointed to by sb are undefined.
+ *     FTW_SL  : fpath is a symbolic link, and FTW_PHYS was set in flags.
+ *     FTW_SLN : fpath is a symbolic link pointing to a nonexistent file.
+ *               (This occurs only if FTW_PHYS is not set.)
+ *               In this case the sb argument passed to fn() contains information returned by performing lstat(2) on the "dangling" symbolic link.  (But see BUGS.)
+ *
+ * 'nopenfd' : To avoid using up all of the calling process's file descriptors,
+ *             it specifies the maximum number of directories that nftw() will hold open simultaneously.
+ *
+ * FTW_DEPTH : depth first
+ * FTW_PHYS  : do not follow symbolic links
+ */
+int
+remove_recursive(char * path)
+{
+	return nftw(path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
+}
+
 
 #endif
 

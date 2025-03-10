@@ -65,8 +65,13 @@ calc_numa_nodes()
 # export SPARSEX_ROOT_DIR=/various/dgal/epyc1
 # export SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
 # export SPARSEX_ROOT_DIR=/various/pmpakos/SPMV_BENCHMARKS/sparsex
+<<<<<<< Updated upstream
 export SPARSEX_ROOT_DIR=/pfs/lustrep2/scratch/project_465000869/pmpakos/damned_directory/
 # export SPARSEX_ROOT_DIR=/leonardo_scratch/fast/EUHPC_D12_058/pmpakos/damned_directory
+=======
+# export SPARSEX_ROOT_DIR="/local/pmpakos/damned_directory"
+
+>>>>>>> Stashed changes
 
 declare -A conf_vars
 conf_vars=(
@@ -85,25 +90,55 @@ conf_vars=(
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
 
-    ['VC_TOLERANCE']=0
-    # ['VC_TOLERANCE']='1e-12'
-    # ['VC_TOLERANCE']='1e-9'
-    # ['VC_TOLERANCE']='1e-7'
-    # ['VC_TOLERANCE']='1e-6'
-    # ['VC_TOLERANCE']='1e-3'
+    # Whether to use RCM reordering on the matrix. Valid only for symmetric matrices.
+    ['USE_RCM_REORDERING']=0
+    # ['USE_RCM_REORDERING']=1
 
     # Benchmark with the artificially generated matrices (1) or real matrices (0).
     # ['USE_ARTIFICIAL_MATRICES']=0
     ['USE_ARTIFICIAL_MATRICES']=1
 
+    # Whether to clear cpu caches before each spmv iteration.
+    ['CLEAR_CACHES']=0
+    # ['CLEAR_CACHES']=1
+
+    # CG benchmarks: whether to replace zeros in the diagonal with 1s.
+    # ['CG_FIX_DIAGONAL_ZEROS']=0
+    ['CG_FIX_DIAGONAL_ZEROS']=1
+
+    # CG benchmarks: maximum number of iterations.
+    # ['CG_MAX_NUM_ITERS']='10 20'
+    ['CG_MAX_NUM_ITERS']='10 20 30 40 50 100 500 1000'
+
+    # Value compression error tolerance.
+    ['DIV_VC_TOLERANCE']=0
+    # ['DIV_VC_TOLERANCE']='1e-12'
+    # ['DIV_VC_TOLERANCE']='1e-9'
+    # ['DIV_VC_TOLERANCE']='1e-7'
+    # ['DIV_VC_TOLERANCE']='1e-6'
+    # ['DIV_VC_TOLERANCE']='1e-3'
+
+    # Whether to enable work stealing for the DIV formats. Ignored for the symmetric variant.
+    # ['DIV_STEALING_ENABLED']=0
+    ['DIV_STEALING_ENABLED']=1
+
+    # Whether to enable packet reordering optimization.
+    ['DIV_PACKET_REORDERING']=0
+    # ['DIV_PACKET_REORDERING']=1
+
     # Maximum number of the machine's cores.
     # ['max_cores']=160
-    # ['max_cores']=256
+    ['max_cores']=256
     # ['max_cores']=128
+<<<<<<< Updated upstream
     ['max_cores']=64
     # ['max_cores']=56
     # ['max_cores']=32
     # ['max_cores']=28
+=======
+    # ['max_cores']=64
+    # ['max_cores']=96
+>>>>>>> Stashed changes
     # ['max_cores']=48
     # ['max_cores']=24
     # ['max_cores']=16
@@ -113,7 +148,10 @@ conf_vars=(
     # Cores / Threads to utilize. Use spaces to define a set of different thread numbers to benchmark.
     # ['cores']=1
     # ['cores']='1 2 4 8 16 32 64 128'
+    # ['cores']='1 2 4 8 16 32 64'
+    # ['cores']='1 2 4'
     # ['cores']='64 128'
+<<<<<<< Updated upstream
     # ['cores']=128
     ['cores']=64
     # ['cores']=56
@@ -122,12 +160,20 @@ conf_vars=(
     # ['cores']=64
     # ['cores']=56
     # ['cores']=28
+=======
+    # ['cores']=112
+    # ['cores']=72
+    # ['cores']=64
+    # ['cores']=56
+    # ['cores']=48
+    # ['cores']=32
+>>>>>>> Stashed changes
     # ['cores']=24
     # ['cores']=16
     # ['cores']=14
     # ['cores']=12
     # ['cores']=8
-    # ['cores']=6
+    ['cores']=6
     # ['cores']=4
     # ['cores']=2
     # ['cores']=1
@@ -158,11 +204,25 @@ conf_vars=(
     # Path for the mkl library.
     # ['MKL_PATH']='/opt/intel/oneapi/mkl/latest'
     ['MKL_PATH']="$( options=(
+<<<<<<< Updated upstream
                         # '/opt/intel/oneapi/mkl/latest'
                         # '/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl'
                         # '/various/pmpakos/intel/oneapi/mkl/2024.1'
+=======
+                        "$MKLROOT"
+                        "$MKL_HOME"
+                        '/opt/intel/oneapi/mkl/latest'
+                        '/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl'
+>>>>>>> Stashed changes
                         "${HOME}/spack/23.03/0.20.0/intel-oneapi-mkl-2023.1.0-cafkcjc/mkl/latest"
                         # /leonardo/prod/spack/05/install/0.21/linux-rhel8-icelake/gcc-8.5.0/intel-oneapi-mkl-2023.2.0-4sr2vqxowjw5hjteersaff5uzql66ybt/mkl/2023.2.0
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+
+    # Path for the mkl library.
+    ['TBB_PATH']="$( options=(
+                        '/opt/intel/oneapi/tbb/latest'
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -177,6 +237,7 @@ conf_vars=(
                 )"
 
     ['CUDA_PATH']="$( options=(
+<<<<<<< Updated upstream
                         '/usr/local/cuda-12.5'
                     )
                     find_valid_dir "${options[@]}"
@@ -186,6 +247,14 @@ conf_vars=(
                     )
                     find_valid_dir "${options[@]}"
                 )"
+=======
+                        '/usr/local/cuda'
+                        '/various/dgal/epyc1/cuda/cuda_11_4_4'
+                        # '/various/pmpakos/epyc5_libs/cuda_12_4_1'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+>>>>>>> Stashed changes
 
     # SparseX ecosystem environment variables that have to be set.
     # These are environment variables that have to be set for SparseX to work
@@ -226,10 +295,24 @@ conf_vars=(
                 )"
     ['SPARSEX_LIB_PATH']="$( options=(
                         "${SPARSEX_ROOT_DIR}/sparsex/build/lib"
-                        "${SPARSEX_ROOT_DIR}/build/lib"
                     )
                     find_valid_dir "${options[@]}"
                 )"
+    # ['SPARSEX_FLOAT_CONF_PATH']="$( options=(
+                        # "${SPARSEX_ROOT_DIR}/sparsex_float/build/bin"
+                    # )
+                    # find_valid_dir "${options[@]}"
+                # )"
+    # ['SPARSEX_FLOAT_INC_PATH']="$( options=(
+                        # "${SPARSEX_ROOT_DIR}/sparsex_float/build/include"
+                    # )
+                    # find_valid_dir "${options[@]}"
+                # )"
+    # ['SPARSEX_FLOAT_LIB_PATH']="$( options=(
+                        # "${SPARSEX_ROOT_DIR}/sparsex_float/build/lib"
+                    # )
+                    # find_valid_dir "${options[@]}"
+                # )"
 
     # SELL-C-s ecosystem environment variables that have to be set
     # These are environment variables that have to be set for SELL-C-s to work
@@ -253,7 +336,7 @@ conf_vars=(
     # Path for the openFoam matrices.
     ['path_openFoam']="$( options=(
                         '/m100_work/ExaF_prod22/wp2-matrices'
-                        "${HOME}/Data/graphs/matrices_openFoam"
+                        "${HOME}/Data/graphs/openFoam"
                         '/zhome/academic/HLRS/xex/xexdgala/Data/graphs/openFoam'
                         '/various/dgal/graphs/matrices_openFoam'
                     )
@@ -267,7 +350,11 @@ conf_vars=(
     ['FPZIP_ROOT_DIR']="${HOME}/lib/fpzip"
 )
 
-conf_vars['cpu_affinity']="$(calc_cpu_pinning "${conf_vars["cores"]}" "${conf_vars["max_cores"]}" "${conf_vars["cpu_pinning_step"]}" "${conf_vars["cpu_pinning_group_size"]}")"
+cpu_affinity=''
+for c in ${conf_vars['cores']}; do
+    cpu_affinity="${cpu_affinity}:$(calc_cpu_pinning "$c" "${conf_vars["max_cores"]}" "${conf_vars["cpu_pinning_step"]}" "${conf_vars["cpu_pinning_group_size"]}")"
+done
+conf_vars['cpu_affinity']="${cpu_affinity:1}"
 
 if hash numactl 2>/dev/null; then
     conf_vars['numa_nodes']="$(calc_numa_nodes "${conf_vars["cores"]}" "${conf_vars["max_cores"]}" "${conf_vars["cpu_affinity"]}")"
@@ -370,31 +457,115 @@ declare -A progs
 
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
+
     # CG
     # ['cg_csr_d']="${script_dir}/spmv_code_bench/cg_csr_d.exe"
+    # ['cg_csr_sym_d']="${script_dir}/spmv_code_bench/cg_csr_sym_d.exe"
     # ['cg_mkl_ie_d']="${script_dir}/spmv_code_bench/cg_mkl_ie_d.exe"
     # ['cg_mkl_ie_f']="${script_dir}/spmv_code_bench/cg_mkl_ie_f.exe"
-    # ['cg_csr_cv_stream_d']="${script_dir}/spmv_code_bench/cg_csr_cv_stream_d.exe"
+    # ['cg_div_d']="${script_dir}/spmv_code_bench/cg_div_d.exe"
+    # ['cg_div_sym_local_d']="${script_dir}/spmv_code_bench/cg_div_sym_local_d.exe"
+
+    # BiCG
+    # ['bicg_mkl_ie_d']="${script_dir}/spmv_code_bench/bicg_mkl_ie_d.exe"
+    # ['bicg_div_d']="${script_dir}/spmv_code_bench/bicg_div_d.exe"
 
     # Custom csr
     # ['csr_naive_d']="${script_dir}/spmv_code_bench/spmv_csr_naive_d.exe"
-    # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr_d.exe"
+    # ['csr_d']="${script_dir}/spmv_code_bench/spmv_csr_d.exe" # BENCH_AMD, BENCH_INTEL
+    # ['csr_f']="${script_dir}/spmv_code_bench/spmv_csr_f.exe"
+    # ['csr_sym_d']="${script_dir}/spmv_code_bench/spmv_csr_sym_d.exe" # BENCH_SYM
+    # ['csr_sym_f']="${script_dir}/spmv_code_bench/spmv_csr_sym_f.exe" # BENCH_SYM
     # ['csr_kahan_d']="${script_dir}/spmv_code_bench/spmv_csr_kahan_d.exe"
     # ['csr_prefetch_d']="${script_dir}/spmv_code_bench/spmv_csr_prefetch_d.exe"
     # ['csr_simd_d']="${script_dir}/spmv_code_bench/spmv_csr_simd_d.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_d.exe"
     # ['csr_vector_d']="${script_dir}/spmv_code_bench/spmv_csr_balanced_distribute_early_d.exe"
     # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance_d.exe"
-    # ['csr_f']="${script_dir}/spmv_code_bench/spmv_csr_f.exe"
 
     # Custom csr x86
-    # ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86_d.exe"
+    ['csr_vector_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_x86_d.exe" # BENCH_AMD, BENCH_INTEL
     # ['csr_vector_oracle_balance_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_oracle_balance_x86_d.exe"
     # ['csr_vector_queues_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_queues_x86_d.exe"
     # ['csr_vector_perfect_nnz_balance_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance_x86_d.exe"
 
     # Custom lut
-    # ['csr_vector_lut_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_lut_x86_d.exe"
+    # ['csr_vector_lut_x86_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_lut_x86_d.exe" # BENCH_AMD, BENCH_INTEL
+
+    # Custom compressed values block
+    # ['csr_cv_block_id_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_id_d.exe" # BENCH_AMD
+    # ['csr_cv_block_d2f_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_d2f_d.exe" # BENCH_AMD
+    # ['csr_cv_block_fpc_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_fpc_d.exe" # BENCH_AMD
+    # ['csr_cv_block_zfp_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_zfp_d.exe" # BENCH_AMD
+    # ['csr_cv_block_fpzip_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_fpzip_d.exe" # BENCH_AMD
+
+    # Custom compressed values stream
+    # ['csr_div_d']="${script_dir}/spmv_code_bench/spmv_div_d.exe" # BENCH_AMD, BENCH_INTEL
+    # ['csr_div_f']="${script_dir}/spmv_code_bench/spmv_div_f.exe" # BENCH_AMD, BENCH_INTEL
+    # ['csr_div_rf_d']="${script_dir}/spmv_code_bench/spmv_div_rf_d.exe" # BENCH_AMD, BENCH_INTEL
+    # ['csr_div_rf_f']="${script_dir}/spmv_code_bench/spmv_div_rf_f.exe" # BENCH_AMD, BENCH_INTEL
+    # ['csr_div_adapt_d']="${script_dir}/spmv_code_bench/spmv_div_adapt_d.exe" # BENCH_AMD, BENCH_INTEL
+    # ['csr_div_adapt_f']="${script_dir}/spmv_code_bench/spmv_div_adapt_f.exe" # BENCH_AMD, BENCH_INTEL
+    # ['csr_div_rf_const_size_row_d']="${script_dir}/spmv_code_bench/spmv_div_rf_const_size_row_d.exe"
+    # ['csr_div_rf_const_size_row_f']="${script_dir}/spmv_code_bench/spmv_div_rf_const_size_row_f.exe"
+    # ['csr_div_select_d']="${script_dir}/spmv_code_bench/spmv_div_select_d.exe"
+    # ['csr_div_cols_sort_d']="${script_dir}/spmv_code_bench/spmv_div_cols_sort_d.exe"
+    # ['csr_div_rf_ord2_d']="${script_dir}/spmv_code_bench/spmv_div_rf_ord2_d.exe"
+    # ['csr_div_sym_rf_local_d']="${script_dir}/spmv_code_bench/spmv_div_sym_rf_local_d.exe" # BENCH_SYM
+    # ['csr_div_sym_rf_local_f']="${script_dir}/spmv_code_bench/spmv_div_sym_rf_local_f.exe" # BENCH_SYM
+
+    # MKL IE
+    # ['mkl_ie_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie_d.exe" # BENCH_AMD, BENCH_INTEL
+    # ['mkl_ie_f']="${script_dir}/spmv_code_bench/spmv_mkl_ie_f.exe" # BENCH_AMD, BENCH_INTEL
+    # ['mkl_ie_sym_d']="${script_dir}/spmv_code_bench/spmv_mkl_ie_sym_d.exe" # BENCH_SYM
+    # ['mkl_ie_sym_f']="${script_dir}/spmv_code_bench/spmv_mkl_ie_sym_f.exe" # BENCH_SYM
+
+    # MKL CSR
+    # ['mkl_csr_d']="${script_dir}/spmv_code_bench/spmv_mkl_csr_d.exe"
+
+    # AOCL
+    # ['aocl_optmv_d']="${script_dir}/spmv_code_bench/spmv_aocl_optmv_d.exe"
+
+    # CSR-RV
+    # ['csrrv_d']="${script_dir}/spmv_code_bench/spmv_csrrv_d.exe" # BENCH_INTEL
+
+    # CSR5
+    # ['csr5_d']="${script_dir}/spmv_code_bench/spmv_csr5_d.exe" # BENCH_AMD, BENCH_INTEL
+
+    # merge spmv
+    # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge_d.exe" # BENCH_AMD, BENCH_INTEL
+
+    # sell C sigma
+    # ['sell_C_s_d']="${script_dir}/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s_d.exe"
+    # ['sell_C_s_d']="/various/pmpakos/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_sell-C-s/build/spmvbench/spmv_sell-C-s_d.exe"
+
+    # sparsex
+    # ['sparsex_d']="${script_dir}/spmv_code_bench/spmv_sparsex_d.exe" # BENCH_AMD, BENCH_INTEL
+    # ['sparsex_f']="${script_dir}/spmv_code_bench/spmv_sparsex_f.exe" # This crashes!
+
+    # SpV8
+    # ['spv8_d']="${script_dir}/spmv_code_bench/spmv_spv8_d.exe"
+
+    # LCM - partially strided codelet
+    # ['lcm_d']="${script_dir}/spmv_code_bench/LCM-partially-strided-codelet/spmv_lcm_d.exe" # BENCH_AMD, BENCH_INTEL
+
+    # CFS
+    # ['cfs_d']="${script_dir}/spmv_code_bench/cfs-spmv/build/bench/spmv_cfs_d.exe" # BENCH_SYM
+    # ['cfs_f']="${script_dir}/spmv_code_bench/cfs-spmv/build/bench/spmv_cfs_f.exe" # BENCH_SYM
+
+    # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell_d.exe"
+    # ['sell_d']="${script_dir}/spmv_code_bench/spmv_sell_d.exe"
+    ['sell_sorted_d']="${script_dir}/spmv_code_bench/spmv_sell_sorted_d.exe"
+    # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu_d.exe"
+    # ['dia_d']="${script_dir}/spmv_code_bench/spmv_dia_d.exe"
+
+    # ['mkl_csr_d']="${script_dir}/spmv_code_bench/spmv_mkl_csr_d.exe"
+    # ['mkl_dia_d']="${script_dir}/spmv_code_bench/spmv_mkl_dia_d.exe"
+    # ['mkl_bsr_2_d']="${script_dir}/spmv_code_bench/spmv_mkl_bsr_2_d.exe"
+    # ['mkl_bsr_8_d']="${script_dir}/spmv_code_bench/spmv_mkl_bsr_8_d.exe"
+    # ['mkl_coo_d']="${script_dir}/spmv_code_bench/spmv_mkl_coo_d.exe"
+    # ['mkl_csc_d']="${script_dir}/spmv_code_bench/spmv_mkl_csc_d.exe"
+
 
     # Custom cuda
     # ['csr_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_nv_d.exe"
@@ -403,71 +574,41 @@ progs=(
     # ['csr_cuda_const_nnz_per_thread_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_nv_d.exe"
 
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d.exe"
+<<<<<<< Updated upstream
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d.exe"
 
+=======
+>>>>>>> Stashed changes
     # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz2_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz2_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_s8_b1024_nnz2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_b1024_nnz2_nv_d.exe"
-
     # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz4_nv_d.exe"
+<<<<<<< Updated upstream
     # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz4_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz6_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz6_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_s8_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_b1024_nnz4_nv_d.exe"
     # ['csr_cuda_const_nnz_per_thread_s32_b1024_nnz4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s32_b1024_nnz4_nv_d.exe"
 
+=======
+>>>>>>> Stashed changes
     # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz8_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz8_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_s8_b1024_nnz8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_const_nnz_per_thread_s8_b1024_nnz8_nv_d.exe"
-
+    #
     # ['csr_cuda_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_t1769472_nv_d.exe"
-    # ['csr_cuda_s4_t1769472_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t1769472_nv_d.exe"
-    # ['csr_cuda_s4_t221184_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_s4_t221184_nv_d.exe"
 
     # ['csr_cuda_buffer_t4194304_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_t4194304_rc4_nv_d.exe"
-    # ['csr_cuda_buffer_t221184_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_t221184_rc4_nv_d.exe"
-    # ['csr_cuda_buffer_s4_t221184_rc4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_buffer_s4_t221184_rc4_nv_d.exe"
 
     # ['csr_cuda_vector_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_vector_b256_nv_d.exe"
-    # ['csr_cuda_vector_s4_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_vector_s4_b256_nv_d.exe"
 
     # Cuda Adaptive
+<<<<<<< Updated upstream
+=======
+    # ['csr_cuda_adaptive_b256_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_nv_d.exe"
+>>>>>>> Stashed changes
     # ['csr_cuda_adaptive_b1024_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b1024_mb2_nv_d.exe"
-    # ['csr_cuda_adaptive_b1024_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b1024_mb4_nv_d.exe"
-    # ['csr_cuda_adaptive_b128_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb2_nv_d.exe"
-    # ['csr_cuda_adaptive_b128_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb4_nv_d.exe"
-    # ['csr_cuda_adaptive_b128_mb8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb8_nv_d.exe"
-    # ['csr_cuda_adaptive_b128_mb16_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb16_nv_d.exe"
-    # ['csr_cuda_adaptive_b128_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb24_nv_d.exe"
-    # ['csr_cuda_adaptive_b128_mb48_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b128_mb48_nv_d.exe"
-
     # ['csr_cuda_adaptive_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb1_nv_d.exe"
-    # ['csr_cuda_adaptive_b256_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb2_nv_d.exe"
-    # ['csr_cuda_adaptive_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb4_nv_d.exe"
-    # ['csr_cuda_adaptive_b256_mb8_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb8_nv_d.exe"
-    # ['csr_cuda_adaptive_b256_mb16_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb16_nv_d.exe"
-    # ['csr_cuda_adaptive_b256_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_b256_mb24_nv_d.exe"
-
     # ['csr_cuda_adaptive_v3_s4_c16_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c16_b256_mb4_nv_d.exe"
-    # ['csr_cuda_adaptive_v3_s4_c16_b256_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c16_b256_mb2_nv_d.exe"
-    # ['csr_cuda_adaptive_v3_s4_c16_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c16_b256_mb1_nv_d.exe"
-    # ['csr_cuda_adaptive_v3_s4_c128_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c128_b256_mb1_nv_d.exe"
-    # ['csr_cuda_adaptive_v3_s4_c64_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c64_b256_mb1_nv_d.exe"
-    # ['csr_cuda_adaptive_v3_s4_c32_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c32_b256_mb1_nv_d.exe"
-    # ['csr_cuda_adaptive_v3_s4_c16_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c16_b256_mb1_nv_d.exe"
-    # ['csr_cuda_adaptive_v3_s4_c8_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c8_b256_mb1_nv_d.exe"
-    # ['csr_cuda_adaptive_v3_s4_c4_b256_mb1_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_v3_s4_c4_b256_mb1_nv_d.exe"
-
     # ['csr_cuda_adaptive_s16_b256_mb2_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb2_nv_d.exe"
-    # ['csr_cuda_adaptive_s8_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s8_b256_mb4_nv_d.exe"
-    # ['csr_cuda_adaptive_s8_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s8_b256_mb4_nv_d.exe"
-    # ['csr_cuda_adaptive_s4_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_mb4_nv_d.exe"
-    # ['csr_cuda_adaptive_s1_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s1_b256_mb4_nv_d.exe"
-    # ['csr_cuda_adaptive_s4_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s4_b256_mb4_nv_d.exe"
-    # ['csr_cuda_adaptive_s16_b256_mb4_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb4_nv_d.exe"
-    # ['csr_cuda_adaptive_s16_b256_mb24_nv_d']="${script_dir}/spmv_code_bench/spmv_csr_cuda_adaptive_s16_b256_mb24_nv_d.exe"
 
     # Research GPU formats
     # CSR5
@@ -510,6 +651,7 @@ progs=(
     # ['rocparse_coo_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_coo_nv_d.exe"
     # ['rocparse_hyb_nv_d']="${script_dir}/spmv_code_bench/spmv_rocsparse_hyb_nv_d.exe"
 
+<<<<<<< Updated upstream
     # Custom compressed values block
     # ['csr_cv_block_id_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_id_d.exe"
     # ['csr_cv_block_d2f_d']="${script_dir}/spmv_code_bench/spmv_csr_cv_block_d2f_d.exe"
@@ -566,6 +708,8 @@ progs=(
     # ['mkl_bsr_64_d']="${script_dir}/spmv_code_bench/spmv_mkl_bsr_64_d.exe"
     # ['mkl_coo_d']="${script_dir}/spmv_code_bench/spmv_mkl_coo_d.exe"
     # ['mkl_csc_d']="${script_dir}/spmv_code_bench/spmv_mkl_csc_d.exe"
+=======
+>>>>>>> Stashed changes
 )
 
 

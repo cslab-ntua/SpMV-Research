@@ -27,8 +27,8 @@
 
 
 void
-read_openfoam_matrix(const char * filename_owner, const char * filename_neigh,
-		int ** rowind_out, int ** colind_out, int * N_out, int * nnz_non_diag_out)
+read_openfoam_matrix(char * filename_owner, char * filename_neigh,
+		int ** rowind_out, int ** colind_out, long * N_out, long * nnz_non_diag_out)
 {
 	__attribute__((cleanup(file_atoms_destroy))) struct File_Atoms * A_owner;
 	__attribute__((cleanup(file_atoms_destroy))) struct File_Atoms * A_neigh;
@@ -117,8 +117,8 @@ read_openfoam_matrix(const char * filename_owner, const char * filename_neigh,
 
 
 void
-read_openfoam_matrix_dir(const char * dir,
-		int ** rowind_out, int ** colind_out, int * N_out, int * nnz_non_diag_out)
+read_openfoam_matrix_dir(char * dir,
+		int ** rowind_out, int ** colind_out, long * N_out, long * nnz_non_diag_out)
 {
 	long buf_n = 1000;
 	char filename_owner[buf_n];

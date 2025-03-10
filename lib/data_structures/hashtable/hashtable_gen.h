@@ -3,13 +3,13 @@
 #elif !defined(HASHTABLE_GEN_KEY_IS_REF)
 	#error "HASHTABLE_GEN_KEY_IS_REF not defined: [ Boolean ] Whether the key type is a reference (pointer) to the actual key."
 #elif !defined(HASHTABLE_GEN_TYPE_1)
-	#error "HASHTABLE_GEN_TYPE_1 not defined: [ Key Type ] Must be a basic type or an array that can safely be cast to a char array. NOT A STRUCTURE (can't be safely compared without user intervention, non-deterministic hash)."
+	#error "HASHTABLE_GEN_TYPE_1 not defined: [ Key Type ] Must be a basic type or an array that can safely be cast to a char array. WARNING WHEN A STRUCTURE: Use gcc builting 'void __builtin_clear_padding(ptr)' or a similar function to clear paddings."
 #elif (!HASHTABLE_GEN_VALUE_SAME_AS_KEY && !defined(HASHTABLE_GEN_TYPE_2))
 	#error "HASHTABLE_GEN_TYPE_2 not defined: [ Value Type ]"
 #elif (HASHTABLE_GEN_VALUE_SAME_AS_KEY && defined(HASHTABLE_GEN_TYPE_2))
 	#error "HASHTABLE_GEN_TYPE_2 defines a value type, but HASHTABLE_GEN_VALUE_SAME_AS_KEY is defined as true (i.e. the keys also act as the values); undefine HASHTABLE_GEN_TYPE_2 or set HASHTABLE_GEN_VALUE_SAME_AS_KEY to false (0)."
 #elif !defined(HASHTABLE_GEN_TYPE_3)
-	#error "HASHTABLE_GEN_TYPE_3 not defined: [ Bucket Size Type (Integer) ] Decide while considering the ratio of the hashtable size versus the total inserted data and also the possible collisions for the total amount of inserted data (a small %% of a big number can also be a big number)"
+	#error "HASHTABLE_GEN_TYPE_3 not defined: [ Bucket Size Type (Integer) ] Decide while considering the ratio of the hashtable size versus the total inserted data and also the possible collisions for the total amount of inserted data (note: a small %% of a big number can also be a big number)"
 #elif !defined(HASHTABLE_GEN_SUFFIX)
 	#error "HASHTABLE_GEN_SUFFIX not defined"
 #endif
@@ -65,7 +65,7 @@ struct hashtable_kv_pair {
  *     We always assume that the buckets will have about the same elements (i.e. good hash functions).
  *     Still, we need to locate the buckets with big traffic, i.e. values that appear multiple times -> failed insertions,
  *     and bypass the locking.
- *     Maybe we need some kind of static (i.e. never freed during inserts) MRU structure.
+ *     Maybe we need some kind of persistent (i.e., never freed during inserts) MRU structure.
  */
 
 #undef  HASHTABLE_GEN_MRU_N
@@ -80,7 +80,7 @@ struct hashtable_mru_cache {
 };
 
 /* 'fail_counter':
- *     There is a common pitfall for the 'mru_keys', which is cases like the values of symmetric matrices.
+ *     There is a common pitfall for the 'mru_keys', which is in cases like the values of symmetric matrices.
  *     For each of half of the nnz we add 'HASHTABLE_GEN_MRU_N * sizeof(_TYPE_K)' extra space.
  *
  *     We need some space guarantees when adding the 'mru_keys' arrays, so we only add them
@@ -97,6 +97,7 @@ struct hashtable_mru_cache {
 struct hashtable_bucket {
 	int8_t lock;
 	int8_t fail_counter;
+	int8_t space_is_malloced;
 	_TYPE_BS size;
 	_TYPE_BS n;
 	struct hashtable_kv_pair * kv_pairs;
@@ -111,7 +112,7 @@ struct hashtable {
 	struct hashtable_bucket * buckets;
 	struct hashtable_kv_pair * buf_kv_pairs;
 	struct hashtable_kv_pair * buf_kv_pairs_end;
-	char * buf_kv_pairs_ownership;
+	int8_t * buf_kv_pairs_ownership;   // size == number of buckets
 };
 
 

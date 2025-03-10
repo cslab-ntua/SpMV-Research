@@ -86,11 +86,11 @@ str_char_is_ws(const char c)
 //==========================================================================================================================================
 
 
-// Returns the number of chars written.
+/* Returns the number of chars written. */
 [[gnu::always_inline]]
 static inline
 long
-str_char_hex_to_bin(const char c_hex, char * buf, long N)
+str_hex_char_to_bin_char_array(const char c_hex, char * buf, long N)
 {
 	if (N < 4)
 		error("buffer size needs to be at least 4 bytes");
@@ -367,18 +367,21 @@ str_find_substr_simple(const char * str, long N, const char * substr, long M)
 //==========================================================================================================================================
 
 
-// Split head (the directory part) and tail (filename / last directory).
-// 'head/tail' convention is taken from the python os.path.split documentation.
-//
-// 'path' argument is unchanged.
-// 'head' (the directory part) is without a terminating '/' character, unless it is root
-//        (so that an e.g. ls on the tail shows the root dir and not the current dir).
+/* Split head (the directory part) and tail (filename / last directory).
+ * 'head/tail' convention is taken from the python os.path.split documentation.
+ * 
+ * 'path' and 'buf_dst' buffers can safely overlap.
+ * 'path' argument is unmodified, unless it overlaps with 'buf_dst'.
+ *
+ * 'head' (the directory part) is without a terminating '/' character, unless it is root,
+ * so that e.g., an ls on the tail shows the root dir and not the current dir.
+ */
 static inline
 void
 str_path_split_path(const char * path, long N, char * buf_dst, long buf_dst_n, char ** head_ptr_out, char ** tail_ptr_out)
 {
 	long buf_n = N + 3;
-	char * buf = (typeof(buf)) malloc(buf_n * sizeof(*buf));
+	[[gnu::cleanup(cleanup_free)]] char * buf = (typeof(buf)) malloc(buf_n * sizeof(*buf));
 	char * head, * tail;
 	long i, pos, head_n, tail_n;
 	if (buf_dst_n < N + 3)
@@ -435,22 +438,22 @@ str_path_split_path(const char * path, long N, char * buf_dst, long buf_dst_n, c
 		*head_ptr_out = head;
 	if (tail_ptr_out != NULL)
 		*tail_ptr_out = tail;
-	free(buf);
 }
 
 
-// Split the extension and the base (the path part without the extension and the dot).
-//
-// 'path' and 'buf_dst' buffers can safely overlap.
-// 'path' argument is unchanged, unless it overlaps with 'buf_dst'.
-//
-// 'ext_ptr_out' (the extension part) is returned without the leading dot '.'.
+/* Split the extension and the base (the path part without the extension and the dot).
+ *
+ * 'path' and 'buf_dst' buffers can safely overlap.
+ * 'path' argument is unmodified, unless it overlaps with 'buf_dst'.
+ *
+ * 'ext_ptr_out' (the extension part) is returned without the leading dot '.'.
+ */
 static inline
 void
 str_path_split_ext(char * path, long N, char * buf_dst, long buf_dst_n, char ** base_ptr_out, char ** ext_ptr_out)
 {
 	long buf_n = N + 3;
-	char * buf = (typeof(buf)) malloc(buf_n * sizeof(*buf));
+	[[gnu::cleanup(cleanup_free)]] char * buf = (typeof(buf)) malloc(buf_n * sizeof(*buf));
 	char * base, * ext;
 	long i, pos, base_n, ext_n;
 	if (buf_dst_n < N + 3)
@@ -492,10 +495,10 @@ str_path_split_ext(char * path, long N, char * buf_dst, long buf_dst_n, char ** 
 		*base_ptr_out = base;
 	if (ext_ptr_out != NULL)
 		*ext_ptr_out = ext;
-	free(buf);
 }
 
 
+/* Works inplace. */
 static inline
 char *
 str_path_strip_tail(char * str, long N)
@@ -510,6 +513,7 @@ str_path_strip_tail(char * str, long N)
 }
 
 
+/* Works inplace. */
 static inline
 char *
 str_path_strip_ext(char * str, long N)

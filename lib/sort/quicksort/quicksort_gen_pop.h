@@ -10,4 +10,3 @@
 #pragma pop_macro("quicksort")
 #pragma pop_macro("quicksort_parallel")
 #pragma pop_macro("quicksort_parallel_inplace")
-#pragma pop_macro("insertionsort")

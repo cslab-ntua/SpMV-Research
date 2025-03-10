@@ -1,6 +1,9 @@
 #ifndef LEGEND_H
 #define LEGEND_H
 
+#include <stdlib.h>
+#include <stdio.h>
+
 
 //==========================================================================================================================================
 //= Add Legend
@@ -15,7 +18,7 @@ add_legend(struct Figure * fig, char * filename)
 	char * cmd;
 	long cmd_n;
 	int ret;
-	long i;
+	long i, j;
 
 	int x = fig->x_num_pixels;
 	int y = fig->y_num_pixels;
@@ -47,7 +50,18 @@ add_legend(struct Figure * fig, char * filename)
 	int text_spacer = px_per_pt * pointsize_small / 3;
 
 	int space_h = scale_x * 10;
-	int space_v = scale_y * 10 / 2;
+	int space_v_u = scale_y * 10 / 2;
+	int space_v_d = scale_y * 10 / 2;
+
+	int title_len = strlen(title);
+	int num_lines = 0;
+	for (j=0;j<title_len;j++)
+	{
+		if (title[j] == '\n')
+			num_lines++;
+	}
+	num_lines++;
+	space_v_u += (pointsize_big * px_per_pt) * num_lines;
 
 	/*
 	 * Because of the possible compression of the file from the ppm format (e.g. to png),
@@ -56,34 +70,62 @@ add_legend(struct Figure * fig, char * filename)
 	 * So it should be the relation of the colors, i.e. the similarity that the compression sees.
 	 */
 
-	cmd_n = strlen(title) + 2*strlen(filename) + 100000;
+	cmd_n = title_len + 2*strlen(filename) + 100000;
 	cmd = malloc(cmd_n);
 
 	i = 0;
-	i += snprintf(cmd+i, cmd_n-i, "convert");
+	i += snprintf(cmd+i, cmd_n-i, "magick");
 
+	// Input file.
+	i += snprintf(cmd+i, cmd_n-i, " '%s'", filename);
+
+	// Output options.
+
+	// Border inner.
 	int b1_x = x + 14;
 	int b1_y = y + 14;
 	i += snprintf(cmd+i, cmd_n-i, " -gravity center");
 	i += snprintf(cmd+i, cmd_n-i, " -background 'rgb(190,190,190)'");
 	i += snprintf(cmd+i, cmd_n-i, " -extent %dx%d", b1_x, b1_y);
 
+	// Border outer left.
 	int b2_x = b1_x + space_h;
-	int b2_y = b1_y + 2*space_v;
+	int b2_y = b1_y;
 	i += snprintf(cmd+i, cmd_n-i, " -gravity east");
 	i += snprintf(cmd+i, cmd_n-i, " -background 'rgb(128,128,128)'");
 	i += snprintf(cmd+i, cmd_n-i, " -extent %dx%d", b2_x, b2_y);
 	i += snprintf(cmd+i, cmd_n-i, " -fill white");
 
-	int title_y = (space_v - pointsize_big * px_per_pt) / 2;
+	// Border outer up.
+	int b3_x = b2_x;
+	int b3_y = b2_y + space_v_u;
+	i += snprintf(cmd+i, cmd_n-i, " -gravity southeast");
+	i += snprintf(cmd+i, cmd_n-i, " -background 'rgb(128,128,128)'");
+	i += snprintf(cmd+i, cmd_n-i, " -extent %dx%d", b3_x, b3_y);
+	i += snprintf(cmd+i, cmd_n-i, " -fill white");
+
+	// Border outer down.
+	int b4_x = b3_x;
+	int b4_y = b3_y + space_v_d;
+	i += snprintf(cmd+i, cmd_n-i, " -gravity northeast");
+	i += snprintf(cmd+i, cmd_n-i, " -background 'rgb(128,128,128)'");
+	i += snprintf(cmd+i, cmd_n-i, " -extent %dx%d", b4_x, b4_y);
+	i += snprintf(cmd+i, cmd_n-i, " -fill white");
+
+
+	// Title text.
+	int title_y = (space_v_u - num_lines * pointsize_big * px_per_pt) / 2;
 	i += snprintf(cmd+i, cmd_n-i, " -gravity north");
 	i += snprintf(cmd+i, cmd_n-i, " -pointsize %d", pointsize_big);
 	i += snprintf(cmd+i, cmd_n-i, " -draw \"text 0,%d '%s'\"", title_y, title);
 
+
 	i += snprintf(cmd+i, cmd_n-i, " -pointsize %d", pointsize_small);
 
+	// y axis text
 	int label_l_x = b1_x + text_spacer/2;
-	int label_l_y = space_v;
+	int label_lu_y = space_v_u;
+	int label_ld_y = space_v_d;
 	double text_ld = fig->y_min;
 	double text_lu = fig->y_max;
 	char * percentage_sign_y = fig->legend_conf.y_in_percentages ? "%" : "";
@@ -93,12 +135,13 @@ add_legend(struct Figure * fig, char * filename)
 		text_lu = fig->y_min;
 	}
 	i += snprintf(cmd+i, cmd_n-i, " -gravity southeast");
-	i += snprintf(cmd+i, cmd_n-i, " -draw \"text %d,%d '%g%s'\"", label_l_x, label_l_y, text_ld, percentage_sign_y);
+	i += snprintf(cmd+i, cmd_n-i, " -draw \"text %d,%d '%g%s'\"", label_l_x, label_ld_y, text_ld, percentage_sign_y);
 	i += snprintf(cmd+i, cmd_n-i, " -gravity northeast");
-	i += snprintf(cmd+i, cmd_n-i, " -draw \"text %d,%d '%g%s'\"", label_l_x, label_l_y, text_lu, percentage_sign_y);
+	i += snprintf(cmd+i, cmd_n-i, " -draw \"text %d,%d '%g%s'\"", label_l_x, label_lu_y, text_lu, percentage_sign_y);
 
+	// x axis text
 	int label_dl_x = space_h;
-	int label_d_y = space_v - pointsize_small - text_spacer;
+	int label_d_y = space_v_d - pointsize_small - text_spacer;
 	double text_dl = fig->x_min;
 	double text_dr = fig->x_max;
 	char * percentage_sign_x = fig->legend_conf.x_in_percentages ? "%" : "";
@@ -107,7 +150,8 @@ add_legend(struct Figure * fig, char * filename)
 	i += snprintf(cmd+i, cmd_n-i, " -gravity southeast");
 	i += snprintf(cmd+i, cmd_n-i, " -draw \"text %d,%d '%g%s'\"", text_spacer, label_d_y, text_dr, percentage_sign_x);
 
-	i += snprintf(cmd+i, cmd_n-i, " '%s' '%s'", filename, filename);
+	// Output file.
+	i += snprintf(cmd+i, cmd_n-i, " '%s'", filename);
 
 	// printf("%s\n", cmd);
 

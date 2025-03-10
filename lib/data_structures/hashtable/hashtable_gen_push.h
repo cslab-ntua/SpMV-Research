@@ -1,12 +1,12 @@
 #pragma push_macro("HASHTABLE_GEN_VALUE_SAME_AS_KEY")
-
-
-
+#pragma push_macro("HASHTABLE_GEN_KEY_IS_REF")
+#pragma push_macro("HASHTABLE_GEN_TYPE_1")
+#pragma push_macro("HASHTABLE_GEN_TYPE_2")
 #pragma push_macro("HASHTABLE_GEN_SUFFIX")
 
-
-
-
+#pragma push_macro("_TYPE_K")
+#pragma push_macro("_TYPE_V")
+#pragma push_macro("_TYPE_BS")
 
 #pragma push_macro("hashtable_kv_pair")
 #pragma push_macro("HASHTABLE_GEN_MRU_N")

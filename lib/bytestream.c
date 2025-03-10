@@ -1,14 +1,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+<<<<<<< Updated upstream
 #ifdef __x86_64__
 	#include <x86intrin.h>
 #endif
+=======
+>>>>>>> Stashed changes
 
 #include "bytestream.h"
 
 #include "macros/cpp_defines.h"
 #include "debug.h"
+#include "bit_ops.h"
 
 
 void
@@ -54,11 +58,15 @@ bytestream_read_unsafe(struct Byte_Stream * bs, uint64_t * val_out, long num_byt
 {
 	uint64_t val;
 	val = *((uint64_t *) (&bs->data.c[bs->len]));
+<<<<<<< Updated upstream
 	#ifdef __x86_64__
 		val = __builtin_ia32_bextr_u64(val, num_bytes << 11);   // 3 to bits + 8 to place in second byte
 	#else
 		val = arm_bextr_u64(val, num_bytes << 11);
 	#endif
+=======
+	val = bits_u64_extract(val, 0, num_bytes << 3);
+>>>>>>> Stashed changes
 	bs->len += num_bytes;
 	*val_out = val;
 

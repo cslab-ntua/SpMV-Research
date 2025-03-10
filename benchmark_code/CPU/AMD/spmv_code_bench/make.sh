@@ -16,18 +16,25 @@ source "$script_dir"/../config.sh
 export AMG_PATH=../../../../artificial-matrix-generator
 
 
-if [[ -d "/home/jim/lib/gcc/gcc_12/bin" ]]; then
-    gcc_bin=/home/jim/lib/gcc/gcc_12/bin/gcc
-    gpp_bin=/home/jim/lib/gcc/gcc_12/bin/g++
-elif [[ -d "/home/jim/Documents/gcc_versions/gcc_12/bin" ]]; then
+# if [[ -d "/home/jim/lib/gcc/gcc_12/bin" ]]; then
+    # gcc_bin=/home/jim/lib/gcc/gcc_12/bin/gcc
+    # gpp_bin=/home/jim/lib/gcc/gcc_12/bin/g++
+# elif [[ -d "/home/jim/Documents/gcc_versions/gcc_12/bin" ]]; then
+if [[ -d "/home/jim/Documents/gcc_versions/gcc_12/bin" ]]; then
     gcc_bin=/home/jim/Documents/gcc_versions/gcc_12/bin/gcc
     gpp_bin=/home/jim/Documents/gcc_versions/gcc_12/bin/g++
 elif [[ -d "/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin" ]]; then
     gcc_bin=/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/gcc
     gpp_bin=/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/g++
+<<<<<<< Updated upstream
 elif [[ -d "/opt/cray/pe/gcc/12.2.0/snos/bin/" ]]; then
     gcc_bin=/opt/cray/pe/gcc/12.2.0/snos/bin/gcc
     gpp_bin=/opt/cray/pe/gcc/12.2.0/snos/bin/g++
+=======
+elif [[ -d "/local/pmpakos/arm-compiler/gcc-13.2.0_Ubuntu-22.04/bin" ]]; then
+    gcc_bin=/local/pmpakos/arm-compiler/gcc-13.2.0_Ubuntu-22.04/bin/gcc
+    gpp_bin=/local/pmpakos/arm-compiler/gcc-13.2.0_Ubuntu-22.04/bin/g++
+>>>>>>> Stashed changes
 else
     gcc_bin=gcc
     gpp_bin=g++
@@ -43,6 +50,8 @@ CPP="$gpp_bin"
 # CPP=clang++
 # CPP=xlc++
 export CPP
+CXX="$CPP"
+export CXX
 
 if [[ -d "${CUDA_PATH}/bin" ]]; then
     NVCC="${CUDA_PATH}/bin/nvcc -ccbin=${CC}"
@@ -82,16 +91,25 @@ CFLAGS+=" -O3"
 
 CFLAGS+=" -flto=auto"
 
+CFLAGS+=" -fsigned-char"
+
 if [[ ${ARCH} == x86_64 ]]; then
     CFLAGS+=" -mbmi"
     CFLAGS+=" -mbmi2"
     CFLAGS+=" -march=native"
+    CFLAGS+=" -mno-avx512fp16"
     # CFLAGS+=" -mfma"
     # CFLAGS+=" -mavx"
     # CFLAGS+=" -mavx2"
     # CFLAGS+=" -mavx512f"
 elif [[ ${ARCH} == ppc64le ]]; then
     CFLAGS+=" -mcpu=power9"
+elif [[ ${ARCH} == aarch64 ]]; then
+    CFLAGS+=" -march=native"
+    CFLAGS+=" -flax-vector-conversions"
+    # CFLAGS+=" -msve-vector-bits=512"
+    # CFLAGS+=" -msve-vector-bits=256"
+    CFLAGS+=" -msve-vector-bits=128"
 else
     CFLAGS+=" -mcpu=native"
 fi
@@ -105,13 +123,27 @@ if ((${PRINT_STATISTICS} == 1)); then
     CFLAGS+=" -D'PRINT_STATISTICS'"
 fi
 
-CFLAGS+=" -D'LEVEL1_DCACHE_LINESIZE=$(getconf LEVEL1_DCACHE_LINESIZE)'"
-CFLAGS+=" -D'LEVEL1_DCACHE_SIZE=$(getconf LEVEL1_DCACHE_SIZE)'"
-CFLAGS+=" -D'LEVEL2_CACHE_SIZE=$(getconf LEVEL2_CACHE_SIZE)'"
-CFLAGS+=" -D'LEVEL3_CACHE_SIZE=$(getconf LEVEL3_CACHE_SIZE)'"
+export LEVEL1_DCACHE_LINESIZE="$(read v < /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size; echo ${v%K})"
+export LEVEL1_DCACHE_SIZE="$(read v < /sys/devices/system/cpu/cpu0/cache/index0/size; echo $((${v%K} * 1024)) )"
+export LEVEL2_CACHE_SIZE="$(read v < /sys/devices/system/cpu/cpu0/cache/index2/size; echo $((${v%K} * 1024)) )"
+export LEVEL3_CACHE_SIZE="$(read v < /sys/devices/system/cpu/cpu0/cache/index3/size; echo $((${v%K} * 1024)) )"
+export NUM_CPUS="$(ls /sys/devices/system/cpu/ | grep -c 'cpu[[:digit:]]\+')"
+export LEVEL3_CACHE_CPUS_PER_NODE="$(for range in $(cat /sys/devices/system/cpu/cpu0/cache/index3/shared_cpu_list | tr ',' ' '); do mapfile -t -d '-' a < <(printf "$range"); seq "${a[@]}"; done | wc -l)"
+export LEVEL3_CACHE_NUM_NODES="$(( NUM_CPUS / LEVEL3_CACHE_CPUS_PER_NODE ))"
+export LEVEL3_CACHE_SIZE_TOTAL="$(( LEVEL3_CACHE_SIZE * LEVEL3_CACHE_NUM_NODES ))"
+CFLAGS+=" -D'LEVEL1_DCACHE_LINESIZE=${LEVEL1_DCACHE_LINESIZE}ULL'"
+CFLAGS+=" -D'LEVEL1_DCACHE_SIZE=${LEVEL1_DCACHE_SIZE}ULL'"
+CFLAGS+=" -D'LEVEL2_CACHE_SIZE=${LEVEL2_CACHE_SIZE}ULL'"
+CFLAGS+=" -D'LEVEL3_CACHE_SIZE=${LEVEL3_CACHE_SIZE}ULL'"
+CFLAGS+=" -D'NUM_CPUS=${NUM_CPUS}ULL'"
+CFLAGS+=" -D'LEVEL3_CACHE_CPUS_PER_NODE=${LEVEL3_CACHE_CPUS_PER_NODE}ULL'"
+CFLAGS+=" -D'LEVEL3_CACHE_NUM_NODES=${LEVEL3_CACHE_NUM_NODES}ULL'"
+CFLAGS+=" -D'LEVEL3_CACHE_SIZE_TOTAL=${LEVEL3_CACHE_SIZE_TOTAL}ULL'"
 
-# Always read matrix in double-precision for checking accuracy against doubles.
-CFLAGS+=" -D'MATRIX_MARKET_FLOAT_T=double'"
+
+# Read the matrix in double-precision for checking accuracy against doubles.
+CFLAGS+=" -D'ValueTypeReference=double'"
+CFLAGS+=" -D'MATRIX_MARKET_FLOAT_T=ValueTypeReference'"
 
 
 CPPFLAGS=''
@@ -127,11 +159,11 @@ if [[ ${CPP} == xlc++ ]]; then
 fi
 
 
-CFLAGS_D="${CFLAGS} -D'DOUBLE=1' -D'ValueType=double'"
-CPPFLAGS_D="${CPPFLAGS} -D'DOUBLE=1' -D'ValueType=double'"
+CFLAGS_D="${CFLAGS} -D'DOUBLE=1' -D'ValueType=double' -D'ValueTypeI=uint64_t'"
+CPPFLAGS_D="${CPPFLAGS} -D'DOUBLE=1' -D'ValueType=double' -D'ValueTypeI=uint64_t'"
 
-CFLAGS_F="${CFLAGS} -D'DOUBLE=0' -D'ValueType=float'"
-CPPFLAGS_F="${CPPFLAGS} -D'DOUBLE=0' -D'ValueType=float'"
+CFLAGS_F="${CFLAGS} -D'DOUBLE=0' -D'ValueType=float' -D'ValueTypeI=uint32_t'"
+CPPFLAGS_F="${CPPFLAGS} -D'DOUBLE=0' -D'ValueType=float' -D'ValueTypeI=uint32_t'"
 
 CFLAGS_NV_D="${CFLAGS_D} -fno-lto"
 CPPFLAGS_NV_D="${CPPFLAGS_D} -fno-lto"
@@ -182,18 +214,19 @@ for p in "${progs[@]}"; do
         targets_f+=("$base")
     fi
 done
-# printf "%s\n" "${targets_d[@]}"
-# echo
-# printf "%s\n" "${targets_f[@]}"
-# echo
-# printf "%s\n" "${targets_nv_d[@]}"
-# echo
-# printf "%s\n" "${targets_nv_f[@]}"
+
+export NUM_THREADS=
+export NUM_STREAMS=
+export ROW_CLUSTER_SIZE=
+export BLOCK_SIZE=
+export NNZ_PER_THREAD=
+export MULTIBLOCK_SIZE=
 
 
 unset MAKELEVEL
 
 if ((${#targets_d[@]} > 0)); then
+    export DOUBLE=1
     export CFLAGS="${CFLAGS_D}"
     export CPPFLAGS="${CPPFLAGS_D}"
     export SUFFIX='_d'
@@ -202,6 +235,7 @@ if ((${#targets_d[@]} > 0)); then
 fi
 
 if ((${#targets_f[@]} > 0)); then
+    export DOUBLE=0
     export CFLAGS="${CFLAGS_F}"
     export CPPFLAGS="${CPPFLAGS_F}"
     export SUFFIX='_f'
@@ -210,6 +244,7 @@ if ((${#targets_f[@]} > 0)); then
 fi
 
 if ((${#targets_nv_d[@]} > 0)); then
+    export DOUBLE=1
     export CC=gcc
     export CPP=g++
     export CFLAGS="${CFLAGS_NV_D}"
@@ -248,6 +283,7 @@ if ((${#targets_nv_d[@]} > 0)); then
 fi
 
 if ((${#targets_nv_f[@]} > 0)); then
+    export DOUBLE=0
     export CC=gcc
     export CPP=g++
     export CFLAGS="${CFLAGS_NV_F}"

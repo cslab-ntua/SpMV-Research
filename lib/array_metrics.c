@@ -1006,6 +1006,7 @@ ARRAY_METRICS_quantile_method(const char * method, long N, double q, long * idx_
 }
 
 
+// Reference implementation with sorting instead of recursive partitioning.
 void
 ARRAY_METRICS_quantile_serial_reference(void * A, long i_start, long i_end, double q, const char * method, double * result_out, double (* get_val_as_double)(void * A, long i))
 {

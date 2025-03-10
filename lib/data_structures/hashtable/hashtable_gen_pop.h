@@ -1,12 +1,12 @@
 #include "hashtable_gen_undef.h"
-
-
-
+#pragma pop_macro("HASHTABLE_GEN_KEY_IS_REF")
+#pragma pop_macro("HASHTABLE_GEN_TYPE_1")
+#pragma pop_macro("HASHTABLE_GEN_TYPE_2")
 #pragma pop_macro("HASHTABLE_GEN_SUFFIX")
 
-
-
-
+#pragma pop_macro("_TYPE_K")
+#pragma pop_macro("_TYPE_V")
+#pragma pop_macro("_TYPE_BS")
 
 #pragma pop_macro("hashtable_kv_pair")
 #pragma pop_macro("HASHTABLE_GEN_MRU_N")

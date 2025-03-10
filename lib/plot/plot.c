@@ -156,7 +156,7 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 	save_ppm_image(pa, fd);
 	safe_close(fd);
 
-	if (system("hash convert"))
+	if (system("hash magick"))
 		return;
 
 	// Adding the legend in ppm format, before converting, is MUCH faster than working on an e.g. png file.
@@ -168,7 +168,7 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 
 	// File conversion.
 	// Actually, the conversion to e.g. png takes most of the time, but the file sizes are orders of magnitude smaller.
-	snprintf(buf, buf_n, "convert '%s' '%s'", f_ppm, f_conv);
+	snprintf(buf, buf_n, "magick '%s' '%s'", f_ppm, f_conv);
 	ret = system(buf);
 	if (ret)
 	{

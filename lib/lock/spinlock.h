@@ -2,7 +2,7 @@
 #define SPINLOCK_H
 
 #include "macros/cpp_defines.h"
-#include "lock/lock_common.h"
+#include "lock/lock_util.h"
 
 
 //==========================================================================================================================================

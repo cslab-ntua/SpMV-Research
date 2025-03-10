@@ -17,8 +17,9 @@
 //==========================================================================================================================================
 
 
-// Sets the local start and end iterations of the worker.
-// End is exclusive.
+/* Sets the local start and end iterations of the worker.
+ * - End is exclusive.
+ */
 
 // static inline
 // void
@@ -93,9 +94,6 @@ loop_partitioner_balance_iterations_base(long num_workers, long worker_pos, long
 }
 
 
-// Generic interface for the integer pointers and optional arguments.
-// End is exclusive.
-
 #if 0
 #define loop_partitioner_balance_iterations(num_workers, worker_pos, start, end, local_start_ptr, local_end_ptr, ... /* num_iterations_ptr, sign_ptr */)    \
 do {                                                                                                                                                        \
@@ -113,16 +111,30 @@ do {                                                                            
 #endif
 
 
-#define loop_partitioner_balance_iterations(num_workers, worker_pos, start, end, local_start_ptr, local_end_ptr, ... /* increment, num_iterations_ptr */)    \
-do {                                                                                                                                                         \
-	long _l_s, _l_e, _num_iters;                                                                                                                         \
-	long _incr = DEFAULT_ARG_1(((start < end) ? 1 : -1), ##__VA_ARGS__);                                                                                 \
-	__auto_type _num_iters_ptr = DEFAULT_ARG_2(&_num_iters, ##__VA_ARGS__);                                                                              \
-	loop_partitioner_balance_iterations_base(num_workers, worker_pos, start, end, _incr, &_l_s, &_l_e, &_num_iters);                                     \
-	*local_start_ptr = _l_s;                                                                                                                             \
-	*local_end_ptr = _l_e;                                                                                                                               \
-	if (_num_iters_ptr != NULL)                                                                                                                          \
-		*_num_iters_ptr = _num_iters;                                                                                                                \
+/* Generic interface for the integer pointers and optional arguments.
+ * - End is exclusive.
+ */
+
+#define loop_partitioner_balance_iterations(_num_workers, _worker_pos, _start, _end, _local_start_ptr, _local_end_ptr, ... /* _increment, _num_iterations_ptr */)    \
+do {                                                                                                                                                                 \
+	/* We can't rename va args, so they need to be first and start with _. */                                                                                    \
+	long _increment = DEFAULT_ARG_1((((_start) < (_end)) ? 1 : -1), ##__VA_ARGS__);                                                                              \
+	long _unused = 0;                                                                                                                                            \
+	__auto_type _num_iterations_ptr = DEFAULT_ARG_2(&_unused, ##__VA_ARGS__);                                                                                    \
+	RENAME((_num_workers, num_workers), (_worker_pos, worker_pos), (_start, start), (_end, end),                                                                 \
+			(_local_start_ptr, local_start_ptr), (_local_end_ptr, local_end_ptr),                                                                        \
+			(_increment, increment), (_num_iterations_ptr, num_iterations_ptr));                                                                         \
+	long num_iters = 0;                                                                                                                                          \
+	long l_s, l_e;                                                                                                                                               \
+	loop_partitioner_balance_iterations_base(num_workers, worker_pos, start, end, increment, &l_s, &l_e, &num_iters);                                            \
+	if (local_start_ptr == NULL)                                                                                                                                 \
+		error("'local_start_ptr' is NULL");                                                                                                                  \
+	if (local_end_ptr == NULL)                                                                                                                                   \
+		error("'local_end_ptr' is NULL");                                                                                                                    \
+	*local_start_ptr = l_s;                                                                                                                                      \
+	*local_end_ptr = l_e;                                                                                                                                        \
+	if (num_iterations_ptr != NULL)                                                                                                                              \
+		*num_iterations_ptr = num_iters;                                                                                                                     \
 } while (0)
 
 
@@ -133,35 +145,42 @@ do {                                                                            
 
 /* Notes:
  * - End is exclusive.
- * - 'order_decreasing': Whether the prefix sums are in reverse order. The indexes returned are always: start <= end.
+ *   'Sums[N]' is NEVER touched, so the 'total_sum' has to be given explicitly.
+ * - 'Sums' is a prefix sum array of the iteration weights.
+ *   It can start from any number, but the 'total_sum' has to be correct, i.e., Sums[N] - Sums[0].
+ * - 'order_decreasing': Whether the prefix sums are in reverse order. The indices returned are always: start <= end.
  * - 'num_workers' and 'worker_pos' are always integers, so we transform them to 'long',
  *   to avoid overflows in the multiplication if 'total_sum' is 'int' or smaller.
  */
 
-#define loop_partitioner_balance_prefix_sums(num_workers, worker_pos, Sums, N, total_sum, local_start_ptr, local_end_ptr, ... /* order_decreasing */)    \
-do {                                                                                                                                                     \
-	long __attribute__((unused)) _order_decreasing = DEFAULT_ARG_1(0, ##__VA_ARGS__);                                                                \
-	long _i_s, _i_e;                                                                                                                                 \
-	long _index_lower_value, _index_upper_value;                                                                                                     \
-	__auto_type _target = total_sum;                                                                                                                 \
-	__auto_type _target_next = total_sum;                                                                                                            \
-	_target = (total_sum * ((long) worker_pos)) / ((long) num_workers);                                                                              \
-	_target_next = (total_sum * ((long) worker_pos+1)) / ((long) num_workers);                                                                       \
-	_index_lower_value = (_order_decreasing) ? N-1 : 0;                                                                                              \
-	_index_upper_value = (_order_decreasing) ? 0 : N-1;                                                                                              \
-                                                                                                                                                         \
-	if (worker_pos == 0)                                                                                                                             \
-		_i_s = (_order_decreasing) ? N : 0;                                                                                                      \
-	else                                                                                                                                             \
-		_i_s = macros_binary_search(Sums, _index_lower_value, _index_upper_value, _target, NULL, NULL);                                          \
-                                                                                                                                                         \
-	if (worker_pos == num_workers - 1)                                                                                                               \
-		_i_e = (_order_decreasing) ? 0 : N;                                                                                                      \
-	else                                                                                                                                             \
-		_i_e = macros_binary_search(Sums, _index_lower_value, _index_upper_value, _target_next, NULL, NULL);                                     \
-                                                                                                                                                         \
-	*local_start_ptr = (_order_decreasing) ? _i_e : _i_s;                                                                                            \
-	*local_end_ptr = (_order_decreasing) ? _i_s : _i_e;                                                                                              \
+#define loop_partitioner_balance_prefix_sums(_num_workers, _worker_pos, _Sums, _N, _total_sum, _local_start_ptr, _local_end_ptr, ... /* _order_decreasing */)    \
+do {                                                                                                                                                             \
+	long _order_decreasing = DEFAULT_ARG_1(0, ##__VA_ARGS__);                                                                                                \
+	RENAME((_num_workers, num_workers, long), (_worker_pos, worker_pos, long), (_Sums, Sums), (_N, N),                                                       \
+	       (_total_sum, total_sum), (_local_start_ptr, local_start_ptr), (_local_end_ptr, local_end_ptr), (_order_decreasing, order_decreasing));            \
+	long i_s, i_e;                                                                                                                                           \
+	long index_lower_value, index_upper_value;                                                                                                               \
+	typeof(total_sum) target, target_next;                                                                                                                   \
+                                                                                                                                                                 \
+	if (N < 1)                                                                                                                                               \
+		error("Empty Sums array.");                                                                                                                      \
+	target = Sums[0] + (total_sum * worker_pos) / num_workers;                                                                                               \
+	target_next = Sums[0] + (total_sum * (worker_pos+1)) / num_workers;                                                                                      \
+	index_lower_value = (order_decreasing) ? N-1 : 0;                                                                                                        \
+	index_upper_value = (order_decreasing) ? 0 : N-1;                                                                                                        \
+                                                                                                                                                                 \
+	if (worker_pos == 0)                                                                                                                                     \
+		i_s = (order_decreasing) ? N : 0;                                                                                                                \
+	else                                                                                                                                                     \
+		i_s = macros_binary_search(Sums, index_lower_value, index_upper_value, target, NULL, NULL);                                                      \
+                                                                                                                                                                 \
+	if (worker_pos == num_workers - 1)                                                                                                                       \
+		i_e = (order_decreasing) ? 0 : N;                                                                                                                \
+	else                                                                                                                                                     \
+		i_e = macros_binary_search(Sums, index_lower_value, index_upper_value, target_next, NULL, NULL);                                                 \
+                                                                                                                                                                 \
+	*local_start_ptr = (order_decreasing) ? i_e : i_s;                                                                                                       \
+	*local_end_ptr = (order_decreasing) ? i_s : i_e;                                                                                                         \
 } while (0)
 
 
@@ -170,47 +189,50 @@ do {                                                                            
 //==========================================================================================================================================
 
 
-#define _loop_partitioner_balance_cmp(target, A, i)                                    \
-({                                                                                     \
-	long _iters = (_order_decreasing) ? N - 1 - i : i;                             \
-	double _iters_cost = _loop_partitioner_balance_i_vs_work * _iters;             \
-	(target > A[i] + _iters_cost) ? 1 : (target < A[i] + _iters_cost) ? -1 : 0;    \
+#define loop_partitioner_balance_cmp(target, A, i)                                   \
+({                                                                                   \
+	long iters = (order_decreasing) ? N - 1 - i : i;                             \
+	double iters_cost = iter_vs_work * iters;                                    \
+	(target > A[i] + iters_cost) ? 1 : (target < A[i] + iters_cost) ? -1 : 0;    \
 })
 
-#define _loop_partitioner_balance_dist(target, A, i)                          \
-({                                                                            \
-	long _iters = (_order_decreasing) ? N - 1 - i : i;                    \
-	double _iters_cost = _loop_partitioner_balance_i_vs_work * _iters;    \
-	macros_abs(target - A[i] - _iters_cost);                              \
+#define loop_partitioner_balance_dist(target, A, i)         \
+({                                                          \
+	long iters = (order_decreasing) ? N - 1 - i : i;    \
+	double iters_cost = iter_vs_work * iters;           \
+	macros_abs(target - A[i] - iters_cost);             \
 })
 
-/* Necessary to cast values to 'double', because multiplying with 'iter_vs_work' might overflow the actual type.
+/* Necessary to cast target values to 'double', because multiplying with 'iter_vs_work' might overflow the actual type.
  */
-#define loop_partitioner_balance(num_workers, worker_pos, iter_vs_work, Sums, N, total_sum, local_start_ptr, local_end_ptr, ... /* order_decreasing */)                                \
-do {                                                                                                                                                                                   \
-	long _order_decreasing = DEFAULT_ARG_1(0, ##__VA_ARGS__);                                                                                                                      \
-	long _i_s, _i_e;                                                                                                                                                               \
-	long _index_lower_value, _index_upper_value;                                                                                                                                   \
-	double _target = total_sum;                                                                                                                                                    \
-	double _target_next = total_sum;                                                                                                                                               \
-	double _loop_partitioner_balance_i_vs_work = iter_vs_work;                                                                                                                     \
-	_target = ((total_sum + _loop_partitioner_balance_i_vs_work * N) * ((long) worker_pos)) / ((long) num_workers);                                                                \
-	_target_next = ((total_sum + _loop_partitioner_balance_i_vs_work * N) * ((long) worker_pos+1)) / ((long) num_workers);                                                         \
-	_index_lower_value = (_order_decreasing) ? N-1 : 0;                                                                                                                            \
-	_index_upper_value = (_order_decreasing) ? 0 : N-1;                                                                                                                            \
-                                                                                                                                                                                       \
-	if (worker_pos == 0)                                                                                                                                                           \
-		_i_s = (_order_decreasing) ? N : 0;                                                                                                                                    \
-	else                                                                                                                                                                           \
-		_i_s = macros_binary_search(Sums, _index_lower_value, _index_upper_value, _target, NULL, NULL, _loop_partitioner_balance_cmp, _loop_partitioner_balance_dist);         \
-                                                                                                                                                                                       \
-	if (worker_pos == num_workers - 1)                                                                                                                                             \
-		_i_e = (_order_decreasing) ? 0 : N;                                                                                                                                    \
-	else                                                                                                                                                                           \
-		_i_e = macros_binary_search(Sums, _index_lower_value, _index_upper_value, _target_next, NULL, NULL, _loop_partitioner_balance_cmp, _loop_partitioner_balance_dist);    \
-                                                                                                                                                                                       \
-	*local_start_ptr = (_order_decreasing) ? _i_e : _i_s;                                                                                                                          \
-	*local_end_ptr = (_order_decreasing) ? _i_s : _i_e;                                                                                                                            \
+#define loop_partitioner_balance(_num_workers, _worker_pos, _iter_vs_work, _Sums, _N, _total_sum, _local_start_ptr, _local_end_ptr, ... /* _order_decreasing */)                 \
+do {                                                                                                                                                                             \
+	long _order_decreasing = DEFAULT_ARG_1(0, ##__VA_ARGS__);                                                                                                                \
+	RENAME((_num_workers, num_workers, long), (_worker_pos, worker_pos, long), (_iter_vs_work, iter_vs_work, double), (_Sums, Sums),                                         \
+	       (_N, N), (_total_sum, total_sum), (_local_start_ptr, local_start_ptr), (_local_end_ptr, local_end_ptr), (_order_decreasing, order_decreasing));                   \
+	long i_s, i_e;                                                                                                                                                           \
+	long index_lower_value, index_upper_value;                                                                                                                               \
+	double target, target_next;                                                                                                                                              \
+                                                                                                                                                                                 \
+	if (N < 1)                                                                                                                                                               \
+		error("Empty Sums array.");                                                                                                                                      \
+	target = Sums[0] + ((total_sum + iter_vs_work * N) * worker_pos) / num_workers;                                                                                          \
+	target_next = Sums[0] + ((total_sum + iter_vs_work * N) * (worker_pos+1)) / num_workers;                                                                                 \
+	index_lower_value = (order_decreasing) ? N-1 : 0;                                                                                                                        \
+	index_upper_value = (order_decreasing) ? 0 : N-1;                                                                                                                        \
+                                                                                                                                                                                 \
+	if (worker_pos == 0)                                                                                                                                                     \
+		i_s = (order_decreasing) ? N : 0;                                                                                                                                \
+	else                                                                                                                                                                     \
+		i_s = macros_binary_search(Sums, index_lower_value, index_upper_value, target, NULL, NULL, loop_partitioner_balance_cmp, loop_partitioner_balance_dist);         \
+                                                                                                                                                                                 \
+	if (worker_pos == num_workers - 1)                                                                                                                                       \
+		i_e = (order_decreasing) ? 0 : N;                                                                                                                                \
+	else                                                                                                                                                                     \
+		i_e = macros_binary_search(Sums, index_lower_value, index_upper_value, target_next, NULL, NULL, loop_partitioner_balance_cmp, loop_partitioner_balance_dist);    \
+                                                                                                                                                                                 \
+	*local_start_ptr = (order_decreasing) ? i_e : i_s;                                                                                                                       \
+	*local_end_ptr = (order_decreasing) ? i_s : i_e;                                                                                                                         \
 } while (0)
 
 

@@ -3,6 +3,7 @@
 #pragma pop_macro("CSR_UTIL_GEN_TYPE_2")
 #pragma pop_macro("CSR_UTIL_GEN_SUFFIX")
 #pragma pop_macro("CSR_UTIL_GEN_EXPAND")
+#pragma pop_macro("CSR_UTIL_GEN_EXPAND_TYPE")
 #pragma pop_macro("_TYPE_V")
 #pragma pop_macro("_TYPE_I")
 #pragma pop_macro("csr_row_indices")

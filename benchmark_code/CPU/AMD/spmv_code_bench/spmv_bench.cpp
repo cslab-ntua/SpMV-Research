@@ -28,15 +28,16 @@ extern "C"{
 	#include "parallel_io.h"
 	#include "storage_formats/matrix_market/matrix_market.h"
 	#include "storage_formats/openfoam/openfoam_matrix.h"
-	#include "read_mtx.h"
 
-	#include "aux/csr_converter_double.h"
-
-	#include "aux/csr_util.h"
+	#include "aux/csr_converter_reference.h"
 
 	#include "monitoring/power/rapl.h"
 
 	#include "artificial_matrix_generation.h"
+
+	#include "aux/rcm.h"
+
+	#include "aux/dynamic_array.h"
 
 #ifdef __cplusplus
 }
@@ -65,34 +66,34 @@ long num_loops_out;
 #define Abs(x) ((x)>(0)?(x):-(x))
 
 
-// #define ReferenceType  double
-// #define ReferenceType  long double
-#define ReferenceType  __float128
+// #define ValueTypeValidation  double
+// #define ValueTypeValidation  long double
+#define ValueTypeValidation  _Float128
 
 /* ldoor, mkl_ie, 8 threads:
- *     ValueType | ReferenceType       | Errors
+ *     ValueType | ValueTypeValidation       | Errors
  *     double    | double              | errors spmv: mae=2.0679e-10, max_ae=7.45058e-08, mse=1.11396e-18, mape=3.7028e-17, smape=1.8514e-17
  *     double    | double + kahan      | errors spmv: mae=1.20597e-10, max_ae=4.47035e-08, mse=3.30276e-19, mape=2.11222e-17, smape=1.05611e-17
  *     double    | long double         | errors spmv: mae=1.11432e-10, max_ae=4.47035e-08, mse=3.05508e-19, mape=1.14059e-17, smape=5.70295e-18
  *     double    | long double + kahan | errors spmv: mae=1.11426e-10, max_ae=4.47035e-08, mse=3.05491e-19, mape=1.14059e-17, smape=5.70295e-18
- *     double    | __float128          | errors spmv: mae=1.11425e-10, max_ae=4.47035e-08, mse=3.05482e-19, mape=1.14059e-17, smape=5.70295e-18
- *     double    | __float128 + kahan  | errors spmv: mae=1.11425e-10, max_ae=4.47035e-08, mse=3.05482e-19, mape=1.14059e-17, smape=5.70295e-18
+ *     double    | _Float128          | errors spmv: mae=1.11425e-10, max_ae=4.47035e-08, mse=3.05482e-19, mape=1.14059e-17, smape=5.70295e-18
+ *     double    | _Float128 + kahan  | errors spmv: mae=1.11425e-10, max_ae=4.47035e-08, mse=3.05482e-19, mape=1.14059e-17, smape=5.70295e-18
  *
  *     double    | double              | errors spmv: mae=2.01305e-10, max_ae=7.45058e-08, mse=1.04495e-18, mape=6.95171e-17, smape=3.47585e-17
  *     double    | double + kahan:     | errors spmv: mae=1.47387e-10, max_ae=5.96046e-08, mse=5.21976e-19, mape=5.22525e-17, smape=2.61262e-17
- *     double    | __float128          | errors spmv: mae=1.39996e-10, max_ae=5.96046e-08, mse=4.99829e-19, mape=4.049e-17, smape=2.0245e-17
- *     double    | __float128 + kahan  | errors spmv: mae=1.39996e-10, max_ae=5.96046e-08, mse=4.99829e-19, mape=4.049e-17, smape=2.0245e-17
+ *     double    | _Float128          | errors spmv: mae=1.39996e-10, max_ae=5.96046e-08, mse=4.99829e-19, mape=4.049e-17, smape=2.0245e-17
+ *     double    | _Float128 + kahan  | errors spmv: mae=1.39996e-10, max_ae=5.96046e-08, mse=4.99829e-19, mape=4.049e-17, smape=2.0245e-17
  *
  *     float     | double              | errors spmv: mae=0.0628685, max_ae=21.1667, mse=0.0826114, mape=1.63995e-08, smape=8.20012e-09
  *     float     | long double         | errors spmv: mae=0.0628685, max_ae=21.1667, mse=0.0826114, mape=1.63995e-08, smape=8.20012e-09
- *     float     | __float128          | errors spmv: mae=0.0628685, max_ae=21.1667, mse=0.0826114, mape=1.63995e-08, smape=8.20012e-09
+ *     float     | _Float128          | errors spmv: mae=0.0628685, max_ae=21.1667, mse=0.0826114, mape=1.63995e-08, smape=8.20012e-09
  */
 
 static inline
 double
 reference_to_double(void * A, long i)
 {
-	return (double) ((ReferenceType *) A)[i];
+	return (double) ((ValueTypeValidation *) A)[i];
 }
 
 
@@ -112,50 +113,71 @@ check_accuracy_labels(char * buf, long buf_n)
 }
 
 long
-check_accuracy(char * buf, long buf_n, INT_T * csr_ia, INT_T * csr_ja, double * csr_a_ref, INT_T csr_m, __attribute__((unused)) INT_T csr_n, __attribute__((unused)) INT_T csr_nnz, double * x_ref, ValueType * y)
+check_accuracy(char * buf, long buf_n, INT_T * csr_ia, INT_T * csr_ja, ValueTypeReference * csr_a_ref,
+		long csr_m, __attribute__((unused)) long csr_n, __attribute__((unused)) long csr_nnz,
+		ValueTypeReference * x_ref, ValueType * y, long symmetric, long expand_symmetry)
 {
-	__attribute__((unused)) ReferenceType epsilon_relaxed = 1e-4;
+	__attribute__((unused)) ValueTypeValidation epsilon_relaxed = 1e-4;
 	#if DOUBLE == 0
-		ReferenceType epsilon = 1e-7;
+		ValueTypeValidation epsilon = 1e-7;
 	#elif DOUBLE == 1
-		ReferenceType epsilon = 1e-10;
+		ValueTypeValidation epsilon = 1e-10;
 	#endif
+	ValueTypeValidation * y_gold = (typeof(y_gold)) malloc(csr_m * sizeof(*y_gold));
+	ValueTypeValidation * y_test = (typeof(y_test)) malloc(csr_m * sizeof(*y_test));
 	long i;
-	ReferenceType * y_gold = (typeof(y_gold)) malloc(csr_m * sizeof(*y_gold));
-	ReferenceType * y_test = (typeof(y_test)) malloc(csr_m * sizeof(*y_test));
+
 	#pragma omp parallel
 	{
-		ReferenceType sum;
-		long i, j;
+		long i;
 		#pragma omp for
 		for(i=0;i<csr_m;i++)
 		{
 			y_gold[i] = 0;
 			y_test[i] = y[i];
 		}
-		#pragma omp for
+	}
+
+	if (symmetric && !expand_symmetry)
+	{
+		long i, j, col;
 		for (i=0;i<csr_m;i++)
 		{
-			ReferenceType val, tmp, compensation;
-			compensation = 0;
-			sum = 0;
 			for (j=csr_ia[i];j<csr_ia[i+1];j++)
 			{
-
-				// sum += csr_a_ref[j] * x_ref[csr_ja[j]];
-
-				val = csr_a_ref[j] * x_ref[csr_ja[j]] - compensation;
-				tmp = sum + val;
-				compensation = (tmp - sum) - val;
-				sum = tmp;
-
+				col = csr_ja[j];
+				y_gold[i] += csr_a_ref[j] * x_ref[col];
+				if (i != col)
+					y_gold[col] += csr_a_ref[j] * x_ref[i];
 			}
-			y_gold[i] = sum;
+		}
+	}
+	else
+	{
+		#pragma omp parallel
+		{
+			ValueTypeValidation sum;
+			long i, j;
+			#pragma omp for
+			for (i=0;i<csr_m;i++)
+			{
+				ValueTypeValidation val, tmp, compensation;
+				compensation = 0;
+				sum = 0;
+				for (j=csr_ia[i];j<csr_ia[i+1];j++)
+				{
+					val = csr_a_ref[j] * x_ref[csr_ja[j]] - compensation;
+					tmp = sum + val;
+					compensation = (tmp - sum) - val;
+					sum = tmp;
+				}
+				y_gold[i] = sum;
+			}
 		}
 	}
 
-	ReferenceType maxDiff = 0, diff;
-	// int cnt=0;
+	ValueTypeValidation maxDiff = 0, diff;
+	// long cnt=0;
 	for(i=0;i<csr_m;i++)
 	{
 		diff = Abs(y_gold[i] - y_test[i]);
@@ -166,7 +188,7 @@ check_accuracy(char * buf, long buf_n, INT_T * csr_ia, INT_T * csr_ja, double * 
 			maxDiff = Max(maxDiff, diff);
 		}
 		// if (diff > epsilon_relaxed)
-		// 	printf("error: i=%ld/%d , a=%.10g f=%.10g\n", i, csr_m-1, (double) y_gold[i], (double) y_test[i]);
+			// printf("error: i=%ld/%ld , a=%.10g f=%.10g\n", i, csr_m-1, (double) y_gold[i], (double) y_test[i]);
 		// if(i<5)
 		// if((double)y_gold[i]-(double)y_test[i])
 		// 	printf("y_gold[%ld] = %.4lf, y_test[%ld] = %.4lf\n", i, (double)y_gold[i], i, (double)y_test[i]);
@@ -207,6 +229,12 @@ check_accuracy(char * buf, long buf_n, INT_T * csr_ia, INT_T * csr_ja, double * 
 			len += snprintf(buf + len, buf_n - len, ",%g", gmare);
 		}
 	}
+
+	// for (i=0;i<csr_m;i++)
+	// {
+		// printf("%g\n", y[i]);
+	// }
+
 	free(y_gold);
 	free(y_test);
 	return len;
@@ -262,12 +290,22 @@ get_pinning_position_from_affinity_string(const char * range_string, long len, i
 }
 
 
+int
+qsort_cmp(const void * a_ptr, const void * b_ptr)
+{
+	double a = *((double *) a_ptr);
+	double b = *((double *) b_ptr);
+	return (a > b) ? 1 : (a < b) ? -1 : 0;
+}
+
 void
 compute(char * matrix_name,
-		__attribute__((unused)) INT_T * csr_ia, __attribute__((unused)) INT_T * csr_ja, __attribute__((unused)) ValueType * csr_a, double * csr_a_ref, INT_T csr_m, INT_T csr_n, INT_T csr_nnz,
+		__attribute__((unused)) INT_T * csr_ia, __attribute__((unused)) INT_T * csr_ja, ValueTypeReference * csr_a_ref,
+		long csr_m, long csr_n, long csr_nnz, __attribute__((unused)) long csr_nnz_diag, __attribute__((unused)) long csr_nnz_non_diag,
+		long symmetric, long expand_symmetry,
 		struct Matrix_Format * MF,
 		csr_matrix * AM,
-		ValueType * x, double * x_ref, ValueType * y,
+		ValueType * x, ValueTypeReference * x_ref, ValueType * y,
 		long min_num_loops,
 		long print_labels)
 {
@@ -275,7 +313,7 @@ compute(char * matrix_name,
 	int use_processes = atoi(getenv("USE_PROCESSES"));
 	long num_loops;
 	double gflops;
-	__attribute__((unused)) double time, time_warm_up, time_after_warm_up;
+	__attribute__((unused)) double time_total, time_iter, time_min, time_max, time_median, time_warm_up, time_after_warm_up;
 	long buf_n = 10000;
 	char buf[buf_n + 1];
 	long i, j;
@@ -307,41 +345,20 @@ compute(char * matrix_name,
 		printf("time warm up %lf\n", time_warm_up);
 
 		int gpu_kernel = atoi(getenv("GPU_KERNEL"));
-		if (gpu_kernel) {
+		if (gpu_kernel)
+		{
 			time_warm_up = time_it(1,
 				for(int i=0;i<1000;i++)
 					MF->spmv(x, y);
 			);
 		}
-		else {
+		else
+		{
 			// Warm up caches.
 			time_warm_up = time_it(1,
 				MF->spmv(x, y);
 			);			
 		}
-
-		// /* Calculate number of loops so that the total running time is at least 1 second for stability reasons
-		// (some cpus show frequency inconsistencies when running times are too small). */
-		// long num_calc_loops_runs_1 = 5;
-		// long num_calc_loops_runs_2;
-		// time_after_warm_up = 0;
-		// time_after_warm_up += time_it(1,
-			// for (i=0;i<num_calc_loops_runs_1;i++)
-				// MF->spmv(x, y);
-		// );
-		// num_calc_loops_runs_2 = 0.1 / (time_after_warm_up / num_calc_loops_runs_1);
-		// if (num_calc_loops_runs_2 < 5)
-			// num_calc_loops_runs_2 = 5;
-		// time_after_warm_up += time_it(1,
-			// for (i=0;i<num_calc_loops_runs_2;i++)
-				// MF->spmv(x, y);
-		// );
-		// printf("time after warm up %lf\n", time_after_warm_up);
-		// num_loops = 1.0 / (time_after_warm_up / (num_calc_loops_runs_1 + num_calc_loops_runs_2));
-		// if (num_loops < min_num_loops)
-			// num_loops = min_num_loops;
-		// num_loops_out = num_loops;
-		// printf("number of loops = %ld\n", num_loops);
 
 		if (use_processes)
 			raise(SIGSTOP);
@@ -361,22 +378,54 @@ compute(char * matrix_name,
 		rapl_open(reg_ids, &regs, &regs_n);
 		/*****************************************************************************************/
 
-		time = 0;
+		volatile unsigned long * L3_cache_block;
+		long L3_cache_block_n = LEVEL3_CACHE_SIZE_TOTAL / sizeof(*L3_cache_block);
+		L3_cache_block = (typeof(L3_cache_block)) malloc(L3_cache_block_n * sizeof(*L3_cache_block));
+		int clear_caches = atoi(getenv("CLEAR_CACHES"));
+		time_total = 0;
 		num_loops = 0;
-		while (time < 1.0 || num_loops < min_num_loops)
+		dynarray_d * da_iter_times = dynarray_new_d(10 * min_num_loops);
+		while (time_total < 2.0 || num_loops < min_num_loops)
 		{
+			if (__builtin_expect(clear_caches, 0))
+			{
+				if (num_loops >= min_num_loops)
+					break;
+				_Pragma("omp parallel")
+				{
+					long i;
+					_Pragma("omp for")
+					for (i=0;i<L3_cache_block_n;i++)
+						L3_cache_block[i] = 0;
+				}
+			}
+
 			rapl_read_start(regs, regs_n);
 
-			time += time_it(1,
+			time_iter = time_it(1,
 				MF->spmv(x, y);
 			);
 
 			rapl_read_end(regs, regs_n);
 
+			dynarray_push_back_d(da_iter_times, time_iter);
+			time_total += time_iter;
 			num_loops++;
 		}
 		num_loops_out = num_loops;
 		printf("number of loops = %ld\n", num_loops);
+		long iter_times_n;
+		double * iter_times;
+		iter_times_n = dynarray_export_array_d(da_iter_times, &iter_times);
+		if (iter_times_n != num_loops)
+			error("dynamic array size not equal to number of loops: %ld != %ld", iter_times_n, num_loops);
+		qsort(iter_times, num_loops, sizeof(*iter_times), qsort_cmp);
+		time_min = iter_times[0];
+		time_median = iter_times[num_loops/2];
+		time_max = iter_times[num_loops-1];
+		printf("time iter: min=%g, median=%g, max=%g\n", time_min, time_median, time_max);
+		free(iter_times);
+		dynarray_destroy_d(&da_iter_times);
 
 		/*****************************************************************************************/
 		J_estimated = 0;
@@ -386,7 +435,7 @@ compute(char * matrix_name,
 		}
 		rapl_close(regs, regs_n);
 		free(regs);
-		W_avg = J_estimated / time;
+		W_avg = J_estimated / time_total;
 		// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
 		/*****************************************************************************************/
 
@@ -394,7 +443,12 @@ compute(char * matrix_name,
 		//= Output section.
 		//=============================================================================
 
-		gflops = csr_nnz / time * num_loops * 2 * 1e-9;    // Use csr_nnz to be sure we have the initial nnz (there is no coo for artificial AM).
+		if (symmetric && !expand_symmetry)
+			csr_nnz = 2*csr_nnz_non_diag + csr_nnz_diag;
+
+		// Use 'csr_nnz' to be sure we have the initial nnz (there is no coo for artificial AM).
+		// gflops = csr_nnz / time_total * num_loops * 2 * 1e-9;
+		gflops = csr_nnz / time_median * 2 * 1e-9;
 		printf("GFLOPS = %lf (%s)\n", gflops, getenv("PROGG"));
 	}
 
@@ -415,7 +469,11 @@ compute(char * matrix_name,
 			i += snprintf(buf + i, buf_n - i, ",%s", "csr_m");
 			i += snprintf(buf + i, buf_n - i, ",%s", "csr_n");
 			i += snprintf(buf + i, buf_n - i, ",%s", "csr_nnz");
+			i += snprintf(buf + i, buf_n - i, ",%s", "symmetry");
 			i += snprintf(buf + i, buf_n - i, ",%s", "time");
+			i += snprintf(buf + i, buf_n - i, ",%s", "time_iter_min");
+			i += snprintf(buf + i, buf_n - i, ",%s", "time_iter_median");
+			i += snprintf(buf + i, buf_n - i, ",%s", "time_iter_max");
 			i += snprintf(buf + i, buf_n - i, ",%s", "gflops");
 			i += snprintf(buf + i, buf_n - i, ",%s", "csr_mem_footprint");
 			i += snprintf(buf + i, buf_n - i, ",%s", "W_avg");
@@ -445,22 +503,26 @@ compute(char * matrix_name,
 		{
 			i += snprintf(buf + i, buf_n - i, ",%d", omp_get_max_threads());
 		}
-		i += snprintf(buf + i, buf_n - i, ",%u", csr_m);
-		i += snprintf(buf + i, buf_n - i, ",%u", csr_n);
-		i += snprintf(buf + i, buf_n - i, ",%u", csr_nnz);
-		i += snprintf(buf + i, buf_n - i, ",%lf", time);
+		i += snprintf(buf + i, buf_n - i, ",%lu", csr_m);
+		i += snprintf(buf + i, buf_n - i, ",%lu", csr_n);
+		i += snprintf(buf + i, buf_n - i, ",%lu", csr_nnz);
+		i += snprintf(buf + i, buf_n - i, ",%lu", symmetric);
+		i += snprintf(buf + i, buf_n - i, ",%lf", time_total);
+		i += snprintf(buf + i, buf_n - i, ",%lf", time_min);
+		i += snprintf(buf + i, buf_n - i, ",%lf", time_median);
+		i += snprintf(buf + i, buf_n - i, ",%lf", time_max);
 		i += snprintf(buf + i, buf_n - i, ",%lf", gflops);
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->csr_mem_footprint / (1024*1024));
 		i += snprintf(buf + i, buf_n - i, ",%lf", W_avg);
 		i += snprintf(buf + i, buf_n - i, ",%lf", J_estimated);
 		i += snprintf(buf + i, buf_n - i, ",%s", MF->format_name);
-		i += snprintf(buf + i, buf_n - i, ",%u", MF->m);
-		i += snprintf(buf + i, buf_n - i, ",%u", MF->n);
-		i += snprintf(buf + i, buf_n - i, ",%u", MF->nnz);
+		i += snprintf(buf + i, buf_n - i, ",%lu", MF->m);
+		i += snprintf(buf + i, buf_n - i, ",%lu", MF->n);
+		i += snprintf(buf + i, buf_n - i, ",%lu", MF->nnz);
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / (1024*1024));
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / MF->csr_mem_footprint);
 		i += snprintf(buf + i, buf_n - i, ",%ld", num_loops);
-		i += check_accuracy(buf + i, buf_n - i, csr_ia, csr_ja, csr_a_ref, csr_m, csr_n, csr_nnz, x_ref, y);
+		i += check_accuracy(buf + i, buf_n - i, csr_ia, csr_ja, csr_a_ref, csr_m, csr_n, csr_nnz, x_ref, y, symmetric, expand_symmetry);
 		#ifdef PRINT_STATISTICS
 			i += MF->statistics_print_data(buf + i, buf_n - i);
 		#endif
@@ -532,7 +594,7 @@ compute(char * matrix_name,
 		i += snprintf(buf + i, buf_n - i, ",%lf", AM->avg_num_neighbours);
 		i += snprintf(buf + i, buf_n - i, ",%lf", AM->cross_row_similarity);
 		i += snprintf(buf + i, buf_n - i, ",%s" , MF->format_name);
-		i += snprintf(buf + i, buf_n - i, ",%lf", time);
+		i += snprintf(buf + i, buf_n - i, ",%lf", time_total);
 		i += snprintf(buf + i, buf_n - i, ",%lf", gflops);
 		i += snprintf(buf + i, buf_n - i, ",%lf", W_avg);
 		i += snprintf(buf + i, buf_n - i, ",%lf", J_estimated);
@@ -554,26 +616,26 @@ main(int argc, char **argv)
 {
 	__attribute__((unused)) int num_threads;
 
-	struct Matrix_Market * MTX;
-	double * mtx_val = NULL;
-	INT_T * mtx_rowind = NULL;
-	INT_T * mtx_colind = NULL;
-	INT_T mtx_m = 0;
-	INT_T mtx_n = 0;
-	INT_T mtx_nnz = 0;
-	double * x_ref;
-
-	double * csr_a_ref = NULL;
-
-	ValueType * csr_a = NULL; // values (of size NNZ)
-	INT_T * csr_ia = NULL;    // rowptr (of size m+1)
-	INT_T * csr_ja = NULL;    // colidx of each NNZ (of size nnz)
-	INT_T csr_m = 0;
-	INT_T csr_n = 0;
-	INT_T csr_nnz = 0;
+	ValueTypeReference * csr_a_ref = NULL;   // values (of size NNZ)
+	INT_T * csr_ia = NULL;                   // rowptr (of size m+1)
+	INT_T * csr_ja = NULL;                   // colidx of each NNZ (of size nnz)
+	long csr_m = 0;
+	long csr_n = 0;
+	long csr_nnz = 0;
+	long csr_nnz_diag = 0;
+	long csr_nnz_non_diag = 0;
+	long symmetric = 0;
+	long expand_symmetry = 1;
+	#ifdef KEEP_SYMMETRY
+		expand_symmetry = 0;
+	#else
+		expand_symmetry = 1;
+	#endif
 
 	struct Matrix_Format * MF;   // Real matrices.
 	csr_matrix * AM = NULL;
+
+	ValueTypeReference * x_ref;
 	ValueType * x;
 	ValueType * y;
 	char matrix_name[1000];
@@ -592,7 +654,7 @@ main(int argc, char **argv)
 	// Just print the labels and exit.
 	if (argc == 1)
 	{
-		compute(NULL, NULL, NULL, NULL, NULL, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 1);
+		compute(NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0, 1);
 		return 0;
 	}
 
@@ -640,101 +702,104 @@ main(int argc, char **argv)
 
 child_proc_label:
 
+	// Read real matrix.
 	if (!use_artificial_matrices)
 	{
+		struct Matrix_Market * MTX = NULL;
+		ValueTypeReference * coo_val = NULL;   // MATRIX_MARKET_FLOAT_T is always double, as reference for error calculation.
+		INT_T * coo_rowind = NULL;
+		INT_T * coo_colind = NULL;
+		long coo_m = 0;
+		long coo_n = 0;
+		long coo_nnz = 0;
+		long coo_nnz_diag = 0;
+		long coo_nnz_non_diag = 0;
+
 		char * file_in;
 		i = 1;
 		file_in = argv[i++];
 		snprintf(matrix_name, sizeof(matrix_name), "%s", file_in);
 
 		time = time_it(1,
-			if (stat_isdir(file_in))
+			if (stat_isdir(file_in))   // OpenFoam format
 			{
-				int nnz_non_diag, N;
+				long nnz_non_diag, N;
 				int * rowind, * colind;
 				read_openfoam_matrix_dir(file_in, &rowind, &colind, &N, &nnz_non_diag);
-				mtx_m = N;
-				mtx_n = N;
-				mtx_nnz = N + nnz_non_diag;
-				mtx_rowind = (typeof(mtx_rowind)) aligned_alloc(64, mtx_nnz * sizeof(*mtx_rowind));
-				mtx_colind = (typeof(mtx_colind)) aligned_alloc(64, mtx_nnz * sizeof(*mtx_colind));
-				mtx_val = (typeof(mtx_val)) aligned_alloc(64, mtx_nnz * sizeof(*mtx_val));
+				coo_m = N;
+				coo_n = N;
+				coo_nnz = N + nnz_non_diag;
+				coo_rowind = (typeof(coo_rowind)) aligned_alloc(64, coo_nnz * sizeof(*coo_rowind));
+				coo_colind = (typeof(coo_colind)) aligned_alloc(64, coo_nnz * sizeof(*coo_colind));
+				coo_val = (typeof(coo_val)) aligned_alloc(64, coo_nnz * sizeof(*coo_val));
 				_Pragma("omp parallel for")
-				for (long i=0;i<mtx_nnz;i++)
+				for (long i=0;i<coo_nnz;i++)
 				{
-					mtx_rowind[i] = rowind[i];
-					mtx_colind[i] = colind[i];
-					mtx_val[i] = 1.0;
+					coo_rowind[i] = rowind[i];
+					coo_colind[i] = colind[i];
+					coo_val[i] = 1.0;
 				}
 				free(rowind);
 				free(colind);
 			}
-			else
+			else   // MTX format
 			{
-				// create_coo_matrix(file_in, &mtx_val, &mtx_rowind, &mtx_colind, &mtx_m, &mtx_n, &mtx_nnz);
-				long expand_symmetry = 1;
 				long pattern_dummy_vals = 1;
 				MTX = mtx_read(file_in, expand_symmetry, pattern_dummy_vals);
-				mtx_rowind = MTX->R;
-				mtx_colind = MTX->C;
-				mtx_m = MTX->m;
-				mtx_n = MTX->n;
-				mtx_nnz = MTX->nnz;
-				if (!strcmp(MTX->field, "integer"))
-				{
-					mtx_val = (typeof(mtx_val)) malloc(mtx_nnz * sizeof(*mtx_val));
-					_Pragma("omp parallel for")
-					for (long i=0;i<mtx_nnz;i++)
-					{
-						mtx_val[i] = ((int *) MTX->V)[i];
-					}
-					free(MTX->V);
-					MTX->V = NULL;
-				}
-				else if (!strcmp(MTX->field, "complex"))
-				{
-					mtx_val = (typeof(mtx_val)) malloc(mtx_nnz * sizeof(*mtx_val));
-					_Pragma("omp parallel for")
-					for (long i=0;i<mtx_nnz;i++)
-					{
-						#if DOUBLE == 0
-							mtx_val[i] = cabsf(((complex ValueType *) MTX->V)[i]);
-						#else
-							mtx_val[i] = cabs(((complex ValueType *) MTX->V)[i]);
-						#endif
-					}
-					free(MTX->V);
-					MTX->V = NULL;
-				}
-				else
-					mtx_val = (double *) MTX->V;
+				coo_rowind = MTX->R;
+				coo_colind = MTX->C;
+				coo_m = MTX->m;
+				coo_n = MTX->n;
+				coo_nnz_diag = MTX->nnz_diag;
+				coo_nnz_non_diag = MTX->nnz_non_diag;
+				symmetric = MTX->symmetric;
+				#ifdef KEEP_SYMMETRY
+					coo_nnz = MTX->nnz_sym;
+				#else
+					coo_nnz = MTX->nnz;
+				#endif
+				mtx_values_convert_to_real(MTX);
+				coo_val = (typeof(coo_val)) MTX->V;
+				MTX->R = NULL;
+				MTX->C = NULL;
+				MTX->V = NULL;
+				mtx_destroy(&MTX);
 			}
 		);
 		printf("time read: %lf\n", time);
 		time = time_it(1,
-			csr_a_ref = (typeof(csr_a_ref)) aligned_alloc(64, (mtx_nnz + VECTOR_ELEM_NUM) * sizeof(*csr_a_ref));
-			csr_a = (typeof(csr_a)) aligned_alloc(64, (mtx_nnz + VECTOR_ELEM_NUM) * sizeof(*csr_a));
-			csr_ja = (typeof(csr_ja)) aligned_alloc(64, (mtx_nnz + VECTOR_ELEM_NUM) * sizeof(*csr_ja));
-			csr_ia = (typeof(csr_ia)) aligned_alloc(64, (mtx_m+1 + VECTOR_ELEM_NUM) * sizeof(*csr_ia));
-			csr_m = mtx_m;
-			csr_n = mtx_n;
-			csr_nnz = mtx_nnz;
+			csr_a_ref = (typeof(csr_a_ref)) aligned_alloc(64, coo_nnz * sizeof(*csr_a_ref));
+			csr_ja = (typeof(csr_ja)) aligned_alloc(64, coo_nnz * sizeof(*csr_ja));
+			csr_ia = (typeof(csr_ia)) aligned_alloc(64, (coo_m+1) * sizeof(*csr_ia));
+			csr_m = coo_m;
+			csr_n = coo_n;
+			csr_nnz = coo_nnz;
+			csr_nnz_diag = coo_nnz_diag;
+			csr_nnz_non_diag = coo_nnz_non_diag;
 			_Pragma("omp parallel for")
-			for (long i=0;i<mtx_nnz + VECTOR_ELEM_NUM;i++)
+			for (long i=0;i<coo_nnz;i++)
 			{
 				csr_a_ref[i] = 0.0;
 				csr_ja[i] = 0;
 			}
 			_Pragma("omp parallel for")
-			for (long i=0;i<mtx_m+1 + VECTOR_ELEM_NUM;i++)
+			for (long i=0;i<coo_m+1;i++)
 				csr_ia[i] = 0;
-			coo_to_csr(mtx_rowind, mtx_colind, mtx_val, mtx_m, mtx_n, mtx_nnz, csr_ia, csr_ja, csr_a_ref, 1, 0);
-			_Pragma("omp parallel for")
-			for (long i=0;i<mtx_nnz + VECTOR_ELEM_NUM;i++)
-				csr_a[i] = (ValueType) csr_a_ref[i];
+			coo_to_csr(coo_rowind, coo_colind, coo_val, coo_m, coo_n, coo_nnz, csr_ia, csr_ja, csr_a_ref, 1, 0);
+			free(coo_rowind);
+			free(coo_colind);
+			free(coo_val);
+
+			// _Pragma("omp parallel for")
+			// for (long i=0;i<csr_m;i++)
+			// {
+				// if (csr_ia[i+1] - csr_ia[i] == 0)
+					// error("test");
+			// }
+			// exit(0);
+
 		);
 		printf("time coo to csr: %lf\n", time);
-		mtx_destroy(&MTX);
 	}
 	else
 	{
@@ -771,19 +836,19 @@ child_proc_label:
 		csr_n = AM->nr_cols;
 		csr_nnz = AM->nr_nzeros;
 
-		csr_ia = (typeof(csr_ia)) aligned_alloc(64, (csr_m+1 + VECTOR_ELEM_NUM) * sizeof(*csr_ia));
+		csr_ia = (typeof(csr_ia)) aligned_alloc(64, (csr_m+1) * sizeof(*csr_ia));
 		#pragma omp parallel for
 		for (long i=0;i<csr_m+1;i++)
 			csr_ia[i] = AM->row_ptr[i];
 		free(AM->row_ptr);
 		AM->row_ptr = NULL;
 
-		csr_a = (typeof(csr_a)) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(*csr_a));
-		csr_ja = (typeof(csr_ja)) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(*csr_ja));
+		csr_a_ref = (typeof(csr_a_ref)) aligned_alloc(64, csr_nnz * sizeof(*csr_a_ref));
+		csr_ja = (typeof(csr_ja)) aligned_alloc(64, csr_nnz * sizeof(*csr_ja));
 		#pragma omp parallel for
 		for (long i=0;i<csr_nnz;i++)
 		{
-			csr_a[i] = AM->values[i];
+			csr_a_ref[i] = AM->values[i];
 			csr_ja[i] = AM->col_ind[i];
 		}
 		free(AM->values);
@@ -792,21 +857,117 @@ child_proc_label:
 		AM->col_ind = NULL;
 	}
 
-	// for(int i=0;i<mtx_nnz;i++)
-	// 	csr_ja[i]=0;
+	if (atoi(getenv("USE_RCM_REORDERING")) == 1)
+	{
+		time = time_it(1,
+			if (!symmetric)
+				error("RCM is only applicable to symmetric matrices");
+
+			int * permutation;
+			int * row_ptr_new = NULL;
+			int * col_idx_new = NULL;
+			ValueTypeReference * values_new = NULL;
+			long nnz_new, nnz_diag;
+
+			if (!expand_symmetry)
+			{
+				printf("expanding symmetry for rcm\n");
+				csr_expand_symmetric(csr_ia, csr_ja, csr_a_ref, csr_m, csr_n, csr_nnz, &row_ptr_new, &col_idx_new, &values_new, &nnz_new, &nnz_diag, 1);
+				printf("nnz_old=%ld nnz_new=%ld csr_nnz_diag=%ld csr_nnz_non_diag=%ld nnz_diag=%ld \n", csr_nnz, nnz_new, csr_nnz_diag, csr_nnz_non_diag, nnz_diag);
+				csr_nnz = nnz_new;
+				free(csr_ia);
+				free(csr_ja);
+				free(csr_a_ref);
+				csr_ia = row_ptr_new;
+				csr_ja = col_idx_new;
+				csr_a_ref = values_new;
+			}
+
+			reverse_cuthill_mckee(csr_ia, csr_ja, csr_a_ref, csr_m, csr_n, csr_nnz, &row_ptr_new, &col_idx_new, &values_new, &permutation);
+			printf("nnz_old=%ld csr_nnz_diag=%ld csr_nnz_non_diag=%ld \n", csr_nnz, csr_nnz_diag, csr_nnz_non_diag);
+			free(csr_ia);
+			free(csr_ja);
+			free(csr_a_ref);
+			csr_ia = row_ptr_new;
+			csr_ja = col_idx_new;
+			csr_a_ref = values_new;
+			if (csr_n != csr_m)
+				error("csr_n != csr_m");
+			for (i=0;i<csr_m;i++)
+			{
+				if (csr_ia[i] > csr_ia[i+1])
+					error("csr_ia[%d]=%d > csr_ia[%d]=%d", i, csr_ia[i], i+1, csr_ia[i+1]);
+			}
+			for (i=0;i<=csr_m;i++)
+			{
+				if (csr_ia[i] < 0 || csr_ia[i] > csr_nnz)
+					error("csr_ia[%d]=%d >= csr_nnz", i, csr_ia[i]);
+			}
+			for (i=0;i<csr_nnz;i++)
+			{
+				if (csr_ja[i] < 0 || csr_ja[i] >= csr_n)
+					error("csr_ja[%d]=%d >= csr_n", i, csr_ja[i]);
+			}
+
+			if (!expand_symmetry)
+			{
+				printf("dropping upper matrix after rcm\n");
+				csr_drop_upper(csr_ia, csr_ja, csr_a_ref, csr_m, csr_n, csr_nnz, &row_ptr_new, &col_idx_new, &values_new, &nnz_new, NULL, 1);
+				csr_nnz = nnz_new;
+				free(csr_ia);
+				free(csr_ja);
+				free(csr_a_ref);
+				csr_ia = row_ptr_new;
+				csr_ja = col_idx_new;
+				csr_a_ref = values_new;
+			}
+		);
+		printf("time rcm reordering: %lf\n", time);
+	}
+
+	time = time_it(1,
+		MF = csr_to_format(csr_ia, csr_ja, csr_a_ref, csr_m, csr_n, csr_nnz, symmetric, expand_symmetry);
+	);
+	printf("time convert to format: %lf\n", time);
+
+	// Reallocate CSR arrays to ensure the format does not rely on them.
+	{
+		ValueTypeReference * csr_a_tmp;
+		INT_T * csr_ia_tmp, * csr_ja_tmp;
+
+		csr_a_tmp = (typeof(csr_a_tmp)) aligned_alloc(64, csr_nnz * sizeof(*csr_a_tmp));
+		csr_ia_tmp = (typeof(csr_ia_tmp)) aligned_alloc(64, (csr_m+1) * sizeof(*csr_ia_tmp));
+		csr_ja_tmp = (typeof(csr_ja_tmp)) aligned_alloc(64, csr_nnz * sizeof(*csr_ja_tmp));
+		#pragma omp parallel for
+		for (long i=0;i<csr_m+1;i++)
+			csr_ia_tmp[i] = csr_ia[i];
+		free(csr_ia);
+		csr_ia = csr_ia_tmp;
+
+		#pragma omp parallel for
+		for(long i=0;i<csr_nnz;i++)
+		{
+			csr_a_tmp[i]=csr_a_ref[i];
+			csr_ja_tmp[i]=csr_ja[i];
+		}
+		free(csr_a_ref);
+		free(csr_ja);
+		csr_a_ref = csr_a_tmp;
+		csr_ja = csr_ja_tmp;
+	}
 
 	x_ref = (typeof(x_ref)) aligned_alloc(64, csr_n * sizeof(*x_ref));
 	x = (typeof(x)) aligned_alloc(64, csr_n * sizeof(*x));
 	#pragma omp parallel for
-	for(int i=0;i<csr_n;++i)
+	for(long i=0;i<csr_n;++i)
 	{
 		x_ref[i] = 1.0;
 		x[i] = x_ref[i];
 	}
-	y = (typeof(y)) aligned_alloc(64, csr_m * sizeof(sizeof(*y)));
+	y = (typeof(y)) aligned_alloc(64, (csr_m+64) * sizeof(sizeof(*y)));
 	#pragma omp parallel for
 	for(long i=0;i<csr_m;i++)
-		y[i] = 0.0;
+		y[i] = 1.0;    // Test whether the format zeros rows with no nnz.
 
 	#if 0
 		_Pragma("omp parallel")
@@ -831,95 +992,17 @@ child_proc_label:
 		}
 	#endif
 
-	long buf_n = strlen(matrix_name) + 1 + 1000;
-	char buf[buf_n];
-	char * path, * filename, * filename_base;
-	str_path_split_path(matrix_name, strlen(matrix_name) + 1, buf, buf_n, &path, &filename);
-	path = strdup(path);
-	filename = strdup(filename);
-	str_path_split_ext(filename, strlen(filename) + 1, buf, buf_n, &filename_base, NULL);
-	filename_base = strdup(filename_base);
-	if (0)
-	{
-		long num_pixels = 1024;
-		long num_pixels_x = (csr_n < num_pixels) ? csr_n : num_pixels;
-		long num_pixels_y = (csr_m < num_pixels) ? csr_m : num_pixels;
-
-		printf("ploting : %s\n", filename_base);
-		csr_plot(filename_base, csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz, 0, num_pixels_x, num_pixels_y);
-		return 0;
-	}
-
-
-	long split_matrix = 0;
-	long nnz_per_row_cutoff = 50;
-
-	ValueType * gpu_csr_a = NULL;
-	INT_T * gpu_csr_ia = NULL;
-	INT_T * gpu_csr_ja = NULL;
-	INT_T gpu_csr_nnz = 0;
-	if (split_matrix)
-	{
-		long k;
-		long degree;
-		gpu_csr_ia = (typeof(gpu_csr_ia)) aligned_alloc(64, (csr_m+1 + VECTOR_ELEM_NUM) * sizeof(*gpu_csr_ia));
-		gpu_csr_a = (typeof(gpu_csr_a)) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(*gpu_csr_a));
-		gpu_csr_ja = (typeof(gpu_csr_ja)) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(*gpu_csr_ja));
-		k = 0;
-		gpu_csr_ia[0] = 0;
-		for (i=0;i<csr_m+1;i++)
-		{
-			degree = csr_ia[i+1] - csr_ia[i];
-			if (degree > nnz_per_row_cutoff)
-			{
-				for (j=csr_ia[i];j<csr_ia[i+1];j++,k++)
-				{
-					gpu_csr_ja[k] = csr_ja[j];
-					gpu_csr_a[k] = csr_a[j];
-				}
-				gpu_csr_ia[i+1] = k;
-			}
-			else
-			{
-				gpu_csr_ia[i+1] = gpu_csr_ia[i];
-			}
-		}
-		gpu_csr_nnz = k;
-		printf("GPU part nnz = %d (%.2lf%%)\n", gpu_csr_nnz, ((double) gpu_csr_nnz) / csr_nnz * 100);
-	}
-
-	time = time_it(1,
-		if (split_matrix)
-		{
-			MF = csr_to_format(gpu_csr_ia, gpu_csr_ja, gpu_csr_a, csr_m, csr_n, gpu_csr_nnz);
-		}
-		else
-		{
-			MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
-		}
-	);
-	printf("time convert to format: %lf\n", time);
-
 	long min_num_loops;
-	min_num_loops = 128;
+	min_num_loops = 256;
 
 	prefetch_distance = 1;
 	time = time_it(1,
 		// for (i=0;i<5;i++)
 		{
 			// printf("prefetch_distance = %d\n", prefetch_distance);
-			if (split_matrix)
-			{
-				compute(matrix_name,
-					gpu_csr_ia, gpu_csr_ja, gpu_csr_a, csr_a_ref, csr_m, csr_n, gpu_csr_nnz,
-					MF, AM, x, x_ref, y, min_num_loops, 0);
-			}
-			else
-			{
-				compute(matrix_name,
-					csr_ia, csr_ja, csr_a, csr_a_ref, csr_m, csr_n, csr_nnz,
-					MF, AM, x, x_ref, y, min_num_loops, 0);
-			}
+			compute(matrix_name,
+				csr_ia, csr_ja, csr_a_ref, csr_m, csr_n, csr_nnz, csr_nnz_diag, csr_nnz_non_diag, symmetric, expand_symmetry,
+				MF, AM, x, x_ref, y, min_num_loops, 0);
 			prefetch_distance++;
 		}
 	);

@@ -16,4 +16,8 @@ clean:
 	$(RM) obj/* *.o *.exe a.out
 	cd LCM-partially-strided-codelet
 	make clean
+	cd ../
+	cd cfs-spmv/build
+	[[ -e Makefile ]] && make distclean
+	cd ../../
 

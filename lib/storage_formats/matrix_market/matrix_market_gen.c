@@ -14,10 +14,11 @@
 #ifndef MATRIX_MARKET_GEN_C
 #define MATRIX_MARKET_GEN_C
 
-#include "data_structures/vector/vector_gen_undef.h"
-#define VECTOR_GEN_TYPE_1  char
-#define VECTOR_GEN_SUFFIX  _mtx_c
-#include "data_structures/vector/vector_gen.c"
+#undef  DYNAMIC_ARRAY_GEN_TYPE_1
+#undef  DYNAMIC_ARRAY_GEN_SUFFIX
+#define DYNAMIC_ARRAY_GEN_TYPE_1  char
+#define DYNAMIC_ARRAY_GEN_SUFFIX  _mtx_c
+#include "data_structures/dynamic_array/dynamic_array_gen.c"
 
 #endif /* MATRIX_MARKET_GEN_C */
 
@@ -29,15 +30,13 @@
 //==========================================================================================================================================
 
 
-#undef  mtx_parse_array_format
-#define mtx_parse_array_format  generic_name_expand(mtx_parse_array_format)
+#undef  mtx_gen_parse_array_format
+#define mtx_gen_parse_array_format  generic_name_expand(mtx_gen_parse_array_format)
 static
 void
-mtx_parse_array_format(char ** lines, long * lengths, struct Matrix_Market * MTX)
+mtx_gen_parse_array_format(char ** lines, long * lengths, struct Matrix_Market * MTX)
 {
-	// const int symmetric = MTX->symmetric || MTX->skew_symmetric;
 	TYPE * V = (typeof(V)) MTX->V;
-	// int complex_weights = (strcmp(MTX->field, "complex") == 0);
 	long M, N;
 
 	M = MTX->m;
@@ -63,25 +62,88 @@ mtx_parse_array_format(char ** lines, long * lengths, struct Matrix_Market * MTX
 }
 
 
-#undef  mtx_parse_coordinate_format
-#define mtx_parse_coordinate_format  generic_name_expand(mtx_parse_coordinate_format)
+#undef  mtx_gen_expand_symmetry
+#define mtx_gen_expand_symmetry  generic_name_expand(mtx_gen_expand_symmetry)
 static
 void
-mtx_parse_coordinate_format(char ** lines, long * lengths, struct Matrix_Market * MTX, long expand_symmetry)
+mtx_gen_expand_symmetry(struct Matrix_Market * MTX)
 {
-	int num_threads = safe_omp_get_num_threads_external();
-	const int symmetric = MTX->symmetric || MTX->skew_symmetric;
+	long num_threads = safe_omp_get_num_threads_external();
 	int * R = MTX->R;
 	int * C = MTX->C;
 	TYPE * V = (typeof(V)) MTX->V;
-	int complex_weights = (strcmp(MTX->field, "complex") == 0);
-	int non_diag_total = 0;
-	int offsets[num_threads];
-	int num_lines = MTX->nnz_sym;
+	long complex_weights = (strcmp(MTX->field, "complex") == 0);
+	long offsets[num_threads];
 
 	_Pragma("omp parallel")
 	{
-		int tnum = omp_get_thread_num();
+		long tnum = omp_get_thread_num();
+		long i, i_s, i_e, j;
+		long non_diag = 0;
+
+		loop_partitioner_balance_iterations(num_threads, tnum, 0, MTX->nnz_sym, &i_s, &i_e);
+
+		for (i=i_s;i<i_e;i++)
+		{
+			if (C[i] != R[i])
+				non_diag++;
+		}
+
+		__atomic_store_n(&(offsets[tnum]), non_diag, __ATOMIC_RELAXED);
+
+		_Pragma("omp barrier")
+
+		_Pragma("omp single")
+		{
+			long a = 0, tmp;
+			for (i=0;i<num_threads;i++)
+			{
+				tmp = offsets[i];
+				offsets[i] = a;
+				a += tmp;
+			}
+		}
+
+		_Pragma("omp barrier")
+
+		j = MTX->nnz_sym + offsets[tnum];
+		for (i=i_s;i<i_e;i++)
+		{
+			if (C[i] != R[i])
+			{
+				R[j] = C[i];
+				C[j] = R[i];
+				if (V != NULL)
+				{
+					if (complex_weights)
+						V[j] = (MTX->skew_symmetry) ? -conj(V[i]) : conj(V[i]);
+					else
+						V[j] = (MTX->skew_symmetry) ? -V[i] : V[i];
+				}
+				j++;
+			}
+		}
+	}
+	MTX->symmetry_expanded = 1;
+}
+
+
+#undef  mtx_gen_parse_coordinate_format
+#define mtx_gen_parse_coordinate_format  generic_name_expand(mtx_gen_parse_coordinate_format)
+static
+void
+mtx_gen_parse_coordinate_format(char ** lines, long * lengths, struct Matrix_Market * MTX, long expand_symmetry)
+{
+	long num_threads = safe_omp_get_num_threads_external();
+	int * R = MTX->R;
+	int * C = MTX->C;
+	TYPE * V = (typeof(V)) MTX->V;
+	long non_diag_total = 0;
+	long num_lines = MTX->nnz_sym;
+
+	_Pragma("omp parallel")
+	{
+		long tnum = omp_get_thread_num();
 		long i, i_s, i_e, j, len;
 		char * ptr;
 		long non_diag = 0;
@@ -113,61 +175,43 @@ mtx_parse_coordinate_format(char ** lines, long * lengths, struct Matrix_Market 
 				non_diag++;
 		}
 
-		if (expand_symmetry && symmetric)
+		__atomic_fetch_add(&non_diag_total, non_diag, __ATOMIC_RELAXED);
+
+		_Pragma("omp barrier")
+
+		_Pragma("omp single")
 		{
-			__atomic_fetch_add(&non_diag_total, non_diag, __ATOMIC_RELAXED);
-			__atomic_store_n(&(offsets[tnum]), non_diag, __ATOMIC_RELAXED);
+			long diag = MTX->nnz_sym - non_diag_total;
+			MTX->nnz_diag = diag;
+			MTX->nnz_non_diag = non_diag_total;
+		}
 
-			_Pragma("omp barrier")
-
+		if (MTX->symmetric)
+		{
 			_Pragma("omp single")
 			{
-				long a = 0, tmp;
-				long diag = num_lines - non_diag_total;
-				MTX->nnz = 2*non_diag_total + diag;
-				for (i=0;i<num_threads;i++)
-				{
-					tmp = offsets[i];
-					offsets[i] = a;
-					a += tmp;
-				}
-			}
-
-			_Pragma("omp barrier")
-
-			long i;
-			long j = num_lines + offsets[tnum];
-			for (i=i_s;i<i_e;i++)
-			{
-				if (C[i] != R[i])
-				{
-					R[j] = C[i];
-					C[j] = R[i];
-					if (V != NULL)
-					{
-						if (complex_weights)
-							V[j] = (MTX->skew_symmetric) ? -conj(V[i]) : conj(V[i]);
-						else
-							V[j] = (MTX->skew_symmetric) ? -V[i] : V[i];
-					}
-					j++;
-				}
+				MTX->nnz = 2*MTX->nnz_non_diag + MTX->nnz_diag;
 			}
 		}
+	}
+
+	if (MTX->symmetric && expand_symmetry)
+	{
+		mtx_gen_expand_symmetry(MTX);
 	}
 }
 
 
-#undef  mtx_parse_data
-#define mtx_parse_data  generic_name_expand(mtx_parse_data)
+#undef  mtx_gen_parse_data
+#define mtx_gen_parse_data  generic_name_expand(mtx_gen_parse_data)
 static
 void
-mtx_parse_data(char ** lines, long * lengths, struct Matrix_Market * MTX, long expand_symmetry)
+mtx_gen_parse_data(char ** lines, long * lengths, struct Matrix_Market * MTX, long expand_symmetry)
 {
 	if (!strcmp(MTX->format, "coordinate"))
-		mtx_parse_coordinate_format(lines, lengths, MTX, expand_symmetry);
+		mtx_gen_parse_coordinate_format(lines, lengths, MTX, expand_symmetry);
 	else
-		mtx_parse_array_format(lines, lengths, MTX);
+		mtx_gen_parse_array_format(lines, lengths, MTX);
 }
 
 
@@ -179,24 +223,24 @@ mtx_parse_data(char ** lines, long * lengths, struct Matrix_Market * MTX, long e
 
 
 /*
-#undef  mtx_to_string
-#define mtx_to_string  generic_name_expand(mtx_to_string)
+#undef  mtx_gen_to_string
+#define mtx_gen_to_string  generic_name_expand(mtx_gen_to_string)
 static
-struct Vector *
-mtx_to_string(struct Matrix_Market * MTX)
+struct dynarray *
+mtx_gen_to_string(struct Matrix_Market * MTX)
 {
 	int * R = MTX->R;
 	int * C = MTX->C;
 	TYPE * V = MTX->V;
-	struct Vector * v;
-	int buf_n = 10000, len;
+	struct dynarray * V;
+	long buf_n = 10000, len;
 	char buf[buf_n];
 	long i;
 
-	v = vector_new(0);
+	v = dynarray_new(0);
 
 	len = snprintf(buf, buf_n, "%ld %ld %ld\n", MTX->m, MTX->n, MTX->nnz);
-	vector_push_back_array(v, buf, len);
+	dynarray_push_back_array(v, buf, len);
 
 	for (i=0;i<MTX->nnz;i++)
 	{
@@ -210,7 +254,7 @@ mtx_to_string(struct Matrix_Market * MTX)
 			len += gen_numtostr(buf+len, buf_n-len, "", V[i]);
 		}
 		len += snprintf(buf+len, buf_n-len, "\n");
-		vector_push_back_array(v, buf, len);
+		dynarray_push_back_array(v, buf, len);
 	}
 	return v;
 } */
@@ -218,13 +262,13 @@ mtx_to_string(struct Matrix_Market * MTX)
 
 // Returns a 'page aligned' character array.
 
-#undef  mtx_to_string_par
-#define mtx_to_string_par  generic_name_expand(mtx_to_string_par)
+#undef  mtx_gen_to_string_par
+#define mtx_gen_to_string_par  generic_name_expand(mtx_gen_to_string_par)
 static
 long
-mtx_to_string_par(struct Matrix_Market * MTX, char ** str_ptr)
+mtx_gen_to_string_par(struct Matrix_Market * MTX, char ** str_ptr)
 {
-	int num_threads = safe_omp_get_num_threads_external();
+	long num_threads = safe_omp_get_num_threads_external();
 	int * R = MTX->R;
 	int * C = MTX->C;
 	TYPE * V = MTX->V;
@@ -234,20 +278,20 @@ mtx_to_string_par(struct Matrix_Market * MTX, char ** str_ptr)
 
 	#pragma omp parallel
 	{
-		int tnum = omp_get_thread_num();
-		struct Vector * v;
-		int buf_n = 10000, len;
+		long tnum = omp_get_thread_num();
+		struct dynarray * v;
+		long buf_n = 10000, len;
 		char buf[buf_n];
 		long i, i_s, i_e;
 
 		loop_partitioner_balance_iterations(num_threads, tnum, 0, MTX->nnz, &i_s, &i_e);
 
-		v = vector_new(0);
+		v = dynarray_new(0);
 
 		if (tnum == 0)
 		{
 			len = snprintf(buf, buf_n, "%ld %ld %ld\n", MTX->m, MTX->n, MTX->nnz);
-			vector_push_back_array(v, buf, len);
+			dynarray_push_back_array(v, buf, len);
 		}
 
 		for (i=i_s;i<i_e;i++)
@@ -262,7 +306,7 @@ mtx_to_string_par(struct Matrix_Market * MTX, char ** str_ptr)
 				len += gen_numtostr(buf+len, buf_n-len, "", V[i]);
 			}
 			len += snprintf(buf+len, buf_n-len, "\n");
-			vector_push_back_array(v, buf, len);
+			dynarray_push_back_array(v, buf, len);
 		}
 
 		offsets[tnum] = v->size;
@@ -288,7 +332,7 @@ mtx_to_string_par(struct Matrix_Market * MTX, char ** str_ptr)
 			str[offsets[tnum] + i] = v->data[i];
 		}
 
-		vector_destroy(&v);
+		dynarray_destroy(&v);
 	}
 
 	*str_ptr = str;

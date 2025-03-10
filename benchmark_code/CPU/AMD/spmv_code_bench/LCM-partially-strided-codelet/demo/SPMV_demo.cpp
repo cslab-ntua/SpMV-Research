@@ -468,6 +468,61 @@ int main(int argc, char *argv[]) {
 	}
 
 
+<<<<<<< Updated upstream
+=======
+	auto A = sym_lib::read_mtx(config.matrixPath);
+	sym_lib::CSR *B = sym_lib::csc_to_csr(A);
+
+
+	auto *sps = new SpMVSerial(B, A, NULLPNTR, "Baseline SpMV");
+	auto spmv_baseline = sps->evaluate();
+	double *sol_spmv = sps->solution();
+
+
+
+	auto nThread = config.nThread;
+
+	// See file 'FusionDemo.cpp' for the spmv iterations.
+	config.nThread = nThread;
+	auto *ddtspmvmt = new SpMVDDT(B, A, sol_spmv, config, "SpMV DDT MT");
+	ddtspmvmt->set_num_threads(config.nThread);
+	auto ddt_execmt = ddtspmvmt->evaluate();
+	auto ddt_analysis = ddtspmvmt->get_analysis_bw();
+	delete ddtspmvmt;
+
+	double gflops;
+
+	std::cerr << config.matrixPath;
+	std::cerr << "," << config.nThread;
+	std::cerr << "," << B->m;
+	std::cerr << "," << B->n;
+	std::cerr << "," << B->nnz;
+
+	std::cerr << "," << ddt_execmt.elapsed_time;
+	gflops = B->nnz / ddt_execmt.elapsed_time * 2 * 1e-9;
+	std::cerr << "," << gflops;
+
+	double csr_mem_footprint = ((double) B->nnz * (sizeof(double) + sizeof(int)) + (B->m+1) * sizeof(int)) / 1024.0 / 1024.0;
+
+	std::cerr << "," << csr_mem_footprint;
+	std::cerr << "," << "LCM";
+
+
+	std::cerr << "," << DDT::prefer_fsc << "," << DDT::clt_width << "," << DDT::col_th;
+	std::cerr << "," << spmv_baseline.elapsed_time;
+
+	std::cerr << "," << ddt_execmt.elapsed_time;
+	gflops = B->nnz / ddt_execmt.elapsed_time * 2 * 1e-9;
+	std::cerr << "," << gflops;
+
+	std::cerr << "," << ddt_analysis.elapsed_time;
+	std::cerr << "\n";
+
+
+	delete A;
+	delete B;
+	delete sps;
+>>>>>>> Stashed changes
 
 	return 0;
 }

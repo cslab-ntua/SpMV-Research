@@ -3,6 +3,7 @@
 #include <string.h>
 #include <omp.h>
 #include <complex.h>
+#include <tgmath.h>
 
 #include "debug.h"
 #include "genlib.h"
@@ -60,7 +61,7 @@
 
 
 typeof(double (*) (void *, long))
-mtx_functor_get_value(struct Matrix_Market * MTX)
+mtx_functor_get_value_as_double(struct Matrix_Market * MTX)
 {
 	if (!strcmp(MTX->field, "real"))
 	{
@@ -155,7 +156,11 @@ mtx_parse_header(struct File_Atoms * A, struct Matrix_Market * MTX)
 	int num_chars;
 	char * start, * object, * format, * field, * symmetry;
 	char * buf = (char *) malloc(1000);
-	int symmetric = 0, skew_symmetric = 0;
+
+	int symmetric = 0;
+	int standard_symmetry = 0;
+	int skew_symmetry = 0;
+	int hermitian_symmetry = 0;
 
 	lines = A->atoms;
 
@@ -168,8 +173,6 @@ mtx_parse_header(struct File_Atoms * A, struct Matrix_Market * MTX)
 		// error("Error parsing MARKET matrix '%s': .mtx file did not start with %%MatrixMarket\n", MTX->filename);
 		format = strdup("coordinate");
 		field = strdup("real");
-		symmetric = 0;
-		skew_symmetric = 0;
 	}
 	else
 	{
@@ -191,20 +194,24 @@ mtx_parse_header(struct File_Atoms * A, struct Matrix_Market * MTX)
 		i++;
 		// printf("%s - %s - %s - %s - %s\n", start.c_str(), object.c_str(), format.c_str(), field.c_str(), symmetry.c_str());
 
-		if (!strcmp(symmetry, "symmetric") || !strcmp(symmetry, "Hermitian"))
+		if (!strcmp(symmetry, "symmetric"))
 		{
 			symmetric = 1;
-			skew_symmetric = 0;
+			standard_symmetry = 1;
 		}
 		else if (!strcmp(symmetry, "skew-symmetric"))
 		{
-			symmetric = 0;
-			skew_symmetric = 1;
+			symmetric = 1;
+			skew_symmetry = 1;
+		}
+		else if (!strcmp(symmetry, "Hermitian"))
+		{
+			symmetric = 1;
+			hermitian_symmetry = 1;
 		}
 		else if (!strcmp(symmetry, "general"))
 		{
 			symmetric = 0;
-			skew_symmetric = 0;
 		}
 		else
 			error("Error parsing MARKET matrix '%s': unsupported symmetry type: %s\n", MTX->filename, symmetry);
@@ -219,7 +226,7 @@ mtx_parse_header(struct File_Atoms * A, struct Matrix_Market * MTX)
 	{
 		if (sscanf(lines[i++], "%ld%ld%ld", &M, &N, &nnz_sym) != 3)
 			error("Error parsing MARKET matrix '%s': invalid/missing matrix sizes: %s\n", MTX->filename, lines[i-1]);
-		nnz = (symmetric || skew_symmetric) ? 2 * nnz_sym : nnz_sym;   // If symmetric, just place a worst case estimation for the mallocs.
+		nnz = symmetric ? 2 * nnz_sym : nnz_sym;   // If symmetric, just place a worst case estimation for the mallocs.
 		nnz_sym = nnz_sym;
 	}
 	else
@@ -236,7 +243,10 @@ mtx_parse_header(struct File_Atoms * A, struct Matrix_Market * MTX)
 	MTX->format = format;
 	MTX->field = field;
 	MTX->symmetric = symmetric;
-	MTX->skew_symmetric = skew_symmetric;
+	MTX->standard_symmetry = standard_symmetry;
+	MTX->skew_symmetry = skew_symmetry;
+	MTX->hermitian_symmetry = hermitian_symmetry;
+	MTX->symmetry_expanded = MTX->symmetric ? 0 : 1;
 	MTX->m = M;
 	MTX->n = N;
 	MTX->nnz = nnz;
@@ -274,28 +284,28 @@ mtx_read(char * filename, long expand_symmetry, long pattern_dummy_vals)
 		#undef  SUFFIX
 		#define SUFFIX  _f
 		MTX->V = malloc(MTX->nnz * sizeof(MATRIX_MARKET_FLOAT_T));
-		mtx_parse_data(lines, lengths, MTX, expand_symmetry);
+		mtx_gen_parse_data(lines, lengths, MTX, expand_symmetry);
 	}
 	else if (!strcmp(MTX->field, "integer"))
 	{
 		#undef  SUFFIX
 		#define SUFFIX  _i
 		MTX->V = malloc(MTX->nnz * sizeof(int));
-		mtx_parse_data(lines, lengths, MTX, expand_symmetry);
+		mtx_gen_parse_data(lines, lengths, MTX, expand_symmetry);
 	}
 	else if (!strcmp(MTX->field, "complex"))
 	{
 		#undef  SUFFIX
 		#define SUFFIX  _cf
 		MTX->V = malloc(MTX->nnz * sizeof(complex MATRIX_MARKET_FLOAT_T));
-		mtx_parse_data(lines, lengths, MTX, expand_symmetry);
+		mtx_gen_parse_data(lines, lengths, MTX, expand_symmetry);
 	}
 	else if (!strcmp(MTX->field, "pattern"))
 	{
 		#undef  SUFFIX
 		#define SUFFIX  _pat
 		MTX->V = NULL;
-		mtx_parse_data(lines, lengths, MTX, expand_symmetry);
+		mtx_gen_parse_data(lines, lengths, MTX, expand_symmetry);
 		if (pattern_dummy_vals)
 		{
 			MTX->V = malloc(MTX->nnz * sizeof(MATRIX_MARKET_FLOAT_T));
@@ -331,25 +341,25 @@ mtx_write(struct Matrix_Market * MTX, char * filename)
 	{
 		#undef  SUFFIX
 		#define SUFFIX  _f
-		str_len = mtx_to_string_par(MTX, &str);
+		str_len = mtx_gen_to_string_par(MTX, &str);
 	}
 	else if (!strcmp(field, "integer"))
 	{
 		#undef  SUFFIX
 		#define SUFFIX  _i
-		str_len = mtx_to_string_par(MTX, &str);
+		str_len = mtx_gen_to_string_par(MTX, &str);
 	}
 	else if (!strcmp(field, "complex"))
 	{
 		#undef  SUFFIX
 		#define SUFFIX  _cf
-		str_len = mtx_to_string_par(MTX, &str);
+		str_len = mtx_gen_to_string_par(MTX, &str);
 	}
 	else if (!strcmp(field, "pattern"))
 	{
 		#undef  SUFFIX
 		#define SUFFIX  _pat
-		str_len = mtx_to_string_par(MTX, &str);
+		str_len = mtx_gen_to_string_par(MTX, &str);
 	}
 	else
 		error("Error parsing MARKET matrix '%s': unrecognized field type: %s\n", MTX->filename, field);
@@ -358,6 +368,90 @@ mtx_write(struct Matrix_Market * MTX, char * filename)
 	safe_write(fd, str, str_len);
 	// write_string_to_file(filename, str, str_len);
 
+}
+
+
+//==========================================================================================================================================
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                           Expand Symmetry                                                              -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//==========================================================================================================================================
+
+
+void
+mtx_expand_symmetry(struct Matrix_Market * MTX)
+{
+	char * field = MTX->field;
+	if (!strcmp(field, "real"))
+	{
+		#undef  SUFFIX
+		#define SUFFIX  _f
+		mtx_gen_expand_symmetry(MTX);
+	}
+	else if (!strcmp(field, "integer"))
+	{
+		#undef  SUFFIX
+		#define SUFFIX  _i
+		mtx_gen_expand_symmetry(MTX);
+	}
+	else if (!strcmp(field, "complex"))
+	{
+		#undef  SUFFIX
+		#define SUFFIX  _cf
+		mtx_gen_expand_symmetry(MTX);
+	}
+	else if (!strcmp(field, "pattern"))
+	{
+		#undef  SUFFIX
+		#define SUFFIX  _pat
+		mtx_gen_expand_symmetry(MTX);
+	}
+	else
+		error("Error parsing MARKET matrix '%s': unrecognized field type: %s\n", MTX->filename, field);
+}
+
+
+//==========================================================================================================================================
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                           Convert Values                                                               -
+//------------------------------------------------------------------------------------------------------------------------------------------
+//==========================================================================================================================================
+
+
+void
+mtx_values_convert_to_real(struct Matrix_Market * MTX)
+{
+	MATRIX_MARKET_FLOAT_T * values = NULL;
+	if (!strcmp(MTX->field, "integer"))
+	{
+		values = (typeof(values)) malloc(MTX->nnz * sizeof(*values));
+		_Pragma("omp parallel for")
+		for (long i=0;i<MTX->nnz;i++)
+			values[i] = ((int *) MTX->V)[i];
+		free(MTX->V);
+	}
+	else if (!strcmp(MTX->field, "complex"))
+	{
+		values = (typeof(values)) malloc(MTX->nnz * sizeof(*values));
+		_Pragma("omp parallel for")
+		for (long i=0;i<MTX->nnz;i++)
+			values[i] = cabs(((complex MATRIX_MARKET_FLOAT_T *) MTX->V)[i]);
+		free(MTX->V);
+	}
+	else if (!strcmp(MTX->field, "pattern"))
+	{
+		if (MTX->V == NULL)
+			error("mtx has no values");
+		else
+			values = (MATRIX_MARKET_FLOAT_T *) MTX->V;
+	}
+	else
+	{
+		values = (MATRIX_MARKET_FLOAT_T *) MTX->V;
+	}
+	MTX->V = values;
+	free(MTX->field);
+	MTX->field = strdup("real");
 }
 
 
@@ -379,8 +473,8 @@ mtx_plot_base(struct Matrix_Market * MTX, char * filename, int plot_density)
 	char * matrix_name;
 	long len;
 
-	int num_pixels = 1024;
-	int num_pixels_x = num_pixels, num_pixels_y = num_pixels;
+	long num_pixels = 1024;
+	long num_pixels_x = num_pixels, num_pixels_y = num_pixels;
 
 	fig = malloc(sizeof(*fig));
 
@@ -395,13 +489,13 @@ mtx_plot_base(struct Matrix_Market * MTX, char * filename, int plot_density)
 	len = strlen(matrix_name);
 	memmove(buf, matrix_name, len);
 
-	snprintf(buf+len, buf_n-len, " ,  nnz=%ld", MTX->nnz);
+	snprintf(buf+len, buf_n-len, " ,  m=%ld n=%ld nnz=%ld", MTX->m, MTX->n, MTX->nnz);
 	figure_set_title(fig, buf);
 
 	if (!strcmp(MTX->format, "coordinate"))
-		s = figure_add_series(fig, MTX->C, MTX->R, MTX->V, MTX->nnz, 0, , , mtx_functor_get_value(MTX));
+		s = figure_add_series(fig, MTX->C, MTX->R, MTX->V, MTX->nnz, 0, , , mtx_functor_get_value_as_double(MTX));
 	else
-		s = figure_add_series(fig, NULL, NULL, MTX->V, MTX->n, MTX->m, , , mtx_functor_get_value(MTX));
+		s = figure_add_series(fig, NULL, NULL, MTX->V, MTX->n, MTX->m, , , mtx_functor_get_value_as_double(MTX));
 
 	if (plot_density)
 		figure_series_type_density_map(s);

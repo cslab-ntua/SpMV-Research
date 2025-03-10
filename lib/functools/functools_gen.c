@@ -7,6 +7,7 @@
 #include "macros/macrolib.h"
 #include "parallel_util.h"
 #include "omp_functions.h"
+#include "topology/hardware_topology.h"
 #include "time_it.h"
 // #include "time_it_tsc.h"
 
@@ -241,7 +242,7 @@ scan_reduce_segment_concurrent_compute_bound(_TYPE_IN * A, _TYPE_OUT * P, long i
 	loop_partitioner_balance_iterations(num_threads, tnum, i_start, i_end, &i_s, &i_e);
 	partial = scan_reduce_segment_serial(A, P, i_s, i_e, zero, exclusive, backwards);
 	omp_thread_reduce_global(functools_reduce_fun, partial, zero, 1, backwards, &local, &total);
-	// Only after the thread reduce we can add the offset, because else we would add num_threads * offset.
+	// Only after the thread reduce we can add the offset, because otherwise we would add num_threads * offset.
 	if (backwards)
 	{
 		local = functools_reduce_fun(local, offset);
@@ -322,13 +323,19 @@ scan_reduce_segment_concurrent(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i
 			 * The 'omp barrier' is a lot faster than one might fear.
 			 */
 			long l1_cache_size;
+<<<<<<< Updated upstream
 			l1_cache_size = sysconf(_SC_LEVEL1_DCACHE_SIZE);
 			#ifdef __aarch64__
 			l1_cache_size = 4718592; // size of L1 cache of GraceHopper machine (4608 KB)
 			#endif
+=======
+			l1_cache_size = topohw_get_cache_size(0, 1, TOPOHW_CT_D);
+			// l1_cache_size = topo_get_cache_size_l2();
+			// l1_cache_size = sysconf(_SC_LEVEL1_DCACHE_SIZE);
+>>>>>>> Stashed changes
 			// l1_cache_size = sysconf(_SC_LEVEL2_CACHE_SIZE);
-			// printf("block_size = %ld\n", block_size);
 			block_size = l1_cache_size / sizeof(_TYPE_OUT) * num_threads;
+			// printf("block_size = %ld\n", block_size);
 		}
 
 		int tnum = omp_get_thread_num();
@@ -385,8 +392,12 @@ scan_reduce_segment_concurrent(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i
 			free(t_time_mem);
 			free(t_time_map);
 			map_is_mem_bound = (min_time_map / min_time_mem < 10) ? 1 : 0;
-			// printf("map_is_mem_bound = %ld, ratio = %lf, overhead = %lf , time mem = %lf , time map = %lf\n", map_is_mem_bound, min_time_map / min_time_mem, overhead, min_time_mem, min_time_map);
-			// printf("time mem bound = %lf , time compute bound = %lf\n", 2*min_time_map, min_time_mem + min_time_map);
+			if (0)
+			{
+				printf("map_is_mem_bound = %ld, ratio = %lf, time mem = %lf , time map = %lf\n", map_is_mem_bound, min_time_map / min_time_mem, min_time_mem, min_time_map);
+				// printf("map_is_mem_bound = %ld, ratio = %lf, overhead = %lf , time mem = %lf , time map = %lf\n", map_is_mem_bound, min_time_map / min_time_mem, overhead, min_time_mem, min_time_map);
+				printf("time mem bound = %lf , time compute bound = %lf\n", 2*min_time_map, min_time_mem + min_time_map);
+			}
 		}
 		#pragma omp barrier
 	}

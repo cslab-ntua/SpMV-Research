@@ -43,7 +43,15 @@ typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
 #define bucketsort_stable_serial  BUCKETSORT_GEN_EXPAND(bucketsort_stable_serial)
 void bucketsort_stable_serial(_TYPE_V * A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data, _TYPE_I * permutation_out, _TYPE_I * offsets_out, _TYPE_BUCKET_I * A_bucket_id_out);
 
+#undef  bucketsort_stable_recalculate_bucket_serial
+#define bucketsort_stable_recalculate_bucket_serial  BUCKETSORT_GEN_EXPAND(bucketsort_stable_recalculate_bucket_serial)
+void bucketsort_stable_recalculate_bucket_serial(_TYPE_V * restrict A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * restrict aux_data, _TYPE_I * restrict permutation_out, _TYPE_I * restrict offsets_out);
+
 #undef  bucketsort
 #define bucketsort  BUCKETSORT_GEN_EXPAND(bucketsort)
 void bucketsort(_TYPE_V * A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_data, _TYPE_I * permutation_out, _TYPE_I * offsets_out, _TYPE_BUCKET_I * A_bucket_id_out);
+
+#undef  bucketsort_recalculate_bucket
+#define bucketsort_recalculate_bucket  BUCKETSORT_GEN_EXPAND(bucketsort_recalculate_bucket)
+void bucketsort_recalculate_bucket(_TYPE_V * restrict A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * restrict aux_data, _TYPE_I * restrict permutation_out, _TYPE_I * restrict offsets_out);
 
