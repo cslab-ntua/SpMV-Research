@@ -238,13 +238,8 @@ csr_save_to_mtx(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, 
 		for (j=row_ptr[i];j<row_ptr[i+1];j++)
 		{
 			k = 0;
-<<<<<<< Updated upstream
-			k += snprintf(buf, buf_n-k, "%d %d ", i + 1, col_idx[j] + 1);
-			gen_numtostr(buf+k, buf_n-k, ".15", val[j]);
-=======
 			k += snprintf(buf+k, buf_n-k, "%ld %d ", i + 1, col_idx[j] + 1);
 			gen_numtostr(buf+k, buf_n-k, ".15", values[j]);
->>>>>>> Stashed changes
 			fprintf(file, "%s\n", buf);
 		}
 	}

@@ -398,11 +398,6 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, [[gnu::unused]] _TYP
 		}
 	}
 
-<<<<<<< Updated upstream
-	csr_sort_columns(reordered_row_ptr, reordered_col_idx, reordered_values, m, n, nnz);
-
-=======
->>>>>>> Stashed changes
 	*reordered_row_ptr_ret = reordered_row_ptr;
 	*reordered_col_idx_ret = reordered_col_idx;
 	*reordered_values_ret = reordered_values;

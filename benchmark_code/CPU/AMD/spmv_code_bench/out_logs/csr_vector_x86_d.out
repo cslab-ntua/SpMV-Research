@@ -1,0 +1,7 @@
+SPARSEX_LIB_PATH=;numa_nodes=0;PRINT_STATISTICS=1;CLEAR_CACHES=0;LLVM_INC_PATH=;AOCL_PATH=;SPARSEX_INC_PATH=;TBB_PATH=/opt/intel/oneapi/tbb/latest;max_cores=64;LLVM_LIB_PATH=;DIV_STEALING_ENABLED=1;USE_ARTIFICIAL_MATRICES=1;GHOST_APPS_ROOT_DIR=/home/jim/Synced_Folder/remote/Shared/benchmarks/SpMV/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_bench/sell-C-s;CG_FIX_DIAGONAL_ZEROS=1;CG_MAX_NUM_ITERS=10 20 30 40 50 100 500 1000;cores=6;BOOST_LIB_PATH=;path_validation=/home/jim/Synced_Folder/remote/Shared/benchmarks/SpMV/SpMV-Research/benchmark_code/CPU/AMD/../../../validation_matrices;output_to_files=1;force_retry_on_error=0;CUDA_PATH=;path_tamu=/home/jim/Data/graphs/tamu;GHOST_ROOT_DIR=/pfs/lustrep2/scratch/project_465000869/pmpakos/damned_directory/;DIV_PACKET_REORDERING=0;MKL_PATH=/opt/intel/oneapi/mkl/latest;ZFP_ROOT_DIR=/home/jim/lib/zfp;SPARSEX_CONF_PATH=;DIV_VC_TOLERANCE=0;ROCM_PATH=;cpu_pinning_group_size=1;path_M3E=/home/jim/Data/graphs/M3E-Matrix-Collection;FPZIP_ROOT_DIR=/home/jim/lib/fpzip;cpu_affinity=0,1,2,3,4,5;USE_PROCESSES=0;cpu_pinning_step=1;RAPL_REGISTERS=0;BOOST_INC_PATH=;USE_RCM_REORDERING=0;path_openFoam=;COOLDOWN=0;
+program: /home/jim/Synced_Folder/remote/Shared/benchmarks/SpMV/SpMV-Research/benchmark_code/CPU/AMD/spmv_code_bench/spmv_csr_vector_x86_d.exe
+number of matrices: 0
+max threads 12
+
+
+Total time = 0 minutes 0 seconds

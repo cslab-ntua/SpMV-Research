@@ -323,16 +323,9 @@ scan_reduce_segment_concurrent(_TYPE_IN * A, _TYPE_OUT * P, long i_start, long i
 			 * The 'omp barrier' is a lot faster than one might fear.
 			 */
 			long l1_cache_size;
-<<<<<<< Updated upstream
-			l1_cache_size = sysconf(_SC_LEVEL1_DCACHE_SIZE);
-			#ifdef __aarch64__
-			l1_cache_size = 4718592; // size of L1 cache of GraceHopper machine (4608 KB)
-			#endif
-=======
 			l1_cache_size = topohw_get_cache_size(0, 1, TOPOHW_CT_D);
 			// l1_cache_size = topo_get_cache_size_l2();
 			// l1_cache_size = sysconf(_SC_LEVEL1_DCACHE_SIZE);
->>>>>>> Stashed changes
 			// l1_cache_size = sysconf(_SC_LEVEL2_CACHE_SIZE);
 			block_size = l1_cache_size / sizeof(_TYPE_OUT) * num_threads;
 			// printf("block_size = %ld\n", block_size);

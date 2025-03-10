@@ -316,16 +316,6 @@ bits_mean(unsigned char * matrix, long N, long M, unsigned char * mean)
 		{
 			c = str[j];
 
-<<<<<<< Updated upstream
-			mean_u[j*8 + 0] += bits_u64_extract(c, 0, 1); // _bextr_u64(c, 0, 1);
-			mean_u[j*8 + 1] += bits_u64_extract(c, 1, 1); // _bextr_u64(c, 1, 1);
-			mean_u[j*8 + 2] += bits_u64_extract(c, 2, 1); // _bextr_u64(c, 2, 1);
-			mean_u[j*8 + 3] += bits_u64_extract(c, 3, 1); // _bextr_u64(c, 3, 1);
-			mean_u[j*8 + 4] += bits_u64_extract(c, 4, 1); // _bextr_u64(c, 4, 1);
-			mean_u[j*8 + 5] += bits_u64_extract(c, 5, 1); // _bextr_u64(c, 5, 1);
-			mean_u[j*8 + 6] += bits_u64_extract(c, 6, 1); // _bextr_u64(c, 6, 1);
-			mean_u[j*8 + 7] += bits_u64_extract(c, 7, 1); // _bextr_u64(c, 7, 1);
-=======
 			mean_u[j*8 + 0] += bits_u64_extract(c, 0, 1);
 			mean_u[j*8 + 1] += bits_u64_extract(c, 1, 1);
 			mean_u[j*8 + 2] += bits_u64_extract(c, 2, 1);
@@ -334,7 +324,6 @@ bits_mean(unsigned char * matrix, long N, long M, unsigned char * mean)
 			mean_u[j*8 + 5] += bits_u64_extract(c, 5, 1);
 			mean_u[j*8 + 6] += bits_u64_extract(c, 6, 1);
 			mean_u[j*8 + 7] += bits_u64_extract(c, 7, 1);
->>>>>>> Stashed changes
 
 			// const __m256i mask = _mm256_set_epi32(0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04U, 0x02U, 0x01U);
 			// const __m256i shift = _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0);

@@ -17,40 +17,37 @@ else
 fi
 
 
-<<<<<<< Updated upstream
-# GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
-# e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
-export GOMP_CPU_AFFINITY="$cpu_affinity"
+## # GOMP_CPU_AFFINITY pins the threads to specific cpus, even when assigning more cores than threads.
+## # e.g. with 'GOMP_CPU_AFFINITY=0,1,2,3' and 2 threads, the threads are pinned: t0->core0 and t1->core1.
+## export GOMP_CPU_AFFINITY="$cpu_affinity"
+## 
+## # when running on LUMI-G (dev-g, small-g, standard-g), need to manually set GOMP_CPU_AFFINITY!!! Cores 0, 8, ..., 56 are disabled
+## if [[ $(hostname) == nid* ]]; then
+##     # Extract the numerical part and convert it to an integer
+##     nid=$((10#$(hostname | grep -oP '\d{6}')))
+##     # Function to check if a number is within a given range
+##     in_range() {
+##         (( $1 >= $2 && $1 <= $3 ))
+##     }
+## 
+##     # dev-g: [5002-5025], [7954-7977]
+##     # small-g: [5026-5123], [7852-7951]
+##     # standard-g: [5124-7851]
+##     if in_range $nid 5002 5025 || in_range $nid 7954 7977 || in_range $nid 5026 5123 || in_range $nid 7852 7951 || in_range $nid 5124 7851; then # dev-g
+##         # Define the numbers to be removed from GOMP_CPU_AFFINITY (the first core from each of the 8 L3 regions of the LUMI-G CPU)
+##         numbers_to_remove=(0 8 16 24 32 40 48 56)
+##         # Remove specified numbers from GOMP_CPU_AFFINITY
+##         for num in "${numbers_to_remove[@]}"; do
+##             export GOMP_CPU_AFFINITY=$(echo $GOMP_CPU_AFFINITY | sed -E "s/(^|,)$num(,|$)/\1\2/g")
+##         done
+##         # Remove any leading or trailing commas
+##         export GOMP_CPU_AFFINITY=$(echo $GOMP_CPU_AFFINITY | sed 's/^,//' | sed 's/,$//')
+##         # Remove any duplicate commas
+##         export GOMP_CPU_AFFINITY=$(echo $GOMP_CPU_AFFINITY | tr -s ',')
+##     fi
+## fi
+## export XLSMPOPTS="PROCS=$cpu_affinity"
 
-# when running on LUMI-G (dev-g, small-g, standard-g), need to manually set GOMP_CPU_AFFINITY!!! Cores 0, 8, ..., 56 are disabled
-if [[ $(hostname) == nid* ]]; then
-    # Extract the numerical part and convert it to an integer
-    nid=$((10#$(hostname | grep -oP '\d{6}')))
-    # Function to check if a number is within a given range
-    in_range() {
-        (( $1 >= $2 && $1 <= $3 ))
-    }
-
-    # dev-g: [5002-5025], [7954-7977]
-    # small-g: [5026-5123], [7852-7951]
-    # standard-g: [5124-7851]
-    if in_range $nid 5002 5025 || in_range $nid 7954 7977 || in_range $nid 5026 5123 || in_range $nid 7852 7951 || in_range $nid 5124 7851; then # dev-g
-        # Define the numbers to be removed from GOMP_CPU_AFFINITY (the first core from each of the 8 L3 regions of the LUMI-G CPU)
-        numbers_to_remove=(0 8 16 24 32 40 48 56)
-        # Remove specified numbers from GOMP_CPU_AFFINITY
-        for num in "${numbers_to_remove[@]}"; do
-            export GOMP_CPU_AFFINITY=$(echo $GOMP_CPU_AFFINITY | sed -E "s/(^|,)$num(,|$)/\1\2/g")
-        done
-        # Remove any leading or trailing commas
-        export GOMP_CPU_AFFINITY=$(echo $GOMP_CPU_AFFINITY | sed 's/^,//' | sed 's/,$//')
-        # Remove any duplicate commas
-        export GOMP_CPU_AFFINITY=$(echo $GOMP_CPU_AFFINITY | tr -s ',')
-    fi
-fi
-export XLSMPOPTS="PROCS=$cpu_affinity"
-
-=======
->>>>>>> Stashed changes
 lscpu | grep -q -i amd
 if (($? == 0)); then
     export MKL_DEBUG_CPU_TYPE=5
@@ -63,16 +60,12 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${BOOST_LIB_PATH}:${LLVM_LIB_PATH}:${
 # export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${SPARSEX_FLOAT_LIB_PATH}"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/home/jim/lib/gcc/gcc_12/lib64"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/various/dgal/gcc/gcc-12.2.0/gcc_bin/lib64"
-<<<<<<< Updated upstream
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/gcc/12.2.0/snos/lib64"
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CUDA_PATH}/lib64"
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${ROCM_PATH}/lib64"
-=======
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/local/pmpakos/arm-compiler/gcc-13.2.0_Ubuntu-22.04/lib64"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CUDA_PATH}/lib64"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/cray/pe/gcc/12.2.0/snos/lib64"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${ROCM_PATH}/lib64"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HOME}/spack/23.03/0.20.0/intel-tbb-2021.9.0-xxzbl3f/lib64"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/intel/oneapi/tbb/latest/lib"
->>>>>>> Stashed changes
 
 # Encourages idle threads to spin rather than sleep.
 # export OMP_WAIT_POLICY='active'
@@ -141,7 +134,6 @@ done
 
 matrices_validation=(
 
-<<<<<<< Updated upstream
     scircuit.mtx
     mac_econ_fwd500.mtx
     raefsky3.mtx
@@ -194,61 +186,6 @@ matrices_validation=(
     audikw_1.mtx
     cage15.mtx
     kmer_V2a.mtx
-=======
-    # scircuit
-    # mac_econ_fwd500
-    # raefsky3
-    # rgg_n_2_17_s0
-    # bbmat
-    # appu
-    # conf5_4-8x8-15
-    # mc2depi
-    # rma10
-    # cop20k_A
-    # thermomech_dK
-    # webbase-1M
-    # cant
-    # ASIC_680k
-    # roadNet-TX
-    # pdb1HYS
-    # TSOPF_RS_b300_c3
-    # Chebyshev4
-    # consph
-    # com-Youtube
-    # rajat30
-    # radiation
-    # Stanford_Berkeley
-    # shipsec1
-    # PR02R
-    # CurlCurl_2
-    # gupta3
-    # mip1
-    # rail4284
-    # pwtk
-    # crankseg_2
-    # Si41Ge41H72
-    # TSOPF_RS_b2383
-    # in-2004
-    # Ga41As41H72
-    # eu-2005
-    # wikipedia-20051105
-    # kron_g500-logn18
-    # rajat31
-    # human_gene1
-    # delaunay_n22
-    # GL7d20
-    # sx-stackoverflow
-    # dgreen
-    # mawi_201512012345
-    # ldoor
-    # dielFilterV2real
-    # circuit5M
-    # soc-LiveJournal1
-    # bone010
-    # audikw_1
-    # cage15
-    # kmer_V2a
->>>>>>> Stashed changes
 
 )
 matrices_validation_tamu=( ${matrices_validation[@]} )
@@ -783,12 +720,8 @@ bench()
 matrices=(
 
     # "${matrices_openFoam[@]}"
-<<<<<<< Updated upstream
-    "${matrices_validation[@]}"
-=======
     # "${matrices_validation[@]}"
     # "${matrices_validation_tamu[@]}"
->>>>>>> Stashed changes
     # "${matrices_paper_csr_rv[@]}"
 
     "${matrices_compression_small[@]}"
@@ -804,9 +737,6 @@ matrices=(
     # ${matrices_tamu_real_symmetric[@]}
 
     # "${matrices_cg[@]}"
-<<<<<<< Updated upstream
-    # "${matrices_underperform_gpu[@]}"
-=======
     # "${matrices_bicg[@]}"
 
     # "${matrices_underperform_gpu[@]}"
@@ -817,7 +747,6 @@ matrices=(
     # "${path_tamu}/matrices/c-18/c-18.mtx"
     # "${path_tamu}/matrices/cant/cant.mtx"
     # '/home/jim/Synced_Folder/University/PHD/SPMV/data_analysis/test_matrices/test_symmetric.mtx'
->>>>>>> Stashed changes
 
     # "$path_tamu"/matrices/kron_g500-logn18/kron_g500-logn18.mtx
     # '/home/jim/Synced_Folder/Data/kmeans/matrices/kron_g500-logn18_c1024_wl26214_reordered_rows.mtx'

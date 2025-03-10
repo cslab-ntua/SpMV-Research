@@ -400,18 +400,10 @@ void
 compute_ell_v(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, i_vector, j, j_s, j_e, k;
-<<<<<<< Updated upstream
-	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector_Value_t zero = {0};
-	__attribute__((unused)) Vector_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
-	__attribute__((unused)) ValueType sum = 0;
-	const INT_T width = ell->width;
-=======
 	const long mask = ~(((long) VEC_LEN) - 1);      // VEC_LEN is a power of 2.
 	Vector4_Value_t zero = {0};
 	[[gnu::unused]] Vector4_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
 	[[gnu::unused]] ValueType sum = 0;
->>>>>>> Stashed changes
 	i_vector = ell->m & mask;
 	for (i=0;i<i_vector;i+=VEC_LEN)
 	{
@@ -457,20 +449,11 @@ void
 compute_ell_v_hor(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, j, j_s, j_e, k, j_vector_width, j_e_vector;
-<<<<<<< Updated upstream
-	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector_Value_t zero = {0};
-	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
-	__attribute__((unused)) ValueType sum = 0;
-	const INT_T width = ell->width;
-	j_vector_width = width & mask;
-=======
 	const long mask = ~(((long) VEC_LEN) - 1);      // VEC_LEN is a power of 2.
 	Vector4_Value_t zero = {0};
 	[[gnu::unused]] Vector4_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
 	[[gnu::unused]] ValueType sum = 0;
 	j_vector_width = ell->width & mask;
->>>>>>> Stashed changes
 	for (i=0;i<ell->m;i++)
 	{
 		v_sum = zero;
@@ -479,13 +462,8 @@ compute_ell_v_hor(ELLArrays * ell, ValueType * x , ValueType * y)
 		j_e_vector = j_s + j_vector_width;
 		for (j=j_s;j<j_e_vector;j+=VEC_LEN)
 		{
-<<<<<<< Updated upstream
-			v_a = *(Vector_Value_t *) &ell->a[j];
-			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-=======
 			v_a = *(Vector4_Value_t *) &ell->a[j];
 			PRAGMA(GCC unroll VEC_LEN)
->>>>>>> Stashed changes
 			PRAGMA(GCC ivdep)
 			for (k=0;k<VEC_LEN;k++)
 			{
@@ -507,20 +485,11 @@ void
 compute_ell_v_hor_split(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, j, j_s, j_e, k, j_vector_width, j_e_vector;
-<<<<<<< Updated upstream
-	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector_Value_t zero = {0};
-	__attribute__((unused)) Vector_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
-	__attribute__((unused)) ValueType sum = 0;
-	const INT_T width = ell->width;
-	j_vector_width = width & mask;
-=======
 	const long mask = ~(((long) VEC_LEN) - 1);      // VEC_LEN is a power of 2.
 	Vector4_Value_t zero = {0};
 	[[gnu::unused]] Vector4_Value_t v_a, v_x = zero, v_mul = zero, v_sum = zero;
 	[[gnu::unused]] ValueType sum = 0;
 	j_vector_width = ell->width & mask;
->>>>>>> Stashed changes
 	for (i=0;i<ell->m;i++)
 	{
 		v_sum = zero;
@@ -528,13 +497,8 @@ compute_ell_v_hor_split(ELLArrays * ell, ValueType * x , ValueType * y)
 		j_e_vector = j_s + j_vector_width;
 		for (j=j_s;j<j_e_vector;j+=VEC_LEN)
 		{
-<<<<<<< Updated upstream
-			v_a = *(Vector_Value_t *) &ell->a[j];
-			PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-=======
 			v_a = *(Vector4_Value_t *) &ell->a[j];
 			PRAGMA(GCC unroll VEC_LEN)
->>>>>>> Stashed changes
 			PRAGMA(GCC ivdep)
 			for (k=0;k<VEC_LEN;k++)
 			{
@@ -561,18 +525,10 @@ void
 compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 {
 	long i, i_vector, j, j_s, j_e, k;
-<<<<<<< Updated upstream
-	const long mask = ~(((long) VECTOR_ELEM_NUM) - 1);      // VECTOR_ELEM_NUM is a power of 2.
-	Vector_Value_t zero = {0};
-	__attribute__((unused)) Vector_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
-	__attribute__((unused)) ValueType sum = 0;
-	const INT_T width = ell->width;
-=======
 	const long mask = ~(((long) VEC_LEN) - 1);      // VEC_LEN is a power of 2.
 	Vector4_Value_t zero = {0};
 	[[gnu::unused]] Vector4_Value_t v_a = zero, v_x = zero, v_mul = zero, v_sum = zero;
 	[[gnu::unused]] ValueType sum = 0;
->>>>>>> Stashed changes
 	i_vector = ell->m & mask;
 	PRAGMA(GCC unroll VEC_LEN)
 	PRAGMA(GCC ivdep)
@@ -592,13 +548,8 @@ compute_ell_transposed_v(ELLArrays * ell, ValueType * x , ValueType * y)
 			}
 			v_sum += v_mul;
 
-<<<<<<< Updated upstream
-			// v_a = *(Vector_Value_t *) &ell->a[j];
-			// PRAGMA(GCC unroll VECTOR_ELEM_NUM)
-=======
 			// v_a = *(Vector4_Value_t *) &ell->a[j];
 			// PRAGMA(GCC unroll VEC_LEN)
->>>>>>> Stashed changes
 			// PRAGMA(GCC ivdep)
 			// for (k=0;k<VEC_LEN;k++)
 			// {

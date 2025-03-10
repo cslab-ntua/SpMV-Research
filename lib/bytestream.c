@@ -1,12 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-<<<<<<< Updated upstream
-#ifdef __x86_64__
-	#include <x86intrin.h>
-#endif
-=======
->>>>>>> Stashed changes
 
 #include "bytestream.h"
 
@@ -39,18 +33,6 @@ bytestream_write_unsafe(struct Byte_Stream * bs, uint64_t val, long num_bytes)
 	bs->len += num_bytes;
 }
 
-#ifdef __aarch64__
-uint64_t arm_bextr_u64(uint64_t val, uint64_t start_len) {
-    uint8_t start = start_len & 0xFF;      // Extract start position from lower 8 bits
-    uint8_t len = (start_len >> 8) & 0xFF; // Extract length from next 8 bits
-
-    // Create a mask with `len` 1s at the `start` position
-    uint64_t mask = ((1ULL << len) - 1) << start;
-
-    // Extract the bits and shift them to the least significant position
-    return (val & mask) >> start;
-}
-#endif
 
 inline
 void
@@ -58,15 +40,7 @@ bytestream_read_unsafe(struct Byte_Stream * bs, uint64_t * val_out, long num_byt
 {
 	uint64_t val;
 	val = *((uint64_t *) (&bs->data.c[bs->len]));
-<<<<<<< Updated upstream
-	#ifdef __x86_64__
-		val = __builtin_ia32_bextr_u64(val, num_bytes << 11);   // 3 to bits + 8 to place in second byte
-	#else
-		val = arm_bextr_u64(val, num_bytes << 11);
-	#endif
-=======
 	val = bits_u64_extract(val, 0, num_bytes << 3);
->>>>>>> Stashed changes
 	bs->len += num_bytes;
 	*val_out = val;
 

@@ -26,15 +26,12 @@ if [[ -d "/home/jim/Documents/gcc_versions/gcc_12/bin" ]]; then
 elif [[ -d "/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin" ]]; then
     gcc_bin=/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/gcc
     gpp_bin=/various/dgal/gcc/gcc-12.2.0/gcc_bin/bin/g++
-<<<<<<< Updated upstream
 elif [[ -d "/opt/cray/pe/gcc/12.2.0/snos/bin/" ]]; then
     gcc_bin=/opt/cray/pe/gcc/12.2.0/snos/bin/gcc
     gpp_bin=/opt/cray/pe/gcc/12.2.0/snos/bin/g++
-=======
 elif [[ -d "/local/pmpakos/arm-compiler/gcc-13.2.0_Ubuntu-22.04/bin" ]]; then
     gcc_bin=/local/pmpakos/arm-compiler/gcc-13.2.0_Ubuntu-22.04/bin/gcc
     gpp_bin=/local/pmpakos/arm-compiler/gcc-13.2.0_Ubuntu-22.04/bin/g++
->>>>>>> Stashed changes
 else
     gcc_bin=gcc
     gpp_bin=g++

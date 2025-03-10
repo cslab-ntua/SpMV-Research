@@ -468,8 +468,6 @@ int main(int argc, char *argv[]) {
 	}
 
 
-<<<<<<< Updated upstream
-=======
 	auto A = sym_lib::read_mtx(config.matrixPath);
 	sym_lib::CSR *B = sym_lib::csc_to_csr(A);
 
@@ -522,7 +520,6 @@ int main(int argc, char *argv[]) {
 	delete A;
 	delete B;
 	delete sps;
->>>>>>> Stashed changes
 
 	return 0;
 }

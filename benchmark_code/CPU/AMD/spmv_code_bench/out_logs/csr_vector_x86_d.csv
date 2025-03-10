@@ -1,0 +1,1 @@
+matrix_name,distribution,placement,seed,nr_rows,nr_cols,nr_nzeros,density,mem_footprint,mem_range,avg_nnz_per_row,std_nnz_per_row,avg_bw,std_bw,avg_bw_scaled,std_bw_scaled,avg_sc,std_sc,avg_sc_scaled,std_sc_scaled,skew,avg_num_neighbours,cross_row_similarity,format_name,time,gflops,W_avg,J_estimated

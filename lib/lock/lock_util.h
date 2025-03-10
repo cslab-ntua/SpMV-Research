@@ -26,22 +26,11 @@ static inline
 void
 lock_cpu_relax()
 {
-<<<<<<< Updated upstream:lib/lock/lock_common.h
-	#ifdef __x86_64__
-		// __asm volatile ("pause" : : : "memory");
-		__asm volatile ("rep; pause" : : : "memory");   // relax
-		// __asm volatile ("rep; nop" : : : "memory");
-	#else
-		for (volatile int i = 0; i < 1000; ++i); // Adjust the loop count as needed
-	#endif
-
-=======
 	#if defined(__x86_64__)
 		asm volatile("rep; nop" : : : "memory");
 	#elif defined(__aarch64__)
 		asm volatile("yield" : : : "memory");
 	#endif
->>>>>>> Stashed changes:lib/lock/lock_util.h
 }
 
 

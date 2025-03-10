@@ -2,12 +2,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <omp.h>
-<<<<<<< Updated upstream
-#ifdef __x86_64__
-	#include <x86intrin.h>
-#endif
-=======
->>>>>>> Stashed changes
 
 #include "bitstream.h"
 

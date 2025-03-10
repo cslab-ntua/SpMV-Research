@@ -183,14 +183,10 @@ make -j20
 # Finale
 #==========================================================================================================================================
 # now go back to benchmark for CPUs path, and build sell-C-s
-<<<<<<< Updated upstream
-cd "$CUR_PATH"/spmv_code_bench/sell-C-s/
-=======
 cp -r "$CUR_PATH"/spmv_code_sell-C-s/ "$ROOT_DIR"/spmv_code_sell-C-s/
 cp "$CUR_PATH"/config.sh "$ROOT_DIR"/config.sh
 cd "$ROOT_DIR"/spmv_code_sell-C-s/
 
->>>>>>> Stashed changes
 mkdir -p build
 cd build
 CC=gcc cmake .. -DCMAKE_INSTALL_PREFIX="$CUR_PATH"/spmv_code_bench/sell-C-s/build -DGHOST_DIR="$GHOST_DIR"/lib/ghost -DESSEX-PHYSICS_DIR="$PHYSICS_DIR"/lib/essex-physics/
