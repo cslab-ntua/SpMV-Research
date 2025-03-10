@@ -123,7 +123,7 @@ reduce_sum(_TYPE_I x, _TYPE_I y)
 #undef  reverse_cuthill_mckee
 #define reverse_cuthill_mckee  RCM_GEN_EXPAND(reverse_cuthill_mckee)
 void
-reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, [[gnu::unused]] _TYPE_V * values, long m, [[gnu::unused]] long n, [[gnu::unused]] long nnz,
+reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, [[gnu::unused]] _TYPE_V * values, long m, [[gnu::unused]] long n, [[gnu::unused]] long nnz, long sort_columns,
 	_TYPE_I ** reordered_row_ptr_ret, _TYPE_I ** reordered_col_idx_ret, _TYPE_V ** reordered_values_ret, _TYPE_I ** permutation_ret)
 {
 	int num_threads = safe_omp_get_num_threads();
@@ -396,6 +396,11 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, [[gnu::unused]] _TYP
 			if (reordered_col_idx[i] < 0 || reordered_col_idx[i] >= m)
 				error("bad column index");
 		}
+	}
+
+	if (sort_columns)
+	{
+		csr_sort_columns(reordered_row_ptr, reordered_col_idx, reordered_values, m, n, nnz);
 	}
 
 	*reordered_row_ptr_ret = reordered_row_ptr;

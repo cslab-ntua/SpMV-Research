@@ -883,7 +883,8 @@ child_proc_label:
 				csr_a_ref = values_new;
 			}
 
-			reverse_cuthill_mckee(csr_ia, csr_ja, csr_a_ref, csr_m, csr_n, csr_nnz, &row_ptr_new, &col_idx_new, &values_new, &permutation);
+			long sort_rows = 1;
+			reverse_cuthill_mckee(csr_ia, csr_ja, csr_a_ref, csr_m, csr_n, csr_nnz, sort_rows, &row_ptr_new, &col_idx_new, &values_new, &permutation);
 			printf("nnz_old=%ld csr_nnz_diag=%ld csr_nnz_non_diag=%ld \n", csr_nnz, csr_nnz_diag, csr_nnz_non_diag);
 			free(csr_ia);
 			free(csr_ja);
