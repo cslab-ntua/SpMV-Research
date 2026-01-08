@@ -91,8 +91,17 @@ struct cmp_data_packed_t {
 		unsigned __int128 u128;
 		uint64_t u64[2];
 		uint32_t u32[4];
+		uint8_t  u8[16];
 	};
 };
+
+#define cmp_data_packed_t_val(dp)  (*((uint64_t *) &(dp).u8[8]))
+#define cmp_data_packed_t_col(dp)  (*((uint32_t *) &(dp).u8[0]))
+#define cmp_data_packed_t_row(dp)  (*((uint32_t *) &(dp).u8[4]))
+
+// #define cmp_data_packed_t_val(dp)  (*((uint64_t *) &(dp).u8[4]))
+// #define cmp_data_packed_t_col(dp)  (*((uint32_t *) &(dp).u8[0]))
+// #define cmp_data_packed_t_row(dp)  (*((uint32_t *) &(dp).u8[12]))
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -619,10 +628,9 @@ compress_kernel_div(INT_T * row_ptr, INT_T * ja, ValueTypeReference * vals, __at
 			col_max = col;
 
 		/* Compare negatives as unsigned integers => compare by absolute values. */
-		// val.d = val.d * -1;      // Has to work with any float type.
-		compare_data_packed[k].u64[1] = val.u;
-		compare_data_packed[k].u32[1] = col;
-		compare_data_packed[k].u32[0] = i;
+		cmp_data_packed_t_val(compare_data_packed[k]) = val.u;
+		cmp_data_packed_t_col(compare_data_packed[k]) = col;
+		cmp_data_packed_t_row(compare_data_packed[k]) = i;
 	}
 	row_max = i;
 	row_diff_max = row_max - row_min;
@@ -675,7 +683,7 @@ compress_kernel_div(INT_T * row_ptr, INT_T * ja, ValueTypeReference * vals, __at
 		j++;
 		for (;j<num_vals;j++)
 		{
-			if (compare_data_packed[j].u64[1] != compare_data_packed[j-1].u64[1])
+			if (cmp_data_packed_t_val(compare_data_packed[j]) != cmp_data_packed_t_val(compare_data_packed[j-1]))
 				break;
 			// if (k - j > rf_threshold_max)
 				// break;
@@ -717,7 +725,7 @@ compress_kernel_div(INT_T * row_ptr, INT_T * ja, ValueTypeReference * vals, __at
 			uint64_t u;
 			ValueType v[sizeof(uint64_t) / sizeof(ValueType)];
 		} tmp;
-		tmp.u = compare_data_packed[j].u64[1];
+		tmp.u = cmp_data_packed_t_val(compare_data_packed[j]);
 		window[k] = tmp.v[0];
 		rf = window_rf[j];
 		window_rf[k] = rf;
@@ -788,8 +796,8 @@ compress_kernel_div(INT_T * row_ptr, INT_T * ja, ValueTypeReference * vals, __at
 
 	for (i=0;i<num_vals;i++)
 	{
-		row_diff = compare_data_packed[i].u32[0] - row_min;
-		col_diff = compare_data_packed[i].u32[1] - col_min;
+		row_diff = cmp_data_packed_t_row(compare_data_packed[i]) - row_min;
+		col_diff = cmp_data_packed_t_col(compare_data_packed[i]) - col_min;
 		coords = row_diff | (col_diff << row_bits);
 		memcpy(&data_coords[i*coords_bytes], &coords, coords_bytes);
 	}

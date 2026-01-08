@@ -43,8 +43,8 @@ extern "C" {
 // #define BLOCK_SIZE  32
 // #define BLOCK_SIZE  64
 // #define BLOCK_SIZE  128
-#define BLOCK_SIZE  256
-// #define BLOCK_SIZE  512
+// #define BLOCK_SIZE  256
+#define BLOCK_SIZE  512
 // #define BLOCK_SIZE  1024
 
 
@@ -479,8 +479,8 @@ compute_div(DIVArray * restrict csr, ValueType * restrict x, ValueType * restric
 	dim3 grid_dims(csr->num_thread_blocks);
 	// long shared_mem_size = BLOCK_SIZE * (sizeof(ValueType));
 	// long shared_mem_size = BLOCK_SIZE * (sizeof(ValueType) + sizeof(INT_T));
-	long shared_mem_size = 256 * sizeof(ValueType);
-	// long shared_mem_size = 0;
+	// long shared_mem_size = 256 * sizeof(ValueType);
+	long shared_mem_size = 0;
 
 	if (csr->x == NULL)
 	{

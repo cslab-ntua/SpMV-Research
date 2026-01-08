@@ -29,6 +29,7 @@ extern "C"{
 	#include "array_metrics.h"
 
 	#include "string_util.h"
+	#include "random.h"
 	#include "io.h"
 	#include "parallel_io.h"
 	#include "storage_formats/matrix_market/matrix_market.h"

@@ -321,8 +321,8 @@ compress_kernel_div(INT_T * row_ptr, INT_T * ja, ValueTypeReference * vals, __at
 
 	row_min = i_s;   // 'i_s' is certain to be the first non-empty row.
 
-	// long num_vals = select_num_vals(row_ptr, row_min, j_s, num_vals, force_row_index_lte_1_byte);
-	num_vals = select_num_vals_complete_last_row(row_ptr, row_min, j_s, num_vals, force_row_index_lte_1_byte);
+	num_vals = select_num_vals(row_ptr, row_min, j_s, num_vals, force_row_index_lte_1_byte);
+	// num_vals = select_num_vals_complete_last_row(row_ptr, row_min, j_s, num_vals, force_row_index_lte_1_byte);
 	if (num_vals == 0)
 		error("empty packet");
 
@@ -626,7 +626,7 @@ decompress_and_compute_kernel_div_base(unsigned char * restrict buf, ValueType *
 		void (* gather_coords)(long i, unsigned char * data_coords, const uint64_t coords_bytes, uint64_t row_bits, uint64_t col_bits, uint64_t * row_rel_out, uint64_t * col_rel_out, const long num_vals)
 		)
 {
-	extern __shared__ ValueType y_rel_buf[];
+	// extern __shared__ ValueType y_rel_buf[];
 
 	const int tid = threadIdx.x;
 
@@ -682,12 +682,12 @@ decompress_and_compute_kernel_div_base(unsigned char * restrict buf, ValueType *
 	} val;
 	val.u = 0;
 
-	if (!validate)
+	/* if (!validate)
 	{
 		for (i=tid;i<num_rows;i+=VEC_LEN)
 			y_rel_buf[i] = 0;
 		__syncthreads();
-	}
+	} */
 
 	for (i=tid;i<num_vals;i+=VEC_LEN)
 	{
@@ -733,13 +733,13 @@ decompress_and_compute_kernel_div_base(unsigned char * restrict buf, ValueType *
 		else
 		{
 			// y_rel[row_rel] += val.d * x_rel[col_rel];
-			// atomicAdd(&y_rel[row_rel], val.d * x_rel[col_rel]);
-			atomicAdd_block(&y_rel_buf[row_rel], val.d * x_rel[col_rel]);
+			atomicAdd(&y_rel[row_rel], val.d * x_rel[col_rel]);
+			// atomicAdd_block(&y_rel_buf[row_rel], val.d * x_rel[col_rel]);
 			// y_rel_buf[row_rel] += val.d * x_rel[col_rel];
 		}
 	}
 
-	if (!validate)
+	/* if (!validate)
 	{
 		__syncthreads();
 		for (i=tid;i<num_rows;i+=VEC_LEN)
@@ -747,7 +747,7 @@ decompress_and_compute_kernel_div_base(unsigned char * restrict buf, ValueType *
 			atomicAdd(&y_rel[i], y_rel_buf[i]);
 			// y_rel[i] = y_rel_buf[i];
 		}
-	}
+	} */
 
 	return total_size;
 }

@@ -341,6 +341,26 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 //==========================================================================================================================================
 
 
+template<typename T>
+__device__ T binary_search_gpu(T * A, long s, long e, T target)
+{
+	long m;
+	while (1)
+	{
+		m = (s + e) / 2;
+		if (m == s || m == e)
+			break;
+		if (target > A[m])
+			s = m;
+		else
+			e = m;
+	}
+	if (target == A[e])
+		return e;
+	return s;
+}
+
+
 /* inline
 __device__ void reduce_block(INT_T * ia_buf, ValueType * val_buf, ValueType * restrict y)
 {
@@ -680,32 +700,17 @@ __device__ void spmv_last_block(INT_T * thread_block_i_s, INT_T * thread_block_i
 	j_e = j_s + NNZ_PER_THREAD;
 	if (j_e > nnz)
 		j_e = nnz;
-	k = (i_e + i_s) / 2;
-	while (i_s < i_e)
-	{
-		if (j_s >= row_ptr[k])
-		{
-			i_s = k + 1;
-		}
-		else
-		{
-			i_e = k;
-		}
-		k = (i_e + i_s) / 2;
-	}
-	i = i_s - 1;
+	i = binary_search_gpu(row_ptr, i_s, i_e, j_s);
 	double sum = 0;
-	int ptr_next = row_ptr[i+1];
 	for (j=j_s;j<j_e;j++)
 	{
-		if (j >= ptr_next)
+		if (j >= row_ptr[i+1])
 		{
 			atomicAdd(&y[i], sum);
 			sum = 0;
-			while (j >= ptr_next)
+			while (j >= row_ptr[i+1])
 			{
 				i++;
-				ptr_next = row_ptr[i+1];
 			}
 		}
 		// sum += a[j] * x[ja[j] & 0x7FFFFFFF];
@@ -716,7 +721,7 @@ __device__ void spmv_last_block(INT_T * thread_block_i_s, INT_T * thread_block_i
 
 
 template <typename group_t>
-__device__ ValueType reduce_warp_single_row(group_t g, ValueType val, ValueType * restrict y)
+__device__ ValueType reduce_warp_single_row(group_t g, ValueType val)
 {
 	// Use XOR mode to perform butterfly reduction
 	for (int i=g.size()/2; i>=1; i/=2)
@@ -738,7 +743,7 @@ __device__ void spmv_warp_single_row(group_t g, int i, int j_s, int j_e, INT_T *
 	{
 		sum = __fma_rn(a[j], x[ja[j] & 0x7FFFFFFF], sum);
 	}
-	sum = reduce_warp_single_row(g, sum, y);
+	sum = reduce_warp_single_row(g, sum);
 	if (tidl == 0)
 		atomicAdd(&y[i], sum);
 }
@@ -812,20 +817,7 @@ __device__ void spmv_full_block(INT_T * thread_block_i_s, INT_T * thread_block_i
 	j_w_s = block_id * nnz_per_block + warp_id * NNZ_PER_THREAD * 32;
 	j_s = j_w_s + tidw * NNZ_PER_THREAD;
 	j_e = j_s + NNZ_PER_THREAD;
-	k = (i_e + i_s) / 2;
-	while (i_s < i_e)
-	{
-		if (j_s >= row_ptr[k])
-		{
-			i_s = k + 1;
-		}
-		else
-		{
-			i_e = k;
-		}
-		k = (i_e + i_s) / 2;
-	}
-	i_s--;
+	i_s = binary_search_gpu(row_ptr, i_s, i_e, j_s);
 	int single_row = (ja[j_s] & 0x80000000) ? 1 : 0;
 	// int single_row = 0;
 	thread_block_tile<32> tile32 = tiled_partition<32>(this_thread_block());

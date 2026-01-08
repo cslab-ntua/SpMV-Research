@@ -515,7 +515,7 @@ progs=(
     # Custom compressed values stream
     # ['div_d']="${script_dir}/src/spmv_div_d.exe" # BENCH_AMD, BENCH_INTEL
     # ['div_f']="${script_dir}/src/spmv_div_f.exe" # BENCH_AMD, BENCH_INTEL
-    ['div_rf_d']="${script_dir}/src/spmv_div_rf_d.exe" # BENCH_AMD, BENCH_INTEL
+    # ['div_rf_d']="${script_dir}/src/spmv_div_rf_d.exe" # BENCH_AMD, BENCH_INTEL
     # ['div_rf_f']="${script_dir}/src/spmv_div_rf_f.exe" # BENCH_AMD, BENCH_INTEL
     # ['div_adapt_d']="${script_dir}/src/spmv_div_adapt_d.exe" # BENCH_AMD, BENCH_INTEL
     # ['div_adapt_f']="${script_dir}/src/spmv_div_adapt_f.exe" # BENCH_AMD, BENCH_INTEL
@@ -526,7 +526,6 @@ progs=(
     # ['div_rf_ord2_d']="${script_dir}/src/spmv_div_rf_ord2_d.exe"
     # ['div_sym_rf_local_d']="${script_dir}/src/spmv_div_sym_rf_local_d.exe" # BENCH_SYM
     # ['div_sym_rf_local_f']="${script_dir}/src/spmv_div_sym_rf_local_f.exe" # BENCH_SYM
-    # ['csr_cuda_div_nv_d']="${script_dir}/src/spmv_cuda_div_nv_d.exe" # BENCH_GPU
 
     # MKL IE
     # ['mkl_ie_d']="${script_dir}/src/spmv_mkl_ie_d.exe" # BENCH_AMD, BENCH_INTEL
@@ -583,32 +582,22 @@ progs=(
 
 
     # Custom cuda
-    # ['csr_cuda_nv_d']="${script_dir}/src/spmv_csr_cuda_nv_d.exe"
-    # ['csr_cuda_buffer_nv_d']="${script_dir}/src/spmv_csr_cuda_buffer_nv_d.exe"
-    # ['csr_cuda_reduce_nv_d']="${script_dir}/src/spmv_csr_cuda_reduce_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_better_reduce_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_better_reduce_nv_d.exe"
+    # ['cuda_csr_naive_nv_d']="${script_dir}/src/spmv_cuda_csr_naive_nv_d.exe"
+    # ['cuda_csr_nv_d']="${script_dir}/src/spmv_cuda_csr_nv_d.exe"
+    # ['cuda_csr_transpose_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_nv_d.exe"
+    # ['cuda_coo_naive_nv_d']="${script_dir}/src/spmv_cuda_coo_naive_nv_d.exe"
+    # ['cuda_coo_reduce_all_nv_d']="${script_dir}/src/spmv_cuda_coo_reduce_all_nv_d.exe"
+    # ['cuda_coo_sorted_transpose_nv_d']="${script_dir}/src/spmv_cuda_coo_sorted_transpose_nv_d.exe"
+    # ['cuda_coo_sorted_transpose_delta_nv_d']="${script_dir}/src/spmv_cuda_coo_sorted_transpose_delta_nv_d.exe"
+    # ['cuda_coo_sorted_transpose_non_empty_rows_nv_d']="${script_dir}/src/spmv_cuda_coo_sorted_transpose_non_empty_rows_nv_d.exe"
+    # ['cuda_csr_transpose_expand_rows_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_nv_d.exe"
+    ['cuda_csr_transpose_expand_rows_timed_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_timed_nv_d.exe"
+    # ['cuda_csr_lut_nv_d']="${script_dir}/src/spmv_cuda_csr_lut_nv_d.exe"
+    # ['csr_cuda_div_nv_d']="${script_dir}/src/spmv_cuda_div_nv_d.exe" # BENCH_GPU
 
-    # ['csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz2_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz4_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz6_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_b1024_nnz8_nv_d.exe"
-
-    # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz2_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz2_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz4_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz4_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz4_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz4_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_s4_b1024_nnz6_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_s4_b1024_nnz6_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_s8_b1024_nnz4_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_s8_b1024_nnz4_nv_d.exe"
-    # ['csr_cuda_const_nnz_per_thread_s32_b1024_nnz4_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_s32_b1024_nnz4_nv_d.exe"
-
-    # ['csr_cuda_const_nnz_per_thread_s2_b1024_nnz8_nv_d']="${script_dir}/src/spmv_csr_cuda_const_nnz_per_thread_s2_b1024_nnz8_nv_d.exe"
-    #
-    # ['csr_cuda_t1769472_nv_d']="${script_dir}/src/spmv_csr_cuda_t1769472_nv_d.exe"
-
-    # ['csr_cuda_buffer_t4194304_rc4_nv_d']="${script_dir}/src/spmv_csr_cuda_buffer_t4194304_rc4_nv_d.exe"
 
     # ['csr_cuda_vector_b256_nv_d']="${script_dir}/src/spmv_csr_cuda_vector_b256_nv_d.exe"
+
 
     # Cuda Adaptive
     # ['csr_cuda_adaptive_b256_nv_d']="${script_dir}/src/spmv_csr_cuda_adaptive_b256_nv_d.exe"

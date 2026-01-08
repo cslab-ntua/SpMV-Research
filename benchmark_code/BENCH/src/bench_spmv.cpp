@@ -29,6 +29,7 @@ extern "C"{
 	#include "array_metrics.h"
 
 	#include "string_util.h"
+	#include "random.h"
 	#include "io.h"
 	#include "parallel_io.h"
 	#include "storage_formats/matrix_market/matrix_market.h"
@@ -262,43 +263,39 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 
 	if (!print_labels_and_exit)
 	{
-		// Warm up cpu.
-		__attribute__((unused)) volatile double warmup_total;
-		long A_warmup_n = (1ULL<<20) * num_threads;
-		double * A_warmup;
-		time_warm_up = time_it(1,
-			A_warmup = (typeof(A_warmup)) malloc(A_warmup_n * sizeof(*A_warmup));
-			_Pragma("omp parallel for")
-			for (long i=0;i<A_warmup_n;i++)
-				A_warmup[i] = 0;
-			for (j=0;j<16;j++)
-			{
-				_Pragma("omp parallel for")
-				for (long i=1;i<A_warmup_n;i++)
-				{
-					A_warmup[i] += A_warmup[i-1] * 7 + 3;
-				}
-			}
-			warmup_total = A_warmup[A_warmup_n];
-			free(A_warmup);
-		);
-		printf("time warm up %lf\n", time_warm_up);
-
+		// Warm up.
 		int gpu_kernel = atoi(getenv("GPU_KERNEL"));
-		if (gpu_kernel)
-		{
-			time_warm_up = time_it(1,
+		time_warm_up = time_it(1,
+			if (gpu_kernel)
+			{
 				for(int i=0;i<1000;i++)
 					MF->spmv(x, y);
-			);
-		}
-		else
-		{
-			// Warm up caches.
-			time_warm_up = time_it(1,
+			}
+			else
+			{
+				__attribute__((unused)) volatile double warmup_total;
+				long A_warmup_n = (1ULL<<20) * num_threads;
+				double * A_warmup;
+				A_warmup = (typeof(A_warmup)) malloc(A_warmup_n * sizeof(*A_warmup));
+				_Pragma("omp parallel for")
+				for (long i=0;i<A_warmup_n;i++)
+					A_warmup[i] = 0;
+				for (j=0;j<16;j++)
+				{
+					_Pragma("omp parallel for")
+					for (long i=1;i<A_warmup_n;i++)
+					{
+						A_warmup[i] += A_warmup[i-1] * 7 + 3;
+					}
+				}
+				warmup_total = A_warmup[A_warmup_n];
+				free(A_warmup);
+
+				// Warm up caches.
 				MF->spmv(x, y);
-			);			
-		}
+			}
+		);
+		printf("time warm up %lf\n", time_warm_up);
 
 		if (use_processes)
 			raise(SIGSTOP);
@@ -597,46 +594,31 @@ bench(struct CSR_reference_s * csr, struct Matrix_Format * MF, long print_labels
 
 	x_ref = (typeof(x_ref)) aligned_alloc(64, csr->n * sizeof(*x_ref));
 	x = (typeof(x)) aligned_alloc(64, csr->n * sizeof(*x));
-	#pragma omp parallel for
-	for(long i=0;i<csr->n;++i)
+	#pragma omp parallel
 	{
-		x_ref[i] = 1.0;
-		x[i] = x_ref[i];
+		int tnum = omp_get_thread_num();
+		struct Random_State * rs = random_new(tnum);
+		#pragma omp for
+		for(long i=0;i<csr->n;++i)
+		{
+			// x_ref[i] = 1.0;
+			x_ref[i] = random_uniform(rs, 0, 1);
+			x[i] = x_ref[i];
+		}
+		random_destroy(&rs);
 	}
 	y = (typeof(y)) aligned_alloc(64, (csr->m+64) * sizeof(*y));
 	#pragma omp parallel for
 	for(long i=0;i<csr->m;i++)
 		y[i] = 1.0;    // Test whether the format zeros rows with no nnz.
 
-	#if 0
-		_Pragma("omp parallel")
-		{
-			int tnum = omp_get_thread_num();
-			long i;
-			long i_per_t = csr->n / num_threads;
-			long i_s = tnum * i_per_t;
-
-			// No operations.
-			// _Pragma("omp parallel for")
-			// for (i=0;i<csr->m+1;i++)
-				// csr->ia[i] = 0;
-
-			_Pragma("omp parallel for")
-			for (i=0;i<csr->nnz;i++)
-			{
-				csr->ja[i] = 0;                      // idx0 - Remove X access pattern dependency.
-				// csr->ja[i] = i % csr->n;              // idx_serial - Remove X access pattern dependency.
-				// csr->ja[i] = i_s + (i % i_per_t);    // idx_t_local - Remove X access pattern dependency.
-			}
-		}
-	#endif
-
 	long min_num_loops;
 	#ifdef SDV_TRACING
 		min_num_loops = 1;
 	#else
-		// min_num_loops = 256;
+		// min_num_loops = 1;
 		min_num_loops = 64;
+		// min_num_loops = 256;
 	#endif
 
 	double min_runtime;

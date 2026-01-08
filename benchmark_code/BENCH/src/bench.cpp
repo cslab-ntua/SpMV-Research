@@ -469,8 +469,7 @@ fix_diagonal_zeros(struct CSR_reference_s * csr)
 int
 main(int argc, char **argv)
 {
-	__attribute__((unused)) int num_threads;
-
+	int num_threads;
 	struct CSR_reference_s * csr = (typeof(csr)) aligned_alloc(64, sizeof(*csr));
 
 	csr->a_ref = NULL;
@@ -587,6 +586,29 @@ child_proc_label:
 
 	#ifdef FIX_DIAGONAL_ZEROS
 		fix_diagonal_zeros(csr);
+	#endif
+
+	#if 0
+		_Pragma("omp parallel")
+		{
+			int tnum = omp_get_thread_num();
+			long i;
+			long i_per_t = csr->n / num_threads;
+			long i_s = tnum * i_per_t;
+
+			// No operations.
+			// _Pragma("omp parallel for")
+			// for (i=0;i<csr->m+1;i++)
+				// csr->ia[i] = 0;
+
+			_Pragma("omp parallel for")
+			for (i=0;i<csr->nnz;i++)
+			{
+				csr->ja[i] = 0;                      // idx0 - Remove X access pattern dependency.
+				// csr->ja[i] = i % csr->n;              // idx_serial - Remove X access pattern dependency.
+				// csr->ja[i] = i_s + (i % i_per_t);    // idx_t_local - Remove X access pattern dependency.
+			}
+		}
 	#endif
 
 	if (atoi(getenv("USE_RCM_REORDERING")) == 1)

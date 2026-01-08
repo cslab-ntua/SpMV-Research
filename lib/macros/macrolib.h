@@ -220,7 +220,8 @@
 
 
 // As is.
-#define FOREACH_AS_IS(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)              _FOREACH_BASE(_FOREACH_AS_IS_REC, _FOREACH_AS_IS_0, pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)
+#define FOREACH_AS_IS_UNGUARDED(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)    _FOREACH_BASE(_FOREACH_AS_IS_REC, _FOREACH_AS_IS_0, pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)
+#define FOREACH_AS_IS(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)              do { FOREACH_AS_IS_UNGUARDED(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix) } while (0)
 
 // As semicolon-terminated statements.
 #define FOREACH_AS_STMT_UNGUARDED(pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)  _FOREACH_BASE(_FOREACH_AS_STMT_REC, _FOREACH_AS_STMT_0, pass_iter, fun, tpl_prefix, tpl_arg_vals, tpl_suffix)
@@ -244,8 +245,8 @@
 // #define FOREACH_UNGUARDED(fun, ...)  RECURSION_FORM_ITER(__VA_ARGS__)(_FOREACH_REC, _FOREACH_0, (, fun, __VA_ARGS__))
 // #define FOREACH(fun, ...)            do { FOREACH_UNGUARDED(fun, ##__VA_ARGS__); } while (0)
 
-#define FOREACH_UNGUARDED(fun, ...)  FOREACH_AS_STMT_UNGUARDED(0, fun, , (__VA_ARGS__), )
-#define FOREACH(fun, ...)            FOREACH_AS_STMT(0, fun, , (__VA_ARGS__), )
+#define FOREACH_UNGUARDED(fun, ...)  FOREACH_AS_IS_UNGUARDED(0, fun, , (__VA_ARGS__), )
+#define FOREACH(fun, ...)            FOREACH_AS_IS(0, fun, , (__VA_ARGS__), )
 
 
 //==========================================================================================================================================
@@ -271,15 +272,14 @@
  *                             (the user might not want to declare the type, only the specifiers/attributes).
  */
 
-#define _RENAME_PREFIX __eb320f0c2b6a25b48ca861a120eea902__     // MD5 of "macro" (no reason)
-#define _RENAME_1(value, name, ...)  DEFAULT_ARG_1(__auto_type, __VA_ARGS__) _RENAME_PREFIX ## name = (value);
+#define _RENAME_1(value, name, ...)  DEFAULT_ARG_1(__auto_type, __VA_ARGS__) _RENAME_ ## name = (value);
 // DON'T reuse possible given type for _RENAME_2 (the intermediate variables are already the correct type),
 // because the given type might be in a 'typeof(var)' format, and the name of 'var' could be shadowed.
-#define _RENAME_2(value, name, ...)  DEFAULT_ARG_2(, __VA_ARGS__) __auto_type name = _RENAME_PREFIX ## name;
+#define _RENAME_2(value, name, ...)  DEFAULT_ARG_2(, __VA_ARGS__) __auto_type name = _RENAME_ ## name;
 
-#define RENAME(...)                                     \
-	FOREACH_UNGUARDED(_RENAME_1, ##__VA_ARGS__);    \
-	FOREACH_UNGUARDED(_RENAME_2, ##__VA_ARGS__);
+#define RENAME(...)                                    \
+	FOREACH_UNGUARDED(_RENAME_1, ##__VA_ARGS__)    \
+	FOREACH_UNGUARDED(_RENAME_2, ##__VA_ARGS__)
 
 
 //==========================================================================================================================================
@@ -366,7 +366,7 @@
 #undef  arg_return
 #define arg_return(_ptr_out, _val)                                                                                            \
 do {                                                                                                                          \
-	RENAME((_ptr_out, ptr_out), (_val, val));                                                                             \
+	RENAME((_ptr_out, ptr_out), (_val, val))                                                                              \
 	assert_non_void_type(ptr_out,                                                                                         \
 		"Output pointer passed to macro <arg_return()> is of type <void *>, possibly by passing NULL as argument."    \
 		" Enforce the appropriate type for the pointer before passing it."                                            \
@@ -381,7 +381,7 @@ do {                                                                            
 #undef  arg_return_or_free
 #define arg_return_or_free(_ptr_out, _val)                                                                                            \
 do {                                                                                                                                  \
-	RENAME((_ptr_out, ptr_out), (_val, val));                                                                                     \
+	RENAME((_ptr_out, ptr_out), (_val, val))                                                                                      \
 	assert_non_void_type(ptr_out,                                                                                                 \
 		"Output pointer passed to macro <arg_return_or_free()> is of type <void *>, possibly by passing NULL as argument."    \
 		" Enforce the appropriate type for the pointer before passing it."                                                    \
@@ -401,7 +401,7 @@ do {                                                                            
 /* #undef  safe_aligned_alloc
 #define safe_aligned_alloc(_alignment, _size)                                                                 \
 ({                                                                                                            \
-	RENAME((_alignment, alignment), (_size, size));                                                       \
+	RENAME((_alignment, alignment), (_size, size))                                                        \
 	void * ret = aligned_alloc((alignment), (alignment) * (((size) + (alignment) - 1) / (alignment)));    \
 	if (ret == NULL)                                                                                      \
 		error("aligned_alloc");                                                                       \
@@ -411,7 +411,7 @@ do {                                                                            
 
 #define malloc(_size)                                                                                                    \
 ({                                                                                                                       \
-	RENAME((_size, size, size_t));                                                                                   \
+	RENAME((_size, size, size_t))                                                                                    \
 	void * ptr;                                                                                                      \
 	if (size > PTRDIFF_MAX)                                                                                          \
 	{                                                                                                                \
@@ -430,7 +430,7 @@ do {                                                                            
 
 #define aligned_alloc(_alignment, _size)                                                                                 \
 ({                                                                                                                       \
-	RENAME((_alignment, alignment), (_size, size, size_t));                                                          \
+	RENAME((_alignment, alignment), (_size, size, size_t))                                                           \
 	void * ptr;                                                                                                      \
 	if (size > PTRDIFF_MAX)                                                                                          \
 	{                                                                                                                \
@@ -455,7 +455,7 @@ do {                                                                            
 #undef  macros_swap
 #define macros_swap(_a_ptr, _b_ptr)                  \
 do {                                                 \
-	RENAME((_a_ptr, a_ptr), (_b_ptr, b_ptr));    \
+	RENAME((_a_ptr, a_ptr), (_b_ptr, b_ptr))     \
 	__auto_type buf = *a_ptr;                    \
 	*a_ptr = *b_ptr;                             \
 	*b_ptr = buf;                                \
@@ -470,7 +470,7 @@ do {                                                 \
 #undef  macros_max
 #define macros_max(_v1, _v2)             \
 ({                                       \
-	RENAME((_v1, v1), (_v2, v2));    \
+	RENAME((_v1, v1), (_v2, v2))     \
 	(v1 > v2) ? v1 : v2;             \
 })
 
@@ -478,7 +478,7 @@ do {                                                 \
 #undef  macros_min
 #define macros_min(_v1, _v2)             \
 ({                                       \
-	RENAME((_v1, v1), (_v2, v2));    \
+	RENAME((_v1, v1), (_v2, v2))     \
 	(v1 < v2) ? v1 : v2;             \
 })
 
@@ -491,7 +491,7 @@ do {                                                 \
 #undef  macros_abs
 #define macros_abs(_v)         \
 ({                             \
-	RENAME((_v, v));       \
+	RENAME((_v, v))        \
 	(v >= 0) ? v : - v;    \
 })
 
@@ -537,7 +537,7 @@ do {                                                 \
 #define __macros_binary_search(_A, _index_lower_value, _index_upper_value, _target, _boundary_lower_ptr_out, _boundary_upper_ptr_out, _cmp_fun, _dist_fun)    \
 ({                                                                                                                                                            \
 	RENAME((_A, A), (_index_lower_value, index_lower_value), (_index_upper_value, index_upper_value), (_target, target),                                  \
-			(_boundary_lower_ptr_out, __boundary_lower_ptr_out, long *), (_boundary_upper_ptr_out, __boundary_upper_ptr_out, long *));            \
+			(_boundary_lower_ptr_out, __boundary_lower_ptr_out, long *), (_boundary_upper_ptr_out, __boundary_upper_ptr_out, long *))             \
 	long s, e, m, ret;                                                                                                                                    \
 	long * boundary_lower_ptr_out = __boundary_lower_ptr_out;                                                                                             \
 	long * boundary_upper_ptr_out = __boundary_upper_ptr_out;                                                                                             \
@@ -603,7 +603,7 @@ do {                                                 \
 
 #define __macros_binary_search_simple(_A, _index_lower_value, _index_upper_value, _target, _cmp_fun)                             \
 ({                                                                                                                               \
-	RENAME((_A, A), (_index_lower_value, index_lower_value), (_index_upper_value, index_upper_value), (_target, target));    \
+	RENAME((_A, A), (_index_lower_value, index_lower_value), (_index_upper_value, index_upper_value), (_target, target))     \
 	long s, e, m, ret;                                                                                                       \
                                                                                                                                  \
 	s = (index_lower_value);                                                                                                 \
