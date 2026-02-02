@@ -172,7 +172,14 @@ conf_vars=(
     ['RAPL_REGISTERS']='6'         # ARM-GRACE CPU power can be found under
 
     ['CUDA_PATH']="$( options=(
-                        '/usr/local/cuda-12.5'
+                        # '/usr/local/cuda-12.5'
+                        '/usr/local/cuda-13.0'
+                    )
+                    find_valid_dir "${options[@]}"
+                )"
+
+    ['NVPL_PATH']="$( options=(
+                        '/local/pmpakos/damned_directory/nvpl_sparse'
                     )
                     find_valid_dir "${options[@]}"
                 )"
@@ -425,7 +432,7 @@ declare -A progs
 
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
-    # ['cusparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
+    ['cusparse_csr_nv_d']="${script_dir}/spmv_code_bench/spmv_cusparse_csr_nv_d.exe"
     # ['dasp_cuda_nv_d']="${script_dir}/spmv_code_bench/spmv_dasp_cuda_nv_d.exe"
 
     # ['merge_d']="${script_dir}/spmv_code_bench/spmv_merge_d.exe"
@@ -460,7 +467,7 @@ progs=(
     # ['csr_vector_sve_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_sve_d.exe"
     # ['csr_vector_perfect_nnz_balance_sve_d']="${script_dir}/spmv_code_bench/spmv_csr_vector_perfect_nnz_balance_sve_d.exe"
     # ['csr_f']="${script_dir}/spmv_code_bench/spmv_csr_f.exe"
-    ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell_d.exe"
+    # ['ell_d']="${script_dir}/spmv_code_bench/spmv_ell_d.exe"
     # ['ldu_d']="${script_dir}/spmv_code_bench/spmv_ldu_d.exe"
     
     # armpl

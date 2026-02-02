@@ -124,4 +124,6 @@ validation_matrices/matrix_features/figures
 validation_matrices/matrix_features/matrices
 validation_matrices/dcomex
 validation_matrices/new_matrices/
+validation_matrices/download_matrices/
+validation_matrices/reordered_matrices/
 validation_matrices/*.mtx

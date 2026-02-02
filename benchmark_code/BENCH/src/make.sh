@@ -118,10 +118,14 @@ elif [[ ${ARCH} == ppc64le ]]; then
     CFLAGS+=" -mcpu=power9"
 elif [[ ${ARCH} == aarch64 ]]; then
     CFLAGS+=" -march=native"
+    # CFLAGS+=" -march=armv8.6-a+sve2" # NOTE: this may produce better results? wtf
+    CFLAGS+=" -mcpu=native" # don't know if -mcpu or -march are needed...
+
     CFLAGS+=" -flax-vector-conversions"
     # CFLAGS+=" -msve-vector-bits=512"
     # CFLAGS+=" -msve-vector-bits=256"
     CFLAGS+=" -msve-vector-bits=128"
+    CFLAGS+=" -g" # don't know if this is needed
 elif [[ ${ARCH} == riscv64 || ${ARCH} == rave ]]; then
     case "${ARCH}" in
         riscv64)
@@ -186,6 +190,11 @@ fi
 # CFLAGS+=" -D'LEVEL3_CACHE_NUM_NODES=${LEVEL3_CACHE_NUM_NODES}ULL'"
 # CFLAGS+=" -D'LEVEL3_CACHE_SIZE_TOTAL=${LEVEL3_CACHE_SIZE_TOTAL}ULL'"
 
+# ARM ONLY!!! These have to be manually set for ARM systems (GraceHopper CPU), as getconf returns 0 for all sizes
+# CFLAGS+=" -D'LEVEL1_DCACHE_LINESIZE=4718592"
+# CFLAGS+=" -D'LEVEL1_DCACHE_SIZE=4718592"
+# CFLAGS+=" -D'LEVEL2_CACHE_SIZE=75497472"
+# CFLAGS+=" -D'LEVEL3_CACHE_SIZE=119537664"
 
 # Read the matrix in double-precision for checking accuracy against doubles.
 CFLAGS+=" -D'ValueTypeReference=double'"
@@ -258,8 +267,8 @@ export LDFLAGS
 NVCCFLAGS=
 NVCCFLAGS+=" -allow-unsupported-compiler"
 # NVCCFLAGS+=" --dlink-time-opt"
-NVCCFLAGS+=' -gencode arch=compute_80,code=sm_80'
-# NVCCFLAGS+=' -gencode arch=compute_90,code=sm_90'
+# NVCCFLAGS+=' -gencode arch=compute_80,code=sm_80'
+NVCCFLAGS+=' -gencode arch=compute_90,code=sm_90'
 NVCCFLAGS+=' -DPERSISTENT_L2_PREFETCH'
 # NVCCFLAGS+=' -lineinfo'
 # NVCCFLAGS+=' -G -g'

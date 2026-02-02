@@ -22,7 +22,7 @@
  * Builds a COO matrix from the given matrix market file.
  */
 void
-create_coo_matrix(const char * market_filename,
+create_coo_matrix(char * market_filename,
 	double ** V_out, INT_T ** R_out, INT_T ** C_out, INT_T * m_ptr, INT_T * n_ptr, INT_T * nnz_ptr)
 {
 	int num_threads = omp_get_max_threads();

@@ -9,9 +9,9 @@
 struct Matrix_Format
 {
 	char * format_name;
-	INT_T m;                         // num rows
-	INT_T n;                         // num columns
-	INT_T nnz;                       // num non-zeros
+	long m;                         // num rows
+	long n;                         // num columns
+	long nnz;                       // num non-zeros
 	double mem_footprint;
 	double csr_mem_footprint;
 

@@ -54,9 +54,9 @@ int main(int argc, char **argv)
 
 	str_path_split_ext(filename, strlen(filename) + 1, buf, buf_n, &filename_base, NULL);
 	filename_base = strdup(filename_base);
-	// snprintf(buf, buf_n, "figures/%s", filename_base);
-	// char * file_fig;
-	// file_fig = strdup(buf);
+	snprintf(buf, buf_n, "figures_new/%s", filename_base);
+	char * file_fig;
+	file_fig = strdup(buf);
 
 	time = time_it(1,
 		create_coo_matrix(file_in, &mtx_val, &mtx_rowind, &mtx_colind, &m, &n, &nnz);
@@ -66,6 +66,7 @@ int main(int argc, char **argv)
 	row_ptr = (typeof(row_ptr)) malloc((m+1) * sizeof(*row_ptr));
 	col_idx = (typeof(col_idx)) malloc(nnz * sizeof(*col_idx));
 	val = (typeof(val)) malloc(nnz * sizeof(*val));
+	printf("memory footprint = %.2f MB\n", (nnz * (sizeof(*col_idx)+ sizeof(*val)) + (m+1) * sizeof(*row_ptr))/(1024*1024.0));
 
 
 	long num_pixels = 1024;
@@ -88,7 +89,7 @@ int main(int argc, char **argv)
 	printf("time coo_to_csr = %lf\n", time);
 
 	// time = time_it(1,
-	// 	csr_plot_f(file_fig, row_ptr, col_idx, val, m, n, nnz, 0, num_pixels_x, num_pixels_y);
+		csr_plot_f(file_fig, row_ptr, col_idx, val, m, n, nnz, 0, num_pixels_x, num_pixels_y);
 	// 	csr_row_size_histogram_plot(file_fig, row_ptr, col_idx, val, m, n, nnz, 1, 1024, 1024);
 	// 	csr_num_neigh_histogram_plot(file_fig, row_ptr, col_idx, val, m, n, nnz, 1, 1, num_pixels_x, num_pixels_y);
 	// 	csr_cross_row_similarity_histogram_plot(file_fig, row_ptr, col_idx, val, m, n, nnz, 1, 1, num_pixels_x, num_pixels_y);

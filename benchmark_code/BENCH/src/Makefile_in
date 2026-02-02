@@ -186,6 +186,8 @@ spmv_cuda_csr_transpose_expand_rows$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 spmv_cuda_csr_transpose_expand_rows_timed$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_transpose_expand_rows_timed.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+spmv_cuda_csr_transpose_expand_rows_timed_v2$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_transpose_expand_rows_timed_v2.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 spmv_cuda_csr_lut$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_lut.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 
@@ -395,6 +397,16 @@ LDFLAGS_AOCL += -Wl,--no-as-needed  -laoclsparse -lgomp -lpthread -ldl
 
 spmv_aocl_optmv$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/aocl_optmv.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_AOCL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_AOCL)
+
+
+CPPFLAGS_ARMPL =
+CPPFLAGS_ARMPL += -I$(ARMPL_ROOT_DIR)/include
+
+LDFLAGS_ARMPL =
+LDFLAGS_ARMPL += -L$(ARMPL_ROOT_DIR)/lib -larmpl_mp
+
+spmv_armpl$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/armpl.cpp $(LIB_OBJ)  
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_ARMPL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ARMPL)
 
 
 CPPFLAGS_CSRRV =

@@ -30,7 +30,8 @@ extern "C"{
 	#include "storage_formats/openfoam/openfoam_matrix.h"
 	#include "read_mtx.h"
 
-	#include "aux/csr_converter_double.h"
+	#include "aux/csr_converter.h"
+	// #include "aux/csr_converter_double.h"
 
 	#include "aux/csr_util.h"
 
@@ -460,9 +461,9 @@ compute(char * matrix_name,
 		i += snprintf(buf + i, buf_n - i, ",%lf", W_avg);
 		i += snprintf(buf + i, buf_n - i, ",%lf", J_estimated);
 		i += snprintf(buf + i, buf_n - i, ",%s", MF->format_name);
-		i += snprintf(buf + i, buf_n - i, ",%u", MF->m);
-		i += snprintf(buf + i, buf_n - i, ",%u", MF->n);
-		i += snprintf(buf + i, buf_n - i, ",%u", MF->nnz);
+		i += snprintf(buf + i, buf_n - i, ",%lu", MF->m);
+		i += snprintf(buf + i, buf_n - i, ",%lu", MF->n);
+		i += snprintf(buf + i, buf_n - i, ",%lu", MF->nnz);
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / (1024*1024));
 		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / MF->csr_mem_footprint);
 		i += snprintf(buf + i, buf_n - i, ",%ld", num_loops);
@@ -656,7 +657,7 @@ child_proc_label:
 		time = time_it(1,
 			if (stat_isdir(file_in))
 			{
-				int nnz_non_diag, N;
+				long nnz_non_diag, N;
 				int * rowind, * colind;
 				read_openfoam_matrix_dir(file_in, &rowind, &colind, &N, &nnz_non_diag);
 				mtx_m = N;
@@ -858,76 +859,23 @@ child_proc_label:
 		return 0;
 	}
 
-
-	long split_matrix = 0;
-	long nnz_per_row_cutoff = 50;
-
-	ValueType * gpu_csr_a = NULL;
-	INT_T * gpu_csr_ia = NULL;
-	INT_T * gpu_csr_ja = NULL;
-	INT_T gpu_csr_nnz = 0;
-	if (split_matrix)
-	{
-		long k;
-		long degree;
-		gpu_csr_ia = (typeof(gpu_csr_ia)) aligned_alloc(64, (csr_m+1 + VECTOR_ELEM_NUM) * sizeof(*gpu_csr_ia));
-		gpu_csr_a = (typeof(gpu_csr_a)) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(*gpu_csr_a));
-		gpu_csr_ja = (typeof(gpu_csr_ja)) aligned_alloc(64, (csr_nnz + VECTOR_ELEM_NUM) * sizeof(*gpu_csr_ja));
-		k = 0;
-		gpu_csr_ia[0] = 0;
-		for (i=0;i<csr_m+1;i++)
-		{
-			degree = csr_ia[i+1] - csr_ia[i];
-			if (degree > nnz_per_row_cutoff)
-			{
-				for (j=csr_ia[i];j<csr_ia[i+1];j++,k++)
-				{
-					gpu_csr_ja[k] = csr_ja[j];
-					gpu_csr_a[k] = csr_a[j];
-				}
-				gpu_csr_ia[i+1] = k;
-			}
-			else
-			{
-				gpu_csr_ia[i+1] = gpu_csr_ia[i];
-			}
-		}
-		gpu_csr_nnz = k;
-		printf("GPU part nnz = %d (%.2lf%%)\n", gpu_csr_nnz, ((double) gpu_csr_nnz) / csr_nnz * 100);
-	}
-
 	time = time_it(1,
-		if (split_matrix)
-		{
-			MF = csr_to_format(gpu_csr_ia, gpu_csr_ja, gpu_csr_a, csr_m, csr_n, gpu_csr_nnz);
-		}
-		else
-		{
-			MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
-		}
+		MF = csr_to_format(csr_ia, csr_ja, csr_a, csr_m, csr_n, csr_nnz);
 	);
 	printf("time convert to format: %lf\n", time);
 
 	long min_num_loops;
 	min_num_loops = 128;
+	// min_num_loops = 256; // in AMD spmv_code_bench
 
 	prefetch_distance = 1;
 	time = time_it(1,
 		// for (i=0;i<5;i++)
 		{
 			// printf("prefetch_distance = %d\n", prefetch_distance);
-			if (split_matrix)
-			{
-				compute(matrix_name,
-					gpu_csr_ia, gpu_csr_ja, gpu_csr_a, csr_a_ref, csr_m, csr_n, gpu_csr_nnz,
-					MF, AM, x, x_ref, y, min_num_loops, 0);
-			}
-			else
-			{
-				compute(matrix_name,
-					csr_ia, csr_ja, csr_a, csr_a_ref, csr_m, csr_n, csr_nnz,
-					MF, AM, x, x_ref, y, min_num_loops, 0);
-			}
+			compute(matrix_name,
+				csr_ia, csr_ja, csr_a, csr_a_ref, csr_m, csr_n, csr_nnz,
+				MF, AM, x, x_ref, y, min_num_loops, 0);
 			prefetch_distance++;
 		}
 	);

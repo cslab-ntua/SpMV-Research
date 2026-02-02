@@ -1237,7 +1237,81 @@ bench()
                 # compute-sanitizer --tool memcheck "$prog" "${prog_args[@]}"  2>'tmp.err'
                 # ncu -o ./out_logs/reports/ncu_reports/WindowSize_RCM_ncu_report_${mtx_name}_${prog_name} -f --print-summary=per-kernel --section={ComputeWorkloadAnalysis,InstructionStats,LaunchStats,MemoryWorkloadAnalysis,MemoryWorkloadAnalysis_Chart,MemoryWorkloadAnalysis_Tables,Occupancy,SchedulerStats,SourceCounters,SpeedOfLight,SpeedOfLight_RooflineChart,WarpStateStats} "$prog" "${prog_args[@]}"  2>'tmp.err'
                 # nsys profile -o ./out_logs/reports/nsys_reports/nsys_report_${mtx_name}_${prog_name} -f true -t cuda,cublas --cuda-memory-usage=true --stats=true -w true "$prog" "${prog_args[@]}"  2>'tmp.err'
+
+                nvidia-smi --gpu-reset
+                nvidia-smi -i 0 -mig 0
                 "$prog" "${prog_args[@]}"  2>'tmp.err'
+
+                # Prepare for MIG
+                nvidia-smi -i 0 -mig 1
+
+                echo '--------------------- 1 x MIG 7g.96gb ---------------------'
+                nvidia-smi --gpu-reset
+                nvidia-smi mig -cgi 0 -C
+                nvidia-smi -L
+                CUDA_VISIBLE_DEVICES=MIG-ede59b63-f915-5fc8-9d54-f4821346ecff "$prog" "${prog_args[@]}"
+                sleep 5
+
+                echo '--------------------- 1 x MIG 4g.48gb ---------------------'
+                nvidia-smi --gpu-reset
+                nvidia-smi mig -cgi 5 -C
+                nvidia-smi -L
+                CUDA_VISIBLE_DEVICES=MIG-7050f489-2512-55b0-a532-c7be47f53341 "$prog" "${prog_args[@]}"
+                sleep 5
+
+                echo '--------------------- 2 x MIG 3g.48gb ---------------------'
+                nvidia-smi --gpu-reset
+                nvidia-smi mig -cgi 9,9 -C
+                nvidia-smi -L
+                CUDA_VISIBLE_DEVICES=MIG-5af314c9-6efc-5ae5-9468-128e9ca29d36 "$prog" "${prog_args[@]}" # &
+                CUDA_VISIBLE_DEVICES=MIG-da843ea8-b6d3-583a-baeb-a579b4571a8f "$prog" "${prog_args[@]}"
+                sleep 5
+
+                echo '--------------------- 3 x MIG 2g.24gb ---------------------'
+                nvidia-smi --gpu-reset
+                nvidia-smi mig -cgi 14,14,14 -C
+                nvidia-smi -L
+                CUDA_VISIBLE_DEVICES=MIG-8aa57ea3-8d6c-5fe6-afbb-89c6094939bd "$prog" "${prog_args[@]}" # &
+                CUDA_VISIBLE_DEVICES=MIG-161f7244-3448-59b7-9724-3511d8358619 "$prog" "${prog_args[@]}" # &
+                CUDA_VISIBLE_DEVICES=MIG-73cdb1ec-1a7e-5bee-9ffd-5d40501fd3df "$prog" "${prog_args[@]}"
+                sleep 5
+
+                echo '--------------------- 4 x MIG 1g.24gb ---------------------'
+                nvidia-smi --gpu-reset
+                nvidia-smi mig -cgi 15,15,15,15 -C
+                nvidia-smi -L
+                CUDA_VISIBLE_DEVICES=MIG-8aa57ea3-8d6c-5fe6-afbb-89c6094939bd "$prog" "${prog_args[@]}" # &
+                CUDA_VISIBLE_DEVICES=MIG-6f8000d0-8da8-549f-88a6-633c4113beff "$prog" "${prog_args[@]}" # &
+                CUDA_VISIBLE_DEVICES=MIG-c3622c06-0780-5523-8d60-d3bff4041b27 "$prog" "${prog_args[@]}" # &
+                CUDA_VISIBLE_DEVICES=MIG-ff4d70c8-f0ae-5754-ae17-f62bf81198a3 "$prog" "${prog_args[@]}"
+                sleep 5
+
+                echo '--------------------- 1 x MIG 1g.12gb+me ---------------------'
+                nvidia-smi --gpu-reset
+                nvidia-smi mig -cgi 20 -C
+                nvidia-smi -L
+                CUDA_VISIBLE_DEVICES=MIG-7a6d82fd-16ea-5403-a436-1ac04de71951 "$prog" "${prog_args[@]}"
+                sleep 5
+
+                echo '--------------------- 7 x MIG 1g.12gb ---------------------'
+                nvidia-smi --gpu-reset
+                nvidia-smi mig -cgi 19,19,19,19,19,19,19 -C
+                nvidia-smi -L
+                CUDA_VISIBLE_DEVICES=MIG-92d50145-7774-5aa7-93ba-f19968f94f3a "$prog" "${prog_args[@]}" # &
+                CUDA_VISIBLE_DEVICES=MIG-25cfabad-dffb-51a4-97c3-6225315cdf6b "$prog" "${prog_args[@]}" # &
+                CUDA_VISIBLE_DEVICES=MIG-38c41e1a-7ffe-5d0f-8dd8-3cf7e0fad250 "$prog" "${prog_args[@]}" # &
+                CUDA_VISIBLE_DEVICES=MIG-320a4f7e-aef7-5f7b-88f5-21e422765534 "$prog" "${prog_args[@]}" # &
+                CUDA_VISIBLE_DEVICES=MIG-d6ed13aa-5699-593c-8cf5-b2836408d18d "$prog" "${prog_args[@]}" # &
+                CUDA_VISIBLE_DEVICES=MIG-cbd91060-33b4-5479-95d6-5d7f3494d622 "$prog" "${prog_args[@]}" # &
+                CUDA_VISIBLE_DEVICES=MIG-7a6d82fd-16ea-5403-a436-1ac04de71951 "$prog" "${prog_args[@]}"
+                sleep 5
+
+                # Restore to original state
+                nvidia-smi --gpu-reset
+                nvidia-smi -i 0 -mig 0
+
+
+
                 # perf stat -e fp_dp_spec,fp_fixed_ops_spec,fp_hp_spec,fp_scale_ops_spec,fp_sp_spec "$prog" "${prog_args[@]}"  2>'tmp.err'
 
                 # perf record -e instructions:u "$prog" "${prog_args[@]}"  2>'tmp.err'

@@ -29,7 +29,8 @@ define Rule_Auto_Dependencies =
 endef
 
 
-LIB_SRC = pthread_functions.c omp_functions.c topology.c hash.c random.c hashtable.c bitstream.c bytestream.c array_metrics.c string_util.c io.c parallel_io.c plot.c read_mtx.c matrix_market.c openfoam_matrix.c rapl_arm_grace.c csr_converter.c csc_converter.c csr_converter_double.c kmeans.c kmeans_char.c csr_util.c csc_util.c csc_reorder.c artificial_matrix_generation.c ordered_set.c
+LIB_SRC = pthread_functions.c omp_functions.c hardware_topology.c task_topology.c hash.c random.c hashtable.c bitstream.c bytestream.c array_metrics.c string_util.c io.c parallel_io.c plot.c read_mtx.c matrix_market.c openfoam_matrix.c rapl_arm_grace.c csr_converter.c csc_converter.c  kmeans.c kmeans_char.c csr_util.c csc_util.c csc_reorder.c artificial_matrix_generation.c ordered_set.c
+# topology.c  csr_converter_double.c
 
 LIB_OBJ := $(LIB_SRC)
 LIB_OBJ := $(patsubst %.c,obj/%$(SUFFIX).o,$(LIB_OBJ))
@@ -168,7 +169,7 @@ spmv_dasp_cuda$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_dasp_cuda.cu 
 
 
 CPPFLAGS_CUSPARSE =
-# CPPFLAGS_CUSPARSE += -I'$(CUDA_TOOLKIT)/include'
+# CPPFLAGS_CUSPARSE += -I'$(NVPL_PATH)/include'
 
 LDFLAGS_CUSPARSE =
 LDFLAGS_CUSPARSE += -lcuda
@@ -193,13 +194,14 @@ spmv_cusparse_csc$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_cusparse_c
 	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CUSPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_CUSPARSE)
 
 CPPFLAGS_NVPL_SPARSE =
-# CPPFLAGS_NVPL_SPARSE += -I'$(CUDA_TOOLKIT)/include'
+CPPFLAGS_NVPL_SPARSE += -I'$(NVPL_PATH)/include'
 
 LDFLAGS_NVPL_SPARSE =
 LDFLAGS_NVPL_SPARSE += -lcuda
 LDFLAGS_NVPL_SPARSE += -lcudart
-LDFLAGS_NVPL_SPARSE += -lnvpl_sparse
 LDFLAGS_NVPL_SPARSE += -lcublas
+LDFLAGS_NVPL_SPARSE += -L'$(NVPL_PATH)/lib'
+LDFLAGS_NVPL_SPARSE += -lnvpl_sparse
 
 spmv_nvpl_csr$(SUFFIX).exe: obj/spmv_bench$(SUFFIX).o spmv_kernel_nvpl_csr.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_NVPL_SPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NVPL_SPARSE)
@@ -284,7 +286,11 @@ $(call Rule_Auto_Dependencies,obj/pthread_functions$(SUFFIX).o,$(library)/pthrea
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/omp_functions$(SUFFIX).o,$(library)/omp_functions.c,$(CFLAGS))
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,obj/topology$(SUFFIX).o,$(library)/topology.c,$(CFLAGS))
+# $(call Rule_Auto_Dependencies,obj/topology$(SUFFIX).o,$(library)/topology.c,$(CFLAGS))
+# 	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/hardware_topology$(SUFFIX).o,$(library)/topology/hardware_topology.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,obj/task_topology$(SUFFIX).o,$(library)/topology/task_topology.c,$(CFLAGS))
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/hash$(SUFFIX).o,$(library)/hash/hash.c,$(CFLAGS))
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -318,8 +324,8 @@ $(call Rule_Auto_Dependencies,obj/csr_converter$(SUFFIX).o,$(library)/aux/csr_co
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/csc_converter$(SUFFIX).o,$(library)/aux/csc_converter.c,$(CFLAGS))
 	$(CC) $(CFLAGS) -c $< -o $@
-$(call Rule_Auto_Dependencies,obj/csr_converter_double$(SUFFIX).o,$(library)/aux/csr_converter_double.c,$(CFLAGS))
-	$(CC) $(CFLAGS) -c $< -o $@
+# $(call Rule_Auto_Dependencies,obj/csr_converter_double$(SUFFIX).o,$(library)/aux/csr_converter_double.c,$(CFLAGS))
+# 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/kmeans$(SUFFIX).o,$(library)/kmeans/kmeans.c,$(CFLAGS))
 	$(CC) $(CFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,obj/kmeans_char$(SUFFIX).o,$(library)/kmeans/kmeans_char.c,$(CFLAGS))

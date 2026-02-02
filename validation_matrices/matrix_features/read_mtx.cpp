@@ -50,7 +50,7 @@ create_coo_matrix(const std::string & market_filename,
 	long i;
 
 	A = (typeof(A)) malloc(sizeof(*A));
-	file_to_lines(A, market_filename.c_str(), 0);
+	file_to_lines(A, const_cast<char*>(market_filename.c_str()), 0);
 	lines = A->atoms;
 
 	// std::ifstream ifs;

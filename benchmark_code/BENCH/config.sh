@@ -66,6 +66,21 @@ num_cpus="$(echo "$cpu_info" | awk '/^CPU\(s\):/ {printf("%d", $2);}')"
 num_cores="$(( num_cpus / $(echo "$cpu_info" | awk '/^Thread\(s\) per core:/ {printf("%d", $4);}') ))"
 
 
+# To reproduce results, this environment variable has to change to the root directory of the ARM Compiler (<ARM-Compiler-Path> in README.md)
+# export ARM_ROOT_DIR="<ARM-Compiler-Path>"
+
+# export ARM_ROOT_DIR=/home/spmv/arm/
+export ARM_ROOT_DIR=/local/pmpakos/arm-compiler/
+
+# export ARMCLANG_ROOT_DIR=${ARM_ROOT_DIR}/arm-linux-compiler-22.0.1_Generic-AArch64_Ubuntu-20.04_aarch64-linux
+export ARMCLANG_ROOT_DIR=${ARM_ROOT_DIR}/arm-linux-compiler-24.04_Ubuntu-22.04/
+
+# export GCC_ROOT_DIR=${ARM_ROOT_DIR}/gcc-11.2.0_Generic-AArch64_Ubuntu-20.04_aarch64-linux/
+export GCC_ROOT_DIR=${ARM_ROOT_DIR}/gcc-13.2.0_Ubuntu-22.04/
+
+# export ARMPL_ROOT_DIR=${ARM_ROOT_DIR}/armpl-22.0.1_AArch64_Ubuntu-20.04_gcc_aarch64-linux/
+export ARMPL_ROOT_DIR=${ARM_ROOT_DIR}/armpl-24.04.0_Ubuntu-22.04_gcc/
+
 # export SPARSEX_ROOT_DIR="${HOME}/lib"
 # export SPARSEX_ROOT_DIR=/various/dgal/epyc1
 # export SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
@@ -85,8 +100,8 @@ conf_vars=(
     ['force_retry_on_error']=0
     # ['force_retry_on_error']=1
 
-    ['output_to_files']=0
-    # ['output_to_files']=1
+    # ['output_to_files']=0
+    ['output_to_files']=1
 
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
@@ -241,6 +256,54 @@ conf_vars=(
                     find_valid_dir "${options[@]}"
                 )"
 
+    # ARM ecosystem environment variables that have to be set
+    ['ARM_ROOT_DIR']=${ARM_ROOT_DIR}
+
+    ['ARMCLANG_ROOT_DIR']=${ARMCLANG_ROOT_DIR}
+    ['ARM_LINUX_COMPILER_LIBRARIES']=${ARMCLANG_ROOT_DIR}/lib
+    ['ARM_HPC_COMPILER_LICENSE_SEARCH_PATH']=$ARM_ROOT_DIR/licenses
+    ['ARM_LICENSE_DIR']=$ARM_ROOT_DIR/licences
+    ['ARMPL_ROOT_DIR']=${ARMPL_ROOT_DIR}
+
+    # Arm-specific environment variables
+    ['ARM_LINUX_COMPILER_DIR']=${ARMCLANG_ROOT_DIR}
+    ['ARM_LINUX_COMPILER_BUILD']=9
+    ['ARM_LINUX_COMPILER_INCLUDES']=${ARMCLANG_ROOT_DIR}/includes
+
+    # GNU-specific environment variables
+    ['GCC_ROOT_DIR']=${GCC_ROOT_DIR}
+    ['GCC_BUILD']=348
+    ['GCC_DIR']=${GCC_ROOT_DIR}
+    ['GCC_INCLUDES']=${GCC_ROOT_DIR}/include
+    ['COMPILER_PATH']=${GCC_ROOT_DIR}
+
+    # Standard environment variables
+    ['PATH']=${PATH}:${GCC_ROOT_DIR}/binutils_bin:${ARMCLANG_ROOT_DIR}/bin
+    ['CPATH']=${CPATH}:${GCC_ROOT_DIR}/include:${ARMCLANG_ROOT_DIR}/include:${ARMPL_ROOT_DIR}/include_common
+    ['LD_LIBRARY_PATH']=${LD_LIBRARY_PATH}:${GCC_ROOT_DIR}/lib:${GCC_ROOT_DIR}/lib64:${ARMCLANG_ROOT_DIR}/lib:${ARMCLANG_ROOT_DIR}/lib/clang/13.0.0/armpl_links/lib:${ARMPL_ROOT_DIR}/lib
+    ['LIBRARY_PATH']=${LIBRARY_PATH}:${GCC_ROOT_DIR}/lib:${GCC_ROOT_DIR}/lib64:${ARMCLANG_ROOT_DIR}/lib:${ARMPL_ROOT_DIR}/lib
+    ['MANPATH']=${MANPATH}:${GCC_ROOT_DIR}/share/man:${ARMCLANG_ROOT_DIR}/share/man
+
+    # Arm-PL-specific environment variables
+    ['ARMPL_LIBRARIES']=${ARMPL_ROOT_DIR}/lib
+    ['ARMPL_BUILD']=12 # 
+    ['ARMPL_DIR']=${ARMPL_ROOT_DIR}
+    ['ARMPL_INCLUDES']=${ARMPL_ROOT_DIR}/include
+    ['ARMPL_INCLUDES_ILP64']=${ARMPL_ROOT_DIR}/include_ilp64
+    ['ARMPL_INCLUDES_ILP64_MP']=${ARMPL_ROOT_DIR}/include_ilp64_mp
+    ['ARMPL_INCLUDES_INT64']=${ARMPL_ROOT_DIR}/include_ilp64
+    ['ARMPL_INCLUDES_INT64_MP']=${ARMPL_ROOT_DIR}/include_ilp64_mp
+    ['ARMPL_INCLUDES_LP64_MP']=${ARMPL_ROOT_DIR}/include_lp64_mp
+    ['ARMPL_INCLUDES_MP']=${ARMPL_ROOT_DIR}/include_lp64_mp
+
+    # Standard environment variables for BLAS and LAPACK
+    ['BLAS']=:${ARMPL_ROOT_DIR}/lib/libarmpl_lp64.a
+    ['BLAS_SHARED']=${ARMPL_ROOT_DIR}/lib/libarmpl_lp64.so
+    ['BLAS_STATIC']=${ARMPL_ROOT_DIR}/lib/libarmpl_lp64.a
+    ['LAPACK']=${ARMPL_ROOT_DIR}/lib/libarmpl_lp64.a
+    ['LAPACK_SHARED']=${ARMPL_ROOT_DIR}/lib/libarmpl_lp64.so
+    ['LAPACK_STATIC']=${ARMPL_ROOT_DIR}/lib/libarmpl_lp64.a
+
     ['CUDA_PATH']="$( options=(
                         '/usr/local/cuda-12.5'
                         '/usr/local/cuda'
@@ -324,9 +387,10 @@ conf_vars=(
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
-                        "$HOME/Data/graphs/validation_matrices"
-                        "${script_dir}/../../validation_matrices"
-                        '/various/pmpakos/SpMV-Research/validation_matrices'
+                        # "$HOME/Data/graphs/validation_matrices"
+                        # "${script_dir}/../../validation_matrices"
+                        "${script_dir}/../../validation_matrices/download_matrices/new_folder"
+                        # '/various/pmpakos/SpMV-Research/validation_matrices'
                         # '/various/pmpakos/SpMV-Research/validation_matrices/matrix_features/matrices'
                         # '/various/pmpakos/SpMV-Research/validation_matrices/download_matrices'
                         # /home/pmpakos/vvrettos-stuff/SpMV-Research/validation_matrices
@@ -485,14 +549,14 @@ progs=(
     # ['csr_vector_d']="${script_dir}/src/spmv_csr_balanced_distribute_early_d.exe"
     # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/src/spmv_csr_vector_perfect_nnz_balance_d.exe"
 
-    # Custom csr x86
-    # ['csr_vec_d']="${script_dir}/src/spmv_csr_vec_d.exe" # BENCH_AMD, BENCH_INTEL, BENCH_RISCV
+    # Custom csr vector
+    ['csr_vec_d']="${script_dir}/src/spmv_csr_vec_d.exe" # BENCH_AMD, BENCH_INTEL, BENCH_ARM, BENCH_RISCV
     # ['csr_vector_x86_d']="${script_dir}/src/spmv_csr_vector_x86_d.exe" # BENCH_AMD, BENCH_INTEL
     # ['csr_vector_oracle_balance_x86_d']="${script_dir}/src/spmv_csr_vector_oracle_balance_x86_d.exe"
     # ['csr_vector_queues_x86_d']="${script_dir}/src/spmv_csr_vector_queues_x86_d.exe"
     # ['csr_vector_perfect_nnz_balance_x86_d']="${script_dir}/src/spmv_csr_vector_perfect_nnz_balance_x86_d.exe"
 
-    # Custom csr RISCV
+    # Custom csr vector RISCV
     # ['csr_vector_riscv_d']="${script_dir}/src/spmv_csr_vector_riscv_d.exe" # BENCH_RISCV
     # ['csr_vector_riscv_bulk_d']="${script_dir}/src/spmv_csr_vector_riscv_bulk_d.exe" # BENCH_RISCV
 
@@ -538,6 +602,9 @@ progs=(
 
     # AOCL
     # ['aocl_optmv_d']="${script_dir}/src/spmv_aocl_optmv_d.exe"
+
+    # ARMPL
+    # ['armpl_d']="${script_dir}/src/spmv_armpl_d.exe" # BENCH_ARM
 
     # CSR-RV
     # ['csrrv_d']="${script_dir}/src/spmv_csrrv_d.exe" # BENCH_INTEL
@@ -591,7 +658,8 @@ progs=(
     # ['cuda_coo_sorted_transpose_delta_nv_d']="${script_dir}/src/spmv_cuda_coo_sorted_transpose_delta_nv_d.exe"
     # ['cuda_coo_sorted_transpose_non_empty_rows_nv_d']="${script_dir}/src/spmv_cuda_coo_sorted_transpose_non_empty_rows_nv_d.exe"
     # ['cuda_csr_transpose_expand_rows_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_nv_d.exe"
-    ['cuda_csr_transpose_expand_rows_timed_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_timed_nv_d.exe"
+    # ['cuda_csr_transpose_expand_rows_timed_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_timed_nv_d.exe"
+    # ['cuda_csr_transpose_expand_rows_timed_v2_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_timed_v2_nv_d.exe"
     # ['cuda_csr_lut_nv_d']="${script_dir}/src/spmv_cuda_csr_lut_nv_d.exe"
     # ['csr_cuda_div_nv_d']="${script_dir}/src/spmv_cuda_div_nv_d.exe" # BENCH_GPU
 

@@ -1,0 +1,306 @@
+program: /local/pmpakos/SpMV-Research/benchmark_code/CPU/ARM/spmv_code_bench/spmv_cusparse_csr_nv_d.exe
+number of matrices: 1
+max threads 72
+Temps: Composite 23850 asic 55000 asic 55000 
+File: /local/pmpakos/SpMV-Research/benchmark_code/CPU/ARM/../../../validation_matrices/audikw_1.mtx
+------------------------
+/local/pmpakos/SpMV-Research/benchmark_code/CPU/ARM/../../../validation_matrices/audikw_1.mtx
+audikw_1_cusparse_csr
+GPU 00000009:01:00.0 was successfully reset.
+All done.
+Disabled MIG Mode for GPU 00000009:01:00.0
+All done.
+max threads 72
+time read: 0.126703
+time coo to csr: 0.148747
+time convert to format: 0.410641
+time warm up 0.070060
+number of loops = 128
+GFLOPS = 499.857398 (cusparse_csr)
+TIME = 39.769088 (cusparse_csr)
+Test failed! (3.395e-06)
+errors spmv: mae=2.63051e-10, max_ae=9.53674e-07, mse=8.84839e-18, mape=4.44732e-09, smape=2.22369e-09, lnQ_error=-1.26954e-11, mlare=-10.5341, gmare=2.92322e-11
+Enabled MIG Mode for GPU 00000009:01:00.0
+All done.
+--------------------- 1 x MIG 7g.96gb ---------------------
+GPU 00000009:01:00.0 was successfully reset.
+All done.
+Successfully created GPU instance ID  0 on GPU  0 using profile MIG 7g.96gb (ID  0)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  0 using profile MIG 7g.96gb (ID  4)
+GPU 0: NVIDIA GH200 480GB (UUID: GPU-9217acad-4914-c72f-84ac-8d86c56ee881)
+  MIG 7g.96gb     Device  0: (UUID: MIG-ede59b63-f915-5fc8-9d54-f4821346ecff)
+max threads 72
+time read: 0.129280
+time coo to csr: 0.150557
+time convert to format: 0.497845
+time warm up 0.069506
+number of loops = 128
+GFLOPS = 491.209734 (cusparse_csr)
+TIME = 40.469216 (cusparse_csr)
+Test failed! (3.395e-06)
+errors spmv: mae=2.63056e-10, max_ae=9.53674e-07, mse=8.8485e-18, mape=4.44743e-09, smape=2.22374e-09, lnQ_error=-1.26948e-11, mlare=-10.5342, gmare=2.92309e-11
+--------------------- 1 x MIG 4g.48gb ---------------------
+GPU 00000009:01:00.0 was successfully reset.
+All done.
+Successfully created GPU instance ID  1 on GPU  0 using profile MIG 4g.48gb (ID  5)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  1 using profile MIG 4g.48gb (ID  3)
+GPU 0: NVIDIA GH200 480GB (UUID: GPU-9217acad-4914-c72f-84ac-8d86c56ee881)
+  MIG 4g.48gb     Device  0: (UUID: MIG-7050f489-2512-55b0-a532-c7be47f53341)
+max threads 72
+time read: 0.128089
+time coo to csr: 0.149986
+time convert to format: 0.400183
+time warm up 0.069029
+number of loops = 128
+GFLOPS = 263.249244 (cusparse_csr)
+TIME = 75.513504 (cusparse_csr)
+Test failed! (3.395e-06)
+errors spmv: mae=2.63056e-10, max_ae=9.53674e-07, mse=8.8485e-18, mape=4.44734e-09, smape=2.2237e-09, lnQ_error=-1.26955e-11, mlare=-10.5341, gmare=2.92324e-11
+--------------------- 2 x MIG 3g.48gb ---------------------
+GPU 00000009:01:00.0 was successfully reset.
+All done.
+Successfully created GPU instance ID  2 on GPU  0 using profile MIG 3g.48gb (ID  9)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  2 using profile MIG 3g.48gb (ID  2)
+Successfully created GPU instance ID  1 on GPU  0 using profile MIG 3g.48gb (ID  9)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  1 using profile MIG 3g.48gb (ID  2)
+GPU 0: NVIDIA GH200 480GB (UUID: GPU-9217acad-4914-c72f-84ac-8d86c56ee881)
+  MIG 3g.48gb     Device  0: (UUID: MIG-5af314c9-6efc-5ae5-9468-128e9ca29d36)
+  MIG 3g.48gb     Device  1: (UUID: MIG-da843ea8-b6d3-583a-baeb-a579b4571a8f)
+max threads 72
+max threads 72
+time read: 0.249854
+time read: 0.263392
+time coo to csr: 0.262168
+time coo to csr: 0.268408
+time convert to format: 0.728982
+time convert to format: 0.761651
+time warm up 0.124731
+time warm up 0.135275
+number of loops = 128
+GFLOPS = 133.503965 (cusparse_csr)
+TIME = 148.900992 (cusparse_csr)
+number of loops = 128
+GFLOPS = 134.010585 (cusparse_csr)
+TIME = 148.338080 (cusparse_csr)
+Test failed! (3.395e-06)
+errors spmv: mae=2.63052e-10, max_ae=9.53674e-07, mse=8.84844e-18, mape=4.44731e-09, smape=2.22368e-09, lnQ_error=-1.26953e-11, mlare=-10.5341, gmare=2.92321e-11
+Test failed! (3.395e-06)
+errors spmv: mae=2.63053e-10, max_ae=9.53674e-07, mse=8.84841e-18, mape=4.44745e-09, smape=2.22375e-09, lnQ_error=-1.26949e-11, mlare=-10.5342, gmare=2.92311e-11
+--------------------- 3 x MIG 2g.24gb ---------------------
+GPU 00000009:01:00.0 was successfully reset.
+All done.
+Successfully created GPU instance ID  5 on GPU  0 using profile MIG 2g.24gb (ID 14)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  5 using profile MIG 2g.24gb (ID  1)
+Successfully created GPU instance ID  3 on GPU  0 using profile MIG 2g.24gb (ID 14)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  3 using profile MIG 2g.24gb (ID  1)
+Successfully created GPU instance ID  4 on GPU  0 using profile MIG 2g.24gb (ID 14)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  4 using profile MIG 2g.24gb (ID  1)
+GPU 0: NVIDIA GH200 480GB (UUID: GPU-9217acad-4914-c72f-84ac-8d86c56ee881)
+  MIG 2g.24gb     Device  0: (UUID: MIG-8aa57ea3-8d6c-5fe6-afbb-89c6094939bd)
+  MIG 2g.24gb     Device  1: (UUID: MIG-161f7244-3448-59b7-9724-3511d8358619)
+  MIG 2g.24gb     Device  2: (UUID: MIG-73cdb1ec-1a7e-5bee-9ffd-5d40501fd3df)
+max threads 72
+max threads 72
+max threads 72
+time read: 0.366641
+time read: 0.373441
+time read: 0.382160
+time coo to csr: 0.304955
+time coo to csr: 0.325584
+time coo to csr: 0.403378
+time convert to format: 0.997303
+time convert to format: 1.032084
+time convert to format: 1.035037
+time warm up 0.204917
+time warm up 0.197506
+time warm up 0.188426
+number of loops = 128
+GFLOPS = 51.112727 (cusparse_csr)
+TIME = 388.922176 (cusparse_csr)
+number of loops = 128
+GFLOPS = 51.268039 (cusparse_csr)
+TIME = 387.743968 (cusparse_csr)
+number of loops = 128
+GFLOPS = 51.170757 (cusparse_csr)
+TIME = 388.481120 (cusparse_csr)
+Test failed! (3.395e-06)
+errors spmv: mae=2.63052e-10, max_ae=9.53674e-07, mse=8.84839e-18, mape=4.44732e-09, smape=2.22368e-09, lnQ_error=-1.26952e-11, mlare=-10.5341, gmare=2.92318e-11
+Test failed! (3.395e-06)
+errors spmv: mae=2.63054e-10, max_ae=9.53674e-07, mse=8.84845e-18, mape=4.44735e-09, smape=2.2237e-09, lnQ_error=-1.26954e-11, mlare=-10.5341, gmare=2.92322e-11
+Test failed! (3.395e-06)
+errors spmv: mae=2.63053e-10, max_ae=9.53674e-07, mse=8.84842e-18, mape=4.44744e-09, smape=2.22375e-09, lnQ_error=-1.26948e-11, mlare=-10.5342, gmare=2.92308e-11
+--------------------- 4 x MIG 1g.24gb ---------------------
+GPU 00000009:01:00.0 was successfully reset.
+All done.
+Successfully created GPU instance ID  6 on GPU  0 using profile MIG 1g.24gb (ID 15)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  6 using profile MIG 1g.24gb (ID  7)
+Successfully created GPU instance ID  5 on GPU  0 using profile MIG 1g.24gb (ID 15)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  5 using profile MIG 1g.24gb (ID  7)
+Successfully created GPU instance ID  3 on GPU  0 using profile MIG 1g.24gb (ID 15)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  3 using profile MIG 1g.24gb (ID  7)
+Successfully created GPU instance ID  4 on GPU  0 using profile MIG 1g.24gb (ID 15)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  4 using profile MIG 1g.24gb (ID  7)
+GPU 0: NVIDIA GH200 480GB (UUID: GPU-9217acad-4914-c72f-84ac-8d86c56ee881)
+  MIG 1g.24gb     Device  0: (UUID: MIG-8aa57ea3-8d6c-5fe6-afbb-89c6094939bd)
+  MIG 1g.24gb     Device  1: (UUID: MIG-6f8000d0-8da8-549f-88a6-633c4113beff)
+  MIG 1g.24gb     Device  2: (UUID: MIG-c3622c06-0780-5523-8d60-d3bff4041b27)
+  MIG 1g.24gb     Device  3: (UUID: MIG-ff4d70c8-f0ae-5754-ae17-f62bf81198a3)
+max threads 72
+max threads 72
+max threads 72
+max threads 72
+time read: 0.471974
+time read: 0.486145
+time read: 0.485119
+time read: 0.515061
+time coo to csr: 0.416184
+time coo to csr: 0.441517
+time coo to csr: 0.472015
+time coo to csr: 0.480761
+time convert to format: 1.236729
+time convert to format: 1.247636
+time warm up 0.209633
+time convert to format: 1.401677
+time warm up 0.230980
+time convert to format: 1.433968
+time warm up 0.221218
+time warm up 0.220004
+number of loops = 128
+GFLOPS = 33.721302 (cusparse_csr)
+TIME = 589.504896 (cusparse_csr)
+number of loops = 128
+GFLOPS = 35.666277 (cusparse_csr)
+TIME = 557.357664 (cusparse_csr)
+number of loops = 128
+GFLOPS = 34.827547 (cusparse_csr)
+TIME = 570.780160 (cusparse_csr)
+number of loops = 128
+GFLOPS = 33.087943 (cusparse_csr)
+TIME = 600.789024 (cusparse_csr)
+Test failed! (3.395e-06)
+errors spmv: mae=2.63055e-10, max_ae=9.53674e-07, mse=8.84864e-18, mape=4.44743e-09, smape=2.22374e-09, lnQ_error=-1.26947e-11, mlare=-10.5342, gmare=2.92307e-11
+Test failed! (3.395e-06)
+errors spmv: mae=2.63051e-10, max_ae=9.53674e-07, mse=8.84839e-18, mape=4.44734e-09, smape=2.2237e-09, lnQ_error=-1.26954e-11, mlare=-10.5341, gmare=2.92323e-11
+Test failed! (3.395e-06)
+errors spmv: mae=2.63055e-10, max_ae=9.53674e-07, mse=8.84846e-18, mape=4.44734e-09, smape=2.22369e-09, lnQ_error=-1.26954e-11, mlare=-10.5341, gmare=2.92323e-11
+Test failed! (3.395e-06)
+errors spmv: mae=2.63051e-10, max_ae=9.53674e-07, mse=8.84839e-18, mape=4.44732e-09, smape=2.22368e-09, lnQ_error=-1.26953e-11, mlare=-10.5341, gmare=2.92319e-11
+--------------------- 1 x MIG 1g.12gb+me ---------------------
+GPU 00000009:01:00.0 was successfully reset.
+All done.
+Successfully created GPU instance ID 13 on GPU  0 using profile MIG 1g.12gb+me (ID 20)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID 13 using profile MIG 1g.12gb (ID  0)
+GPU 0: NVIDIA GH200 480GB (UUID: GPU-9217acad-4914-c72f-84ac-8d86c56ee881)
+  MIG 1g.12gb     Device  0: (UUID: MIG-7a6d82fd-16ea-5403-a436-1ac04de71951)
+max threads 72
+time read: 0.128110
+time coo to csr: 0.148826
+time convert to format: 0.343078
+time warm up 0.066087
+number of loops = 128
+GFLOPS = 62.329140 (cusparse_csr)
+TIME = 318.933856 (cusparse_csr)
+Test failed! (3.395e-06)
+errors spmv: mae=2.63053e-10, max_ae=9.53674e-07, mse=8.84844e-18, mape=4.44742e-09, smape=2.22373e-09, lnQ_error=-1.26948e-11, mlare=-10.5342, gmare=2.92309e-11
+--------------------- 7 x MIG 1g.12gb ---------------------
+GPU 00000009:01:00.0 was successfully reset.
+All done.
+Successfully created GPU instance ID 13 on GPU  0 using profile MIG 1g.12gb (ID 19)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID 13 using profile MIG 1g.12gb (ID  0)
+Successfully created GPU instance ID 11 on GPU  0 using profile MIG 1g.12gb (ID 19)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID 11 using profile MIG 1g.12gb (ID  0)
+Successfully created GPU instance ID 12 on GPU  0 using profile MIG 1g.12gb (ID 19)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID 12 using profile MIG 1g.12gb (ID  0)
+Successfully created GPU instance ID  7 on GPU  0 using profile MIG 1g.12gb (ID 19)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  7 using profile MIG 1g.12gb (ID  0)
+Successfully created GPU instance ID  8 on GPU  0 using profile MIG 1g.12gb (ID 19)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  8 using profile MIG 1g.12gb (ID  0)
+Successfully created GPU instance ID  9 on GPU  0 using profile MIG 1g.12gb (ID 19)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID  9 using profile MIG 1g.12gb (ID  0)
+Successfully created GPU instance ID 10 on GPU  0 using profile MIG 1g.12gb (ID 19)
+Successfully created compute instance ID  0 on GPU  0 GPU instance ID 10 using profile MIG 1g.12gb (ID  0)
+GPU 0: NVIDIA GH200 480GB (UUID: GPU-9217acad-4914-c72f-84ac-8d86c56ee881)
+  MIG 1g.12gb     Device  0: (UUID: MIG-92d50145-7774-5aa7-93ba-f19968f94f3a)
+  MIG 1g.12gb     Device  1: (UUID: MIG-25cfabad-dffb-51a4-97c3-6225315cdf6b)
+  MIG 1g.12gb     Device  2: (UUID: MIG-38c41e1a-7ffe-5d0f-8dd8-3cf7e0fad250)
+  MIG 1g.12gb     Device  3: (UUID: MIG-320a4f7e-aef7-5f7b-88f5-21e422765534)
+  MIG 1g.12gb     Device  4: (UUID: MIG-d6ed13aa-5699-593c-8cf5-b2836408d18d)
+  MIG 1g.12gb     Device  5: (UUID: MIG-cbd91060-33b4-5479-95d6-5d7f3494d622)
+  MIG 1g.12gb     Device  6: (UUID: MIG-7a6d82fd-16ea-5403-a436-1ac04de71951)
+max threads 72
+max threads 72
+max threads 72
+max threads 72
+max threads 72
+max threads 72
+max threads 72
+time read: 0.788609
+time read: 0.794735
+time read: 0.818198
+time read: 0.808477
+time read: 0.827904
+time read: 0.847951
+time read: 0.860722
+time coo to csr: 0.571231
+time coo to csr: 0.765854
+time coo to csr: 0.746793
+time coo to csr: 0.834792
+time coo to csr: 0.811332
+time coo to csr: 0.802345
+time coo to csr: 0.858016
+time convert to format: 1.424326
+time warm up 0.277741
+time convert to format: 1.682117
+time warm up 0.229314
+time convert to format: 2.491429
+time convert to format: 2.516048
+time convert to format: 2.512239
+time warm up 0.372904
+time warm up 0.358999
+time warm up 0.404174
+time convert to format: 3.032062
+time convert to format: 3.322505
+time warm up 0.376122
+time warm up 0.374982
+number of loops = 128
+GFLOPS = 12.976649 (cusparse_csr)
+TIME = 1531.895712 (cusparse_csr)
+number of loops = 128
+GFLOPS = 12.630151 (cusparse_csr)
+TIME = 1573.921984 (cusparse_csr)
+Test failed! (3.395e-06)
+errors spmv: mae=2.63057e-10, max_ae=9.53674e-07, mse=8.84852e-18, mape=4.44734e-09, smape=2.22369e-09, lnQ_error=-1.26953e-11, mlare=-10.5341, gmare=2.92319e-11
+number of loops = 128
+GFLOPS = 13.023042 (cusparse_csr)
+TIME = 1526.438560 (cusparse_csr)
+Test failed! (3.395e-06)
+number of loops = 128
+GFLOPS = 13.143465 (cusparse_csr)
+TIME = 1512.452928 (cusparse_csr)
+errors spmv: mae=2.63055e-10, max_ae=9.53674e-07, mse=8.84845e-18, mape=4.44735e-09, smape=2.2237e-09, lnQ_error=-1.26953e-11, mlare=-10.5341, gmare=2.92321e-11
+number of loops = 128
+GFLOPS = 13.694827 (cusparse_csr)
+TIME = 1451.560704 (cusparse_csr)
+Test failed! (3.395e-06)
+errors spmv: mae=2.63052e-10, max_ae=9.53674e-07, mse=8.84843e-18, mape=4.44735e-09, smape=2.2237e-09, lnQ_error=-1.26953e-11, mlare=-10.5341, gmare=2.9232e-11
+Test failed! (3.395e-06)
+errors spmv: mae=2.63055e-10, max_ae=9.53674e-07, mse=8.8485e-18, mape=4.44733e-09, smape=2.22369e-09, lnQ_error=-1.26954e-11, mlare=-10.5341, gmare=2.92322e-11
+number of loops = 128
+GFLOPS = 14.184827 (cusparse_csr)
+TIME = 1401.418112 (cusparse_csr)
+Test failed! (3.395e-06)
+errors spmv: mae=2.63059e-10, max_ae=9.53674e-07, mse=8.8487e-18, mape=4.44743e-09, smape=2.22374e-09, lnQ_error=-1.26948e-11, mlare=-10.5342, gmare=2.9231e-11
+number of loops = 128
+GFLOPS = 15.555455 (cusparse_csr)
+TIME = 1277.935808 (cusparse_csr)
+Test failed! (3.395e-06)
+errors spmv: mae=2.63051e-10, max_ae=9.53674e-07, mse=8.84839e-18, mape=4.44735e-09, smape=2.2237e-09, lnQ_error=-1.26954e-11, mlare=-10.5341, gmare=2.92322e-11
+Test failed! (3.395e-06)
+errors spmv: mae=2.63056e-10, max_ae=9.53674e-07, mse=8.8485e-18, mape=4.44733e-09, smape=2.22369e-09, lnQ_error=-1.26953e-11, mlare=-10.5341, gmare=2.92321e-11
+GPU 00000009:01:00.0 was successfully reset.
+All done.
+Disabled MIG Mode for GPU 00000009:01:00.0
+All done.
+
+
+Total time = 2 minutes 21 seconds
