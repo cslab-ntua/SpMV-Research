@@ -381,6 +381,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 
 
 template<typename T>
+inline
 __device__
 T
 binary_search_gpu(T * A, long s, long e, T target)
@@ -502,7 +503,6 @@ spmv_full_warp(group_t g, int i_s, int j_s, int j_b_s, int j_w_s, INT_T * row_pt
 	// extern __shared__ double x_smem[];
 	const int tidw = g.thread_rank();   // Group lane.
 	int i, j, jj;
-	int ptr_next;
 	double sum = 0;
 	double x_buf;
 	int j_e = j_s + NNZ_PER_THREAD;
@@ -512,7 +512,6 @@ spmv_full_warp(group_t g, int i_s, int j_s, int j_b_s, int j_w_s, INT_T * row_pt
 	// __pipeline_memcpy_async(&x_smem[threadIdx.x], &x[ja[jj]], 8);
 	// __pipeline_commit();
 	i = i_s;
-	ptr_next = row_ptr[i+1];
 	// PRAGMA(unroll NNZ_PER_THREAD)
 	// for (j=j_s,jj=j_s;j<j_e;j++,jj++)
 	// for (j=j_s,jj=j_b_s+threadIdx.x;j<j_e;j++,jj+=BLOCK_SIZE)
@@ -529,6 +528,7 @@ spmv_full_warp(group_t g, int i_s, int j_s, int j_b_s, int j_w_s, INT_T * row_pt
 		// sum = __fma_rn(a[jj], x[ja[jj]], sum);
 		// sum = __fma_rn(a[jj], x_buf, sum);
 		// sum = __fma_rn(a[j], x[ja[j]], sum);
+		// __syncthreads();
 	}
 	g.match_all(i_s, single_row);   // 'single_row' is passed as reference!!! Passing as pointer gives compilation error.
 	if (single_row)

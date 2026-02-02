@@ -158,63 +158,6 @@ struct COOArrays : Matrix_Format
 		);
 		printf("find row indices = %g\n", time);
 
-		_Pragma("omp parallel")
-		{
-			long i_s, i_e, j, jj;
-			_Pragma("omp for")
-			for (j=0;j<nnz;j+=32*NNZ_PER_THREAD)
-			{
-				long j_e = j + 32*NNZ_PER_THREAD;
-				if (j_e > nnz)
-					j_e = nnz;
-				macros_binary_search(row_ptr, 0, m, j, &i_s, NULL);           // Index boundaries are inclusive.
-				macros_binary_search(row_ptr, 0, m, j_e-1, &i_e, NULL);           // Index boundaries are inclusive.
-				if (i_s == i_e)
-				{
-					for (jj=j;jj<j_e;jj++)
-					{
-						ja_h[jj] = ja_h[jj] | 0x80000000;
-					}
-				}
-			}
-		}
-
-		_Pragma("omp parallel")
-		{
-			long j;
-			_Pragma("omp for")
-			for (j=0;j<(num_thread_blocks-1)*nnz_per_block;j+=32*NNZ_PER_THREAD)
-			{
-				long j_e = j + 32*NNZ_PER_THREAD;
-				if (j_e > nnz)
-					j_e = nnz;
-				if (j_e < nnz)
-				{
-					transpose(&a_h[j], 32, NNZ_PER_THREAD);
-					transpose(&ia_h[j], 32, NNZ_PER_THREAD);
-					transpose(&ja_h[j], 32, NNZ_PER_THREAD);
-				}
-			}
-		}
-
-		// _Pragma("omp parallel")
-		// {
-			// long j;
-			// _Pragma("omp for")
-			// for (j=0;j<(num_thread_blocks-1)*nnz_per_block;j+=BLOCK_SIZE*NNZ_PER_THREAD)
-			// {
-				// long j_e = j + BLOCK_SIZE*NNZ_PER_THREAD;
-				// if (j_e > nnz)
-					// j_e = nnz;
-				// if (j_e < nnz)
-				// {
-					// transpose(&a_h[j], BLOCK_SIZE, NNZ_PER_THREAD);
-					// transpose(&ia_h[j], BLOCK_SIZE, NNZ_PER_THREAD);
-					// transpose(&ja_h[j], BLOCK_SIZE, NNZ_PER_THREAD);
-				// }
-			// }
-		// }
-
 		gpuCudaErrorCheck(cudaMemcpy(row_ptr_d, row_ptr_h, (m+1) * sizeof(*row_ptr_d), cudaMemcpyHostToDevice));
 		gpuCudaErrorCheck(cudaMemcpy(ia_d, ia_h, nnz * sizeof(*ia_d), cudaMemcpyHostToDevice));
 		gpuCudaErrorCheck(cudaMemcpy(ja_d, ja_h, nnz * sizeof(*ja_d), cudaMemcpyHostToDevice));
@@ -254,7 +197,7 @@ COOArrays::spmv(ValueType * x, ValueType * y)
 
 
 struct Matrix_Format *
-coo_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded)
+csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded)
 {
 	if (symmetric && !symmetry_expanded)
 		error("symmetric matrices not supported by this format, expand symmetry");
@@ -279,30 +222,19 @@ __device__
 void
 spmv_last_block(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz, ValueType * restrict x, ValueType * restrict y)
 {
-	// extern __shared__ char sm[];
 	const int tid = cuda_get_thread_num_bc();
 	const int tidb = threadIdx.x;
 	const int block_id = blockIdx.x;
 	const int nnz_per_block = BLOCK_SIZE * NNZ_PER_THREAD;
-	// ValueType * val_buf = (typeof(val_buf)) sm;
 	__attribute__((unused)) int i, i_e, j, j_s, j_e, k;
 	j_s = block_id * nnz_per_block + tidb * NNZ_PER_THREAD;
 	j_e = j_s + NNZ_PER_THREAD;
 	if (j_e > nnz)
 		j_e = nnz;
-
-	// double sum = 0;
 	for (j=j_s;j<j_e;j++)
 	{
-		// if (ia[j] != i)
-		// {
-			// atomicAdd(&y[i], sum);
-			// sum = 0;
-			// i = ia[j];
-		// }
-		// sum = __fma_rn(a[j], x[ja[j] & 0x7FFFFFFF], sum);
 		i = ia[j];
-		atomicAdd(&y[i], a[j] * x[ja[j] & 0x7FFFFFFF]);
+		atomicAdd(&y[i], a[j] * x[ja[j]]);
 	}
 }
 
@@ -315,20 +247,12 @@ spmv_full_warp(group_t g, int j_s, int j_b_s, int j_w_s, INT_T * ia, INT_T * ja,
 	extern __shared__ char sm[];
 	const int tidl = g.thread_rank();   // Group lane.
 	int i, j, jj;
-	// double sum = 0;
 	for (j=j_s,jj=j_s;j<j_s+NNZ_PER_THREAD;j++,jj++)
 	// for (j=j_s,jj=j_b_s+threadIdx.x;j<j_s+NNZ_PER_THREAD;j++,jj+=BLOCK_SIZE)
 	// for (j=j_s,jj=j_w_s+tidl;j<j_s+NNZ_PER_THREAD;j++,jj+=g.size())
 	{
-		// if (ia[jj] != i)
-		// {
-			// atomicAdd(&y[i], sum);
-			// sum = 0;
-			// i = ia[jj];
-		// }
-		// sum = __fma_rn(a[jj], x[ja[jj] & 0x7FFFFFFF], sum);
 		i = ia[jj];
-		atomicAdd(&y[i], a[jj] * x[ja[jj] & 0x7FFFFFFF]);
+		atomicAdd(&y[i], a[jj] * x[ja[jj]]);
 	}
 }
 
@@ -337,20 +261,14 @@ __device__
 void
 spmv_full_block(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz, ValueType * restrict x, ValueType * restrict y)
 {
-	// extern __shared__ char sm[];
-	// const int tidb = threadIdx.x;
 	const int tid = cuda_get_thread_num_bc();
 	const int tidw = threadIdx.x % 32;
 	const int warp_id = threadIdx.x / 32;
 	const int block_id = blockIdx.x;
-	// ValueType * val_buf = (typeof(val_buf)) sm;
-	// INT_T * ia_buf = (typeof(ia_buf)) &sm[BLOCK_SIZE * sizeof(ValueType)];
-	// INT_T * ia_buf = (typeof(ia_buf)) sm;
 	__attribute__((unused)) int i_s, i_e, j_s, j_b_s, j_w_s, k;
 	j_b_s = block_id * BLOCK_SIZE * NNZ_PER_THREAD;
 	j_w_s = j_b_s + warp_id * 32 * NNZ_PER_THREAD;
 	j_s = j_w_s + tidw * NNZ_PER_THREAD;
-
 	thread_block_tile<32> tile32 = tiled_partition<32>(this_thread_block());
 	spmv_full_warp(tile32, j_s, j_b_s, j_w_s, ia, ja, a, x, y);
 }
@@ -374,9 +292,6 @@ compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restri
 {
 	dim3 block_dims(BLOCK_SIZE);
 	dim3 grid_dims(coo->num_thread_blocks);
-	// long shared_mem_size = BLOCK_SIZE * (sizeof(ValueType));
-	// long shared_mem_size = BLOCK_SIZE * (sizeof(ValueType) + sizeof(INT_T));
-	// long shared_mem_size = BLOCK_SIZE * NNZ_PER_THREAD * sizeof(INT_T);
 	long shared_mem_size = 0;
 
 	if (coo->x == NULL)

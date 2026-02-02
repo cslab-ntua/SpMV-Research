@@ -397,8 +397,8 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
 		/*****************************************************************************************/
 
-		// gflops = csr->nnz_expanded_symmetry / time_total * num_loops * 2 * 1e-9;
-		gflops = csr->nnz_expanded_symmetry / time_median * 2 * 1e-9;
+		// gflops = csr->nnz_matrix / time_total * num_loops * 2 * 1e-9;
+		gflops = csr->nnz_matrix / time_median * 2 * 1e-9;
 		printf("GFLOPS = %lf (%s)\n", gflops, getenv("PROGG"));
 	}
 
@@ -423,6 +423,7 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			i += snprintf(buf + i, buf_n - i, ",%s", "csr_m");
 			i += snprintf(buf + i, buf_n - i, ",%s", "csr_n");
 			i += snprintf(buf + i, buf_n - i, ",%s", "csr_nnz");
+			i += snprintf(buf + i, buf_n - i, ",%s", "csr_nnz_matrix");
 			i += snprintf(buf + i, buf_n - i, ",%s", "symmetry");
 			i += snprintf(buf + i, buf_n - i, ",%s", "time");
 			i += snprintf(buf + i, buf_n - i, ",%s", "time_iter_min");
@@ -460,6 +461,7 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		i += snprintf(buf + i, buf_n - i, ",%lu", csr->m);
 		i += snprintf(buf + i, buf_n - i, ",%lu", csr->n);
 		i += snprintf(buf + i, buf_n - i, ",%lu", csr->nnz);
+		i += snprintf(buf + i, buf_n - i, ",%lu", csr->nnz_matrix);
 		i += snprintf(buf + i, buf_n - i, ",%lu", csr->symmetric);
 		i += snprintf(buf + i, buf_n - i, ",%lf", time_total);
 		i += snprintf(buf + i, buf_n - i, ",%lf", time_min);

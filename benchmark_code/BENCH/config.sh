@@ -100,8 +100,8 @@ conf_vars=(
     ['force_retry_on_error']=0
     # ['force_retry_on_error']=1
 
-    # ['output_to_files']=0
-    ['output_to_files']=1
+    ['output_to_files']=0
+    # ['output_to_files']=1
 
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
@@ -313,6 +313,8 @@ conf_vars=(
                     find_valid_dir "${options[@]}"
                 )"
 
+    ['CUDA_COMPUTE']="$( hash nvidia-smi &>/dev/null && nvidia-smi --query-gpu=compute_cap --format=csv | awk 'NR==2' | tr -d '.')"
+
     ['ROCM_PATH']="$( options=(
                         '/appl/lumi/SW/LUMI-23.09/G/EB/rocm/5.6.1'
                     )
@@ -383,12 +385,12 @@ conf_vars=(
     ['GHOST_ROOT_DIR']='/pfs/lustrep2/scratch/project_465000869/pmpakos/damned_directory/'
     # ['GHOST_ROOT_DIR']='/leonardo_scratch/fast/EUHPC_D12_058/pmpakos/damned_directory'
 
-    ['GHOST_APPS_ROOT_DIR']=${script_dir}'/src/sell-C-s'
+    ['GHOST_APPS_ROOT_DIR']="${script_dir}/src/sell-C-s"
 
     # Path for the validation matrices.
     ['path_validation']="$( options=(
-                        # "$HOME/Data/graphs/validation_matrices"
-                        # "${script_dir}/../../validation_matrices"
+                        "$HOME/Data/graphs/validation_matrices"
+                        "${script_dir}/../../validation_matrices"
                         "${script_dir}/../../validation_matrices/download_matrices/new_folder"
                         # '/various/pmpakos/SpMV-Research/validation_matrices'
                         # '/various/pmpakos/SpMV-Research/validation_matrices/matrix_features/matrices'

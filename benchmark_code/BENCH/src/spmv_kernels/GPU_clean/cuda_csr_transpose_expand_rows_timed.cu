@@ -64,6 +64,11 @@ using namespace cooperative_groups;
 	#define TIME_IT 0
 #endif
 
+double ull2d(void * A, long i)
+{
+	return (double) ((unsigned long long *) A)[i];
+}
+
 
 void
 cuda_push_duplicate_base(void ** dst_ptr, void * src, long bytes)
@@ -92,13 +97,15 @@ transpose(T * A, INT_T m, INT_T n)
 
 
 
-struct timers_s {
-	unsigned long long time_kernel;
-	unsigned long long time_warp;
-	unsigned long long time_load_warp_i_bounds;
-	unsigned long long time_bin_search;
-	unsigned long long time_reduce_gen;
-	unsigned long long time_reduce_single_row;
+enum timers_enum {
+	TIME_KERNEL_TOTAL,
+	TIME_KERNEL_INTRO,
+	TIME_SPMV_OPERATIONS,
+	TIME_LOAD_WARP_I_BOUNDS,
+	TIME_BIN_SEARCH,
+	TIME_REDUCE_GEN,
+	TIME_REDUCE_SINGLE_ROW,
+	TIME_ENUM_N,
 };
 
 
@@ -133,8 +140,8 @@ struct CSRArrays : Matrix_Format
 	int num_thread_blocks;
 	int num_thread_warps;
 
-	struct timers_s * timers;
-	struct timers_s * timers_d;
+	unsigned long long ** timers;
+	unsigned long long ** timers_d;
 
 	CSRArrays(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz)
 	{
@@ -333,8 +340,17 @@ struct CSRArrays : Matrix_Format
 		gpuCudaErrorCheck(cudaMemcpy(thread_warp_i_e_d, thread_warp_i_e, num_thread_warps * sizeof(*thread_warp_i_e_d), cudaMemcpyHostToDevice));
 		gpuCudaErrorCheck(cudaMemcpy(thread_i_s_d, thread_i_s, num_threads * sizeof(*thread_i_s_d), cudaMemcpyHostToDevice));
 
-		timers = (typeof(timers)) malloc(sizeof(*timers));
-		gpuCudaErrorCheck(cudaMalloc(&timers_d, sizeof(*timers_d)));
+		timers = (typeof(timers)) malloc(TIME_ENUM_N * sizeof(*timers));
+		gpuCudaErrorCheck(cudaMalloc(&timers_d, TIME_ENUM_N * sizeof(*timers_d)));
+		for (i=0;i<TIME_ENUM_N;i++)
+		{
+			gpuCudaErrorCheck(cudaMalloc(&timers[i], num_thread_warps * sizeof(*timers[i])));
+		}
+		gpuCudaErrorCheck(cudaMemcpy(timers_d, timers, TIME_ENUM_N * sizeof(*timers), cudaMemcpyHostToDevice));
+		for (i=0;i<TIME_ENUM_N;i++)
+		{
+			timers[i] = (typeof(timers[i])) malloc(num_thread_warps * sizeof(*timers[i]));
+		}
 
 	}
 
@@ -398,6 +414,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 
 
 template<typename T>
+inline
 __device__
 T
 binary_search_gpu(T * A, long s, long e, T target)
@@ -441,7 +458,6 @@ reduce_warp(group_t g, INT_T row, ValueType val, ValueType * restrict y)
 	if (tidw == __ffs(mask_same_row) - 1)  // __ffs enumeration is 1-based.
 		atomicAdd(&y[row], val);
 }
-
 
 
 inline
@@ -514,15 +530,16 @@ reduce_warp_single_row(group_t g, ValueType val)
 template <typename group_t>
 __device__
 void
-spmv_full_warp(group_t g, struct timers_s * timers, int i_s, int j_s, int j_b_s, int j_w_s, INT_T * row_ptr, INT_T * ja, ValueType * a, ValueType * restrict x, ValueType * restrict y)
+spmv_full_warp(group_t g, int i_s, int j_s, int j_b_s, int j_w_s, INT_T * row_ptr, INT_T * ja, ValueType * a, ValueType * restrict x, ValueType * restrict y,
+	unsigned long long * time_spmv_operations, unsigned long long * time_reduce_gen, unsigned long long * time_reduce_single_row)
 {
-	unsigned long long ts_r=0, ts_re=0;
-	unsigned long long time_reduce_gen=0, time_reduce_single_row=0;
+	unsigned long long ts_s=0, ts_r=0, ts_re=0;
+
+	ts_s = clock64();
 
 	// extern __shared__ double x_smem[];
 	const int tidw = g.thread_rank();   // Group lane.
 	int i, j, jj;
-	int ptr_next;
 	double sum = 0;
 	double x_buf;
 	int j_e = j_s + NNZ_PER_THREAD;
@@ -532,7 +549,6 @@ spmv_full_warp(group_t g, struct timers_s * timers, int i_s, int j_s, int j_b_s,
 	// __pipeline_memcpy_async(&x_smem[threadIdx.x], &x[ja[jj]], 8);
 	// __pipeline_commit();
 	i = i_s;
-	ptr_next = row_ptr[i+1];
 	// PRAGMA(unroll NNZ_PER_THREAD)
 	// for (j=j_s,jj=j_s;j<j_e;j++,jj++)
 	// for (j=j_s,jj=j_b_s+threadIdx.x;j<j_e;j++,jj+=BLOCK_SIZE)
@@ -560,27 +576,26 @@ spmv_full_warp(group_t g, struct timers_s * timers, int i_s, int j_s, int j_b_s,
 		if (tidw == 0)
 			atomicAdd(&y[i_s], sum);
 		ts_re = clock64();
-		time_reduce_single_row = ts_re - ts_r;
-		__syncthreads();
-		atomicAdd(&timers->time_reduce_single_row, ts_re - ts_r);
+		*time_reduce_single_row = ts_re - ts_r;
 	}
 	else
 	{
 		reduce_warp(g, i, sum, y);
 		ts_re = clock64();
-		time_reduce_gen = ts_re - ts_r;
-		__syncthreads();
-		atomicAdd(&timers->time_reduce_gen, ts_re - ts_r);
+		*time_reduce_gen = ts_re - ts_r;
 	}
+
+	*time_spmv_operations = ts_r - ts_s;
 }
 
 
 __device__
 void
-spmv_full_block(struct timers_s * timers, INT_T * thread_i_s, INT_T * thread_warp_i_s, INT_T * thread_warp_i_e, INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz, ValueType * restrict x, ValueType * restrict y)
+spmv_full_block(unsigned long long ** timers, INT_T * thread_i_s, INT_T * thread_warp_i_s, INT_T * thread_warp_i_e, INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz, ValueType * restrict x, ValueType * restrict y)
 {
 	unsigned long long ts_s=0, ts_e=0, ts_lidx=0, ts_bs=0, ts_ex=0;
-	unsigned long long time_kernel=0, time_load_warp_i_bounds=0, time_bin_search=0, time_warp=0;
+	unsigned long long time_spmv_operations=0;
+	unsigned long long time_reduce_gen=0, time_reduce_single_row=0;
 
 	ts_s = clock64();
 
@@ -606,35 +621,43 @@ spmv_full_block(struct timers_s * timers, INT_T * thread_i_s, INT_T * thread_war
 
 	ts_lidx = clock64();
 
-	// i_s = thread_i_s[tid];
-	i_s = thread_warp_i_s[wid];
-	i_e = thread_warp_i_e[wid];
+	i_s = thread_i_s[tid];
+	// i_s = thread_warp_i_s[wid];
+	// i_e = thread_warp_i_e[wid];
 
 	ts_bs = clock64();
 
-	i_s = binary_search_gpu(row_ptr, i_s, i_e, j_s);
+	// i_s = binary_search_gpu(row_ptr, i_s, i_e, j_s);
 
 	ts_ex = clock64();
 
 	thread_block_tile<32> tile32 = tiled_partition<32>(this_thread_block());
-	spmv_full_warp(tile32, timers, i_s, j_s, j_b_s, j_w_s, row_ptr, ja, a, x, y);
+	spmv_full_warp(tile32, i_s, j_s, j_b_s, j_w_s, row_ptr, ja, a, x, y, &time_spmv_operations, &time_reduce_gen, &time_reduce_single_row);
 
 	ts_e = clock64();
 
-	__syncthreads();
-	atomicAdd(&timers->time_kernel, ts_e - ts_s);
-	atomicAdd(&timers->time_warp, ts_e - ts_ex);
-	atomicAdd(&timers->time_load_warp_i_bounds, ts_bs - ts_lidx);
-	atomicAdd(&timers->time_bin_search, ts_ex - ts_bs);
+	if (tidw == 0)
+	{
+		timers[TIME_KERNEL_TOTAL][wid] = ts_e - ts_s;
+		timers[TIME_KERNEL_INTRO][wid] = ts_lidx - ts_s;
+		timers[TIME_SPMV_OPERATIONS][wid] = time_spmv_operations;
+		timers[TIME_LOAD_WARP_I_BOUNDS][wid] = ts_bs - ts_lidx;
+		timers[TIME_BIN_SEARCH][wid] = ts_ex - ts_bs;
+		timers[TIME_REDUCE_SINGLE_ROW][wid] = time_reduce_single_row;
+		timers[TIME_REDUCE_GEN][wid] = time_reduce_gen;
+	}
+
 }
 
 
 __global__
 void
-gpu_kernel_spmv_row_indices_continuous(struct timers_s * timers, INT_T * thread_i_s, INT_T * thread_warp_i_s, INT_T * thread_warp_i_e, INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz, ValueType * restrict x, ValueType * restrict y)
+gpu_kernel_spmv_row_indices_continuous(unsigned long long ** timers, INT_T * thread_i_s, INT_T * thread_warp_i_s, INT_T * thread_warp_i_e, INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz, ValueType * restrict x, ValueType * restrict y)
 {
 	int grid_size = gridDim.x;
 	int block_id = blockIdx.x;
+	// if (block_id % 100)
+		// return;
 	if (block_id != grid_size - 1)
 		spmv_full_block(timers, thread_i_s, thread_warp_i_s, thread_warp_i_e, row_ptr, ja, a, m, n, nnz, x, y);
 	else
@@ -689,7 +712,6 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 void
 CSRArrays::statistics_start()
 {
-	gpuCudaErrorCheck(cudaMemset(timers_d, 0, sizeof(*timers_d)));
 }
 
 
@@ -703,13 +725,38 @@ statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unuse
 int
 CSRArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
-	gpuCudaErrorCheck(cudaMemcpy(timers, timers_d, sizeof(*timers_d), cudaMemcpyDeviceToHost));
-	printf("fraction_kernel=%g\n", (double) timers->time_kernel / timers->time_kernel);
-	printf("fraction_warp=%g\n", (double) timers->time_warp / timers->time_kernel);
-	printf("fraction_load_warp_i_bounds=%g\n", (double) timers->time_load_warp_i_bounds / timers->time_kernel);
-	printf("fraction_bin_search=%g\n", (double) timers->time_bin_search / timers->time_kernel);
-	printf("fraction_reduce_gen=%g\n", (double) timers->time_reduce_gen / timers->time_kernel);
-	printf("fraction_reduce_single_row=%g\n", (double) timers->time_reduce_single_row / timers->time_kernel);
+	unsigned long long * gpu_ptrs[TIME_ENUM_N];
+	long i;
+	gpuCudaErrorCheck(cudaMemcpy(gpu_ptrs, timers_d, TIME_ENUM_N * sizeof(*timers_d), cudaMemcpyDeviceToHost));
+	for (i=0;i<TIME_ENUM_N;i++)
+	{
+		gpuCudaErrorCheck(cudaMemcpy(timers[i], gpu_ptrs[i], num_thread_warps * sizeof(*timers[i]), cudaMemcpyDeviceToHost));
+	}
+
+	double time_kernel_total;
+	double time_kernel_intro;
+	double time_load_warp_i_bounds;
+	double time_bin_search;
+	double time_spmv_operations;
+	double time_reduce_gen;
+	double time_reduce_single_row;
+
+	array_mean(timers[TIME_KERNEL_TOTAL], num_thread_warps, &time_kernel_total, ull2d);
+	array_mean(timers[TIME_KERNEL_INTRO], num_thread_warps, &time_kernel_intro, ull2d);
+	array_mean(timers[TIME_LOAD_WARP_I_BOUNDS], num_thread_warps, &time_load_warp_i_bounds, ull2d);
+	array_mean(timers[TIME_BIN_SEARCH], num_thread_warps, &time_bin_search, ull2d);
+	array_mean(timers[TIME_SPMV_OPERATIONS], num_thread_warps, &time_spmv_operations, ull2d);
+	array_mean(timers[TIME_REDUCE_GEN], num_thread_warps, &time_reduce_gen, ull2d);
+	array_mean(timers[TIME_REDUCE_SINGLE_ROW], num_thread_warps, &time_reduce_single_row, ull2d);
+
+	printf("fraction_kernel_total, %g, %g\n", time_kernel_total, (double) time_kernel_total / time_kernel_total);
+	printf("fraction_kernel_intro, %g, %g\n", time_kernel_intro, (double) time_kernel_intro / time_kernel_total);
+	printf("fraction_load_warp_i_bounds, %g, %g\n", time_load_warp_i_bounds, (double) time_load_warp_i_bounds / time_kernel_total);
+	printf("fraction_bin_search, %g, %g\n", time_bin_search, (double) time_bin_search / time_kernel_total);
+	printf("fraction_spmv_operations, %g, %g\n", time_spmv_operations, (double) time_spmv_operations / time_kernel_total);
+	printf("fraction_reduce_gen, %g, %g\n", time_reduce_gen, (double) time_reduce_gen / time_kernel_total);
+	printf("fraction_reduce_single_row, %g, %g\n", time_reduce_single_row, (double) time_reduce_single_row / time_kernel_total);
+
 	return 0;
 }
 

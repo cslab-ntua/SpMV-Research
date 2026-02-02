@@ -76,6 +76,90 @@ struct thread_data {
 };
 
 
+int
+z_order_comp(const void * a_ptr, const void * b_ptr, void * aux)
+{
+	INT_T a = *((INT_T *) a_ptr);
+	INT_T b = *((INT_T *) b_ptr);
+	uint64_t * z_pos = (uint64_t *) aux;
+	return (z_pos[a] > z_pos[b]) ? 1 : (z_pos[a] < z_pos[b]) ? -1 : 0;
+}
+
+void
+z_order_permutation_serial(INT_T * row_ind, INT_T * col_ind, ValueTypeReference * values, long nnz,
+		INT_T ** row_ind_ret, INT_T ** col_ind_ret, ValueType ** a_ret)
+{
+	uint64_t * z_pos = (typeof(z_pos)) aligned_alloc(64, nnz * sizeof(*z_pos));
+	INT_T * rev_permutation = (typeof(rev_permutation)) aligned_alloc(64, nnz * sizeof(*rev_permutation));
+	long i;
+	for (i=0;i<nnz;i++)
+	{
+		z_pos[i] = bits_u32_interleave(row_ind[i], col_ind[i]);
+		rev_permutation[i] = i;
+	}
+
+	qsort_r(rev_permutation, nnz, sizeof(*rev_permutation), z_order_comp, (void *) z_pos);
+
+	INT_T * tmp_row_ind = (typeof(tmp_row_ind)) aligned_alloc(64, nnz * sizeof(*tmp_row_ind));
+	INT_T * tmp_col_ind = (typeof(tmp_col_ind)) aligned_alloc(64, nnz * sizeof(*tmp_col_ind));
+	ValueType * tmp_a = (typeof(tmp_a)) aligned_alloc(64, nnz * sizeof(*tmp_a));
+	for (i=0;i<nnz;i++)
+	{
+		tmp_row_ind[i] = row_ind[rev_permutation[i]];
+		tmp_col_ind[i] = col_ind[rev_permutation[i]];
+		tmp_a[i] = values[rev_permutation[i]];
+	}
+
+	free(z_pos);
+	free(rev_permutation);
+	*row_ind_ret = tmp_row_ind;
+	*col_ind_ret = tmp_col_ind;
+	*a_ret = tmp_a;
+}
+
+
+void
+z_order_permutation(INT_T * row_ind, INT_T * col_ind, ValueTypeReference * values, long nnz,
+		INT_T ** row_ind_ret, INT_T ** col_ind_ret, ValueType ** a_ret)
+{
+	uint64_t * z_pos = (typeof(z_pos)) aligned_alloc(64, nnz * sizeof(*z_pos));
+	INT_T * rev_permutation = (typeof(rev_permutation)) aligned_alloc(64, nnz * sizeof(*rev_permutation));
+	#pragma omp parallel
+	{
+		long i;
+		#pragma omp for
+		for (i=0;i<nnz;i++)
+		{
+			z_pos[i] = bits_u32_interleave(row_ind[i], col_ind[i]);
+			rev_permutation[i] = i;
+		}
+	}
+
+	samplesort(rev_permutation, nnz, z_pos);
+
+	INT_T * tmp_row_ind = (typeof(tmp_row_ind)) aligned_alloc(64, nnz * sizeof(*tmp_row_ind));
+	INT_T * tmp_col_ind = (typeof(tmp_col_ind)) aligned_alloc(64, nnz * sizeof(*tmp_col_ind));
+	ValueType * tmp_a = (typeof(tmp_a)) aligned_alloc(64, nnz * sizeof(*tmp_a));
+	#pragma omp parallel
+	{
+		long i;
+		#pragma omp for
+		for (i=0;i<nnz;i++)
+		{
+			tmp_row_ind[i] = row_ind[rev_permutation[i]];
+			tmp_col_ind[i] = col_ind[rev_permutation[i]];
+			tmp_a[i] = values[rev_permutation[i]];
+		}
+	}
+
+	free(z_pos);
+	free(rev_permutation);
+	*row_ind_ret = tmp_row_ind;
+	*col_ind_ret = tmp_col_ind;
+	*a_ret = tmp_a;
+}
+
+
 struct COO : Matrix_Format
 {
 	INT_T * row_ind;
@@ -111,39 +195,13 @@ struct COO : Matrix_Format
 			}
 		}
 
-
-		uint64_t * z_pos = (typeof(z_pos)) aligned_alloc(64, nnz * sizeof(*z_pos));
-		INT_T * rev_permutation = (typeof(rev_permutation)) aligned_alloc(64, nnz * sizeof(*rev_permutation));
-		#pragma omp parallel
-		{
-			long j;
-			#pragma omp for
-			for (j=0;j<nnz;j++)
-			{
-				z_pos[j] = bits_u32_interleave(row_ind[j], col_ind[j]);
-				rev_permutation[j] = j;
-			}
-		}
-		samplesort(rev_permutation, nnz, z_pos);
-		INT_T * tmp_row_ind = (typeof(row_ind)) aligned_alloc(64, nnz * sizeof(*row_ind));
-		INT_T * tmp_col_ind = (typeof(col_ind)) aligned_alloc(64, nnz * sizeof(*col_ind));
-		ValueType * tmp_a = (typeof(a)) aligned_alloc(64, nnz * sizeof(*a));
-		#pragma omp parallel
-		{
-			long j;
-			#pragma omp for
-			for (j=0;j<nnz;j++)
-			{
-				tmp_row_ind[j] = row_ind[rev_permutation[j]];
-				tmp_col_ind[j] = col_ind[rev_permutation[j]];
-				tmp_a[j] = a[rev_permutation[j]];
-			}
-		}
+		INT_T * tmp_row_ind;
+		INT_T * tmp_col_ind;
+		ValueType * tmp_a;
+		z_order_permutation(row_ind, col_ind, a, nnz, &tmp_row_ind, &tmp_col_ind, &tmp_a);
 		free(row_ind);
 		free(col_ind);
 		free(a);
-		free(z_pos);
-		free(rev_permutation);
 		row_ind = tmp_row_ind;
 		col_ind = tmp_col_ind;
 		a = tmp_a;

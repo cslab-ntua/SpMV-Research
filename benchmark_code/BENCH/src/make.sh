@@ -120,12 +120,11 @@ elif [[ ${ARCH} == aarch64 ]]; then
     CFLAGS+=" -march=native"
     # CFLAGS+=" -march=armv8.6-a+sve2" # NOTE: this may produce better results? wtf
     CFLAGS+=" -mcpu=native" # don't know if -mcpu or -march are needed...
-
     CFLAGS+=" -flax-vector-conversions"
     # CFLAGS+=" -msve-vector-bits=512"
     # CFLAGS+=" -msve-vector-bits=256"
     CFLAGS+=" -msve-vector-bits=128"
-    CFLAGS+=" -g" # don't know if this is needed
+    # CFLAGS+=" -g" # don't know if this is needed
 elif [[ ${ARCH} == riscv64 || ${ARCH} == rave ]]; then
     case "${ARCH}" in
         riscv64)
@@ -268,7 +267,7 @@ NVCCFLAGS=
 NVCCFLAGS+=" -allow-unsupported-compiler"
 # NVCCFLAGS+=" --dlink-time-opt"
 # NVCCFLAGS+=' -gencode arch=compute_80,code=sm_80'
-NVCCFLAGS+=' -gencode arch=compute_90,code=sm_90'
+NVCCFLAGS+=" -gencode arch=compute_${CUDA_COMPUTE},code=sm_${CUDA_COMPUTE}"
 NVCCFLAGS+=' -DPERSISTENT_L2_PREFETCH'
 # NVCCFLAGS+=' -lineinfo'
 # NVCCFLAGS+=' -G -g'

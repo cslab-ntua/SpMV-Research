@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <omp.h>
 
-// #include <cuda.h>
-// #include <cooperative_groups.h>
+#include <cuda.h>
+#include <cooperative_groups.h>
+// #include <cuda_pipeline_primitives.h>
+using namespace cooperative_groups;
 
 #include "macros/cpp_defines.h"
 
@@ -42,9 +44,9 @@ extern "C" {
 #undef BLOCK_SIZE
 // #define BLOCK_SIZE  32
 // #define BLOCK_SIZE  64
-// #define BLOCK_SIZE  128
+#define BLOCK_SIZE  128
 // #define BLOCK_SIZE  256
-#define BLOCK_SIZE  512
+// #define BLOCK_SIZE  512
 // #define BLOCK_SIZE  1024
 
 
@@ -312,7 +314,8 @@ struct DIVArray : Matrix_Format
 		dim3 grid_dims(num_thread_blocks);
 		// long shared_mem_size = BLOCK_SIZE * (sizeof(ValueType));
 		// long shared_mem_size = BLOCK_SIZE * (sizeof(ValueType) + sizeof(INT_T));
-		long shared_mem_size = 256 * sizeof(ValueType);
+		// long shared_mem_size = 256 * sizeof(ValueType);
+		long shared_mem_size = BLOCK_SIZE * sizeof(uint8_t);
 		// long shared_mem_size = 0;
 		decompress_kernel_div<<<grid_dims, block_dims, shared_mem_size>>>(coo_ia_new_d, coo_ja_new_d, coo_a_new_d, compr_data_d, packet_data_offsets_d, packet_nnz_offsets_d);
 
@@ -480,7 +483,8 @@ compute_div(DIVArray * restrict csr, ValueType * restrict x, ValueType * restric
 	// long shared_mem_size = BLOCK_SIZE * (sizeof(ValueType));
 	// long shared_mem_size = BLOCK_SIZE * (sizeof(ValueType) + sizeof(INT_T));
 	// long shared_mem_size = 256 * sizeof(ValueType);
-	long shared_mem_size = 0;
+	long shared_mem_size = BLOCK_SIZE * sizeof(uint8_t);
+	// long shared_mem_size = 0;
 
 	if (csr->x == NULL)
 	{

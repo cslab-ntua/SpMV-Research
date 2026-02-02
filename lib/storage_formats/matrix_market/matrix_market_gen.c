@@ -81,7 +81,7 @@ mtx_gen_expand_symmetry(struct Matrix_Market * MTX)
 		long i, i_s, i_e, j;
 		long non_diag = 0;
 
-		loop_partitioner_balance_iterations(num_threads, tnum, 0, MTX->nnz_sym, &i_s, &i_e);
+		loop_partitioner_balance_iterations(num_threads, tnum, 0, MTX->nnz_stored, &i_s, &i_e);
 
 		for (i=i_s;i<i_e;i++)
 		{
@@ -106,7 +106,7 @@ mtx_gen_expand_symmetry(struct Matrix_Market * MTX)
 
 		_Pragma("omp barrier")
 
-		j = MTX->nnz_sym + offsets[tnum];
+		j = MTX->nnz_stored + offsets[tnum];
 		for (i=i_s;i<i_e;i++)
 		{
 			if (C[i] != R[i])
@@ -124,6 +124,7 @@ mtx_gen_expand_symmetry(struct Matrix_Market * MTX)
 			}
 		}
 	}
+	MTX->nnz_stored = 2 * MTX->nnz_non_diag + MTX->nnz_diag;
 	MTX->symmetry_expanded = 1;
 }
 
@@ -139,7 +140,7 @@ mtx_gen_parse_coordinate_format(char ** lines, long * lengths, struct Matrix_Mar
 	int * C = MTX->C;
 	TYPE * V = (typeof(V)) MTX->V;
 	long non_diag_total = 0;
-	long num_lines = MTX->nnz_sym;
+	long num_lines = MTX->nnz_stored;
 
 	_Pragma("omp parallel")
 	{
@@ -181,7 +182,7 @@ mtx_gen_parse_coordinate_format(char ** lines, long * lengths, struct Matrix_Mar
 
 		_Pragma("omp single")
 		{
-			long diag = MTX->nnz_sym - non_diag_total;
+			long diag = MTX->nnz_stored - non_diag_total;
 			MTX->nnz_diag = diag;
 			MTX->nnz_non_diag = non_diag_total;
 		}
@@ -190,7 +191,7 @@ mtx_gen_parse_coordinate_format(char ** lines, long * lengths, struct Matrix_Mar
 		{
 			_Pragma("omp single")
 			{
-				MTX->nnz = 2*MTX->nnz_non_diag + MTX->nnz_diag;
+				MTX->nnz_matrix = 2 * MTX->nnz_non_diag + MTX->nnz_diag;
 			}
 		}
 	}
@@ -239,10 +240,10 @@ mtx_gen_to_string(struct Matrix_Market * MTX)
 
 	v = dynarray_new(0);
 
-	len = snprintf(buf, buf_n, "%ld %ld %ld\n", MTX->m, MTX->n, MTX->nnz);
+	len = snprintf(buf, buf_n, "%ld %ld %ld\n", MTX->m, MTX->n, MTX->nnz_matrix);
 	dynarray_push_back_array(v, buf, len);
 
-	for (i=0;i<MTX->nnz;i++)
+	for (i=0;i<MTX->nnz_matrix;i++)
 	{
 		len = 0;
 		len += gen_numtostr(buf+len, buf_n-len, "", R[i] + 1);  // Base 1 arrays.
@@ -284,13 +285,13 @@ mtx_gen_to_string_par(struct Matrix_Market * MTX, char ** str_ptr)
 		char buf[buf_n];
 		long i, i_s, i_e;
 
-		loop_partitioner_balance_iterations(num_threads, tnum, 0, MTX->nnz, &i_s, &i_e);
+		loop_partitioner_balance_iterations(num_threads, tnum, 0, MTX->nnz_matrix, &i_s, &i_e);
 
 		v = dynarray_new(0);
 
 		if (tnum == 0)
 		{
-			len = snprintf(buf, buf_n, "%ld %ld %ld\n", MTX->m, MTX->n, MTX->nnz);
+			len = snprintf(buf, buf_n, "%ld %ld %ld\n", MTX->m, MTX->n, MTX->nnz_matrix);
 			dynarray_push_back_array(v, buf, len);
 		}
 

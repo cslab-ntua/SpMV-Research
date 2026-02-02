@@ -537,10 +537,8 @@ do {                                                 \
 #define __macros_binary_search(_A, _index_lower_value, _index_upper_value, _target, _boundary_lower_ptr_out, _boundary_upper_ptr_out, _cmp_fun, _dist_fun)    \
 ({                                                                                                                                                            \
 	RENAME((_A, A), (_index_lower_value, index_lower_value), (_index_upper_value, index_upper_value), (_target, target),                                  \
-			(_boundary_lower_ptr_out, __boundary_lower_ptr_out, long *), (_boundary_upper_ptr_out, __boundary_upper_ptr_out, long *))             \
+			(_boundary_lower_ptr_out, boundary_lower_ptr_out, long *), (_boundary_upper_ptr_out, boundary_upper_ptr_out, long *))                 \
 	long s, e, m, ret;                                                                                                                                    \
-	long * boundary_lower_ptr_out = __boundary_lower_ptr_out;                                                                                             \
-	long * boundary_upper_ptr_out = __boundary_upper_ptr_out;                                                                                             \
                                                                                                                                                               \
 	s = (index_lower_value);                                                                                                                              \
 	e = (index_upper_value);                                                                                                                              \

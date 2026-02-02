@@ -254,7 +254,7 @@ COOArrays::spmv(ValueType * x, ValueType * y)
 
 
 struct Matrix_Format *
-coo_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded)
+csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded)
 {
 	if (symmetric && !symmetry_expanded)
 		error("symmetric matrices not supported by this format, expand symmetry");

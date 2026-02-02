@@ -388,8 +388,8 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
 		/*****************************************************************************************/
 
-		// gflops = (csr->nnz_expanded_symmetry * K * 2) / time_total * num_loops * 1e-9;
-		gflops = (csr->nnz_expanded_symmetry * K * 2) / time_median * 1e-9;
+		// gflops = (csr->nnz_matrix * K * 2) / time_total * num_loops * 1e-9;
+		gflops = (csr->nnz_matrix * K * 2) / time_median * 1e-9;
 		printf("GFLOPS = %lf (%s)\n", gflops, getenv("PROGG"));
 	}
 

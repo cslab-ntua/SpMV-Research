@@ -614,6 +614,100 @@ compress_kernel_div(INT_T * row_ptr, INT_T * ja, ValueTypeReference * vals, __at
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+//------------------------------------------------------------------------------------------------------------------------------------------
+//- Reduce
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+
+template<typename T, typename group_t>
+static __attribute__((always_inline)) inline
+__device__
+T
+warp_scan_reduce_inclusive(group_t g, T value)
+{
+	int lane = g.thread_rank();
+	T prev;
+	int i;
+	#pragma unroll
+	for (i=1;i<32;i*=2)
+	{
+		prev = g.shfl_up(value, i);
+		if (lane >= i)
+			value += prev;
+	}
+	return value;
+}
+
+
+template<typename T, typename group_t>
+static __attribute__((always_inline)) inline
+__device__
+T
+warp_scan_reduce_exclusive(group_t g, T value)
+{
+	return warp_scan_reduce_inclusive(g, value) - value;
+}
+
+
+
+template<typename T, typename group_t>
+static __attribute__((always_inline)) inline
+__device__
+T
+warp_segmented_reduce(group_t g, int color, T value, T * per_color_sums_ret)
+{
+	int lane = g.thread_rank();
+	int i;
+	int mask_same = g.match_any(color);
+	ValueType sum = value;
+	#pragma unroll
+	for (i=g.size()/2; i>=1; i/=2)
+	{
+		int tidl_next = lane + i;
+		ValueType val_next = g.shfl(sum, tidl_next);
+		if ((tidl_next < g.size()) && (mask_same & (1 << tidl_next)))
+		{
+			sum += val_next;
+		}
+	}
+	if (lane == __ffs(mask_same) - 1)
+		atomicAdd(&per_color_sums_ret[color], sum);
+	return sum;
+}
+
+
+template<typename T, typename group_t>
+static __attribute__((always_inline)) inline
+__device__
+void
+warp_reduce_colored(group_t g, int color, T value, T * per_color_sums_ret,
+		uint8_t shared_rev_offsets[32])
+{
+	int lane = g.thread_rank();
+
+	uint32_t mask_same = g.match_any(color);
+	int num_same = __popc(mask_same);
+	int lane_leader = __ffs(mask_same) - 1;  // __ffs enumeration is 1-based.
+
+	int offset_local = __popc(mask_same & ((1 << lane) - 1));
+
+	int offset_base = warp_scan_reduce_exclusive(g, (lane_leader == lane) ? num_same : 0);
+	offset_base = g.shfl(offset_base, lane_leader);
+
+	int offset = offset_base + offset_local;
+
+	shared_rev_offsets[offset] = lane;
+
+	g.sync();
+
+	T value_new = g.shfl(value, shared_rev_offsets[lane]);
+	int color_new = g.shfl(color, shared_rev_offsets[lane]);
+
+	// Segmented reduce.
+	warp_segmented_reduce(g, color_new, value_new, per_color_sums_ret);
+}
+
+
 //==========================================================================================================================================
 //= Decompress
 //==========================================================================================================================================
@@ -627,6 +721,7 @@ decompress_and_compute_kernel_div_base(unsigned char * restrict buf, ValueType *
 		)
 {
 	// extern __shared__ ValueType y_rel_buf[];
+	extern __shared__ uint8_t shared_rev_offsets[];
 
 	const int tid = threadIdx.x;
 
@@ -732,8 +827,16 @@ decompress_and_compute_kernel_div_base(unsigned char * restrict buf, ValueType *
 		}
 		else
 		{
+
+			const int warp_id = threadIdx.x / 32;
+			thread_block_tile<32> tile32 = tiled_partition<32>(this_thread_block());
+			ValueType prod;
+			prod = val.d * x_rel[col_rel];
+			warp_reduce_colored(tile32, row_rel, prod, y_rel, &shared_rev_offsets[warp_id*32]);
+			// atomicAdd(&y_rel[row_rel], prod);
+
+			// atomicAdd(&y_rel[row_rel], val.d * x_rel[col_rel]);
 			// y_rel[row_rel] += val.d * x_rel[col_rel];
-			atomicAdd(&y_rel[row_rel], val.d * x_rel[col_rel]);
 			// atomicAdd_block(&y_rel_buf[row_rel], val.d * x_rel[col_rel]);
 			// y_rel_buf[row_rel] += val.d * x_rel[col_rel];
 		}

@@ -142,6 +142,7 @@ import_file(struct CSR_reference_s * csr)
 	long coo_m = 0;
 	long coo_n = 0;
 	long coo_nnz = 0;
+	long coo_nnz_matrix = 0;
 	long coo_nnz_diag = 0;
 	long coo_nnz_non_diag = 0;
 
@@ -161,6 +162,7 @@ import_file(struct CSR_reference_s * csr)
 			coo_m = N;
 			coo_n = N;
 			coo_nnz = N + nnz_non_diag;
+			coo_nnz_matrix = N + 2*nnz_non_diag;
 			coo_rowind = (typeof(coo_rowind)) aligned_alloc(64, coo_nnz * sizeof(*coo_rowind));
 			coo_colind = (typeof(coo_colind)) aligned_alloc(64, coo_nnz * sizeof(*coo_colind));
 			coo_val = (typeof(coo_val)) aligned_alloc(64, coo_nnz * sizeof(*coo_val));
@@ -177,7 +179,7 @@ import_file(struct CSR_reference_s * csr)
 		else   // MTX format
 		{
 			long pattern_dummy_vals = 1;
-			MTX = mtx_read(csr->filename, csr->expanded_symmetry, pattern_dummy_vals);
+			MTX = mtx_read(csr->filename, expand_symmetry, pattern_dummy_vals);
 			coo_rowind = MTX->R;
 			coo_colind = MTX->C;
 			coo_m = MTX->m;
@@ -185,11 +187,8 @@ import_file(struct CSR_reference_s * csr)
 			coo_nnz_diag = MTX->nnz_diag;
 			coo_nnz_non_diag = MTX->nnz_non_diag;
 			symmetric = MTX->symmetric;
-			#ifdef KEEP_SYMMETRY
-				coo_nnz = MTX->nnz_sym;
-			#else
-				coo_nnz = MTX->nnz;
-			#endif
+			coo_nnz = MTX->nnz_stored;
+			coo_nnz_matrix = MTX->nnz_matrix;
 			mtx_values_convert_to_real(MTX);
 			coo_val = (typeof(coo_val)) MTX->V;
 			MTX->R = NULL;
@@ -207,9 +206,9 @@ import_file(struct CSR_reference_s * csr)
 		csr->m = coo_m;
 		csr->n = coo_n;
 		csr->nnz = coo_nnz;
+		csr->nnz_matrix = coo_nnz_matrix;
 		csr->nnz_diag = coo_nnz_diag;
 		csr->nnz_non_diag = coo_nnz_non_diag;
-		csr->nnz_expanded_symmetry = 2*coo_nnz_non_diag + coo_nnz_diag;
 		csr->symmetric = symmetric;
 		csr->expanded_symmetry = expand_symmetry;
 		_Pragma("omp parallel for")

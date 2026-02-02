@@ -28,7 +28,8 @@
  *
  * m   : num rows
  * n   : num columns
- * nnz : num of non-zeros
+ * nnz_stored : num of non-zeros stored
+ * nnz_matrix : actual num of non-zeros of the matrix
  *
  * R : row indexes
  * C : column indexes
@@ -48,8 +49,8 @@ struct Matrix_Market {
 
 	long m;
 	long n;
-	long nnz;
-	long nnz_sym;
+	long nnz_stored;
+	long nnz_matrix;
 
 	long nnz_diag;
 	long nnz_non_diag;

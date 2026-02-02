@@ -488,7 +488,7 @@ __attribute__((hot,pure))
 static __attribute__((always_inline)) inline
 __device__
 uint64_t
-lut_extract_idx_len1(__attribute__((unused)) long a_idx_len, unsigned char * a_idx, long j)
+lut_extract_idx_len1(unsigned char * a_idx, long j)
 {
 	uint64_t idx = a_idx[j];
 	return idx;
@@ -498,9 +498,9 @@ __attribute__((hot,pure))
 static __attribute__((always_inline)) inline
 __device__
 uint64_t
-lut_extract_idx_len2(__attribute__((unused)) long a_idx_len, unsigned char * a_idx, long j)
+lut_extract_idx_len2(unsigned char * a_idx, long j)
 {
-	uint64_t idx = *((uint16_t *)&a_idx[j*a_idx_len]);
+	uint64_t idx = ((uint16_t *)a_idx)[j];
 	return idx;
 }
 
@@ -508,34 +508,33 @@ __attribute__((hot,pure))
 static __attribute__((always_inline)) inline
 __device__
 uint64_t
-lut_extract_idx_len4(__attribute__((unused)) long a_idx_len, unsigned char * a_idx, long j)
+lut_extract_idx_len4(unsigned char * a_idx, long j)
 {
-	uint64_t idx = *((uint32_t *)&a_idx[j*a_idx_len]);
+	uint64_t idx = ((uint32_t *)a_idx)[j];
 	return idx;
 }
 
 
 template <typename group_t>
-static __attribute__((always_inline)) inline
+inline
 __device__
 void
 reduce_warp(group_t g, INT_T row, ValueType val, ValueType * restrict y)
 {
-	const int lane = g.thread_rank();   // Group lane.
+	const int tidw = g.thread_rank();   // Group lane.
 	int mask_same_row = g.match_any(row);
-	// int mask_same_row = 1 << lane;
 	int k;
 	#pragma unroll
 	for (k=g.size()/2; k>=1; k/=2)
 	{
-		int lane_next = lane + k;
-		ValueType val_next = g.shfl(val, lane_next);
-		if ((lane_next < g.size()) && ((1 << (lane_next)) & mask_same_row))
+		int tidl_next = tidw + k;
+		ValueType val_next = g.shfl(val, tidl_next);
+		if ((tidl_next < g.size()) && (mask_same_row & (1 << tidl_next)))
 		{
 			val += val_next;
 		}
 	}
-	if (lane == __ffs(mask_same_row) - 1)  // __ffs enumeration is 1-based.
+	if (tidw == __ffs(mask_same_row) - 1)  // __ffs enumeration is 1-based.
 		atomicAdd(&y[row], val);
 }
 
@@ -556,7 +555,7 @@ __device__
 void
 spmv_last_block(INT_T * thread_i_s, INT_T * thread_warp_i_s, INT_T * thread_warp_i_e, INT_T * row_ptr, INT_T * ja,
 		ValueType * lut, unsigned char * a_idx,	long a_idx_len,
-		T_IDX (* extract_idx)(long a_idx_len, unsigned char * a_idx, long j),
+		T_IDX (* extract_idx)(unsigned char * a_idx, long j),
 		ValueType * a, long m, long n, long nnz, ValueType * restrict x, ValueType * restrict y)
 {
 	// extern __shared__ char sm[];
@@ -590,7 +589,7 @@ spmv_last_block(INT_T * thread_i_s, INT_T * thread_warp_i_s, INT_T * thread_warp
 		}
 		// sum += a[j] * x[ja[j] & 0x7FFFFFFF];
 		// sum = __fma_rn(a[j], x[ja[j] & 0x7FFFFFFF], sum);
-		sum = __fma_rn(lut[extract_idx(a_idx_len, a_idx, j)], x[ja[j] & 0x7FFFFFFF], sum);
+		sum = __fma_rn(lut[extract_idx(a_idx, j)], x[ja[j] & 0x7FFFFFFF], sum);
 	}
 	reduce_block(i, sum, y);
 }
@@ -619,7 +618,7 @@ __device__
 void
 spmv_full_warp(group_t g, int single_row, int i_s, int j_s, int j_b_s, int j_w_s, INT_T * row_ptr, INT_T * ja,
 		ValueType * lut, unsigned char * a_idx,	long a_idx_len,
-		T_IDX (* extract_idx)(long a_idx_len, unsigned char * a_idx, long j),
+		T_IDX (* extract_idx)(unsigned char * a_idx, long j),
 		ValueType * a, ValueType * restrict x, ValueType * restrict y)
 {
 	// extern __shared__ double x_smem[];
@@ -648,8 +647,8 @@ spmv_full_warp(group_t g, int single_row, int i_s, int j_s, int j_b_s, int j_w_s
 			// __pipeline_commit();
 		// }
 		// sum = __fma_rn(a[jj], x[ja[jj] & 0x7FFFFFFF], sum);
-		sum = __fma_rn(lut[extract_idx(a_idx_len, a_idx, jj)], x[ja[jj] & 0x7FFFFFFF], sum);
-		// sum = __fma_rn(lut[extract_idx(a_idx_len, a_idx, j)], x[ja[jj] & 0x7FFFFFFF], sum);
+		sum = __fma_rn(lut[extract_idx(a_idx, jj)], x[ja[jj] & 0x7FFFFFFF], sum);
+		// sum = __fma_rn(lut[extract_idx(a_idx, j)], x[ja[jj] & 0x7FFFFFFF], sum);
 	}
 	if (single_row)
 	{
@@ -670,7 +669,7 @@ __device__
 void
 spmv_full_block(INT_T * thread_i_s, INT_T * thread_warp_i_s, INT_T * thread_warp_i_e, INT_T * row_ptr, INT_T * ja,
 		ValueType * lut, unsigned char * a_idx,	long a_idx_len,
-		T_IDX (* extract_idx)(long a_idx_len, unsigned char * a_idx, long j),
+		T_IDX (* extract_idx)(unsigned char * a_idx, long j),
 		ValueType * a, long m, long n, long nnz, ValueType * restrict x, ValueType * restrict y)
 {
 	// extern __shared__ char sm[];

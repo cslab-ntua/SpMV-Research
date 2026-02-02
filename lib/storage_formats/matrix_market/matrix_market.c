@@ -221,23 +221,23 @@ mtx_parse_header(struct File_Atoms * A, struct Matrix_Market * MTX)
 		i++;
 
 	// M rows, N columns
-	long M, N, nnz_sym, nnz;
+	long M, N, nnz_stored, nnz_matrix;
 	if (!strcmp(format, "coordinate"))
 	{
-		if (sscanf(lines[i++], "%ld%ld%ld", &M, &N, &nnz_sym) != 3)
+		if (sscanf(lines[i++], "%ld%ld%ld", &M, &N, &nnz_stored) != 3)
 			error("Error parsing MARKET matrix '%s': invalid/missing matrix sizes: %s\n", MTX->filename, lines[i-1]);
-		nnz = symmetric ? 2 * nnz_sym : nnz_sym;   // If symmetric, just place a worst case estimation for the mallocs.
+		nnz_matrix = symmetric ? 2 * nnz_stored : nnz_stored;   // If symmetric, just place a worst case estimation for the mallocs.
 	}
 	else
 	{
 		if (sscanf(lines[i++], "%ld%ld", &M, &N) != 2)
 			error("Error parsing MARKET matrix '%s': invalid/missing matrix sizes: %s\n", MTX->filename, lines[i-1]);
-		nnz = M*N;
-		nnz_sym = M*N;
+		nnz_stored = M*N;
+		nnz_matrix = M*N;
 	}
 
-	if (nnz_sym != A->num_atoms - i)
-		error("Error parsing MARKET matrix '%s': remaining number of file lines (%ld) don't match the number of non-zeros (%d)\n", MTX->filename, A->num_atoms - i, nnz_sym);
+	if (nnz_stored != A->num_atoms - i)
+		error("Error parsing MARKET matrix '%s': remaining number of file lines (%ld) don't match the number of non-zeros (%d)\n", MTX->filename, A->num_atoms - i, nnz_stored);
 
 	MTX->format = format;
 	MTX->field = field;
@@ -248,8 +248,8 @@ mtx_parse_header(struct File_Atoms * A, struct Matrix_Market * MTX)
 	MTX->symmetry_expanded = MTX->symmetric ? 0 : 1;
 	MTX->m = M;
 	MTX->n = N;
-	MTX->nnz = nnz;
-	MTX->nnz_sym = nnz_sym;
+	MTX->nnz_stored = nnz_stored;
+	MTX->nnz_matrix = nnz_matrix;   // Estimation for now if symmetric.
 
 	return i;
 }
@@ -268,8 +268,8 @@ mtx_read(char * filename, long expand_symmetry, long pattern_dummy_vals)
 	i = mtx_parse_header(A, MTX);
 	if (!strcmp(MTX->format, "coordinate"))
 	{
-		MTX->R = malloc(MTX->nnz * sizeof(*(MTX->R)));
-		MTX->C = malloc(MTX->nnz * sizeof(*(MTX->C)));
+		MTX->R = malloc(MTX->nnz_matrix * sizeof(*(MTX->R)));
+		MTX->C = malloc(MTX->nnz_matrix * sizeof(*(MTX->C)));
 	}
 	else
 	{
@@ -282,21 +282,21 @@ mtx_read(char * filename, long expand_symmetry, long pattern_dummy_vals)
 	{
 		#undef  SUFFIX
 		#define SUFFIX  _f
-		MTX->V = malloc(MTX->nnz * sizeof(MATRIX_MARKET_FLOAT_T));
+		MTX->V = malloc(MTX->nnz_matrix * sizeof(MATRIX_MARKET_FLOAT_T));
 		mtx_gen_parse_data(lines, lengths, MTX, expand_symmetry);
 	}
 	else if (!strcmp(MTX->field, "integer"))
 	{
 		#undef  SUFFIX
 		#define SUFFIX  _i
-		MTX->V = malloc(MTX->nnz * sizeof(int));
+		MTX->V = malloc(MTX->nnz_matrix * sizeof(int));
 		mtx_gen_parse_data(lines, lengths, MTX, expand_symmetry);
 	}
 	else if (!strcmp(MTX->field, "complex"))
 	{
 		#undef  SUFFIX
 		#define SUFFIX  _cf
-		MTX->V = malloc(MTX->nnz * sizeof(complex MATRIX_MARKET_FLOAT_T));
+		MTX->V = malloc(MTX->nnz_matrix * sizeof(complex MATRIX_MARKET_FLOAT_T));
 		mtx_gen_parse_data(lines, lengths, MTX, expand_symmetry);
 	}
 	else if (!strcmp(MTX->field, "pattern"))
@@ -307,11 +307,11 @@ mtx_read(char * filename, long expand_symmetry, long pattern_dummy_vals)
 		mtx_gen_parse_data(lines, lengths, MTX, expand_symmetry);
 		if (pattern_dummy_vals)
 		{
-			MTX->V = malloc(MTX->nnz * sizeof(MATRIX_MARKET_FLOAT_T));
+			MTX->V = malloc(MTX->nnz_matrix * sizeof(MATRIX_MARKET_FLOAT_T));
 			#pragma omp parallel
 			{
 				#pragma omp for
-				for (i=0;i<MTX->nnz;i++)
+				for (i=0;i<MTX->nnz_matrix;i++)
 					((MATRIX_MARKET_FLOAT_T *) MTX->V)[i] = 1.0;
 			}
 		}
@@ -423,17 +423,17 @@ mtx_values_convert_to_real(struct Matrix_Market * MTX)
 	MATRIX_MARKET_FLOAT_T * values = NULL;
 	if (!strcmp(MTX->field, "integer"))
 	{
-		values = (typeof(values)) malloc(MTX->nnz * sizeof(*values));
+		values = (typeof(values)) malloc(MTX->nnz_matrix * sizeof(*values));
 		_Pragma("omp parallel for")
-		for (long i=0;i<MTX->nnz;i++)
+		for (long i=0;i<MTX->nnz_matrix;i++)
 			values[i] = ((int *) MTX->V)[i];
 		free(MTX->V);
 	}
 	else if (!strcmp(MTX->field, "complex"))
 	{
-		values = (typeof(values)) malloc(MTX->nnz * sizeof(*values));
+		values = (typeof(values)) malloc(MTX->nnz_matrix * sizeof(*values));
 		_Pragma("omp parallel for")
-		for (long i=0;i<MTX->nnz;i++)
+		for (long i=0;i<MTX->nnz_matrix;i++)
 			values[i] = cabs(((complex MATRIX_MARKET_FLOAT_T *) MTX->V)[i]);
 		free(MTX->V);
 	}
@@ -488,11 +488,11 @@ mtx_plot_base(struct Matrix_Market * MTX, char * filename, int plot_density)
 	len = strlen(matrix_name);
 	memmove(buf, matrix_name, len);
 
-	snprintf(buf+len, buf_n-len, " ,  m=%ld n=%ld nnz=%ld", MTX->m, MTX->n, MTX->nnz);
+	snprintf(buf+len, buf_n-len, " ,  m=%ld n=%ld nnz=%ld", MTX->m, MTX->n, MTX->nnz_matrix);
 	figure_set_title(fig, buf);
 
 	if (!strcmp(MTX->format, "coordinate"))
-		s = figure_add_series(fig, MTX->C, MTX->R, MTX->V, MTX->nnz, 0, , , mtx_functor_get_value_as_double(MTX));
+		s = figure_add_series(fig, MTX->C, MTX->R, MTX->V, MTX->nnz_matrix, 0, , , mtx_functor_get_value_as_double(MTX));
 	else
 		s = figure_add_series(fig, NULL, NULL, MTX->V, MTX->n, MTX->m, , , mtx_functor_get_value_as_double(MTX));
 
