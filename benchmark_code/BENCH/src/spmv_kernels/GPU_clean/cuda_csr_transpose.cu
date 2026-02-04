@@ -403,6 +403,9 @@ spmv_last_block(INT_T * thread_i_s, INT_T * thread_warp_i_s, INT_T * thread_warp
 	i_e = thread_warp_i_e[wid];
 	i = binary_search_gpu(row_ptr, i_s, i_e, j_s);
 
+	if (i >= m)
+		i = m-1;
+
 	double sum = 0;
 	for (j=j_s;j<j_e;j++)
 	{

@@ -67,8 +67,6 @@ num_cores="$(( num_cpus / $(echo "$cpu_info" | awk '/^Thread\(s\) per core:/ {pr
 
 
 # To reproduce results, this environment variable has to change to the root directory of the ARM Compiler (<ARM-Compiler-Path> in README.md)
-# export ARM_ROOT_DIR="<ARM-Compiler-Path>"
-
 # export ARM_ROOT_DIR=/home/spmv/arm/
 export ARM_ROOT_DIR=/local/pmpakos/arm-compiler/
 
@@ -81,6 +79,7 @@ export GCC_ROOT_DIR=${ARM_ROOT_DIR}/gcc-13.2.0_Ubuntu-22.04/
 # export ARMPL_ROOT_DIR=${ARM_ROOT_DIR}/armpl-22.0.1_AArch64_Ubuntu-20.04_gcc_aarch64-linux/
 export ARMPL_ROOT_DIR=${ARM_ROOT_DIR}/armpl-24.04.0_Ubuntu-22.04_gcc/
 
+
 # export SPARSEX_ROOT_DIR="${HOME}/lib"
 # export SPARSEX_ROOT_DIR=/various/dgal/epyc1
 # export SPARSEX_ROOT_DIR=/home/pmpakos/sparsex
@@ -88,6 +87,7 @@ export ARMPL_ROOT_DIR=${ARM_ROOT_DIR}/armpl-24.04.0_Ubuntu-22.04_gcc/
 export SPARSEX_ROOT_DIR=/pfs/lustrep2/scratch/project_465000869/pmpakos/damned_directory/
 # export SPARSEX_ROOT_DIR=/leonardo_scratch/fast/EUHPC_D12_058/pmpakos/damned_directory
 # export SPARSEX_ROOT_DIR="/local/pmpakos/damned_directory"
+
 
 declare -A conf_vars
 conf_vars=(
@@ -222,7 +222,8 @@ conf_vars=(
     ['RAPL_REGISTERS']='0'         # 1 socket : Epyc1, Gold
     # ['RAPL_REGISTERS']='0,1'       # 2 sockets: Epyc1, Gold
 
-    # Path for the mkl library.
+
+    # Paths for the mkl library.
     # ['MKL_PATH']='/opt/intel/oneapi/mkl/latest'
     ['MKL_PATH']="$( options=(
                         "$MKLROOT"
@@ -235,13 +236,12 @@ conf_vars=(
                     )
                     find_valid_dir "${options[@]}"
                 )"
-
-    # Path for the mkl library.
     ['TBB_PATH']="$( options=(
                         '/opt/intel/oneapi/tbb/latest'
                     )
                     find_valid_dir "${options[@]}"
                 )"
+
 
     ['AOCL_PATH']="$( options=(
                         # '/opt/aoclsparse'
@@ -255,6 +255,7 @@ conf_vars=(
                     )
                     find_valid_dir "${options[@]}"
                 )"
+
 
     # ARM ecosystem environment variables that have to be set
     ['ARM_ROOT_DIR']=${ARM_ROOT_DIR}
@@ -304,6 +305,7 @@ conf_vars=(
     ['LAPACK_SHARED']=${ARMPL_ROOT_DIR}/lib/libarmpl_lp64.so
     ['LAPACK_STATIC']=${ARMPL_ROOT_DIR}/lib/libarmpl_lp64.a
 
+
     ['CUDA_PATH']="$( options=(
                         '/usr/local/cuda-12.5'
                         '/usr/local/cuda'
@@ -315,11 +317,13 @@ conf_vars=(
 
     ['CUDA_COMPUTE']="$( hash nvidia-smi &>/dev/null && nvidia-smi --query-gpu=compute_cap --format=csv | awk 'NR==2' | tr -d '.')"
 
+
     ['ROCM_PATH']="$( options=(
                         '/appl/lumi/SW/LUMI-23.09/G/EB/rocm/5.6.1'
                     )
                     find_valid_dir "${options[@]}"
                 )"
+
 
     # SparseX ecosystem environment variables that have to be set.
     # These are environment variables that have to be set for SparseX to work
@@ -379,6 +383,7 @@ conf_vars=(
                     # find_valid_dir "${options[@]}"
                 # )"
 
+
     # SELL-C-s ecosystem environment variables that have to be set
     # These are environment variables that have to be set for SELL-C-s to work
     # ['GHOST_ROOT_DIR']='/various/pmpakos/epyc5_libs/'
@@ -400,7 +405,8 @@ conf_vars=(
                     find_valid_dir "${options[@]}"
                 )"
 
-    # Path for the openFoam matrices.
+
+    # Paths for the matrices.
     ['path_openFoam']="$( options=(
                         '/m100_work/ExaF_prod22/wp2-matrices'
                         "${HOME}/Data/graphs/openFoam"
@@ -409,10 +415,10 @@ conf_vars=(
                     )
                     find_valid_dir "${options[@]}"
                 )"
-
     ['path_tamu']="${HOME}/Data/graphs/tamu"
     ['path_M3E']="${HOME}/Data/graphs/M3E-Matrix-Collection"
     ['path_graphs_sparse_survey']="${HOME}/Data/graphs/graphs_sparse_survey"
+
 
     ['ZFP_ROOT_DIR']="${HOME}/lib/zfp"
     ['FPZIP_ROOT_DIR']="${HOME}/lib/fpzip"

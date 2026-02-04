@@ -466,9 +466,12 @@ spmv_last_block(INT_T * thread_i_s, INT_T * ja, ValueType * a, long m, long n, l
 
 	i_s = thread_i_s[tid];
 
+	i = i_s;
+	if (i >= m)
+		i = m-1;
+
 	double sum = 0;
 	INT_T col, new_row;
-	i = i_s;
 	for (j=j_s;j<j_e;j++)
 	{
 		col = ja[j];

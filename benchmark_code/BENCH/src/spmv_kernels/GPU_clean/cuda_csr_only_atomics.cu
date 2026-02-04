@@ -325,6 +325,9 @@ __device__ void spmv_last_block(INT_T * thread_i_s, INT_T * thread_block_i_s, IN
 	// }
 	// i = i_s - 1;
 
+	if (i >= m)
+		i = m-1;
+
 	double sum = 0;
 	for (j=j_s;j<j_e;j++)
 	{

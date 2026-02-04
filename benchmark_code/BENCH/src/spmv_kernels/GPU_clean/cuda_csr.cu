@@ -629,6 +629,9 @@ __device__ void spmv_last_block(INT_T * thread_i_s, INT_T * thread_block_i_s, IN
 	i_e = thread_block_i_e[block_id];
 	i = binary_search_gpu(row_ptr, i_s, i_e, j_s);
 
+	if (i >= m)
+		i = m-1;
+
 	double sum = 0;
 	for (j=j_s;j<j_e;j++)
 	{

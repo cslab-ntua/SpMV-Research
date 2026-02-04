@@ -480,12 +480,15 @@ spmv_last_block(INT_T * thread_i_s, unsigned char * ia, INT_T * ja, ValueType * 
 
 	i_s = thread_i_s[tid] & 0x7FFFFFFF;
 
+	i = i_s;
+	if (i >= m)
+		i = m-1;
+
 	double sum = 0;
 	// if (j_s >= nnz)
 		// i = ia[nnz-1];
 	// else
 		// i = ia[j_s];
-	i = i_s;
 	for (j=j_s;j<j_e;j++)
 	{
 		if (ia[j] != 0)
