@@ -558,7 +558,7 @@ progs=(
     # ['csr_vector_perfect_nnz_balance_d']="${script_dir}/src/spmv_csr_vector_perfect_nnz_balance_d.exe"
 
     # Custom csr vector
-    ['csr_vec_d']="${script_dir}/src/spmv_csr_vec_d.exe" # BENCH_AMD, BENCH_INTEL, BENCH_ARM, BENCH_RISCV
+    # ['csr_vec_d']="${script_dir}/src/spmv_csr_vec_d.exe" # BENCH_AMD, BENCH_INTEL, BENCH_ARM, BENCH_RISCV
     # ['csr_vector_x86_d']="${script_dir}/src/spmv_csr_vector_x86_d.exe" # BENCH_AMD, BENCH_INTEL
     # ['csr_vector_oracle_balance_x86_d']="${script_dir}/src/spmv_csr_vector_oracle_balance_x86_d.exe"
     # ['csr_vector_queues_x86_d']="${script_dir}/src/spmv_csr_vector_queues_x86_d.exe"
@@ -659,12 +659,13 @@ progs=(
     # Custom cuda
     # ['cuda_csr_naive_nv_d']="${script_dir}/src/spmv_cuda_csr_naive_nv_d.exe"
     # ['cuda_csr_nv_d']="${script_dir}/src/spmv_cuda_csr_nv_d.exe"
-    # ['cuda_csr_transpose_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_nv_d.exe"
     # ['cuda_coo_naive_nv_d']="${script_dir}/src/spmv_cuda_coo_naive_nv_d.exe"
     # ['cuda_coo_reduce_all_nv_d']="${script_dir}/src/spmv_cuda_coo_reduce_all_nv_d.exe"
     # ['cuda_coo_sorted_transpose_nv_d']="${script_dir}/src/spmv_cuda_coo_sorted_transpose_nv_d.exe"
     # ['cuda_coo_sorted_transpose_delta_nv_d']="${script_dir}/src/spmv_cuda_coo_sorted_transpose_delta_nv_d.exe"
     # ['cuda_coo_sorted_transpose_non_empty_rows_nv_d']="${script_dir}/src/spmv_cuda_coo_sorted_transpose_non_empty_rows_nv_d.exe"
+    # ['cuda_csr_transpose_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_nv_d.exe"
+    ['cuda_csr_transpose_one_row_per_thread_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_one_row_per_thread_nv_d.exe"
     # ['cuda_csr_transpose_expand_rows_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_nv_d.exe"
     # ['cuda_csr_transpose_expand_rows_timed_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_timed_nv_d.exe"
     # ['cuda_csr_transpose_expand_rows_timed_v2_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_timed_v2_nv_d.exe"

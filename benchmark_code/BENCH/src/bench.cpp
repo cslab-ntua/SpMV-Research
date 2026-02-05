@@ -255,6 +255,7 @@ import_artificial_matrix(struct CSR_reference_s * csr)
 	csr->m = AM->nr_rows;
 	csr->n = AM->nr_cols;
 	csr->nnz = AM->nr_nzeros;
+	csr->nnz_matrix = AM->nr_nzeros;
 
 	csr->ia = (typeof(csr->ia)) aligned_alloc(64, (csr->m+1) * sizeof(*csr->ia));
 	#pragma omp parallel for

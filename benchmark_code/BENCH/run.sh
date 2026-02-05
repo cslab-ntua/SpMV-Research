@@ -971,6 +971,10 @@ fi
 
     # '5154859 5154859 19.24389 5.73672 normal random 0.21196 1.44233 0.19755 1.03234 14'
     # '952203 952203 48.85772782 11.94657153 normal random 0.2042067138 0.5760045224 1.79674 0.906047 14 ldoor'
+
+    # nr_rows nr_cols avg_nnz_per_row std_nnz_per_row distribution placement avg_bw       skew avg_num_neighbours cross_row_similarity seed matrix_name
+    # ' 952203  952203  6               0               normal       random    0.2042067138 0    1.79674            0.906047             14   ldoor'
+
 # )
 
 temp_labels=( $(printf "%s\n" /sys/class/hwmon/hwmon*/temp*_label | sort) )
