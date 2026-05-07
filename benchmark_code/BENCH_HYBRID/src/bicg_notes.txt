@@ -1,0 +1,25 @@
+rk = b - A * xk
+Choose an arbitrary vector r0_ such that (r0_, rk) != 0, e.g., r0_ = rk
+s_r0 = (r0_, rk)
+pk = rk
+For k = 1, 2, 3, ...
+    y = inv(K2) * inv(K1) * pk-1
+    v = A * y
+    s_a = s_pk-1 / (r0_, v)
+    h = xk-1 + s_a * y
+    s = rk-1 - s_a * v
+
+    If h is accurate enough then xk = h and quit.
+
+    z = inv(K2) * inv(K1) * s
+    t = A * z
+    s_w = (inv(K1) * t, inv(K1) * s)/(inv(K1) * t, inv(K1) * t)
+    xk = h + s_w * z
+    rk = s - s_w * t
+
+    If xk is accurate enough then quit.
+
+    s_pk = (r0_, rk)
+    s_b = (s_pk / s_pk-1) * (s_a / s_w)
+    pk = rk + s_b * (pk-1 - s_w * v)
+

@@ -1,0 +1,357 @@
+.PHONY: all clean
+
+SHELL := bash
+.SHELLFLAGS := -eu -o pipefail -c
+.ONESHELL:
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+MAKECMDGOALS ?=
+
+# Targets that don't generate dependency files.
+NODEPS = clean
+
+OBJ_DIR = obj
+
+DIRS = $(OBJ_DIR)
+
+define Rule_Auto_Dependencies_base =
+    $(1:.o=.d): $(2) | $(DIRS)
+	@echo 'Generating dependencies file:  $(1)'
+	$(CC) $(3) -MT '$(1:.o=.d)' -MM -MG '$(2)' -MF '$(1:.o=.d)' -MP
+    $(1): $(1:.o=.d)
+endef
+
+# 1:object_file 2:source_file 3:compilation_flags
+define Rule_Auto_Dependencies =
+    $(eval $(call Rule_Auto_Dependencies_base,$(1),$(2),$(3)))
+    $(1): $(2)
+endef
+
+
+# GPU_dir := GPU
+GPU_dir := GPU
+
+
+LIB_SRC = pthread_functions.c omp_functions.c hardware_topology.c task_topology.c hash.c random.c hashtable.c bitstream.c bytestream.c array_metrics.c string_util.c io.c parallel_io.c plot.c matrix_market.c openfoam_matrix.c rapl.c csr_converter.c csc_converter.c csr_converter_reference.c rcm.c kmeans.c kmeans_char.c csr_util.c csc_util.c artificial_matrix_generation.c ordered_set.c dynamic_array.c
+
+LIB_OBJ := $(LIB_SRC)
+LIB_OBJ := $(patsubst %.c,$(OBJ_DIR)/%$(SUFFIX).o,$(LIB_OBJ))
+LIB_OBJ := $(patsubst %.cpp,$(OBJ_DIR)/%$(SUFFIX).o,$(LIB_OBJ))
+
+
+EXE = $(TARGETS)
+
+all: $(EXE) | $(DIRS)
+
+
+# ArmPL
+CPPFLAGS_ARMPL =
+CPPFLAGS_ARMPL += -I$(ARMPL_ROOT_DIR)/include
+
+LDFLAGS_ARMPL =
+LDFLAGS_ARMPL += -L$(ARMPL_ROOT_DIR)/lib -larmpl_mp
+
+# CUDA
+LDFLAGS_NV =
+LDFLAGS_NV += -lcuda
+LDFLAGS_NV += -lcudart
+LDFLAGS_NV += -lcublas
+# =============================================================================
+# Per-CPU-kernel property lookup table (CPU_KERNEL is exported from config.sh).
+# To add a new CPU kernel: add a row to each table + a compile rule below.
+# MUST be defined before the object rules so computed variables are available.
+# =============================================================================
+CPU_KERNEL ?= armpl
+
+CPU_KERNEL_OBJ_armpl          = $(OBJ_DIR)/armpl_hybrid$(SUFFIX).o
+CPU_KERNEL_OBJ_csr_vec        = $(OBJ_DIR)/csr_vec_hybrid$(SUFFIX).o
+
+CPU_KERNEL_CPPFLAGS_armpl     = $(CPPFLAGS_ARMPL)
+CPU_KERNEL_CPPFLAGS_csr_vec   =
+
+CPU_KERNEL_LDFLAGS_armpl      = $(LDFLAGS_ARMPL)
+CPU_KERNEL_LDFLAGS_csr_vec    =
+
+CPU_KERNEL_INITFUNC_armpl     = armpl_to_format
+CPU_KERNEL_INITFUNC_csr_vec   = csr_vec_to_format
+
+CPU_KERNEL_STATSFUNC_armpl    = armpl_statistics_print_labels
+CPU_KERNEL_STATSFUNC_csr_vec  = csr_vec_statistics_print_labels
+
+CPU_KERNEL_FORMATNAME_armpl   = Hybrid_ArmPL
+CPU_KERNEL_FORMATNAME_csr_vec = Hybrid_CsrVec
+
+# Active CPU kernel selection via computed variable names.
+CPU_KERNEL_OBJ        = $(CPU_KERNEL_OBJ_$(CPU_KERNEL))
+CPU_KERNEL_CPPFLAGS   = $(CPU_KERNEL_CPPFLAGS_$(CPU_KERNEL))
+CPU_KERNEL_LDFLAGS    = $(CPU_KERNEL_LDFLAGS_$(CPU_KERNEL))
+CPU_KERNEL_INITFUNC   = $(CPU_KERNEL_INITFUNC_$(CPU_KERNEL))
+CPU_KERNEL_STATSFUNC  = $(CPU_KERNEL_STATSFUNC_$(CPU_KERNEL))
+CPU_KERNEL_FORMATNAME = $(CPU_KERNEL_FORMATNAME_$(CPU_KERNEL))
+
+# =============================================================================
+# Per-GPU-kernel property lookup table (GPU_KERNEL is exported from config.sh).
+# To add a new GPU kernel: add a row to each table + a .cu source file.
+# MUST be defined before the object rules so GPU_KERNEL_SRC is available.
+# =============================================================================
+GPU_KERNEL ?= cuda_csr_transpose_expand_rows
+
+GPU_KERNEL_SRC_cuda_csr_transpose_expand_rows      = spmv_kernels/$(GPU_dir)/cuda_csr_transpose_expand_rows.cu
+GPU_KERNEL_INITFUNC_cuda_csr_transpose_expand_rows  = cuda_csr_transpose_expand_rows_to_format
+GPU_KERNEL_STATSFUNC_cuda_csr_transpose_expand_rows = cuda_csr_transpose_expand_rows_statistics_print_labels
+GPU_KERNEL_NVCCFLAGS_cuda_csr_transpose_expand_rows =
+GPU_KERNEL_LDFLAGS_cuda_csr_transpose_expand_rows   =
+
+GPU_KERNEL_SRC_cusparse_csr      = spmv_kernels/$(GPU_dir)/cusparse_csr.cu
+GPU_KERNEL_INITFUNC_cusparse_csr  = cusparse_csr_to_format
+GPU_KERNEL_STATSFUNC_cusparse_csr = cusparse_csr_statistics_print_labels
+GPU_KERNEL_NVCCFLAGS_cusparse_csr =
+GPU_KERNEL_LDFLAGS_cusparse_csr   = -lcusparse
+
+# Active GPU kernel selection via computed variable names.
+GPU_KERNEL_SRC             = $(GPU_KERNEL_SRC_$(GPU_KERNEL))
+GPU_KERNEL_INITFUNC        = $(GPU_KERNEL_INITFUNC_$(GPU_KERNEL))
+GPU_KERNEL_STATSFUNC       = $(GPU_KERNEL_STATSFUNC_$(GPU_KERNEL))
+GPU_KERNEL_NVCCFLAGS_EXTRA = $(GPU_KERNEL_NVCCFLAGS_$(GPU_KERNEL))
+GPU_KERNEL_LDFLAGS         = $(GPU_KERNEL_LDFLAGS_$(GPU_KERNEL))
+
+# --- Standalone Object Files ---
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/armpl$(SUFFIX).o,spmv_kernels/armpl.cpp,$(CPPFLAGS) $(CPPFLAGS_ARMPL))
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_ARMPL) -c $< -o $@
+
+# --- CSR Vec Object Files (no ArmPL dependency, compiled with -D'CSR_VECTOR') ---
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_vec$(SUFFIX).o,spmv_kernels/csr_vec.cpp,$(CPPFLAGS) -D'CSR_VECTOR')
+	$(CPP) $(CPPFLAGS) -D'CSR_VECTOR' -c $< -o $@
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/$(GPU_KERNEL)$(SUFFIX).o,$(GPU_KERNEL_SRC),$(CPPFLAGS))
+	$(NVCC) $(NVCCFLAGS) $(GPU_KERNEL_NVCCFLAGS_EXTRA) --compiler-options "$(CPPFLAGS)" -c $< -o $@
+
+# --- Standalone Object Files with VECTOR_ALLOC flag ---
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/$(GPU_KERNEL)_$(VECTOR_ALLOC)$(SUFFIX).o,$(GPU_KERNEL_SRC),$(CPPFLAGS) -D'VECTOR_ALLOC_$(VECTOR_ALLOC)')
+	$(NVCC) $(NVCCFLAGS) $(GPU_KERNEL_NVCCFLAGS_EXTRA) --compiler-options "$(CPPFLAGS) -D'VECTOR_ALLOC_$(VECTOR_ALLOC)'" -c $< -o $@
+
+# --- Hybrid-Specific GPU Object Files (compiled with -D'HYBRID') ---
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/$(GPU_KERNEL)_hybrid$(SUFFIX).o,$(GPU_KERNEL_SRC),$(CPPFLAGS) -D'HYBRID')
+	$(NVCC) $(NVCCFLAGS) $(GPU_KERNEL_NVCCFLAGS_EXTRA) --compiler-options "$(CPPFLAGS) -D'HYBRID'" -c $< -o $@
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$(VECTOR_ALLOC)$(SUFFIX).o,$(GPU_KERNEL_SRC),$(CPPFLAGS) -D'HYBRID' -D'VECTOR_ALLOC_$(VECTOR_ALLOC)')
+	$(NVCC) $(NVCCFLAGS) $(GPU_KERNEL_NVCCFLAGS_EXTRA) --compiler-options "$(CPPFLAGS) -D'HYBRID' -D'VECTOR_ALLOC_$(VECTOR_ALLOC)'" -c $< -o $@
+
+# --- Hybrid-Specific CPU Object Files (compiled with -D'HYBRID') ---
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/armpl_hybrid$(SUFFIX).o,spmv_kernels/armpl.cpp,$(CPPFLAGS) $(CPPFLAGS_ARMPL) -D'HYBRID')
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_ARMPL) -D'HYBRID' -c $< -o $@
+
+# Hybrid variant of csr_vec (compiled with -D'HYBRID' -D'CSR_VECTOR')
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_vec_hybrid$(SUFFIX).o,spmv_kernels/csr_vec.cpp,$(CPPFLAGS) -D'HYBRID' -D'CSR_VECTOR')
+	$(CPP) $(CPPFLAGS) -D'HYBRID' -D'CSR_VECTOR' -c $< -o $@
+
+# =============================================================================
+# Unified dispatcher source and its compile-time -D injections.
+# All dispatcher objects are compiled from this single file.
+# =============================================================================
+DISPATCHER_SRC = spmv_kernels/hybrid_dispatcher.cpp
+
+DISPATCHER_DEFINES = \
+    -D'CPU_KERNEL_FUNC=$(CPU_KERNEL_INITFUNC)' \
+    -D'CPU_KERNEL_STATS_FUNC=$(CPU_KERNEL_STATSFUNC)' \
+    -D'GPU_KERNEL_FUNC=$(GPU_KERNEL_INITFUNC)' \
+    -D'GPU_KERNEL_STATS_FUNC=$(GPU_KERNEL_STATSFUNC)' \
+    -D'HYBRID_FORMAT_NAME="$(CPU_KERNEL_FORMATNAME)_$(GPU_KERNEL)"'
+
+# --- Ratio-strategy Multi-Targets (unified, parameterized by CPU_KERNEL + GPU_KERNEL) ---
+RATIOS = 95 90 85 80 75 70 65
+
+define RATIO_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_ratio_$(1)$$(SUFFIX).o,$(DISPATCHER_SRC),$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_FIXED -DHYBRID_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_FIXED -DHYBRID_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_RATIO_$(1)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_hybrid$$(SUFFIX).o \
+    $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_ratio_$(1)$$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_RATIO_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_ratio_$(1)$$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(RATIOS),$(eval $(call RATIO_RULE,$(r))))
+
+# --- LLC-strategy Dispatcher Object (unified) ---
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_llc$(SUFFIX).o,$(DISPATCHER_SRC),$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_LLC)
+	$(CPP) $(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_LLC -c $< -o $@
+
+# --- Shortest-Rows LLC-strategy Dispatcher Object (unified) ---
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_shortest_rows_llc$(SUFFIX).o,$(DISPATCHER_SRC),$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_SHORTEST_ROWS_LLC)
+	$(CPP) $(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_SHORTEST_ROWS_LLC -c $< -o $@
+
+# --- Standalone Executables ---
+spmv_armpl$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/armpl$(SUFFIX).o $(LIB_OBJ)  
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_ARMPL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ARMPL)
+
+spmv_csr_vec$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/csr_vec$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
+
+spmv_$(GPU_KERNEL)$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/$(GPU_KERNEL)$(SUFFIX).o $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) $(GPU_KERNEL_NVCCFLAGS_EXTRA) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+
+spmv_$(GPU_KERNEL)_$(VECTOR_ALLOC)$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv_$(VECTOR_ALLOC)$(SUFFIX).o $(OBJ_DIR)/$(GPU_KERNEL)_$(VECTOR_ALLOC)$(SUFFIX).o $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) $(GPU_KERNEL_NVCCFLAGS_EXTRA) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+
+# --- Hybrid LLC Executable (unified) ---
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_LLC$(SUFFIX).exe: \
+    $(OBJ_DIR)/bench$(SUFFIX).o \
+    $(OBJ_DIR)/bench_spmv_hybrid$(SUFFIX).o \
+    $(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_llc$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $(OBJ_DIR)/$(GPU_KERNEL)_hybrid$(SUFFIX).o \
+    $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+
+# --- Hybrid Shortest Rows LLC Executable (unified) ---
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_SHORTEST_ROWS_LLC$(SUFFIX).exe: \
+    $(OBJ_DIR)/bench$(SUFFIX).o \
+    $(OBJ_DIR)/bench_spmv_hybrid$(SUFFIX).o \
+    $(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_shortest_rows_llc$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $(OBJ_DIR)/$(GPU_KERNEL)_hybrid$(SUFFIX).o \
+    $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+
+
+
+#####
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_cv_block_id$(SUFFIX).o,spmv_kernels/cv_block/csr_cv_block.cpp,$(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_ID))
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_ID) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_cv_block_d2f$(SUFFIX).o,spmv_kernels/cv_block/csr_cv_block.cpp,$(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_D2F))
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_D2F) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_cv_block_fpc$(SUFFIX).o,spmv_kernels/cv_block/csr_cv_block.cpp,$(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_FPC))
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_FPC) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_cv_block_zfp$(SUFFIX).o,spmv_kernels/cv_block/csr_cv_block.cpp,$(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_ZFP))
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_ZFP) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_cv_block_fpzip$(SUFFIX).o,spmv_kernels/cv_block/csr_cv_block.cpp,$(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_FPZIP))
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_CV_BLOCK_FPZIP) -c $< -o $@
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/div$(SUFFIX).o,spmv_kernels/DIV/div.cpp,$(CPPFLAGS))
+	$(CPP) $(CPPFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/div_rf$(SUFFIX).o,spmv_kernels/DIV/div.cpp,$(CPPFLAGS) -D'DIV_TYPE_RF')
+	$(CPP) $(CPPFLAGS) -D'DIV_TYPE_RF' -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/div_adapt$(SUFFIX).o,spmv_kernels/DIV/div.cpp,$(CPPFLAGS) -D'DIV_TYPE_ADAPT')
+	$(CPP) $(CPPFLAGS) -D'DIV_TYPE_ADAPT' -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/div_rf_const_size_row$(SUFFIX).o,spmv_kernels/DIV/div.cpp,$(CPPFLAGS) -D'DIV_TYPE_RF_CONST_SIZE_ROW')
+	$(CPP) $(CPPFLAGS) -D'DIV_TYPE_RF_CONST_SIZE_ROW' -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/div_sym_rf_local$(SUFFIX).o,spmv_kernels/DIV/div.cpp,$(CPPFLAGS) -D'DIV_TYPE_SYM_RF_LOCAL')
+	$(CPP) $(CPPFLAGS) -D'DIV_TYPE_SYM_RF_LOCAL' -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/div_select$(SUFFIX).o,spmv_kernels/DIV/div.cpp,$(CPPFLAGS) -D'DIV_TYPE_SELECT')
+	$(CPP) $(CPPFLAGS) -D'DIV_TYPE_SELECT' -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/div_cols_sort$(SUFFIX).o,spmv_kernels/DIV/div.cpp,$(CPPFLAGS) -D'DIV_TYPE_COLS_SORT')
+	$(CPP) $(CPPFLAGS) -D'DIV_TYPE_COLS_SORT' -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/div_rf_ord2$(SUFFIX).o,spmv_kernels/DIV/div.cpp,$(CPPFLAGS) -D'DIV_TYPE_ORD2')
+	$(CPP) $(CPPFLAGS) -D'DIV_TYPE_ORD2' -c $< -o $@
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/cuda_div$(SUFFIX).o,spmv_kernels/DIV_CUDA/cuda_div.cu,$(CPPFLAGS))
+	$(NVCC) $(NVCCFLAGS) -DBLOCK_SIZE=${BLOCK_SIZE} --compiler-options "$(CPPFLAGS)" -c $< -o $@
+
+
+# Bench
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench$(SUFFIX).o,bench.cpp,$(CPPFLAGS))
+	$(CPP) $(CPPFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_sym$(SUFFIX).o,bench.cpp,$(CPPFLAGS))
+	$(CPP) $(CPPFLAGS) -D'KEEP_SYMMETRY' -c $< -o $@
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_spmv$(SUFFIX).o,bench_spmv.cpp,$(CPPFLAGS))
+	$(CPP) $(CPPFLAGS) -c $< -o $@
+
+# bench_spmv with vector allocation strategy (GPU build — needs CUDA_KERNEL)
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_spmv_$(VECTOR_ALLOC)$(SUFFIX).o,bench_spmv.cpp,$(CPPFLAGS) -D'CUDA_KERNEL' -D'VECTOR_ALLOC_$(VECTOR_ALLOC)')
+	$(CPP) $(CPPFLAGS) -D'CUDA_KERNEL' -D'VECTOR_ALLOC_$(VECTOR_ALLOC)' -c $< -o $@
+
+# This version of bench_spmv.cpp will use the hybrid_dispatcher.h and trigger the necessary changes in bench_spmv.cpp regarding calling the hybrid SpMV function
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_spmv_hybrid$(SUFFIX).o,bench_spmv.cpp,$(CPPFLAGS) -D'CUDA_KERNEL')
+	$(CPP) $(CPPFLAGS) -D'CUDA_KERNEL' -D'HYBRID' -c $< -o $@
+
+# Hybrid variant with vector allocation strategy
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_spmv_hybrid_$(VECTOR_ALLOC)$(SUFFIX).o,bench_spmv.cpp,$(CPPFLAGS) -D'CUDA_KERNEL' -D'HYBRID' -D'VECTOR_ALLOC_$(VECTOR_ALLOC)')
+	$(CPP) $(CPPFLAGS) -D'CUDA_KERNEL' -D'HYBRID' -D'VECTOR_ALLOC_$(VECTOR_ALLOC)' -c $< -o $@
+
+
+# Library
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/artificial_matrix_generation$(SUFFIX).o,$(AMG_PATH)/artificial_matrix_generation.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/ordered_set$(SUFFIX).o,$(AMG_PATH)/ordered_set.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/pthread_functions$(SUFFIX).o,$(library)/pthread_functions.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/omp_functions$(SUFFIX).o,$(library)/omp_functions.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/hardware_topology$(SUFFIX).o,$(library)/topology/hardware_topology.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/task_topology$(SUFFIX).o,$(library)/topology/task_topology.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/hash$(SUFFIX).o,$(library)/hash/hash.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/random$(SUFFIX).o,$(library)/random.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/bitstream$(SUFFIX).o,$(library)/bitstream.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/bytestream$(SUFFIX).o,$(library)/bytestream.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/array_metrics$(SUFFIX).o,$(library)/array_metrics.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/string_util$(SUFFIX).o,$(library)/string_util.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/io$(SUFFIX).o,$(library)/io.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/parallel_io$(SUFFIX).o,$(library)/parallel_io.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/plot$(SUFFIX).o,$(library)/plot/plot.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/matrix_market$(SUFFIX).o,$(library)/storage_formats/matrix_market/matrix_market.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/openfoam_matrix$(SUFFIX).o,$(library)/storage_formats/openfoam/openfoam_matrix.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/rapl$(SUFFIX).o,$(library)/monitoring/power/rapl.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/kmeans$(SUFFIX).o,$(library)/kmeans/kmeans.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/kmeans_char$(SUFFIX).o,$(library)/kmeans/kmeans_char.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/hashtable$(SUFFIX).o,$(library)/aux/hashtable.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/dynamic_array$(SUFFIX).o,$(library)/aux/dynamic_array.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_converter$(SUFFIX).o,$(library)/aux/csr_converter.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csc_converter$(SUFFIX).o,$(library)/aux/csc_converter.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_converter_reference$(SUFFIX).o,$(library)/aux/csr_converter_reference.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_util$(SUFFIX).o,$(library)/aux/csr_util.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csc_util$(SUFFIX).o,$(library)/aux/csc_util.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/rcm$(SUFFIX).o,$(library)/aux/rcm.c,$(CFLAGS))
+	$(CC) $(CFLAGS) -c $< -o $@
+
+
+$(DIRS): %:
+	mkdir -p $@
+
+clean:
+	$(RM) $(OBJ_DIR)/* *.o *.exe a.out
+
+-include $(OBJ_DIR)/*.d
+
