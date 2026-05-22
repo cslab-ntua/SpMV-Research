@@ -207,6 +207,13 @@ fi
 # Vector allocation strategy flag (EXPLICIT / MALLOCHOST / MANAGED / MALLOC)
 CFLAGS+=" -D'VECTOR_ALLOC_${VECTOR_ALLOC}'"
 
+# We need to include the CUDA headers for CUDA targets (which use NVTX profiling).
+if [[ -n "${CUDA_PATH}" ]]; then
+    CUDA_INCL=" -I'${CUDA_PATH}/include'"
+else
+    CUDA_INCL=" -I/usr/local/cuda/include"
+fi
+
 CPPFLAGS=''
 CPPFLAGS+=" ${CFLAGS}"
 
@@ -226,11 +233,11 @@ CPPFLAGS_D="${CPPFLAGS} -D'DOUBLE=1' -D'ValueType=double' -D'ValueTypeI=uint64_t
 CFLAGS_F="${CFLAGS} -D'DOUBLE=0' -D'ValueType=float' -D'ValueTypeI=uint32_t'"
 CPPFLAGS_F="${CPPFLAGS} -D'DOUBLE=0' -D'ValueType=float' -D'ValueTypeI=uint32_t'"
 
-CFLAGS_NV_D="${CFLAGS_D} -fno-lto"
-CPPFLAGS_NV_D="${CPPFLAGS_D} -fno-lto"
+CFLAGS_NV_D="${CFLAGS_D} -fno-lto${CUDA_INCL}"
+CPPFLAGS_NV_D="${CPPFLAGS_D} -fno-lto${CUDA_INCL}"
 
-CFLAGS_NV_F="${CFLAGS_F} -fno-lto"
-CPPFLAGS_NV_F="${CPPFLAGS_F} -fno-lto"
+CFLAGS_NV_F="${CFLAGS_F} -fno-lto${CUDA_INCL}"
+CPPFLAGS_NV_F="${CPPFLAGS_F} -fno-lto${CUDA_INCL}"
 
 
 LDFLAGS=''

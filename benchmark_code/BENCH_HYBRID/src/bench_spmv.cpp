@@ -404,6 +404,9 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 	long num_loops;
 	double gflops;
 	__attribute__((unused)) double time_total, time_iter, time_min, time_max, time_median, time_warm_up, time_after_warm_up;
+	#ifdef HYBRID
+		__attribute__((unused)) double time_total_cpu, time_total_gpu, time_min_cpu, time_min_gpu, time_max_cpu, time_max_gpu, time_median_cpu, time_median_gpu;
+	#endif
 	long buf_n = 10000;
 	char buf[buf_n + 1];
 	long i, j;
@@ -426,10 +429,10 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			#ifdef CUDA_KERNEL
 			{		
 				#ifdef HYBRID
-					for(int i=0;i<10;i++)
-						HA->cpu_spmv(x, y);
-					for(int i=0;i<1000;i++)
-						HA->gpu_spmv_sync(x, y);
+					// for(int i=0;i<10;i++)
+					// 	HA->cpu_spmv(x, y);
+					// for(int i=0;i<1000;i++)
+					// 	HA->gpu_spmv_sync(x, y);
 
 					// for(int i=0;i<1000;i++) {
 					// 	HA->spmv(x, y);
@@ -508,6 +511,8 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		#ifdef HYBRID
 			dynarray_d * da_iter_times_cpu = dynarray_new_d(10 * min_num_loops);
 			dynarray_d * da_iter_times_gpu = dynarray_new_d(10 * min_num_loops);
+			time_total_cpu = 0;
+			time_total_gpu = 0;
 		#endif
 
 		#ifdef CUDA_KERNEL
@@ -591,8 +596,13 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 
 			dynarray_push_back_d(da_iter_times, time_iter);
 			#ifdef HYBRID
-				dynarray_push_back_d(da_iter_times_cpu, HA->cpu_part->get_last_duration());
-				dynarray_push_back_d(da_iter_times_gpu, HA->gpu_part->get_last_duration());
+				double time_iter_cpu, time_iter_gpu;
+				time_iter_cpu = HA->cpu_part->get_last_duration();
+				time_iter_gpu = HA->gpu_part->get_last_duration();
+				dynarray_push_back_d(da_iter_times_cpu, time_iter_cpu);
+				dynarray_push_back_d(da_iter_times_gpu, time_iter_gpu);
+				time_total_cpu += time_iter_cpu;
+				time_total_gpu += time_iter_gpu;
 			#endif
 			time_total += time_iter;
 			num_loops++;
@@ -620,20 +630,15 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		dynarray_destroy_d(&da_iter_times);
 		
 		#ifdef HYBRID
-			// double time_cpu_average = 0, time_gpu_average = 0;
-			double time_median_cpu = 0, time_median_gpu = 0;
-
-			// time_cpu_average = HA->time_cpu_total/num_loops;
-			// time_gpu_average = HA->time_gpu_total/num_loops;
 			long iter_times_cpu_n;
 			double * iter_times_cpu;
 			iter_times_cpu_n = dynarray_export_array_d(da_iter_times_cpu, &iter_times_cpu);
 			if (iter_times_cpu_n != num_loops)
 				error("dynamic array size not equal to number of loops: %ld != %ld", iter_times_cpu_n, num_loops);
 			qsort(iter_times_cpu, num_loops, sizeof(*iter_times_cpu), qsort_cmp);
-			double time_min_cpu = iter_times_cpu[0];
+			time_min_cpu = iter_times_cpu[0];
 			time_median_cpu = iter_times_cpu[num_loops/2];
-			double time_max_cpu = iter_times_cpu[num_loops-1];
+			time_max_cpu = iter_times_cpu[num_loops-1];
 			printf("time iter cpu: min=%g, median=%g, max=%g\n", time_min_cpu, time_median_cpu, time_max_cpu);
 			free(iter_times_cpu);
 			dynarray_destroy_d(&da_iter_times_cpu);
@@ -643,9 +648,9 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			if (iter_times_gpu_n != num_loops)
 				error("dynamic array size not equal to number of loops: %ld != %ld", iter_times_gpu_n, num_loops);
 			qsort(iter_times_gpu, num_loops, sizeof(*iter_times_gpu), qsort_cmp);
-			double time_min_gpu = iter_times_gpu[0];
+			time_min_gpu = iter_times_gpu[0];
 			time_median_gpu = iter_times_gpu[num_loops/2];
-			double time_max_gpu = iter_times_gpu[num_loops-1];
+			time_max_gpu = iter_times_gpu[num_loops-1];
 			printf("time iter gpu: min=%g, median=%g, max=%g\n", time_min_gpu, time_median_gpu, time_max_gpu);
 			free(iter_times_gpu);
 			dynarray_destroy_d(&da_iter_times_gpu);
@@ -726,7 +731,18 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 				i += check_accuracy_labels(buf + i, buf_n - i);
 			#endif
 			#ifdef PRINT_STATISTICS
-				i += statistics_print_labels(buf + i, buf_n - i);
+				#ifdef HYBRID
+					i += snprintf(buf + i, buf_n - i, ",%s", "time_cpu");
+					i += snprintf(buf + i, buf_n - i, ",%s", "time_cpu_iter_min");
+					i += snprintf(buf + i, buf_n - i, ",%s", "time_cpu_iter_median");
+					i += snprintf(buf + i, buf_n - i, ",%s", "time_cpu_iter_max");
+					i += snprintf(buf + i, buf_n - i, ",%s", "time_gpu");
+					i += snprintf(buf + i, buf_n - i, ",%s", "time_gpu_iter_min");
+					i += snprintf(buf + i, buf_n - i, ",%s", "time_gpu_iter_median");
+					i += snprintf(buf + i, buf_n - i, ",%s", "time_gpu_iter_max");
+				#else
+					i += statistics_print_labels(buf + i, buf_n - i);
+				#endif
 			#endif
 			buf[i] = '\0';
 			fprintf(stderr, "%s\n", buf);
@@ -766,7 +782,18 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			i += check_accuracy(buf + i, buf_n - i, csr, x_ref, y, csr->symmetric, csr->expanded_symmetry, num_loops);
 		#endif
 		#ifdef PRINT_STATISTICS
-			i += MF->statistics_print_data(buf + i, buf_n - i);
+			#ifdef HYBRID
+				i += snprintf(buf + i, buf_n - i, ",%lf", time_total_cpu);
+				i += snprintf(buf + i, buf_n - i, ",%lf", time_min_cpu);
+				i += snprintf(buf + i, buf_n - i, ",%lf", time_median_cpu);
+				i += snprintf(buf + i, buf_n - i, ",%lf", time_max_cpu);
+				i += snprintf(buf + i, buf_n - i, ",%lf", time_total_gpu);
+				i += snprintf(buf + i, buf_n - i, ",%lf", time_min_gpu);
+				i += snprintf(buf + i, buf_n - i, ",%lf", time_median_gpu);
+				i += snprintf(buf + i, buf_n - i, ",%lf", time_max_gpu);
+			#else
+				i += MF->statistics_print_data(buf + i, buf_n - i);
+			#endif
 		#endif
 		buf[i] = '\0';
 		fprintf(stderr, "%s\n", buf);
@@ -942,6 +969,18 @@ bench(struct CSR_reference_s * csr, struct Matrix_Format * MF, long print_labels
 		}
 		random_destroy(&rs);
 	}
+
+	#if (defined(VECTOR_ALLOC_MANAGED) || defined(VECTOR_ALLOC_MALLOC)) && defined(CUDA_KERNEL)
+	{
+		// Prefetch x to GPU so it resides on GPU HBM before kernels start.
+		cudaMemLocation prefetch_loc_x;
+		prefetch_loc_x.type = cudaMemLocationTypeDevice;
+		prefetch_loc_x.id = 0;
+		cudaMemPrefetchAsync(x, max_mn * sizeof(*x), prefetch_loc_x, 0);
+		cudaDeviceSynchronize();
+	}
+	#endif
+
 	#if defined(VECTOR_ALLOC_EXPLICIT)
 		y = (typeof(y)) aligned_alloc(64, (max_mn+64) * sizeof(*y));
 		#ifdef CUDA_KERNEL
@@ -981,6 +1020,17 @@ bench(struct CSR_reference_s * csr, struct Matrix_Format * MF, long print_labels
 	#pragma omp parallel for
 	for(long i=0;i<max_mn;i++)
 		y[i] = 0.0;    // Test whether the format zeros rows with no nnz.
+
+	#if (defined(VECTOR_ALLOC_MANAGED) || defined(VECTOR_ALLOC_MALLOC)) && defined(CUDA_KERNEL)
+	{
+		// Prefetch y to GPU so it resides on GPU HBM before kernels start.
+		cudaMemLocation prefetch_loc_y;
+		prefetch_loc_y.type = cudaMemLocationTypeDevice;
+		prefetch_loc_y.id = 0;
+		cudaMemPrefetchAsync(y, (max_mn+64) * sizeof(*y), prefetch_loc_y, 0);
+		cudaDeviceSynchronize();
+	}
+	#endif
 
 	long min_num_loops;
 	#ifdef SDV_TRACING

@@ -878,37 +878,9 @@ matrices_weird=(
     Queen_4147
 
 )
-matrices_weird=(
-    # boneS10
-    Transport
-    # cit-Patents
-    # com-Orkut
-    # GL7d19
-    # Hardesty3
-    # GL7d20
-    # sx-stackoverflow
-    # wikipedia-20070206
-    # com-LiveJournal
-    # wikipedia-20061104
-    # soc-LiveJournal1
-    # wikipedia-20060925
-    # GL7d18
-    # M6
-    # kron_g500-logn21
-    # AS365
-    # 333SP
-    # soc-Pokec
-    # GL7d17
-    # NLR
-    # GL7d21
-
-    # Fault_639
-    
-    # GL7d17
-    # rel9
-    # GL7d18
-    # relat9
-    # Hardesty3
+matrices_weird2=(
+    # Transport
+    circuit5M
 )
 matrices_weird=( 
     $(
@@ -1178,7 +1150,7 @@ for format_name in "${!progs[@]}"; do
     exec 4>&2
 
     rep=1
-    # rep=4
+    # rep=3
     # rep=5
     # rep=10
     # rep=16
@@ -1219,11 +1191,15 @@ for format_name in "${!progs[@]}"; do
             # When rep=1 keep the old plain name; when rep>1 append _repN.
             suffix=""
             # suffix="_profiling"
-            if ((rep > 1)); then suffix="_rep${i}"; fi
-            > out_logs/"${format_name}${suffix}.out"
-            exec 1>>out_logs/"${format_name}${suffix}.out"
-            > out_logs/"${format_name}${suffix}.csv"
-            exec 2>>out_logs/"${format_name}${suffix}.csv"
+            # if ((rep > 1)); then suffix="_rep${i}"; fi
+            if ((rep > 1)); then 
+                mkdir -p "out_logs/run${i}"
+                suffix="run${i}/"
+            fi
+            > "out_logs/${suffix}${format_name}.out"
+            exec 1>>"out_logs/${suffix}${format_name}.out"
+            > "out_logs/${suffix}${format_name}.csv"
+            exec 2>>"out_logs/${suffix}${format_name}.csv"
         fi
 
         echo "$config_str"

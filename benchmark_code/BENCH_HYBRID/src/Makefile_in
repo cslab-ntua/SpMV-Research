@@ -150,6 +150,7 @@ $(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_vec_hybrid$(SUFFIX).o,spmv_kernels/
 # All dispatcher objects are compiled from this single file.
 # =============================================================================
 DISPATCHER_SRC = spmv_kernels/hybrid_dispatcher.cpp
+PARTITION_SRC  = spmv_kernels/partitioning_strategies.cpp
 
 DISPATCHER_DEFINES = \
     -D'CPU_KERNEL_FUNC=$(CPU_KERNEL_INITFUNC)' \
@@ -157,6 +158,10 @@ DISPATCHER_DEFINES = \
     -D'GPU_KERNEL_FUNC=$(GPU_KERNEL_INITFUNC)' \
     -D'GPU_KERNEL_STATS_FUNC=$(GPU_KERNEL_STATSFUNC)' \
     -D'HYBRID_FORMAT_NAME="$(CPU_KERNEL_FORMATNAME)_$(GPU_KERNEL)"'
+
+# --- Partitioning strategies object (shared by all hybrid targets) ---
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/partitioning_strategies$(SUFFIX).o,$(PARTITION_SRC),$(CPPFLAGS))
+	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 # --- Ratio-strategy Multi-Targets (unified, parameterized by CPU_KERNEL + GPU_KERNEL) ---
 RATIOS = 95 90 85 80 75 70 65
@@ -169,6 +174,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_RATIO_$(1)$$(SUFFIX).exe: \
     $$(OBJ_DIR)/bench$$(SUFFIX).o \
     $$(OBJ_DIR)/bench_spmv_hybrid$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_ratio_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -178,6 +184,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_RATIO_$(1)_$$(VECTOR_ALLOC)$$(SUFF
     $$(OBJ_DIR)/bench$$(SUFFIX).o \
     $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_ratio_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -193,6 +200,78 @@ $(call Rule_Auto_Dependencies,$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_llc$
 # --- Shortest-Rows LLC-strategy Dispatcher Object (unified) ---
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_shortest_rows_llc$(SUFFIX).o,$(DISPATCHER_SRC),$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_SHORTEST_ROWS_LLC)
 	$(CPP) $(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_SHORTEST_ROWS_LLC -c $< -o $@
+
+# --- Shortest-Rows Sorted Multi-Targets ---
+define SHORTEST_ROWS_SORTED_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_shortest_rows_sorted_$(1)$$(SUFFIX).o,$(DISPATCHER_SRC),$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_SHORTEST_ROWS_SORTED -DHYBRID_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_SHORTEST_ROWS_SORTED -DHYBRID_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_SHORTEST_ROWS_SORTED_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_shortest_rows_sorted_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(RATIOS),$(eval $(call SHORTEST_ROWS_SORTED_RULE,$(r))))
+
+# --- Longest-Rows Sorted Multi-Targets ---
+define LONGEST_ROWS_SORTED_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_longest_rows_sorted_$(1)$$(SUFFIX).o,$(DISPATCHER_SRC),$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_LONGEST_ROWS_SORTED -DHYBRID_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_LONGEST_ROWS_SORTED -DHYBRID_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_LONGEST_ROWS_SORTED_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_longest_rows_sorted_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(RATIOS),$(eval $(call LONGEST_ROWS_SORTED_RULE,$(r))))
+
+# --- Shortest-Rows Original-Order Multi-Targets ---
+define SHORTEST_ROWS_ORIGINAL_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_shortest_rows_original_$(1)$$(SUFFIX).o,$(DISPATCHER_SRC),$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_SHORTEST_ROWS_ORIGINAL -DHYBRID_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_SHORTEST_ROWS_ORIGINAL -DHYBRID_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_SHORTEST_ROWS_ORIGINAL_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_shortest_rows_original_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(RATIOS),$(eval $(call SHORTEST_ROWS_ORIGINAL_RULE,$(r))))
+
+# --- Longest-Rows Original-Order Multi-Targets ---
+define LONGEST_ROWS_ORIGINAL_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_longest_rows_original_$(1)$$(SUFFIX).o,$(DISPATCHER_SRC),$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_LONGEST_ROWS_ORIGINAL -DHYBRID_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_LONGEST_ROWS_ORIGINAL -DHYBRID_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_LONGEST_ROWS_ORIGINAL_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_longest_rows_original_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(RATIOS),$(eval $(call LONGEST_ROWS_ORIGINAL_RULE,$(r))))
 
 # --- Standalone Executables ---
 spmv_armpl$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/armpl$(SUFFIX).o $(LIB_OBJ)  
@@ -212,6 +291,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_LLC$(SUFFIX).exe: \
     $(OBJ_DIR)/bench$(SUFFIX).o \
     $(OBJ_DIR)/bench_spmv_hybrid$(SUFFIX).o \
     $(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_llc$(SUFFIX).o \
+    $(OBJ_DIR)/partitioning_strategies$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $(OBJ_DIR)/$(GPU_KERNEL)_hybrid$(SUFFIX).o \
     $(LIB_OBJ)
@@ -222,6 +302,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_SHORTEST_ROWS_LLC$(SUFFIX).exe: \
     $(OBJ_DIR)/bench$(SUFFIX).o \
     $(OBJ_DIR)/bench_spmv_hybrid$(SUFFIX).o \
     $(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_shortest_rows_llc$(SUFFIX).o \
+    $(OBJ_DIR)/partitioning_strategies$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $(OBJ_DIR)/$(GPU_KERNEL)_hybrid$(SUFFIX).o \
     $(LIB_OBJ)

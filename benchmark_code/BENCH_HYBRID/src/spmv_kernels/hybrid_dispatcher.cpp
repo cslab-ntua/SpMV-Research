@@ -4,6 +4,7 @@
 #include "macros/cpp_defines.h"
 #include "spmv_kernel.h"
 #include "hybrid_dispatcher.h"
+#include "partitioning_strategies.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -111,92 +112,10 @@ int GPU_KERNEL_STATS_FUNC(char * buf, long buf_n);
 int statistics_print_labels(char * buf, long buf_n) {
     int len = 0;
     len += snprintf(buf + len, buf_n - len, ",%s,%s,%s,%s", 
-                    "hybrid_cpu_time_total_ms", "hybrid_gpu_time_total_ms", 
-                    "hybrid_cpu_time_avg_ms", "hybrid_gpu_time_avg_ms");
+                    "hybrid_cpu_time_total_ms", "hybrid_gpu_time_total_ms", "hybrid_cpu_time_avg_ms", "hybrid_gpu_time_avg_ms");
     len += CPU_KERNEL_STATS_FUNC(buf + len, buf_n - len);
     len += GPU_KERNEL_STATS_FUNC(buf + len, buf_n - len);
 	return len;
-}
-
-// --- Partitioning Strategy Helpers ---
-
-static long get_split_fixed_ratio(INT_T * row_ptr, long m, long total_nnz) {
-	#ifndef HYBRID_RATIO
-		#define HYBRID_RATIO 0.5
-	#endif
-	// HYBRID_RATIO defines GPU portion. CPU gets (1 - ratio)
-	long target_nnz_cpu = (long)(total_nnz * (1.0 - HYBRID_RATIO));
-	long m_cpu = 0;
-	while (m_cpu < m && row_ptr[m_cpu+1] < target_nnz_cpu) {
-		m_cpu++;
-	}
-	return m_cpu;
-}
-
-struct RowSize {
-	long id;
-	long nnz;
-};
-
-static int compareRowSize(const void * a, const void * b) {
-	return ((RowSize*)a)->nnz - ((RowSize*)b)->nnz;
-}
-
-static long get_split_shortest_rows_llc(INT_T * row_ptr, long m, long n, INT_T * row_map) {
-	const size_t LLC_LIMIT = 114UL * 1024 * 1024;
-	size_t size_x = n * sizeof(ValueType);
-	
-	if (size_x >= LLC_LIMIT) {
-		return m * 0.10; // Fallback
-	}
-
-	RowSize * rows = (RowSize*) malloc(m * sizeof(RowSize));
-	for (long i = 0; i < m; i++) {
-		rows[i].id = i;
-		rows[i].nnz = row_ptr[i+1] - row_ptr[i];
-	}
-	qsort(rows, m, sizeof(RowSize), compareRowSize);
-
-	size_t available_budget = LLC_LIMIT - size_x;
-	long m_cpu = 0;
-	long cumulative_nnz = 0;
-	for (long i = 0; i < m; i++) {
-		cumulative_nnz += rows[i].nnz;
-		size_t footprint_upto_i = ((i + 1) * sizeof(INT_T)) + (cumulative_nnz * (sizeof(ValueType) + sizeof(INT_T)));
-		if (footprint_upto_i <= available_budget) {
-			m_cpu = i + 1;
-		} else {
-			break;
-		}
-	}
-
-	// Reflect sorted order in row_map
-	for (long i = 0; i < m; i++) row_map[i] = rows[i].id;
-	free(rows);
-	
-	return m_cpu;
-}
-
-static long get_split_llc_budget(INT_T * row_ptr, long m, long n) {
-	const size_t LLC_LIMIT = 114UL * 1024 * 1024;
-	size_t size_x = n * sizeof(ValueType);
-	
-	if (size_x >= LLC_LIMIT) {
-		return m * 0.10; // Fallback: 10% to CPU if x is too large
-	}
-
-	size_t available_budget = LLC_LIMIT - size_x;
-	long m_cpu = 0;
-	for (long i = 0; i < m; i++) {
-		long nnz_upto_i = row_ptr[i+1] - row_ptr[0];
-		size_t matrix_size_upto_i = ((i + 1) * sizeof(INT_T)) + (nnz_upto_i * (sizeof(ValueType) + sizeof(INT_T)));
-		if (matrix_size_upto_i <= available_budget) {
-			m_cpu = i + 1;
-		} else {
-			break;
-		}
-	}
-	return m_cpu;
 }
 
 // --- Main Dispatcher ---
@@ -209,12 +128,17 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 	const char * strat_name = "unknown";
 	Hybrid_Arrays * hybrid = NULL;
 
+	// Default ratio for ratio-driven strategies (can be overridden by -DHYBRID_RATIO=...)
+	#ifndef HYBRID_RATIO
+		#define HYBRID_RATIO 0.5
+	#endif
+
 	time_total = time_it(1,
 		// We temporarily create hybrid here to get its row_map
 		hybrid = new Hybrid_Arrays(m, n, nnz, 0); 
 		
 		#if defined(STRAT_FIXED)
-			m_cpu = get_split_fixed_ratio(row_ptr, m, nnz);
+			m_cpu = get_split_fixed_ratio(row_ptr, m, nnz, HYBRID_RATIO);
 			strat_name = "FIXED_RATIO";
 		#elif defined(STRAT_LLC)
 			m_cpu = get_split_llc_budget(row_ptr, m, n);
@@ -222,10 +146,23 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 		#elif defined(STRAT_SHORTEST_ROWS_LLC)
 			m_cpu = get_split_shortest_rows_llc(row_ptr, m, n, hybrid->row_map);
 			strat_name = "SHORTEST_ROWS_LLC";
+		#elif defined(STRAT_SHORTEST_ROWS_SORTED)
+			m_cpu = get_split_shortest_rows_sorted(row_ptr, m, nnz, HYBRID_RATIO, hybrid->row_map);
+			strat_name = "SHORTEST_ROWS_SORTED";
+		#elif defined(STRAT_LONGEST_ROWS_SORTED)
+			m_cpu = get_split_longest_rows_sorted(row_ptr, m, nnz, HYBRID_RATIO, hybrid->row_map);
+			strat_name = "LONGEST_ROWS_SORTED";
+		#elif defined(STRAT_SHORTEST_ROWS_ORIGINAL)
+			m_cpu = get_split_shortest_rows_original_order(row_ptr, m, nnz, HYBRID_RATIO, hybrid->row_map);
+			strat_name = "SHORTEST_ROWS_ORIGINAL_ORDER";
+		#elif defined(STRAT_LONGEST_ROWS_ORIGINAL)
+			m_cpu = get_split_longest_rows_original_order(row_ptr, m, nnz, HYBRID_RATIO, hybrid->row_map);
+			strat_name = "LONGEST_ROWS_ORIGINAL_ORDER";
 		#else
 			m_cpu = m * 0.2; // Default 20/80
 			strat_name = "DEFAULT_20_80";
 		#endif
+
 
 		m_gpu = m - m_cpu;
 		hybrid->m_cpu = m_cpu;
