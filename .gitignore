@@ -28,6 +28,9 @@ build*/
 SpMV_collab/
 .vscode/
 
+*.png
+*.ppm
+
 benchmark_code/CPU/AMD/*.csv
 benchmark_code/CPU/ARM/*.csv
 benchmark_code/CPU/ARM/spmv_code_bench/merge/*.csv

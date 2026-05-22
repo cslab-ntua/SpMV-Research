@@ -642,43 +642,43 @@ if __name__ == "__main__":
     # --- Pinning Comparison ---
     plot_pinning_comparison(log_dir, plot_dir, GPU_KERNEL, CPU_KERNEL, matrix_order, alloc_type='MALLOC', strategy='NAIVE')
   
-    # full_matrix_order = matrix_order + ['HMEAN', 'GMEAN', 'MEAN']
-    # sns.set_theme(style="whitegrid")
-    # df['Matrix'] = pd.Categorical(df['Matrix'], categories=full_matrix_order, ordered=True)
+    full_matrix_order = matrix_order + ['HMEAN', 'GMEAN', 'MEAN']
+    sns.set_theme(style="whitegrid")
+    df['Matrix'] = pd.Categorical(df['Matrix'], categories=full_matrix_order, ordered=True)
     
-    # # Plot standalone comparisons first
-    # # plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='EXPLICIT')
-    # # plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='MALLOC')
-    # # plot_standalone_cpu_comparison(df, plot_dir, full_matrix_order)
+    # Plot standalone comparisons first
+    # plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='EXPLICIT')
+    # plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='MALLOC')
+    # plot_standalone_cpu_comparison(df, plot_dir, full_matrix_order)
 
-    # # --- Strategy Comparison ---
-    # plot_strategy_comparison(df, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, alloc_type='MALLOC')
+    # --- Strategy Comparison ---
+    plot_strategy_comparison(df, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, alloc_type='MALLOC')
 
-    # # Now filter the df for the specific GPU_KERNEL and CPU_KERNEL for the hybrid plots
-    # hybrid_target_df = df[
-    #     ((df['IsHybrid'] == True) & (df['GPU_Kernel'] == GPU_KERNEL) & (df['CPU_Kernel'] == CPU_KERNEL)) |
-    #     ((df['IsHybrid'] == False) & (df['GPU_Kernel'] == GPU_KERNEL) & df['CPU_Kernel'].isna()) |
-    #     ((df['IsHybrid'] == False) & (df['CPU_Kernel'] == CPU_KERNEL) & df['GPU_Kernel'].isna())
-    # ].copy()
+    # Now filter the df for the specific GPU_KERNEL and CPU_KERNEL for the hybrid plots
+    hybrid_target_df = df[
+        ((df['IsHybrid'] == True) & (df['GPU_Kernel'] == GPU_KERNEL) & (df['CPU_Kernel'] == CPU_KERNEL)) |
+        ((df['IsHybrid'] == False) & (df['GPU_Kernel'] == GPU_KERNEL) & df['CPU_Kernel'].isna()) |
+        ((df['IsHybrid'] == False) & (df['CPU_Kernel'] == CPU_KERNEL) & df['GPU_Kernel'].isna())
+    ].copy()
 
-    # # Baseline (Using EXPLICIT for GPU standalone comparison in hybrid plots)
-    # standalone_explicit = hybrid_target_df[(hybrid_target_df['IsHybrid'] == False) & (hybrid_target_df['Type'] == 'EXPLICIT')].copy()
-    # if not standalone_explicit.empty:
-    #     standalone_explicit['Label'] = f'Standalone_{GPU_KERNEL}_EXPLICIT'
+    # Baseline (Using EXPLICIT for GPU standalone comparison in hybrid plots)
+    standalone_explicit = hybrid_target_df[(hybrid_target_df['IsHybrid'] == False) & (hybrid_target_df['Type'] == 'EXPLICIT')].copy()
+    if not standalone_explicit.empty:
+        standalone_explicit['Label'] = f'Standalone_{GPU_KERNEL}_EXPLICIT'
 
-    # # --- Plotting Calls ---
-    # if not standalone_explicit.empty:
-    #     for strategy in ALL_STRATEGIES:
-    #         plot_hybrid_ratios(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, impl_types=['MALLOC'], strategy=strategy)
-    #         plot_best_hybrid_gflops(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, impl_types=['MALLOC'], strategy=strategy)
-    #         plot_best_hybrid_pct(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, impl_types=['MALLOC'], sort_by_pct=True, strategy=strategy)
+    # --- Plotting Calls ---
+    if not standalone_explicit.empty:
+        for strategy in ALL_STRATEGIES:
+            plot_hybrid_ratios(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, impl_types=['MALLOC'], strategy=strategy)
+            plot_best_hybrid_gflops(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, impl_types=['MALLOC'], strategy=strategy)
+            plot_best_hybrid_pct(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, impl_types=['MALLOC'], sort_by_pct=True, strategy=strategy)
 
-    #     # --- Overall Best Comparison ---
-    #     plot_overall_best_hybrid_pct(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, impl_types=['MALLOC'], sort_by_pct=True)
+        # --- Overall Best Comparison ---
+        plot_overall_best_hybrid_pct(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, impl_types=['MALLOC'], sort_by_pct=True)
 
-    # # --- Summary Table Generation ---
-    # if not hybrid_target_df.empty:
-    #     csv_path = os.path.join(script_dir, f'spmv_performance_{CPU_KERNEL}_{GPU_KERNEL}_summary.csv')
-    #     hybrid_target_df.to_csv(csv_path)
+    # --- Summary Table Generation ---
+    if not hybrid_target_df.empty:
+        csv_path = os.path.join(script_dir, f'spmv_performance_{CPU_KERNEL}_{GPU_KERNEL}_summary.csv')
+        hybrid_target_df.to_csv(csv_path)
     
-    # print(f"\nSuccessfully generated plots in {plot_dir}")
+    print(f"\nSuccessfully generated plots in {plot_dir}")
