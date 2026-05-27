@@ -309,6 +309,216 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_SHORTEST_ROWS_LLC$(SUFFIX).exe: \
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
 
 
+# =============================================================================
+# Standalone Work-Removal Targets
+# =============================================================================
+
+STANDALONE_DISPATCHER_SRC = spmv_kernels/standalone_dispatcher.cpp
+WORK_REMOVAL_SRC          = spmv_kernels/work_removal_strategies.cpp
+
+STANDALONE_DEFINES = \
+    -D'GPU_KERNEL_FUNC=$(GPU_KERNEL_INITFUNC)' \
+    -D'GPU_KERNEL_STATS_FUNC=$(GPU_KERNEL_STATSFUNC)' \
+    -D'STANDALONE_FORMAT_NAME="Standalone_$(GPU_KERNEL)"'
+
+# --- Work removal strategies object (shared by all standalone targets) ---
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/work_removal_strategies$(SUFFIX).o,$(WORK_REMOVAL_SRC),$(CPPFLAGS))
+	$(CPP) $(CPPFLAGS) -c $< -o $@
+
+# --- bench_spmv compiled for standalone removal (CUDA_KERNEL + VECTOR_ALLOC, no HYBRID) ---
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_spmv_standalone_$(VECTOR_ALLOC)$(SUFFIX).o,bench_spmv.cpp,$(CPPFLAGS) -D'CUDA_KERNEL' -D'VECTOR_ALLOC_$(VECTOR_ALLOC)' -D'WORK_REMOVAL')
+	$(CPP) $(CPPFLAGS) -D'CUDA_KERNEL' -D'VECTOR_ALLOC_$(VECTOR_ALLOC)' -D'WORK_REMOVAL' -c $< -o $@
+
+# --- Removal ratios (percentage of rows to remove) ---
+REMOVAL_RATIOS = 05 10 15 20 25 30 35
+
+# --- Remove Shortest Rows ---
+define REMOVE_SHORTEST_ROWS_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_shortest_$(1)$$(SUFFIX).o,$(STANDALONE_DISPATCHER_SRC),$$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_SHORTEST_ROWS -DWORK_REMOVAL_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_SHORTEST_ROWS -DWORK_REMOVAL_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_standalone_$(GPU_KERNEL)_REMOVE_SHORTEST_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_standalone_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_shortest_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/work_removal_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(REMOVAL_RATIOS),$(eval $(call REMOVE_SHORTEST_ROWS_RULE,$(r))))
+
+# --- Remove Longest Rows ---
+define REMOVE_LONGEST_ROWS_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_longest_$(1)$$(SUFFIX).o,$(STANDALONE_DISPATCHER_SRC),$$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_LONGEST_ROWS -DWORK_REMOVAL_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_LONGEST_ROWS -DWORK_REMOVAL_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_standalone_$(GPU_KERNEL)_REMOVE_LONGEST_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_standalone_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_longest_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/work_removal_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(REMOVAL_RATIOS),$(eval $(call REMOVE_LONGEST_ROWS_RULE,$(r))))
+
+# --- Remove Below Threshold ---
+REMOVAL_THRESHOLDS = 4 8 16 32
+
+define REMOVE_BELOW_THRESHOLD_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_below_thresh_$(1)$$(SUFFIX).o,$(STANDALONE_DISPATCHER_SRC),$$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_BELOW_THRESHOLD -DWORK_REMOVAL_THRESHOLD=$(1))
+	$$(CPP) $$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_BELOW_THRESHOLD -DWORK_REMOVAL_THRESHOLD=$(1) -c $$< -o $$@
+
+spmv_standalone_$(GPU_KERNEL)_REMOVE_BELOW_THRESH_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_standalone_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_below_thresh_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/work_removal_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach t,$(REMOVAL_THRESHOLDS),$(eval $(call REMOVE_BELOW_THRESHOLD_RULE,$(t))))
+
+# --- Remove Above Threshold ---
+define REMOVE_ABOVE_THRESHOLD_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_above_thresh_$(1)$$(SUFFIX).o,$(STANDALONE_DISPATCHER_SRC),$$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_ABOVE_THRESHOLD -DWORK_REMOVAL_THRESHOLD=$(1))
+	$$(CPP) $$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_ABOVE_THRESHOLD -DWORK_REMOVAL_THRESHOLD=$(1) -c $$< -o $$@
+
+spmv_standalone_$(GPU_KERNEL)_REMOVE_ABOVE_THRESH_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_standalone_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_above_thresh_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/work_removal_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach t,$(REMOVAL_THRESHOLDS),$(eval $(call REMOVE_ABOVE_THRESHOLD_RULE,$(t))))
+
+# --- Remove Outlier Rows ---
+REMOVAL_OUTLIER_K = 1 2 3
+
+define REMOVE_OUTLIER_ROWS_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_outlier_$(1)$$(SUFFIX).o,$(STANDALONE_DISPATCHER_SRC),$$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_OUTLIER_ROWS -DWORK_REMOVAL_OUTLIER_K=$(1).0)
+	$$(CPP) $$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_OUTLIER_ROWS -DWORK_REMOVAL_OUTLIER_K=$(1).0 -c $$< -o $$@
+
+spmv_standalone_$(GPU_KERNEL)_REMOVE_OUTLIER_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_standalone_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_outlier_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/work_removal_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach k,$(REMOVAL_OUTLIER_K),$(eval $(call REMOVE_OUTLIER_ROWS_RULE,$(k))))
+
+# --- Remove Contiguous Block ---
+define REMOVE_CONTIGUOUS_BLOCK_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_contiguous_$(1)$$(SUFFIX).o,$(STANDALONE_DISPATCHER_SRC),$$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_CONTIGUOUS_BLOCK -DWORK_REMOVAL_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_CONTIGUOUS_BLOCK -DWORK_REMOVAL_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_standalone_$(GPU_KERNEL)_REMOVE_CONTIGUOUS_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_standalone_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_contiguous_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/work_removal_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(REMOVAL_RATIOS),$(eval $(call REMOVE_CONTIGUOUS_BLOCK_RULE,$(r))))
+
+# --- Standalone No-Removal Baseline (STRAT_NONE) ---
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/standalone_$(GPU_KERNEL)_none$(SUFFIX).o,$(STANDALONE_DISPATCHER_SRC),$(CPPFLAGS) $(STANDALONE_DEFINES))
+	$(CPP) $(CPPFLAGS) $(STANDALONE_DEFINES) -c $< -o $@
+
+spmv_standalone_$(GPU_KERNEL)_REMOVE_NONE_$(VECTOR_ALLOC)$(SUFFIX).exe: \
+    $(OBJ_DIR)/bench$(SUFFIX).o \
+    $(OBJ_DIR)/bench_spmv_standalone_$(VECTOR_ALLOC)$(SUFFIX).o \
+    $(OBJ_DIR)/standalone_$(GPU_KERNEL)_none$(SUFFIX).o \
+    $(OBJ_DIR)/work_removal_strategies$(SUFFIX).o \
+    $(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$(VECTOR_ALLOC)$(SUFFIX).o \
+    $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+
+# --- Remove Bad Zones scored by row count (GPU thread-block aware) ---
+define REMOVE_BAD_ZONES_ROWS_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_bad_zones_rows_$(1)$$(SUFFIX).o,$(STANDALONE_DISPATCHER_SRC),$$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_BAD_ZONES_ROWS -DWORK_REMOVAL_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_BAD_ZONES_ROWS -DWORK_REMOVAL_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_standalone_$(GPU_KERNEL)_REMOVE_BAD_ZONES_ROWS_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_standalone_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_bad_zones_rows_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/work_removal_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(REMOVAL_RATIOS),$(eval $(call REMOVE_BAD_ZONES_ROWS_RULE,$(r))))
+
+# --- Remove Bad Zones scored by bandwidth (max_col - min_col) ---
+define REMOVE_BAD_ZONES_BW_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_bad_zones_bw_$(1)$$(SUFFIX).o,$(STANDALONE_DISPATCHER_SRC),$$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_BAD_ZONES_BW -DWORK_REMOVAL_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_BAD_ZONES_BW -DWORK_REMOVAL_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_standalone_$(GPU_KERNEL)_REMOVE_BAD_ZONES_BW_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_standalone_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_bad_zones_bw_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/work_removal_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(REMOVAL_RATIOS),$(eval $(call REMOVE_BAD_ZONES_BW_RULE,$(r))))
+
+# --- Remove Bad Zones scored by unique cache lines ---
+define REMOVE_BAD_ZONES_CL_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_bad_zones_cl_$(1)$$(SUFFIX).o,$(STANDALONE_DISPATCHER_SRC),$$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_BAD_ZONES_CL -DWORK_REMOVAL_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_BAD_ZONES_CL -DWORK_REMOVAL_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_standalone_$(GPU_KERNEL)_REMOVE_BAD_ZONES_CL_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_standalone_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_bad_zones_cl_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/work_removal_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(REMOVAL_RATIOS),$(eval $(call REMOVE_BAD_ZONES_CL_RULE,$(r))))
+
+# --- Remove Bad Zones scored by zero-padding ratio ---
+define REMOVE_BAD_ZONES_PAD_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_bad_zones_pad_$(1)$$(SUFFIX).o,$(STANDALONE_DISPATCHER_SRC),$$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_BAD_ZONES_PAD -DWORK_REMOVAL_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(STANDALONE_DEFINES) -DSTRAT_REMOVE_BAD_ZONES_PAD -DWORK_REMOVAL_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_standalone_$(GPU_KERNEL)_REMOVE_BAD_ZONES_PAD_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_standalone_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/standalone_$(GPU_KERNEL)_remove_bad_zones_pad_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/work_removal_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(REMOVAL_RATIOS),$(eval $(call REMOVE_BAD_ZONES_PAD_RULE,$(r))))
+
 
 #####
 

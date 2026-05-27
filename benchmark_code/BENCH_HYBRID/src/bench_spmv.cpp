@@ -429,10 +429,10 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			#ifdef CUDA_KERNEL
 			{		
 				#ifdef HYBRID
-					// for(int i=0;i<10;i++)
-					// 	HA->cpu_spmv(x, y);
-					// for(int i=0;i<1000;i++)
-					// 	HA->gpu_spmv_sync(x, y);
+					for(int i=0;i<10;i++)
+						HA->cpu_spmv(x, y);
+					for(int i=0;i<1000;i++)
+						HA->gpu_spmv_sync(x, y);
 
 					// for(int i=0;i<1000;i++) {
 					// 	HA->spmv(x, y);
@@ -673,8 +673,11 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		// printf("J_estimated = %lf\tW_avg = %lf\n", J_estimated, W_avg);
 		/*****************************************************************************************/
 
-		// gflops = csr->nnz_matrix / time_total * num_loops * 2 * 1e-9;
-		gflops = csr->nnz_matrix / time_median * 2 * 1e-9;
+		#ifdef WORK_REMOVAL
+			gflops = MF->nnz / time_median * 2 * 1e-9;
+		#else
+			gflops = csr->nnz_matrix / time_median * 2 * 1e-9;
+		#endif
 		printf("GFLOPS = %lf (%s) (time = %.6lf ms)\n", gflops, getenv("PROGG"), time_median*1e3);
 		#ifdef HYBRID
 			// double gflops_cpu = (HA->cpu_part->m > 0) ? (HA->cpu_part->nnz * 2.0 / time_cpu_average * 1e-6) : 0;

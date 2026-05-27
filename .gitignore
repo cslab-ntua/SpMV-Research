@@ -57,6 +57,7 @@ benchmark_code/BENCH/RAVE/wxparaver-4.12.0
 
 benchmark_code/BENCH_HYBRID/out_logs/
 benchmark_code/BENCH_HYBRID/data_analysis/plots/old*/
+benchmark_code/BENCH_HYBRID/data_analysis/plots*
 
 benchmark_code/FPGA/HiSparse/
 benchmark_code/FPGA/HPCG_FPGA

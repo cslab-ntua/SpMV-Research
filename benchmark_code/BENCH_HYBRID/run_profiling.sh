@@ -987,8 +987,8 @@ bench()
                 else
                     export PROFILING_CALL=1
                     mkdir -p ./out_logs/reports/nsys_reports;
+                    # --capture-range=cudaProfilerApi \
                     nsys profile --output="./out_logs/reports/nsys_reports/nsys_report_${mtx_name}_${prog_name}" \
-                        --capture-range=cudaProfilerApi \
                         --trace=cuda,cublas,cusparse,osrt,openmp,nvtx \
                         --sample=cpu \
                         --cpuctxsw=none \
