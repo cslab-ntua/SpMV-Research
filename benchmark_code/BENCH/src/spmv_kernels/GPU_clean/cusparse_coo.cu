@@ -57,8 +57,14 @@ struct COOArrays : Matrix_Format
 	cusparseDnVecDescr_t vecX;
 	cusparseDnVecDescr_t vecY;
 
-	COOArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), colind(ja), a(a)
+	COOArrays(INT_T * ia, INT_T * ja, ValueTypeReference * a_ref, long m, long n, long nnz) : Matrix_Format(m, n, nnz), colind(ja)
 	{
+		// Allocate and convert values from ValueTypeReference (e.g. double) to ValueType (e.g. float).
+		a = (ValueType *) aligned_alloc(64, nnz * sizeof(*a));
+		#pragma omp parallel for
+		for (long i = 0; i < nnz; i++)
+			a[i] = (ValueType) a_ref[i];
+
 		int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, max_threads_per_multiproc, max_persistent_l2_cache;
 		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_smem_per_block, cudaDevAttrMaxSharedMemoryPerBlock, 0));
 		gpuCudaErrorCheck(cudaDeviceGetAttribute(&multiproc_count, cudaDevAttrMultiProcessorCount, 0));
@@ -180,12 +186,11 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 void
 compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restrict y)
 {
-	const double alpha = 1.0;
-	const double beta = 0.0;
+	const ValueType alpha = 1.0;
+	const ValueType beta = 0.0;
 	if (coo->x == NULL)
 	{
 		coo->x = x;
-
 		gpuCudaErrorCheck(cudaMemcpy(coo->x_d, x, coo->n * sizeof(*coo->x_d), cudaMemcpyHostToDevice));
 
 		// Create dense vector X

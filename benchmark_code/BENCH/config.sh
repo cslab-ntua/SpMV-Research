@@ -100,8 +100,8 @@ conf_vars=(
     ['force_retry_on_error']=0
     # ['force_retry_on_error']=1
 
-    ['output_to_files']=0
-    # ['output_to_files']=1
+    # ['output_to_files']=0
+    ['output_to_files']=1
 
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
@@ -111,8 +111,8 @@ conf_vars=(
     # ['USE_RCM_REORDERING']=1
 
     # Benchmark with the artificially generated matrices (1) or real matrices (0).
-    ['USE_ARTIFICIAL_MATRICES']=0
-    # ['USE_ARTIFICIAL_MATRICES']=1
+    # ['USE_ARTIFICIAL_MATRICES']=0
+    ['USE_ARTIFICIAL_MATRICES']=1
 
     # Whether to clear cpu caches before each spmv iteration.
     ['CLEAR_CACHES']=0
@@ -448,11 +448,12 @@ artificial_matrices_files=(
 
     # Validation matrices artificial twins in a +-30% value space of each feature.
     # "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
+    "$path_artificial"/validation_matrices_10_samples_30_range_twins2.txt
 
     # The synthetic dataset studied in the paper.
     # "$path_artificial"/synthetic_matrices_medium_dataset.txt
     # "$path_artificial"/synthetic_matrices_medium_dataset2.txt
-    "$path_artificial"/test.txt
+    # "$path_artificial"/test.txt
 )
 
 
@@ -531,6 +532,9 @@ declare -A progs
 
 # SpMV kernels to benchmark (uncomment the ones you want).
 progs=(
+    # FP32 tests
+    # ['cusparse_csr_nv_f']="${script_dir}/src/spmv_cusparse_csr_nv_f.exe"
+    ['armpl_f']="${script_dir}/src/spmv_armpl_f.exe"
 
     # CG
     # ['cg_csr_d']="${script_dir}/src/cg_csr_d.exe"
@@ -665,7 +669,7 @@ progs=(
     # ['cuda_coo_sorted_transpose_delta_nv_d']="${script_dir}/src/spmv_cuda_coo_sorted_transpose_delta_nv_d.exe"
     # ['cuda_coo_sorted_transpose_non_empty_rows_nv_d']="${script_dir}/src/spmv_cuda_coo_sorted_transpose_non_empty_rows_nv_d.exe"
     # ['cuda_csr_transpose_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_nv_d.exe"
-    ['cuda_csr_transpose_one_row_per_thread_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_one_row_per_thread_nv_d.exe"
+    # ['cuda_csr_transpose_one_row_per_thread_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_one_row_per_thread_nv_d.exe"
     # ['cuda_csr_transpose_expand_rows_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_nv_d.exe"
     # ['cuda_csr_transpose_expand_rows_timed_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_timed_nv_d.exe"
     # ['cuda_csr_transpose_expand_rows_timed_v2_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_timed_v2_nv_d.exe"

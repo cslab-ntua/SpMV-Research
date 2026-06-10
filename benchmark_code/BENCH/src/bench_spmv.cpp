@@ -619,7 +619,8 @@ bench(struct CSR_reference_s * csr, struct Matrix_Format * MF, long print_labels
 		min_num_loops = 1;
 	#else
 		// min_num_loops = 1;
-		min_num_loops = 64;
+		// min_num_loops = 64;
+		min_num_loops = 128;
 		// min_num_loops = 256;
 	#endif
 
@@ -627,8 +628,8 @@ bench(struct CSR_reference_s * csr, struct Matrix_Format * MF, long print_labels
 	#ifdef SDV_TRACING
 		min_runtime = 0;
 	#else
-		// min_runtime = 0;
-		min_runtime = 2.0;
+		min_runtime = 0;
+		// min_runtime = 2.0;
 	#endif
 
 	compute(csr, MF, x, x_ref, y, min_num_loops, min_runtime, 0);

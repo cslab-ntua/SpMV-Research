@@ -136,186 +136,186 @@ done
 
 matrices_validation=(
 
-    # scircuit
-    # mac_econ_fwd500
-    # raefsky3
-    # rgg_n_2_17_s0
-    # bbmat
-    # appu
-    # mc2depi
-    # rma10
-    # cop20k_A
-    # thermomech_dK
-    # webbase-1M
-    # cant
-    # ASIC_680k
-    # roadNet-TX
-    # pdb1HYS
-    # TSOPF_RS_b300_c3
-    # Chebyshev4
-    # consph
-    # com-Youtube
-    # rajat30
-    # radiation
-    # Stanford_Berkeley
-    # shipsec1
-    # PR02R
-    # CurlCurl_2
-    # gupta3
-    # mip1
-    # rail4284
-    # pwtk
-    # crankseg_2
-    # Si41Ge41H72
-    # TSOPF_RS_b2383
-    # in-2004
-    # Ga41As41H72
-    # eu-2005
-    # wikipedia-20051105
-    # kron_g500-logn18
-    # rajat31
-    # human_gene1
-    # delaunay_n22
-    # GL7d20
-    # sx-stackoverflow
-    # dgreen
-    # mawi_201512012345
-    # ldoor
-    # dielFilterV2real
-    # circuit5M
-    # soc-LiveJournal1
-    # bone010
-    # audikw_1
-    # cage15
-    # kmer_V2a
-
-    cit-Patents
-    human_gene2
-    GL7d21
+    scircuit
+    mac_econ_fwd500
+    raefsky3
+    rgg_n_2_17_s0
+    bbmat
+    appu
+    mc2depi
+    rma10
+    cop20k_A
+    thermomech_dK
+    webbase-1M
+    cant
+    ASIC_680k
+    roadNet-TX
+    pdb1HYS
+    TSOPF_RS_b300_c3
+    Chebyshev4
+    consph
+    com-Youtube
+    rajat30
+    radiation
+    Stanford_Berkeley
+    shipsec1
+    PR02R
+    CurlCurl_2
+    gupta3
+    mip1
+    rail4284
+    pwtk
+    crankseg_2
+    Si41Ge41H72
+    TSOPF_RS_b2383
+    in-2004
     Ga41As41H72
-    great-britain_osm
-    hugetric-00000
     eu-2005
-    Freescale1
     wikipedia-20051105
-    circuit5M_dc
-    bundle_adj
-    msdoor
-    fem_hifreq_circuit
     kron_g500-logn18
-    StocF-1465
     rajat31
-    gsm_106857
-    hugetric-00010
-    M6
-    CoupCons3D
-    12month1
-    as-Skitter
-    333SP
-    hugetric-00020
-    AS365
-    Transport
-    Freescale2
     human_gene1
-    NLR
-    GL7d17
     delaunay_n22
-    F1
-    rel9
-    CurlCurl_4
-    FullChip
-    cage14
-    ML_Laplace
-    germany_osm
-    nd24k
-    Fault_639
-    mouse_gene
-    nlpkkt80
-    wiki-topcats
-    asia_osm
-    adaptive
-    rgg_n_2_21_s0
     GL7d20
-    coPapersDBLP
-    soc-Pokec
-    coPapersCiteseer
-    dielFilterV3clx
-    mycielskian16
-    vas_stokes_1M
-    packing-500x100x100-b050
-    GL7d18
-    inline_1
     sx-stackoverflow
-    PFlow_742
-    RM07R
-    GL7d19
-    wikipedia-20060925
-    road_central
     dgreen
-    hugetrace-00010
-    wikipedia-20061104
-    Emilia_923
-    relat9
-    Hardesty3
-    kron_g500-logn19
     mawi_201512012345
-    spal_004
-    wikipedia-20070206
     ldoor
     dielFilterV2real
-    delaunay_n23
-    af_shell10
-    hugetrace-00020
-    boneS10
-    wb-edu
-    hugebubbles-00000
     circuit5M
-    Hook_1498
-    rgg_n_2_22_s0
-    Geo_1438
-    hugebubbles-00010
-    Serena
-    GAP-road
-    road_usa
-    vas_stokes_2M
     soc-LiveJournal1
-    hugebubbles-00020
-    com-LiveJournal
     bone010
     audikw_1
-    ljournal-2008
-    mawi_201512020000
-    channel-500x100x100-b050
-    Long_Coup_dt0
-    Long_Coup_dt6
-    kron_g500-logn20
-    dielFilterV3real
-    nlpkkt120
-    mycielskian17
     cage15
-    delaunay_n24
-    ML_Geer
-    hollywood-2009
-    Flan_1565
-    europe_osm
-    Cube_Coup_dt0
-    Cube_Coup_dt6
-    Bump_2911
-    rgg_n_2_23_s0
-    vas_stokes_4M
     kmer_V2a
-    kmer_U1a
-    mawi_201512020030
-    kron_g500-logn21
-    indochina-2004
-    nlpkkt160
-    com-Orkut
-    rgg_n_2_24_s0
-    HV15R
-    mycielskian18
-    uk-2002
-    mawi_201512020130
-    Queen_4147
+
+    # cit-Patents
+    # human_gene2
+    # GL7d21
+    # Ga41As41H72
+    # great-britain_osm
+    # hugetric-00000
+    # eu-2005
+    # Freescale1
+    # wikipedia-20051105
+    # circuit5M_dc
+    # bundle_adj
+    # msdoor
+    # fem_hifreq_circuit
+    # kron_g500-logn18
+    # StocF-1465
+    # rajat31
+    # gsm_106857
+    # hugetric-00010
+    # M6
+    # CoupCons3D
+    # 12month1
+    # as-Skitter
+    # 333SP
+    # hugetric-00020
+    # AS365
+    # Transport
+    # Freescale2
+    # human_gene1
+    # NLR
+    # GL7d17
+    # delaunay_n22
+    # F1
+    # rel9
+    # CurlCurl_4
+    # FullChip
+    # cage14
+    # ML_Laplace
+    # germany_osm
+    # nd24k
+    # Fault_639
+    # mouse_gene
+    # nlpkkt80
+    # wiki-topcats
+    # asia_osm
+    # adaptive
+    # rgg_n_2_21_s0
+    # GL7d20
+    # coPapersDBLP
+    # soc-Pokec
+    # coPapersCiteseer
+    # dielFilterV3clx
+    # mycielskian16
+    # vas_stokes_1M
+    # packing-500x100x100-b050
+    # GL7d18
+    # inline_1
+    # sx-stackoverflow
+    # PFlow_742
+    # RM07R
+    # GL7d19
+    # wikipedia-20060925
+    # road_central
+    # dgreen
+    # hugetrace-00010
+    # wikipedia-20061104
+    # Emilia_923
+    # relat9
+    # Hardesty3
+    # kron_g500-logn19
+    # mawi_201512012345
+    # spal_004
+    # wikipedia-20070206
+    # ldoor
+    # dielFilterV2real
+    # delaunay_n23
+    # af_shell10
+    # hugetrace-00020
+    # boneS10
+    # wb-edu
+    # hugebubbles-00000
+    # circuit5M
+    # Hook_1498
+    # rgg_n_2_22_s0
+    # Geo_1438
+    # hugebubbles-00010
+    # Serena
+    # GAP-road
+    # road_usa
+    # vas_stokes_2M
+    # soc-LiveJournal1
+    # hugebubbles-00020
+    # com-LiveJournal
+    # bone010
+    # audikw_1
+    # ljournal-2008
+    # mawi_201512020000
+    # channel-500x100x100-b050
+    # Long_Coup_dt0
+    # Long_Coup_dt6
+    # kron_g500-logn20
+    # dielFilterV3real
+    # nlpkkt120
+    # mycielskian17
+    # cage15
+    # delaunay_n24
+    # ML_Geer
+    # hollywood-2009
+    # Flan_1565
+    # europe_osm
+    # Cube_Coup_dt0
+    # Cube_Coup_dt6
+    # Bump_2911
+    # rgg_n_2_23_s0
+    # vas_stokes_4M
+    # kmer_V2a
+    # kmer_U1a
+    # mawi_201512020030
+    # kron_g500-logn21
+    # indochina-2004
+    # nlpkkt160
+    # com-Orkut
+    # rgg_n_2_24_s0
+    # HV15R
+    # mycielskian18
+    # uk-2002
+    # mawi_201512020130
+    # Queen_4147
 
 )
 matrices_validation_tamu=( ${matrices_validation[@]} )
@@ -883,7 +883,7 @@ bench()
 matrices=(
 
     # "${matrices_openFoam[@]}"
-    # "${matrices_validation[@]}"
+    "${matrices_validation[@]}"
     # "${matrices_validation_tamu[@]}"
     # "${matrices_paper_csr_rv[@]}"
 
@@ -892,7 +892,7 @@ matrices=(
     # "${matrices_compression_small[@]}"
     # "${matrices_compression_medium[@]}"
     # "${matrices_compression_medium_symmetric[@]}"
-    "${matrices_compression[@]}"
+    # "${matrices_compression[@]}"
     # "${matrices_compression_symmetric[@]}"
     # "${matrices_M3E[@]}"
     # "${matrices_compression_all[@]}"

@@ -55,6 +55,8 @@ benchmark_code/BENCH/RAVE/rave-outputs/
 benchmark_code/BENCH/RAVE/rave-outputs2/
 benchmark_code/BENCH/RAVE/wxparaver-4.12.0
 
+benchmark_code/BENCH/out_logs/
+
 benchmark_code/BENCH_HYBRID/out_logs/
 benchmark_code/BENCH_HYBRID/data_analysis/plots/old*/
 benchmark_code/BENCH_HYBRID/data_analysis/plots*
