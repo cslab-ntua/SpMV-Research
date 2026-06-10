@@ -72,7 +72,7 @@ struct COOArrays : Matrix_Format
 		// Convert values from ValueTypeReference (double) to ValueType (e.g., float).
 		#pragma omp parallel for
 		for (long i = 0; i < nnz; i++)
-			a[i] = (ValueType) values[i];
+			a[i] = (ValueType) a_ref[i];
 
 		gpuCusparseErrorCheck(cusparseCreate(&handle));
 

@@ -31,17 +31,15 @@ extern "C"{
 
 struct CSCArrays : Matrix_Format
 {
-	INT_T * ia;      // the usual rowptr (of size m+1)
-	INT_T * ja;      // the colidx of each NNZ (of size nnz)
-	ValueType * a;   // the values (of size NNZ)
-
-	INT_T * ia_d;
-	INT_T * ja_d;
-	ValueType * a_d;
+	ValueType * a;
 
 	INT_T * ia_h;
 	INT_T * ja_h;
 	ValueType * a_h;
+
+	INT_T * ia_d;
+	INT_T * ja_d;
+	ValueType * a_d;
 
 	cusparseHandle_t     handle = NULL;
 	cusparseSpMatDescr_t matA;
@@ -55,19 +53,30 @@ struct CSCArrays : Matrix_Format
 	cusparseDnVecDescr_t vecX;
 	cusparseDnVecDescr_t vecY;
 
-	CSCArrays(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz) : Matrix_Format(m, n, nnz)
+	CSCArrays(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * a_ref, long m, long n, long nnz) : Matrix_Format(m, n, nnz)
 	{
 
 		cuda_device_print_attributes();
 
-		ia = (INT_T *) malloc(nnz * sizeof(INT_T));
-		ja = (INT_T *) malloc((n+1) * sizeof(INT_T));
 		a = (typeof(a)) malloc(nnz * sizeof(*a));
 
 		// Convert values from ValueTypeReference (double) to ValueType (e.g., float).
 		#pragma omp parallel for
 		for (long i = 0; i < nnz; i++)
-			a[i] = (ValueType) values[i];
+			a[i] = (ValueType) a_ref[i];
+
+		cuda_assert(cudaMallocHost(&ia_h, nnz * sizeof(*ia_h)));
+		cuda_assert(cudaMallocHost(&ja_h, (n+1) * sizeof(*ja_h)));
+		cuda_assert(cudaMallocHost(&a_h, nnz * sizeof(*a_h)));
+
+		gpuCusparseErrorCheck(cusparseCreate(&handle));
+
+		size_t csc_bufferSize = 0;
+		void* csc_dBuffer    = NULL;
+		gpuCusparseErrorCheck(cusparseCsr2cscEx2_bufferSize(handle, m, n, nnz, a, row_ptr, col_ind, a_h, ja_h, ia_h, ValueTypeCuda, CUSPARSE_ACTION_NUMERIC, CUSPARSE_INDEX_BASE_ZERO, CUSPARSE_CSR2CSC_ALG_DEFAULT, &csc_bufferSize));
+		cuda_assert(cudaMalloc(&csc_dBuffer, csc_bufferSize));
+		gpuCusparseErrorCheck(cusparseCsr2cscEx2(handle, m, n, nnz, a, row_ptr, col_ind, a_h, ja_h, ia_h, ValueTypeCuda, CUSPARSE_ACTION_NUMERIC, CUSPARSE_INDEX_BASE_ZERO, CUSPARSE_CSR2CSC_ALG_DEFAULT, csc_dBuffer));
+		cuda_assert(cudaFree(csc_dBuffer));
 
 		cuda_assert(cudaMalloc(&ia_d, nnz * sizeof(*ia_d)));
 		cuda_assert(cudaMalloc(&ja_d, (n+1) * sizeof(*ja_d)));
@@ -75,27 +84,8 @@ struct CSCArrays : Matrix_Format
 		cuda_assert(cudaMalloc(&x_d, n * sizeof(*x_d)));
 		cuda_assert(cudaMalloc(&y_d, m * sizeof(*y_d)));
 
-		gpuCusparseErrorCheck(cusparseCreate(&handle));
-
-		size_t csc_bufferSize = 0;
-		void* csc_dBuffer    = NULL;
-		gpuCusparseErrorCheck(cusparseCsr2cscEx2_bufferSize(handle, m, n, nnz, a, row_ptr, col_ind, a, ja, ia, ValueTypeCuda, CUSPARSE_ACTION_NUMERIC, CUSPARSE_INDEX_BASE_ZERO, CUSPARSE_CSR2CSC_ALG_DEFAULT, &csc_bufferSize));
-		cuda_assert(cudaMalloc(&csc_dBuffer, csc_bufferSize));
-		gpuCusparseErrorCheck(cusparseCsr2cscEx2(handle, m, n, nnz, a, row_ptr, col_ind, a, ja, ia, ValueTypeCuda, CUSPARSE_ACTION_NUMERIC, CUSPARSE_INDEX_BASE_ZERO, CUSPARSE_CSR2CSC_ALG_DEFAULT, csc_dBuffer));
-		cuda_assert(cudaFree(csc_dBuffer));
-
-		cuda_assert(cudaMallocHost(&ia_h, nnz * sizeof(*ia_h)));
-		cuda_assert(cudaMallocHost(&ja_h, (n+1) * sizeof(*ja_h)));
-		cuda_assert(cudaMallocHost(&a_h, nnz * sizeof(*a_h)));
-
-		memcpy(ia_h, ia, nnz * sizeof(*ia_h));
-		memcpy(ja_h, ja, (n+1) * sizeof(*ja_h));
-		memcpy(a_h, a, nnz * sizeof(*a_h));
-
 		cuda_assert(cudaMemcpy(ia_d, ia_h, nnz * sizeof(*ia_d), cudaMemcpyHostToDevice));
-
 		cuda_assert(cudaMemcpy(ja_d, ja_h, (n+1) * sizeof(*ja_d), cudaMemcpyHostToDevice));
-
 		cuda_assert(cudaMemcpy(a_d, a_h, nnz * sizeof(*a_d), cudaMemcpyHostToDevice));
 
 		// Create sparse matrix A in CSC format
@@ -105,8 +95,6 @@ struct CSCArrays : Matrix_Format
 	~CSCArrays()
 	{
 		free(a);
-		free(ia);
-		free(ja);
 
 		// destroy matrix/vector descriptors
 		gpuCusparseErrorCheck(cusparseDestroySpMat(matA));

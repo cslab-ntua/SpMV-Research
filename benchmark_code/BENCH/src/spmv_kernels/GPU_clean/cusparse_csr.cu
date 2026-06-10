@@ -67,6 +67,12 @@ struct CSRArrays : Matrix_Format
 		cuda_assert(cudaMalloc(&x_d, n * sizeof(*x_d)));
 		cuda_assert(cudaMalloc(&y_d, m * sizeof(*y_d)));
 
+		// Convert values from ValueTypeReference (double) to ValueType (e.g., float).
+		a = (typeof(a)) malloc(nnz * sizeof(*a));
+		#pragma omp parallel for
+		for (long i = 0; i < nnz; i++)
+			a[i] = (ValueType) a_ref[i];
+
 		gpuCusparseErrorCheck(cusparseCreate(&handle));
 
 		cuda_assert(cudaMallocHost(&ia_h, (m+1) * sizeof(*ia_h)));
@@ -76,12 +82,6 @@ struct CSRArrays : Matrix_Format
 		memcpy(ia_h, ia, (m+1) * sizeof(*ia_h));
 		memcpy(ja_h, ja, nnz * sizeof(*ja_h));
 		memcpy(a_h, a, nnz * sizeof(*a_h));
-
-		// Convert values from ValueTypeReference (double) to ValueType (e.g., float).
-		a = (typeof(a)) malloc(nnz * sizeof(*a));
-		#pragma omp parallel for
-		for (long i = 0; i < nnz; i++)
-			a[i] = (ValueType) a_ref[i];
 
 		cuda_assert(cudaMemcpy(ia_d, ia_h, (m+1) * sizeof(*ia_d), cudaMemcpyHostToDevice));
 
