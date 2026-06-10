@@ -20,6 +20,14 @@ add_legend(struct Figure * fig, char * filename)
 	int ret;
 	long i, j;
 
+	char * prog;
+	if (!system("hash magick 2>/dev/null"))
+		prog = "magick";
+	else if (!system("hash convert 2>/dev/null"))
+		prog = "convert";
+	else
+		return;
+
 	int x = fig->x_num_pixels;
 	int y = fig->y_num_pixels;
 
@@ -74,7 +82,7 @@ add_legend(struct Figure * fig, char * filename)
 	cmd = malloc(cmd_n);
 
 	i = 0;
-	i += snprintf(cmd+i, cmd_n-i, "magick");
+	i += snprintf(cmd+i, cmd_n-i, "%s", prog);
 
 	// Input file.
 	i += snprintf(cmd+i, cmd_n-i, " '%s'", filename);

@@ -15,6 +15,7 @@
 #pragma  pop_macro("csr_row_neighbours")
 #pragma  pop_macro("csr_cross_row_similarity")
 #pragma  pop_macro("csr_cross_row_neighbours")
+#pragma  pop_macro("csr_cross_row_x_access_similarity")
 #pragma  pop_macro("csr_matrix_features")
 #pragma  pop_macro("csr_matrix_features_validation")
 #pragma  pop_macro("csr_value_features")

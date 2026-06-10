@@ -35,7 +35,7 @@ struct COOArrays : Matrix_Format
 {
 	INT_T * rowind;      // the usual rowptr (of size m+1)
 	INT_T * colind;      // the colidx of each NNZ (of size nnz)
-	ValueType * a;   // the values (of size NNZ)
+	ValueType * a;       // the values (of size NNZ)
 
 	INT_T * rowind_d;
 	INT_T * colind_d;
@@ -59,30 +59,20 @@ struct COOArrays : Matrix_Format
 
 	COOArrays(INT_T * ia, INT_T * ja, ValueTypeReference * a_ref, long m, long n, long nnz) : Matrix_Format(m, n, nnz), colind(ja)
 	{
-		// Allocate and convert values from ValueTypeReference (e.g. double) to ValueType (e.g. float).
-		a = (ValueType *) aligned_alloc(64, nnz * sizeof(*a));
+
+		cuda_device_print_attributes();
+
+		cuda_assert(cudaMalloc(&rowind_d, nnz * sizeof(*rowind_d)));
+		cuda_assert(cudaMalloc(&colind_d, nnz * sizeof(*colind_d)));
+		cuda_assert(cudaMalloc(&a_d, nnz * sizeof(*a_d)));
+		cuda_assert(cudaMalloc(&x_d, n * sizeof(*x_d)));
+		cuda_assert(cudaMalloc(&y_d, m * sizeof(*y_d)));
+		a = (typeof(a)) malloc(nnz * sizeof(*a));
+
+		// Convert values from ValueTypeReference (double) to ValueType (e.g., float).
 		#pragma omp parallel for
 		for (long i = 0; i < nnz; i++)
-			a[i] = (ValueType) a_ref[i];
-
-		int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, max_threads_per_multiproc, max_persistent_l2_cache;
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_smem_per_block, cudaDevAttrMaxSharedMemoryPerBlock, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&multiproc_count, cudaDevAttrMultiProcessorCount, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_block, cudaDevAttrMaxThreadsPerBlock , 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&warp_size, cudaDevAttrWarpSize , 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_multiproc, cudaDevAttrMaxThreadsPerMultiProcessor, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_persistent_l2_cache, cudaDevAttrMaxPersistingL2CacheSize, 0));
-		printf("max_smem_per_block=%d\n", max_smem_per_block);
-		printf("multiproc_count=%d\n", multiproc_count);
-		printf("max_threads_per_block=%d\n", max_threads_per_block);
-		printf("warp_size=%d\n", warp_size);
-		printf("max_threads_per_multiproc=%d\n", max_threads_per_multiproc);
-
-		gpuCudaErrorCheck(cudaMalloc(&rowind_d, nnz * sizeof(*rowind_d)));
-		gpuCudaErrorCheck(cudaMalloc(&colind_d, nnz * sizeof(*colind_d)));
-		gpuCudaErrorCheck(cudaMalloc(&a_d, nnz * sizeof(*a_d)));
-		gpuCudaErrorCheck(cudaMalloc(&x_d, n * sizeof(*x_d)));
-		gpuCudaErrorCheck(cudaMalloc(&y_d, m * sizeof(*y_d)));
+			a[i] = (ValueType) values[i];
 
 		gpuCusparseErrorCheck(cusparseCreate(&handle));
 
@@ -106,19 +96,19 @@ struct COOArrays : Matrix_Format
 			}
 		}
 
-		gpuCudaErrorCheck(cudaMallocHost(&rowind_h, nnz * sizeof(*rowind_h)));
-		gpuCudaErrorCheck(cudaMallocHost(&colind_h, nnz * sizeof(*colind_h)));
-		gpuCudaErrorCheck(cudaMallocHost(&a_h, nnz * sizeof(*a_h)));
+		cuda_assert(cudaMallocHost(&rowind_h, nnz * sizeof(*rowind_h)));
+		cuda_assert(cudaMallocHost(&colind_h, nnz * sizeof(*colind_h)));
+		cuda_assert(cudaMallocHost(&a_h, nnz * sizeof(*a_h)));
 
 		memcpy(rowind_h, rowind, nnz * sizeof(*rowind_h));
 		memcpy(colind_h, colind, nnz * sizeof(*colind_h));
 		memcpy(a_h, a, nnz * sizeof(*a_h));
 
-		gpuCudaErrorCheck(cudaMemcpy(rowind_d, rowind_h, nnz * sizeof(*rowind_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(rowind_d, rowind_h, nnz * sizeof(*rowind_d), cudaMemcpyHostToDevice));
 
-		gpuCudaErrorCheck(cudaMemcpy(colind_d, colind_h, nnz * sizeof(*colind_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(colind_d, colind_h, nnz * sizeof(*colind_d), cudaMemcpyHostToDevice));
 
-		gpuCudaErrorCheck(cudaMemcpy(a_d, a_h, nnz * sizeof(*a_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(a_d, a_h, nnz * sizeof(*a_d), cudaMemcpyHostToDevice));
 
 		// Create sparse matrix A in COO format
 		gpuCusparseErrorCheck(cusparseCreateCoo(&matA, m, n, nnz, rowind_d, colind_d, a_d, CUSPARSE_INDEX_32I, CUSPARSE_INDEX_BASE_ZERO, ValueTypeCuda));
@@ -137,17 +127,17 @@ struct COOArrays : Matrix_Format
 		gpuCusparseErrorCheck(cusparseDestroyDnVec(vecY));
 		gpuCusparseErrorCheck(cusparseDestroy(handle));
 
-		gpuCudaErrorCheck(cudaFree(rowind_d));
-		gpuCudaErrorCheck(cudaFree(colind_d));
-		gpuCudaErrorCheck(cudaFree(a_d));
+		cuda_assert(cudaFree(rowind_d));
+		cuda_assert(cudaFree(colind_d));
+		cuda_assert(cudaFree(a_d));
 
-		gpuCudaErrorCheck(cudaFree(x_d));
-		gpuCudaErrorCheck(cudaFree(y_d));
-		gpuCudaErrorCheck(cudaFree(dBuffer));
+		cuda_assert(cudaFree(x_d));
+		cuda_assert(cudaFree(y_d));
+		cuda_assert(cudaFree(dBuffer));
 
-		gpuCudaErrorCheck(cudaFreeHost(rowind_h));
-		gpuCudaErrorCheck(cudaFreeHost(colind_h));
-		gpuCudaErrorCheck(cudaFreeHost(a_h));
+		cuda_assert(cudaFreeHost(rowind_h));
+		cuda_assert(cudaFreeHost(colind_h));
+		cuda_assert(cudaFreeHost(a_h));
 	}
 
 	void spmv(ValueType * x, ValueType * y);
@@ -191,7 +181,8 @@ compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restri
 	if (coo->x == NULL)
 	{
 		coo->x = x;
-		gpuCudaErrorCheck(cudaMemcpy(coo->x_d, x, coo->n * sizeof(*coo->x_d), cudaMemcpyHostToDevice));
+
+		cuda_assert(cudaMemcpy(coo->x_d, x, coo->n * sizeof(*coo->x_d), cudaMemcpyHostToDevice));
 
 		// Create dense vector X
 		gpuCusparseErrorCheck(cusparseCreateDnVec(&coo->vecX, coo->n, coo->x_d, ValueTypeCuda));
@@ -201,17 +192,17 @@ compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restri
 
 		// Allocate an external buffer if needed
 		gpuCusparseErrorCheck(cusparseSpMV_bufferSize(coo->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, coo->matA, coo->vecX, &beta, coo->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, &coo->bufferSize));
-		gpuCudaErrorCheck(cudaMalloc(&coo->dBuffer, coo->bufferSize));
+		cuda_assert(cudaMalloc(&coo->dBuffer, coo->bufferSize));
 		printf("SpMV_bufferSize = %lu bytes\n", coo->bufferSize); // size of the workspace that is needed by cusparseSpMV()
 	}
 
 	gpuCusparseErrorCheck(cusparseSpMV(coo->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, coo->matA, coo->vecX, &beta, coo->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, coo->dBuffer));
-	gpuCudaErrorCheck(cudaDeviceSynchronize());
+	cuda_assert(cudaDeviceSynchronize());
 
 	if (coo->y == NULL)
 	{
 		coo->y = y;
-		gpuCudaErrorCheck(cudaMemcpy(y, coo->y_d, coo->m * sizeof(*coo->y_d), cudaMemcpyDeviceToHost));
+		cuda_assert(cudaMemcpy(y, coo->y_d, coo->m * sizeof(*coo->y_d), cudaMemcpyDeviceToHost));
 	}
 }
 

@@ -135,7 +135,6 @@ extern "C"{
 #ifdef __cplusplus
 }
 #endif
-
 static inline
 int
 quicksort_cmp(struct cmp_data_packed_t a, struct cmp_data_packed_t b, __attribute__((unused)) void * unused)

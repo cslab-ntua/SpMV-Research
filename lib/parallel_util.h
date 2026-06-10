@@ -153,34 +153,34 @@ do {                                                                            
  *   to avoid overflows in the multiplication if 'total_sum' is 'int' or smaller.
  */
 
-#define loop_partitioner_balance_prefix_sums(_num_workers, _worker_pos, _Sums, _N, _total_sum, _local_start_ptr, _local_end_ptr, ... /* _order_decreasing */)    \
-do {                                                                                                                                                             \
-	long _order_decreasing = DEFAULT_ARG_1(0, ##__VA_ARGS__);                                                                                                \
-	RENAME((_num_workers, num_workers, long), (_worker_pos, worker_pos, long), (_Sums, Sums), (_N, N),                                                       \
-	       (_total_sum, total_sum), (_local_start_ptr, local_start_ptr), (_local_end_ptr, local_end_ptr), (_order_decreasing, order_decreasing));            \
-	long i_s, i_e;                                                                                                                                           \
-	long index_lower_value, index_upper_value;                                                                                                               \
-	typeof(total_sum) target, target_next;                                                                                                                   \
-                                                                                                                                                                 \
-	if (N < 1)                                                                                                                                               \
-		error("Empty Sums array.");                                                                                                                      \
-	target = Sums[0] + (total_sum * worker_pos) / num_workers;                                                                                               \
-	target_next = Sums[0] + (total_sum * (worker_pos+1)) / num_workers;                                                                                      \
-	index_lower_value = (order_decreasing) ? N-1 : 0;                                                                                                        \
-	index_upper_value = (order_decreasing) ? 0 : N-1;                                                                                                        \
-                                                                                                                                                                 \
-	if (worker_pos == 0)                                                                                                                                     \
-		i_s = (order_decreasing) ? N : 0;                                                                                                                \
-	else                                                                                                                                                     \
-		i_s = macros_binary_search(Sums, index_lower_value, index_upper_value, target, NULL, NULL);                                                      \
-                                                                                                                                                                 \
-	if (worker_pos == num_workers - 1)                                                                                                                       \
-		i_e = (order_decreasing) ? 0 : N;                                                                                                                \
-	else                                                                                                                                                     \
-		i_e = macros_binary_search(Sums, index_lower_value, index_upper_value, target_next, NULL, NULL);                                                 \
-                                                                                                                                                                 \
-	*local_start_ptr = (order_decreasing) ? i_e : i_s;                                                                                                       \
-	*local_end_ptr = (order_decreasing) ? i_s : i_e;                                                                                                         \
+#define loop_partitioner_balance_prefix_sums(_num_workers, _worker_pos, _Sums, _N_minus_1, _total_sum, _local_start_ptr, _local_end_ptr, ... /* _order_decreasing */)    \
+do {                                                                                                                                                                     \
+	long _order_decreasing = DEFAULT_ARG_1(0, ##__VA_ARGS__);                                                                                                        \
+	RENAME((_num_workers, num_workers, long), (_worker_pos, worker_pos, long), (_Sums, Sums), (_N_minus_1, N),                                                       \
+	       (_total_sum, total_sum), (_local_start_ptr, local_start_ptr), (_local_end_ptr, local_end_ptr), (_order_decreasing, order_decreasing));                    \
+	long i_s, i_e;                                                                                                                                                   \
+	long index_lower_value, index_upper_value;                                                                                                                       \
+	typeof(total_sum) target, target_next;                                                                                                                           \
+                                                                                                                                                                         \
+	if (N < 1)                                                                                                                                                       \
+		error("Empty Sums array.");                                                                                                                              \
+	target = Sums[0] + (total_sum * worker_pos) / num_workers;                                                                                                       \
+	target_next = Sums[0] + (total_sum * (worker_pos+1)) / num_workers;                                                                                              \
+	index_lower_value = (order_decreasing) ? N-1 : 0;                                                                                                                \
+	index_upper_value = (order_decreasing) ? 0 : N-1;                                                                                                                \
+                                                                                                                                                                         \
+	if (worker_pos == 0)                                                                                                                                             \
+		i_s = (order_decreasing) ? N : 0;                                                                                                                        \
+	else                                                                                                                                                             \
+		i_s = macros_binary_search(Sums, index_lower_value, index_upper_value, target, NULL, NULL);                                                              \
+                                                                                                                                                                         \
+	if (worker_pos == num_workers - 1)                                                                                                                               \
+		i_e = (order_decreasing) ? 0 : N;                                                                                                                        \
+	else                                                                                                                                                             \
+		i_e = macros_binary_search(Sums, index_lower_value, index_upper_value, target_next, NULL, NULL);                                                         \
+                                                                                                                                                                         \
+	*local_start_ptr = (order_decreasing) ? i_e : i_s;                                                                                                               \
+	*local_end_ptr = (order_decreasing) ? i_s : i_e;                                                                                                                 \
 } while (0)
 
 

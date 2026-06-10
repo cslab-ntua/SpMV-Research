@@ -762,6 +762,91 @@ csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 }
 
 
+/* For similarities each non-empty row is equivalent, no matter the degree.
+ */
+#undef  csr_cross_row_x_access_similarity
+#define csr_cross_row_x_access_similarity  CSR_UTIL_GEN_EXPAND(csr_cross_row_x_access_similarity)
+CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
+double
+csr_cross_row_x_access_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, long cache_line_elements)
+{
+	int num_threads = safe_omp_get_num_threads_external();
+	double t_row_similarity[num_threads];
+	double total_row_similarity;
+	long total_num_non_empty_rows = 0;
+	#pragma omp parallel
+	{
+		int tnum = omp_get_thread_num();
+		long i;
+		long i1, i2;
+		long j1, j2;
+		long degree1, degree2;
+		long col, col1, col2;
+		long num_similarities;
+		double row_similarity = 0;
+		long num_non_empty_rows = 0;
+		#pragma omp for
+		for (i=0;i<m;i++)
+		{
+			i1 = i;
+			degree1 = row_ptr[i+1] - row_ptr[i];
+			if (degree1 <= 0)
+				continue;
+			for (i2=i+1;i2<m;i2++)       // Find next non-empty row.
+				if (row_ptr[i2+1] - row_ptr[i2] > 0)
+					break;
+			num_non_empty_rows++;
+			if (i2 < m)
+			{
+				num_similarities = 0;
+				degree1 = row_ptr[i1+1] - row_ptr[i1];
+				degree2 = row_ptr[i2+1] - row_ptr[i2];
+				j1 = row_ptr[i1];
+				j2 = row_ptr[i2];
+				while ((j1 < row_ptr[i1+1]) && (j2 < row_ptr[i2+1]))
+				{
+					col1 = col_idx[j1] - col_idx[j1] % cache_line_elements;
+					col2 = col_idx[j2] - col_idx[j2] % cache_line_elements;
+					if (col1 < col2)
+						j1++;
+					else if (col1 > col2)
+						j2++;
+					else
+					{
+						col = col1;
+						while (col == col1)
+						{
+							num_similarities++;
+							j1++;
+							if (j1 >= row_ptr[i1+1])
+								break;
+							col1 = col_idx[j1] - col_idx[j1] % cache_line_elements;
+						}
+						while (col == col2)
+						{
+							num_similarities++;
+							j2++;
+							if (j2 >= row_ptr[i2+1])
+								break;
+							col2 = col_idx[j2] - col_idx[j2] % cache_line_elements;
+						}
+					}
+				}
+				row_similarity += ((double) num_similarities) / (degree1 + degree2);
+			}
+		}
+		__atomic_store(&t_row_similarity[tnum], &row_similarity, __ATOMIC_RELAXED);    // '__atomic_store_n' is for integer types only.
+		__atomic_fetch_add(&total_num_non_empty_rows, num_non_empty_rows, __ATOMIC_RELAXED);
+	}
+	if (total_num_non_empty_rows == 0)
+		return 0;
+	total_row_similarity = 0;
+	for (long i=0;i<num_threads;i++)
+		total_row_similarity += t_row_similarity[i];
+	return total_row_similarity / total_num_non_empty_rows;   // Neighbours are only between non-empty rows.
+}
+
+
 //------------------------------------------------------------------------------------------------------------------------------------------
 //- Structural Features - Print
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -771,14 +856,18 @@ csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribu
 #define csr_matrix_features  CSR_UTIL_GEN_EXPAND(csr_matrix_features)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
 void
-csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y)
+csr_matrix_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y)
 {
 	_TYPE_I * row_idx;
 	_TYPE_I * degrees_rows;
 	_TYPE_I * degrees_cols;
 	double * bandwidths;
 	double * scatters;
-	double mem_footprint = (nnz * (sizeof(_TYPE_I) + sizeof(_TYPE_V)) + (m + 1) * sizeof(_TYPE_I)) / ((double) 1024 * 1024);
+	double mem_footprint = (values == NULL)
+				? (nnz * sizeof(_TYPE_I) + (m + 1) * sizeof(_TYPE_I)) / ((double) 1024 * 1024)
+				: (nnz * (sizeof(_TYPE_I) + sizeof(_TYPE_V)) + (m + 1) * sizeof(_TYPE_I)) / ((double) 1024 * 1024);
+	double mem_footprint_float = (nnz * (sizeof(_TYPE_I) + sizeof(float)) + (m + 1) * sizeof(_TYPE_I)) / ((double) 1024 * 1024);
+	double mem_footprint_double = (nnz * (sizeof(_TYPE_I) + sizeof(double)) + (m + 1) * sizeof(_TYPE_I)) / ((double) 1024 * 1024);
 	double nnz_per_row_min, nnz_per_row_max, nnz_per_row_avg, nnz_per_row_std;
 	double nnz_per_col_min, nnz_per_col_max, nnz_per_col_avg, nnz_per_col_std;
 	double bw_min, bw_max, bw_avg, bw_std;
@@ -797,7 +886,7 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	double groups_per_row_min, groups_per_row_max, groups_per_row_avg, groups_per_row_std;
 	long num_groups;
 
-	long buf_n = strlen(title_base) + 1 + 1000;
+	long buf_n = strlen(file_out_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 	double time;
 
@@ -808,8 +897,8 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	// Matrix structure, density map.
 	if (do_plot)
 	{
-		snprintf(buf, buf_n, "%s.png", title_base);
-		snprintf(buf_title, buf_n, "%s", title_base);
+		snprintf(buf, buf_n, "%s.png", file_out_base);
+		snprintf(buf_title, buf_n, "%s", file_out_base);
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (col_idx, row_idx, NULL, nnz, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
@@ -817,6 +906,13 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 			figure_set_bounds_x(_fig, 0, n-1);
 			figure_set_bounds_y(_fig, 0, m-1);
 			figure_series_type_density_map(_s);
+			long ratio_x = num_pixels_x / m;
+			long ratio_y = num_pixels_y / n;
+			long ratio_min = ratio_x < ratio_y ? ratio_x : ratio_y;
+			if (ratio_min > 1)
+			{
+				figure_series_set_dot_size_pixels(_s, ratio_min);
+			}
 		);
 	}
 
@@ -847,19 +943,20 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	// Degree histogram.
 	if (do_plot)
 	{
-		snprintf(buf, buf_n, "%s_degree_distribution.png", title_base);
-		snprintf(buf_title, buf_n, "%s: degree distribution", title_base);
+		snprintf(buf, buf_n, "%s_degree_distribution.png", file_out_base);
+		snprintf(buf_title, buf_n, "%s: degree distribution", file_out_base);
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, degrees_rows, NULL, m, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
 			figure_series_type_histogram(_s, 0, NULL, 1);
 			figure_series_type_barplot(_s);
 		);
-		snprintf(buf, buf_n, "%s_degree_distribution_cumulative_sum.png", title_base);
-		snprintf(buf_title, buf_n, "%s: degree distribution cumulative sum", title_base);
+		snprintf(buf, buf_n, "%s_degree_distribution_cumulative_sum.png", file_out_base);
+		snprintf(buf_title, buf_n, "%s: degree distribution cumulative sum", file_out_base);
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, degrees_rows, NULL, m, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
+			figure_set_bounds_y(_fig, 0, 100);   // Bounds are inclusive.
 			figure_series_type_histogram(_s, 0, NULL, 1, 1);
 			figure_series_type_barplot(_s);
 		);
@@ -887,8 +984,8 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	// Neighbours histogram.
 	if (do_plot)
 	{
-		snprintf(buf, buf_n, "%s_num_neigh.png", title_base);
-		snprintf(buf_title, buf_n, "%s: number of neighbours distribution", title_base);
+		snprintf(buf, buf_n, "%s_num_neigh.png", file_out_base);
+		snprintf(buf_title, buf_n, "%s: number of neighbours distribution", file_out_base);
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, num_neigh, NULL, nnz, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
@@ -929,8 +1026,8 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	// Groups per row histogram.
 	if (do_plot)
 	{
-		snprintf(buf, buf_n, "%s_groups_per_row.png", title_base);
-		snprintf(buf_title, buf_n, "%s: groups per row distribution", title_base);
+		snprintf(buf, buf_n, "%s_groups_per_row.png", file_out_base);
+		snprintf(buf_title, buf_n, "%s: groups per row distribution", file_out_base);
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, groups_per_row, NULL, m, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
@@ -944,12 +1041,14 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	free(group_sizes);
 	free(groups_per_row);
 
-	fprintf(stderr, "matrix = %s\n", title_base);
+	fprintf(stderr, "matrix = %s\n", file_out_base);
 	fprintf(stderr, "m = %ld\n", m);
 	fprintf(stderr, "n = %ld\n", n);
 	fprintf(stderr, "nnz = %ld\n", nnz);
 	fprintf(stderr, "density = %g\n", nnz / ((double) m*n));
 	fprintf(stderr, "mem_footprint (MB in CSR) = %lf\n", mem_footprint);
+	fprintf(stderr, "mem_footprint_values_float (MB in CSR) = %lf\n", mem_footprint_float);
+	fprintf(stderr, "mem_footprint_values_double (MB in CSR) = %lf\n", mem_footprint_double);
 	fprintf(stderr, "nnz_per_row min = %lf\n", nnz_per_row_min);
 	fprintf(stderr, "nnz_per_row max = %lf\n", nnz_per_row_max);
 	fprintf(stderr, "nnz_per_row avg = %lf\n", nnz_per_row_avg);
@@ -997,13 +1096,13 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 	#if 0
 		double csr_mem_footprint = nnz * (sizeof(double) + sizeof(int)) + (m+1) * sizeof(int);
 		fprintf(stderr, "%-15.5lf ", csr_mem_footprint / (1024*1024));
-		fprintf(stderr, "%s", title_base);
+		fprintf(stderr, "%s", file_out_base);
 		fprintf(stderr, "\n");
 	#endif
 	#if 0
 		double csr_mem_footprint = nnz * (sizeof(double) + sizeof(int)) + (m+1) * sizeof(int);
 		fprintf(stderr, "%-15.5lf ", csr_mem_footprint / (1024*1024));
-		fprintf(stderr, "['%s']='", title_base);
+		fprintf(stderr, "['%s']='", file_out_base);
 		fprintf(stderr, "%ld ", m);
 		fprintf(stderr, "%ld ", n);
 		fprintf(stderr, "%.10lf ", nnz_per_row_avg);
@@ -1015,11 +1114,11 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 		fprintf(stderr, "%.10lf ", num_neigh_avg);
 		fprintf(stderr, "%.10lf ", cross_row_similarity_avg);
 		fprintf(stderr, "14 ");
-		fprintf(stderr, "%s", title_base);
+		fprintf(stderr, "%s", file_out_base);
 		fprintf(stderr, "'\n");
 	#endif
 	#if 0
-		fprintf(stderr, "%s\t", title_base);
+		fprintf(stderr, "%s\t", file_out_base);
 		fprintf(stderr, "%ld\t", m);
 		fprintf(stderr, "%ld\t", n);
 		fprintf(stderr, "%.10lf\t", nnz_per_row_avg);
@@ -1041,7 +1140,7 @@ csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, lon
 #define csr_matrix_features_validation  CSR_UTIL_GEN_EXPAND(csr_matrix_features_validation)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
 void
-csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz)
+csr_matrix_features_validation(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz)
 {
 	_TYPE_I * row_idx;
 	_TYPE_I * degrees_rows;
@@ -1107,7 +1206,7 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 	 */
 	#if 1
 		fprintf(stderr, "%-15.5lf ", mem_footprint);
-		fprintf(stderr, "['%s']='", title_base);
+		fprintf(stderr, "['%s']='", file_out_base);
 		fprintf(stderr, "%ld ", m);
 		fprintf(stderr, "%ld ", n);
 		fprintf(stderr, "%.10lf ", nnz_per_row_avg);
@@ -1119,7 +1218,7 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 		fprintf(stderr, "%.10lf ", num_neigh_avg);
 		fprintf(stderr, "%.10lf ", cross_row_similarity_avg);
 		fprintf(stderr, "14 ");
-		fprintf(stderr, "%s", title_base);
+		fprintf(stderr, "%s", file_out_base);
 		fprintf(stderr, "'\n");
 	#endif
 
@@ -1137,9 +1236,9 @@ csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * c
 #define csr_value_differences_of_neighbors  CSR_UTIL_GEN_EXPAND(csr_value_differences_of_neighbors)
 static inline
 void
-csr_value_differences_of_neighbors(char * title_base, double * vals, __attribute__((unused)) long m, __attribute__((unused)) long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y)
+csr_value_differences_of_neighbors(const char * file_out_base, double * vals, __attribute__((unused)) long m, __attribute__((unused)) long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y)
 {
-	long buf_n = strlen(title_base) + 1 + 1000;
+	long buf_n = strlen(file_out_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 	long num_bins = 1024;
 
@@ -1180,30 +1279,30 @@ csr_value_differences_of_neighbors(char * title_base, double * vals, __attribute
 	array_std(vals_diff, nnz, &vals_diff_exp_std, get_double_exponent);
 	if (do_plot)
 	{
-		snprintf(buf, buf_n, "%s_values_diff.png", title_base);
-		snprintf(buf_title, buf_n, "%s: values differences (row-major order)", title_base);
+		snprintf(buf, buf_n, "%s_values_diff.png", file_out_base);
+		snprintf(buf_title, buf_n, "%s: values differences (row-major order)", file_out_base);
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_diff, NULL, nnz, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
 		);
-		snprintf(buf, buf_n, "%s_values_diff_distribution.png", title_base);
-		snprintf(buf_title, buf_n, "%s: values differences distribution", title_base);
+		snprintf(buf, buf_n, "%s_values_diff_distribution.png", file_out_base);
+		snprintf(buf_title, buf_n, "%s: values differences distribution", file_out_base);
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_diff, NULL, nnz, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
 			figure_series_type_histogram(_s, num_bins, NULL, 1);
 			figure_series_type_barplot(_s);
 		);
-		snprintf(buf, buf_n, "%s_values_diff_exp_distribution.png", title_base);
-		snprintf(buf_title, buf_n, "%s: values differences exponent distribution", title_base);
+		snprintf(buf, buf_n, "%s_values_diff_exp_distribution.png", file_out_base);
+		snprintf(buf_title, buf_n, "%s: values differences exponent distribution", file_out_base);
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_diff, NULL, nnz, 0, , get_double_exponent),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
 			figure_series_type_histogram(_s, 0, NULL, 1); // Integer mode.
 			figure_series_type_barplot(_s);
 		);
-		snprintf(buf, buf_n, "%s_values_diff_frac_distribution.png", title_base);
-		snprintf(buf_title, buf_n, "%s: values differences fraction distribution", title_base);
+		snprintf(buf, buf_n, "%s_values_diff_frac_distribution.png", file_out_base);
+		snprintf(buf_title, buf_n, "%s: values differences fraction distribution", file_out_base);
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_diff, NULL, nnz, 0, , get_double_fraction),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
@@ -1319,9 +1418,9 @@ csr_value_differences_of_sorted_subsets(double * vals, long nnz, long deduplicat
 #define csr_value_distances_from_cluster_centers  CSR_UTIL_GEN_EXPAND(csr_value_distances_from_cluster_centers)
 static inline
 void
-csr_value_distances_from_cluster_centers(char * title_base, double * vals, double * vals_sorted, __attribute__((unused)) long m, __attribute__((unused)) long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y)
+csr_value_distances_from_cluster_centers(char * file_out_base, double * vals, double * vals_sorted, __attribute__((unused)) long m, __attribute__((unused)) long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y)
 {
-	long buf_n = strlen(title_base) + 1 + 1000;
+	long buf_n = strlen(file_out_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 	// long num_bins = 1024;
 
@@ -1348,8 +1447,8 @@ csr_value_distances_from_cluster_centers(char * title_base, double * vals, doubl
 	vals_sorted_shifted_by_min = (typeof(vals_sorted_shifted_by_min)) malloc(nnz * sizeof(*vals_sorted_shifted_by_min));
 	if (do_plot)
 	{
-		snprintf(buf, buf_n, "%s_values_sorted.png", title_base);
-		snprintf(buf_title, buf_n, "%s: values sorted", title_base);
+		snprintf(buf, buf_n, "%s_values_sorted.png", file_out_base);
+		snprintf(buf_title, buf_n, "%s: values sorted", file_out_base);
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted, NULL, nnz, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
@@ -1424,8 +1523,8 @@ csr_value_distances_from_cluster_centers(char * title_base, double * vals, doubl
 		{
 			struct Figure * fig;
 			struct Figure_Series * s;
-			snprintf(buf, buf_n, "%s_values_1D_cluster_centers_2^%ld.png", title_base, k);
-			snprintf(buf_title, buf_n, "%s: values 1D with cluster centers (2^%ld)", title_base, k);
+			snprintf(buf, buf_n, "%s_values_1D_cluster_centers_2^%ld.png", file_out_base, k);
+			snprintf(buf_title, buf_n, "%s: values 1D with cluster centers (2^%ld)", file_out_base, k);
 			fig = (typeof(fig)) malloc(sizeof(*fig));
 			figure_init(fig, num_pixels_x, num_pixels_y);
 			s = figure_add_series(fig, vals, NULL, NULL, nnz, 0, , get_double_zero);
@@ -1452,7 +1551,7 @@ csr_value_distances_from_cluster_centers(char * title_base, double * vals, doubl
 #define csr_value_features  CSR_UTIL_GEN_EXPAND(csr_value_features)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
 void
-csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y)
+csr_value_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y)
 {
 	_TYPE_I * row_idx;
 	double * vals;
@@ -1461,7 +1560,7 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 	double * vals_sorted_ratio_abs;
 	double * vals_sorted_diff_fraction_abs;
 
-	long buf_n = strlen(title_base) + 1 + 1000;
+	long buf_n = strlen(file_out_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 	__attribute__((unused)) double time;
 	__attribute__((unused)) long num_bins = 1024;
@@ -1585,8 +1684,8 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 		long window_size, subwindow_size;
 		double * window, * subwindow;
 
-		// snprintf(buf, buf_n, "%s_values_heatmap.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values heatmap", title_base);
+		// snprintf(buf, buf_n, "%s_values_heatmap.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values heatmap", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (col_idx, row_idx, vals, nnz, 0),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
@@ -1594,38 +1693,38 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 			// figure_set_bounds_x(_fig, 0, n-1);
 			// figure_set_bounds_y(_fig, 0, m-1);
 		// );
-		// snprintf(buf, buf_n, "%s_values.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values (row-major order)", title_base);
+		// snprintf(buf, buf_n, "%s_values.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values (row-major order)", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals, NULL, nnz, 0),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 		// );
-		// snprintf(buf, buf_n, "%s_values_1D.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values 1D", title_base);
+		// snprintf(buf, buf_n, "%s_values_1D.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values 1D", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (values, NULL, NULL, nnz, 0, , get_double_zero),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 			// figure_set_bounds_y(_fig, -1, 1);
 			// figure_series_type_density_map(_s);
 		// );
-		// snprintf(buf, buf_n, "%s_values_distribution.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values distribution", title_base);
+		// snprintf(buf, buf_n, "%s_values_distribution.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values distribution", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals, NULL, nnz, 0),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 			// figure_series_type_histogram(_s, num_bins, NULL, 1);
 			// figure_series_type_barplot(_s);
 		// );
-		// snprintf(buf, buf_n, "%s_values_exp_distribution.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values exponent distribution", title_base);
+		// snprintf(buf, buf_n, "%s_values_exp_distribution.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values exponent distribution", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals, NULL, nnz, 0, , get_double_exponent),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 			// figure_series_type_histogram(_s, 0, NULL, 1); // Integer mode.
 			// figure_series_type_barplot(_s);
 		// );
-		// snprintf(buf, buf_n, "%s_values_frac_distribution.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values fraction distribution", title_base);
+		// snprintf(buf, buf_n, "%s_values_frac_distribution.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values fraction distribution", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals, NULL, nnz, 0, , get_double_fraction),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
@@ -1633,32 +1732,32 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 			// figure_series_type_barplot(_s);
 		// );
 
-		// snprintf(buf, buf_n, "%s_values_sorted.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted, NULL, nnz, 0),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 		// );
-		// snprintf(buf, buf_n, "%s_values_sorted_abs_log2.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted: absolute, log2", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted_abs_log2.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: absolute, log2", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted, NULL, nnz, 0, , get_double_abs_log2),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 		// );
-		// snprintf(buf, buf_n, "%s_values_sorted_diff.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted diff", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted_diff.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted diff", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff, NULL, nnz, 0),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 		// );
-		// snprintf(buf, buf_n, "%s_values_sorted_diff_abs_log2.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted: diff, absolute, log2", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted_diff_abs_log2.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: diff, absolute, log2", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff, NULL, nnz, 0, , get_double_abs_log2),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 		// );
-		// snprintf(buf, buf_n, "%s_values_sorted_diff_abs_log2_bounded_median_curve.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted: diff, absolute, log2 - bounded median curve", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted_diff_abs_log2_bounded_median_curve.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: diff, absolute, log2 - bounded median curve", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff, NULL, nnz, 0, , get_double_abs_log2),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
@@ -1690,14 +1789,14 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 				// }
 			// }
 			// window[0] = 0;
-			// snprintf(buf, buf_n, "%s_values_sorted_diff_abs_log2_window_%ld.png", title_base, l);
-			// snprintf(buf_title, buf_n, "%s: values sorted: diff, absolute, log2 - window [%ld, %ld)", title_base, i, i+size);
+			// snprintf(buf, buf_n, "%s_values_sorted_diff_abs_log2_window_%ld.png", file_out_base, l);
+			// snprintf(buf_title, buf_n, "%s: values sorted: diff, absolute, log2 - window [%ld, %ld)", file_out_base, i, i+size);
 			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
 				// figure_enable_legend(_fig);
 				// figure_set_title(_fig, buf_title);
 			// );
-			// snprintf(buf, buf_n, "%s_values_sorted_diff_abs_log2_bounded_median_curve_window_%ld.png", title_base, l);
-			// snprintf(buf_title, buf_n, "%s: values sorted: diff, absolute, log2 - bounded median curve - window [%ld, %ld)", title_base, i, i+size);
+			// snprintf(buf, buf_n, "%s_values_sorted_diff_abs_log2_bounded_median_curve_window_%ld.png", file_out_base, l);
+			// snprintf(buf_title, buf_n, "%s: values sorted: diff, absolute, log2 - bounded median curve - window [%ld, %ld)", file_out_base, i, i+size);
 			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
 				// figure_enable_legend(_fig);
 				// figure_set_title(_fig, buf_title);
@@ -1708,27 +1807,27 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 		// free(window);
 
 
-		// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_ratio_abs, NULL, nnz, 0),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 		// );
-		// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_bounded_median_curve.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute - bounded median curve", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_bounded_median_curve.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute - bounded median curve", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_ratio_abs, NULL, nnz, 0),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 			// figure_series_type_bounded_median_curve(_s, 0);
 		// );
-		// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_ratio_abs, NULL, nnz, 0, , get_double_abs_log2),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 		// );
-		// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_bounded_median_curve.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - bounded median curve", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_bounded_median_curve.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - bounded median curve", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_ratio_abs, NULL, nnz, 0, , get_double_abs_log2),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
@@ -1738,15 +1837,15 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 		// long div2;
 		// for (div2=1,bound=1.0;div2<21;div2++,bound/=2.0)
 		// {
-			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_zoomed_y_2^-%02ld.png", title_base, div2);
-			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - zoomed y axis: [0, 2^-%ld]", title_base, div2);
+			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_zoomed_y_2^-%02ld.png", file_out_base, div2);
+			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - zoomed y axis: [0, 2^-%ld]", file_out_base, div2);
 			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_ratio_abs, NULL, nnz, 0, , get_double_abs_log2),
 				// figure_enable_legend(_fig);
 				// figure_set_title(_fig, buf_title);
 				// figure_set_bounds_y(_fig, -bound, bound);
 			// );
-			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_bounded_median_curve_zoomed_y_2^-%02ld.png", title_base, div2);
-			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - zoomed y axis: [0, 2^-%ld] - bounded median curve", title_base, div2);
+			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_bounded_median_curve_zoomed_y_2^-%02ld.png", file_out_base, div2);
+			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - zoomed y axis: [0, 2^-%ld] - bounded median curve", file_out_base, div2);
 			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_ratio_abs, NULL, nnz, 0, , get_double_abs_log2),
 				// figure_enable_legend(_fig);
 				// figure_set_title(_fig, buf_title);
@@ -1780,14 +1879,14 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 				// }
 			// }
 			// window[0] = 0;
-			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_window_%ld.png", title_base, l);
-			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - window [%ld, %ld)", title_base, i, i+size);
+			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_window_%ld.png", file_out_base, l);
+			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - window [%ld, %ld)", file_out_base, i, i+size);
 			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
 				// figure_enable_legend(_fig);
 				// figure_set_title(_fig, buf_title);
 			// );
-			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_bounded_median_curve_window_%ld.png", title_base, l);
-			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - bounded median curve - window [%ld, %ld)", title_base, i, i+size);
+			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_bounded_median_curve_window_%ld.png", file_out_base, l);
+			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - bounded median curve - window [%ld, %ld)", file_out_base, i, i+size);
 			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
 				// figure_enable_legend(_fig);
 				// figure_set_title(_fig, buf_title);
@@ -1796,8 +1895,8 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 			// );
 			// long div2 = 9;
 			// double bound = 1.0 / (1ULL << div2);
-			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_bounded_median_curve_window_%ld_zoomed_y_2^-%02ld.png", title_base, l, div2);
-			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - zoomed y axis: [0, 2^-%ld] - bounded median curve - window [%ld, %ld)", title_base, div2, i, i+size);
+			// snprintf(buf, buf_n, "%s_values_sorted_ratio_abs_log2_bounded_median_curve_window_%ld_zoomed_y_2^-%02ld.png", file_out_base, l, div2);
+			// snprintf(buf_title, buf_n, "%s: values sorted: ratio, absolute, log2 - zoomed y axis: [0, 2^-%ld] - bounded median curve - window [%ld, %ld)", file_out_base, div2, i, i+size);
 			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
 				// figure_enable_legend(_fig);
 				// figure_set_title(_fig, buf_title);
@@ -1809,28 +1908,28 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 		// free(window);
 
 
-		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff_fraction_abs, NULL, nnz, 0),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 		// );
-		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_bounded_median_curve.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute - bounded median curve", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_bounded_median_curve.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute - bounded median curve", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff_fraction_abs, NULL, nnz, 0),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 			// figure_series_set_dot_size_pixels(_s, 4);
 			// figure_series_type_bounded_median_curve(_s, 0);
 		// );
-		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff_fraction_abs, NULL, nnz, 0, , get_double_abs_log2),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
 		// );
-		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2_bounded_median_curve.png", title_base);
-		// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2 - bounded median curve", title_base);
+		// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2_bounded_median_curve.png", file_out_base);
+		// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2 - bounded median curve", file_out_base);
 		// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, vals_sorted_diff_fraction_abs, NULL, nnz, 0, , get_double_abs_log2),
 			// figure_enable_legend(_fig);
 			// figure_set_title(_fig, buf_title);
@@ -1863,14 +1962,14 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 				// }
 			// }
 			// window[0] = 0;
-			// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2_window_%ld.png", title_base, l);
-			// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2 - window [%ld, %ld)", title_base, i, i+size);
+			// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2_window_%ld.png", file_out_base, l);
+			// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2 - window [%ld, %ld)", file_out_base, i, i+size);
 			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
 				// figure_enable_legend(_fig);
 				// figure_set_title(_fig, buf_title);
 			// );
-			// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2_bounded_median_curve_window_%ld.png", title_base, l);
-			// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2 - bounded median curve - window [%ld, %ld)", title_base, i, i+size);
+			// snprintf(buf, buf_n, "%s_values_sorted_diff_fraction_abs_log2_bounded_median_curve_window_%ld.png", file_out_base, l);
+			// snprintf(buf_title, buf_n, "%s: values sorted: diff, fraction, absolute, log2 - bounded median curve - window [%ld, %ld)", file_out_base, i, i+size);
 			// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
 				// figure_enable_legend(_fig);
 				// figure_set_title(_fig, buf_title);
@@ -1896,14 +1995,14 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 				window[j] = vals[i+j];
 			}
 			quicksort(window, size, NULL, NULL);
-			snprintf(buf, buf_n, "%s_values_sorted_window_%ld.png", title_base, l);
-			snprintf(buf_title, buf_n, "%s: values sorted window [%ld, %ld)", title_base, i, i+size);
+			snprintf(buf, buf_n, "%s_values_sorted_window_%ld.png", file_out_base, l);
+			snprintf(buf_title, buf_n, "%s: values sorted window [%ld, %ld)", file_out_base, i, i+size);
 			figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0),
 				figure_enable_legend(_fig);
 				figure_set_title(_fig, buf_title);
 			);
-			snprintf(buf, buf_n, "%s_values_sorted_log2_window_%ld.png", title_base, l);
-			snprintf(buf_title, buf_n, "%s: values sorted log2 window [%ld, %ld)", title_base, i, i+size);
+			snprintf(buf, buf_n, "%s_values_sorted_log2_window_%ld.png", file_out_base, l);
+			snprintf(buf_title, buf_n, "%s: values sorted log2 window [%ld, %ld)", file_out_base, i, i+size);
 			figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, window, NULL, size, 0, , get_double_abs_log2),
 				figure_enable_legend(_fig);
 				figure_set_title(_fig, buf_title);
@@ -1933,8 +2032,8 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 				{
 					subwindow[j] = window[t+j];
 				}
-				snprintf(buf, buf_n, "%s_values_sorted_subwindow_%ld_%ld.png", title_base, l, s);
-				snprintf(buf_title, buf_n, "%s: values sorted - window [%ld, %ld) subwindow [%ld, %ld)", title_base, i, i+size, t, t+size_sub);
+				snprintf(buf, buf_n, "%s_values_sorted_subwindow_%ld_%ld.png", file_out_base, l, s);
+				snprintf(buf_title, buf_n, "%s: values sorted - window [%ld, %ld) subwindow [%ld, %ld)", file_out_base, i, i+size, t, t+size_sub);
 				figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, subwindow, NULL, size_sub, 0),
 					figure_enable_legend(_fig);
 					figure_set_title(_fig, buf_title);
@@ -1947,8 +2046,8 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 					subwindow[j] = val - val_prev;
 				}
 				subwindow[0] = 0;
-				snprintf(buf, buf_n, "%s_values_sorted_diff_subwindow_%ld_%ld.png", title_base, l, s);
-				snprintf(buf_title, buf_n, "%s: values sorted: diff - window [%ld, %ld) subwindow [%ld, %ld)", title_base, i, i+size, t, t+size_sub);
+				snprintf(buf, buf_n, "%s_values_sorted_diff_subwindow_%ld_%ld.png", file_out_base, l, s);
+				snprintf(buf_title, buf_n, "%s: values sorted: diff - window [%ld, %ld) subwindow [%ld, %ld)", file_out_base, i, i+size, t, t+size_sub);
 				figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, subwindow, NULL, size_sub, 0),
 					figure_enable_legend(_fig);
 					figure_set_title(_fig, buf_title);
@@ -1964,8 +2063,8 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 						subwindow[j] = val / val_prev;
 				}
 				subwindow[0] = 1;
-				snprintf(buf, buf_n, "%s_values_sorted_ratio_subwindow_%ld_%ld.png", title_base, l, s);
-				snprintf(buf_title, buf_n, "%s: values sorted: ratio - window [%ld, %ld) subwindow [%ld, %ld)", title_base, i, i+size, t, t+size_sub);
+				snprintf(buf, buf_n, "%s_values_sorted_ratio_subwindow_%ld_%ld.png", file_out_base, l, s);
+				snprintf(buf_title, buf_n, "%s: values sorted: ratio - window [%ld, %ld) subwindow [%ld, %ld)", file_out_base, i, i+size, t, t+size_sub);
 				figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, subwindow, NULL, size_sub, 0),
 					figure_enable_legend(_fig);
 					figure_set_title(_fig, buf_title);
@@ -1980,13 +2079,13 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 
 	if (do_print_features)
 	{
-		csr_value_differences_of_neighbors(title_base, vals, m, n, nnz, do_plot, num_pixels_x, num_pixels_y);
+		csr_value_differences_of_neighbors(file_out_base, vals, m, n, nnz, do_plot, num_pixels_x, num_pixels_y);
 
 		// long deduplicate = 0;
 		long deduplicate = 1;
 		csr_value_differences_of_sorted_subsets(vals, nnz, deduplicate);
 
-		// csr_value_distances_from_cluster_centers(title_base, vals, vals_sorted, m, n, nnz, do_plot, num_pixels_x, num_pixels_y);
+		// csr_value_distances_from_cluster_centers(file_out_base, vals, vals_sorted, m, n, nnz, do_plot, num_pixels_x, num_pixels_y);
 	}
 
 	free(vals);
@@ -2007,15 +2106,20 @@ csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYP
 #define csr_plot  CSR_UTIL_GEN_EXPAND(csr_plot)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
 void
-csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y)
+csr_plot(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y)
 {
 	_TYPE_I * row_idx;
-	long buf_n = strlen(title_base) + 1 + 1000;
+	long buf_n = strlen(file_out_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 
+	__attribute__((cleanup(cleanup_free))) char * path=NULL, * filename_out_base=NULL;
+	str_path_split_path(file_out_base, strlen(file_out_base) + 1, buf, buf_n, &path, &filename_out_base);
+	path = strdup(path);
+	filename_out_base = strdup(filename_out_base);
+
 	csr_row_indices(row_ptr, col_idx, m, n, nnz, &row_idx);
-	snprintf(buf, buf_n, "%s.png", title_base);
-	snprintf(buf_title, buf_n, "%s", title_base);
+	snprintf(buf, buf_n, "%s.png", file_out_base);
+	snprintf(buf_title, buf_n, "%s", filename_out_base);
 	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (col_idx, row_idx, NULL, nnz, 0),
 		if (enable_legend)
 			figure_enable_legend(_fig);
@@ -2024,6 +2128,13 @@ csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__(
 		figure_set_bounds_x(_fig, 0, n-1);
 		figure_set_bounds_y(_fig, 0, m-1);
 		figure_series_type_density_map(_s);
+		long ratio_x = num_pixels_x / m;
+		long ratio_y = num_pixels_y / n;
+		long ratio_min = ratio_x < ratio_y ? ratio_x : ratio_y;
+		if (ratio_min > 1)
+		{
+			figure_series_set_dot_size_pixels(_s, ratio_min);
+		}
 	);
 	free(row_idx);
 }
@@ -2033,11 +2144,11 @@ csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__(
 #define csr_row_size_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_row_size_histogram_plot)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
 void
-csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__((unused)) _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz,
+csr_row_size_histogram_plot(const char * file_out_base, _TYPE_I * row_ptr, __attribute__((unused)) _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz,
 		int enable_legend, long num_pixels_x, long num_pixels_y)
 {
 	_TYPE_I * degrees_rows;
-	long buf_n = strlen(title_base) + 1 + 1000;
+	long buf_n = strlen(file_out_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 
 	degrees_rows = (typeof(degrees_rows)) malloc(m * sizeof(*degrees_rows));
@@ -2058,8 +2169,8 @@ csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__(
 	free(row_size_hist);
 	*/
 	
-	snprintf(buf, buf_n, "%s_row_size_distribution.png", title_base);
-	snprintf(buf_title, buf_n, "%s: row size distribution", title_base);
+	snprintf(buf, buf_n, "%s_row_size_distribution.png", file_out_base);
+	snprintf(buf_title, buf_n, "%s: row size distribution", file_out_base);
 	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, degrees_rows, NULL, m, 0),
 		if (enable_legend)
 			figure_enable_legend(_fig);
@@ -2075,11 +2186,11 @@ csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__(
 #define csr_cross_row_similarity_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity_histogram_plot)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
 void
-csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size,
+csr_cross_row_similarity_histogram_plot(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size,
 		int enable_legend, long num_pixels_x, long num_pixels_y)
 {
 	_TYPE_I *crs_row;
-	long buf_n = strlen(title_base) + 1 + 1000;
+	long buf_n = strlen(file_out_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 
 	// extract cross_row_similarity per row
@@ -2097,8 +2208,8 @@ csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _T
 	// 	printf("%d: %d (%.3f%)\n", i, crs_row_hist[i], crs_row_hist[i]*100.0/m);
 	free(crs_row_hist);
 
-	snprintf(buf, buf_n, "%s_crs_row_distribution.png", title_base);
-	snprintf(buf_title, buf_n, "%s: crs_row distribution", title_base);
+	snprintf(buf, buf_n, "%s_crs_row_distribution.png", file_out_base);
+	snprintf(buf_title, buf_n, "%s: crs_row distribution", file_out_base);
 	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, crs_row, NULL, m, 0),
 		if (enable_legend)
 			figure_enable_legend(_fig);
@@ -2115,11 +2226,11 @@ csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _T
 #define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
 void
-csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size,
+csr_num_neigh_histogram_plot(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size,
 		int enable_legend, long num_pixels_x, long num_pixels_y)
 {
 	_TYPE_I *num_neigh;
-	long buf_n = strlen(title_base) + 1 + 1000;
+	long buf_n = strlen(file_out_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 
 	// extract num_neigh per row
@@ -2136,8 +2247,8 @@ csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col
 	// 	printf("%d: %d (%.3f%)\n", i, num_neigh_hist[i], num_neigh_hist[i]*100.0/m);
 	free(num_neigh_hist);
 
-	snprintf(buf, buf_n, "%s_num_neigh_distribution.png", title_base);
-	snprintf(buf_title, buf_n, "%s: num_neigh distribution", title_base);
+	snprintf(buf, buf_n, "%s_num_neigh_distribution.png", file_out_base);
+	snprintf(buf_title, buf_n, "%s: num_neigh distribution", file_out_base);
 	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, num_neigh, NULL, m, 0),
 		if (enable_legend)
 			figure_enable_legend(_fig);
@@ -2154,11 +2265,11 @@ csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col
 #define csr_bandwidth_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_histogram_plot)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
 void
-csr_bandwidth_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz,
+csr_bandwidth_histogram_plot(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz,
 		int enable_legend, long num_pixels_x, long num_pixels_y)
 {
 	_TYPE_I * bandwidth_rows;
-	long buf_n = strlen(title_base) + 1 + 1000;
+	long buf_n = strlen(file_out_base) + 1 + 1000;
 	char buf[buf_n], buf_title[buf_n];
 
 	// TODO: need to fix this, so that it account for non_empty_rows only when calculating bw values.
@@ -2193,8 +2304,8 @@ csr_bandwidth_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col
 	}
 	free(bandwidth_hist);
 	*/	
-	snprintf(buf, buf_n, "%s_bandwidth_distribution.png", title_base);
-	snprintf(buf_title, buf_n, "%s: bandwidth distribution", title_base);
+	snprintf(buf, buf_n, "%s_bandwidth_distribution.png", file_out_base);
+	snprintf(buf_title, buf_n, "%s: bandwidth distribution", file_out_base);
 	figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, bandwidth_rows, NULL, m, 0),
 		if (enable_legend)
 			figure_enable_legend(_fig);
@@ -2211,7 +2322,7 @@ csr_bandwidth_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col
 #define csr_bandwidth_batch_nnz_bar_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_batch_nnz_bar_plot)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
 void
-csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, __attribute__((unused)) long m, long n, __attribute__((unused)) long nnz, int batch_nnz, 
+csr_bandwidth_batch_nnz_bar_plot(const char * file_out_base, __attribute__((unused)) _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, __attribute__((unused)) long m, long n, __attribute__((unused)) long nnz, int batch_nnz, 
 		__attribute__((unused)) int enable_legend, __attribute__((unused)) long num_pixels_x, __attribute__((unused)) long num_pixels_y)
 {
 	_TYPE_I * row_idx;
@@ -2219,7 +2330,7 @@ csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYP
 
 	__attribute__((unused)) float * x_part_size, * y_part_size, * x_unique_values;
 	int * x_part_s, * x_part_f;
-	long buf_n = strlen(title_base) + 1 + 1000;
+	long buf_n = strlen(file_out_base) + 1 + 1000;
 	__attribute__((unused)) char buf[buf_n], buf_title[buf_n];
 
 	_TYPE_I nnz_b = (nnz+batch_nnz-1)/batch_nnz;
@@ -2336,8 +2447,8 @@ csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYP
 	free(bandwidth_hist);
 	*/
 
-	// snprintf(buf, buf_n, "%s_x_part_size_distribution.png", title_base);
-	// snprintf(buf_title, buf_n, "%s: bandwidth batch_nnz distribution", title_base);
+	// snprintf(buf, buf_n, "%s_x_part_size_distribution.png", file_out_base);
+	// snprintf(buf_title, buf_n, "%s: bandwidth batch_nnz distribution", file_out_base);
 	// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, x_part_size, NULL, nnz_b, 0),
 	// 	if (enable_legend)
 	// 		figure_enable_legend(_fig);
@@ -2346,8 +2457,8 @@ csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYP
 	// 	figure_series_type_barplot(_s);
 	// );
 
-	// snprintf(buf, buf_n, "%s_y_part_size_distribution.png", title_base);
-	// snprintf(buf_title, buf_n, "%s: bandwidth batch_nnz distribution", title_base);
+	// snprintf(buf, buf_n, "%s_y_part_size_distribution.png", file_out_base);
+	// snprintf(buf_title, buf_n, "%s: bandwidth batch_nnz distribution", file_out_base);
 	// figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, y_part_size, NULL, nnz_b, 0),
 	// 	if (enable_legend)
 	// 		figure_enable_legend(_fig);

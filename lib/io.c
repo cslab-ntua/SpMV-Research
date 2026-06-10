@@ -161,8 +161,8 @@ safe_fstat(int fd, struct stat *statbuf)
  *     void  fstat_is{reg,dir,chr,blk,fifo,lnk,sock}_assert  (int fd);
  */
 
-#undef decl_stat_is
-#define decl_stat_is(suffix, test, err_str)                                                   \
+#undef def_stat_is
+#define def_stat_is(suffix, test, err_str)                                                   \
 inline                                                                                        \
 long                                                                                          \
 stat_is ## suffix(const char * pathname)                                                      \
@@ -209,15 +209,15 @@ fstat_is ## suffix ## _assert(int fd)                                           
 		error("not a " err_str ": fd='%d'", fd);                                      \
 }                                                                                             \
 
-decl_stat_is(reg , S_ISREG , "regular file")
-decl_stat_is(dir , S_ISDIR , "directory")
-decl_stat_is(chr , S_ISCHR , "character device")
-decl_stat_is(blk , S_ISBLK , "block device")
-decl_stat_is(fifo, S_ISFIFO, "FIFO (named pipe)")
-decl_stat_is(lnk , S_ISLNK , "symbolic link")
-decl_stat_is(sock, S_ISSOCK, "socket")
+def_stat_is(reg , S_ISREG , "regular file")
+def_stat_is(dir , S_ISDIR , "directory")
+def_stat_is(chr , S_ISCHR , "character device")
+def_stat_is(blk , S_ISBLK , "block device")
+def_stat_is(fifo, S_ISFIFO, "FIFO (named pipe)")
+def_stat_is(lnk , S_ISLNK , "symbolic link")
+def_stat_is(sock, S_ISSOCK, "socket")
 
-#undef decl_stat_is
+#undef def_stat_is
 
 
 //==========================================================================================================================================
@@ -236,11 +236,6 @@ safe_open_base(const char * pathname, int flags, mode_t mode)
 		error("open(): path='%s'", (pathname != NULL ? pathname : ""));
 	return fd;
 }
-
-
-// Default mode for created files: 644 rw-r--r--
-#define _safe_open(pathname, flags, mode, ...)  safe_open_base(pathname, flags, mode)
-#define safe_open(pathname, flags, ...)  _safe_open(pathname, flags, ##__VA_ARGS__, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 
 
 inline

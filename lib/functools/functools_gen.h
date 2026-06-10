@@ -71,7 +71,9 @@ _TYPE_OUT reduce(_TYPE_IN * A, long N, _TYPE_OUT zero, const int backwards);
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 
-/* A = P is allowed.
+/* Calculates prefix 'sums' (specific operation given).
+ *
+ * A = P is allowed.
  *
  * exclusive:  First element of P is zero, else it is the first element of A (i.e. the i-th input element is included in the i-th sum).
  */

@@ -169,6 +169,79 @@ bits_u32_extract(uint32_t v, uint64_t start_pos, uint64_t num_bits)
 
 
 //==========================================================================================================================================
+//= Reverse bits
+//==========================================================================================================================================
+
+
+static __attribute__((always_inline)) inline
+uint64_t
+bits_u64_reverse(uint64_t n)
+{
+	// 1 bit
+	n = ((n >> 1) & 0x5555555555555555LL) | ((n & 0x5555555555555555LL) << 1);
+	// 2 bits
+	n = ((n >> 2) & 0x3333333333333333LL) | ((n & 0x3333333333333333LL) << 2);
+	// 4 bits
+	n = ((n >> 4) & 0x0F0F0F0F0F0F0F0FLL) | ((n & 0x0F0F0F0F0F0F0F0FLL) << 4);
+	// 8 bits
+	n = ((n >> 8) & 0x00FF00FF00FF00FFLL) | ((n & 0x00FF00FF00FF00FFLL) << 8);
+	// 16 bits
+	n = ((n >> 16) & 0x0000FFFF0000FFFFLL) | ((n & 0x0000FFFF0000FFFFLL) << 16);
+	// 32 bits
+	n = ((n >> 32) & 0x00000000FFFFFFFFLL) | ((n & 0x00000000FFFFFFFFLL) << 32);
+	return n;
+}
+
+
+static __attribute__((always_inline)) inline
+uint32_t
+bits_u32_reverse(uint32_t n)
+{
+	// 1 bit
+	n = ((n >> 1) & 0x55555555LL) | ((n & 0x55555555LL) << 1);
+	// 2 bits
+	n = ((n >> 2) & 0x33333333LL) | ((n & 0x33333333LL) << 2);
+	// 4 bits
+	n = ((n >> 4) & 0x0F0F0F0FLL) | ((n & 0x0F0F0F0FLL) << 4);
+	// 8 bits
+	n = ((n >> 8) & 0x00FF00FFLL) | ((n & 0x00FF00FFLL) << 8);
+	// 16 bits
+	n = ((n >> 16) & 0x0000FFFFLL) | ((n & 0x0000FFFFLL) << 16);
+	return n;
+}
+
+
+static __attribute__((always_inline)) inline
+uint16_t
+bits_u16_reverse(uint16_t n)
+{
+	// 1 bit
+	n = ((n >> 1) & 0x5555LL) | ((n & 0x5555LL) << 1);
+	// 2 bits
+	n = ((n >> 2) & 0x3333LL) | ((n & 0x3333LL) << 2);
+	// 4 bits
+	n = ((n >> 4) & 0x0F0FLL) | ((n & 0x0F0FLL) << 4);
+	// 8 bits
+	n = ((n >> 8) & 0x00FFLL) | ((n & 0x00FFLL) << 8);
+	return n;
+}
+
+
+static __attribute__((always_inline)) inline
+uint8_t
+bits_u8_reverse(uint8_t n)
+{
+	// 1 bit
+	n = ((n >> 1) & 0x55LL) | ((n & 0x55LL) << 1);
+	// 2 bits
+	n = ((n >> 2) & 0x33LL) | ((n & 0x33LL) << 2);
+	// 4 bits
+	n = ((n >> 4) & 0x0FLL) | ((n & 0x0FLL) << 4);
+	return n;
+}
+
+
+//==========================================================================================================================================
 //= Interleave bits
 //==========================================================================================================================================
 

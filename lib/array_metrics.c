@@ -943,7 +943,7 @@ metric_functions_templates(rms, i_start, i_end, get_val_as_double,
 
 
 //==========================================================================================================================================
-//= Percentile
+//= Quantile
 //==========================================================================================================================================
 
 
@@ -1018,6 +1018,8 @@ ARRAY_METRICS_quantile_serial_reference(void * A, long i_start, long i_end, doub
 	long i, target_idx;
 	if (result_out == NULL)
 		error("'result_out' return parameter is NULL");
+	if (i_start == i_end)
+		error("empty array given");
 	ARRAY_METRICS_quantile_method(method, N, q, &target_idx, &g);
 	if (target_idx >= N - 1)
 	{
@@ -1049,6 +1051,8 @@ ARRAY_METRICS_quantile_serial(void * A, long i_start, long i_end, double q, cons
 	long i, target_idx, m, pos;
 	if (result_out == NULL)
 		error("'result_out' return parameter is NULL");
+	if (i_start == i_end)
+		error("empty array given");
 	ARRAY_METRICS_quantile_method(method, N, q, &target_idx, &g);
 	if (target_idx >= N - 1)
 	{
@@ -1101,6 +1105,8 @@ ARRAY_METRICS_quantile_concurrent(void * A, long i_start, long i_end, double q, 
 	long i, target_idx, m, pos;
 	if (result_out == NULL)
 		error("'result_out' return parameter is NULL");
+	if (i_start == i_end)
+		error("empty array given");
 
 	ARRAY_METRICS_quantile_method(method, N, q, &target_idx, &g);
 

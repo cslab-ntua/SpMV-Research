@@ -16,3 +16,4 @@
 #undef              bucketsort_stable_recalculate_bucket_serial
 #undef              bucketsort
 #undef              bucketsort_recalculate_bucket
+#undef              bucketsort_stable

@@ -1,5 +1,5 @@
 #ifndef _GNU_SOURCE
-	#define _GNU_SOURCE
+	#error "Define _GNU_SOURCE at the top level to compile this library."
 #endif
 
 #include <stdio.h>
@@ -14,12 +14,6 @@
 
 #include "pthread_functions.h"
 
-
-/*
- * For the scheduling functions we need to put
- *     #define _GNU_SOURCE
- * BEFORE including any other header.
- */
 
 void safe_pthread_create(pthread_t * thread, const pthread_attr_t * attr, void * (*start_routine) (void *), void * arg)
 {

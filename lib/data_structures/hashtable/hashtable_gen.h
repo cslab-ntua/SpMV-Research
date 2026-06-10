@@ -12,8 +12,14 @@
 	#error "HASHTABLE_GEN_TYPE_3 not defined: [ Bucket Size Type (Integer) ] Decide while considering the ratio of the hashtable size versus the total inserted data and also the possible collisions for the total amount of inserted data (note: a small %% of a big number can also be a big number)"
 #elif !defined(HASHTABLE_GEN_SUFFIX)
 	#error "HASHTABLE_GEN_SUFFIX not defined"
-#elif !defined(HASHTABLE_GEN_FUNCTION_ATTRIBUTES)
-	#define HASHTABLE_GEN_FUNCTION_ATTRIBUTES
+#else
+	#if !defined(HASHTABLE_GEN_KEY_IS_STRUCT)
+		/* int hashtable_test_equal_keys_basic_type(_TYPE_K key_1, _TYPE_K key_2); */
+		#define HASHTABLE_GEN_KEY_IS_STRUCT  0
+	#endif
+	#if !defined(HASHTABLE_GEN_FUNCTION_ATTRIBUTES)
+		#define HASHTABLE_GEN_FUNCTION_ATTRIBUTES
+	#endif
 #endif
 
 #include <stdlib.h>
@@ -33,7 +39,7 @@
 typedef HASHTABLE_GEN_TYPE_1  _TYPE_K;
 
 #undef  _VC
-#if !HASHTABLE_GEN_VALUE_SAME_AS_KEY
+#if ! HASHTABLE_GEN_VALUE_SAME_AS_KEY
 	#undef  _TYPE_V
 	#define _TYPE_V  HASHTABLE_GEN_EXPAND_TYPE(_TYPE_V)
 	typedef HASHTABLE_GEN_TYPE_2  _TYPE_V;
@@ -64,8 +70,8 @@ struct hashtable_kv_pair {
 /*
  * 'hashtable_mru_cache':
  *     Locking for concurrent operations is expensive.
- *     We always assume that the buckets will have about the same elements (i.e. good hash functions).
- *     Still, we need to locate the buckets with big traffic, i.e. values that appear multiple times -> failed insertions,
+ *     We always assume that the buckets will have about the same elements (i.e., good hash functions).
+ *     Still, we need to locate the buckets with big traffic, i.e., values that appear multiple times -> failed insertions,
  *     and bypass the locking.
  *     Maybe we need some kind of persistent (i.e., never freed during inserts) MRU structure.
  */

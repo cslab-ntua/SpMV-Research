@@ -1,5 +1,5 @@
 #ifndef _GNU_SOURCE
-	#define _GNU_SOURCE
+	#error "Define _GNU_SOURCE at the top level to compile this library."
 #endif
 #include <stdio.h>
 #include <stdlib.h>

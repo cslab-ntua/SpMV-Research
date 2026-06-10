@@ -4,11 +4,11 @@
 #include <iostream>
 #include <cmath>
 
-#include "dasp/dasp_f64.h"
+#include "spmv_kernels/dasp/dasp_f64.h"
 
 #include "macros/cpp_defines.h"
 
-#include "spmv_kernel.h"
+#include "../spmv_kernel.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -116,7 +116,7 @@ struct DASPArrays : Matrix_Format
 	cudaEvent_t startEvent_memcpy_y;
 	cudaEvent_t endEvent_memcpy_y;
 
-	DASPArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	DASPArrays(INT_T * ia, INT_T * ja, ValueTypeReference * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
 	{
 		/************************************************************************************************************************************************************************/
 		/*************************************************************************** DASP preprocessing **************************************************************************/
@@ -771,136 +771,136 @@ struct DASPArrays : Matrix_Format
 		sumBlockNum = (row_long + 3) / 4;
 
 		/************************************************************************************************************************************************************************/
-		gpuCudaErrorCheck(cudaMalloc(&x_d, n * sizeof(*x_d)));
-		gpuCudaErrorCheck(cudaMalloc(&y_d, m * sizeof(*y_d)));
+		cuda_assert(cudaMalloc(&x_d, n * sizeof(*x_d)));
+		cuda_assert(cudaMalloc(&y_d, m * sizeof(*y_d)));
 
-		gpuCudaErrorCheck(cudaMalloc(&long_ptr_warp_d, (row_long + 1) * sizeof(*long_ptr_warp_d)));
-		gpuCudaErrorCheck(cudaMalloc(&long_cid_d, fill0_nnz_long * sizeof(*long_cid_d)));
-		gpuCudaErrorCheck(cudaMalloc(&long_val_d, fill0_nnz_long * sizeof(*long_val_d)));
-		gpuCudaErrorCheck(cudaMalloc(&val_by_warp_d, warp_number * sizeof(*val_by_warp_d)));
-		gpuCudaErrorCheck(cudaMemset(val_by_warp_d, 0, warp_number * sizeof(*val_by_warp_d)));
+		cuda_assert(cudaMalloc(&long_ptr_warp_d, (row_long + 1) * sizeof(*long_ptr_warp_d)));
+		cuda_assert(cudaMalloc(&long_cid_d, fill0_nnz_long * sizeof(*long_cid_d)));
+		cuda_assert(cudaMalloc(&long_val_d, fill0_nnz_long * sizeof(*long_val_d)));
+		cuda_assert(cudaMalloc(&val_by_warp_d, warp_number * sizeof(*val_by_warp_d)));
+		cuda_assert(cudaMemset(val_by_warp_d, 0, warp_number * sizeof(*val_by_warp_d)));
 
-		gpuCudaErrorCheck(cudaMalloc(&short_cid_d, fill0_nnz_short * sizeof(*short_cid_d)));
-		gpuCudaErrorCheck(cudaMalloc(&short_val_d, fill0_nnz_short * sizeof(*short_val_d)));
+		cuda_assert(cudaMalloc(&short_cid_d, fill0_nnz_short * sizeof(*short_cid_d)));
+		cuda_assert(cudaMalloc(&short_val_d, fill0_nnz_short * sizeof(*short_val_d)));
 		
-		gpuCudaErrorCheck(cudaMalloc(&block_ptr_d, (blocknum + 1) * sizeof(*block_ptr_d)));
-		gpuCudaErrorCheck(cudaMalloc(&reg_cid_d, fill0_nnz_reg * sizeof(*reg_cid_d)));
-		gpuCudaErrorCheck(cudaMalloc(&reg_val_d, fill0_nnz_reg * sizeof(*reg_val_d)));
+		cuda_assert(cudaMalloc(&block_ptr_d, (blocknum + 1) * sizeof(*block_ptr_d)));
+		cuda_assert(cudaMalloc(&reg_cid_d, fill0_nnz_reg * sizeof(*reg_cid_d)));
+		cuda_assert(cudaMalloc(&reg_val_d, fill0_nnz_reg * sizeof(*reg_val_d)));
 		
-		gpuCudaErrorCheck(cudaMalloc(&irreg_rpt_d, (row_block + 1) * sizeof(*irreg_rpt_d)));
-		gpuCudaErrorCheck(cudaMalloc(&irreg_cid_d, nnz_irreg * sizeof(*irreg_cid_d)));
-		gpuCudaErrorCheck(cudaMalloc(&irreg_val_d, nnz_irreg * sizeof(*irreg_val_d)));
+		cuda_assert(cudaMalloc(&irreg_rpt_d, (row_block + 1) * sizeof(*irreg_rpt_d)));
+		cuda_assert(cudaMalloc(&irreg_cid_d, nnz_irreg * sizeof(*irreg_cid_d)));
+		cuda_assert(cudaMalloc(&irreg_val_d, nnz_irreg * sizeof(*irreg_val_d)));
 
 		// cuda events for timing measurements
-		gpuCudaErrorCheck(cudaEventCreate(&startEvent_execution));
-		gpuCudaErrorCheck(cudaEventCreate(&endEvent_execution));
+		cuda_assert(cudaEventCreate(&startEvent_execution));
+		cuda_assert(cudaEventCreate(&endEvent_execution));
 		if(TIME_IT){
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_long_val));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_long_val));
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_val_by_warp));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_val_by_warp));
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_long_ptr_warp));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_long_ptr_warp));
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_long_cid));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_long_cid));
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_short_val));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_short_val));
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_short_cid));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_short_cid));
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_reg_val));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_reg_val));
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_irreg_val));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_irreg_val));
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_block_ptr));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_block_ptr));
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_irreg_rpt));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_irreg_rpt));
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_reg_cid));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_reg_cid));
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_irreg_cid));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_irreg_cid));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_long_val));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_long_val));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_val_by_warp));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_val_by_warp));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_long_ptr_warp));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_long_ptr_warp));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_long_cid));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_long_cid));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_short_val));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_short_val));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_short_cid));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_short_cid));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_reg_val));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_reg_val));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_irreg_val));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_irreg_val));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_block_ptr));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_block_ptr));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_irreg_rpt));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_irreg_rpt));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_reg_cid));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_reg_cid));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_irreg_cid));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_irreg_cid));
 
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_x));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_x));
-			gpuCudaErrorCheck(cudaEventCreate(&startEvent_memcpy_y));
-			gpuCudaErrorCheck(cudaEventCreate(&endEvent_memcpy_y));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_x));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_x));
+			cuda_assert(cudaEventCreate(&startEvent_memcpy_y));
+			cuda_assert(cudaEventCreate(&endEvent_memcpy_y));
 		}
 		
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_long_ptr_warp));
-		gpuCudaErrorCheck(cudaMemcpy(long_ptr_warp_d, long_rpt_new, (row_long + 1) * sizeof(*long_ptr_warp_d), cudaMemcpyHostToDevice));
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_long_ptr_warp));
+		if(TIME_IT) cuda_assert(cudaEventRecord(startEvent_memcpy_long_ptr_warp));
+		cuda_assert(cudaMemcpy(long_ptr_warp_d, long_rpt_new, (row_long + 1) * sizeof(*long_ptr_warp_d), cudaMemcpyHostToDevice));
+		if(TIME_IT) cuda_assert(cudaEventRecord(endEvent_memcpy_long_ptr_warp));
 
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_long_cid));
-		gpuCudaErrorCheck(cudaMemcpy(long_cid_d, long_cid, fill0_nnz_long * sizeof(*long_cid_d), cudaMemcpyHostToDevice));
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_long_cid));
+		if(TIME_IT) cuda_assert(cudaEventRecord(startEvent_memcpy_long_cid));
+		cuda_assert(cudaMemcpy(long_cid_d, long_cid, fill0_nnz_long * sizeof(*long_cid_d), cudaMemcpyHostToDevice));
+		if(TIME_IT) cuda_assert(cudaEventRecord(endEvent_memcpy_long_cid));
 
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_long_val));
-		gpuCudaErrorCheck(cudaMemcpy(long_val_d, long_val, fill0_nnz_long * sizeof(*long_val_d), cudaMemcpyHostToDevice));
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_long_val));
+		if(TIME_IT) cuda_assert(cudaEventRecord(startEvent_memcpy_long_val));
+		cuda_assert(cudaMemcpy(long_val_d, long_val, fill0_nnz_long * sizeof(*long_val_d), cudaMemcpyHostToDevice));
+		if(TIME_IT) cuda_assert(cudaEventRecord(endEvent_memcpy_long_val));
 		// for(int i=0;i<fill0_nnz_long;i++) printf("%d = %.2lf\n", long_cid[i], long_val[i]);
 		// for(int i=0;i<(row_long+1);i++) printf("%d\n", long_rpt_new[i]);
 
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_short_cid));
-		gpuCudaErrorCheck(cudaMemcpy(short_cid_d, short_cid, fill0_nnz_short * sizeof(*short_cid_d), cudaMemcpyHostToDevice));
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_short_cid));
+		if(TIME_IT) cuda_assert(cudaEventRecord(startEvent_memcpy_short_cid));
+		cuda_assert(cudaMemcpy(short_cid_d, short_cid, fill0_nnz_short * sizeof(*short_cid_d), cudaMemcpyHostToDevice));
+		if(TIME_IT) cuda_assert(cudaEventRecord(endEvent_memcpy_short_cid));
 
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_short_val));
-		gpuCudaErrorCheck(cudaMemcpy(short_val_d, short_val, fill0_nnz_short * sizeof(*short_val_d), cudaMemcpyHostToDevice));
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_short_val));
+		if(TIME_IT) cuda_assert(cudaEventRecord(startEvent_memcpy_short_val));
+		cuda_assert(cudaMemcpy(short_val_d, short_val, fill0_nnz_short * sizeof(*short_val_d), cudaMemcpyHostToDevice));
+		if(TIME_IT) cuda_assert(cudaEventRecord(endEvent_memcpy_short_val));
 		// for(int i=0;i<fill0_nnz_short;i++) printf("%d = %.2lf\n", short_cid[i], short_val[i]);
 
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_block_ptr));
-		gpuCudaErrorCheck(cudaMemcpy(block_ptr_d, blockPtr, (blocknum + 1) * sizeof(*block_ptr_d), cudaMemcpyHostToDevice));
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_block_ptr));
+		if(TIME_IT) cuda_assert(cudaEventRecord(startEvent_memcpy_block_ptr));
+		cuda_assert(cudaMemcpy(block_ptr_d, blockPtr, (blocknum + 1) * sizeof(*block_ptr_d), cudaMemcpyHostToDevice));
+		if(TIME_IT) cuda_assert(cudaEventRecord(endEvent_memcpy_block_ptr));
 
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_reg_cid));
-		gpuCudaErrorCheck(cudaMemcpy(reg_cid_d, reg_cid, fill0_nnz_reg * sizeof(*reg_cid_d), cudaMemcpyHostToDevice));
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_reg_cid));
+		if(TIME_IT) cuda_assert(cudaEventRecord(startEvent_memcpy_reg_cid));
+		cuda_assert(cudaMemcpy(reg_cid_d, reg_cid, fill0_nnz_reg * sizeof(*reg_cid_d), cudaMemcpyHostToDevice));
+		if(TIME_IT) cuda_assert(cudaEventRecord(endEvent_memcpy_reg_cid));
 
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_reg_val));
-		gpuCudaErrorCheck(cudaMemcpy(reg_val_d, reg_val, fill0_nnz_reg * sizeof(*reg_val_d), cudaMemcpyHostToDevice));
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_reg_val));
+		if(TIME_IT) cuda_assert(cudaEventRecord(startEvent_memcpy_reg_val));
+		cuda_assert(cudaMemcpy(reg_val_d, reg_val, fill0_nnz_reg * sizeof(*reg_val_d), cudaMemcpyHostToDevice));
+		if(TIME_IT) cuda_assert(cudaEventRecord(endEvent_memcpy_reg_val));
 		// for(int i=0;i<(blocknum + 1);i++) printf("%d\n", blockPtr[i]);
 		// for(int i=0;i<fill0_nnz_reg;i++) printf("%d = %.2lf\n", reg_cid[i], reg_val[i]);
 
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_irreg_rpt));
-		gpuCudaErrorCheck(cudaMemcpy(irreg_rpt_d, irreg_rpt, (row_block + 1) * sizeof(*irreg_rpt_d), cudaMemcpyHostToDevice));
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_irreg_rpt));
+		if(TIME_IT) cuda_assert(cudaEventRecord(startEvent_memcpy_irreg_rpt));
+		cuda_assert(cudaMemcpy(irreg_rpt_d, irreg_rpt, (row_block + 1) * sizeof(*irreg_rpt_d), cudaMemcpyHostToDevice));
+		if(TIME_IT) cuda_assert(cudaEventRecord(endEvent_memcpy_irreg_rpt));
 
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_irreg_cid));
-		gpuCudaErrorCheck(cudaMemcpy(irreg_cid_d, irreg_cid, nnz_irreg * sizeof(*irreg_cid_d), cudaMemcpyHostToDevice));
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_irreg_cid));
+		if(TIME_IT) cuda_assert(cudaEventRecord(startEvent_memcpy_irreg_cid));
+		cuda_assert(cudaMemcpy(irreg_cid_d, irreg_cid, nnz_irreg * sizeof(*irreg_cid_d), cudaMemcpyHostToDevice));
+		if(TIME_IT) cuda_assert(cudaEventRecord(endEvent_memcpy_irreg_cid));
 
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(startEvent_memcpy_irreg_val));
-		gpuCudaErrorCheck(cudaMemcpy(irreg_val_d, irreg_val, nnz_irreg * sizeof(*irreg_val_d), cudaMemcpyHostToDevice));
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(endEvent_memcpy_irreg_val));
+		if(TIME_IT) cuda_assert(cudaEventRecord(startEvent_memcpy_irreg_val));
+		cuda_assert(cudaMemcpy(irreg_val_d, irreg_val, nnz_irreg * sizeof(*irreg_val_d), cudaMemcpyHostToDevice));
+		if(TIME_IT) cuda_assert(cudaEventRecord(endEvent_memcpy_irreg_val));
 		// for(int i=0;i<(row_block + 1);i++) printf("%d\n", irreg_rpt[i]);
 		// for(int i=0;i<nnz_irreg;i++) printf("%d = %.2lf\n", irreg_cid[i], irreg_val[i]);
 
 		if(TIME_IT){
-			gpuCudaErrorCheck(cudaEventSynchronize(endEvent_memcpy_long_ptr_warp));
-			gpuCudaErrorCheck(cudaEventSynchronize(endEvent_memcpy_long_cid));
-			gpuCudaErrorCheck(cudaEventSynchronize(endEvent_memcpy_long_val));
-			gpuCudaErrorCheck(cudaEventSynchronize(endEvent_memcpy_short_cid));
-			gpuCudaErrorCheck(cudaEventSynchronize(endEvent_memcpy_short_val));
-			gpuCudaErrorCheck(cudaEventSynchronize(endEvent_memcpy_block_ptr));
-			gpuCudaErrorCheck(cudaEventSynchronize(endEvent_memcpy_reg_cid));
-			gpuCudaErrorCheck(cudaEventSynchronize(endEvent_memcpy_reg_val));
-			gpuCudaErrorCheck(cudaEventSynchronize(endEvent_memcpy_irreg_rpt));
-			gpuCudaErrorCheck(cudaEventSynchronize(endEvent_memcpy_irreg_cid));
-			gpuCudaErrorCheck(cudaEventSynchronize(endEvent_memcpy_irreg_val));
+			cuda_assert(cudaEventSynchronize(endEvent_memcpy_long_ptr_warp));
+			cuda_assert(cudaEventSynchronize(endEvent_memcpy_long_cid));
+			cuda_assert(cudaEventSynchronize(endEvent_memcpy_long_val));
+			cuda_assert(cudaEventSynchronize(endEvent_memcpy_short_cid));
+			cuda_assert(cudaEventSynchronize(endEvent_memcpy_short_val));
+			cuda_assert(cudaEventSynchronize(endEvent_memcpy_block_ptr));
+			cuda_assert(cudaEventSynchronize(endEvent_memcpy_reg_cid));
+			cuda_assert(cudaEventSynchronize(endEvent_memcpy_reg_val));
+			cuda_assert(cudaEventSynchronize(endEvent_memcpy_irreg_rpt));
+			cuda_assert(cudaEventSynchronize(endEvent_memcpy_irreg_cid));
+			cuda_assert(cudaEventSynchronize(endEvent_memcpy_irreg_val));
 			float memcpyTime_cuda_long_ptr_warp, memcpyTime_cuda_long_cid, memcpyTime_cuda_long_val, memcpyTime_cuda_short_cid, memcpyTime_cuda_short_val, memcpyTime_cuda_block_ptr, memcpyTime_cuda_reg_cid, memcpyTime_cuda_reg_val, memcpyTime_cuda_irreg_rpt, memcpyTime_cuda_irreg_cid, memcpyTime_cuda_irreg_val;
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_long_ptr_warp, startEvent_memcpy_long_ptr_warp, endEvent_memcpy_long_ptr_warp));
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_long_cid, startEvent_memcpy_long_cid, endEvent_memcpy_long_cid));
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_long_val, startEvent_memcpy_long_val, endEvent_memcpy_long_val));
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_short_cid, startEvent_memcpy_short_cid, endEvent_memcpy_short_cid));
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_short_val, startEvent_memcpy_short_val, endEvent_memcpy_short_val));
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_block_ptr, startEvent_memcpy_block_ptr, endEvent_memcpy_block_ptr));
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_reg_cid, startEvent_memcpy_reg_cid, endEvent_memcpy_reg_cid));
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_reg_val, startEvent_memcpy_reg_val, endEvent_memcpy_reg_val));
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_irreg_rpt, startEvent_memcpy_irreg_rpt, endEvent_memcpy_irreg_rpt));
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_irreg_cid, startEvent_memcpy_irreg_cid, endEvent_memcpy_irreg_cid));
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda_irreg_val, startEvent_memcpy_irreg_val, endEvent_memcpy_irreg_val));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda_long_ptr_warp, startEvent_memcpy_long_ptr_warp, endEvent_memcpy_long_ptr_warp));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda_long_cid, startEvent_memcpy_long_cid, endEvent_memcpy_long_cid));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda_long_val, startEvent_memcpy_long_val, endEvent_memcpy_long_val));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda_short_cid, startEvent_memcpy_short_cid, endEvent_memcpy_short_cid));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda_short_val, startEvent_memcpy_short_val, endEvent_memcpy_short_val));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda_block_ptr, startEvent_memcpy_block_ptr, endEvent_memcpy_block_ptr));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda_reg_cid, startEvent_memcpy_reg_cid, endEvent_memcpy_reg_cid));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda_reg_val, startEvent_memcpy_reg_val, endEvent_memcpy_reg_val));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda_irreg_rpt, startEvent_memcpy_irreg_rpt, endEvent_memcpy_irreg_rpt));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda_irreg_cid, startEvent_memcpy_irreg_cid, endEvent_memcpy_irreg_cid));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda_irreg_val, startEvent_memcpy_irreg_val, endEvent_memcpy_irreg_val));
 			printf("(CUDA) Memcpy long_ptr_warp time = %.4lf ms, long_cid time = %.4lf ms, long_val time = %.4lf ms, short_cid time = %.4lf ms, short_val time = %.4lf ms, block_ptr time = %.4lf ms, reg_cid time = %.4lf ms, reg_val time = %.4lf ms, irreg_rpt time = %.4lf ms, irreg_cid time = %.4lf ms, irreg_val time = %.4lf ms\n", memcpyTime_cuda_long_ptr_warp, memcpyTime_cuda_long_cid, memcpyTime_cuda_long_val, memcpyTime_cuda_short_cid, memcpyTime_cuda_short_val, memcpyTime_cuda_block_ptr, memcpyTime_cuda_reg_cid, memcpyTime_cuda_reg_val, memcpyTime_cuda_irreg_rpt, memcpyTime_cuda_irreg_cid, memcpyTime_cuda_irreg_val);
 		}
 		printf("row_long = %d, row_block = %d, blocknum = %d, short_row_1 = %d, common_13 = %d, short_row_34 = %d, short_row_2 = %d, offset_reg = %d, offset_short1 = %d, offset_short13 = %d, offset_short34 = %d, offset_short22 = %d, fill0_nnz_short13 = %d, fill0_nnz_short34 = %d\n", row_long, row_block, blocknum, short_row_1, common_13, short_row_34, short_row_2, offset_reg, offset_short1, offset_short13, offset_short34, offset_short22, fill0_nnz_short13, fill0_nnz_short34);
@@ -911,24 +911,24 @@ struct DASPArrays : Matrix_Format
 		free(ia);
 		free(ja);
 		free(a);
-		gpuCudaErrorCheck(cudaFree(x_d));
-		gpuCudaErrorCheck(cudaFree(y_d));
+		cuda_assert(cudaFree(x_d));
+		cuda_assert(cudaFree(y_d));
 
-		gpuCudaErrorCheck(cudaFree(long_ptr_warp_d));
-		gpuCudaErrorCheck(cudaFree(long_cid_d));
-		gpuCudaErrorCheck(cudaFree(long_val_d));
-		gpuCudaErrorCheck(cudaFree(val_by_warp_d));
+		cuda_assert(cudaFree(long_ptr_warp_d));
+		cuda_assert(cudaFree(long_cid_d));
+		cuda_assert(cudaFree(long_val_d));
+		cuda_assert(cudaFree(val_by_warp_d));
 
-		gpuCudaErrorCheck(cudaFree(short_val_d));
-		gpuCudaErrorCheck(cudaFree(short_cid_d));
+		cuda_assert(cudaFree(short_val_d));
+		cuda_assert(cudaFree(short_cid_d));
 		
-		gpuCudaErrorCheck(cudaFree(block_ptr_d));
-		gpuCudaErrorCheck(cudaFree(reg_cid_d));
-		gpuCudaErrorCheck(cudaFree(reg_val_d));
+		cuda_assert(cudaFree(block_ptr_d));
+		cuda_assert(cudaFree(reg_cid_d));
+		cuda_assert(cudaFree(reg_val_d));
 		
-		gpuCudaErrorCheck(cudaFree(irreg_rpt_d));
-		gpuCudaErrorCheck(cudaFree(irreg_cid_d));
-		gpuCudaErrorCheck(cudaFree(irreg_val_d));
+		cuda_assert(cudaFree(irreg_rpt_d));
+		cuda_assert(cudaFree(irreg_cid_d));
+		cuda_assert(cudaFree(irreg_val_d));
 
 		// DASP specific
 		free(order_rid);
@@ -978,9 +978,8 @@ DASPArrays::spmv(ValueType * x, ValueType * y)
 
 
 struct Matrix_Format *
-csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
+csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded)
 {
-
 	struct DASPArrays * dasp = new DASPArrays(row_ptr, col_ind, values, m, n, nnz);
 	//dasp->mem_footprint = ; TODO!
 	dasp->format_name = (char *) "DASP_CUDA";
@@ -994,13 +993,13 @@ compute_dasp(DASPArrays * dasp, ValueType * x , ValueType * y)
 	if (dasp->x == NULL)
 	{
 		dasp->x = x;
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(dasp->startEvent_memcpy_x));
-		gpuCudaErrorCheck(cudaMemcpy(dasp->x_d, x, dasp->n * sizeof(ValueType), cudaMemcpyHostToDevice));
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(dasp->endEvent_memcpy_x));
+		if(TIME_IT) cuda_assert(cudaEventRecord(dasp->startEvent_memcpy_x));
+		cuda_assert(cudaMemcpy(dasp->x_d, x, dasp->n * sizeof(ValueType), cudaMemcpyHostToDevice));
+		if(TIME_IT) cuda_assert(cudaEventRecord(dasp->endEvent_memcpy_x));
 		if(TIME_IT){
-			gpuCudaErrorCheck(cudaEventSynchronize(dasp->endEvent_memcpy_x));
+			cuda_assert(cudaEventSynchronize(dasp->endEvent_memcpy_x));
 			float memcpyTime_cuda;
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda, dasp->startEvent_memcpy_x, dasp->endEvent_memcpy_x));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda, dasp->startEvent_memcpy_x, dasp->endEvent_memcpy_x));
 			printf("(CUDA) Memcpy x time = %.4lf ms\n", memcpyTime_cuda);
 		}
 	}
@@ -1008,9 +1007,9 @@ compute_dasp(DASPArrays * dasp, ValueType * x , ValueType * y)
 	cudaMemset(dasp->y_d, 0, dasp->m * sizeof(dasp->y_d));
 
 	int carveout = 0;
-	gpuCudaErrorCheck(cudaFuncSetAttribute(dasp_spmv2<1>, cudaFuncAttributePreferredSharedMemoryCarveout, carveout));
-	gpuCudaErrorCheck(cudaFuncSetAttribute(dasp_spmv2<2>, cudaFuncAttributePreferredSharedMemoryCarveout, carveout));
-	gpuCudaErrorCheck(cudaFuncSetAttribute(dasp_spmv2<4>, cudaFuncAttributePreferredSharedMemoryCarveout, carveout));
+	cuda_assert(cudaFuncSetAttribute(dasp_spmv2<1>, cudaFuncAttributePreferredSharedMemoryCarveout, carveout));
+	cuda_assert(cudaFuncSetAttribute(dasp_spmv2<2>, cudaFuncAttributePreferredSharedMemoryCarveout, carveout));
+	cuda_assert(cudaFuncSetAttribute(dasp_spmv2<4>, cudaFuncAttributePreferredSharedMemoryCarveout, carveout));
 
 	if (dasp->rowloop == 1) {
 		dasp_spmv2<1><<<dasp->BlockNum_all, dasp->ThreadNum_all>>>(
@@ -1042,29 +1041,29 @@ compute_dasp(DASPArrays * dasp, ValueType * x , ValueType * y)
 			dasp->offset_reg, dasp->offset_short1, dasp->offset_short13, dasp->offset_short34, dasp->offset_short22,
 			dasp->fill0_nnz_short13, dasp->fill0_nnz_short34);
 	}
-	gpuCudaErrorCheck(cudaPeekAtLastError());
-	gpuCudaErrorCheck(cudaDeviceSynchronize());
+	cuda_assert(cudaPeekAtLastError());
+	cuda_assert(cudaDeviceSynchronize());
 	if(dasp->row_long)
 		longPart_sum<<<dasp->sumBlockNum, dasp->ThreadNum_all>>>(dasp->long_ptr_warp_d, dasp->val_by_warp_d, dasp->y_d, dasp->row_long);
-	gpuCudaErrorCheck(cudaPeekAtLastError());
-	gpuCudaErrorCheck(cudaDeviceSynchronize());
+	cuda_assert(cudaPeekAtLastError());
+	cuda_assert(cudaDeviceSynchronize());
 
 	if (dasp->y == NULL)
 	{
 		dasp->y = y;
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(dasp->startEvent_memcpy_y));
+		if(TIME_IT) cuda_assert(cudaEventRecord(dasp->startEvent_memcpy_y));
 		ValueType *y_reordered = (typeof(y_reordered))malloc(dasp->m * sizeof(*y_reordered));
-		gpuCudaErrorCheck(cudaMemcpy(y_reordered, dasp->y_d, dasp->m * sizeof(ValueType), cudaMemcpyDeviceToHost));		
+		cuda_assert(cudaMemcpy(y_reordered, dasp->y_d, dasp->m * sizeof(ValueType), cudaMemcpyDeviceToHost));		
 		// Need to perform reordering to result, apart from Copying it back to CPU
 		for(INT_T i=0; i<dasp->m; i++)
 			dasp->y[dasp->order_rid[i]] = y_reordered[i];
 		free(y_reordered);
-		if(TIME_IT) gpuCudaErrorCheck(cudaEventRecord(dasp->endEvent_memcpy_y));
+		if(TIME_IT) cuda_assert(cudaEventRecord(dasp->endEvent_memcpy_y));
 		
 		if(TIME_IT){
-			gpuCudaErrorCheck(cudaEventSynchronize(dasp->endEvent_memcpy_y));
+			cuda_assert(cudaEventSynchronize(dasp->endEvent_memcpy_y));
 			float memcpyTime_cuda;
-			gpuCudaErrorCheck(cudaEventElapsedTime(&memcpyTime_cuda, dasp->startEvent_memcpy_y, dasp->endEvent_memcpy_y));
+			cuda_assert(cudaEventElapsedTime(&memcpyTime_cuda, dasp->startEvent_memcpy_y, dasp->endEvent_memcpy_y));
 			printf("(CUDA) Memcpy y time = %.4lf ms\n", memcpyTime_cuda);
 		}
 

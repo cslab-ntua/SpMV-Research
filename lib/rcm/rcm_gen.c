@@ -69,6 +69,13 @@ samplesort_cmp(RCM_GEN_TYPE_2 a, RCM_GEN_TYPE_2 b, struct sort_aux_s * aux)
 }
 
 
+#include "data_structures/dynamic_array/dynamic_array_gen_push.h"
+#define DYNAMIC_ARRAY_GEN_TYPE_1  RCM_GEN_TYPE_2
+#define DYNAMIC_ARRAY_GEN_FUNCTION_ATTRIBUTES
+#define DYNAMIC_ARRAY_GEN_SUFFIX  CONCAT(_RCM_GEN, RCM_GEN_SUFFIX)
+#include "data_structures/dynamic_array/dynamic_array_gen.c"
+
+
 //==========================================================================================================================================
 //= Local Defines
 //==========================================================================================================================================
@@ -124,14 +131,14 @@ reduce_sum(_TYPE_I x, _TYPE_I y)
 #define reverse_cuthill_mckee  RCM_GEN_EXPAND(reverse_cuthill_mckee)
 RCM_GEN_FUNCTION_ATTRIBUTES
 void
-reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, long sort_columns,
+reverse_cuthill_mckee(_TYPE_I * row_ptr_in, _TYPE_I * col_idx_in, _TYPE_V * values_in, long m, long n, long nnz_in, long is_symmetric, long sort_columns,
 	_TYPE_I ** reordered_row_ptr_ret, _TYPE_I ** reordered_col_idx_ret, _TYPE_V ** reordered_values_ret, _TYPE_I ** permutation_ret)
 {
 	int num_threads = safe_omp_get_num_threads();
 	long R_n = 0, R_n_prev = 0;
 	__attribute__((cleanup(cleanup_free))) _TYPE_I * R = (typeof(R)) malloc(m * sizeof(*R));   // Visited vertices.
 	__attribute__((cleanup(cleanup_free))) _TYPE_I * position_in_R = (typeof(R)) malloc(m * sizeof(*R));
-	__attribute__((cleanup(cleanup_free))) char * A_flag = (typeof(A_flag)) malloc(m * sizeof(*A_flag));   // New frontier membership flags for each vertex.
+	__attribute__((cleanup(cleanup_free))) uint8_t * A_flag = (typeof(A_flag)) malloc(m * sizeof(*A_flag));   // New frontier membership flags for each vertex.
 	__attribute__((cleanup(cleanup_free))) _TYPE_I * A = (typeof(A)) malloc(m * sizeof(*A));   // New frontier.
 	__attribute__((cleanup(cleanup_free))) _TYPE_I * A_min_pred_pos = (typeof(A_min_pred_pos)) malloc(m * sizeof(*A_min_pred_pos));   // New frontier vertices neighbour with minimum position in R.
 	__attribute__((unused)) long i;
@@ -139,7 +146,7 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 	if (m <= 0)
 		error("empty matrix");
 	if (m != n)
-		error("matrix must be symmetric");
+		error("matrix is not square: m=%ld, n=%ld", m, n);
 
 	if (reordered_row_ptr_ret == NULL)
 		error("return variable is NULL: reordered_row_ptr_ret");
@@ -149,6 +156,20 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 		error("return variable is NULL: reordered_values_ret");
 	if (permutation_ret == NULL)
 		error("return variable is NULL: permutation_ret");
+
+	_TYPE_I * row_ptr;
+	_TYPE_I * col_idx;
+	long nnz;
+	if (is_symmetric)
+	{
+		row_ptr = row_ptr_in;
+		col_idx = col_idx_in;
+		nnz = nnz_in;
+	}
+	else
+	{
+		csr_symmetrize(row_ptr_in, col_idx_in, NULL, m, n, nnz_in, &row_ptr, &col_idx, NULL, &nnz, NULL, 1);
+	}
 
 	/* First remove nodes that have <= 1 degree, which would degrade execution to quadratic (find node with minimun degree). */
 	#pragma omp parallel
@@ -174,6 +195,12 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 				position_in_R[i] = pos;
 			}
 		}
+
+		#pragma omp for
+		for (i=0;i<m;i++)
+		{
+			A_flag[i] = 0;
+		}
 	}
 
 	struct kv_pair v_min_degree = {.key = 0, .val = row_ptr[1] - row_ptr[0]};
@@ -181,24 +208,22 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 	#pragma omp parallel
 	{
 		int tnum = omp_get_thread_num();
-		long i, i_s, i_e, j, j_e;
-		_TYPE_I row, col, pos;
+		__attribute__((cleanup(dynarray_destroy))) struct dynarray * da_new_frontier;
+		_TYPE_I row, col, v_id, pos;
 		_TYPE_I num_v_partial;
 		_TYPE_I num_v_total = 0;
 		struct kv_pair v_min_degree_t;
 		struct kv_pair v_min_degree_partial = {.key = 0, .val = row_ptr[1] - row_ptr[0]};
 		_TYPE_I degree;
+		long i, j;
+
+		da_new_frontier = dynarray_new(100);
+
 		while (1)
 		{
 			#ifdef RCM_VERBOSE
 				if (tnum == 0)
 				{
-					// for (i=0;i<m;i++)
-					// {
-						// if (A_flag[i])
-							// printf("%ld, ", i);
-					// }
-					// printf("\n");
 					printf("R_n_prev=%ld R_n=%ld, num_v_total = %d\n", R_n_prev, R_n, num_v_total);
 				}
 			#endif
@@ -206,14 +231,14 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 			if (R_n == m)
 				break;
 
-			if (num_v_total == 0)   // Find a new starting node for a new connected component (isolated subgraphs).
+			if (num_v_total == 0)   // Find a new starting node for a new connected component (isolated subgraphs). Select a node with minimum degree.
 			{
 				v_min_degree_partial.key = m;
 				v_min_degree_partial.val = nnz;
 				#pragma omp for
 				for (i=0;i<m;i++)
 				{
-					if (position_in_R[i] < m)   // Not already visited.
+					if (position_in_R[i] < m)   // Already visited.
 						continue;
 					degree = row_ptr[i+1] - row_ptr[i];
 					if (degree < v_min_degree_partial.val)
@@ -245,14 +270,9 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 				#pragma omp barrier
 			}
 
+			dynarray_clear(da_new_frontier);
 
-			#pragma omp for
-			for (i=0;i<m;i++)
-			{
-				A_flag[i] = 0;
-			}
-
-			/* Find the new frontier from the previous one, which is the nodes in R from R_n_prev to R_n. */
+			/* Find the new frontier from the previous one, which are the neighbours of the nodes R[R_n_prev] to R[R_n-1], i.e., the neighbours of the newly added nodes. */
 			#pragma omp for
 			for (i=R_n_prev;i<R_n;i++)
 			{
@@ -262,25 +282,15 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 					col = col_idx[j];
 					if (position_in_R[col] >= m)   // If not visited.
 					{
-						A_flag[col] = 1;
+						if (__atomic_exchange_n(&A_flag[col], 1, __ATOMIC_RELAXED) == 0)
+						{
+							dynarray_push_back(da_new_frontier, col);
+						}
 					}
 				}
 			}
 
-			loop_partitioner_balance_iterations(num_threads, tnum, 0, m, &i_s, &i_e);
-			for (i=i_s;i<i_e;i++)
-			{
-				if (A_flag[i])
-					break;
-			}
-			i_s = i;
-
-			num_v_partial = 0;
-			for (i=i_s;i<i_e;i++)
-			{
-				if (A_flag[i])
-					num_v_partial++;
-			}
+			num_v_partial = da_new_frontier->size;
 			omp_thread_reduce_global(reduce_sum, num_v_partial, 0, 1, 0,  &t_num_v_base[tnum], &num_v_total);   // 'omp_thread_reduce_global' needs no extra barrier.
 
 			if (tnum == 0)
@@ -288,7 +298,12 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 
 			#pragma omp barrier
 
-			// printf("%d: num_v_partial=%ld, t_num_v_base[tnum,tnum+1]=(%ld,%ld), num_v_total=%ld\n", tnum, num_v_partial, t_num_v_base[tnum], t_num_v_base[tnum+1], num_v_total);
+			// if (tnum == 0)
+			// {
+				// for (i=0;i<num_threads;i++)
+					// printf("%ld: t_num_v_base[tnum,tnum+1]=(%d,%d), num_v_total=%d\n", i, t_num_v_base[i], t_num_v_base[i+1], num_v_total);
+				// printf("\n");
+			// }
 			// #pragma omp barrier
 
 			if (num_v_total == 0)
@@ -297,18 +312,13 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 				continue;
 			}
 
-			j = t_num_v_base[tnum];
-			j_e = t_num_v_base[tnum+1];
-			for (i=i_s;i<i_e && j<j_e;i++)
+			for (i=0;i<da_new_frontier->size;i++)
 			{
-				if (A_flag[i])
-				{
-					A[j] = i;
-					j++;
-				}
+				v_id = da_new_frontier->data[i];
+				A[t_num_v_base[tnum] + i] = v_id;
+				A_flag[v_id] = 0;
 			}
-			if (j != j_e)
-				error("test");
+			// dynarray_copy_to_array(da_new_frontier, &A[t_num_v_base[tnum]]);
 			#pragma omp barrier
 
 			/* Find the minimum predecessors (the already-visited neighbor with the earliest position in R). */
@@ -341,10 +351,10 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 			#pragma omp for
 			for (i=0;i<num_v_total;i++)
 			{
-				row = A[i];
+				v_id = A[i];
 				pos = R_n + i;
-				R[pos] = row;
-				position_in_R[row] = pos;
+				R[pos] = v_id;
+				position_in_R[v_id] = pos;
 			}
 
 			if (tnum == 0)
@@ -359,7 +369,7 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 	if (R_n != m)
 		error("did not process whole matrix: m=%d, R_n=%ld", m, R_n);
 
-	_TYPE_I * permutation = (typeof(permutation)) malloc(R_n * sizeof(*permutation));
+	_TYPE_I * permutation = (typeof(permutation)) malloc(m * sizeof(*permutation));
 	#pragma omp parallel
 	{
 		long i;
@@ -382,16 +392,16 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 	}
 
 	_TYPE_I * reordered_row_ptr = (typeof(reordered_row_ptr)) malloc((m+1) * sizeof(*reordered_row_ptr));
-	_TYPE_I * reordered_col_idx = (typeof(reordered_col_idx)) malloc(nnz * sizeof(*reordered_col_idx));
-	_TYPE_V * reordered_values = (typeof(reordered_values)) malloc(nnz * sizeof(*reordered_values));
+	_TYPE_I * reordered_col_idx = (typeof(reordered_col_idx)) malloc(nnz_in * sizeof(*reordered_col_idx));
+	_TYPE_V * reordered_values = (typeof(reordered_values)) malloc(nnz_in * sizeof(*reordered_values));
 
-	csr_reorder_rows(permutation, row_ptr, col_idx, values, m, n, nnz, reordered_row_ptr, reordered_col_idx, reordered_values);
+	csr_reorder_rows(permutation, row_ptr_in, col_idx_in, values_in, m, n, nnz_in, reordered_row_ptr, reordered_col_idx, reordered_values);
 
 	#pragma omp parallel
 	{
 		long i;
 		#pragma omp for
-		for (i=0;i<nnz;i++)
+		for (i=0;i<nnz_in;i++)
 		{
 			reordered_col_idx[i] = permutation[reordered_col_idx[i]];
 			if (reordered_col_idx[i] < 0 || reordered_col_idx[i] >= m)
@@ -401,7 +411,7 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 
 	if (sort_columns)
 	{
-		csr_sort_columns(reordered_row_ptr, reordered_col_idx, reordered_values, m, n, nnz);
+		csr_sort_columns(reordered_row_ptr, reordered_col_idx, reordered_values, m, n, nnz_in);
 	}
 
 	*reordered_row_ptr_ret = reordered_row_ptr;
@@ -419,4 +429,5 @@ reverse_cuthill_mckee(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, lo
 #include "storage_formats/csr/csr_gen_pop.h"
 #include "storage_formats/csr_util/csr_util_gen_pop.h"
 #include "sort/samplesort/samplesort_gen_pop.h"
+#include "data_structures/dynamic_array/dynamic_array_gen_pop.h"
 

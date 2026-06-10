@@ -109,32 +109,16 @@ struct CSRArrays : Matrix_Format
 	hipEvent_t startEvent_memcpy_y;
 	hipEvent_t endEvent_memcpy_y;
 
-	int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, max_threads_per_multiproc, max_block_dim_x, max_persistent_l2_cache, max_num_threads;
 	int num_threads;
 	int block_size;
 	int num_blocks;
 
-	CSRArrays(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
+	CSRArrays(INT_T * row_ptr, INT_T * ja, ValueTypeReference * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), row_ptr(row_ptr), ja(ja), a(a)
 	{
 		double time_balance;
 		long i;
 
-		HIP_CHECK(hipDeviceGetAttribute(&max_smem_per_block, hipDeviceAttributeMaxSharedMemoryPerBlock, 0));
-		HIP_CHECK(hipDeviceGetAttribute(&multiproc_count, hipDeviceAttributeMultiprocessorCount, 0));
-		HIP_CHECK(hipDeviceGetAttribute(&max_threads_per_block, hipDeviceAttributeMaxThreadsPerBlock , 0));
-		HIP_CHECK(hipDeviceGetAttribute(&warp_size, hipDeviceAttributeWarpSize , 0));
-		HIP_CHECK(hipDeviceGetAttribute(&max_threads_per_multiproc, hipDeviceAttributeMaxThreadsPerMultiProcessor, 0));
-		HIP_CHECK(hipDeviceGetAttribute(&max_block_dim_x, hipDeviceAttributeMaxBlockDimX, 0));
-		// HIP_CHECK(hipDeviceGetAttribute(&max_persistent_l2_cache, cudaDevAttrMaxPersistingL2CacheSize, 0));
-		max_num_threads = max_threads_per_multiproc * multiproc_count;
-		printf("max_smem_per_block(bytes)=%d\n", max_smem_per_block);
-		printf("multiproc_count=%d\n", multiproc_count);
-		printf("max_threads_per_block=%d\n", max_threads_per_block);
-		printf("warp_size=%d\n", warp_size);
-		printf("max_threads_per_multiproc=%d\n", max_threads_per_multiproc);
-		printf("max_block_dim_x=%d\n", max_block_dim_x);
-		// printf("max_persistent_l2_cache=%d\n", max_persistent_l2_cache);
-		printf("max_num_threads=%d\n", max_num_threads);
+		cuda_device_print_attributes();
 
 		block_size = BLOCK_SIZE;
 
@@ -434,7 +418,7 @@ CSRArrays::spmv(ValueType * x, ValueType * y)
 
 
 struct Matrix_Format *
-csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
+csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz)
 {
 	struct CSRArrays * csr = new CSRArrays(row_ptr, col_ind, values, m, n, nnz);
 	csr->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);

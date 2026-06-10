@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <endian.h>
 #include <omp.h>
 
 #include "bitstream.h"
@@ -74,7 +75,7 @@ bitstream_write_unsafe(struct Bit_Stream * bs, uint64_t val, long num_bits)
 				error("no space in 'data' array");
 			for (i=0;i<8;i++)
 			{
-				bs->data.u[bs->pos++] = bs->buf_w[i];
+				bs->data.u[bs->pos++] = htole64(bs->buf_w[i]);
 				bs->buf_w[i] = 0;
 			}
 			bs->buf_w_pos = 0;
@@ -101,10 +102,10 @@ bitstream_write_flush(struct Bit_Stream * bs)
 		error("no space in 'data' array");
 	for (i=0;i<bs->buf_w_pos;i++)
 	{
-		bs->data.u[bs->pos + i] = bs->buf_w[i];
+		bs->data.u[bs->pos + i] = htole64(bs->buf_w[i]);
 	}
 	if (bs->buf_bit_pos)
-		bs->data.u[bs->pos + bs->buf_w_pos] = bs->buf_w[i];
+		bs->data.u[bs->pos + bs->buf_w_pos] = htole64(bs->buf_w[i]);
 }
 
 
@@ -189,7 +190,7 @@ bitstream_read_unsafe(struct Bit_Stream * bs, uint64_t * val_out, long num_bits)
 			// error("OOM");
 		rem = -bs->buf_bit_pos;
 		bs->pos++;
-		buf = bs->data.u[bs->pos];
+		buf = le64toh(bs->data.u[bs->pos]);
 		// if (rem)
 		if (__builtin_expect(rem & 63, 0))
 		{

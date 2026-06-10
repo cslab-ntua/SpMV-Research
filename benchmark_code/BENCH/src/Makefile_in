@@ -50,9 +50,9 @@ spmv_csr$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 spmv_csr_sym$(SUFFIX).exe: $(OBJ_DIR)/spmv_bench_sym$(SUFFIX).o spmv_kernels/csr_sym.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
-cg_csr$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_cg$(SUFFIX).o spmv_kernels/csr.cpp $(LIB_OBJ)
+cg_csr$(SUFFIX).exe: $(OBJ_DIR)/bench_fix_diag$(SUFFIX).o $(OBJ_DIR)/bench_cg$(SUFFIX).o spmv_kernels/csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
-cg_csr_sym$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_cg_sym$(SUFFIX).o spmv_kernels/csr_sym.cpp $(LIB_OBJ)
+cg_csr_sym$(SUFFIX).exe: $(OBJ_DIR)/bench_fix_diag$(SUFFIX).o $(OBJ_DIR)/bench_cg_sym$(SUFFIX).o spmv_kernels/csr_sym.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 spmv_csr_kahan$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) -D'CUSTOM_KAHAN' $^ -o $@ $(LDFLAGS)
@@ -127,11 +127,11 @@ spmv_div_rf_const_size_row$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 spmv_div_sym_rf_local$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/div_sym_rf_local$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
-cg_div$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_cg$(SUFFIX).o $(OBJ_DIR)/div_rf$(SUFFIX).o $(LIB_OBJ)
+cg_div$(SUFFIX).exe: $(OBJ_DIR)/bench_fix_diag$(SUFFIX).o $(OBJ_DIR)/bench_cg$(SUFFIX).o $(OBJ_DIR)/div_rf$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
-cg_div_sym_local$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_cg$(SUFFIX).o $(OBJ_DIR)/div_sym_rf_local$(SUFFIX).o $(LIB_OBJ)
+cg_div_sym_local$(SUFFIX).exe: $(OBJ_DIR)/bench_fix_diag$(SUFFIX).o $(OBJ_DIR)/bench_cg$(SUFFIX).o $(OBJ_DIR)/div_sym_rf_local$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
-bicg_div$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_bicg$(SUFFIX).o $(OBJ_DIR)/div_rf$(SUFFIX).o $(LIB_OBJ)
+bicg_div$(SUFFIX).exe: $(OBJ_DIR)/bench_fix_diag$(SUFFIX).o $(OBJ_DIR)/bench_bicg$(SUFFIX).o $(OBJ_DIR)/div_rf$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 spmv_div_select$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/div_select$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
@@ -184,13 +184,23 @@ spmv_cuda_csr_transpose$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/ben
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 spmv_cuda_csr_transpose_one_row_per_thread$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_transpose_one_row_per_thread.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+spmv_cuda_csr_transpose_n_rows_per_thread$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_transpose_n_rows_per_thread.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+spmv_cuda_csr_transpose_n_threads_per_row$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_transpose_n_threads_per_row.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 spmv_cuda_csr_transpose_expand_rows$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_transpose_expand_rows.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 spmv_cuda_csr_transpose_expand_rows_timed$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_transpose_expand_rows_timed.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 spmv_cuda_csr_transpose_expand_rows_timed_v2$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_transpose_expand_rows_timed_v2.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+spmv_cuda_hybrid_column_slices$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_hybrid_column_slices.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 spmv_cuda_csr_lut$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_lut.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+spmv_cuda_sell_sorted$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+spmv_cuda_sell_sorted_hybrid$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted_hybrid.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 
 spmv_cuda_csr_t${NUM_THREADS}$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_naive.cu $(LIB_OBJ)
@@ -367,9 +377,9 @@ spmv_mkl_ie$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUF
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
 spmv_mkl_ie_sym$(SUFFIX).exe: $(OBJ_DIR)/spmv_bench_sym$(SUFFIX).o spmv_kernels/mkl_ie.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) -D'KEEP_SYMMETRY' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
-cg_mkl_ie$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_cg$(SUFFIX).o spmv_kernels/mkl_ie.cpp $(LIB_OBJ)
+cg_mkl_ie$(SUFFIX).exe: $(OBJ_DIR)/bench_fix_diag$(SUFFIX).o $(OBJ_DIR)/bench_cg$(SUFFIX).o spmv_kernels/mkl_ie.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
-bicg_mkl_ie$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_bicg$(SUFFIX).o spmv_kernels/mkl_ie.cpp $(LIB_OBJ)
+bicg_mkl_ie$(SUFFIX).exe: $(OBJ_DIR)/bench_fix_diag$(SUFFIX).o $(OBJ_DIR)/bench_bicg$(SUFFIX).o spmv_kernels/mkl_ie.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
 spmv_mkl_bsr_2$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/mkl_bsr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_MKL) -D'BLOCK_SIZE=2' $^ -o $@ $(LDFLAGS) $(LDFLAGS_MKL)
@@ -623,6 +633,8 @@ $(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench$(SUFFIX).o,bench.cpp,$(CPPFLAGS))
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_sym$(SUFFIX).o,bench.cpp,$(CPPFLAGS))
 	$(CPP) $(CPPFLAGS) -D'KEEP_SYMMETRY' -c $< -o $@
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_fix_diag$(SUFFIX).o,bench.cpp,$(CPPFLAGS))
+	$(CPP) $(CPPFLAGS) -D'FIX_DIAGONAL_ZEROS' -c $< -o $@
 
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_spmv$(SUFFIX).o,bench_spmv.cpp,$(CPPFLAGS))
 	$(CPP) $(CPPFLAGS) -c $< -o $@
@@ -632,12 +644,12 @@ $(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_sddmm$(SUFFIX).o,bench_sddmm.cpp,
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_cg$(SUFFIX).o,bench_cg.cpp,$(CPPFLAGS))
-	$(CPP) $(CPPFLAGS) -D'FIX_DIAGONAL_ZEROS' -c $< -o $@
+	$(CPP) $(CPPFLAGS) -c $< -o $@
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_cg_sym$(SUFFIX).o,bench_cg.cpp,$(CPPFLAGS))
-	$(CPP) $(CPPFLAGS) -D'KEEP_SYMMETRY' -D'FIX_DIAGONAL_ZEROS' -c $< -o $@
+	$(CPP) $(CPPFLAGS) -D'KEEP_SYMMETRY' -c $< -o $@
 
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/bench_bicg$(SUFFIX).o,bench_bicg.cpp,$(CPPFLAGS))
-	$(CPP) $(CPPFLAGS) -D'FIX_DIAGONAL_ZEROS' -c $< -o $@
+	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 
 # Library
@@ -707,5 +719,7 @@ $(DIRS): %:
 clean:
 	$(RM) $(OBJ_DIR)/* *.o *.exe a.out
 
--include $(OBJ_DIR)/*.d
+ifeq (0, $(words $(findstring $(MAKECMDGOALS),$(NODEPS))))
+    -include $(OBJ_DIR)/*.d
+endif
 

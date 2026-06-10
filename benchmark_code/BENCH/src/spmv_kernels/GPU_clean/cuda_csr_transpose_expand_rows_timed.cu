@@ -23,7 +23,7 @@ extern "C"{
 	#include "functools/functools_gen_push.h"
 	#define FUNCTOOLS_GEN_TYPE_1  int
 	#define FUNCTOOLS_GEN_TYPE_2  int
-	#define FUNCTOOLS_GEN_SUFFIX  CONCAT(_CSR_GEN_add_i, CSR_GEN_SUFFIX)
+	#define FUNCTOOLS_GEN_SUFFIX  _CUDA_CSR_TRANSPOSE_EXPAND_ROWS_CU
 	#include "functools/functools_gen.c"
 	__attribute__((pure))
 	static inline
@@ -48,21 +48,18 @@ extern "C"{
 using namespace cooperative_groups;
 
 #ifndef NNZ_PER_THREAD
-	#define NNZ_PER_THREAD  6
+	#define NNZ_PER_THREAD  5
 #endif
 
 #ifndef BLOCK_SIZE
 	// #define BLOCK_SIZE  32
 	// #define BLOCK_SIZE  64
-	// #define BLOCK_SIZE  128
+	#define BLOCK_SIZE  128
 	// #define BLOCK_SIZE  256
 	// #define BLOCK_SIZE  512
-	#define BLOCK_SIZE  1024
+	// #define BLOCK_SIZE  1024
 #endif
 
-#ifndef TIME_IT
-	#define TIME_IT 0
-#endif
 
 double ull2d(void * A, long i)
 {
@@ -111,7 +108,7 @@ enum timers_enum {
 
 struct CSRArrays : Matrix_Format
 {
-	long nnz_expanded;
+	long nnz_extended;
 
 	INT_T * row_ptr_h;
 	INT_T * ja_h;
@@ -134,7 +131,6 @@ struct CSRArrays : Matrix_Format
 	ValueType * x_d = NULL;
 	ValueType * y_d = NULL;
 
-	int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, max_threads_per_multiproc, max_block_dim_x, max_persistent_l2_cache, max_num_threads;
 	int num_threads;
 	int thread_block_size;
 	int num_thread_blocks;
@@ -143,29 +139,14 @@ struct CSRArrays : Matrix_Format
 	unsigned long long ** timers;
 	unsigned long long ** timers_d;
 
-	CSRArrays(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz)
+	CSRArrays(INT_T * row_ptr, INT_T * ja, ValueTypeReference * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz)
 	{
 		const long nnz_per_block = BLOCK_SIZE * NNZ_PER_THREAD;
 		const long nnz_per_warp = 32 * NNZ_PER_THREAD;
 		double time_balance;
 		long i;
 
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_smem_per_block, cudaDevAttrMaxSharedMemoryPerBlock, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&multiproc_count, cudaDevAttrMultiProcessorCount, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_block, cudaDevAttrMaxThreadsPerBlock , 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&warp_size, cudaDevAttrWarpSize , 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_multiproc, cudaDevAttrMaxThreadsPerMultiProcessor, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_block_dim_x, cudaDevAttrMaxBlockDimX, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_persistent_l2_cache, cudaDevAttrMaxPersistingL2CacheSize, 0));
-		max_num_threads = max_threads_per_multiproc * multiproc_count;
-		printf("max_smem_per_block(bytes)=%d\n", max_smem_per_block);
-		printf("multiproc_count=%d\n", multiproc_count);
-		printf("max_threads_per_block=%d\n", max_threads_per_block);
-		printf("warp_size=%d\n", warp_size);
-		printf("max_threads_per_multiproc=%d\n", max_threads_per_multiproc);
-		printf("max_block_dim_x=%d\n", max_block_dim_x);
-		printf("max_persistent_l2_cache=%d\n", max_persistent_l2_cache);
-		printf("max_num_threads=%d\n", max_num_threads);
+		cuda_device_print_attributes();
 
 		thread_block_size = BLOCK_SIZE;
 
@@ -184,10 +165,10 @@ struct CSRArrays : Matrix_Format
 		}
 		row_ptr_h[m] = 0;
 		scan_reduce(row_ptr_h, row_ptr_h, m+1, 0, 1, 0);
-		nnz_expanded = row_ptr_h[m];
-		printf("nnz_expanded=%ld\n", nnz_expanded);
-		ja_h = (typeof(ja_h)) malloc(nnz_expanded * sizeof(*ja_h));
-		a_h = (typeof(a_h)) malloc(nnz_expanded * sizeof(*a_h));
+		nnz_extended = row_ptr_h[m];
+		printf("nnz_extended=%ld\n", nnz_extended);
+		ja_h = (typeof(ja_h)) malloc(nnz_extended * sizeof(*ja_h));
+		a_h = (typeof(a_h)) malloc(nnz_extended * sizeof(*a_h));
 		_Pragma("omp parallel")
 		{
 			long i, j1, j2;
@@ -209,7 +190,7 @@ struct CSRArrays : Matrix_Format
 		}
 
 
-		num_threads = (nnz_expanded + NNZ_PER_THREAD - 1) / NNZ_PER_THREAD;
+		num_threads = (nnz_extended + NNZ_PER_THREAD - 1) / NNZ_PER_THREAD;
 		num_thread_blocks = (num_threads + BLOCK_SIZE - 1) / BLOCK_SIZE;
 		num_threads = num_thread_blocks * BLOCK_SIZE;
 		num_thread_warps = (num_threads + 32 - 1) / 32;
@@ -229,13 +210,13 @@ struct CSRArrays : Matrix_Format
 				for (i=0;i<num_thread_warps;i++)
 				{
 					thread_warp_j_s = nnz_per_warp * i;
-					if (thread_warp_j_s > nnz_expanded)
-						thread_warp_j_s = nnz_expanded;
+					if (thread_warp_j_s > nnz_extended)
+						thread_warp_j_s = nnz_extended;
 					macros_binary_search(row_ptr_h, 0, m, thread_warp_j_s, &lower_boundary, NULL);           // Index boundaries are inclusive.
 					thread_warp_i_s[i] = lower_boundary;
 					thread_warp_j_e = thread_warp_j_s + nnz_per_warp;
-					if (thread_warp_j_e > nnz_expanded)
-						thread_warp_j_e = nnz_expanded;
+					if (thread_warp_j_e > nnz_extended)
+						thread_warp_j_e = nnz_extended;
 					macros_binary_search(row_ptr_h, 0, m, thread_warp_j_e, NULL, &higher_boundary);           // Index boundaries are inclusive.
 					thread_warp_i_e[i] = higher_boundary;
 				}
@@ -253,8 +234,8 @@ struct CSRArrays : Matrix_Format
 				for (i=0;i<num_threads;i++)
 				{
 					thread_j_s = NNZ_PER_THREAD * i;
-					if (thread_j_s > nnz_expanded)
-						thread_j_s = nnz_expanded;
+					if (thread_j_s > nnz_extended)
+						thread_j_s = nnz_extended;
 					macros_binary_search(row_ptr_h, 0, m, thread_j_s, &lower_boundary, NULL);           // Index boundaries are inclusive.
 					thread_i_s[i] = lower_boundary;
 				}
@@ -262,14 +243,14 @@ struct CSRArrays : Matrix_Format
 		);
 		printf("balance time threads = %g\n", time_balance);
 
-		gpuCudaErrorCheck(cudaMalloc(&row_ptr_d, (m+1) * sizeof(*row_ptr_d)));
-		gpuCudaErrorCheck(cudaMalloc(&ja_d, nnz_expanded * sizeof(*ja_d)));
-		gpuCudaErrorCheck(cudaMalloc(&a_d, nnz_expanded * sizeof(*a_d)));
-		gpuCudaErrorCheck(cudaMalloc(&thread_warp_i_s_d, num_thread_warps * sizeof(*thread_warp_i_s_d)));
-		gpuCudaErrorCheck(cudaMalloc(&thread_warp_i_e_d, num_thread_warps * sizeof(*thread_warp_i_e_d)));
-		gpuCudaErrorCheck(cudaMalloc(&thread_i_s_d, num_threads * sizeof(*thread_i_s_d)));
-		gpuCudaErrorCheck(cudaMalloc(&x_d, n * sizeof(*x_d)));
-		gpuCudaErrorCheck(cudaMalloc(&y_d, m * sizeof(*y_d)));
+		cuda_assert(cudaMalloc(&row_ptr_d, (m+1) * sizeof(*row_ptr_d)));
+		cuda_assert(cudaMalloc(&ja_d, nnz_extended * sizeof(*ja_d)));
+		cuda_assert(cudaMalloc(&a_d, nnz_extended * sizeof(*a_d)));
+		cuda_assert(cudaMalloc(&thread_warp_i_s_d, num_thread_warps * sizeof(*thread_warp_i_s_d)));
+		cuda_assert(cudaMalloc(&thread_warp_i_e_d, num_thread_warps * sizeof(*thread_warp_i_e_d)));
+		cuda_assert(cudaMalloc(&thread_i_s_d, num_threads * sizeof(*thread_i_s_d)));
+		cuda_assert(cudaMalloc(&x_d, n * sizeof(*x_d)));
+		cuda_assert(cudaMalloc(&y_d, m * sizeof(*y_d)));
 
 		x_h = (typeof(x_h)) malloc(n * sizeof(*x_h));
 		y_h = (typeof(y_h)) malloc(m * sizeof(*y_h));
@@ -278,11 +259,11 @@ struct CSRArrays : Matrix_Format
 		{
 			long i_s, i_e, j, jj;
 			_Pragma("omp for")
-			for (j=0;j<nnz_expanded;j+=32*NNZ_PER_THREAD)
+			for (j=0;j<nnz_extended;j+=32*NNZ_PER_THREAD)
 			{
 				long j_e = j + 32*NNZ_PER_THREAD;
-				if (j_e > nnz_expanded)
-					j_e = nnz_expanded;
+				if (j_e > nnz_extended)
+					j_e = nnz_extended;
 				macros_binary_search(row_ptr_h, 0, m, j, &i_s, NULL);           // Index boundaries are inclusive.
 				macros_binary_search(row_ptr_h, 0, m, j_e-1, &i_e, NULL);           // Index boundaries are inclusive.
 				if (i_s == i_e)
@@ -306,9 +287,9 @@ struct CSRArrays : Matrix_Format
 			for (j=0;j<(num_thread_blocks-1)*nnz_per_block;j+=32*NNZ_PER_THREAD)
 			{
 				long j_e = j + 32*NNZ_PER_THREAD;
-				if (j_e > nnz_expanded)
-					j_e = nnz_expanded;
-				if (j_e < nnz_expanded)
+				if (j_e > nnz_extended)
+					j_e = nnz_extended;
+				if (j_e < nnz_extended)
 				{
 					transpose(&a_h[j], 32, NNZ_PER_THREAD);
 					transpose(&ja_h[j], 32, NNZ_PER_THREAD);
@@ -323,9 +304,9 @@ struct CSRArrays : Matrix_Format
 			// for (j=0;j<(num_thread_blocks-1)*nnz_per_block;j+=BLOCK_SIZE*NNZ_PER_THREAD)
 			// {
 				// long j_e = j + BLOCK_SIZE*NNZ_PER_THREAD;
-				// if (j_e > nnz_expanded)
-					// j_e = nnz_expanded;
-				// if (j_e < nnz_expanded)
+				// if (j_e > nnz_extended)
+					// j_e = nnz_extended;
+				// if (j_e < nnz_extended)
 				// {
 					// transpose(&a_h[j], BLOCK_SIZE, NNZ_PER_THREAD);
 					// transpose(&ja_h[j], BLOCK_SIZE, NNZ_PER_THREAD);
@@ -333,20 +314,20 @@ struct CSRArrays : Matrix_Format
 			// }
 		// }
 
-		gpuCudaErrorCheck(cudaMemcpy(row_ptr_d, row_ptr_h, (m+1) * sizeof(*row_ptr_d), cudaMemcpyHostToDevice));
-		gpuCudaErrorCheck(cudaMemcpy(ja_d, ja_h, nnz_expanded * sizeof(*ja_d), cudaMemcpyHostToDevice));
-		gpuCudaErrorCheck(cudaMemcpy(a_d, a_h, nnz_expanded * sizeof(*a_d), cudaMemcpyHostToDevice));
-		gpuCudaErrorCheck(cudaMemcpy(thread_warp_i_s_d, thread_warp_i_s, num_thread_warps * sizeof(*thread_warp_i_s_d), cudaMemcpyHostToDevice));
-		gpuCudaErrorCheck(cudaMemcpy(thread_warp_i_e_d, thread_warp_i_e, num_thread_warps * sizeof(*thread_warp_i_e_d), cudaMemcpyHostToDevice));
-		gpuCudaErrorCheck(cudaMemcpy(thread_i_s_d, thread_i_s, num_threads * sizeof(*thread_i_s_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(row_ptr_d, row_ptr_h, (m+1) * sizeof(*row_ptr_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(ja_d, ja_h, nnz_extended * sizeof(*ja_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(a_d, a_h, nnz_extended * sizeof(*a_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(thread_warp_i_s_d, thread_warp_i_s, num_thread_warps * sizeof(*thread_warp_i_s_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(thread_warp_i_e_d, thread_warp_i_e, num_thread_warps * sizeof(*thread_warp_i_e_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(thread_i_s_d, thread_i_s, num_threads * sizeof(*thread_i_s_d), cudaMemcpyHostToDevice));
 
 		timers = (typeof(timers)) malloc(TIME_ENUM_N * sizeof(*timers));
-		gpuCudaErrorCheck(cudaMalloc(&timers_d, TIME_ENUM_N * sizeof(*timers_d)));
+		cuda_assert(cudaMalloc(&timers_d, TIME_ENUM_N * sizeof(*timers_d)));
 		for (i=0;i<TIME_ENUM_N;i++)
 		{
-			gpuCudaErrorCheck(cudaMalloc(&timers[i], num_thread_warps * sizeof(*timers[i])));
+			cuda_assert(cudaMalloc(&timers[i], num_thread_warps * sizeof(*timers[i])));
 		}
-		gpuCudaErrorCheck(cudaMemcpy(timers_d, timers, TIME_ENUM_N * sizeof(*timers), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(timers_d, timers, TIME_ENUM_N * sizeof(*timers), cudaMemcpyHostToDevice));
 		for (i=0;i<TIME_ENUM_N;i++)
 		{
 			timers[i] = (typeof(timers[i])) malloc(num_thread_warps * sizeof(*timers[i]));
@@ -360,20 +341,20 @@ struct CSRArrays : Matrix_Format
 		free(thread_warp_i_e);
 		free(thread_i_s);
 
-		gpuCudaErrorCheck(cudaFree(row_ptr_d));
-		gpuCudaErrorCheck(cudaFree(ja_d));
-		gpuCudaErrorCheck(cudaFree(a_d));
-		gpuCudaErrorCheck(cudaFree(thread_warp_i_s_d));
-		gpuCudaErrorCheck(cudaFree(thread_warp_i_e_d));
-		gpuCudaErrorCheck(cudaFree(thread_i_s_d));
-		gpuCudaErrorCheck(cudaFree(x_d));
-		gpuCudaErrorCheck(cudaFree(y_d));
+		cuda_assert(cudaFree(row_ptr_d));
+		cuda_assert(cudaFree(ja_d));
+		cuda_assert(cudaFree(a_d));
+		cuda_assert(cudaFree(thread_warp_i_s_d));
+		cuda_assert(cudaFree(thread_warp_i_e_d));
+		cuda_assert(cudaFree(thread_i_s_d));
+		cuda_assert(cudaFree(x_d));
+		cuda_assert(cudaFree(y_d));
 
-		gpuCudaErrorCheck(cudaFreeHost(row_ptr_h));
-		gpuCudaErrorCheck(cudaFreeHost(ja_h));
-		gpuCudaErrorCheck(cudaFreeHost(a_h));
-		gpuCudaErrorCheck(cudaFreeHost(x_h));
-		gpuCudaErrorCheck(cudaFreeHost(y_h));
+		cuda_assert(cudaFreeHost(row_ptr_h));
+		cuda_assert(cudaFreeHost(ja_h));
+		cuda_assert(cudaFreeHost(a_h));
+		cuda_assert(cudaFreeHost(x_h));
+		cuda_assert(cudaFreeHost(y_h));
 	}
 
 	void spmv(ValueType * x, ValueType * y);
@@ -399,10 +380,10 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 	struct CSRArrays * csr = new CSRArrays(row_ptr, col_ind, values, m, n, nnz);
 	// for (long i=0;i<10;i++)
 		// printf("%d\n", row_ptr[i]);
-	csr->mem_footprint = csr->nnz_expanded * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
+	csr->mem_footprint = csr->nnz_extended * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	char *format_name;
 	format_name = (char *)malloc(100*sizeof(char));
-	snprintf(format_name, 100, "Custom_CSR_CUDA_expanded_rows_b%d_nnz%d", BLOCK_SIZE, NNZ_PER_THREAD);
+	snprintf(format_name, 100, "Custom_CSR_CUDA_transpose_expand_rows_timed_b%d_nnz%d", BLOCK_SIZE, NNZ_PER_THREAD);
 	csr->format_name = format_name;
 	return csr;
 }
@@ -683,7 +664,7 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims.x, grid_dims.y, grid_dims.z, block_dims.x, block_dims.y, block_dims.z);
 		csr->x = x;
 		memcpy(csr->x_h, x, csr->n * sizeof(ValueType));
-		gpuCudaErrorCheck(cudaMemcpy(csr->x_d, csr->x_h, csr->n * sizeof(*csr->x_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(csr->x_d, csr->x_h, csr->n * sizeof(*csr->x_d), cudaMemcpyHostToDevice));
 	}
 
 	cudaMemset(csr->y_d, 0, csr->m * sizeof(csr->y_d));
@@ -691,17 +672,17 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 	// cudaFuncCachePreferNone:   no preference for shared memory or L1 (default);
 	// cudaFuncCachePreferShared: prefer larger shared memory and smaller L1 cache;
 	// cudaFuncCachePreferL1:     prefer larger L1 cache and smaller shared memory;
-	// gpuCudaErrorCheck(cudaFuncSetCacheConfig(gpu_kernel_spmv_row_indices_continuous, cudaFuncCachePreferL1));
-	// gpuCudaErrorCheck(cudaFuncSetCacheConfig(gpu_kernel_spmv_row_indices_continuous, cudaFuncCachePreferShared));
-	gpu_kernel_spmv_row_indices_continuous<<<grid_dims, block_dims, shared_mem_size>>>(csr->timers_d, csr->thread_i_s_d, csr->thread_warp_i_s_d, csr->thread_warp_i_e_d, csr->row_ptr_d, csr->ja_d, csr->a_d, csr->m, csr->n, csr->nnz_expanded, csr->x_d, csr->y_d);
-	gpuCudaErrorCheck(cudaPeekAtLastError());
-	gpuCudaErrorCheck(cudaDeviceSynchronize());
+	// cuda_assert(cudaFuncSetCacheConfig(gpu_kernel_spmv_row_indices_continuous, cudaFuncCachePreferL1));
+	// cuda_assert(cudaFuncSetCacheConfig(gpu_kernel_spmv_row_indices_continuous, cudaFuncCachePreferShared));
+	gpu_kernel_spmv_row_indices_continuous<<<grid_dims, block_dims, shared_mem_size>>>(csr->timers_d, csr->thread_i_s_d, csr->thread_warp_i_s_d, csr->thread_warp_i_e_d, csr->row_ptr_d, csr->ja_d, csr->a_d, csr->m, csr->n, csr->nnz_extended, csr->x_d, csr->y_d);
+	cuda_assert(cudaPeekAtLastError());
+	cuda_assert(cudaDeviceSynchronize());
 
 	if (csr->y == NULL)
 	{
 		csr->y = y;
 
-		gpuCudaErrorCheck(cudaMemcpy(csr->y_h, csr->y_d, csr->m * sizeof(*csr->y_d), cudaMemcpyDeviceToHost));
+		cuda_assert(cudaMemcpy(csr->y_h, csr->y_d, csr->m * sizeof(*csr->y_d), cudaMemcpyDeviceToHost));
 		memcpy(y, csr->y_h, csr->m * sizeof(ValueType));
 	}
 }
@@ -730,10 +711,10 @@ CSRArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute
 {
 	unsigned long long * gpu_ptrs[TIME_ENUM_N];
 	long i;
-	gpuCudaErrorCheck(cudaMemcpy(gpu_ptrs, timers_d, TIME_ENUM_N * sizeof(*timers_d), cudaMemcpyDeviceToHost));
+	cuda_assert(cudaMemcpy(gpu_ptrs, timers_d, TIME_ENUM_N * sizeof(*timers_d), cudaMemcpyDeviceToHost));
 	for (i=0;i<TIME_ENUM_N;i++)
 	{
-		gpuCudaErrorCheck(cudaMemcpy(timers[i], gpu_ptrs[i], num_thread_warps * sizeof(*timers[i]), cudaMemcpyDeviceToHost));
+		cuda_assert(cudaMemcpy(timers[i], gpu_ptrs[i], num_thread_warps * sizeof(*timers[i]), cudaMemcpyDeviceToHost));
 	}
 
 	double time_kernel_total;

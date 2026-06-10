@@ -15,6 +15,7 @@
 #undef              csr_row_neighbours
 #undef              csr_cross_row_similarity
 #undef              csr_cross_row_neighbours
+#undef              csr_cross_row_x_access_similarity
 #undef              csr_matrix_features
 #undef              csr_matrix_features_validation
 #undef              csr_value_features

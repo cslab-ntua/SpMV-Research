@@ -96,8 +96,8 @@ struct cmp_data_packed_t {
 };
 
 #define cmp_data_packed_t_val(dp)  (*((uint64_t *) &(dp).u8[8]))
-#define cmp_data_packed_t_col(dp)  (*((uint32_t *) &(dp).u8[0]))
-#define cmp_data_packed_t_row(dp)  (*((uint32_t *) &(dp).u8[4]))
+#define cmp_data_packed_t_col(dp)  (*((uint32_t *) &(dp).u8[4]))
+#define cmp_data_packed_t_row(dp)  (*((uint32_t *) &(dp).u8[0]))
 
 // #define cmp_data_packed_t_val(dp)  (*((uint64_t *) &(dp).u8[4]))
 // #define cmp_data_packed_t_col(dp)  (*((uint32_t *) &(dp).u8[0]))

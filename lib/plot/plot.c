@@ -1,5 +1,5 @@
 #ifndef _GNU_SOURCE
-	#define _GNU_SOURCE
+	#error "Define _GNU_SOURCE at the top level to compile this library."
 #endif
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,6 +16,7 @@
 #include "parallel_io.h"
 #include "genlib.h"
 #include "array_metrics.h"
+#include "storage_formats/pixel_array.h"
 #include "storage_formats/ppm.h"
 
 #include "plot.h"
@@ -153,10 +154,15 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 		fig->legend_conf.title = strdup(f_conv);       // Better for the viewer to immediately understand that it's just the file name, than try to extract a possibly non-existent meaning from it, so keep extension.
 
 	fd = safe_open(f_ppm, O_WRONLY | O_TRUNC | O_CREAT);
-	save_ppm_image(pa, fd);
+	ppm_save_image(pa, fd);
 	safe_close(fd);
 
-	if (system("hash magick"))
+	char * prog;
+	if (!system("hash magick 2>/dev/null"))
+		prog = "magick";
+	else if (!system("hash convert 2>/dev/null"))
+		prog = "convert";
+	else
 		return;
 
 	// Adding the legend in ppm format, before converting, is MUCH faster than working on an e.g. png file.
@@ -168,7 +174,7 @@ write_image_file(struct Figure * fig, struct Pixel_Array * pa, char * filename)
 
 	// File conversion.
 	// Actually, the conversion to e.g. png takes most of the time, but the file sizes are orders of magnitude smaller.
-	snprintf(buf, buf_n, "magick '%s' '%s'", f_ppm, f_conv);
+	snprintf(buf, buf_n, "%s '%s' '%s'", prog, f_ppm, f_conv);
 	ret = system(buf);
 	if (ret)
 	{
@@ -840,7 +846,7 @@ color_pixels(struct Pixel_Array * pa, long x_pix, long y_pix, struct Figure * fi
 	dot_size_pixels = s->dot_size_pixels;
 
 	pos = y_pix*x_num_pixels + x_pix;
-	if ((dot_size_pixels <= 1) && !pixel_array_lock_pixel(pa, pos))
+	if ((dot_size_pixels <= 1) && !pixel_array_try_lock_pixel(pa, pos))
 		return;
 	if (immediate_color)
 	{
@@ -884,7 +890,7 @@ color_pixels(struct Pixel_Array * pa, long x_pix, long y_pix, struct Figure * fi
 			for (j=x_pix_left;j<=x_pix_right;j++)
 			{
 				pos = i*x_num_pixels + j;
-				if (!pixel_array_lock_pixel(pa, pos))
+				if (!pixel_array_try_lock_pixel(pa, pos))
 					continue;
 				p = &pixels[pos];
 				p->r = r;
@@ -912,7 +918,7 @@ color_pixels(struct Pixel_Array * pa, long x_pix, long y_pix, struct Figure * fi
 			for (j=x_pix_left;j<=x_pix_right;j++)
 			{
 				pos = i*x_num_pixels + j;
-				if (!pixel_array_lock_pixel(pa, pos))
+				if (!pixel_array_try_lock_pixel(pa, pos))
 					continue;
 				p = &pixels[pos];
 				p->r = r;

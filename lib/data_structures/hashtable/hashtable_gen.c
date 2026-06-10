@@ -32,7 +32,9 @@
  * Warning:
  *     Be careful when the key type is a struct!
  *
- *         ->  Use the gcc builtin 'void __builtin_clear_padding(ptr)' or a similar function to clear paddings.
+ *         Best practice                : Set HASHTABLE_GEN_KEY_IS_STRUCT = 1 and define custom equality function.
+ *         or (not 100% sure it's safe) : Define the struct with __attribute__((packed, aligned(1))), so that it has no paddings.
+ *         or                           : -> Use the gcc builtin 'void __builtin_clear_padding(ptr)' or a similar function to clear paddings.
  *
  *     Details:
  *         Extract from "C: A Reference Manual", by Harbison and Steele:
@@ -54,6 +56,69 @@
 
 	#undef  hashtable_sizeof_key
 	#define hashtable_sizeof_key(key)  sizeof(key)
+
+#endif
+
+
+#if HASHTABLE_GEN_KEY_IS_STRUCT
+
+	#undef  hashtable_test_equal_keys_basic_type
+	#define hashtable_test_equal_keys_basic_type  HASHTABLE_GEN_EXPAND(hashtable_test_equal_keys_basic_type)
+	static inline int hashtable_test_equal_keys_basic_type(_TYPE_K key_1, _TYPE_K key_2);
+
+#else
+
+	/* For some types, comparison can have unpredictable results.
+	 * For example, for float/double types "nan == nan" is always false!
+	 * Therefore, cast to integer type before comparison.
+	 */
+	#undef  hashtable_test_equal_keys_basic_type
+	#define hashtable_test_equal_keys_basic_type  HASHTABLE_GEN_EXPAND(hashtable_test_equal_keys_basic_type)
+	static inline
+	int
+	hashtable_test_equal_keys_basic_type(_TYPE_K key_1, _TYPE_K key_2)
+	{
+		if (hashtable_sizeof_key(key_1) <= 1)
+		{
+			union { uint8_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
+			k1.t = key_1;
+			k2.t = key_2;
+			return k1.u == k2.u;
+		}
+		else if (hashtable_sizeof_key(key_1) <= 2)
+		{
+			union { uint16_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
+			k1.t = key_1;
+			k2.t = key_2;
+			return k1.u == k2.u;
+		}
+		else if (hashtable_sizeof_key(key_1) <= 4)
+		{
+			union { uint32_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
+			k1.t = key_1;
+			k2.t = key_2;
+			return k1.u == k2.u;
+		}
+		else if (hashtable_sizeof_key(key_1) <= 8)
+		{
+			union { uint64_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
+			k1.t = key_1;
+			k2.t = key_2;
+			return k1.u == k2.u;
+		}
+		else if (hashtable_sizeof_key(key_1) <= 16)
+		{
+			union { __uint128_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
+			k1.t = key_1;
+			k2.t = key_2;
+			return k1.u == k2.u;
+		}
+		else
+			return !memcmp(&key_1, &key_2, hashtable_sizeof_key(key_1));
+		// else
+			// error("the key is not a basic type, its size should be less or equal to 16 bytes");
+	}
+
 
 #endif
 
@@ -135,8 +200,17 @@ hashtable_spinlock_unlock(int8_t * lock)
 
 /* Notes:
  *     - Computing multiple hash values can be more expensive than searching the buckets.
+ *
+ *
+ * Built-in Function: void __builtin_clear_padding (ptr)
+ *     The built-in function __builtin_clear_padding function clears padding bits inside of the object representation of object pointed by ptr, which has to be a pointer.
+ *     The value representation of the object is not affected.
+ *     The type of the object is assumed to be the type the pointer points to.
+ *     Inside of a union, the only cleared bits are bits that are padding bits for all the union members.
+ *     This built-in-function is useful if the padding bits of an object might have indeterminate values and the object representation needs to be bitwise compared to some other object, for example for atomic operations.
+ *     For C++, ptr argument type should be pointer to trivially-copyable type, unless the argument is address of a variable or parameter,
+ *     because otherwise it isn’t known if the type isn’t just a base class whose padding bits are reused or laid out differently in a derived class.
  */
-
 
 #undef  hashtable_hash_base
 #define hashtable_hash_base  HASHTABLE_GEN_EXPAND(hashtable_hash_base)
@@ -147,13 +221,17 @@ hashtable_hash_base(_TYPE_K key, int variant)
 	uint64_t hash;
 	const long len = hashtable_sizeof_key(key);
 	#if HASHTABLE_GEN_KEY_IS_REF
-		// __builtin_clear_padding(key);
+		#if HASHTABLE_GEN_KEY_IS_STRUCT
+			__builtin_clear_padding(key);
+		#endif
 		hash = xorshift64(key, len, variant);
 		// hash = fasthash64(key, len, variant);
 	#else
 		if (len <= 8)
 		{
-			// __builtin_clear_padding(&key);
+			#if HASHTABLE_GEN_KEY_IS_STRUCT
+				__builtin_clear_padding(&key);
+			#endif
 			const unsigned char * bytes = (const unsigned char *) &key;
 			uint64_t v = 0;
 			switch (len) {
@@ -220,9 +298,9 @@ static inline
 void
 hashtable_bucket_init(struct hashtable * ht, long bucket_pos)
 {
-	long j;
 	struct hashtable_bucket * bucket = &ht->buckets[bucket_pos];
-	struct hashtable_kv_pair * kv_pairs;
+	// struct hashtable_kv_pair * kv_pairs;
+	// long j;
 
 	ht->buf_kv_pairs_ownership[bucket_pos] = 0;
 
@@ -237,9 +315,15 @@ hashtable_bucket_init(struct hashtable * ht, long bucket_pos)
 	bucket->kv_pairs = NULL;
 	bucket->mru_keys = NULL;
 	// This is a good opportunity to touch the buffer memory, as it is serial access, parallel and distributes it across numa nodes.
-	kv_pairs = &ht->buf_kv_pairs[hashtable_bucket_initial_size * bucket_pos];
-	for (j=0;j<hashtable_bucket_initial_size;j++)
-		kv_pairs[j].key = 0;
+	// kv_pairs = &ht->buf_kv_pairs[hashtable_bucket_initial_size * bucket_pos];
+	// for (j=0;j<hashtable_bucket_initial_size;j++)
+	// {
+		// #if HASHTABLE_GEN_KEY_IS_REF
+			// kv_pairs[j].key = NULL;
+		// #else
+			// kv_pairs[j].key = (typeof(kv_pairs[j].key)) {0};
+		// #endif
+	// }
 }
 
 
@@ -307,18 +391,14 @@ HASHTABLE_GEN_FUNCTION_ATTRIBUTES
 void
 hashtable_init_concurrent(struct hashtable * ht, long buckets_n)
 {
-	int num_threads = safe_omp_get_num_threads();
-	int tnum = omp_get_thread_num();
-	long i, i_s, i_e;
-	#pragma omp single nowait
+	long i;
+	#pragma omp single
 	{
 		hashtable_init_base(ht, buckets_n);
 	}
-	#pragma omp barrier
-	loop_partitioner_balance_iterations(num_threads, tnum, 0, ht->buckets_n, &i_s, &i_e);
-	for (i=i_s;i<i_e;i++)
+	#pragma omp for
+	for (i=0;i<ht->buckets_n;i++)
 		hashtable_bucket_init(ht, i);
-	#pragma omp barrier
 }
 
 #undef  hashtable_init
@@ -412,6 +492,8 @@ void
 hashtable_clean_serial(struct hashtable * ht)
 {
 	long i;
+	if (ht == NULL)
+		error("ht is NULL");
 	for (i=0;i<ht->buckets_n;i++)
 		hashtable_bucket_clean(ht, i);
 	hashtable_clean_free(ht);
@@ -426,6 +508,8 @@ hashtable_clean_concurrent(struct hashtable * ht)
 	int num_threads = safe_omp_get_num_threads();
 	int tnum = omp_get_thread_num();
 	long i, i_s, i_e;
+	if (ht == NULL)
+		error("ht is NULL");
 	loop_partitioner_balance_iterations(num_threads, tnum, 0, ht->buckets_n, &i_s, &i_e);
 	for (i=i_s;i<i_e;i++)
 		hashtable_bucket_clean(ht, i);
@@ -461,6 +545,10 @@ HASHTABLE_GEN_FUNCTION_ATTRIBUTES
 void
 hashtable_destroy_serial(struct hashtable ** ht_ptr)
 {
+	if (ht_ptr == NULL)
+		error("ht_ptr is NULL");
+	if (*ht_ptr == NULL)
+		return;
 	hashtable_clean_serial(*ht_ptr);
 	free(*ht_ptr);
 	*ht_ptr = NULL;
@@ -472,6 +560,10 @@ HASHTABLE_GEN_FUNCTION_ATTRIBUTES
 void
 hashtable_destroy_concurrent(struct hashtable ** ht_ptr)
 {
+	if (ht_ptr == NULL)
+		error("ht_ptr is NULL");
+	if (*ht_ptr == NULL)
+		return;
 	hashtable_clean_concurrent(*ht_ptr);
 	#pragma omp barrier
 	#pragma omp single nowait
@@ -582,7 +674,7 @@ hashtable_bucket_resize(struct hashtable * ht, long bucket_pos, long new_size)
 			// printf("%lu\n", val.u);
 			// printf("%lf\n", val.f);
 		// }
-		error("possible overflow, new size given is lower of equal to older: old=%ld, new=%ld", bucket->size, new_size);
+		error("possible overflow, new size given is lower or equal to older: old=%ld, new=%ld", bucket->size, new_size);
 		// error("new size must be greater than older: old=%ld, new=%ld", bucket->size, new_size);
 	}
 	if (!bucket->space_is_malloced)
@@ -675,58 +767,6 @@ hashtable_bucket_resize_concurrent(struct hashtable * ht, long bucket_pos, long 
 //------------------------------------------------------------------------------------------------------------------------------------------
 //- Contains
 //------------------------------------------------------------------------------------------------------------------------------------------
-
-
-/* For some types, comparison can have unpredictable results.
- * For example, for float/double types "nan == nan" is always false!
- * Therefore, cast to integer type before comparison.
- */
-#undef  hashtable_test_equal_keys_basic_type
-#define hashtable_test_equal_keys_basic_type  HASHTABLE_GEN_EXPAND(hashtable_test_equal_keys_basic_type)
-static inline
-int
-hashtable_test_equal_keys_basic_type(_TYPE_K key_1, _TYPE_K key_2)
-{
-	if (hashtable_sizeof_key(key_1) <= 1)
-	{
-		union { uint8_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
-		k1.t = key_1;
-		k2.t = key_2;
-		return k1.u == k2.u;
-	}
-	else if (hashtable_sizeof_key(key_1) <= 2)
-	{
-		union { uint16_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
-		k1.t = key_1;
-		k2.t = key_2;
-		return k1.u == k2.u;
-	}
-	else if (hashtable_sizeof_key(key_1) <= 4)
-	{
-		union { uint32_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
-		k1.t = key_1;
-		k2.t = key_2;
-		return k1.u == k2.u;
-	}
-	else if (hashtable_sizeof_key(key_1) <= 8)
-	{
-		union { uint64_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
-		k1.t = key_1;
-		k2.t = key_2;
-		return k1.u == k2.u;
-	}
-	else if (hashtable_sizeof_key(key_1) <= 16)
-	{
-		union { __uint128_t u; _TYPE_K t; } k1={.u=0}, k2={.u=0};
-		k1.t = key_1;
-		k2.t = key_2;
-		return k1.u == k2.u;
-	}
-	else
-		return !memcmp(&key_1, &key_2, hashtable_sizeof_key(key_1));
-	// else
-		// error("the key is not a basic type, its size should be less or equal to 16 bytes");
-}
 
 
 #undef  hashtable_bucket_contains
@@ -1086,14 +1126,14 @@ hashtable_num_entries(struct hashtable * ht)
 #define hashtable_entries_check_parameters  HASHTABLE_GEN_EXPAND(hashtable_entries_check_parameters)
 static
 void
-hashtable_entries_check_parameters(_TYPE_K ** keys_out, _VC(_TYPE_V ** values_out,) long * num_entries_out)
+hashtable_entries_check_parameters(_TYPE_K ** keys_ret, _VC(_TYPE_V ** values_ret,) long * num_entries_out)
 {
 	#if !HASHTABLE_GEN_VALUE_SAME_AS_KEY
-		if (keys_out == NULL && values_out == NULL)
-			error("Both 'keys_out' and 'values_out' return parameters are NULL");
+		if (keys_ret == NULL && values_ret == NULL)
+			error("Both 'keys_ret' and 'values_ret' return parameters are NULL");
 	#else
-		if (keys_out == NULL)
-			error("'keys_out' return parameter is NULL");
+		if (keys_ret == NULL)
+			error("'keys_ret' return parameter is NULL");
 	#endif
 	if (num_entries_out == NULL)
 		error("'num_entries_out' return parameter is NULL");
@@ -1104,19 +1144,19 @@ hashtable_entries_check_parameters(_TYPE_K ** keys_out, _VC(_TYPE_V ** values_ou
 #define hashtable_entries_serial  HASHTABLE_GEN_EXPAND(hashtable_entries_serial)
 HASHTABLE_GEN_FUNCTION_ATTRIBUTES
 void
-hashtable_entries_serial(struct hashtable * ht, _TYPE_K ** keys_out, _VC(_TYPE_V ** values_out,) long * num_entries_out)
+hashtable_entries_serial(struct hashtable * ht, _TYPE_K ** keys_ret, _VC(_TYPE_V ** values_ret,) long * num_entries_out)
 {
 	long i, j, k;
 	_TYPE_K * keys = NULL;
 	_VC(_TYPE_V * values = NULL;)
 	long num_entries;
 	struct hashtable_bucket * bucket;
-	hashtable_entries_check_parameters(keys_out, _VC(values_out,) num_entries_out);
+	hashtable_entries_check_parameters(keys_ret, _VC(values_ret,) num_entries_out);
 	num_entries = hashtable_num_entries_serial(ht);
-	if (keys_out != NULL)
+	if (keys_ret != NULL)
 		keys = (typeof(keys)) malloc(num_entries * sizeof(*keys));
 	_VC(
-		if (values_out != NULL)
+		if (values_ret != NULL)
 			values = (typeof(values)) malloc(num_entries * sizeof(*values));
 	)
 	k = 0;
@@ -1125,20 +1165,20 @@ hashtable_entries_serial(struct hashtable * ht, _TYPE_K ** keys_out, _VC(_TYPE_V
 		bucket = &ht->buckets[i];
 		for (j=0;j<bucket->n;j++)
 		{
-			if (keys_out != NULL)
+			if (keys_ret != NULL)
 				keys[k] = bucket->kv_pairs[j].key;
 			_VC(
-				if (values_out != NULL)
+				if (values_ret != NULL)
 					values[k] = bucket->kv_pairs[j].value;
 			)
 			k++;
 		}
 	}
-	if (keys_out != NULL)
-		*keys_out = keys;
+	if (keys_ret != NULL)
+		*keys_ret = keys;
 	_VC(
-		if (values_out != NULL)
-			*values_out = values;
+		if (values_ret != NULL)
+			*values_ret = values;
 	)
 	*num_entries_out = num_entries;
 }
@@ -1147,7 +1187,7 @@ hashtable_entries_serial(struct hashtable * ht, _TYPE_K ** keys_out, _VC(_TYPE_V
 #define hashtable_entries_concurrent  HASHTABLE_GEN_EXPAND(hashtable_entries_concurrent)
 HASHTABLE_GEN_FUNCTION_ATTRIBUTES
 void
-hashtable_entries_concurrent(struct hashtable * ht, _TYPE_K ** keys_out, _VC(_TYPE_V ** values_out,) long * num_entries_out)
+hashtable_entries_concurrent(struct hashtable * ht, _TYPE_K ** keys_ret, _VC(_TYPE_V ** values_ret,) long * num_entries_out)
 {
 	static _TYPE_K * keys;
 	_VC(
@@ -1159,15 +1199,15 @@ hashtable_entries_concurrent(struct hashtable * ht, _TYPE_K ** keys_out, _VC(_TY
 	long num_entries;
 	long local_offset;
 	struct hashtable_bucket * bucket;
-	hashtable_entries_check_parameters(keys_out, _VC(values_out,) num_entries_out);
+	hashtable_entries_check_parameters(keys_ret, _VC(values_ret,) num_entries_out);
 	loop_partitioner_balance_iterations(num_threads, tnum, 0, ht->buckets_n, &i_s, &i_e);
 	num_entries = hashtable_num_entries_concurrent_base(ht, &local_offset);
 	#pragma omp single nowait
 	{
-		if (keys_out != NULL)
+		if (keys_ret != NULL)
 			keys = (typeof(keys)) malloc(num_entries * sizeof(*keys));
 		_VC(
-			if (values_out != NULL)
+			if (values_ret != NULL)
 				values = (typeof(values)) malloc(num_entries * sizeof(*values));
 		)
 	}
@@ -1178,21 +1218,21 @@ hashtable_entries_concurrent(struct hashtable * ht, _TYPE_K ** keys_out, _VC(_TY
 		bucket = &ht->buckets[i];
 		for (j=0;j<bucket->n;j++)
 		{
-			if (keys_out != NULL)
+			if (keys_ret != NULL)
 				keys[k] = bucket->kv_pairs[j].key;
 			_VC(
-				if (values_out != NULL)
+				if (values_ret != NULL)
 					values[k] = bucket->kv_pairs[j].value;
 			)
 			k++;
 		}
 	}
 	#pragma omp barrier
-	if (keys_out != NULL)
-		*keys_out = keys;
+	if (keys_ret != NULL)
+		*keys_ret = keys;
 	_VC(
-		if (values_out != NULL)
-			*values_out = values;
+		if (values_ret != NULL)
+			*values_ret = values;
 	)
 	*num_entries_out = num_entries;
 }
@@ -1201,11 +1241,11 @@ hashtable_entries_concurrent(struct hashtable * ht, _TYPE_K ** keys_out, _VC(_TY
 #define hashtable_entries  HASHTABLE_GEN_EXPAND(hashtable_entries)
 HASHTABLE_GEN_FUNCTION_ATTRIBUTES
 void
-hashtable_entries(struct hashtable * ht, _TYPE_K ** keys_out, _VC(_TYPE_V ** values_out,) long * num_entries_out)
+hashtable_entries(struct hashtable * ht, _TYPE_K ** keys_ret, _VC(_TYPE_V ** values_ret,) long * num_entries_out)
 {
-	hashtable_entries_check_parameters(keys_out, _VC(values_out,) num_entries_out);
+	hashtable_entries_check_parameters(keys_ret, _VC(values_ret,) num_entries_out);
 	if (omp_get_level() > 0)
-		hashtable_entries_serial(ht, (keys_out != NULL) ? keys_out : NULL, _VC((values_out != NULL) ? values_out : NULL,) num_entries_out);
+		hashtable_entries_serial(ht, (keys_ret != NULL) ? keys_ret : NULL, _VC((values_ret != NULL) ? values_ret : NULL,) num_entries_out);
 	#pragma omp parallel
 	{
 		_TYPE_K * keys;
@@ -1213,14 +1253,14 @@ hashtable_entries(struct hashtable * ht, _TYPE_K ** keys_out, _VC(_TYPE_V ** val
 			static _TYPE_V * values;
 		)
 		long num_entries;
-		hashtable_entries_concurrent(ht, (keys_out != NULL) ? &keys : NULL, _VC((values_out != NULL) ? &values : NULL,) &num_entries);
+		hashtable_entries_concurrent(ht, (keys_ret != NULL) ? &keys : NULL, _VC((values_ret != NULL) ? &values : NULL,) &num_entries);
 		#pragma omp single nowait
 		{
-			if (keys_out != NULL)
-				*keys_out = keys;
+			if (keys_ret != NULL)
+				*keys_ret = keys;
 			_VC(
-				if (values_out != NULL)
-					*values_out = values;
+				if (values_ret != NULL)
+					*values_ret = values;
 			)
 			*num_entries_out = num_entries;
 		}

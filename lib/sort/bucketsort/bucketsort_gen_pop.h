@@ -16,3 +16,4 @@
 #pragma  pop_macro("bucketsort_stable_recalculate_bucket_serial")
 #pragma  pop_macro("bucketsort")
 #pragma  pop_macro("bucketsort_recalculate_bucket")
+#pragma  pop_macro("bucketsort_stable")

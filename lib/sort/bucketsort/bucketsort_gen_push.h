@@ -16,4 +16,5 @@
 #pragma push_macro("bucketsort_stable_recalculate_bucket_serial")
 #pragma push_macro("bucketsort")
 #pragma push_macro("bucketsort_recalculate_bucket")
+#pragma push_macro("bucketsort_stable")
 #include "bucketsort_gen_undef.h"

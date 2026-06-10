@@ -10,6 +10,15 @@
 #include "samplesort_gen.h"
 
 
+/* Samplesort sorts inplace.
+ *
+ * If we sort the indices of an array A (0, ..., len(A)-1) then the result
+ * will be the REVERSE permutation:
+ *     A[reverse_permutation[i]] -> A_sorted[i]
+ *     i.e., to sort the array: A_sorted[i] = A[reverse_permutation[i]];
+ */
+
+
 //==========================================================================================================================================
 //= User Functions Declarations
 //==========================================================================================================================================
@@ -48,20 +57,6 @@ quicksort_cmp(SAMPLESORT_GEN_TYPE_1 a, SAMPLESORT_GEN_TYPE_1 b, SAMPLESORT_GEN_T
 {
 	return samplesort_cmp(a, b, aux_data);
 }
-
-
-// #include "sort/mergesort/mergesort_gen_push.h"
-// #define MERGESORT_GEN_TYPE_1  SAMPLESORT_GEN_TYPE_1
-// #define MERGESORT_GEN_TYPE_2  SAMPLESORT_GEN_TYPE_2
-// #define MERGESORT_GEN_TYPE_3  SAMPLESORT_GEN_TYPE_4
-// #define MERGESORT_GEN_SUFFIX  CONCAT(_SAMPLESORT_GEN, SAMPLESORT_GEN_SUFFIX)
-// #include "sort/mergesort/mergesort_gen.c"
-// static inline
-// int
-// mergesort_cmp(SAMPLESORT_GEN_TYPE_1 a, SAMPLESORT_GEN_TYPE_1 b, SAMPLESORT_GEN_TYPE_4 * aux_data)
-// {
-	// return samplesort_cmp(a, b, aux_data);
-// }
 
 
 //==========================================================================================================================================
@@ -105,8 +100,6 @@ static inline
 long
 find_splitters(_TYPE_V * A, long N, _TYPE_V * splitters, long num_splitters, _TYPE_AD * aux_data)
 {
-	// long samples_per_bucket = 10;
-	// long samples_per_bucket = N / 100000;
 	long samples_per_bucket = 10;
 	long num_samples = samples_per_bucket * (num_splitters + 1);   // +1 to leave elems in the end for the last bucket.
 	// printf("num_samples = %ld\n", num_samples);
@@ -114,32 +107,40 @@ find_splitters(_TYPE_V * A, long N, _TYPE_V * splitters, long num_splitters, _TY
 	long i, j, div;
 	if (num_samples < 2 * num_splitters)
 		num_samples = 2 * num_splitters;
-	if ((samples_per_bucket == 0) || (num_samples > N))
+	if (num_samples > N)
 	{
 		samples_per_bucket = N / (num_splitters + 1);
 		num_samples = N;
 	}
+	if (num_samples <= 0)
+		error("no samples remaining");
 	samples = (typeof(samples)) malloc(num_samples * sizeof(*samples));
 	div = N/num_samples;
 	for (i=0;i<num_samples;i++)
+	{
 		samples[i] = A[i*div];
+	}
 	// printf("quicksort samples\n");
 	quicksort(samples, num_samples, aux_data, NULL);
-	for (i=0,j=0;i<num_samples;i++)
+	for (i=1,j=0;i<num_samples;i++)
 	{
 		if (samplesort_cmp(samples[i], samples[j], aux_data) == 0)
 			continue;
 		j++;
 		samples[j] = samples[i];
 	}
-	num_samples = j;
+	num_samples = j + 1;
 	if (num_samples <= 0)
 		error("no samples remaining");
 	if (num_samples <= num_splitters)
 		num_splitters = num_samples - 1;
 	samples_per_bucket = num_samples / num_splitters;
 	for (i=0;i<num_splitters;i++)
+	{
+		if (samples_per_bucket*(i+1) - 1 >= num_samples)
+			error("%ld", samples_per_bucket*(i+1) - 1);
 		splitters[i] = samples[samples_per_bucket*(i+1) - 1];   // +1 to leave elems in the begining for the first bucket.
+	}
 	free(samples);
 	return num_splitters;
 }
@@ -404,6 +405,7 @@ samplesort(_TYPE_V * A, long N, _TYPE_AD * aux_data)
 //==========================================================================================================================================
 //= Includes Undefs
 //==========================================================================================================================================
+
 
 #include "sort/quicksort/quicksort_gen_pop.h"
 // #include "sort/mergesort/mergesort_gen_pop.h"

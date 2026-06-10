@@ -98,6 +98,10 @@ decl_stat_is(sock, S_ISSOCK, "socket")
 //==========================================================================================================================================
 
 
+/*
+ * For reading: O_RDONLY
+ * For writing: O_CREAT|O_WRONLY|O_TRUNC
+ */
 int safe_open_base(const char * pathname, int flags, mode_t mode);
 
 // Default mode for created files: 644 rw-r--r--

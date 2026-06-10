@@ -496,6 +496,12 @@ mtx_plot_base(struct Matrix_Market * MTX, char * filename, int plot_density)
 	else
 		s = figure_add_series(fig, NULL, NULL, MTX->V, MTX->n, MTX->m, , , mtx_functor_get_value_as_double(MTX));
 
+	long min_dim = MTX->n < MTX->m ? MTX->n : MTX->m;
+	if (num_pixels > min_dim)
+	{
+		figure_series_set_dot_size_pixels(s, num_pixels / min_dim);
+	}
+
 	if (plot_density)
 		figure_series_type_density_map(s);
 

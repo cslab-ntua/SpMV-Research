@@ -136,186 +136,189 @@ done
 
 matrices_validation=(
 
-    scircuit
-    mac_econ_fwd500
-    raefsky3
-    rgg_n_2_17_s0
-    bbmat
-    appu
-    mc2depi
-    rma10
-    cop20k_A
-    thermomech_dK
-    webbase-1M
-    cant
-    ASIC_680k
-    roadNet-TX
-    pdb1HYS
-    TSOPF_RS_b300_c3
-    Chebyshev4
-    consph
-    com-Youtube
-    rajat30
-    radiation
-    Stanford_Berkeley
-    shipsec1
-    PR02R
-    CurlCurl_2
-    gupta3
-    mip1
-    rail4284
-    pwtk
-    crankseg_2
-    Si41Ge41H72
-    TSOPF_RS_b2383
-    in-2004
-    Ga41As41H72
-    eu-2005
-    wikipedia-20051105
-    kron_g500-logn18
-    rajat31
-    human_gene1
-    delaunay_n22
-    GL7d20
-    sx-stackoverflow
-    dgreen
-    mawi_201512012345
-    ldoor
-    dielFilterV2real
-    circuit5M
-    soc-LiveJournal1
-    bone010
-    audikw_1
-    cage15
-    kmer_V2a
-
-    # cit-Patents
-    # human_gene2
-    # GL7d21
+    # scircuit
+    # mac_econ_fwd500
+    # raefsky3
+    # rgg_n_2_17_s0
+    # bbmat
+    # appu
+    # mc2depi
+    # rma10
+    # cop20k_A
+    # thermomech_dK
+    # webbase-1M
+    # cant
+    # ASIC_680k
+    # roadNet-TX
+    # pdb1HYS
+    # TSOPF_RS_b300_c3
+    # Chebyshev4
+    # consph
+    # com-Youtube
+    # rajat30
+    # radiation
+    # Stanford_Berkeley
+    # shipsec1
+    # PR02R
+    # CurlCurl_2
+    # gupta3
+    # mip1
+    # rail4284
+    # pwtk
+    # crankseg_2
+    # Si41Ge41H72
+    # TSOPF_RS_b2383
+    # in-2004
     # Ga41As41H72
-    # great-britain_osm
-    # hugetric-00000
     # eu-2005
-    # Freescale1
     # wikipedia-20051105
-    # circuit5M_dc
-    # bundle_adj
-    # msdoor
-    # fem_hifreq_circuit
     # kron_g500-logn18
-    # StocF-1465
     # rajat31
-    # gsm_106857
-    # hugetric-00010
-    # M6
-    # CoupCons3D
-    # 12month1
-    # as-Skitter
-    # 333SP
-    # hugetric-00020
-    # AS365
-    # Transport
-    # Freescale2
     # human_gene1
-    # NLR
-    # GL7d17
     # delaunay_n22
-    # F1
-    # rel9
-    # CurlCurl_4
-    # FullChip
-    # cage14
-    # ML_Laplace
-    # germany_osm
-    # nd24k
-    # Fault_639
-    # mouse_gene
-    # nlpkkt80
-    # wiki-topcats
-    # asia_osm
-    # adaptive
-    # rgg_n_2_21_s0
     # GL7d20
-    # coPapersDBLP
-    # soc-Pokec
-    # coPapersCiteseer
-    # dielFilterV3clx
-    # mycielskian16
-    # vas_stokes_1M
-    # packing-500x100x100-b050
-    # GL7d18
-    # inline_1
     # sx-stackoverflow
-    # PFlow_742
-    # RM07R
-    # GL7d19
-    # wikipedia-20060925
-    # road_central
     # dgreen
-    # hugetrace-00010
-    # wikipedia-20061104
-    # Emilia_923
-    # relat9
-    # Hardesty3
-    # kron_g500-logn19
     # mawi_201512012345
-    # spal_004
-    # wikipedia-20070206
     # ldoor
     # dielFilterV2real
-    # delaunay_n23
-    # af_shell10
-    # hugetrace-00020
-    # boneS10
-    # wb-edu
-    # hugebubbles-00000
     # circuit5M
-    # Hook_1498
-    # rgg_n_2_22_s0
-    # Geo_1438
-    # hugebubbles-00010
-    # Serena
-    # GAP-road
-    # road_usa
-    # vas_stokes_2M
     # soc-LiveJournal1
-    # hugebubbles-00020
-    # com-LiveJournal
     # bone010
     # audikw_1
-    # ljournal-2008
-    # mawi_201512020000
-    # channel-500x100x100-b050
-    # Long_Coup_dt0
-    # Long_Coup_dt6
-    # kron_g500-logn20
-    # dielFilterV3real
-    # nlpkkt120
-    # mycielskian17
     # cage15
-    # delaunay_n24
-    # ML_Geer
-    # hollywood-2009
-    # Flan_1565
-    # europe_osm
-    # Cube_Coup_dt0
-    # Cube_Coup_dt6
-    # Bump_2911
-    # rgg_n_2_23_s0
-    # vas_stokes_4M
     # kmer_V2a
-    # kmer_U1a
+
+    cit-Patents
+    human_gene2
+    GL7d21
+    Ga41As41H72
+    great-britain_osm
+    hugetric-00000
+    eu-2005
+    Freescale1
+    wikipedia-20051105
+    circuit5M_dc
+    bundle_adj
+    msdoor
+    fem_hifreq_circuit
+    kron_g500-logn18
+    StocF-1465
+    rajat31
+    gsm_106857
+    hugetric-00010
+    M6
+    CoupCons3D
+    12month1
+    as-Skitter
+    333SP
+    hugetric-00020
+    AS365
+    Transport
+    Freescale2
+    human_gene1
+    NLR
+    GL7d17
+    delaunay_n22
+    F1
+    rel9
+    CurlCurl_4
+    FullChip
+    cage14
+    ML_Laplace
+    germany_osm
+    nd24k
+    Fault_639
+    mouse_gene
+    nlpkkt80
+    wiki-topcats
+    asia_osm
+    adaptive
+    rgg_n_2_21_s0
+    GL7d20
+    coPapersDBLP
+    soc-Pokec
+    coPapersCiteseer
+    dielFilterV3clx
+    mycielskian16
+    vas_stokes_1M
+    packing-500x100x100-b050
+    GL7d18
+    inline_1
+    sx-stackoverflow
+    PFlow_742
+    RM07R
+    GL7d19
+    wikipedia-20060925
+    road_central
+    dgreen
+    hugetrace-00010
+    wikipedia-20061104
+    Emilia_923
+    relat9
+    Hardesty3
+    kron_g500-logn19
+    spal_004
+    wikipedia-20070206
+    ldoor
+    dielFilterV2real
+    delaunay_n23
+    af_shell10
+    hugetrace-00020
+    boneS10
+    wb-edu
+    hugebubbles-00000
+    circuit5M
+    Hook_1498
+    rgg_n_2_22_s0
+    Geo_1438
+    hugebubbles-00010
+    Serena
+    GAP-road
+    road_usa
+    vas_stokes_2M
+    soc-LiveJournal1
+    hugebubbles-00020
+    com-LiveJournal
+    bone010
+    audikw_1
+    ljournal-2008
+    channel-500x100x100-b050
+    Long_Coup_dt0
+    Long_Coup_dt6
+    kron_g500-logn20
+    dielFilterV3real
+    nlpkkt120
+    mycielskian17
+    cage15
+    delaunay_n24
+    ML_Geer
+    hollywood-2009
+    Flan_1565
+    europe_osm
+    Cube_Coup_dt0
+    Cube_Coup_dt6
+    Bump_2911
+    rgg_n_2_23_s0
+    vas_stokes_4M
+    kmer_V2a
+    kmer_U1a
+    kron_g500-logn21
+    indochina-2004
+    nlpkkt160
+    com-Orkut
+    rgg_n_2_24_s0
+    HV15R
+    mycielskian18
+    uk-2002
+    Queen_4147
+    stokes
+    nlpkkt200
+
+    # mawi_201512012345
+    # mawi_201512020000
     # mawi_201512020030
-    # kron_g500-logn21
-    # indochina-2004
-    # nlpkkt160
-    # com-Orkut
-    # rgg_n_2_24_s0
-    # HV15R
-    # mycielskian18
-    # uk-2002
     # mawi_201512020130
-    # Queen_4147
 
 )
 matrices_validation_tamu=( ${matrices_validation[@]} )
@@ -341,6 +344,133 @@ matrices_validation=(
     )
 )
 
+matrices_validation_square=(
+
+    cit-Patents
+    human_gene2
+    Ga41As41H72
+    great-britain_osm
+    hugetric-00000
+    eu-2005
+    Freescale1
+    wikipedia-20051105
+    circuit5M_dc
+    bundle_adj
+    msdoor
+    fem_hifreq_circuit
+    kron_g500-logn18
+    StocF-1465
+    rajat31
+    gsm_106857
+    hugetric-00010
+    M6
+    CoupCons3D
+    as-Skitter
+    333SP
+    hugetric-00020
+    AS365
+    Transport
+    Freescale2
+    human_gene1
+    NLR
+    delaunay_n22
+    F1
+    CurlCurl_4
+    FullChip
+    cage14
+    ML_Laplace
+    germany_osm
+    nd24k
+    Fault_639
+    mouse_gene
+    nlpkkt80
+    wiki-topcats
+    asia_osm
+    adaptive
+    rgg_n_2_21_s0
+    coPapersDBLP
+    soc-Pokec
+    coPapersCiteseer
+    dielFilterV3clx
+    mycielskian16
+    vas_stokes_1M
+    packing-500x100x100-b050
+    inline_1
+    sx-stackoverflow
+    PFlow_742
+    RM07R
+    wikipedia-20060925
+    road_central
+    dgreen
+    hugetrace-00010
+    wikipedia-20061104
+    Emilia_923
+    kron_g500-logn19
+    mawi_201512012345
+    wikipedia-20070206
+    ldoor
+    dielFilterV2real
+    delaunay_n23
+    af_shell10
+    hugetrace-00020
+    boneS10
+    wb-edu
+    hugebubbles-00000
+    circuit5M
+    Hook_1498
+    rgg_n_2_22_s0
+    Geo_1438
+    hugebubbles-00010
+    Serena
+    GAP-road
+    road_usa
+    vas_stokes_2M
+    soc-LiveJournal1
+    hugebubbles-00020
+    com-LiveJournal
+    bone010
+    audikw_1
+    ljournal-2008
+    mawi_201512020000
+    channel-500x100x100-b050
+    Long_Coup_dt0
+    Long_Coup_dt6
+    kron_g500-logn20
+    dielFilterV3real
+    nlpkkt120
+    mycielskian17
+    cage15
+    delaunay_n24
+    ML_Geer
+    hollywood-2009
+    Flan_1565
+    europe_osm
+    Cube_Coup_dt0
+    Cube_Coup_dt6
+    Bump_2911
+    rgg_n_2_23_s0
+    vas_stokes_4M
+    kmer_V2a
+    kmer_U1a
+    mawi_201512020030
+    kron_g500-logn21
+    indochina-2004
+    nlpkkt160
+    com-Orkut
+    rgg_n_2_24_s0
+    HV15R
+    mycielskian18
+    uk-2002
+    Queen_4147
+    stokes
+    nlpkkt200
+
+)
+matrices_validation_square_tamu=( ${matrices_validation_square[@]} )
+for ((i=0;i<${#matrices_validation_square_tamu[@]};i++)); do
+    m="${matrices_validation_square_tamu[i]}"
+    matrices_validation_square_tamu[i]="${path_tamu}/matrices/${m}/${m}.mtx"
+done
 
 matrices_paper_csr_rv=(
 
@@ -471,10 +601,10 @@ done
 matrices_compression=(
 
     # spal_004
-    # ldoor
+    ldoor
     # dielFilterV2real
     # af_shell10
-    nv2
+    # nv2
     # boneS10
     # circuit5M
     # Hook_1498
@@ -749,6 +879,30 @@ for ((i=0;i<${#matrices_graphs_sparse_survey[@]};i++)); do
 done
 
 
+matrices_cod_sell=(
+
+    scircuit
+    mac_econ_fwd500
+    conf5_4-8x8-05
+    mc2depi
+    rma10
+    cop20k_A
+    webbase-1M
+    cant
+    pdb1HYS
+    consph
+    shipsec1
+    pwtk
+    af_shell9
+    F1
+
+)
+for ((i=0;i<${#matrices_cod_sell[@]};i++)); do
+    m="${matrices_cod_sell[i]}"
+    matrices_cod_sell[i]="${path_tamu}/matrices/${m}/${m}.mtx"
+done
+
+
 matrices_validation_loop=()
 for ((i=0;i<${#matrices_validation[@]};i++)); do
     path="${matrices_validation[i]}"
@@ -883,8 +1037,9 @@ bench()
 matrices=(
 
     # "${matrices_openFoam[@]}"
-    "${matrices_validation[@]}"
-    # "${matrices_validation_tamu[@]}"
+    # "${matrices_validation[@]}"
+    "${matrices_validation_tamu[@]}"
+    # "${matrices_validation_square_tamu[@]}"
     # "${matrices_paper_csr_rv[@]}"
 
     # "${matrices_graphs_sparse_survey[@]}"
@@ -897,6 +1052,8 @@ matrices=(
     # "${matrices_M3E[@]}"
     # "${matrices_compression_all[@]}"
     # "${matrices_compression_all_symmetric[@]}"
+
+    # "${matrices_cod_sell[@]}"
 
     # ${matrices_tamu_real[@]}
     # ${matrices_tamu_real_symmetric[@]}
@@ -972,10 +1129,22 @@ fi
     # '5154859 5154859 19.24389 5.73672 normal random 0.21196 1.44233 0.19755 1.03234 14'
     # '952203 952203 48.85772782 11.94657153 normal random 0.2042067138 0.5760045224 1.79674 0.906047 14 ldoor'
 
-    # nr_rows nr_cols avg_nnz_per_row std_nnz_per_row distribution placement avg_bw       skew avg_num_neighbours cross_row_similarity seed matrix_name
-    # ' 952203  952203  6               0               normal       random    0.2042067138 0    1.79674            0.906047             14   ldoor'
-
 # )
+
+
+#               nr_rows            nr_cols             avg_nnz_per_row std_nnz_per_row distribution placement avg_bw skew avg_num_neighbours cross_row_similarity seed matrix_name
+
+if ((0)); then
+    if ((USE_ARTIFICIAL_MATRICES)); then
+        mapfile -t -d $'\n' prog_args < <(
+            # for i in 18; do 
+            # for i in 170; do 
+            for ((i=1;i<501;i++)); do 
+                printf "$((45705744 / i )) $((45705744 / i ))  $i              0               normal       random    0.25   0    1.4                0.5                  14   average\n"
+            done
+        )
+    fi
+fi
 
 temp_labels=( $(printf "%s\n" /sys/class/hwmon/hwmon*/temp*_label | sort) )
 temp_inputs=( ${temp_labels[@]/label/input} )
@@ -1015,14 +1184,14 @@ for format_name in "${!progs[@]}"; do
         # $((32 * 12))
         # $((64 * 6))
         # $((64 * 12))
-        $((128 * 6))
+        # $((128 * 6))
         # $((128 * 12))
         # $((256 * 6))
         # $((256 * 12))
         # $((512 * 6))
         # $((512 * 12))
         # $((1024 * 6))
-        # $((2**14))
+        $((2**14))
         # $((2**17))
         # $((2**24))
         # $((2**12))
@@ -1037,6 +1206,8 @@ for format_name in "${!progs[@]}"; do
 
     for ((i=0;i<rep;i++)); do
         for a in "${prog_args[@]}"; do
+
+            export MATRIX_NAME="$a"
 
             rep_in=1
             # rep_in=10

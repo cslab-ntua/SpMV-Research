@@ -21,8 +21,7 @@
  * If we sort the indices of an array A (0, ..., len(A)-1) then the result
  * will be the REVERSE permutation:
  *     A[reverse_permutation[i]] -> A_sorted[i]
- *     i.e. to sort the array: A_sorted[i] = A[reverse_permutation[i]];
- *
+ *     i.e., to sort the array: A_sorted[i] = A[reverse_permutation[i]];
  */
 
 
@@ -96,7 +95,11 @@ typedef QUICKSORT_GEN_TYPE_3  _TYPE_AD;
 //==========================================================================================================================================
 
 
-/* We use a DFS-like traversal for better cache utilization. */
+/* We use a DFS-like traversal for better cache utilization.
+ *
+ * The initialization of a random number is EXTREMELY SLOW
+ * when called multiple times, e.g., for sorting many small arrays (e.g., sort CSR nnz of each row).
+ */
 #undef  quicksort_no_malloc
 #define quicksort_no_malloc  QUICKSORT_GEN_EXPAND(quicksort_no_malloc)
 static inline
@@ -105,17 +108,15 @@ quicksort_no_malloc(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * partitio
 {
 	long s, m, e;
 	long i;
-
-	size_t statelen = 256;
-	char statebuf[statelen];
-	struct random_data buf;
-
 	if (N < 2)
 		return;
 
-	buf.state = NULL;
-	initstate_r(0, statebuf, statelen, &buf);         // Before calling this function, the buf.state field must be initialized to NULL.
-	srandom_r(0, &buf);
+	// size_t statelen = 256;
+	// char statebuf[statelen];
+	// struct random_data buf;
+	// buf.state = NULL;
+	// initstate_r(0, statebuf, statelen, &buf);         // Before calling this function, the buf.state field must be initialized to NULL.
+	// srandom_r(0, &buf);
 
 	s = 0;
 	e = N - 1;
@@ -235,4 +236,12 @@ quicksort_parallel_inplace(_TYPE_V * A, long N, _TYPE_AD * aux_data, _TYPE_I * p
 	if (partitions_buf == NULL)
 		free(partitions_buf_tmp);
 }
+
+
+//==========================================================================================================================================
+//= Includes Undefs
+//==========================================================================================================================================
+
+
+#include "sort/partition/partition_gen_pop.h"
 

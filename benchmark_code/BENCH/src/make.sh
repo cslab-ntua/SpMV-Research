@@ -84,7 +84,8 @@ export HIPCC
 
 CFLAGS=''
 CFLAGS+=" -Wall -Wextra"
-CFLAGS+=" -pipe"  # Tells the compiler to use pipes instead of temporary files (faster compilation, but uses more memory).
+CFLAGS+=" -pipe"                            # Tells the compiler to use pipes instead of temporary files (faster compilation, but uses more memory).
+# CFLAGS+=" -rdynamic -D'DEBUG_BACKTRACE'"    # Show a function backtrace when printing errors with debug.h.
 # CFLAGS+=" -Wno-unused-variable"
 # CFLAGS+=" -Wno-alloc-size-larger-than"
 CFLAGS+=" -fsigned-char"
@@ -255,7 +256,7 @@ elif [[ ${ARCH} == rave ]]; then
     # LDFLAGS+=" -L/apps/riscv/sdv_trace/sdvtrace-development/lib -Wl,-rpath=/apps/riscv/sdv_trace/sdvtrace-development/lib -lsdv_trace"
     LDFLAGS+=" -v"
 
-    if((SDV_TRACING)); then
+    if ((SDV_TRACING)); then
         LDFLAGS+=" ${SDV_TRACE_C_LINK}"
     fi
 fi

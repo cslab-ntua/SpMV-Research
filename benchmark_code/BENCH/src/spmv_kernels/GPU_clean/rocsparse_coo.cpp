@@ -83,7 +83,7 @@ struct COOArrays : Matrix_Format
 
 	// int max_persistent_l2_cache;
 
-	COOArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), colind(ja), a(a)
+	COOArrays(INT_T * ia, INT_T * ja, ValueTypeReference * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), colind(ja), a(a)
 	{
 		rowind = (typeof(rowind)) malloc(nnz * sizeof(*rowind));
 		#pragma omp parallel
@@ -242,7 +242,7 @@ COOArrays::spmv(ValueType * x, ValueType * y)
 
 
 struct Matrix_Format *
-csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
+csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz)
 {
 	struct COOArrays * coo = new COOArrays(row_ptr, col_ind, values, m, n, nnz);
 	coo->mem_footprint = nnz * (sizeof(ValueType) + 2 * sizeof(INT_T));
@@ -277,7 +277,7 @@ compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restri
 
 		// #ifdef PERSISTENT_L2_PREFETCH
 		// 	int x_d_size = coo->n * sizeof(*coo->x);
-		// 	gpuCudaErrorCheck(cudaCtxResetPersistingL2Cache()); // This needs to happen every time before running kernel for 1st time for a matrix...
+		// 	cuda_assert(cudaCtxResetPersistingL2Cache()); // This needs to happen every time before running kernel for 1st time for a matrix...
 		// 	if(x_d_size < coo->max_persistent_l2_cache){
 		// 		cudaStreamAttrValue attribute;
 		// 		auto &window = attribute.accessPolicyWindow;
@@ -286,7 +286,7 @@ compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restri
 		// 		window.hitRatio = 1.0;
 		// 		window.hitProp = cudaAccessPropertyPersisting;
 		// 		window.missProp = cudaAccessPropertyStreaming;
-		// 		gpuCudaErrorCheck(cudaStreamSetAttribute(coo->stream, cudaStreamAttributeAccessPolicyWindow, &attribute));
+		// 		cuda_assert(cudaStreamSetAttribute(coo->stream, cudaStreamAttributeAccessPolicyWindow, &attribute));
 		// 	}
 		// #endif
 	}

@@ -86,6 +86,11 @@ double csr_cross_row_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, lo
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
 double csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, long window_size, _TYPE_I * crs_row);
 
+#undef  csr_cross_row_x_access_similarity
+#define csr_cross_row_x_access_similarity  CSR_UTIL_GEN_EXPAND(csr_cross_row_x_access_similarity)
+CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
+double csr_cross_row_x_access_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, long cache_line_elements);
+
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 //- Structural Features - Print
@@ -95,12 +100,12 @@ double csr_cross_row_neighbours(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, lo
 #undef  csr_matrix_features
 #define csr_matrix_features  CSR_UTIL_GEN_EXPAND(csr_matrix_features)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
-void csr_matrix_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y);
+void csr_matrix_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y);
 
 #undef  csr_matrix_features_validation
 #define csr_matrix_features_validation  CSR_UTIL_GEN_EXPAND(csr_matrix_features_validation)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
-void csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz);
+void csr_matrix_features_validation(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, long m, long n, long nnz);
 
 
 //==========================================================================================================================================
@@ -111,7 +116,7 @@ void csr_matrix_features_validation(char * title_base, _TYPE_I * row_ptr, _TYPE_
 #undef  csr_value_features
 #define csr_value_features  CSR_UTIL_GEN_EXPAND(csr_value_features)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
-void csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y);
+void csr_value_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y);
 
 
 //==========================================================================================================================================
@@ -122,32 +127,32 @@ void csr_value_features(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx,
 #undef  csr_plot
 #define csr_plot  CSR_UTIL_GEN_EXPAND(csr_plot)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
-void csr_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
+void csr_plot(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * val, long m, long n, long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
 
 #undef  csr_row_size_histogram_plot
 #define csr_row_size_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_row_size_histogram_plot)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
-void csr_row_size_histogram_plot(char * title_base, _TYPE_I * row_ptr, __attribute__((unused)) _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, __attribute__((unused)) long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
+void csr_row_size_histogram_plot(const char * file_out_base, _TYPE_I * row_ptr, __attribute__((unused)) _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, __attribute__((unused)) long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
 
 #undef  csr_cross_row_similarity_histogram_plot
 #define csr_cross_row_similarity_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_cross_row_similarity_histogram_plot)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
-void csr_cross_row_similarity_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
+void csr_cross_row_similarity_histogram_plot(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
 
 #undef  csr_num_neigh_histogram_plot
 #define csr_num_neigh_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_num_neigh_histogram_plot)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
-void csr_num_neigh_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
+void csr_num_neigh_histogram_plot(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, long n, long nnz, int window_size, int enable_legend, long num_pixels_x, long num_pixels_y);
 
 #undef  csr_bandwidth_histogram_plot
 #define csr_bandwidth_histogram_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_histogram_plot)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
-void csr_bandwidth_histogram_plot(char * title_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
+void csr_bandwidth_histogram_plot(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, long m, __attribute__((unused)) long n, __attribute__((unused)) long nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
 
 #undef  csr_bandwidth_batch_nnz_bar_plot
 #define csr_bandwidth_batch_nnz_bar_plot  CSR_UTIL_GEN_EXPAND(csr_bandwidth_batch_nnz_bar_plot)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
-void csr_bandwidth_batch_nnz_bar_plot(char * title_base, __attribute__((unused)) _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, __attribute__((unused)) long m, long n, __attribute__((unused)) long nnz, int batch_nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
+void csr_bandwidth_batch_nnz_bar_plot(const char * file_out_base, __attribute__((unused)) _TYPE_I * row_ptr, _TYPE_I * col_idx, __attribute__((unused)) _TYPE_V * val, __attribute__((unused)) long m, long n, __attribute__((unused)) long nnz, int batch_nnz, int enable_legend, long num_pixels_x, long num_pixels_y);
 
 
 //==========================================================================================================================================
@@ -164,7 +169,7 @@ void csr_quantize_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attrib
 
 
 //==========================================================================================================================================
-//= Quantize
+//= Reorder
 //==========================================================================================================================================
 
 

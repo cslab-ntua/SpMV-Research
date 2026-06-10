@@ -72,7 +72,7 @@ typedef BUCKETSORT_GEN_TYPE_4  _TYPE_AD;
  * Array 'A' is not altered.
  * The permutation is returned:
  *     A[i] -> A_sorted[permutation[i]]
- *     i.e. to sort the array: A_sorted[permutation[i]] = A[i];
+ *     i.e., to sort the array: A_sorted[permutation[i]] = A[i];
  *
  * A serial bucketsort is sometimes faster than the parallel version on a consumer system (Ryzen 3700X)
  * for simple access patterns (e.g. direct access to the array and not through indirection from an array of indexes),

@@ -100,8 +100,8 @@ conf_vars=(
     ['force_retry_on_error']=0
     # ['force_retry_on_error']=1
 
-    # ['output_to_files']=0
-    ['output_to_files']=1
+    ['output_to_files']=0
+    # ['output_to_files']=1
 
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
@@ -111,16 +111,16 @@ conf_vars=(
     # ['USE_RCM_REORDERING']=1
 
     # Benchmark with the artificially generated matrices (1) or real matrices (0).
-    # ['USE_ARTIFICIAL_MATRICES']=0
-    ['USE_ARTIFICIAL_MATRICES']=1
+    ['USE_ARTIFICIAL_MATRICES']=0
+    # ['USE_ARTIFICIAL_MATRICES']=1
 
     # Whether to clear cpu caches before each spmv iteration.
     ['CLEAR_CACHES']=0
     # ['CLEAR_CACHES']=1
 
-    # CG benchmarks: whether to replace zeros in the diagonal with 1s.
-    # ['CG_FIX_DIAGONAL_ZEROS']=0
-    ['CG_FIX_DIAGONAL_ZEROS']=1
+    # Whether to plot the matrix.
+    ['PLOT_MATRIX']=0
+    # ['PLOT_MATRIX']=1
 
     # CG benchmarks: maximum number of iterations.
     ['CG_MAX_NUM_ITERS']='50'
@@ -232,6 +232,7 @@ conf_vars=(
                         '/usr/include/mkl'
                         '/various/common_tools/intel_parallel_studio/compilers_and_libraries/linux/mkl'
                         "${HOME}/spack/23.03/0.20.0/intel-oneapi-mkl-2023.1.0-cafkcjc/mkl/latest"
+                        '/users/tasouioa/dgal/spack/23.09/0.21.0/intel-mkl-2020.4.304-umkm6fm/mkl'
                         # /leonardo/prod/spack/05/install/0.21/linux-rhel8-icelake/gcc-8.5.0/intel-oneapi-mkl-2023.2.0-4sr2vqxowjw5hjteersaff5uzql66ybt/mkl/2023.2.0
                     )
                     find_valid_dir "${options[@]}"
@@ -307,8 +308,9 @@ conf_vars=(
 
 
     ['CUDA_PATH']="$( options=(
-                        '/usr/local/cuda-12.5'
                         '/usr/local/cuda'
+                        '/usr/local/cuda-13.0'
+                        '/usr/local/cuda-12.5'
                         '/various/dgal/epyc1/cuda/cuda_11_4_4'
                         # '/various/pmpakos/epyc5_libs/cuda_12_4_1'
                     )
@@ -534,7 +536,7 @@ declare -A progs
 progs=(
     # FP32 tests
     # ['cusparse_csr_nv_f']="${script_dir}/src/spmv_cusparse_csr_nv_f.exe"
-    ['armpl_f']="${script_dir}/src/spmv_armpl_f.exe"
+    # ['armpl_f']="${script_dir}/src/spmv_armpl_f.exe"
 
     # CG
     # ['cg_csr_d']="${script_dir}/src/cg_csr_d.exe"
@@ -670,11 +672,16 @@ progs=(
     # ['cuda_coo_sorted_transpose_non_empty_rows_nv_d']="${script_dir}/src/spmv_cuda_coo_sorted_transpose_non_empty_rows_nv_d.exe"
     # ['cuda_csr_transpose_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_nv_d.exe"
     # ['cuda_csr_transpose_one_row_per_thread_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_one_row_per_thread_nv_d.exe"
+    # ['cuda_csr_transpose_n_rows_per_thread_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_n_rows_per_thread_nv_d.exe"
+    # ['cuda_csr_transpose_n_threads_per_row_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_n_threads_per_row_nv_d.exe"
     # ['cuda_csr_transpose_expand_rows_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_nv_d.exe"
     # ['cuda_csr_transpose_expand_rows_timed_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_timed_nv_d.exe"
     # ['cuda_csr_transpose_expand_rows_timed_v2_nv_d']="${script_dir}/src/spmv_cuda_csr_transpose_expand_rows_timed_v2_nv_d.exe"
+    # ['cuda_hybrid_column_slices_nv_d']="${script_dir}/src/spmv_cuda_hybrid_column_slices_nv_d.exe"
     # ['cuda_csr_lut_nv_d']="${script_dir}/src/spmv_cuda_csr_lut_nv_d.exe"
     # ['csr_cuda_div_nv_d']="${script_dir}/src/spmv_cuda_div_nv_d.exe" # BENCH_GPU
+    # ['cuda_sell_sorted_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_nv_d.exe"
+    ['cuda_sell_sorted_hybrid_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_hybrid_nv_d.exe"
 
 
     # ['csr_cuda_vector_b256_nv_d']="${script_dir}/src/spmv_csr_cuda_vector_b256_nv_d.exe"

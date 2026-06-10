@@ -84,15 +84,15 @@ struct CSRArrays : Matrix_Format
 
 	// int max_persistent_l2_cache;
 
-	CSRArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
+	CSRArrays(INT_T * ia, INT_T * ja, ValueTypeReference * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
 	{
 		// int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, max_threads_per_multiproc;
-		// gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_smem_per_block, cudaDevAttrMaxSharedMemoryPerBlock, 0));
-		// gpuCudaErrorCheck(cudaDeviceGetAttribute(&multiproc_count, cudaDevAttrMultiProcessorCount, 0));
-		// gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_block, cudaDevAttrMaxThreadsPerBlock , 0));
-		// gpuCudaErrorCheck(cudaDeviceGetAttribute(&warp_size, cudaDevAttrWarpSize , 0));
-		// gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_multiproc, cudaDevAttrMaxThreadsPerMultiProcessor, 0));
-		// gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_persistent_l2_cache, cudaDevAttrMaxPersistingL2CacheSize, 0));
+		// cuda_assert(cudaDeviceGetAttribute(&max_smem_per_block, cudaDevAttrMaxSharedMemoryPerBlock, 0));
+		// cuda_assert(cudaDeviceGetAttribute(&multiproc_count, cudaDevAttrMultiProcessorCount, 0));
+		// cuda_assert(cudaDeviceGetAttribute(&max_threads_per_block, cudaDevAttrMaxThreadsPerBlock , 0));
+		// cuda_assert(cudaDeviceGetAttribute(&warp_size, cudaDevAttrWarpSize , 0));
+		// cuda_assert(cudaDeviceGetAttribute(&max_threads_per_multiproc, cudaDevAttrMaxThreadsPerMultiProcessor, 0));
+		// cuda_assert(cudaDeviceGetAttribute(&max_persistent_l2_cache, cudaDevAttrMaxPersistingL2CacheSize, 0));
 		// printf("max_smem_per_block=%d\n", max_smem_per_block);
 		// printf("multiproc_count=%d\n", multiproc_count);
 		// printf("max_threads_per_block=%d\n", max_threads_per_block);
@@ -219,7 +219,7 @@ CSRArrays::spmv(ValueType * x, ValueType * y)
 
 
 struct Matrix_Format *
-csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueType * values, long m, long n, long nnz)
+csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz)
 {
 	struct CSRArrays * csr = new CSRArrays(row_ptr, col_ind, values, m, n, nnz);
 	csr->mem_footprint = nnz * (sizeof(ValueType) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
@@ -254,7 +254,7 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 
 		// #ifdef PERSISTENT_L2_PREFETCH
 		// 	int x_d_size = csr->n * sizeof(*csr->x);
-		// 	gpuCudaErrorCheck(cudaCtxResetPersistingL2Cache()); // This needs to happen every time before running kernel for 1st time for a matrix...
+		// 	cuda_assert(cudaCtxResetPersistingL2Cache()); // This needs to happen every time before running kernel for 1st time for a matrix...
 		// 	if(x_d_size < csr->max_persistent_l2_cache){
 		// 		cudaStreamAttrValue attribute;
 		// 		auto &window = attribute.accessPolicyWindow;
@@ -263,7 +263,7 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 		// 		window.hitRatio = 1.0;
 		// 		window.hitProp = cudaAccessPropertyPersisting;
 		// 		window.missProp = cudaAccessPropertyStreaming;
-		// 		gpuCudaErrorCheck(cudaStreamSetAttribute(csr->stream, cudaStreamAttributeAccessPolicyWindow, &attribute));
+		// 		cuda_assert(cudaStreamSetAttribute(csr->stream, cudaStreamAttributeAccessPolicyWindow, &attribute));
 		// 	}
 		// #endif
 	}

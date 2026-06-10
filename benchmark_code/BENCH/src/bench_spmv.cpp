@@ -21,6 +21,7 @@ extern "C"{
 
 	#include "macros/cpp_defines.h"
 	#include "macros/macrolib.h"
+	#include "debug.h"
 	#include "time_it.h"
 	#include "parallel_util.h"
 	#include "pthread_functions.h"
@@ -268,8 +269,15 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		time_warm_up = time_it(1,
 			if (gpu_kernel)
 			{
+				double time = 0;
 				for(int i=0;i<1000;i++)
-					MF->spmv(x, y);
+				{
+					time += time_it(1,
+						MF->spmv(x, y);
+					);
+					if (time > 1)
+						break;
+				}
 			}
 			else
 			{
@@ -354,6 +362,8 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			time_iter = time_it(1,
 				MF->spmv(x, y);
 			);
+
+			// printf("loop=%ld\n", num_loops);
 
 			#ifdef SDV_TRACING
 				trace_end_region(region_name);
@@ -518,6 +528,7 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			i += snprintf(buf + i, buf_n - i, ",%s", "gflops");
 			i += snprintf(buf + i, buf_n - i, ",%s", "W_avg");
 			i += snprintf(buf + i, buf_n - i, ",%s", "J_estimated");
+			i += check_accuracy_labels(buf + i, buf_n - i);
 			#ifdef PRINT_STATISTICS
 				i += statistics_print_labels(buf + i, buf_n - i);
 			#endif
@@ -554,6 +565,7 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		i += snprintf(buf + i, buf_n - i, ",%lf", gflops);
 		i += snprintf(buf + i, buf_n - i, ",%lf", W_avg);
 		i += snprintf(buf + i, buf_n - i, ",%lf", J_estimated);
+		i += check_accuracy(buf + i, buf_n - i, csr, x_ref, y, csr->symmetric, csr->expanded_symmetry);
 		#ifdef PRINT_STATISTICS
 			i += MF->statistics_print_data(buf + i, buf_n - i);
 		#endif
@@ -618,9 +630,9 @@ bench(struct CSR_reference_s * csr, struct Matrix_Format * MF, long print_labels
 	#ifdef SDV_TRACING
 		min_num_loops = 1;
 	#else
-		// min_num_loops = 1;
+		min_num_loops = 1;
 		// min_num_loops = 64;
-		min_num_loops = 128;
+		// min_num_loops = 128;
 		// min_num_loops = 256;
 	#endif
 
@@ -628,8 +640,8 @@ bench(struct CSR_reference_s * csr, struct Matrix_Format * MF, long print_labels
 	#ifdef SDV_TRACING
 		min_runtime = 0;
 	#else
-		min_runtime = 0;
-		// min_runtime = 2.0;
+		// min_runtime = 0;
+		min_runtime = 2.0;
 	#endif
 
 	compute(csr, MF, x, x_ref, y, min_num_loops, min_runtime, 0);

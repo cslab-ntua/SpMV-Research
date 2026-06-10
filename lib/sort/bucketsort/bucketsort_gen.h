@@ -61,3 +61,8 @@ void bucketsort(_TYPE_V * A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * aux_
 BUCKETSORT_GEN_FUNCTION_ATTRIBUTE
 void bucketsort_recalculate_bucket(_TYPE_V * restrict A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * restrict aux_data, _TYPE_I * restrict permutation_out, _TYPE_I * restrict offsets_out);
 
+#undef  bucketsort_stable
+#define bucketsort_stable  BUCKETSORT_GEN_EXPAND(bucketsort_stable)
+BUCKETSORT_GEN_FUNCTION_ATTRIBUTE
+void bucketsort_stable(_TYPE_V * restrict A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * restrict aux_data, _TYPE_I * restrict permutation_out, _TYPE_I * restrict offsets_out, _TYPE_BUCKET_I * restrict A_bucket_id_out);
+

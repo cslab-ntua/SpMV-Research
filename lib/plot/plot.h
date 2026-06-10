@@ -6,7 +6,12 @@
 
 #include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
-#include "genlib.h"
+
+#ifndef __cplusplus
+	#include "genlib.h"
+#endif
+
+#include "storage_formats/pixel_array.h"
 
 
 struct Figure_Legend_Conf {
@@ -118,11 +123,16 @@ struct Figure_Series * figure_add_series_base(struct Figure * fig, void * x, voi
 		double (* get_y_as_double)(void * y, long i),
 		double (* get_z_as_double)(void * z, long i)
 		);
-#define figure_add_series(fig, x, y, z, N, M, ... /* get_x_as_double(), get_y_as_double(), get_z_as_double() */ )    \
-	figure_add_series_base(fig, x, y, z, N, M,                                                                   \
-			DEFAULT_ARG_1(gen_functor_convert_basic_type_to_double(x), __VA_ARGS__),                     \
-			DEFAULT_ARG_2(gen_functor_convert_basic_type_to_double(y), __VA_ARGS__),                     \
-			DEFAULT_ARG_3(gen_functor_convert_basic_type_to_double(z), __VA_ARGS__))
+#ifdef __cplusplus
+	#define figure_add_series(fig, x, y, z, N, M, get_x_as_double, get_y_as_double, get_z_as_double)    \
+		figure_add_series_base(fig, x, y, z, N, M, get_x_as_double, get_y_as_double, get_z_as_double)
+#else
+	#define figure_add_series(fig, x, y, z, N, M, ... /* get_x_as_double(), get_y_as_double(), get_z_as_double() */ )    \
+		figure_add_series_base(fig, x, y, z, N, M,                                                                   \
+				DEFAULT_ARG_1(gen_functor_convert_basic_type_to_double(x), __VA_ARGS__),                     \
+				DEFAULT_ARG_2(gen_functor_convert_basic_type_to_double(y), __VA_ARGS__),                     \
+				DEFAULT_ARG_3(gen_functor_convert_basic_type_to_double(z), __VA_ARGS__))
+#endif
 
 void figure_series_ignore_invalid_values(struct Figure_Series * s);
 

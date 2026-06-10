@@ -7,7 +7,7 @@
 #endif
 
 #ifndef _GNU_SOURCE
-	#error "please define _GNU_SOURCE at the top level"
+	#error "Define _GNU_SOURCE at the top level to compile this library."
 #endif
 #include "macros/cpp_defines.h"
 #include "macros/macrolib.h"

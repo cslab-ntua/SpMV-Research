@@ -26,16 +26,16 @@ extern "C"{
 using namespace cooperative_groups;
 
 #ifndef NNZ_PER_THREAD
-	#define NNZ_PER_THREAD  6
+	#define NNZ_PER_THREAD  5
 #endif
 
 #ifndef BLOCK_SIZE
 	// #define BLOCK_SIZE  32
 	// #define BLOCK_SIZE  64
-	// #define BLOCK_SIZE  128
+	#define BLOCK_SIZE  128
 	// #define BLOCK_SIZE  256
 	// #define BLOCK_SIZE  512
-	#define BLOCK_SIZE  1024
+	// #define BLOCK_SIZE  1024
 #endif
 
 #ifndef TIME_IT
@@ -88,32 +88,16 @@ struct COOArrays : Matrix_Format
 	ValueType * x_d = NULL;
 	ValueType * y_d = NULL;
 
-	int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, max_threads_per_multiproc, max_block_dim_x, max_persistent_l2_cache, max_num_threads;
 	int num_threads;
 	int thread_block_size;
 	int num_thread_blocks;
 
-	COOArrays(INT_T * row_ptr, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz)
+	COOArrays(INT_T * row_ptr, INT_T * ja, ValueTypeReference * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz)
 	{
 		double time;
 		const long nnz_per_block = BLOCK_SIZE * NNZ_PER_THREAD;
 
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_smem_per_block, cudaDevAttrMaxSharedMemoryPerBlock, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&multiproc_count, cudaDevAttrMultiProcessorCount, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_block, cudaDevAttrMaxThreadsPerBlock , 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&warp_size, cudaDevAttrWarpSize , 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_multiproc, cudaDevAttrMaxThreadsPerMultiProcessor, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_block_dim_x, cudaDevAttrMaxBlockDimX, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_persistent_l2_cache, cudaDevAttrMaxPersistingL2CacheSize, 0));
-		max_num_threads = max_threads_per_multiproc * multiproc_count;
-		printf("max_smem_per_block(bytes)=%d\n", max_smem_per_block);
-		printf("multiproc_count=%d\n", multiproc_count);
-		printf("max_threads_per_block=%d\n", max_threads_per_block);
-		printf("warp_size=%d\n", warp_size);
-		printf("max_threads_per_multiproc=%d\n", max_threads_per_multiproc);
-		printf("max_block_dim_x=%d\n", max_block_dim_x);
-		printf("max_persistent_l2_cache=%d\n", max_persistent_l2_cache);
-		printf("max_num_threads=%d\n", max_num_threads);
+		cuda_device_print_attributes();
 
 		thread_block_size = BLOCK_SIZE;
 
@@ -122,19 +106,19 @@ struct COOArrays : Matrix_Format
 		num_threads = num_thread_blocks * BLOCK_SIZE;
 		printf("num_threads=%d, thread_block_size=%d, num_thread_blocks=%d\n", num_threads, BLOCK_SIZE, num_thread_blocks);
 
-		gpuCudaErrorCheck(cudaMalloc(&row_ptr_d, (m+1) * sizeof(*row_ptr_d)));
-		gpuCudaErrorCheck(cudaMalloc(&ia_d, nnz * sizeof(*ia_d)));
-		gpuCudaErrorCheck(cudaMalloc(&ja_d, nnz * sizeof(*ja_d)));
-		gpuCudaErrorCheck(cudaMalloc(&a_d, nnz * sizeof(*a_d)));
-		gpuCudaErrorCheck(cudaMalloc(&x_d, n * sizeof(*x_d)));
-		gpuCudaErrorCheck(cudaMalloc(&y_d, m * sizeof(*y_d)));
+		cuda_assert(cudaMalloc(&row_ptr_d, (m+1) * sizeof(*row_ptr_d)));
+		cuda_assert(cudaMalloc(&ia_d, nnz * sizeof(*ia_d)));
+		cuda_assert(cudaMalloc(&ja_d, nnz * sizeof(*ja_d)));
+		cuda_assert(cudaMalloc(&a_d, nnz * sizeof(*a_d)));
+		cuda_assert(cudaMalloc(&x_d, n * sizeof(*x_d)));
+		cuda_assert(cudaMalloc(&y_d, m * sizeof(*y_d)));
 
-		gpuCudaErrorCheck(cudaMallocHost(&row_ptr_h, (m+1) * sizeof(INT_T)));
-		gpuCudaErrorCheck(cudaMallocHost(&ia_h, nnz * sizeof(INT_T)));
-		gpuCudaErrorCheck(cudaMallocHost(&ja_h, nnz * sizeof(INT_T)));
-		gpuCudaErrorCheck(cudaMallocHost(&a_h, nnz * sizeof(ValueType)));
-		gpuCudaErrorCheck(cudaMallocHost(&x_h, n * sizeof(ValueType)));
-		gpuCudaErrorCheck(cudaMallocHost(&y_h, m * sizeof(ValueType)));
+		cuda_assert(cudaMallocHost(&row_ptr_h, (m+1) * sizeof(INT_T)));
+		cuda_assert(cudaMallocHost(&ia_h, nnz * sizeof(INT_T)));
+		cuda_assert(cudaMallocHost(&ja_h, nnz * sizeof(INT_T)));
+		cuda_assert(cudaMallocHost(&a_h, nnz * sizeof(ValueType)));
+		cuda_assert(cudaMallocHost(&x_h, n * sizeof(ValueType)));
+		cuda_assert(cudaMallocHost(&y_h, m * sizeof(ValueType)));
 
 		memcpy(row_ptr_h, row_ptr, (m + 1) * sizeof(INT_T));
 		memcpy(ja_h, ja, nnz * sizeof(INT_T));
@@ -215,27 +199,27 @@ struct COOArrays : Matrix_Format
 			// }
 		// }
 
-		gpuCudaErrorCheck(cudaMemcpy(row_ptr_d, row_ptr_h, (m+1) * sizeof(*row_ptr_d), cudaMemcpyHostToDevice));
-		gpuCudaErrorCheck(cudaMemcpy(ia_d, ia_h, nnz * sizeof(*ia_d), cudaMemcpyHostToDevice));
-		gpuCudaErrorCheck(cudaMemcpy(ja_d, ja_h, nnz * sizeof(*ja_d), cudaMemcpyHostToDevice));
-		gpuCudaErrorCheck(cudaMemcpy(a_d, a_h, nnz * sizeof(*a_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(row_ptr_d, row_ptr_h, (m+1) * sizeof(*row_ptr_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(ia_d, ia_h, nnz * sizeof(*ia_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(ja_d, ja_h, nnz * sizeof(*ja_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(a_d, a_h, nnz * sizeof(*a_d), cudaMemcpyHostToDevice));
 	}
 
 	~COOArrays()
 	{
-		gpuCudaErrorCheck(cudaFree(row_ptr_d));
-		gpuCudaErrorCheck(cudaFree(ia_d));
-		gpuCudaErrorCheck(cudaFree(ja_d));
-		gpuCudaErrorCheck(cudaFree(a_d));
-		gpuCudaErrorCheck(cudaFree(x_d));
-		gpuCudaErrorCheck(cudaFree(y_d));
+		cuda_assert(cudaFree(row_ptr_d));
+		cuda_assert(cudaFree(ia_d));
+		cuda_assert(cudaFree(ja_d));
+		cuda_assert(cudaFree(a_d));
+		cuda_assert(cudaFree(x_d));
+		cuda_assert(cudaFree(y_d));
 
-		gpuCudaErrorCheck(cudaFreeHost(row_ptr_h));
-		gpuCudaErrorCheck(cudaFreeHost(ia_h));
-		gpuCudaErrorCheck(cudaFreeHost(ja_h));
-		gpuCudaErrorCheck(cudaFreeHost(a_h));
-		gpuCudaErrorCheck(cudaFreeHost(x_h));
-		gpuCudaErrorCheck(cudaFreeHost(y_h));
+		cuda_assert(cudaFreeHost(row_ptr_h));
+		cuda_assert(cudaFreeHost(ia_h));
+		cuda_assert(cudaFreeHost(ja_h));
+		cuda_assert(cudaFreeHost(a_h));
+		cuda_assert(cudaFreeHost(x_h));
+		cuda_assert(cudaFreeHost(y_h));
 	}
 
 	void spmv(ValueType * x, ValueType * y);
@@ -297,41 +281,31 @@ binary_search_gpu(T * A, long s, long e, T target)
 }
 
 
-/* template <typename group_t>
+template <typename T, typename group_t>
+inline
 __device__
 void
-reduce_warp(group_t g, INT_T row, ValueType val, ValueType * restrict y)
+reduce_warp(group_t g, INT_T row, T val, T * restrict y)
 {
-	const int tidl = g.thread_rank();   // Group lane.
+	const int tidw = g.thread_rank();   // Group lane.
+	int mask_same_row = g.match_any(row);
 	int k;
-	g.sync();
 	#pragma unroll
-	for (k=1;k<g.size();k*=2)
+	for (k=g.size()/2; k>=1; k/=2)
 	{
-		INT_T row_prev;
-		ValueType val_prev;
-		row_prev = __shfl_sync(0xffffffff, row, tidl-k);  // FULL_MASK
-		val_prev = __shfl_sync(0xffffffff, val, tidl-k);
-		if ((tidl & (2*k-1)) == 2*k-1)
+		int tidl_next = tidw + k;
+		T val_next = g.shfl(val, tidl_next);
+		if ((tidl_next < g.size()) && (mask_same_row & (1 << tidl_next)))
 		{
-			if (row == row_prev)
-			{
-				val += val_prev;
-			}
-			else
-			{
-				atomicAdd(&y[row_prev], val_prev);
-			}
+			val += val_next;
 		}
-		g.sync();
 	}
-	if (tidl == 31)
+	if (tidw == __ffs(mask_same_row) - 1)  // __ffs enumeration is 1-based.
 		atomicAdd(&y[row], val);
 }
-*/
 
 
-// Threads may only read data from another thread which is actively participating in the __shfl_sync() command.
+/* // Threads may only read data from another thread which is actively participating in the __shfl_sync() command.
 // If the target thread is inactive, the retrieved value is undefined.
 template <typename group_t>
 __device__
@@ -416,7 +390,9 @@ reduce_warp(group_t g, INT_T row, ValueType val, ValueType * restrict y)
 	g.sync();
 	if (tidl == 31)
 		atomicAdd(&y[row], val);
-}
+} */
+
+
 inline
 __device__
 void
@@ -590,7 +566,7 @@ compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restri
 		printf("Grid : {%d, %d, %d} blocks. Blocks : {%d, %d, %d} threads.\n", grid_dims.x, grid_dims.y, grid_dims.z, block_dims.x, block_dims.y, block_dims.z);
 		coo->x = x;
 		memcpy(coo->x_h, x, coo->n * sizeof(ValueType));
-		gpuCudaErrorCheck(cudaMemcpy(coo->x_d, coo->x_h, coo->n * sizeof(*coo->x_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(coo->x_d, coo->x_h, coo->n * sizeof(*coo->x_d), cudaMemcpyHostToDevice));
 	}
 
 	cudaMemset(coo->y_d, 0, coo->m * sizeof(coo->y_d));
@@ -598,16 +574,16 @@ compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restri
 	// cudaFuncCachePreferNone:   no preference for shared memory or L1 (default);
 	// cudaFuncCachePreferShared: prefer larger shared memory and smaller L1 cache;
 	// cudaFuncCachePreferL1:     prefer larger L1 cache and smaller shared memory;
-	gpuCudaErrorCheck(cudaFuncSetCacheConfig(gpu_kernel_spmv_row_indices_continuous, cudaFuncCachePreferL1));
+	cuda_assert(cudaFuncSetCacheConfig(gpu_kernel_spmv_row_indices_continuous, cudaFuncCachePreferL1));
 	gpu_kernel_spmv_row_indices_continuous<<<grid_dims, block_dims, shared_mem_size>>>(coo->ia_d, coo->ja_d, coo->a_d, coo->m, coo->n, coo->nnz, coo->x_d, coo->y_d);
-	gpuCudaErrorCheck(cudaPeekAtLastError());
-	gpuCudaErrorCheck(cudaDeviceSynchronize());
+	cuda_assert(cudaPeekAtLastError());
+	cuda_assert(cudaDeviceSynchronize());
 
 	if (coo->y == NULL)
 	{
 		coo->y = y;
 
-		gpuCudaErrorCheck(cudaMemcpy(coo->y_h, coo->y_d, coo->m * sizeof(*coo->y_d), cudaMemcpyDeviceToHost));
+		cuda_assert(cudaMemcpy(coo->y_h, coo->y_d, coo->m * sizeof(*coo->y_d), cudaMemcpyDeviceToHost));
 		memcpy(y, coo->y_h, coo->m * sizeof(ValueType));
 	}
 }

@@ -9,7 +9,10 @@
 #pragma push_macro("_TYPE_I")
 #pragma push_macro("csr_sort_columns")
 #pragma push_macro("coo_to_csr")
-#pragma push_macro("csr_save_to_mtx")
+#pragma push_macro("csr_transpose")
+#pragma push_macro("csr_split_to_lower_and_strictly_upper_triangular")
 #pragma push_macro("csr_expand_symmetric")
+#pragma push_macro("csr_symmetrize")
 #pragma push_macro("csr_drop_upper")
+#pragma push_macro("csr_save_to_mtx")
 #include "csr_gen_undef.h"
