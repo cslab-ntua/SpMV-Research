@@ -266,6 +266,8 @@ figure_series_init(struct Figure_Series * s, const char * name, void * x, void *
 	s->type_bounded_median_curve = 0;
 	s->bounded_median_curve_axis = 0;
 
+	s->type_pixel_coords = 0;
+
 	s->deallocate_data = 0;
 }
 
@@ -299,8 +301,10 @@ figure_init(struct Figure * fig, int x_num_pixels, int y_num_pixels)
 	fig->y_num_pixels = y_num_pixels <= 0 ? 1920 : y_num_pixels;
 	fig->axes_flip_x = 0;
 	fig->axes_flip_y = 0;
-	fig->custom_bounds_x = 0;
-	fig->custom_bounds_y = 0;
+	fig->custom_bounds_x_min = 0;
+	fig->custom_bounds_x_max = 0;
+	fig->custom_bounds_y_min = 0;
+	fig->custom_bounds_y_max = 0;
 	fig->pa = (typeof(fig->pa)) malloc(sizeof(*fig->pa));
 	fig->legend_conf.x_in_percentages = 0;
 	fig->legend_conf.y_in_percentages = 0;
@@ -392,8 +396,21 @@ figure_axes_flip_y(struct Figure * fig)
 void
 figure_set_bounds_x(struct Figure * fig, double min, double max)
 {
-	fig->custom_bounds_x = 1;
+	fig->custom_bounds_x_min = 1;
+	fig->custom_bounds_x_max = 1;
 	fig->x_min = min;
+	fig->x_max = max;
+}
+void
+figure_set_bounds_x_min(struct Figure * fig, double min)
+{
+	fig->custom_bounds_x_min = 1;
+	fig->x_min = min;
+}
+void
+figure_set_bounds_x_max(struct Figure * fig, double max)
+{
+	fig->custom_bounds_x_max = 1;
 	fig->x_max = max;
 }
 
@@ -402,8 +419,21 @@ figure_set_bounds_x(struct Figure * fig, double min, double max)
 void
 figure_set_bounds_y(struct Figure * fig, double min, double max)
 {
-	fig->custom_bounds_y = 1;
+	fig->custom_bounds_y_min = 1;
+	fig->custom_bounds_y_max = 1;
 	fig->y_min = min;
+	fig->y_max = max;
+}
+void
+figure_set_bounds_y_min(struct Figure * fig, double min)
+{
+	fig->custom_bounds_y_min = 1;
+	fig->y_min = min;
+}
+void
+figure_set_bounds_y_max(struct Figure * fig, double max)
+{
+	fig->custom_bounds_y_max = 1;
 	fig->y_max = max;
 }
 
@@ -638,6 +668,13 @@ figure_series_type_bounded_median_curve(struct Figure_Series * s, int axis)
 }
 
 
+void
+figure_series_type_pixel_coords(struct Figure_Series * s)
+{
+	s->type_pixel_coords = 1;
+}
+
+
 //==========================================================================================================================================
 //= Color Mappings
 //==========================================================================================================================================
@@ -780,13 +817,21 @@ figure_color_mapping_greyscale(double val_norm, __attribute__((unused)) double v
  * floor(): If x is integral, +0, -0, NaN, or an infinity, x itself is returned.
  */
 
-#define find_pixel_coord(num_pixels, val, min, step, flip, custom_bounds, ignore_invalid_values)                                                           \
+#define find_pixel_coord(num_pixels, val, min, step, flip, custom_bounds_min, custom_bounds_max, ignore_invalid_values)                                    \
 ({                                                                                                                                                         \
 	long _q = find_pixel_coord_virtual(num_pixels, val, min, step, flip);                                                                              \
-	if ((_q < 0) || (_q >= num_pixels))  /* Check if value outside the pixel boundaries. */                                                            \
+	if (((!flip) && (_q < 0)) || ((flip) && (_q >= num_pixels)))  /* Check if value outside the min boundaries. */                                     \
 	{                                                                                                                                                  \
-		if (custom_bounds || ignore_invalid_values)                                                                                                \
-			_q = (_q < 0) ? -1 : -2;    /* Custom bounds give no error. */                                                                     \
+		if (custom_bounds_min || ignore_invalid_values)                                                                                            \
+			_q = -1;    /* Custom bounds give no error. */                                                                                     \
+		else   /* This should logically NEVER happen. */                                                                                           \
+			error("find_pixel_coord: pixel coordinate out of bounds: pixel=%ld , num_pixels=%ld , val=%lf , min=%lf , step=%lf , flip=%ld",    \
+				_q, num_pixels, val, min, step, flip);                                                                                     \
+	}                                                                                                                                                  \
+	if (((flip) && (_q < 0)) || ((!flip) && (_q >= num_pixels)))  /* Check if value outside the max boundaries. */                                     \
+	{                                                                                                                                                  \
+		if (custom_bounds_max || ignore_invalid_values)                                                                                            \
+			_q = -2;    /* Custom bounds give no error. */                                                                                     \
 		else   /* This should logically NEVER happen. */                                                                                           \
 			error("find_pixel_coord: pixel coordinate out of bounds: pixel=%ld , num_pixels=%ld , val=%lf , min=%lf , step=%lf , flip=%ld",    \
 				_q, num_pixels, val, min, step, flip);                                                                                     \
@@ -794,16 +839,16 @@ figure_color_mapping_greyscale(double val_norm, __attribute__((unused)) double v
 	_q;                                                                                                                                                \
 })
 
-#define find_pixel_coord_x(fig, s, i)                                                                                                          \
-({                                                                                                                                             \
-	double _x = s->get_x_as_double(s->x, i);                                                                                               \
-	find_pixel_coord(fig->x_num_pixels, _x, fig->x_min, fig->x_step, fig->axes_flip_x, fig->custom_bounds_x, s->ignore_invalid_values);    \
+#define find_pixel_coord_x(fig, s, i)                                                                                                                                        \
+({                                                                                                                                                                           \
+	double _x = s->get_x_as_double(s->x, i);                                                                                                                             \
+	find_pixel_coord(fig->x_num_pixels, _x, fig->x_min, fig->x_step, fig->axes_flip_x, fig->custom_bounds_x_min, fig->custom_bounds_x_max, s->ignore_invalid_values);    \
 })
 
-#define find_pixel_coord_y(fig, s, i)                                                                                                           \
-({                                                                                                                                              \
-	double _y = s->get_y_as_double(s->y, i);                                                                                                \
-	find_pixel_coord(fig->y_num_pixels, _y, fig->y_min, fig->y_step, !fig->axes_flip_y, fig->custom_bounds_y, s->ignore_invalid_values);    \
+#define find_pixel_coord_y(fig, s, i)                                                                                                                                         \
+({                                                                                                                                                                            \
+	double _y = s->get_y_as_double(s->y, i);                                                                                                                              \
+	find_pixel_coord(fig->y_num_pixels, _y, fig->y_min, fig->y_step, !fig->axes_flip_y, fig->custom_bounds_y_min, fig->custom_bounds_y_max, s->ignore_invalid_values);    \
 })
 
 
@@ -1262,6 +1307,63 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 
 
 //==========================================================================================================================================
+//= Series Plot Pixel Coordinates
+//==========================================================================================================================================
+
+
+/* Must be done in the end, right before plotting,
+ * so that the plotting parameters like image size have been finalized.
+ *
+ * Doesn't change the bounds of the series, so it doesn't affect the bounds of the figure.
+ */
+
+static
+void
+series_plot_pixel_coords(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * pa)
+{
+	#pragma omp parallel
+	{
+		long x_pix, y_pix;
+		double val;
+		long i, j;
+		if (s->cart_prod)
+		{
+			#pragma omp for
+			for (i=0;i<s->M;i++)
+			{
+				y_pix = s->get_y_as_double(s->y, i);
+				if (y_pix < 0)
+					continue;
+				for (j=0;j<s->N;j++)
+				{
+					x_pix = s->get_x_as_double(s->x, j);
+					if (x_pix < 0)
+						continue;
+					val = (s->z != NULL) ? s->get_z_as_double(s->z, i*s->N+j) : 0;
+					color_pixels(pa, x_pix, y_pix, fig, s, val, 0, 0, 0, 0);
+				}
+			}
+		}
+		else
+		{
+			#pragma omp for
+			for (i=0;i<s->M;i++)
+			{
+				y_pix = s->get_y_as_double(s->y, i);
+				if (y_pix < 0)
+					continue;
+				x_pix = s->get_x_as_double(s->x, i);
+				if (x_pix < 0)
+					continue;
+				val = (s->z != NULL) ? s->get_z_as_double(s->z, i) : 0;
+				color_pixels(pa, x_pix, y_pix, fig, s, val, 0, 0, 0, 0);
+			}
+		}
+	}
+}
+
+
+//==========================================================================================================================================
 //= Calculate bounds
 //==========================================================================================================================================
 
@@ -1323,6 +1425,17 @@ static inline
 void
 calc_series_bounds(struct Figure_Series * s)
 {
+	if (s->type_pixel_coords == 1)
+	{
+		s->x_min = 0;
+		s->x_max = 0;
+		s->x_avg = 0;
+		s->y_min = 0;
+		s->y_max = 0;
+		s->y_avg = 0;
+		return;
+	}
+
 	if (!s->ignore_invalid_values)
 	{
 		if ((s->x != NULL) && test_for_invalid_values(s->x, s->N, s->get_x_as_double))
@@ -1370,42 +1483,41 @@ calc_figure_bounds(struct Figure * fig)
 	struct Figure_Series * s;
 	long i;
 
-	for (i=0;i<fig->num_series;i++)
-	{
-		s = &fig->series[i];
-		calc_series_bounds(s);
-	}
-	if (!fig->custom_bounds_x)
-	{
+	if (!fig->custom_bounds_x_min)
 		fig->x_min = INFINITY;
+	if (!fig->custom_bounds_x_max)
 		fig->x_max = -INFINITY;
-		for (i=0;i<fig->num_series;i++)
-		{
-			s = &fig->series[i];
-			if (s->x_min < fig->x_min)
-				fig->x_min = s->x_min;
-			if (s->x_max > fig->x_max)
-				fig->x_max = s->x_max;
-		}
-	}
-	if (!fig->custom_bounds_y)
-	{
+	if (!fig->custom_bounds_y_min)
 		fig->y_min = INFINITY;
+	if (!fig->custom_bounds_y_max)
 		fig->y_max = -INFINITY;
-		for (i=0;i<fig->num_series;i++)
-		{
-			s = &fig->series[i];
-			if (s->y_min < fig->y_min)
-				fig->y_min = s->y_min;
-			if (s->y_max > fig->y_max)
-				fig->y_max = s->y_max;
-		}
-	}
 	fig->z_min = INFINITY;
 	fig->z_max = -INFINITY;
+
+	fig->legend_conf.x_in_percentages = 1;
+	fig->legend_conf.y_in_percentages = 1;
+
 	for (i=0;i<fig->num_series;i++)
 	{
 		s = &fig->series[i];
+
+		calc_series_bounds(s);
+
+		if (s->type_pixel_coords == 1)
+			continue;
+
+		if (!fig->custom_bounds_x_min)
+			if (s->x_min < fig->x_min)
+				fig->x_min = s->x_min;
+		if (!fig->custom_bounds_x_max)
+			if (s->x_max > fig->x_max)
+				fig->x_max = s->x_max;
+		if (!fig->custom_bounds_y_min)
+			if (s->y_min < fig->y_min)
+				fig->y_min = s->y_min;
+		if (!fig->custom_bounds_y_max)
+			if (s->y_max > fig->y_max)
+				fig->y_max = s->y_max;
 		if (s->z != NULL && !s->type_density_map)
 		{
 			if (s->z_min < fig->z_min)
@@ -1413,15 +1525,8 @@ calc_figure_bounds(struct Figure * fig)
 			if (s->z_max > fig->z_max)
 				fig->z_max = s->z_max;
 		}
-	}
 
-	fig->legend_conf.x_in_percentages = 1;
-	fig->legend_conf.y_in_percentages = 1;
-	for (i=0;i<fig->num_series;i++)
-	{
-		s = &fig->series[i];
-
-		// The labels will have a percentage sign, if all series are in percentages.
+		// The labels will have a percentage sign, if ALL series are in percentages.
 		fig->legend_conf.x_in_percentages &= s->x_in_percentages;
 		fig->legend_conf.y_in_percentages &= s->y_in_percentages;
 
@@ -1490,6 +1595,8 @@ figure_plot(struct Figure * fig)
 			series_plot_density_map(fig, s, pa);
 		else if (s->type_bounded_median_curve == 1)
 			series_plot_bounded_median_curve(fig, s, pa);
+		else if (s->type_pixel_coords == 1)
+			series_plot_pixel_coords(fig, s, pa);
 		else
 			series_plot(fig, s, pa);
 	}

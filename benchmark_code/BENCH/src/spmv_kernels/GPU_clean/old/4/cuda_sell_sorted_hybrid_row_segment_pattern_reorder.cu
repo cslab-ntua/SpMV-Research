@@ -11,6 +11,10 @@
 #include "../spmv_kernel.h"
 
 
+#define ValueTypeStored  ValueType
+// #define ValueTypeStored  float
+
+
 #ifndef BLOCK_SIZE
 	// #define BLOCK_SIZE  32
 	// #define BLOCK_SIZE  64
@@ -23,10 +27,6 @@
 #define NNZ_PER_THREAD  5
 
 
-#define GPU_TIMERS  0
-// #define GPU_TIMERS  1
-
-
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -37,8 +37,6 @@ extern "C"{
 	#include "bit_ops.h"
 	#include "bitstream.h"
 	#include "hash/hash.h"
-	#include "string_util.h"
-	#include "plot/plot.h"
 
 	#include "aux/csr_converter.h"
 	#include "aux/csr_util.h"
@@ -57,20 +55,6 @@ extern "C"{
 	row_ptr_to_degree_double(void * A, long i)
 	{
 		return (double) (((INT_T *) A)[i+1] - ((INT_T *) A)[i]);
-	}
-
-	static inline
-	double
-	ull_to_double(void * A, long i)
-	{
-		return (double) ((unsigned long long *) A)[i];
-	}
-
-	static inline
-	double
-	int_to_double(void * A, long i)
-	{
-		return (double) ((int *) A)[i];
 	}
 
 	#include "functools/functools_gen_push.h"
@@ -97,14 +81,15 @@ extern "C"{
 	#define BUCKETSORT_GEN_TYPE_1  INT_T
 	#define BUCKETSORT_GEN_TYPE_2  INT_T
 	#define BUCKETSORT_GEN_TYPE_3  int
-	#define BUCKETSORT_GEN_TYPE_4  void
+	#define BUCKETSORT_GEN_TYPE_4  int
 	#define BUCKETSORT_GEN_SUFFIX  _CUDA_SELL_SORTED_HYBRID
 	#include "sort/bucketsort/bucketsort_gen.c"
 	static inline
 	INT_T
-	bucketsort_find_bucket(INT_T * A, long i, __attribute__((unused)) void * unused)
+	bucketsort_find_bucket(INT_T * A, long i, __attribute__((unused)) INT_T * degree_max_ptr)
 	{
-		return A[i];
+		return A[i+1] - A[i];   // Ascending order.
+		// return *degree_max_ptr - (A[i+1] - A[i]);   // Descending order.
 	}
 
 
@@ -139,6 +124,8 @@ extern "C"{
 
 
 	struct samplesort_data_s {
+		uint32_t size;
+		char * bitstream;
 		INT_T degree;
 		INT_T col_e;
 	};
@@ -147,7 +134,7 @@ extern "C"{
 	#define SAMPLESORT_GEN_TYPE_2  INT_T
 	#define SAMPLESORT_GEN_TYPE_3  int
 	#define SAMPLESORT_GEN_TYPE_4  struct samplesort_data_s
-	#define SAMPLESORT_GEN_SUFFIX  _degree_order
+	#define SAMPLESORT_GEN_SUFFIX  _CUDA_SELL_SORTED_HYBRID
 	#include "sort/samplesort/samplesort_gen.c"
 	static inline
 	int
@@ -160,8 +147,6 @@ extern "C"{
 		}
 		INT_T degree_a = data[a].degree;
 		INT_T degree_b = data[b].degree;
-		INT_T col_e_a = data[a].col_e;
-		INT_T col_e_b = data[b].col_e;
 		double ae = fabs(degree_a - degree_b);
 		double degree_min = (degree_a < degree_b) ? degree_a : degree_b;
 		double relative_dist = ae / degree_min;
@@ -169,12 +154,83 @@ extern "C"{
 		{
 			ret = (degree_a > degree_b) ? 1 : (degree_a < degree_b) ? -1 : 0;
 		}
+		INT_T col_e_a = data[a].col_e;
+		INT_T col_e_b = data[b].col_e;
 		if (ret == 0)
+		{
 			ret = (col_e_a > col_e_b) ? 1 : (col_e_a < col_e_b) ? -1 : 0;
+			if (ret == 0)
+				ret = (a > b) ? 1 : (a < b) ? -1 : 0;
+		}
+		if (ret == 0)
+		{
+			if ((data[a].size == 0) && (data[b].size == 0))
+			{
+				return (a > b) ? 1 : (a < b) ? -1 : 0;
+				return 0;
+			}
+			if (data[a].size == 0)
+			{
+				return -1;
+			}
+			if (data[b].size == 0)
+			{
+				return 1;
+			}
+			long size_min = (data[a].size < data[b].size) ? data[a].size : data[b].size;
+			ret = memcmp(data[a].bitstream, data[b].bitstream, size_min);
+		}
 		if (ret == 0)
 			ret = (a > b) ? 1 : (a < b) ? -1 : 0;
 		return ret;
 	}
+
+
+	/* struct samplesort_data_s {
+		INT_T * row_ptr;
+		INT_T * ja;
+	};
+	#include "sort/samplesort/samplesort_gen_undef.h"
+	#define SAMPLESORT_GEN_TYPE_1  INT_T
+	#define SAMPLESORT_GEN_TYPE_2  INT_T
+	#define SAMPLESORT_GEN_TYPE_3  int
+	#define SAMPLESORT_GEN_TYPE_4  struct samplesort_data_s
+	#define SAMPLESORT_GEN_FUNCTION_ATTRIBUTES
+	#define SAMPLESORT_GEN_SUFFIX  _CUDA_SELL_SORTED_HYBRID
+	#include "sort/samplesort/samplesort_gen.c"
+	static inline
+	int
+	samplesort_cmp(INT_T a, INT_T b, struct samplesort_data_s * data)
+	{
+		int ret = 0;
+		if (data != NULL)
+		{
+			INT_T ac = a;
+			INT_T bc = b;
+			__attribute__((unused)) INT_T j_s_a=data->row_ptr[ac], j_e_a=data->row_ptr[ac+1];
+			__attribute__((unused)) INT_T j_s_b=data->row_ptr[bc], j_e_b=data->row_ptr[bc+1];
+			__attribute__((unused)) INT_T col_s_a = data->ja[j_s_a], col_e_a = j_e_a > 0 ? data->ja[j_e_a - 1] : 0;
+			__attribute__((unused)) INT_T col_s_b = data->ja[j_s_b], col_e_b = j_e_b > 0 ? data->ja[j_e_b - 1] : 0;
+			__attribute__((unused)) INT_T col_center_a = (col_s_a + col_e_a) / 2;
+			__attribute__((unused)) INT_T col_center_b = (col_s_b + col_e_b) / 2;
+			__attribute__((unused)) INT_T degree_a = j_e_a - j_s_a;
+			__attribute__((unused)) INT_T degree_b = j_e_b - j_s_b;
+			double ae = fabs(degree_a - degree_b);
+			double degree_min = (degree_a < degree_b) ? degree_a : degree_b;
+			double relative_dist = ae / degree_min;
+			if ( ! ((degree_min >= 4) && (relative_dist < 1.0/4)) )
+			{
+				if (ret == 0) ret = (degree_a > degree_b) ? 1 : (degree_a < degree_b) ? -1 : 0;
+			}
+			// if (ret == 0) ret = (degree_a > degree_b) ? 1 : (degree_a < degree_b) ? -1 : 0;
+			if (ret == 0) ret = (col_e_a > col_e_b) ? 1 : (col_e_a < col_e_b) ? -1 : 0;
+			// if (ret == 0) ret = (col_s_a > col_s_b) ? 1 : (col_s_a < col_s_b) ? -1 : 0;
+			// if (ret == 0) ret = (col_center_a > col_center_b) ? 1 : (col_center_a < col_center_b) ? -1 : 0;
+		}
+		if (ret == 0) ret = a > b ? 1 : a < b ? -1 : 0;
+		return ret;
+		// return -ret;  // Descending order.
+	} */
 
 
 	#include "sort/quicksort/quicksort_gen_undef.h"
@@ -237,7 +293,7 @@ row_is_above_crossover(INT_T degree, long m, __attribute__((unused)) long nnz, i
 
 
 void
-sort_sell_warp_columns(INT_T i, INT_T * row_ptr, INT_T * ja, ValueType * a, __attribute__((unused)) long m)
+sort_sell_warp_columns(INT_T i, INT_T * row_ptr, INT_T * ja, ValueTypeStored * a, __attribute__((unused)) long m)
 {
 	long cache_line_size = 128;
 	long cache_line_elements = cache_line_size / sizeof(ValueType);
@@ -304,10 +360,350 @@ sort_sell_warp_columns(INT_T i, INT_T * row_ptr, INT_T * ja, ValueType * a, __at
 }
 
 
+double
+cross_row_x_access_similarity(long i1, long i2, INT_T * row_ptr, INT_T * col_idx, long cache_line_elements)
+{
+	long j1, j2;
+	long degree1, degree2;
+	long col, col1, col2;
+	long num_similarities = 0;
+	degree1 = row_ptr[i1+1] - row_ptr[i1];
+	degree2 = row_ptr[i2+1] - row_ptr[i2];
+	j1 = row_ptr[i1];
+	j2 = row_ptr[i2];
+	while ((j1 < row_ptr[i1+1]) && (j2 < row_ptr[i2+1]))
+	{
+		col1 = col_idx[j1] - col_idx[j1] % cache_line_elements;
+		col2 = col_idx[j2] - col_idx[j2] % cache_line_elements;
+		if (col1 < col2)
+			j1++;
+		else if (col1 > col2)
+			j2++;
+		else
+		{
+			col = col1;
+			while (col == col1)
+			{
+				num_similarities++;
+				j1++;
+				if (j1 >= row_ptr[i1+1])
+					break;
+				col1 = col_idx[j1] - col_idx[j1] % cache_line_elements;
+			}
+			while (col == col2)
+			{
+				num_similarities++;
+				j2++;
+				if (j2 >= row_ptr[i2+1])
+					break;
+				col2 = col_idx[j2] - col_idx[j2] % cache_line_elements;
+			}
+		}
+	}
+	return ((double) num_similarities) / (degree1 + degree2);
+}
+
+
+void
+csr_row_segment_pattern_reorder(INT_T * row_ptr, INT_T * col_idx, long m, long n, long nnz, long cache_line_size,
+		INT_T * permutation_out)
+{
+	int num_threads = omp_get_max_threads();
+	INT_T * reverse_permutation=NULL;
+	long num_bitmaps = 30;
+	long min_num_segments = 2;
+	long max_bits_per_bitmap = num_bitmaps + min_num_segments;   // Partitions 'n' from min_num_segments to (num_bitmaps + min_num_segments) segments.
+	struct samplesort_data_s * cmp_data=NULL;
+
+	if (permutation_out == NULL)
+		error("permutation_out is NULL");
+
+	int32_t bitmap;
+
+	reverse_permutation = (typeof(reverse_permutation)) malloc(m * sizeof(*reverse_permutation));
+	cmp_data = (typeof(cmp_data)) malloc(m * sizeof(*cmp_data));
+	_Pragma("omp parallel")
+	{
+		long tnum = omp_get_thread_num();
+		INT_T * col_idx_buf=NULL, * col_idx_buf2=NULL, * partitions_buf=NULL;
+		int32_t counts[max_bits_per_bitmap];
+		int32_t num_cols_removed_prefix_sums[max_bits_per_bitmap + 1];
+
+		long degree;
+		long segment, num_segments;
+		long cols_per_segment;
+		long segment_size, last_segment_size;
+		long n_packed, n_packed_new;
+		long threshold = 0;
+		long col;
+		long num_bytes = 0;
+		long i, i_s, i_e, j, jj, jj_new, k;
+
+		struct Bit_Stream bs;
+		long bitstream_data_size = 2 * num_bitmaps * max_bits_per_bitmap / 8;
+		bitstream_data_size = (bitstream_data_size + 7) / 8 * 8;   //  Size of 'data' array should be divisible by 8 for Bit_Stream.
+		unsigned char * bitstream_data = NULL;
+
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &i_s, &i_e);
+		// loop_partitioner_balance_iterations(num_threads, tnum, 0, m, &i_s, &i_e);
+
+		_Pragma("omp for")
+		for (i=0;i<m;i++)
+		{
+			reverse_permutation[i] = i;
+			permutation_out[i] = i;
+			cmp_data[i].size = 0;
+			cmp_data[i].bitstream = NULL;
+			cmp_data[i].degree = row_ptr[i+1] - row_ptr[i];
+			cmp_data[i].col_e = col_idx[row_ptr[i+1] - 1];
+		}
+
+		long max_degree = 0;
+		for (i=i_s;i<i_e;i++)
+		{
+			degree = row_ptr[i+1] - row_ptr[i];
+			if (degree > max_degree)
+				max_degree = degree;
+		}
+
+		if (max_degree > 0)
+		{
+			bitstream_data = (typeof(bitstream_data)) malloc(bitstream_data_size);
+			col_idx_buf = (typeof(col_idx_buf)) malloc(max_degree * sizeof(*col_idx_buf));
+			col_idx_buf2 = (typeof(col_idx_buf2)) malloc(max_degree * sizeof(*col_idx_buf2));
+			partitions_buf = (typeof(partitions_buf)) malloc(max_degree * sizeof(*partitions_buf));
+		}
+
+		long cache_line_elements;
+		cache_line_elements = cache_line_size / sizeof(ValueType);
+		// cache_line_elements = 1;
+		// cache_line_elements = 64;
+		for (i=i_s;i<i_e;i++)
+		{
+			n_packed = n;
+			degree = row_ptr[i+1] - row_ptr[i];
+			if (degree == 0)
+				continue;
+			long col_prev = 0;
+			for (j=row_ptr[i],jj=0;j<row_ptr[i+1];j++,jj++)
+			{
+				col = col_idx[j];
+				col_idx_buf[jj] = col - col % cache_line_elements;
+				if (col < col_prev)
+					error("The nonzeros of each row are expected to be sorted by column index");
+				col_prev = col;
+			}
+
+			bitstream_init_write(&bs, bitstream_data, bitstream_data_size);
+			for (k=0;k<num_bitmaps;k++)
+			{
+				if (degree <= 0)
+					break;
+				num_segments = k + min_num_segments;
+				// threshold = degree / (2*num_segments);
+				if (threshold == 0)
+					threshold = 1;
+				cols_per_segment = (n_packed + num_segments - 1) / num_segments;
+				last_segment_size = n_packed - cols_per_segment * (num_segments - 1);
+				if (last_segment_size <= 0)
+					break;
+				for (segment=0;segment<num_segments;segment++)
+				{
+					counts[segment] = 0;
+					num_cols_removed_prefix_sums[segment] = 0;
+				}
+				num_cols_removed_prefix_sums[num_segments] = 0;
+				// if (i == 2000000)
+					// printf("degree=%ld\n", degree);
+				for (jj=0;jj<degree;jj++)
+				{
+					col = col_idx_buf[jj];
+					segment = col / cols_per_segment;
+					if (segment >= num_segments)
+						error("segment=%ld >= num_segments=%ld , col=%ld , cols_per_segment=%ld", segment, num_segments, col, cols_per_segment);
+					counts[segment]++;
+				}
+
+				// if (i == 2000000)
+					// printf("\n");
+
+				double center_of_mass = 0;
+				long num_segments_non_empty = 0;
+				for (segment=0;segment<num_segments;segment++)
+				{
+					if (counts[segment] >= threshold)
+					{
+						center_of_mass += segment;
+						num_segments_non_empty++;
+					}
+				}
+				if (num_segments_non_empty == 0)
+					break;
+				center_of_mass /= num_segments_non_empty;
+				uint64_t center_of_mass_order = center_of_mass * num_segments + 0.5;
+				uint64_t num_bits;
+				if (center_of_mass_order > (uint64_t) (num_segments-1)*num_segments)
+					error("center_of_mass_order > (num_segments-1)*num_segments: degree=%ld, num_segments=%ld, num_segments_non_empty=%ld, com=%g, com_order=%ld, (num_segments-1)*num_segments=%ld", degree, num_segments, num_segments_non_empty, center_of_mass, center_of_mass_order, (num_segments-1)*num_segments);
+				bits_u64_required_bits_for_binary_representation((num_segments-1)*num_segments, &num_bits, NULL);   // Maximum bits for center of mass order number.
+				center_of_mass_order = bits_u64_reverse(center_of_mass_order) >> (64-num_bits);
+				bitstream_write(&bs, center_of_mass_order, num_bits);
+				// if (i == 2000000)
+					// printf("com=%g , com_order=%0*lb, num_segments_non_empty=%ld, num_bits=%ld\n", center_of_mass, (int) num_bits, center_of_mass_order, num_segments_non_empty, num_bits);
+
+				bitmap = 0;
+				n_packed_new = 0;
+				for (segment=num_segments-1;segment>=0;segment--)
+				{
+					// if (i == 2000000)
+						// printf("%2d ", counts[segment]);
+					segment_size = (segment == num_segments - 1) ? last_segment_size : cols_per_segment;
+					if (counts[segment] < threshold)
+					{
+						// bitmap = (bitmap << 1ULL);
+						num_cols_removed_prefix_sums[segment] = segment_size;
+						bitstream_write(&bs, 0, 1);
+					}
+					else
+					{
+						// bitmap = (bitmap << 1ULL) | 1ULL;
+						bitmap = bitmap | (1ULL << (num_segments - 1 - segment));
+						bitstream_write(&bs, 1, 1);
+						n_packed_new += segment_size;
+					}
+				}
+				scan_reduce_serial(num_cols_removed_prefix_sums, num_cols_removed_prefix_sums, num_segments, 0, 1, 0);
+				// if (i == 2000000)
+					// printf("%0*b\n", (int) num_segments, bitmap);
+				/* Remove column indices that are outliers and remove the columns of the empty segments.
+				 * Reindex column indices to take account removing the columns of the empty segments.
+				 * The column indices must be sorted for this to work.
+				 */
+				jj_new = 0;
+				for (jj=0;jj<degree;jj++)
+				{
+					col = col_idx_buf[jj];
+					segment = col / cols_per_segment;
+					if (counts[segment] >= threshold)
+					{
+						col -= num_cols_removed_prefix_sums[segment];
+						col_idx_buf2[jj_new] = col;
+						jj_new++;
+					}
+				}
+				n_packed = n_packed_new;
+				degree = jj_new;
+				macros_swap(&col_idx_buf, &col_idx_buf2);
+
+				// if (i == 2000000)
+					// printf("\n");
+			}
+
+			bitstream_write_flush(&bs);
+			num_bytes = (bs.len_bits + 7) / 8;
+			if (bitstream_data_size < num_bytes)
+				error("bitstream_data_size=%ld < num_bytes=%ld\n", bitstream_data_size, num_bytes);
+			if (num_bytes == 0)
+				error("bs.len_bits=%ld, num_bytes=%ld", bs.len_bits, num_bytes);
+			for (j=0;j<num_bytes;j++)
+			{
+				bitstream_data[j] = bits_u8_reverse(bitstream_data[j]);
+			}
+
+			cmp_data[i].size = num_bytes;
+			cmp_data[i].bitstream = (typeof(cmp_data[i].bitstream)) malloc(num_bytes);
+			memcpy(cmp_data[i].bitstream, bitstream_data, num_bytes);
+
+			// if (i == 2000000)
+			// {
+				// printf("num_bytes=%ld\n", num_bytes);
+				// for (j=0;j<num_bytes;j++)
+				// {
+					// printf("%08b", bitstream_data[j]);
+				// }
+				// printf("\n");
+			// }
+
+		}
+
+		free(col_idx_buf);
+		free(col_idx_buf2);
+		free(partitions_buf);
+		free(bitstream_data);
+	}
+
+	samplesort(reverse_permutation, m, cmp_data);
+
+	/* INT_T * tmp_row_ptr = (typeof(tmp_row_ptr)) malloc((m+1) * sizeof(*tmp_row_ptr));
+	_Pragma("omp parallel")
+	{
+		long tnum = omp_get_thread_num();
+		long i, i_s, i_e, i1, i2, i_crs_max, k, k_s, k_e;
+		double crs, crs_max;
+		long search_window_size = 1024;
+		long degree1, degree2;
+		long cache_line_elements = cache_line_size / sizeof(ValueType);
+		_Pragma("omp for")
+		for (i=0;i<m;i++)
+		{
+			k = reverse_permutation[i];
+			tmp_row_ptr[i] = row_ptr[k+1] - row_ptr[k];
+		}
+		scan_reduce_concurrent(tmp_row_ptr, tmp_row_ptr, m, 0, 1, 0);
+		loop_partitioner_balance_prefix_sums(num_threads, tnum, tmp_row_ptr, m, nnz, &i_s, &i_e);
+		i_e--;
+		for (i=i_s;i<i_e;i++)
+		{
+			i1 = reverse_permutation[i];
+			degree1 = row_ptr[i1+1] - row_ptr[i1];
+			k_s = i+1;
+			k_e = i + search_window_size;
+			if (k_e > m)
+				k_e = m;
+			crs_max = 0;
+			i_crs_max = k_s;
+			for (k=k_s;k<k_e;k++)
+			{
+				i2 = reverse_permutation[k];
+				degree2 = row_ptr[i2+1] - row_ptr[i2];
+				double degree_min = (degree1 < degree2) ? degree1 : degree2;
+				double ae = fabs(degree1 - degree2);
+				double relative_dist = ae / degree_min;
+				if (degree1 != degree2)
+				{
+					if ( ! ((degree_min >= 4) && (relative_dist < 1.0/4)) )
+					// if (degree_min < 4)
+						continue;
+				}
+				crs = cross_row_x_access_similarity(i1, i2, row_ptr, col_idx, cache_line_elements);
+				if (crs > crs_max)
+				{
+					crs_max = crs;
+					i_crs_max = k;
+				}
+			}
+			macros_swap(&reverse_permutation[i+1], &reverse_permutation[i_crs_max]);
+		}
+	}
+	free(tmp_row_ptr); */
+
+	_Pragma("omp parallel")
+	{
+		long i;
+		_Pragma("omp for")
+		for (i=0;i<m;i++)
+			permutation_out[reverse_permutation[i]] = i;
+		_Pragma("omp for")
+		for (i=0;i<m;i++)
+			free(cmp_data[i].bitstream);
+	}
+
+	free(cmp_data);
+	free(reverse_permutation);
+}
+
+
 struct SELLArrays : Matrix_Format
 {
-	char * filename_base;
-
 	long crossover_row;   // A row index in the SORTED matrix, where we change from SELL to CSR. Multiple of BLOCK_SIZE.
 	long nnz_per_thread;
 	long nnz_per_block;
@@ -318,19 +714,17 @@ struct SELLArrays : Matrix_Format
 	long nnz_sell;
 	long nnz_csr;
 
-	ValueType * a;
-
 	INT_T * row_ptr_h;
 	INT_T * row_cluster_ptr_h;
 	INT_T * ja_h;
-	ValueType * a_h;
+	ValueTypeStored * a_h;
 	INT_T * thread_warp_i_s = NULL;
 	INT_T * thread_warp_i_e = NULL;
 
 	INT_T * row_ptr_d;
 	INT_T * row_cluster_ptr_d;
 	INT_T * ja_d;
-	ValueType * a_d;
+	ValueTypeStored * a_d;
 	INT_T * thread_warp_i_s_d = NULL;
 	INT_T * thread_warp_i_e_d = NULL;
 
@@ -346,7 +740,6 @@ struct SELLArrays : Matrix_Format
 	int num_threads;
 	int num_threads_sell;
 	int num_threads_csr;
-	int num_thread_warps;
 	int num_thread_warps_sell;
 	int num_thread_warps_csr;
 	int num_thread_blocks;
@@ -355,51 +748,24 @@ struct SELLArrays : Matrix_Format
 
 	INT_T * row_permutation = NULL;
 
-	unsigned long long * timers;
-	unsigned long long * timers_d;
 
-	SELLArrays(INT_T * row_ptr, INT_T * ja, ValueTypeReference * a_ref, long m, long n, long nnz) : Matrix_Format(m, n, nnz)
+	SELLArrays(INT_T * row_ptr, INT_T * ja, ValueTypeReference * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz)
 	{
 		long num_threads_cpu = omp_get_max_threads();
 		__attribute__((unused)) long enable_legend = 1;
 		__attribute__((unused)) long num_pixels_x = 1080;
 		__attribute__((unused)) long num_pixels_y = 1080;
-		double time;
 		long i;
 
-		const long cache_line_size = 128;
-		// const long cache_line_size = 64;
+		long cache_line_size = 128;
+		// long cache_line_size = 64;
 
-		long buf_n = 1000;
-		char buf[buf_n];
-		char * file_in = getenv("MATRIX_NAME");
-		__attribute__((cleanup(cleanup_free))) char * path=NULL, * filename=NULL;
-		str_path_split_path(file_in, strlen(file_in) + 1, buf, buf_n, &path, &filename);
-		path = strdup(path);
-		filename = strdup(filename);
-		str_path_split_ext(filename, strlen(filename) + 1, buf, buf_n, &filename_base, NULL);
-		filename_base = strdup(filename_base);
-
-		time = time_it(1,
-			cudaFree(0);
-		);
-		printf("time cuda context creation = %g\n", time);
+		cuda_device_print_attributes();
 
 		int device_multiproc_count, device_max_threads_per_multiproc, device_max_num_threads;
-		time = time_it(1,
-			cuda_device_print_attributes();
-
-			cuda_assert(cudaDeviceGetAttribute(&device_multiproc_count, cudaDevAttrMultiProcessorCount, 0));
-			cuda_assert(cudaDeviceGetAttribute(&device_max_threads_per_multiproc, cudaDevAttrMaxThreadsPerMultiProcessor, 0));
-			device_max_num_threads = device_max_threads_per_multiproc * device_multiproc_count;
-		);
-		printf("time cudaDeviceGetAttribute = %g\n", time);
-
-		// Convert values from ValueTypeReference (double) to ValueType (e.g., float).
-		a = (typeof(a)) malloc(nnz * sizeof(*a));
-		#pragma omp parallel for
-		for (long i = 0; i < nnz; i++)
-			a[i] = (ValueType) a_ref[i];
+		cuda_assert(cudaDeviceGetAttribute(&device_multiproc_count, cudaDevAttrMultiProcessorCount, 0));
+		cuda_assert(cudaDeviceGetAttribute(&device_max_threads_per_multiproc, cudaDevAttrMaxThreadsPerMultiProcessor, 0));
+		device_max_num_threads = device_max_threads_per_multiproc * device_multiproc_count;
 
 		nnz_per_thread = NNZ_PER_THREAD;
 		nnz_per_block = nnz_per_thread * BLOCK_SIZE;
@@ -430,37 +796,31 @@ struct SELLArrays : Matrix_Format
 		printf("m=%ld, crossover_row=%ld\n", m, crossover_row);
 
 		/* Sort rows. */
-		time = time_it(1,
-			long fig_name_base_n = 1000;
-			char fig_name_base[fig_name_base_n];
-
-			snprintf(fig_name_base, fig_name_base_n, "figures/%s", filename_base);
-			csr_plot(fig_name_base, row_ptr, ja, a, m, n, nnz, enable_legend, num_pixels_x, num_pixels_y);
+		double time_sort_rows = time_it(1,
+			// csr_plot("matrix", row_ptr, ja, a, m, n, nnz, enable_legend, num_pixels_x, num_pixels_y);
 
 			INT_T * reverse_row_permutation = (typeof(reverse_row_permutation)) malloc(m * sizeof(*reverse_row_permutation));
 			row_permutation = (typeof(row_permutation)) malloc(m * sizeof(*row_permutation));
-
-			/* Sort by row size. */
-			struct samplesort_data_s * cmp_data = (typeof(cmp_data)) malloc(m * sizeof(*cmp_data));
 			_Pragma("omp parallel")
 			{
 				long i;
 				_Pragma("omp for")
 				for (i=0;i<m;i++)
-				{
-					reverse_row_permutation[i] = i;
 					row_permutation[i] = i;
-					cmp_data[i].degree = row_ptr[i+1] - row_ptr[i];
-					cmp_data[i].col_e = ja[row_ptr[i+1] - 1];
-				}
 			}
-			samplesort_degree_order(reverse_row_permutation, m, cmp_data);
-			free(cmp_data);
+
+			/* Sort by row size. */
+			csr_row_segment_pattern_reorder(row_ptr, ja, m, n, nnz, cache_line_size, row_permutation);
+			_Pragma("omp parallel")
+			{
+				long i;
+				_Pragma("omp for")
+				for (i=0;i<m;i++)
+					reverse_row_permutation[row_permutation[i]] = i;
+			}
 
 			/* Restore order in CSR part, sort by row index. */
-			samplesort_degree_order(&reverse_row_permutation[crossover_row], m-crossover_row, NULL);
-			// bucketsort_recalculate_bucket(&reverse_row_permutation[crossover_row], m-crossover_row, m, NULL, _TYPE_I * restrict permutation_out, NULL);
-
+			samplesort(&reverse_row_permutation[crossover_row], m-crossover_row, NULL);
 			_Pragma("omp parallel")
 			{
 				long i;
@@ -469,61 +829,74 @@ struct SELLArrays : Matrix_Format
 					row_permutation[reverse_row_permutation[i]] = i;
 			}
 
+
 			row_ptr_h = (typeof(row_ptr_h)) malloc((m+1) * sizeof(*row_ptr_h));
 			ja_h = (typeof(ja_h)) malloc(nnz * sizeof(*ja_h));
 			a_h = (typeof(a_h)) malloc(nnz * sizeof(*a_h));
 			csr_reorder_rows(row_permutation, row_ptr, ja, a, m, n, nnz, row_ptr_h, ja_h, a_h);
 
-			struct samplesort_pass_2_data_s * cmp_pass_2_data;
-			cmp_pass_2_data = (typeof(cmp_pass_2_data)) malloc(m * sizeof(*cmp_pass_2_data));
+			struct samplesort_pass_2_data_s * cmp_data;
+			cmp_data = (typeof(cmp_data)) malloc(m * sizeof(*cmp_data));
 			INT_T * row_permutation_2 = (typeof(row_permutation_2)) malloc(m * sizeof(*row_permutation_2));
 			INT_T * reverse_row_permutation_2 = (typeof(reverse_row_permutation_2)) malloc(m * sizeof(*reverse_row_permutation_2));
 			_Pragma("omp parallel")
 			{
+				INT_T degree;
 				long i, j, k;
 				INT_T col_s, col_e;
+				double sum;
 				_Pragma("omp for")
 				for (i=0;i<m;i++)
 					reverse_row_permutation_2[i] = i;
 				_Pragma("omp for")
 				for (i=0;i<crossover_row;i+=32)
 				{
+					degree = 0;
+					sum = 0;
 					col_s = n;
 					col_e = 0;
 					for (k=i;k<i+32;k++)
 					{
 						for (j=row_ptr_h[k];j<row_ptr_h[k+1];j++)
 						{
+							sum += ja_h[j];
 							if (ja_h[j] > col_e)
 								col_e = ja_h[j];
 							if (ja_h[j] < col_s)
 								col_s = ja_h[j];
+							degree++;
 						}
 					}
 					for (k=i;k<i+32;k++)
 					{
-						cmp_pass_2_data[k].col_s = col_s;
-						cmp_pass_2_data[k].col_e = col_e;
+						cmp_data[k].com = sum / degree;
+						cmp_data[k].col_s = col_s;
+						cmp_data[k].col_e = col_e;
 					}
 				}
 				_Pragma("omp for")
 				for (i=crossover_row;i<m;i++)
 				{
+					degree = 0;
+					sum = 0;
 					col_s = n;
 					col_e = 0;
 					for (j=row_ptr_h[i];j<row_ptr_h[i+1];j++)
 					{
+						sum += ja_h[j];
 						if (ja_h[j] > col_e)
 							col_e = ja_h[j];
 						if (ja_h[j] < col_s)
 							col_s = ja_h[j];
+						degree++;
 					}
-					cmp_pass_2_data[i].col_s = n + 1 + col_s;
-					cmp_pass_2_data[i].col_e = n + 1 + col_e;
+					cmp_data[i].com = sum / degree;
+					cmp_data[i].col_s = n + 1 + col_s;
+					cmp_data[i].col_e = n + 1 + col_e;
 				}
 			}
-			// samplesort_pass_2(reverse_row_permutation_2, m, cmp_pass_2_data);
-			samplesort_pass_2(reverse_row_permutation_2, crossover_row, cmp_pass_2_data);
+			// samplesort_pass_2(reverse_row_permutation_2, m, cmp_data);
+			samplesort_pass_2(reverse_row_permutation_2, crossover_row, cmp_data);
 			_Pragma("omp parallel")
 			{
 				long i;
@@ -533,7 +906,7 @@ struct SELLArrays : Matrix_Format
 			}
 			INT_T * row_ptr_buf = row_ptr_h;
 			INT_T * ja_buf = ja_h;
-			ValueType * a_buf = a_h;
+			ValueTypeStored * a_buf = a_h;
 			INT_T * reverse_row_permutation_buf = reverse_row_permutation;
 			row_ptr_h = (typeof(row_ptr_h)) malloc((m+1) * sizeof(*row_ptr_h));
 			ja_h = (typeof(ja_h)) malloc(nnz * sizeof(*ja_h));
@@ -557,7 +930,7 @@ struct SELLArrays : Matrix_Format
 			free(row_ptr_buf);
 			free(ja_buf);
 			free(a_buf);
-			free(cmp_pass_2_data);
+			free(cmp_data);
 			free(row_permutation_2);
 			free(reverse_row_permutation_2);
 			free(reverse_row_permutation_buf);
@@ -579,10 +952,9 @@ struct SELLArrays : Matrix_Format
 
 			free(reverse_row_permutation);
 
-			snprintf(fig_name_base, fig_name_base_n, "figures/%s_reordered", filename_base);
-			csr_plot(fig_name_base, row_ptr_h, ja_h, a_h, m, n, nnz, enable_legend, num_pixels_x, num_pixels_y);
+			// csr_plot("matrix_reordered", row_ptr_h, ja_h, a_h, m, n, nnz, enable_legend, num_pixels_x, num_pixels_y);
 		);
-		printf("time sort rows = %g\n", time);
+		printf("time sort rows = %g\n", time_sort_rows);
 
 
 		/* Extend SELL row clusters to local max row. 
@@ -591,130 +963,127 @@ struct SELLArrays : Matrix_Format
 		 * Extend last row so that CSR has multiple of BLOCK_SIZE number of threads,
 		 * i.e., CSR has multiple of 'nnz_per_thread * BLOCK_SIZE' nonzeros.
 		 */
-		time = time_it(1,
-			INT_T * row_ptr_h_new = (typeof(row_ptr_h_new)) malloc((m+1) * sizeof(*row_ptr_h_new));
-			INT_T * ja_h_new;
-			ValueType * a_h_new;
-			_Pragma("omp parallel")
+		INT_T * row_ptr_h_new = (typeof(row_ptr_h_new)) malloc((m+1) * sizeof(*row_ptr_h_new));
+		INT_T * ja_h_new;
+		ValueTypeStored * a_h_new;
+		_Pragma("omp parallel")
+		{
+			long i, j, j1, j2, j_s, j_e, k;
+			long degree;
+			long degree_cluster_max;
+			_Pragma("omp for")
+			for (i=0;i<crossover_row;i+=32)
 			{
-				long i, j, j1, j2, j_s, j_e, k;
-				long degree;
-				long degree_cluster_max;
-				_Pragma("omp for")
-				for (i=0;i<crossover_row;i+=32)
+				degree_cluster_max = 0;
+				for (k=i;k<i+32;k++)
 				{
-					degree_cluster_max = 0;
-					for (k=i;k<i+32;k++)
-					{
-						degree = row_ptr_h[k+1] - row_ptr_h[k];
-						if (degree > degree_cluster_max)
-							degree_cluster_max = degree;
-					}
-					for (k=i;k<i+32;k++)
-						row_ptr_h_new[k] = degree_cluster_max;
+					degree = row_ptr_h[k+1] - row_ptr_h[k];
+					if (degree > degree_cluster_max)
+						degree_cluster_max = degree;
 				}
-				_Pragma("omp for")
-				for (i=crossover_row;i<m;i++)
+				for (k=i;k<i+32;k++)
+					row_ptr_h_new[k] = degree_cluster_max;
+			}
+			_Pragma("omp for")
+			for (i=crossover_row;i<m;i++)
+			{
+				degree = row_ptr_h[i+1] - row_ptr_h[i];
+				degree = nnz_per_thread * ((degree + nnz_per_thread - 1) / nnz_per_thread);
+				row_ptr_h_new[i] = degree;
+			}
+			_Pragma("omp single")
+			{
+				row_ptr_h_new[m] = 0;
+			}
+			scan_reduce_concurrent(row_ptr_h_new, row_ptr_h_new, m+1, 0, 1, 0);
+			_Pragma("omp single")
+			{
+				nnz_extended = row_ptr_h_new[m];
+				nnz_sell = row_ptr_h_new[crossover_row];
+				nnz_csr = nnz_extended - nnz_sell;
+				nnz_csr = nnz_per_block * ((nnz_csr + nnz_per_block - 1) / nnz_per_block);
+				nnz_extended = nnz_sell + nnz_csr;
+				row_ptr_h_new[m] = nnz_extended;
+				ja_h_new = (typeof(ja_h_new)) malloc(nnz_extended * sizeof(*ja_h_new));
+				a_h_new = (typeof(a_h_new)) malloc(nnz_extended * sizeof(*a_h_new));
+			}
+			_Pragma("omp for")
+			for (i=0;i<crossover_row;i+=32)
+			{
+				for (k=i;k<i+32;k++)
 				{
-					degree = row_ptr_h[i+1] - row_ptr_h[i];
-					degree = nnz_per_thread * ((degree + nnz_per_thread - 1) / nnz_per_thread);
-					row_ptr_h_new[i] = degree;
-				}
-				_Pragma("omp single")
-				{
-					row_ptr_h_new[m] = 0;
-				}
-				scan_reduce_concurrent(row_ptr_h_new, row_ptr_h_new, m+1, 0, 1, 0);
-				_Pragma("omp single")
-				{
-					nnz_extended = row_ptr_h_new[m];
-					nnz_sell = row_ptr_h_new[crossover_row];
-					nnz_csr = nnz_extended - nnz_sell;
-					nnz_csr = nnz_per_block * ((nnz_csr + nnz_per_block - 1) / nnz_per_block);
-					nnz_extended = nnz_sell + nnz_csr;
-					row_ptr_h_new[m] = nnz_extended;
-					ja_h_new = (typeof(ja_h_new)) malloc(nnz_extended * sizeof(*ja_h_new));
-					a_h_new = (typeof(a_h_new)) malloc(nnz_extended * sizeof(*a_h_new));
-				}
-				_Pragma("omp for")
-				for (i=0;i<crossover_row;i+=32)
-				{
-					for (k=i;k<i+32;k++)
-					{
-						for (j1=row_ptr_h[k],j2=row_ptr_h_new[k];j1<row_ptr_h[k+1];j1++,j2++)
-						{
-							ja_h_new[j2] = ja_h[j1];
-							a_h_new[j2] = a_h[j1];
-						}
-						for (;j2<row_ptr_h_new[k+1];j2++)
-						{
-							ja_h_new[j2] = ja_h[row_ptr_h[k+1] - 1];
-							a_h_new[j2] = 0;
-						}
-					}
-					degree = row_ptr_h_new[i+1] - row_ptr_h_new[i];
-					/* if (i == (1500000ULL & (~31ULL)))
-					{
-						for (k=i;k<i+32;k++)
-						{
-							for (j=row_ptr_h_new[k];j<row_ptr_h_new[k+1];j++)
-							{
-								// printf("%8d ", ja_h_new[j] / 128);
-								printf("%8d ", ja_h_new[j]);
-							}
-							printf("\n");
-						}
-						printf("\n");
-					} */
-
-					// sort_sell_warp_columns(i, row_ptr_h_new, ja_h_new, a_h_new, m);
-
-					transpose(&ja_h_new[row_ptr_h_new[i]], 32, degree);
-					transpose(&a_h_new[row_ptr_h_new[i]], 32, degree);
-				}
-				_Pragma("omp for")
-				for (i=crossover_row;i<m;i++)
-				{
-					for (j1=row_ptr_h[i],j2=row_ptr_h_new[i];j1<row_ptr_h[i+1];j1++,j2++)
+					for (j1=row_ptr_h[k],j2=row_ptr_h_new[k];j1<row_ptr_h[k+1];j1++,j2++)
 					{
 						ja_h_new[j2] = ja_h[j1];
 						a_h_new[j2] = a_h[j1];
 					}
-					for (;j2<row_ptr_h_new[i+1];j2++)
+					for (;j2<row_ptr_h_new[k+1];j2++)
 					{
-						ja_h_new[j2] = ja_h[row_ptr_h[i+1] - 1];
+						ja_h_new[j2] = ja_h[row_ptr_h[k+1] - 1];
 						a_h_new[j2] = 0;
 					}
-					ja_h_new[row_ptr_h_new[i]] |= 0x80000000;
-
-					j_s = row_ptr_h_new[i];
-					while (j_s < row_ptr_h_new[i+1])   // Interleave thread nnz of same row (round-robin).
-					{
-						j_e = j_s + nnz_per_warp;
-						j_e = j_e - ((j_e - nnz_sell) % nnz_per_warp);
-						if (j_e > row_ptr_h_new[i+1])
-							j_e = row_ptr_h_new[i+1];
-						long local_num_threads = (j_e - j_s) / nnz_per_thread;
-						transpose(&a_h_new[j_s], nnz_per_thread, local_num_threads);
-						transpose(&ja_h_new[j_s], nnz_per_thread, local_num_threads);
-						j_s = j_e;
-					}
 				}
-				_Pragma("omp for")
-				for (j=row_ptr_h_new[crossover_row];j<nnz_extended;j+=32*nnz_per_thread)
+				degree = row_ptr_h_new[i+1] - row_ptr_h_new[i];
+				/* if (i == (1500000ULL & (~31ULL)))
 				{
-					transpose(&a_h_new[j], 32, nnz_per_thread);
-					transpose(&ja_h_new[j], 32, nnz_per_thread);
+					for (k=i;k<i+32;k++)
+					{
+						for (j=row_ptr_h_new[k];j<row_ptr_h_new[k+1];j++)
+						{
+							// printf("%8d ", ja_h_new[j] / 128);
+							printf("%8d ", ja_h_new[j]);
+						}
+						printf("\n");
+					}
+					printf("\n");
+				} */
+
+				// sort_sell_warp_columns(i, row_ptr_h_new, ja_h_new, a_h_new, m);
+
+				transpose(&ja_h_new[row_ptr_h_new[i]], 32, degree);
+				transpose(&a_h_new[row_ptr_h_new[i]], 32, degree);
+			}
+			_Pragma("omp for")
+			for (i=crossover_row;i<m;i++)
+			{
+				for (j1=row_ptr_h[i],j2=row_ptr_h_new[i];j1<row_ptr_h[i+1];j1++,j2++)
+				{
+					ja_h_new[j2] = ja_h[j1];
+					a_h_new[j2] = a_h[j1];
+				}
+				for (;j2<row_ptr_h_new[i+1];j2++)
+				{
+					ja_h_new[j2] = ja_h[row_ptr_h[i+1] - 1];
+					a_h_new[j2] = 0;
+				}
+				ja_h_new[row_ptr_h_new[i]] |= 0x80000000;
+
+				j_s = row_ptr_h_new[i];
+				while (j_s < row_ptr_h_new[i+1])   // Interleave thread nnz of same row (round-robin).
+				{
+					j_e = j_s + nnz_per_warp;
+					j_e = j_e - ((j_e - nnz_sell) % nnz_per_warp);
+					if (j_e > row_ptr_h_new[i+1])
+						j_e = row_ptr_h_new[i+1];
+					long local_num_threads = (j_e - j_s) / nnz_per_thread;
+					transpose(&a_h_new[j_s], nnz_per_thread, local_num_threads);
+					transpose(&ja_h_new[j_s], nnz_per_thread, local_num_threads);
+					j_s = j_e;
 				}
 			}
-			free(row_ptr_h);
-			free(ja_h);
-			free(a_h);
-			row_ptr_h = row_ptr_h_new;
-			ja_h = ja_h_new;
-			a_h = a_h_new;
-		);
-		printf("time extend and transpose = %g\n", time);
+			_Pragma("omp for")
+			for (j=row_ptr_h_new[crossover_row];j<nnz_extended;j+=32*nnz_per_thread)
+			{
+				transpose(&a_h_new[j], 32, nnz_per_thread);
+				transpose(&ja_h_new[j], 32, nnz_per_thread);
+			}
+		}
+		free(row_ptr_h);
+		free(ja_h);
+		free(a_h);
+		row_ptr_h = row_ptr_h_new;
+		ja_h = ja_h_new;
+		a_h = a_h_new;
 		printf("nnz=%ld, nnz_extended=%ld, nnz_sell=%ld, nnz_csr=%ld\n", nnz, nnz_extended, nnz_sell, nnz_csr);
 
 		/* Find number of threads for each format. */
@@ -724,7 +1093,6 @@ struct SELLArrays : Matrix_Format
 		num_thread_blocks = num_threads / BLOCK_SIZE;
 		num_thread_blocks_sell = num_threads_sell / BLOCK_SIZE;
 		num_thread_blocks_csr = num_threads_csr / BLOCK_SIZE;
-		num_thread_warps = num_threads / 32;
 		num_thread_warps_sell = num_threads_sell / 32;
 		num_thread_warps_csr = num_threads_csr / 32;
 		printf("num_threads=%d, thread_block_size=%d, num_thread_blocks=%d\n", num_threads, BLOCK_SIZE, num_thread_blocks);
@@ -732,18 +1100,14 @@ struct SELLArrays : Matrix_Format
 		/* Find SELL row clusters offsets. */
 		num_row_clusters = crossover_row / 32;
 		row_cluster_ptr_h = (typeof(row_cluster_ptr_h)) malloc((num_row_clusters+1) * sizeof(*row_cluster_ptr_h));
-		_Pragma("omp parallel")
-		{
-			_Pragma("omp for")
-			for (i=0;i<crossover_row;i+=32)
-				row_cluster_ptr_h[i/32] = row_ptr_h[i];
-		}
+		for (i=0;i<crossover_row;i+=32)
+			row_cluster_ptr_h[i/32] = row_ptr_h[i];
 		row_cluster_ptr_h[num_row_clusters] = row_ptr_h[crossover_row];
 
 		/* Find CSR warps row boundaries. */
 		thread_warp_i_s = (INT_T *) malloc(num_thread_warps_csr * sizeof(*thread_warp_i_s));
 		thread_warp_i_e = (INT_T *) malloc(num_thread_warps_csr * sizeof(*thread_warp_i_e));
-		time = time_it(1,
+		double time_balance = time_it(1,
 			_Pragma("omp parallel")
 			{
 				INT_T thread_warp_j_s, thread_warp_j_e;
@@ -769,36 +1133,26 @@ struct SELLArrays : Matrix_Format
 				}
 			}
 		);
-		printf("time find warp boundaries = %g\n", time);
+		printf("time find warp boundaries = %g\n", time_balance);
 
-		time = time_it(1,
-			cuda_assert(cudaMalloc(&row_ptr_d, (m+1) * sizeof(*row_ptr_d)));
-			cuda_assert(cudaMalloc(&row_cluster_ptr_d, (num_row_clusters+1) * sizeof(*row_cluster_ptr_d)));
-			cuda_assert(cudaMalloc(&ja_d, nnz_extended * sizeof(*ja_d)));
-			cuda_assert(cudaMalloc(&a_d, nnz_extended * sizeof(*a_d)));
-			cuda_assert(cudaMalloc(&x_d, n * sizeof(*x_d)));
-			cuda_assert(cudaMalloc(&y_d, m * sizeof(*y_d)));
-			cuda_assert(cudaMalloc(&thread_warp_i_s_d, num_thread_warps_csr * sizeof(*thread_warp_i_s_d)));
-			cuda_assert(cudaMalloc(&thread_warp_i_e_d, num_thread_warps_csr * sizeof(*thread_warp_i_e_d)));
+		cuda_assert(cudaMalloc(&row_ptr_d, (m+1) * sizeof(*row_ptr_d)));
+		cuda_assert(cudaMalloc(&row_cluster_ptr_d, (num_row_clusters+1) * sizeof(*row_cluster_ptr_d)));
+		cuda_assert(cudaMalloc(&ja_d, nnz_extended * sizeof(*ja_d)));
+		cuda_assert(cudaMalloc(&a_d, nnz_extended * sizeof(*a_d)));
+		cuda_assert(cudaMalloc(&x_d, n * sizeof(*x_d)));
+		cuda_assert(cudaMalloc(&y_d, m * sizeof(*y_d)));
+		cuda_assert(cudaMalloc(&thread_warp_i_s_d, num_thread_warps_csr * sizeof(*thread_warp_i_s_d)));
+		cuda_assert(cudaMalloc(&thread_warp_i_e_d, num_thread_warps_csr * sizeof(*thread_warp_i_e_d)));
 
-			x_h = (typeof(x_h)) malloc(n * sizeof(*x_h));
-			y_h = (typeof(y_h)) malloc(m * sizeof(*y_h));
+		x_h = (typeof(x_h)) malloc(n * sizeof(*x_h));
+		y_h = (typeof(y_h)) malloc(m * sizeof(*y_h));
 
-			cuda_assert(cudaMemcpy(row_ptr_d, row_ptr_h, (m+1) * sizeof(*row_ptr_d), cudaMemcpyHostToDevice));
-			cuda_assert(cudaMemcpy(row_cluster_ptr_d, row_cluster_ptr_h, (num_row_clusters+1) * sizeof(*row_cluster_ptr_d), cudaMemcpyHostToDevice));
-			cuda_assert(cudaMemcpy(ja_d, ja_h, nnz_extended * sizeof(*ja_d), cudaMemcpyHostToDevice));
-			cuda_assert(cudaMemcpy(a_d, a_h, nnz_extended * sizeof(*a_d), cudaMemcpyHostToDevice));
-			cuda_assert(cudaMemcpy(thread_warp_i_s_d, thread_warp_i_s, num_thread_warps_csr * sizeof(*thread_warp_i_s_d), cudaMemcpyHostToDevice));
-			cuda_assert(cudaMemcpy(thread_warp_i_e_d, thread_warp_i_e, num_thread_warps_csr * sizeof(*thread_warp_i_e_d), cudaMemcpyHostToDevice));
-		);
-		printf("time cudaMemcpy = %g\n", time);
-
-		#if GPU_TIMERS
-			timers = (typeof(timers)) malloc(num_thread_warps * sizeof(*timers));
-			cuda_assert(cudaMalloc(&timers_d, num_thread_warps * sizeof(*timers_d)));
-			cuda_assert(cudaMemset(timers_d, UINT_MAX, num_thread_warps * sizeof(*timers_d)));   // UINT_MAX because it takes an integer type for the BYTE values.
-		#endif
-
+		cuda_assert(cudaMemcpy(row_ptr_d, row_ptr_h, (m+1) * sizeof(*row_ptr_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(row_cluster_ptr_d, row_cluster_ptr_h, (num_row_clusters+1) * sizeof(*row_cluster_ptr_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(ja_d, ja_h, nnz_extended * sizeof(*ja_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(a_d, a_h, nnz_extended * sizeof(*a_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(thread_warp_i_s_d, thread_warp_i_s, num_thread_warps_csr * sizeof(*thread_warp_i_s_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(thread_warp_i_e_d, thread_warp_i_e, num_thread_warps_csr * sizeof(*thread_warp_i_e_d), cudaMemcpyHostToDevice));
 	}
 
 	~SELLArrays()
@@ -841,7 +1195,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 	struct SELLArrays * csr = new SELLArrays(row_ptr, col_ind, values, m, n, nnz);
 	// for (long i=0;i<10;i++)
 		// printf("%d\n", row_ptr[i]);
-	csr->mem_footprint = csr->nnz_extended * (sizeof(ValueType) + sizeof(INT_T)) + (csr->m+1) * sizeof(INT_T);
+	csr->mem_footprint = csr->nnz_extended * (sizeof(ValueTypeStored) + sizeof(INT_T)) + (csr->m+1) * sizeof(INT_T);
 	char *format_name;
 	format_name = (char *)malloc(100*sizeof(char));
 	snprintf(format_name, 100, "Custom_CSR_CUDA_sell_sorted_hybrid_b%d", BLOCK_SIZE);
@@ -928,7 +1282,7 @@ reduce_warp_single_row(group_t g, T val)
 template <const int nnz_per_thread>
 __device__
 void
-spmv_csr(const int tid, INT_T crossover_row, INT_T crossover_offset, INT_T * thread_warp_i_s, INT_T * ja, ValueType * a, INT_T m, INT_T n, INT_T nnz, ValueType * restrict x, ValueType * restrict y)
+spmv_csr(const int tid, INT_T crossover_row, INT_T crossover_offset, INT_T * thread_warp_i_s, INT_T * ja, ValueTypeStored * a, INT_T m, INT_T n, INT_T nnz, ValueType * restrict x, ValueType * restrict y)
 {
 	const int tid_csr = tid - crossover_row;
 	extern __shared__ char sm[];
@@ -980,7 +1334,7 @@ spmv_csr(const int tid, INT_T crossover_row, INT_T crossover_offset, INT_T * thr
 
 __device__
 void
-spmv_sell(const int tid, INT_T * row_cluster_ptr, INT_T * ja, ValueType * a, INT_T m, INT_T n, INT_T nnz, ValueType * restrict x, ValueType * restrict y)
+spmv_sell(const int tid, INT_T * row_cluster_ptr, INT_T * ja, ValueTypeStored * a, INT_T m, INT_T n, INT_T nnz, ValueType * restrict x, ValueType * restrict y)
 {
 	extern __shared__ char sm[];
 	thread_block_tile<32> g = tiled_partition<32>(this_thread_block());
@@ -1000,64 +1354,20 @@ spmv_sell(const int tid, INT_T * row_cluster_ptr, INT_T * ja, ValueType * a, INT
 }
 
 
-__device__
-__forceinline__
-uint64_t
-globaltimer()
-{
-	uint64_t t;
-	asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(t));
-	return t;
-}
-
-
 __global__
 void
 gpu_kernel_sell_sorted(INT_T crossover_row, INT_T crossover_offset,
 		INT_T * thread_warp_i_s,
-		INT_T * row_cluster_ptr, INT_T * ja, ValueType * a, INT_T m, INT_T n, INT_T nnz, ValueType * restrict x, ValueType * restrict y,
-		unsigned long long * timers)
+		INT_T * row_cluster_ptr, INT_T * ja, ValueTypeStored * a, INT_T m, INT_T n, INT_T nnz, ValueType * restrict x, ValueType * restrict y)
 {
 	const int tid = cuda_get_thread_num_bc();
 	// const int tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
-
-	#if GPU_TIMERS == 1
-		thread_block_tile<32> g = tiled_partition<32>(this_thread_block());
-		const int tidw = tid % 32;
-		const int wid = tid / 32;
-		unsigned long long ts, te, dt;
-		g.sync();
-		if (tidw == 0)
-			ts = clock64();
-	#endif
-
 	if (tid < crossover_row)
 		spmv_sell(tid, row_cluster_ptr, ja, a, m, n, nnz, x, y);
 	else
 	{
 		spmv_csr<NNZ_PER_THREAD>(tid, crossover_row, crossover_offset, thread_warp_i_s, ja, a, m, n, nnz, x, y);
 	}
-
-	#if GPU_TIMERS == 1
-		g.sync();
-		if (tidw == 0)
-		{
-			te = clock64();
-			dt = te - ts;
-			if (dt < timers[wid])
-				timers[wid] = dt;
-			// uint64_t c0 = clock64();
-			// uint64_t t0 = globaltimer();
-			// volatile int tmp = 0;
-			// for (long i=0;i<100;i++)
-				// tmp++;
-			// uint64_t c1 = clock64();
-			// uint64_t t1 = globaltimer();
-			// double freq = (c1 - c0) / ((double) (t1 - t0));
-			// if (wid % 1000 == 0)
-				// printf("%d: freq=%g\n", wid, freq);
-		}
-	#endif
 }
 
 
@@ -1080,8 +1390,7 @@ compute_sell_sorted(SELLArrays * restrict csr, ValueType * restrict x, ValueType
 		cuda_assert(cudaMemcpy(csr->x_d, csr->x_h, csr->n * sizeof(*csr->x_d), cudaMemcpyHostToDevice));
 	}
 
-	if (csr->m - csr->crossover_row > 0)
-		cuda_assert(cudaMemset(&csr->y_d[csr->crossover_row], 0, (csr->m - csr->crossover_row) * sizeof(csr->y_d)));
+	cudaMemset(&csr->y_d[csr->crossover_row], 0, (csr->m - csr->crossover_row) * sizeof(csr->y_d));
 
 	// cudaFuncCachePreferNone:   no preference for shared memory or L1 (default);
 	// cudaFuncCachePreferShared: prefer larger shared memory and smaller L1 cache;
@@ -1091,7 +1400,7 @@ compute_sell_sorted(SELLArrays * restrict csr, ValueType * restrict x, ValueType
 	gpu_kernel_sell_sorted<<<grid_dims, block_dims, shared_mem_size>>>(
 			csr->crossover_row, csr->row_ptr_h[csr->crossover_row],
 			csr->thread_warp_i_s_d,
-			csr->row_cluster_ptr_d, csr->ja_d, csr->a_d, csr->m, csr->n, csr->nnz_extended, csr->x_d, csr->y_d, csr->timers_d);
+			csr->row_cluster_ptr_d, csr->ja_d, csr->a_d, csr->m, csr->n, csr->nnz_extended, csr->x_d, csr->y_d);
 	cuda_assert(cudaPeekAtLastError());
 	cuda_assert(cudaDeviceSynchronize());
 
@@ -1125,59 +1434,15 @@ SELLArrays::statistics_start()
 
 
 int
-statistics_print_labels(char * buf, long buf_n)
+statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
-	long i = 0;
-	i += snprintf(buf+i, buf_n-i, ",nnz_sell");
-	i += snprintf(buf+i, buf_n-i, ",nnz_csr");
-	return i;
+	return 0;
 }
 
 
 int
-SELLArrays::statistics_print_data(char * buf, long buf_n)
+SELLArrays::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
-	long i = 0;
-	i += snprintf(buf+i, buf_n-i, ",%ld", nnz_sell);
-	i += snprintf(buf+i, buf_n-i, ",%ld", nnz_csr);
-
-	#if GPU_TIMERS
-	{
-		long fig_name_n = 1000;
-		char fig_name[fig_name_n];
-		long j;
-
-		cuda_assert(cudaMemcpy(timers, timers_d, num_thread_warps * sizeof(*timers_d), cudaMemcpyDeviceToHost));
-
-		snprintf(fig_name, fig_name_n, "figures/%s_warp_cycles.png", filename_base);
-
-		long x_num_pixels = 1080, y_num_pixels = 1080;
-		struct Figure_Series * s;
-		__attribute__((cleanup(figure_destroy))) struct Figure * fig = (typeof(fig)) malloc(sizeof(*fig));
-		figure_init(fig, x_num_pixels, y_num_pixels);
-		{
-			s = figure_add_series(fig, timers, NULL, NULL, num_thread_warps, 0, ull_to_double, NULL, NULL);
-		}
-		int hor_line[x_num_pixels];
-		int cross_line_y = y_num_pixels * crossover_row / m;
-		{
-			for (j=0;j<x_num_pixels;j++)
-				hor_line[j] = cross_line_y;
-			s = figure_add_series(fig, NULL, hor_line, NULL, x_num_pixels, 0, NULL, int_to_double, NULL);
-			figure_series_type_pixel_coords(s);
-			figure_series_set_color(s, -1, 0, 0);
-		}
-		figure_set_bounds_x_min(fig, 0);
-		figure_axes_flip_y(fig);
-		figure_enable_legend(fig);
-		figure_set_title(fig, "warp run times (cycles)");
-		figure_plot(fig);
-		figure_save(fig, fig_name);
-
-		// printf("timer[0] = %llu\n", timers[0]);
-	}
-	#endif
-
-	return i;
+	return 0;
 }
 

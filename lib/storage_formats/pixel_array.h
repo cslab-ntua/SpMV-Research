@@ -47,8 +47,8 @@ pixel_array_init(struct Pixel_Array * pa, int width, int height, int max_value)
 	pa->width = width;
 	pa->height = height;
 	pa->max_value = max_value;
-	pa->pixels = malloc(width * height * pixel_size);
-	pa->locks = malloc(width * height * sizeof(*(pa->locks)));
+	pa->pixels = (typeof(pa->pixels)) malloc(width * height * pixel_size);
+	pa->locks = (typeof(pa->locks)) malloc(width * height * sizeof(*(pa->locks)));
 }
 
 
@@ -140,7 +140,7 @@ pixel_array_try_lock_pixel(struct Pixel_Array * pa, long pos)
 do {                                                          \
 	_Pragma("omp parallel")                               \
 	{                                                     \
-		T * pixels = pa->pixels;                      \
+		T * pixels = (typeof(pixels)) pa->pixels;     \
 		T * p;                                        \
 		int i, j, pix_pos;                            \
 		_Pragma("omp for")                            \

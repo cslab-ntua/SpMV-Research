@@ -682,6 +682,8 @@ progs=(
     # ['csr_cuda_div_nv_d']="${script_dir}/src/spmv_cuda_div_nv_d.exe" # BENCH_GPU
     # ['cuda_sell_sorted_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_nv_d.exe"
     ['cuda_sell_sorted_hybrid_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_hybrid_nv_d.exe"
+    # ['cuda_sell_sorted_hybrid_test_csr_only_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_hybrid_test_csr_only_nv_d.exe"
+    # ['cuda_sell_sorted_hybrid_test_sell_only_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_hybrid_test_sell_only_nv_d.exe"
 
 
     # ['csr_cuda_vector_b256_nv_d']="${script_dir}/src/spmv_csr_cuda_vector_b256_nv_d.exe"

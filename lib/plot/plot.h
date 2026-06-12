@@ -67,19 +67,22 @@ struct Figure_Series {
 	// Occurence density map.
 	int type_density_map;
 
-	// Histogram.
+	// Type: Histogram.
 	int type_histogram;
 	long histogram_num_bins;
 
-	// Barplot.
+	// Type: Barplot.
 	int type_barplot;
 	double barplot_bar_width_fraction;
 	double barplot_max_bar_width;
 	double barplot_bar_width;
 
-	// Bounded median curve.
+	// Type: Bounded median curve.
 	int type_bounded_median_curve;
 	int bounded_median_curve_axis;
+
+	// Type: Pixel coordinates.
+	int type_pixel_coords;
 
 	int deallocate_data;     // Whether to free x, y, z at destructor.
 };
@@ -94,8 +97,10 @@ struct Figure {
 	int axes_flip_x;
 	int axes_flip_y;
 
-	int custom_bounds_x;
-	int custom_bounds_y;
+	int custom_bounds_x_min;
+	int custom_bounds_x_max;
+	int custom_bounds_y_min;
+	int custom_bounds_y_max;
 	double x_min;
 	double x_max;
 	double y_min;
@@ -141,7 +146,11 @@ void figure_series_set_name(struct Figure_Series * s, const char * name);
 void figure_axes_flip_x(struct Figure * fig);
 void figure_axes_flip_y(struct Figure * fig);
 void figure_set_bounds_x(struct Figure * fig, double min, double max);   // Bounds are inclusive.
+void figure_set_bounds_x_min(struct Figure * fig, double min);           // Bounds are inclusive.
+void figure_set_bounds_x_max(struct Figure * fig, double max);           // Bounds are inclusive.
 void figure_set_bounds_y(struct Figure * fig, double min, double max);   // Bounds are inclusive.
+void figure_set_bounds_y_min(struct Figure * fig, double min);           // Bounds are inclusive.
+void figure_set_bounds_y_max(struct Figure * fig, double max);           // Bounds are inclusive.
 
 // Color
 void figure_series_set_color(struct Figure_Series * s, int16_t r, int16_t g, int16_t b);
@@ -178,6 +187,8 @@ do {                                                                            
 } while (0)
 
 void figure_series_type_bounded_median_curve(struct Figure_Series * s, int axis);
+
+void figure_series_type_pixel_coords(struct Figure_Series * s);
 
 
 // Simple Plot

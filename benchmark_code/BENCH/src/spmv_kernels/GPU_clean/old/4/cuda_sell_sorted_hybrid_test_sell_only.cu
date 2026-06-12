@@ -23,10 +23,6 @@
 #define NNZ_PER_THREAD  5
 
 
-#define GPU_TIMERS  0
-// #define GPU_TIMERS  1
-
-
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -37,8 +33,6 @@ extern "C"{
 	#include "bit_ops.h"
 	#include "bitstream.h"
 	#include "hash/hash.h"
-	#include "string_util.h"
-	#include "plot/plot.h"
 
 	#include "aux/csr_converter.h"
 	#include "aux/csr_util.h"
@@ -57,20 +51,6 @@ extern "C"{
 	row_ptr_to_degree_double(void * A, long i)
 	{
 		return (double) (((INT_T *) A)[i+1] - ((INT_T *) A)[i]);
-	}
-
-	static inline
-	double
-	ull_to_double(void * A, long i)
-	{
-		return (double) ((unsigned long long *) A)[i];
-	}
-
-	static inline
-	double
-	int_to_double(void * A, long i)
-	{
-		return (double) ((int *) A)[i];
 	}
 
 	#include "functools/functools_gen_push.h"
@@ -306,8 +286,6 @@ sort_sell_warp_columns(INT_T i, INT_T * row_ptr, INT_T * ja, ValueType * a, __at
 
 struct SELLArrays : Matrix_Format
 {
-	char * filename_base;
-
 	long crossover_row;   // A row index in the SORTED matrix, where we change from SELL to CSR. Multiple of BLOCK_SIZE.
 	long nnz_per_thread;
 	long nnz_per_block;
@@ -346,7 +324,6 @@ struct SELLArrays : Matrix_Format
 	int num_threads;
 	int num_threads_sell;
 	int num_threads_csr;
-	int num_thread_warps;
 	int num_thread_warps_sell;
 	int num_thread_warps_csr;
 	int num_thread_blocks;
@@ -355,8 +332,6 @@ struct SELLArrays : Matrix_Format
 
 	INT_T * row_permutation = NULL;
 
-	unsigned long long * timers;
-	unsigned long long * timers_d;
 
 	SELLArrays(INT_T * row_ptr, INT_T * ja, ValueTypeReference * a_ref, long m, long n, long nnz) : Matrix_Format(m, n, nnz)
 	{
@@ -367,18 +342,8 @@ struct SELLArrays : Matrix_Format
 		double time;
 		long i;
 
-		const long cache_line_size = 128;
-		// const long cache_line_size = 64;
-
-		long buf_n = 1000;
-		char buf[buf_n];
-		char * file_in = getenv("MATRIX_NAME");
-		__attribute__((cleanup(cleanup_free))) char * path=NULL, * filename=NULL;
-		str_path_split_path(file_in, strlen(file_in) + 1, buf, buf_n, &path, &filename);
-		path = strdup(path);
-		filename = strdup(filename);
-		str_path_split_ext(filename, strlen(filename) + 1, buf, buf_n, &filename_base, NULL);
-		filename_base = strdup(filename_base);
+		long cache_line_size = 128;
+		// long cache_line_size = 64;
 
 		time = time_it(1,
 			cudaFree(0);
@@ -431,11 +396,7 @@ struct SELLArrays : Matrix_Format
 
 		/* Sort rows. */
 		time = time_it(1,
-			long fig_name_base_n = 1000;
-			char fig_name_base[fig_name_base_n];
-
-			snprintf(fig_name_base, fig_name_base_n, "figures/%s", filename_base);
-			csr_plot(fig_name_base, row_ptr, ja, a, m, n, nnz, enable_legend, num_pixels_x, num_pixels_y);
+			// csr_plot("matrix", row_ptr, ja, a, m, n, nnz, enable_legend, num_pixels_x, num_pixels_y);
 
 			INT_T * reverse_row_permutation = (typeof(reverse_row_permutation)) malloc(m * sizeof(*reverse_row_permutation));
 			row_permutation = (typeof(row_permutation)) malloc(m * sizeof(*row_permutation));
@@ -579,8 +540,7 @@ struct SELLArrays : Matrix_Format
 
 			free(reverse_row_permutation);
 
-			snprintf(fig_name_base, fig_name_base_n, "figures/%s_reordered", filename_base);
-			csr_plot(fig_name_base, row_ptr_h, ja_h, a_h, m, n, nnz, enable_legend, num_pixels_x, num_pixels_y);
+			// csr_plot("matrix_reordered", row_ptr_h, ja_h, a_h, m, n, nnz, enable_legend, num_pixels_x, num_pixels_y);
 		);
 		printf("time sort rows = %g\n", time);
 
@@ -724,7 +684,6 @@ struct SELLArrays : Matrix_Format
 		num_thread_blocks = num_threads / BLOCK_SIZE;
 		num_thread_blocks_sell = num_threads_sell / BLOCK_SIZE;
 		num_thread_blocks_csr = num_threads_csr / BLOCK_SIZE;
-		num_thread_warps = num_threads / 32;
 		num_thread_warps_sell = num_threads_sell / 32;
 		num_thread_warps_csr = num_threads_csr / 32;
 		printf("num_threads=%d, thread_block_size=%d, num_thread_blocks=%d\n", num_threads, BLOCK_SIZE, num_thread_blocks);
@@ -792,13 +751,6 @@ struct SELLArrays : Matrix_Format
 			cuda_assert(cudaMemcpy(thread_warp_i_e_d, thread_warp_i_e, num_thread_warps_csr * sizeof(*thread_warp_i_e_d), cudaMemcpyHostToDevice));
 		);
 		printf("time cudaMemcpy = %g\n", time);
-
-		#if GPU_TIMERS
-			timers = (typeof(timers)) malloc(num_thread_warps * sizeof(*timers));
-			cuda_assert(cudaMalloc(&timers_d, num_thread_warps * sizeof(*timers_d)));
-			cuda_assert(cudaMemset(timers_d, UINT_MAX, num_thread_warps * sizeof(*timers_d)));   // UINT_MAX because it takes an integer type for the BYTE values.
-		#endif
-
 	}
 
 	~SELLArrays()
@@ -1000,64 +952,20 @@ spmv_sell(const int tid, INT_T * row_cluster_ptr, INT_T * ja, ValueType * a, INT
 }
 
 
-__device__
-__forceinline__
-uint64_t
-globaltimer()
-{
-	uint64_t t;
-	asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(t));
-	return t;
-}
-
-
 __global__
 void
 gpu_kernel_sell_sorted(INT_T crossover_row, INT_T crossover_offset,
 		INT_T * thread_warp_i_s,
-		INT_T * row_cluster_ptr, INT_T * ja, ValueType * a, INT_T m, INT_T n, INT_T nnz, ValueType * restrict x, ValueType * restrict y,
-		unsigned long long * timers)
+		INT_T * row_cluster_ptr, INT_T * ja, ValueType * a, INT_T m, INT_T n, INT_T nnz, ValueType * restrict x, ValueType * restrict y)
 {
 	const int tid = cuda_get_thread_num_bc();
 	// const int tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
-
-	#if GPU_TIMERS == 1
-		thread_block_tile<32> g = tiled_partition<32>(this_thread_block());
-		const int tidw = tid % 32;
-		const int wid = tid / 32;
-		unsigned long long ts, te, dt;
-		g.sync();
-		if (tidw == 0)
-			ts = clock64();
-	#endif
-
-	if (tid < crossover_row)
+	// if (tid < crossover_row)
 		spmv_sell(tid, row_cluster_ptr, ja, a, m, n, nnz, x, y);
-	else
-	{
-		spmv_csr<NNZ_PER_THREAD>(tid, crossover_row, crossover_offset, thread_warp_i_s, ja, a, m, n, nnz, x, y);
-	}
-
-	#if GPU_TIMERS == 1
-		g.sync();
-		if (tidw == 0)
-		{
-			te = clock64();
-			dt = te - ts;
-			if (dt < timers[wid])
-				timers[wid] = dt;
-			// uint64_t c0 = clock64();
-			// uint64_t t0 = globaltimer();
-			// volatile int tmp = 0;
-			// for (long i=0;i<100;i++)
-				// tmp++;
-			// uint64_t c1 = clock64();
-			// uint64_t t1 = globaltimer();
-			// double freq = (c1 - c0) / ((double) (t1 - t0));
-			// if (wid % 1000 == 0)
-				// printf("%d: freq=%g\n", wid, freq);
-		}
-	#endif
+	// else
+	// {
+		// spmv_csr<NNZ_PER_THREAD>(tid, crossover_row, crossover_offset, thread_warp_i_s, ja, a, m, n, nnz, x, y);
+	// }
 }
 
 
@@ -1065,7 +973,10 @@ void
 compute_sell_sorted(SELLArrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
 {
 	dim3 block_dims(BLOCK_SIZE);
-	dim3 grid_dims(csr->num_thread_blocks);
+	// dim3 grid_dims(csr->num_thread_blocks);
+	dim3 grid_dims(csr->num_thread_blocks_sell);
+	if (csr->num_thread_blocks_sell == 0)
+		return;
 	long shared_mem_size = 0;
 	// shared_mem_size = BLOCK_SIZE * (sizeof(ValueType));
 	// shared_mem_size = BLOCK_SIZE * (sizeof(ValueType) + sizeof(INT_T));
@@ -1081,7 +992,7 @@ compute_sell_sorted(SELLArrays * restrict csr, ValueType * restrict x, ValueType
 	}
 
 	if (csr->m - csr->crossover_row > 0)
-		cuda_assert(cudaMemset(&csr->y_d[csr->crossover_row], 0, (csr->m - csr->crossover_row) * sizeof(csr->y_d)));
+		cudaMemset(&csr->y_d[csr->crossover_row], 0, (csr->m - csr->crossover_row) * sizeof(csr->y_d));
 
 	// cudaFuncCachePreferNone:   no preference for shared memory or L1 (default);
 	// cudaFuncCachePreferShared: prefer larger shared memory and smaller L1 cache;
@@ -1091,7 +1002,7 @@ compute_sell_sorted(SELLArrays * restrict csr, ValueType * restrict x, ValueType
 	gpu_kernel_sell_sorted<<<grid_dims, block_dims, shared_mem_size>>>(
 			csr->crossover_row, csr->row_ptr_h[csr->crossover_row],
 			csr->thread_warp_i_s_d,
-			csr->row_cluster_ptr_d, csr->ja_d, csr->a_d, csr->m, csr->n, csr->nnz_extended, csr->x_d, csr->y_d, csr->timers_d);
+			csr->row_cluster_ptr_d, csr->ja_d, csr->a_d, csr->m, csr->n, csr->nnz_extended, csr->x_d, csr->y_d);
 	cuda_assert(cudaPeekAtLastError());
 	cuda_assert(cudaDeviceSynchronize());
 
@@ -1140,44 +1051,6 @@ SELLArrays::statistics_print_data(char * buf, long buf_n)
 	long i = 0;
 	i += snprintf(buf+i, buf_n-i, ",%ld", nnz_sell);
 	i += snprintf(buf+i, buf_n-i, ",%ld", nnz_csr);
-
-	#if GPU_TIMERS
-	{
-		long fig_name_n = 1000;
-		char fig_name[fig_name_n];
-		long j;
-
-		cuda_assert(cudaMemcpy(timers, timers_d, num_thread_warps * sizeof(*timers_d), cudaMemcpyDeviceToHost));
-
-		snprintf(fig_name, fig_name_n, "figures/%s_warp_cycles.png", filename_base);
-
-		long x_num_pixels = 1080, y_num_pixels = 1080;
-		struct Figure_Series * s;
-		__attribute__((cleanup(figure_destroy))) struct Figure * fig = (typeof(fig)) malloc(sizeof(*fig));
-		figure_init(fig, x_num_pixels, y_num_pixels);
-		{
-			s = figure_add_series(fig, timers, NULL, NULL, num_thread_warps, 0, ull_to_double, NULL, NULL);
-		}
-		int hor_line[x_num_pixels];
-		int cross_line_y = y_num_pixels * crossover_row / m;
-		{
-			for (j=0;j<x_num_pixels;j++)
-				hor_line[j] = cross_line_y;
-			s = figure_add_series(fig, NULL, hor_line, NULL, x_num_pixels, 0, NULL, int_to_double, NULL);
-			figure_series_type_pixel_coords(s);
-			figure_series_set_color(s, -1, 0, 0);
-		}
-		figure_set_bounds_x_min(fig, 0);
-		figure_axes_flip_y(fig);
-		figure_enable_legend(fig);
-		figure_set_title(fig, "warp run times (cycles)");
-		figure_plot(fig);
-		figure_save(fig, fig_name);
-
-		// printf("timer[0] = %llu\n", timers[0]);
-	}
-	#endif
-
 	return i;
 }
 

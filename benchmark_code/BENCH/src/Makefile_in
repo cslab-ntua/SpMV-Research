@@ -202,6 +202,10 @@ spmv_cuda_sell_sorted$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 spmv_cuda_sell_sorted_hybrid$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted_hybrid.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+spmv_cuda_sell_sorted_hybrid_test_csr_only$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted_hybrid_test_csr_only.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
+spmv_cuda_sell_sorted_hybrid_test_sell_only$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted_hybrid_test_sell_only.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 
 spmv_cuda_csr_t${NUM_THREADS}$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_naive.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) -DNUM_THREADS=${NUM_THREADS} --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)

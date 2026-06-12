@@ -153,6 +153,11 @@ add_legend(struct Figure * fig, char * filename)
 	double text_dl = fig->x_min;
 	double text_dr = fig->x_max;
 	char * percentage_sign_x = fig->legend_conf.x_in_percentages ? "%" : "";
+	if (fig->axes_flip_x)
+	{
+		text_dl = fig->x_max;
+		text_dr = fig->x_min;
+	}
 	i += snprintf(cmd+i, cmd_n-i, " -gravity southwest");
 	i += snprintf(cmd+i, cmd_n-i, " -draw \"text %d,%d '%g%s'\"", label_dl_x, label_d_y, text_dl, percentage_sign_x);
 	i += snprintf(cmd+i, cmd_n-i, " -gravity southeast");
