@@ -144,7 +144,7 @@ matrices_validation=(
     # appu
     # mc2depi
     # rma10
-    # cop20k_A
+    cop20k_A
     # thermomech_dK
     # webbase-1M
     # cant
@@ -260,7 +260,7 @@ matrices_validation=(
     # kron_g500-logn19
     # spal_004
     # wikipedia-20070206
-    ldoor
+    # ldoor
     # dielFilterV2real
     # delaunay_n23
     # af_shell10

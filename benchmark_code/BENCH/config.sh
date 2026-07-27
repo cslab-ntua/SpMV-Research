@@ -123,7 +123,8 @@ conf_vars=(
     # ['PLOT_MATRIX']=1
 
     # CG benchmarks: maximum number of iterations.
-    ['CG_MAX_NUM_ITERS']='50'
+    # ['CG_MAX_NUM_ITERS']='50'
+    ['CG_MAX_NUM_ITERS']='200'
     # ['CG_MAX_NUM_ITERS']='10 20 30 40 50 100 500 1000'
 
     # Value compression error tolerance.

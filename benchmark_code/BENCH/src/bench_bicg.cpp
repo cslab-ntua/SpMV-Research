@@ -318,7 +318,7 @@ preconditioned_bicgstab(
 			// break;
 
 		// printf("k = %-10ld error = %-12.4g error_best = %-12.4g stop_counter = %ld\n", k, err, err_best, stop_counter);
-		printf("k = %-10ld error = %-12.4g error_explicit = %-12.4g error_best = %-12.4g\n", k, err, err_explicit, err_best);
+		// printf("k = %-10ld error = %-12.4g error_explicit = %-12.4g error_best = %-12.4g\n", k, err, err_explicit, err_best);
 		// print_vector_summary(xk, m);
 		// printf("\n");
 
@@ -567,8 +567,6 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 
 	}
 
-	gflops = csr->nnz_matrix / (time_spmv_out / num_loops_out / 2) * 2 * 1e-9;
-
 	if (print_labels_and_exit)
 	{
 		i = 0;
@@ -598,6 +596,10 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		fprintf(stderr, "%s\n", buf);
 		return;
 	}
+
+	gflops = csr->nnz_matrix / (time_spmv_out / num_loops_out / 2) * 2 * 1e-9;
+	printf("GFLOPS = %lf (%s)\n", gflops, getenv("PROGG"));
+
 	i = 0;
 	i += snprintf(buf + i, buf_n - i, "%s", csr->matrix_name);
 	i += snprintf(buf + i, buf_n - i, ",%d", omp_get_max_threads());
