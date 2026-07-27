@@ -33,7 +33,6 @@ extern "C"{
 	#include "macros/macrolib.h"
 	#include "time_it.h"
 	#include "parallel_util.h"
-	#include "omp_functions.h"
 	#include "array_metrics.h"
 	#include "bit_ops.h"
 	#include "bitstream.h"
@@ -45,13 +44,6 @@ extern "C"{
 	#include "aux/csr_util.h"
 
 	#include "cuda/cuda_util.h"
-
-	static inline
-	long
-	reduce_add_long(long a, long b)
-	{
-		return a + b;
-	}
 
 	// static inline
 	// double
@@ -244,11 +236,10 @@ row_is_above_crossover(INT_T degree, long m, __attribute__((unused)) long nnz, i
 }
 
 
-/* We assume NON-EMPTY rows.
- * Returns -1 if not even with 1 nnz per thread a warp fits. */
+/* We assume NON-EMPTY rows. */
 inline
 long
-find_optimal_nnz_per_thread(long i_s, long j_s, long j_last, INT_T * row_ptr, long m,
+find_optimal_nnz_per_thread(long i_s, long j_s, INT_T * row_ptr, long m, long j_last,
 		long * i_e_out)
 {
 	const long npt_min = 4;
@@ -259,7 +250,7 @@ find_optimal_nnz_per_thread(long i_s, long j_s, long j_last, INT_T * row_ptr, lo
 	if (i_e_out == NULL)
 		error("i_e_out == NULL");
 	*i_e_out = i_s;
-	while (j_s + 32 * npt_min > j_last)   // For last warps relax npt_min.
+	while (j_s + 32 * npt_min > j_last)   // For last warp relax npt_min.
 	{
 		npt_min--;
 		if (npt_min <= 0)
@@ -374,6 +365,7 @@ struct SELLArrays : Matrix_Format
 
 	long crossover_row;   // A row index in the SORTED matrix, where we change from SELL to CSR. Multiple of BLOCK_SIZE.
 	long nnz_per_thread;
+	long nnz_per_block;
 	long nnz_per_warp;
 
 	long num_row_clusters;
@@ -387,10 +379,10 @@ struct SELLArrays : Matrix_Format
 	INT_T * row_cluster_ptr_h;
 	INT_T * ja_h;
 	ValueType * a_h;
-	short * thread_warp_npt = NULL;
 	INT_T * thread_warp_i_s = NULL;
 	INT_T * thread_warp_i_e = NULL;
 	INT_T * thread_warp_j_s = NULL;
+	INT_T * thread_warp_j_e = NULL;
 	warp_coords_t * thread_warp_coords = NULL;
 
 	INT_T * row_ptr_d;
@@ -469,6 +461,7 @@ struct SELLArrays : Matrix_Format
 			a[i] = (ValueType) a_ref[i];
 
 		nnz_per_thread = NNZ_PER_THREAD;
+		nnz_per_block = nnz_per_thread * BLOCK_SIZE;
 		nnz_per_warp = nnz_per_thread * 32;
 
 		thread_block_size = BLOCK_SIZE;
@@ -678,7 +671,7 @@ struct SELLArrays : Matrix_Format
 
 		/* Extend SELL row clusters to local max row. 
 		 * Transpose row clusters.
-		 * Find 'nnz_per_thread' for each CSR warp and extend CSR rows to multiples of the local 'nnz_per_thread'.
+		 * Extend CSR rows to multiples of 'nnz_per_thread'.
 		 * Extend last row so that CSR has multiple of BLOCK_SIZE number of threads,
 		 * i.e., CSR has multiple of 'nnz_per_thread * BLOCK_SIZE' nonzeros.
 		 */
@@ -686,7 +679,6 @@ struct SELLArrays : Matrix_Format
 			INT_T * row_ptr_h_new = (typeof(row_ptr_h_new)) malloc((m+1) * sizeof(*row_ptr_h_new));
 			INT_T * ja_h_new;
 			ValueType * a_h_new;
-			num_thread_warps_csr = 0;
 			_Pragma("omp parallel")
 			{
 				long tnum = omp_get_thread_num();
@@ -694,8 +686,6 @@ struct SELLArrays : Matrix_Format
 				long degree;
 				long degree_cluster_max;
 				long num_thread_warps_csr_t = 0;
-				short * thread_warp_npt_t = NULL;
-				long npt, npb;
 				_Pragma("omp for")
 				for (i=0;i<crossover_row;i+=32)
 				{
@@ -712,14 +702,12 @@ struct SELLArrays : Matrix_Format
 				loop_partitioner_balance_prefix_sums(num_threads_cpu, tnum, &row_ptr_h[crossover_row], m-crossover_row, row_ptr_h[m] - row_ptr_h[crossover_row], &i_s, &i_e);
 				i_s += crossover_row;
 				i_e += crossover_row;
+				long npt;
 				j_s = row_ptr_h[i_s];
-				j_e = row_ptr_h[i_e];
 				num_thread_warps_csr_t = 0;
-				thread_warp_npt_t = (typeof(thread_warp_npt_t) *) malloc((j_e - j_s) * sizeof(*thread_warp_npt_t));   // Worst case 1 nnz per thread.
-				i = i_s;
-				while (1)
+				for (i=i_s;i<i_e;)
 				{
-					npt = find_optimal_nnz_per_thread(i, j_s, j_e, row_ptr_h, m, &i_next);   // Non-empty rows.
+					npt = find_optimal_nnz_per_thread(i, j_s, row_ptr_h, m, nnz, &i_next);   // Non-empty rows.
 					if (npt < 0)
 						break;
 					for (;i<i_next;i++)
@@ -729,85 +717,37 @@ struct SELLArrays : Matrix_Format
 						row_ptr_h_new[i] = degree;
 					}
 					j_s += 32 * npt;
-					thread_warp_npt_t[num_thread_warps_csr_t] = npt;
-					num_thread_warps_csr_t++;
+					thread_warp_npt[num_warps_t] = npt;
+					num_warps_t++;
 				}
-				long nnz_left = j_e - j_s;
-				if (nnz_left > 0)   // Extend last private row to fill last private warp.
+				if (j_s < row_ptr_h[i_e])
 				{
-					if (nnz_left >= 32)
-						error("nnz_left=%ld >= 32", nnz_left);
-					npt = 1;
-					thread_warp_npt_t[num_thread_warps_csr_t] = npt;
-					num_thread_warps_csr_t++;
-					degree = row_ptr_h[i_e] - row_ptr_h[i_e-1];
-					degree += nnz_left;
-					row_ptr_h_new[i] = degree;
+					long nnz_left = row_ptr_h[i_e] - row_ptr_h[i];
+					npt = (nnz_left + 31) / 32;
+					thread_warp_npt[num_warps_t] = npt;
+					num_warps_t++;
+					for (;i<i_next;i++)
+					{
+						degree = row_ptr_h[i+1] - row_ptr_h[i];
+						degree = npt * ((degree + npt - 1) / npt);
+						row_ptr_h_new[i] = degree;
+					}
 				}
-				long offset = 0;
-				omp_thread_reduce_global(reduce_add_long, num_thread_warps_csr_t, zero, 1, backwards, &offset, &num_thread_warps_csr);
 				_Pragma("omp single")
 				{
 					row_ptr_h_new[m] = 0;
-					thread_warp_npt = (typeof(thread_warp_npt)) malloc(num_thread_warps_csr * sizeof(*thread_warp_npt));
-					thread_warp_i_s = (typeof(thread_warp_i_s)) malloc(num_thread_warps_csr * sizeof(*thread_warp_i_s));
-					thread_warp_i_e = (typeof(thread_warp_i_e)) malloc(num_thread_warps_csr * sizeof(*thread_warp_i_e));
-					thread_warp_j_s = (typeof(thread_warp_j_s)) malloc((num_thread_warps_csr+1) * sizeof(*thread_warp_j_s));
-					thread_warp_coords = (warp_coords_t *) malloc((num_thread_warps_csr+1) * sizeof(*thread_warp_coords));
 				}
-				for (i=0;i<num_thread_warps_csr_t;i++)
-				{
-					thread_warp_npt[offset+i] = thread_warp_npt_t[i];
-					thread_warp_j_s[offset+i] = 32 * thread_warp_npt_t[i];
-				}
-				free(thread_warp_npt_t);
 				scan_reduce_concurrent(row_ptr_h_new, row_ptr_h_new, m+1, 0, 1, 0);
 				_Pragma("omp single")
 				{
 					nnz_extended = row_ptr_h_new[m];
 					nnz_sell = row_ptr_h_new[crossover_row];
 					nnz_csr = nnz_extended - nnz_sell;
-
-					// Extend last row to fill last thread block.
-					// Add warps with npt == 1.
-					nnz_csr = BLOCK_SIZE * ((nnz_csr + BLOCK_SIZE - 1) / BLOCK_SIZE);
+					nnz_csr = nnz_per_block * ((nnz_csr + nnz_per_block - 1) / nnz_per_block); // Extend last row to fill last thread block.
 					nnz_extended = nnz_sell + nnz_csr;
 					row_ptr_h_new[m] = nnz_extended;
-
 					ja_h_new = (typeof(ja_h_new)) malloc(nnz_extended * sizeof(*ja_h_new));
 					a_h_new = (typeof(a_h_new)) malloc(nnz_extended * sizeof(*a_h_new));
-
-					/* Find number of threads for each format. */
-					num_threads_csr = num_thread_warps_csr * 32;
-					num_threads_sell = crossover_row;
-					num_threads = num_threads_sell + num_threads_csr;
-					num_thread_blocks = num_threads / BLOCK_SIZE;
-					num_thread_blocks_sell = num_threads_sell / BLOCK_SIZE;
-					num_thread_blocks_csr = num_threads_csr / BLOCK_SIZE;
-					num_thread_warps = num_threads / 32;
-					num_thread_warps_sell = num_threads_sell / 32;
-					printf("num_threads=%d, thread_block_size=%d, num_thread_blocks=%d\n", num_threads, BLOCK_SIZE, num_thread_blocks);
-
-					thread_warp_j_s[0] += nnz_sell;
-					thread_warp_j_s[num_thread_warps_csr] = 0;
-				}
-				scan_reduce_concurrent(thread_warp_j_s, thread_warp_j_s, num_thread_warps_csr+1, 0, 1, 0);
-				/* Find CSR warps row boundaries. */
-				long thread_warp_j_e;
-				long lower_boundary, higher_boundary;
-				_Pragma("omp for")
-				for (i=0;i<num_thread_warps_csr;i++)
-				{
-					macros_binary_search(row_ptr_h_new, 0, m, thread_warp_j_s[i], &lower_boundary, NULL);   // Index boundaries are inclusive.
-					while (row_ptr_h_new[lower_boundary] == row_ptr_h_new[lower_boundary+1])
-						lower_boundary++;
-					thread_warp_i_s[i] = lower_boundary;
-					thread_warp_j_e = thread_warp_j_s[i] + nnz_per_warp;
-					macros_binary_search(row_ptr_h_new, 0, m, thread_warp_j_e, NULL, &higher_boundary);   // Index boundaries are inclusive.
-					while (row_ptr_h_new[higher_boundary] == row_ptr_h_new[higher_boundary+1])
-						higher_boundary--;
-					thread_warp_i_e[i] = higher_boundary;
-					thread_warp_coords[i] = { thread_warp_i_s[i], thread_warp_j_s[i] };
 				}
 				_Pragma("omp for")
 				for (i=0;i<crossover_row;i+=32)
@@ -890,6 +830,18 @@ struct SELLArrays : Matrix_Format
 		printf("time extend and transpose = %g\n", time);
 		printf("nnz=%ld, nnz_extended=%ld, nnz_sell=%ld, nnz_csr=%ld\n", nnz, nnz_extended, nnz_sell, nnz_csr);
 
+		/* Find number of threads for each format. */
+		num_threads = crossover_row + nnz_csr / nnz_per_thread;
+		num_threads_sell = crossover_row;
+		num_threads_csr = num_threads - num_threads_sell;
+		num_thread_blocks = num_threads / BLOCK_SIZE;
+		num_thread_blocks_sell = num_threads_sell / BLOCK_SIZE;
+		num_thread_blocks_csr = num_threads_csr / BLOCK_SIZE;
+		num_thread_warps = num_threads / 32;
+		num_thread_warps_sell = num_threads_sell / 32;
+		num_thread_warps_csr = num_threads_csr / 32;
+		printf("num_threads=%d, thread_block_size=%d, num_thread_blocks=%d\n", num_threads, BLOCK_SIZE, num_thread_blocks);
+
 		/* Find SELL row clusters offsets. */
 		num_row_clusters = crossover_row / 32;
 		row_cluster_ptr_h = (typeof(row_cluster_ptr_h)) malloc((num_row_clusters+1) * sizeof(*row_cluster_ptr_h));
@@ -900,6 +852,41 @@ struct SELLArrays : Matrix_Format
 				row_cluster_ptr_h[i/32] = row_ptr_h[i];
 		}
 		row_cluster_ptr_h[num_row_clusters] = row_ptr_h[crossover_row];
+
+		/* Find CSR warps row boundaries. */
+		thread_warp_i_s = (INT_T *) malloc(num_thread_warps_csr * sizeof(*thread_warp_i_s));
+		thread_warp_i_e = (INT_T *) malloc(num_thread_warps_csr * sizeof(*thread_warp_i_e));
+		thread_warp_j_s = (INT_T *) malloc(num_thread_warps_csr * sizeof(*thread_warp_j_s));
+		thread_warp_j_e = (INT_T *) malloc(num_thread_warps_csr * sizeof(*thread_warp_j_e));
+		thread_warp_coords = (warp_coords_t *) malloc((num_thread_warps_csr+1) * sizeof(*thread_warp_coords));
+		time = time_it(1,
+			_Pragma("omp parallel")
+			{
+				long lower_boundary, higher_boundary;
+				_Pragma("omp for")
+				for (i=0;i<num_thread_warps_csr;i++)
+				{
+					thread_warp_j_s[i] = nnz_sell + nnz_per_warp * i;
+
+					if (thread_warp_j_s[i] > nnz_extended)
+						thread_warp_j_s[i] = nnz_extended;
+					macros_binary_search(row_ptr_h, 0, m, thread_warp_j_s[i], &lower_boundary, NULL);           // Index boundaries are inclusive.
+					while (row_ptr_h[lower_boundary] == row_ptr_h[lower_boundary+1])
+						lower_boundary++;
+					thread_warp_i_s[i] = lower_boundary;
+					thread_warp_j_e[i] = thread_warp_j_s[i] + nnz_per_warp;
+					if (thread_warp_j_e[i] > nnz_extended)
+						thread_warp_j_e[i] = nnz_extended;
+					macros_binary_search(row_ptr_h, 0, m, thread_warp_j_e[i], NULL, &higher_boundary);           // Index boundaries are inclusive.
+					while (row_ptr_h[higher_boundary] == row_ptr_h[higher_boundary+1])
+						higher_boundary--;
+					thread_warp_i_e[i] = higher_boundary;
+					thread_warp_coords[i] = { thread_warp_i_s[i], thread_warp_j_s[i] };
+				}
+			}
+			thread_warp_coords[num_thread_warps_csr] = { 0, (INT_T) nnz_extended };
+		);
+		printf("time find warp boundaries = %g\n", time);
 
 		time = time_it(1,
 			cuda_assert(cudaMalloc(&row_ptr_d, (m+1) * sizeof(*row_ptr_d)));
@@ -975,7 +962,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 		// printf("%d\n", row_ptr[i]);
 	csr->mem_footprint = csr->nnz_extended * (sizeof(ValueType) + sizeof(INT_T)) + (csr->m+1) * sizeof(INT_T);
 	char *format_name;
-	format_name = (char *) malloc(100 * sizeof(char));
+	format_name = (char *)malloc(100*sizeof(char));
 	snprintf(format_name, 100, "Custom_CSR_CUDA_sell_sorted_hybrid_b%d", BLOCK_SIZE);
 	csr->format_name = format_name;
 	return csr;

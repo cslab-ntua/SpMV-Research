@@ -44,7 +44,7 @@ struct CSR_reference_s {
 	long m;
 	long n;
 	long nnz;           // nnz stored
-	long nnz_matrix;    // actual nnz of the matrix
+	long nnz_matrix;    // actual nnz of the matrix (e.g., all nnz for symmetric matrices)
 
 	long nnz_diag;
 	long nnz_non_diag;

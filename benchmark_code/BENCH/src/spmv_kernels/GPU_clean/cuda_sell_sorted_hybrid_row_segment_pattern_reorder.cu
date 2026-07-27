@@ -633,7 +633,7 @@ csr_row_segment_pattern_reorder(INT_T * row_ptr, INT_T * col_idx, long m, long n
 
 	samplesort(reverse_permutation, m, cmp_data);
 
-	/* INT_T * tmp_row_ptr = (typeof(tmp_row_ptr)) malloc((m+1) * sizeof(*tmp_row_ptr));
+	INT_T * tmp_row_ptr = (typeof(tmp_row_ptr)) malloc((m+1) * sizeof(*tmp_row_ptr));
 	_Pragma("omp parallel")
 	{
 		long tnum = omp_get_thread_num();
@@ -684,7 +684,7 @@ csr_row_segment_pattern_reorder(INT_T * row_ptr, INT_T * col_idx, long m, long n
 			macros_swap(&reverse_permutation[i+1], &reverse_permutation[i_crs_max]);
 		}
 	}
-	free(tmp_row_ptr); */
+	free(tmp_row_ptr);
 
 	_Pragma("omp parallel")
 	{

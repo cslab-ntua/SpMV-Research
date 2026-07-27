@@ -235,6 +235,7 @@ struct CSRArrays : Matrix_Format
 		for (long i = 0; i < nnz; i++)
 			a[i] = (ValueType) a_ref[i];
 
+		// Extend rows to multiple of nnz_per_thread.
 		row_ptr_h = (typeof(row_ptr_h)) malloc((m+1) * sizeof(*row_ptr_h));
 		_Pragma("omp parallel")
 		{
@@ -257,7 +258,7 @@ struct CSRArrays : Matrix_Format
 		scan_reduce(row_ptr_h, row_ptr_h, m+1, 0, 1, 0);
 		nnz_extended = row_ptr_h[m];
 		nnz_extended = nnz_per_block * ((nnz_extended + nnz_per_block - 1) / nnz_per_block);   // Extend nnz to multiple of BLOCK_SIZE threads, i.e., multiple of 'nnz_per_thread * BLOCK_SIZE' nonzeros.
-		row_ptr_h[m] = nnz_extended;                                                           // Put padding in last row.
+		row_ptr_h[m] = nnz_extended;                                                           // Put the padding in the last row.
 		printf("nnz_extended=%ld\n", nnz_extended);
 		ja_h = (typeof(ja_h)) malloc(nnz_extended * sizeof(*ja_h));
 		a_h = (typeof(a_h)) malloc(nnz_extended * sizeof(*a_h));

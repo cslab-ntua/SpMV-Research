@@ -450,7 +450,8 @@ fix_diagonal_zeros(struct CSR_reference_s * csr)
 		}
 
 		csr->nnz_diag += diag_nnz_missing;
-		csr->nnz += diag_nnz_missing;
+		csr->nnz += diag_nnz_missing;          // The stored nnz increase even if symmetric (diagonal).
+		csr->nnz_matrix += diag_nnz_missing;
 
 		free(csr->a_ref);
 		free(csr->ia);

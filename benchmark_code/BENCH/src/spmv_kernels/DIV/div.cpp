@@ -238,7 +238,7 @@ struct DIVArray : Matrix_Format
 		long num_threads = omp_get_max_threads();
 		long num_tasks = topotk_get_num_tasks();
 		long l3_size = topohw_get_cache_size(0, 3, TOPOHW_CT_U);
-		double time_balance;
+		__attribute__((unused)) double time, time_balance;
 		long i;
 
 		tds = (typeof(tds)) aligned_alloc(64, num_threads * sizeof(*tds));
@@ -284,7 +284,10 @@ struct DIVArray : Matrix_Format
 
 		time_compress = time_it(1,
 			const long num_packet_vals = atol(getenv("CSRCV_NUM_PACKET_VALS"));
-			compress_init_div(a, nnz, num_packet_vals);
+			// time = time_it(1,
+				compress_init_div(a, nnz, num_packet_vals);
+			// );
+			// printf("time compress_init_div=%g\n", time);
 
 			const long packet_reordering = atol(getenv("DIV_PACKET_REORDERING"));
 
@@ -357,7 +360,10 @@ struct DIVArray : Matrix_Format
 						i++;
 
 					num_vals_max = (j + num_packet_vals <= j_e) ? num_packet_vals : j_e - j;
-					compress_kernel_div(row_ptr, ja, &a[j], symmetric, i, i_s, i_e, j, packet_buf_stealable, packet_buf_protected, num_vals_max, &num_vals, &size_stealable, &size_protected);
+					// time = time_it(1,
+						compress_kernel_div(row_ptr, ja, &a[j], symmetric, i, i_s, i_e, j, packet_buf_stealable, packet_buf_protected, num_vals_max, &num_vals, &size_stealable, &size_protected);
+					// );
+					// if (tnum == 0) printf("time compress_kernel_div=%g\n", time);
 					if (size_stealable > max_packet_size)
 						error("data buffer overflow");
 					if (size_protected > max_packet_size)

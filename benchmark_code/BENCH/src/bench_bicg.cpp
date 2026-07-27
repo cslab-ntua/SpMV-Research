@@ -44,6 +44,7 @@ extern "C"{
 
 
 long num_loops_out;
+double time_spmv_out;
 
 
 // void
@@ -170,6 +171,8 @@ preconditioned_bicgstab(
 	[[gnu::cleanup(cleanup_free)]] ValueType * buf = NULL;
 
 	ValueType g_s_a, g_s_pk_p;
+
+	time_spmv_out = 0;
 
 	r0_ = (typeof(r0_)) malloc(m * sizeof(*r0_));
 	rk = (typeof(rk)) malloc(m * sizeof(*rk));
@@ -332,7 +335,9 @@ preconditioned_bicgstab(
 		}
 
 		// v = A * y
-		MF->spmv(y, v);
+		time_spmv_out += time_it(1,
+			MF->spmv(y, v);
+		);
 
 		#pragma omp parallel
 		{
@@ -363,7 +368,9 @@ preconditioned_bicgstab(
 		t = buf;
 
 		// t = A * z
-		MF->spmv(z, t);
+		time_spmv_out += time_it(1,
+			MF->spmv(z, t);
+		);
 
 		#pragma omp parallel
 		{
@@ -475,6 +482,7 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 	double J_estimated, W_avg;
 	double err;
 	ValueType * vec;
+	double gflops;
 
 	num_loops_out = 1;
 
@@ -559,6 +567,8 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 
 	}
 
+	gflops = csr->nnz_matrix / (time_spmv_out / num_loops_out / 2) * 2 * 1e-9;
+
 	if (print_labels_and_exit)
 	{
 		i = 0;
@@ -568,6 +578,8 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		i += snprintf(buf + i, buf_n - i, ",%s", "csr_n");
 		i += snprintf(buf + i, buf_n - i, ",%s", "csr_nnz");
 		i += snprintf(buf + i, buf_n - i, ",%s", "time");
+		i += snprintf(buf + i, buf_n - i, ",%s", "time_spmv");
+		i += snprintf(buf + i, buf_n - i, ",%s", "gflops_spmv");
 		i += snprintf(buf + i, buf_n - i, ",%s", "error");
 		i += snprintf(buf + i, buf_n - i, ",%s", "num_iterations");
 		i += snprintf(buf + i, buf_n - i, ",%s", "csr_mem_footprint");
@@ -593,6 +605,8 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 	i += snprintf(buf + i, buf_n - i, ",%lu", csr->n);
 	i += snprintf(buf + i, buf_n - i, ",%lu", csr->nnz);
 	i += snprintf(buf + i, buf_n - i, ",%lf", time);
+	i += snprintf(buf + i, buf_n - i, ",%lf", time_spmv_out);
+	i += snprintf(buf + i, buf_n - i, ",%lf", gflops);
 	i += snprintf(buf + i, buf_n - i, ",%g", err);
 	i += snprintf(buf + i, buf_n - i, ",%ld", num_loops_out);
 	i += snprintf(buf + i, buf_n - i, ",%lf", MF->csr_mem_footprint / (1024*1024));

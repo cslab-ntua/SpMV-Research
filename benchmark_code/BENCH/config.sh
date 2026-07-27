@@ -547,7 +547,7 @@ progs=(
     # ['cg_div_sym_local_d']="${script_dir}/src/cg_div_sym_local_d.exe"
 
     # BiCG
-    # ['bicg_mkl_ie_d']="${script_dir}/src/bicg_mkl_ie_d.exe"
+    ['bicg_mkl_ie_d']="${script_dir}/src/bicg_mkl_ie_d.exe"
     # ['bicg_div_d']="${script_dir}/src/bicg_div_d.exe"
 
     # Custom csr
@@ -681,7 +681,7 @@ progs=(
     # ['cuda_csr_lut_nv_d']="${script_dir}/src/spmv_cuda_csr_lut_nv_d.exe"
     # ['csr_cuda_div_nv_d']="${script_dir}/src/spmv_cuda_div_nv_d.exe" # BENCH_GPU
     # ['cuda_sell_sorted_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_nv_d.exe"
-    ['cuda_sell_sorted_hybrid_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_hybrid_nv_d.exe"
+    # ['cuda_sell_sorted_hybrid_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_hybrid_nv_d.exe"
     # ['cuda_sell_sorted_hybrid_test_csr_only_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_hybrid_test_csr_only_nv_d.exe"
     # ['cuda_sell_sorted_hybrid_test_sell_only_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_hybrid_test_sell_only_nv_d.exe"
 

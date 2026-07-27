@@ -577,6 +577,8 @@ compress_kernel_div(INT_T * row_ptr, INT_T * ja, ValueTypeReference * vals, __at
 	long rf;
 	long lane_id;
 
+	__attribute__((unused)) double time;
+
 	if (num_vals_out == NULL)
 		error("num_vals_out == NULL");
 
@@ -662,8 +664,11 @@ compress_kernel_div(INT_T * row_ptr, INT_T * ja, ValueTypeReference * vals, __at
 		error("col_bits > 32 (%ld)", col_bits);
 
 	/* Sort the packet values. */
-	quicksort_packed_perm(compare_data_packed, num_vals, NULL, tdk->qsort_partitions);
-	// quicksort_blocked_packed(compare_data_packed, num_vals, NULL, tdk->qsort_partitions);
+	// time = time_it(1,
+		quicksort_packed_perm(compare_data_packed, num_vals, NULL, tdk->qsort_partitions);
+		// quicksort_blocked_packed(compare_data_packed, num_vals, NULL, tdk->qsort_partitions);
+	// );
+	// if (tnum == 0) printf("time quicksort = %g\n", time);
 
 	/* Find replication factors, but keep all duplicates (needed because each one has different coordinates). */
 	// long rf_threshold_max = (1ULL<<16) - 1;
@@ -701,7 +706,10 @@ compress_kernel_div(INT_T * row_ptr, INT_T * ja, ValueTypeReference * vals, __at
 
 	/* Stable sort by replication factors. */
 	long num_buckets = max_rf + 1;
-	bucketsort_stable_recalculate_bucket_serial(window_rf, num_vals, num_buckets, NULL, permutation, offsets_rf);
+	// time = time_it(1,
+		bucketsort_stable_recalculate_bucket_serial(window_rf, num_vals, num_buckets, NULL, permutation, offsets_rf);
+	// );
+	// if (tnum == 0) printf("time bucketsort = %g\n", time);
 
 	for (k=0;k<num_vals;k++)
 	{
