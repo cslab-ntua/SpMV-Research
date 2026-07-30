@@ -556,6 +556,21 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		//=============================================================================
 		//= Output section.
 		//=============================================================================
+		// Report SpMV performance (only the 2 core SpMV calls per iteration).
+		{
+			long num_spmv_calls = 2 * num_loops_out;
+			double total_flops = 2.0 * csr->nnz * num_spmv_calls;
+			double spmv_gflops = total_flops / (time_spmv_out * 1e9);
+
+			// Working set: matrix (row_ptr + col_idx + vals) + vectors.
+			double matrix_mem = ((csr->m + 1) * sizeof(int) + csr->nnz * sizeof(int) + csr->nnz * sizeof(ValueType)) / (1024.0 * 1024.0);
+			double vec_mem = csr->m * sizeof(ValueType) / (1024.0 * 1024.0);  // per vector
+			double ws_standalone = matrix_mem + 2 * vec_mem;   // matrix + x + y
+			double ws_bicg = matrix_mem + 10 * vec_mem;        // matrix + pk,K,buf,v,r0_,rk,xk,h,s,z
+
+			printf("SpMV: calls = %ld, time = %lf s, GFLOPs = %lf, WS_standalone = %.2lf MB, WS_bicg = %.2lf MB\n",
+				num_spmv_calls, time_spmv_out, spmv_gflops, ws_standalone, ws_bicg);
+		}
 
 		MF->spmv(x, vec);
 		#pragma omp parallel

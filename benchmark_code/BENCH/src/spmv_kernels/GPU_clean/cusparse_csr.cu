@@ -57,6 +57,13 @@ struct CSRArrays : Matrix_Format
 	cusparseDnVecDescr_t vecX;
 	cusparseDnVecDescr_t vecY;
 
+	// For spmv_gpu(): device-pointer interface with lazy init.
+	int gpu_initialized = 0;
+	cusparseDnVecDescr_t vecX_gpu;
+	cusparseDnVecDescr_t vecY_gpu;
+	void * dBuffer_gpu = NULL;
+	size_t bufferSize_gpu = 0;
+
 	CSRArrays(INT_T * ia, INT_T * ja, ValueTypeReference * a_ref, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja)
 	{
 		cuda_device_print_attributes();
@@ -114,12 +121,21 @@ struct CSRArrays : Matrix_Format
 		cuda_assert(cudaFree(y_d));
 		cuda_assert(cudaFree(dBuffer));
 
+		// Cleanup spmv_gpu() resources if they were initialized.
+		if (gpu_initialized)
+		{
+			gpuCusparseErrorCheck(cusparseDestroyDnVec(vecX_gpu));
+			gpuCusparseErrorCheck(cusparseDestroyDnVec(vecY_gpu));
+			cuda_assert(cudaFree(dBuffer_gpu));
+		}
+
 		cuda_assert(cudaFreeHost(ia_h));
 		cuda_assert(cudaFreeHost(ja_h));
 		cuda_assert(cudaFreeHost(a_h));
 	}
 
 	void spmv(ValueType * x, ValueType * y);
+	void spmv_gpu(ValueType * x_d, ValueType * y_d) override;
 	void statistics_start();
 	int statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n);
 };
@@ -132,6 +148,44 @@ void
 CSRArrays::spmv(ValueType * x, ValueType * y)
 {
 	compute_csr(this, x, y);
+}
+
+
+void
+CSRArrays::spmv_gpu(ValueType * x_d, ValueType * y_d)
+{
+	const ValueType alpha = 1.0;
+	const ValueType beta = 0.0;
+
+	if (!gpu_initialized)
+	{
+		// Lazy init: create vector descriptors and workspace for device-pointer SpMV.
+		gpuCusparseErrorCheck(cusparseCreateDnVec(&vecX_gpu, n, x_d, ValueTypeCuda));
+		gpuCusparseErrorCheck(cusparseCreateDnVec(&vecY_gpu, m, y_d, ValueTypeCuda));
+
+		gpuCusparseErrorCheck(cusparseSpMV_bufferSize(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
+			&alpha, matA, vecX_gpu, &beta, vecY_gpu, ValueTypeCuda,
+			CUSPARSE_SPMV_ALG_DEFAULT, &bufferSize_gpu));
+		cuda_assert(cudaMalloc(&dBuffer_gpu, bufferSize_gpu));
+
+		gpuCusparseErrorCheck(cusparseSpMV_preprocess(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
+			&alpha, matA, vecX_gpu, &beta, vecY_gpu, ValueTypeCuda,
+			CUSPARSE_SPMV_ALG_DEFAULT, dBuffer_gpu));
+
+		gpu_initialized = 1;
+	}
+	else
+	{
+		// Update vector descriptors to point to new device pointers.
+		gpuCusparseErrorCheck(cusparseDnVecSetValues(vecX_gpu, x_d));
+		gpuCusparseErrorCheck(cusparseDnVecSetValues(vecY_gpu, y_d));
+	}
+
+	gpuCusparseErrorCheck(cusparseSpMV(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
+		&alpha, matA, vecX_gpu, &beta, vecY_gpu, ValueTypeCuda,
+		CUSPARSE_SPMV_ALG_DEFAULT, dBuffer_gpu));
+	cuda_assert(cudaPeekAtLastError());
+	cuda_assert(cudaDeviceSynchronize());
 }
 
 

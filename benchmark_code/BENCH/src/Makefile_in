@@ -76,6 +76,8 @@ sddmm_coo_vec_z_order$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench
 
 spmv_csr_vec$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/csr_vec.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) -D'CSR_VECTOR' $^ -o $@ $(LDFLAGS)
+bicg_csr_vec$(SUFFIX).exe: $(OBJ_DIR)/bench_fix_diag$(SUFFIX).o $(OBJ_DIR)/bench_bicg$(SUFFIX).o spmv_kernels/csr_vec.cpp $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) -D'CSR_VECTOR' $^ -o $@ $(LDFLAGS)
 spmv_csr_vector_x86$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/csr_x86.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) -D'CUSTOM_X86_VECTOR' $^ -o $@ $(LDFLAGS)
 spmv_csr_vector_oracle_balance_x86$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/csr_x86.cpp $(LIB_OBJ)
@@ -423,6 +425,15 @@ LDFLAGS_ARMPL += -L$(ARMPL_ROOT_DIR)/lib -larmpl_mp
 
 spmv_armpl$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/armpl.cpp $(LIB_OBJ)  
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_ARMPL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ARMPL)
+bicg_armpl$(SUFFIX).exe: $(OBJ_DIR)/bench_fix_diag$(SUFFIX).o $(OBJ_DIR)/bench_bicg$(SUFFIX).o spmv_kernels/armpl.cpp $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_ARMPL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ARMPL)
+
+# BiCG GPU (cuSPARSE)
+bicg_cusparse_csr$(SUFFIX).exe: $(OBJ_DIR)/bench_fix_diag$(SUFFIX).o $(OBJ_DIR)/bench_bicg_gpu$(SUFFIX).o spmv_kernels/$(GPU_dir)/cusparse_csr.cu $(LIB_OBJ)
+	$(NVCC) $(NVCCFLAGS) -DTIME_IT=$(TIME_IT) --compiler-options "$(CPPFLAGS) $(CPPFLAGS_CUSPARSE)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_CUSPARSE)
+
+$(OBJ_DIR)/bench_bicg_gpu$(SUFFIX).o: bench_bicg_gpu.cu
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" -c $< -o $@
 
 
 CPPFLAGS_CSRRV =

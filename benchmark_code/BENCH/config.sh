@@ -451,11 +451,10 @@ artificial_matrices_files=(
 
     # Validation matrices artificial twins in a +-30% value space of each feature.
     # "$path_artificial"/validation_matrices_10_samples_30_range_twins.txt
-    "$path_artificial"/validation_matrices_10_samples_30_range_twins2.txt
+    "$path_artificial"/validation_matrices_twins_exact.txt
 
     # The synthetic dataset studied in the paper.
     # "$path_artificial"/synthetic_matrices_medium_dataset.txt
-    # "$path_artificial"/synthetic_matrices_medium_dataset2.txt
     # "$path_artificial"/test.txt
 )
 
@@ -548,8 +547,10 @@ progs=(
     # ['cg_div_sym_local_d']="${script_dir}/src/cg_div_sym_local_d.exe"
 
     # BiCG
-    ['bicg_mkl_ie_d']="${script_dir}/src/bicg_mkl_ie_d.exe"
+    # ['bicg_mkl_ie_d']="${script_dir}/src/bicg_mkl_ie_d.exe"
     # ['bicg_div_d']="${script_dir}/src/bicg_div_d.exe"
+    ['bicg_armpl_d']="${script_dir}/src/bicg_armpl_d.exe"
+    ['bicg_cusparse_csr_nv_d']="${script_dir}/src/bicg_cusparse_csr_nv_d.exe"
 
     # Custom csr
     # ['csr_naive_d']="${script_dir}/src/spmv_csr_naive_d.exe"
