@@ -48,10 +48,9 @@ extern "C"{
 
 struct CuSPARSE_CSR_Arrays : Matrix_Format
 {
-	// --- Hybrid awareness ---
+	// --- Hybrid metadata ---
 	long m_cpu = -1;    // number of CPU rows (-1 in standalone mode)
-	long offset;        // row offset into x/y for the GPU partition
-
+	long offset;        // this offset is used for hybrid mode to indicate the start of the GPU part
 	bool is_first_iteration = true;
 	bool is_last_iteration  = false;
 
@@ -64,11 +63,6 @@ struct CuSPARSE_CSR_Arrays : Matrix_Format
 	INT_T * ia_d;
 	INT_T * ja_d;
 	ValueType * a_d;
-
-	// --- Pinned host staging buffers ---
-	INT_T * ia_h;
-	INT_T * ja_h;
-	ValueType * a_h;
 
 	// --- cuSPARSE handles and descriptors ---
 	cusparseHandle_t     handle = NULL;
@@ -114,44 +108,22 @@ struct CuSPARSE_CSR_Arrays : Matrix_Format
 	double time_pure_memset_ms = 0;
 	long call_count = 0;
 
+	// For spmv_gpu(): device-pointer interface with lazy init.
+	int gpu_initialized = 0;
+	cusparseDnVecDescr_t vecX_gpu;
+	cusparseDnVecDescr_t vecY_gpu;
+	void * dBuffer_gpu = NULL;
+	size_t bufferSize_gpu = 0;
 
-	CuSPARSE_CSR_Arrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz, long m_cpu = -1): Matrix_Format(m, n, nnz), m_cpu(m_cpu), ia(ia), ja(ja), a(a)
+	CuSPARSE_CSR_Arrays(INT_T * ia, INT_T * ja, ValueTypeReference * a_ref, long m, long n, long nnz, long m_cpu = -1) : Matrix_Format(m, n, nnz), m_cpu(m_cpu), ia(ia), ja(ja)
 	{
-		int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, max_threads_per_multiproc;
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_smem_per_block, cudaDevAttrMaxSharedMemoryPerBlock, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&multiproc_count, cudaDevAttrMultiProcessorCount, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_block, cudaDevAttrMaxThreadsPerBlock, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&warp_size, cudaDevAttrWarpSize, 0));
-		gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_multiproc, cudaDevAttrMaxThreadsPerMultiProcessor, 0));
-		printf("max_smem_per_block=%d\n", max_smem_per_block);
-		printf("multiproc_count=%d\n", multiproc_count);
-		printf("max_threads_per_block=%d\n", max_threads_per_block);
-		printf("warp_size=%d\n", warp_size);
-		printf("max_threads_per_multiproc=%d\n", max_threads_per_multiproc);
+		cuda_device_print_attributes();
 
-		// --- Sparse matrix device allocations ---
-		gpuCudaErrorCheck(cudaMalloc(&ia_d, (m+1) * sizeof(*ia_d)));
-		gpuCudaErrorCheck(cudaMalloc(&ja_d, nnz   * sizeof(*ja_d)));
-		gpuCudaErrorCheck(cudaMalloc(&a_d,  nnz   * sizeof(*a_d)));
-
-		// --- Pinned staging buffers (for fast H2D) ---
-		gpuCudaErrorCheck(cudaMallocHost(&ia_h, (m+1) * sizeof(*ia_h)));
-		gpuCudaErrorCheck(cudaMallocHost(&ja_h, nnz   * sizeof(*ja_h)));
-		gpuCudaErrorCheck(cudaMallocHost(&a_h,  nnz   * sizeof(*a_h)));
-
-		memcpy(ia_h, ia, (m+1) * sizeof(*ia_h));
-		memcpy(ja_h, ja, nnz   * sizeof(*ja_h));
-		memcpy(a_h,  a,  nnz   * sizeof(*a_h));
-
-		gpuCudaErrorCheck(cudaMemcpy(ia_d, ia_h, (m+1) * sizeof(*ia_d), cudaMemcpyHostToDevice));
-		gpuCudaErrorCheck(cudaMemcpy(ja_d, ja_h, nnz   * sizeof(*ja_d), cudaMemcpyHostToDevice));
-		gpuCudaErrorCheck(cudaMemcpy(a_d,  a_h,  nnz   * sizeof(*a_d),  cudaMemcpyHostToDevice));
-
-		gpuCusparseErrorCheck(cusparseCreateCsr(
-			&matA, m, n, nnz,
-			ia_d, ja_d, a_d,
-			CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
-			CUSPARSE_INDEX_BASE_ZERO, ValueTypeCuda));
+		// Convert values from ValueTypeReference (double) to ValueType (e.g., float).
+		a = (typeof(a)) malloc(nnz * sizeof(*a));
+		#pragma omp parallel for
+		for (long i = 0; i < nnz; i++)
+			a[i] = (ValueType) a_ref[i];
 
 		// Hybrid mode: GPU handles rows [m_cpu, m_cpu+m); offset into the shared y vector.
 		// Standalone mode: GPU handles all rows; offset = 0.
@@ -160,47 +132,39 @@ struct CuSPARSE_CSR_Arrays : Matrix_Format
 		max_mn = (total_m > n) ? total_m : n;
 
 		// --- CUDA streams ---
-		gpuCudaErrorCheck(cudaStreamCreate(&stream));
+		cuda_assert(cudaStreamCreate(&stream));
 		#ifdef VECTOR_ALLOC_EXPLICIT
-			gpuCudaErrorCheck(cudaStreamCreate(&h2d_stream));
+			cuda_assert(cudaStreamCreate(&h2d_stream));
 		#endif
 
 		// --- CUDA events ---
-			gpuCudaErrorCheck(cudaEventCreate(&start_event));
-			gpuCudaErrorCheck(cudaEventCreate(&stop_event));
-			gpuCudaErrorCheck(cudaEventCreate(&memset_event));
+			cuda_assert(cudaEventCreate(&start_event));
+			cuda_assert(cudaEventCreate(&stop_event));
+			cuda_assert(cudaEventCreate(&memset_event));
 		#ifdef VECTOR_ALLOC_EXPLICIT
-			gpuCudaErrorCheck(cudaEventCreate(&h2d_event));
-			gpuCudaErrorCheck(cudaEventCreate(&kernel_event));
-			gpuCudaErrorCheck(cudaEventCreate(&d2h_event));
-			gpuCudaErrorCheck(cudaEventCreate(&h2d_done_event));
-			gpuCudaErrorCheck(cudaEventRecord(h2d_done_event, h2d_stream));
+			cuda_assert(cudaEventCreate(&h2d_event));
+			cuda_assert(cudaEventCreate(&kernel_event));
+			cuda_assert(cudaEventCreate(&d2h_event));
+			cuda_assert(cudaEventCreate(&h2d_done_event));
+			cuda_assert(cudaEventRecord(h2d_done_event, h2d_stream));
 		#endif
 
 		// --- Sparse matrix device allocations ---
-		gpuCudaErrorCheck(cudaMalloc(&ia_d, (m+1) * sizeof(*ia_d)));
-		gpuCudaErrorCheck(cudaMalloc(&ja_d, nnz   * sizeof(*ja_d)));
-		gpuCudaErrorCheck(cudaMalloc(&a_d,  nnz   * sizeof(*a_d)));
+		cuda_assert(cudaMalloc(&ia_d, (m+1) * sizeof(*ia_d)));
+		cuda_assert(cudaMalloc(&ja_d, nnz   * sizeof(*ja_d)));
+		cuda_assert(cudaMalloc(&a_d,  nnz   * sizeof(*a_d)));
 
-		// --- Pinned staging buffers ---
-		gpuCudaErrorCheck(cudaMallocHost(&ia_h, (m+1) * sizeof(*ia_h)));
-		gpuCudaErrorCheck(cudaMallocHost(&ja_h, nnz   * sizeof(*ja_h)));
-		gpuCudaErrorCheck(cudaMallocHost(&a_h,  nnz   * sizeof(*a_h)));
-
-		memcpy(ia_h, ia, (m+1) * sizeof(*ia_h));
-		memcpy(ja_h, ja, nnz   * sizeof(*ja_h));
-		memcpy(a_h,  a,  nnz   * sizeof(*a_h));
-
-		gpuCudaErrorCheck(cudaMemcpy(ia_d, ia_h, (m+1) * sizeof(*ia_d), cudaMemcpyHostToDevice));
-		gpuCudaErrorCheck(cudaMemcpy(ja_d, ja_h, nnz   * sizeof(*ja_d), cudaMemcpyHostToDevice));
-		gpuCudaErrorCheck(cudaMemcpy(a_d,  a_h,  nnz   * sizeof(*a_d),  cudaMemcpyHostToDevice));
+		// --- Copy sparse matrix data to device directly from pageable host memory ---
+		cuda_assert(cudaMemcpy(ia_d, ia, (m+1) * sizeof(*ia_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(ja_d, ja, nnz   * sizeof(*ja_d), cudaMemcpyHostToDevice));
+		cuda_assert(cudaMemcpy(a_d,  a,  nnz   * sizeof(*a_d),  cudaMemcpyHostToDevice));
 
 		// --- cuSPARSE handle (bound to main stream) ---
-		gpuCusparseErrorCheck(cusparseCreate(&handle));
-		gpuCusparseErrorCheck(cusparseSetStream(handle, stream));
+		cusparse_assert(cusparseCreate(&handle));
+		cusparse_assert(cusparseSetStream(handle, stream));
 
 		// --- cuSPARSE sparse matrix descriptor ---
-		gpuCusparseErrorCheck(cusparseCreateCsr(
+		cusparse_assert(cusparseCreateCsr(
 			&matA, m, n, nnz,
 			ia_d, ja_d, a_d,
 			CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
@@ -208,10 +172,10 @@ struct CuSPARSE_CSR_Arrays : Matrix_Format
 
 		// --- EXPLICIT mode: allocate device x/y buffers and create descriptors ---
 		#ifdef VECTOR_ALLOC_EXPLICIT
-			gpuCudaErrorCheck(cudaMalloc(&x_d, max_mn * sizeof(*x_d)));
-			gpuCudaErrorCheck(cudaMalloc(&y_d, max_mn * sizeof(*y_d)));
-			gpuCusparseErrorCheck(cusparseCreateDnVec(&vecX, n,       x_d,          ValueTypeCuda));
-			gpuCusparseErrorCheck(cusparseCreateDnVec(&vecY, m, y_d + offset,       ValueTypeCuda));
+			cuda_assert(cudaMalloc(&x_d, max_mn * sizeof(*x_d)));
+			cuda_assert(cudaMalloc(&y_d, max_mn * sizeof(*y_d)));
+			cusparse_assert(cusparseCreateDnVec(&vecX, n,       x_d,          ValueTypeCuda));
+			cusparse_assert(cusparseCreateDnVec(&vecY, m, y_d + offset,       ValueTypeCuda));
 		#endif
 		// Non-EXPLICIT: vecX/vecY created on first compute_csr() call with real host pointers.
 	}
@@ -222,56 +186,57 @@ struct CuSPARSE_CSR_Arrays : Matrix_Format
 		free(ia);
 		free(ja);
 
-		gpuCusparseErrorCheck(cusparseDestroySpMat(matA));
-		if (x != NULL) gpuCusparseErrorCheck(cusparseDestroyDnVec(vecX));
-		if (y != NULL) gpuCusparseErrorCheck(cusparseDestroyDnVec(vecY));
-		gpuCusparseErrorCheck(cusparseDestroy(handle));
+		cusparse_assert(cusparseDestroySpMat(matA));
+		if (x != NULL) cusparse_assert(cusparseDestroyDnVec(vecX));
+		if (y != NULL) cusparse_assert(cusparseDestroyDnVec(vecY));
+		cusparse_assert(cusparseDestroy(handle));
 
-		gpuCudaErrorCheck(cudaFree(ia_d));
-		gpuCudaErrorCheck(cudaFree(ja_d));
-		gpuCudaErrorCheck(cudaFree(a_d));
+		cuda_assert(cudaFree(ia_d));
+		cuda_assert(cudaFree(ja_d));
+		cuda_assert(cudaFree(a_d));
 		#ifdef VECTOR_ALLOC_EXPLICIT
-			gpuCudaErrorCheck(cudaFree(x_d));
-			gpuCudaErrorCheck(cudaFree(y_d));
+			cuda_assert(cudaFree(x_d));
+			cuda_assert(cudaFree(y_d));
 		#endif
-		gpuCudaErrorCheck(cudaFree(dBuffer));
+		cuda_assert(cudaFree(dBuffer));
 
-		gpuCudaErrorCheck(cudaFreeHost(ia_h));
-		gpuCudaErrorCheck(cudaFreeHost(ja_h));
-		gpuCudaErrorCheck(cudaFreeHost(a_h));
-
-		gpuCudaErrorCheck(cudaStreamDestroy(stream));
+		cuda_assert(cudaStreamDestroy(stream));
 		#ifdef VECTOR_ALLOC_EXPLICIT
-			gpuCudaErrorCheck(cudaStreamDestroy(h2d_stream));
+			cuda_assert(cudaStreamDestroy(h2d_stream));
 		#endif
-		gpuCudaErrorCheck(cudaEventDestroy(start_event));
-		gpuCudaErrorCheck(cudaEventDestroy(stop_event));
-		gpuCudaErrorCheck(cudaEventDestroy(memset_event));
+		cuda_assert(cudaEventDestroy(start_event));
+		cuda_assert(cudaEventDestroy(stop_event));
+		cuda_assert(cudaEventDestroy(memset_event));
 		#ifdef VECTOR_ALLOC_EXPLICIT
-			gpuCudaErrorCheck(cudaEventDestroy(h2d_event));
-			gpuCudaErrorCheck(cudaEventDestroy(kernel_event));
-			gpuCudaErrorCheck(cudaEventDestroy(d2h_event));
-			gpuCudaErrorCheck(cudaEventDestroy(h2d_done_event));
+			cuda_assert(cudaEventDestroy(h2d_event));
+			cuda_assert(cudaEventDestroy(kernel_event));
+			cuda_assert(cudaEventDestroy(d2h_event));
+			cuda_assert(cudaEventDestroy(h2d_done_event));
 		#endif
 	}
 
 	void spmv(ValueType * x, ValueType * y) override;
+	void spmv_gpu(ValueType * x_d, ValueType * y_d) override;
+	void statistics_start() override;
+	int  statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n) override;
 
-	void synchronize() override {
-		gpuCudaErrorCheck(cudaStreamSynchronize(stream));
+	void synchronize() override { 
+		cuda_assert(cudaStreamSynchronize(stream));
 		#ifdef VECTOR_ALLOC_EXPLICIT
-			gpuCudaErrorCheck(cudaStreamSynchronize(h2d_stream));
+			cuda_assert(cudaStreamSynchronize(h2d_stream));
 		#endif
-		gpuCudaErrorCheck(cudaEventElapsedTime(&last_duration_ms, start_event, stop_event));
-
+		cuda_assert(cudaEventElapsedTime(&last_duration_ms, start_event, stop_event));
+		
 		#if DETAILED_TIMING
 			#ifdef VECTOR_ALLOC_EXPLICIT
+				cuda_assert(cudaStreamSynchronize(memset_stream));
 				float h2d_ms = 0, memset_ms = 0, kernel_ms = 0, d2h_ms = 0, pure_memset = 0;
 				if (last_duration_ms > 0) {
-					gpuCudaErrorCheck(cudaEventElapsedTime(&h2d_ms, start_event, h2d_event));
-					gpuCudaErrorCheck(cudaEventElapsedTime(&memset_ms, h2d_event, memset_event));
-					gpuCudaErrorCheck(cudaEventElapsedTime(&kernel_ms, memset_event, kernel_event));
-					gpuCudaErrorCheck(cudaEventElapsedTime(&d2h_ms, kernel_event, d2h_event));
+					cuda_assert(cudaEventElapsedTime(&h2d_ms, start_event, h2d_event));
+					cuda_assert(cudaEventElapsedTime(&memset_ms, h2d_event, memset_event));
+					cuda_assert(cudaEventElapsedTime(&kernel_ms, memset_event, kernel_event));
+					cuda_assert(cudaEventElapsedTime(&d2h_ms, kernel_event, d2h_event));
+					cuda_assert(cudaEventElapsedTime(&pure_memset, pure_memset_start, pure_memset_stop));
 				}
 				time_h2d_ms += h2d_ms;
 				time_memset_ms += memset_ms;
@@ -281,8 +246,8 @@ struct CuSPARSE_CSR_Arrays : Matrix_Format
 			#else
 				float memset_ms = 0, kernel_ms = 0;
 				if (last_duration_ms > 0) {
-					gpuCudaErrorCheck(cudaEventElapsedTime(&memset_ms, start_event, memset_event));
-					gpuCudaErrorCheck(cudaEventElapsedTime(&kernel_ms, memset_event, stop_event));
+					cuda_assert(cudaEventElapsedTime(&memset_ms, start_event, memset_event));
+					cuda_assert(cudaEventElapsedTime(&kernel_ms, memset_event, stop_event));
 				}
 				time_memset_ms += memset_ms;
 				time_kernel_ms += kernel_ms;
@@ -292,23 +257,23 @@ struct CuSPARSE_CSR_Arrays : Matrix_Format
 	}
 
 	double get_last_duration() override { return (double)last_duration_ms; }
-	void set_last_iteration(bool is_last) override { is_last_iteration = is_last; }
-	void statistics_start() override;
-	int  statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n) override;
+	void set_last_iteration(bool is_last) override { is_last_iteration = is_last;}
 
 	void issue_h2d_for_next_iteration(ValueType * y) override {
 		#ifdef VECTOR_ALLOC_EXPLICIT
 			if (m_cpu == -1) return;
-
+			
 			#if HYBRID_ITERATIVE_OPTIMIZATION
 				long h2d_copy_elements = (m_cpu < n) ? m_cpu : n;
 				if (h2d_copy_elements > 0) {
-					// Wait for kernel to finish reading x_d before we overwrite it
-					gpuCudaErrorCheck(cudaStreamWaitEvent(h2d_stream, kernel_event, 0));
-					// Proactively pipeline CPU result y[0..m_cpu-1] → x_d for next iteration
-					gpuCudaErrorCheck(cudaMemcpyAsync(x_d, y, h2d_copy_elements * sizeof(*x_d), cudaMemcpyHostToDevice, h2d_stream));
-					// Signal that next iteration can use x_d
-					gpuCudaErrorCheck(cudaEventRecord(h2d_done_event, h2d_stream));
+					// Precaution: guarantee we don't overwrite x_d before current iteration's kernel finishes evaluating it!
+					cuda_assert(cudaStreamWaitEvent(h2d_stream, kernel_event, 0));
+					
+					// Pipeline the async Host array push mapping directly back to Device Vector x_d
+					cuda_assert(cudaMemcpyAsync(x_d, y, h2d_copy_elements * sizeof(*x_d), cudaMemcpyHostToDevice, h2d_stream));
+					
+					// Record the proactive dispatch
+					cuda_assert(cudaEventRecord(h2d_done_event, h2d_stream));
 				}
 			#endif
 		#endif
@@ -322,6 +287,44 @@ void
 CuSPARSE_CSR_Arrays::spmv(ValueType * x, ValueType * y)
 {
 	compute_csr(this, x, y);
+}
+
+
+void
+CuSPARSE_CSR_Arrays::spmv_gpu(ValueType * x_d, ValueType * y_d)
+{
+	const ValueType alpha = 1.0;
+	const ValueType beta = 0.0;
+
+	if (!gpu_initialized)
+	{
+		// Lazy init: create vector descriptors and workspace for device-pointer SpMV.
+		cusparse_assert(cusparseCreateDnVec(&vecX_gpu, n, x_d, ValueTypeCuda));
+		cusparse_assert(cusparseCreateDnVec(&vecY_gpu, m, y_d, ValueTypeCuda));
+
+		cusparse_assert(cusparseSpMV_bufferSize(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
+			&alpha, matA, vecX_gpu, &beta, vecY_gpu, ValueTypeCuda,
+			CUSPARSE_SPMV_ALG_DEFAULT, &bufferSize_gpu));
+		cuda_assert(cudaMalloc(&dBuffer_gpu, bufferSize_gpu));
+
+		cusparse_assert(cusparseSpMV_preprocess(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
+			&alpha, matA, vecX_gpu, &beta, vecY_gpu, ValueTypeCuda,
+			CUSPARSE_SPMV_ALG_DEFAULT, dBuffer_gpu));
+
+		gpu_initialized = 1;
+	}
+	else
+	{
+		// Update vector descriptors to point to new device pointers.
+		cusparse_assert(cusparseDnVecSetValues(vecX_gpu, x_d));
+		cusparse_assert(cusparseDnVecSetValues(vecY_gpu, y_d));
+	}
+
+	cusparse_assert(cusparseSpMV(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
+		&alpha, matA, vecX_gpu, &beta, vecY_gpu, ValueTypeCuda,
+		CUSPARSE_SPMV_ALG_DEFAULT, dBuffer_gpu));
+	cuda_assert(cudaPeekAtLastError());
+	cuda_assert(cudaDeviceSynchronize());
 }
 
 
@@ -347,10 +350,10 @@ cusparse_csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * va
 void
 compute_csr(CuSPARSE_CSR_Arrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
 {
-	gpuCudaErrorCheck(cudaEventRecord(csr->start_event, csr->stream));
+	cuda_assert(cudaEventRecord(csr->start_event, csr->stream));
 
-	const double alpha = 1.0;
-	const double beta  = 0.0;
+	const ValueType alpha = 1.0;
+	const ValueType beta  = 0.0;
 
 	#ifdef VECTOR_ALLOC_EXPLICIT
 		// ===================================================================
@@ -361,14 +364,14 @@ compute_csr(CuSPARSE_CSR_Arrays * restrict csr, ValueType * restrict x, ValueTyp
 		{
 			#if STANDALONE_ITERATIVE_OPTIMIZATION
 				if (csr->is_first_iteration) {
-					gpuCudaErrorCheck(cudaMemcpyAsync(csr->x_d, x, csr->n * sizeof(*csr->x_d), cudaMemcpyHostToDevice, csr->stream));
+					cuda_assert(cudaMemcpyAsync(csr->x_d, x, csr->n * sizeof(*csr->x_d), cudaMemcpyHostToDevice, csr->stream));
 				}
 				// else {
 				// // Subsequent iterations: Do nothing for H2D. x_d is populated via D2D from the previous iteration.
 				// }
 			#else
 				// Old method: Always transfer full x from Host
-				gpuCudaErrorCheck(cudaMemcpyAsync(csr->x_d, x, csr->n * sizeof(*csr->x_d), cudaMemcpyHostToDevice, csr->stream));
+				cuda_assert(cudaMemcpyAsync(csr->x_d, x, csr->n * sizeof(*csr->x_d), cudaMemcpyHostToDevice, csr->stream));
 			#endif
 		}
 		else // --- HYBRID MODE ---
@@ -376,19 +379,19 @@ compute_csr(CuSPARSE_CSR_Arrays * restrict csr, ValueType * restrict x, ValueTyp
 			#if HYBRID_ITERATIVE_OPTIMIZATION
 				if (csr->is_first_iteration) {
 					// First iteration must bootstrap logically
-					gpuCudaErrorCheck(cudaMemcpyAsync(csr->x_d, x, csr->n * sizeof(*csr->x_d), cudaMemcpyHostToDevice, csr->stream));
+					cuda_assert(cudaMemcpyAsync(csr->x_d, x, csr->n * sizeof(*csr->x_d), cudaMemcpyHostToDevice, csr->stream));
 				} else {
 					// Successive iterations evaluate off proactive dispatch linked inside h2d_done_event 
-					gpuCudaErrorCheck(cudaStreamWaitEvent(csr->stream, csr->h2d_done_event, 0));
+					cuda_assert(cudaStreamWaitEvent(csr->stream, csr->h2d_done_event, 0));
 				}
 			#else
 				// Standard method: transfer full x every time
-				gpuCudaErrorCheck(cudaMemcpyAsync(csr->x_d, x, csr->n * sizeof(*csr->x_d), cudaMemcpyHostToDevice, csr->stream));
+				cuda_assert(cudaMemcpyAsync(csr->x_d, x, csr->n * sizeof(*csr->x_d), cudaMemcpyHostToDevice, csr->stream));
 			#endif
 		}
 
 		#if DETAILED_TIMING
-			gpuCudaErrorCheck(cudaEventRecord(csr->h2d_event, csr->stream));
+			cuda_assert(cudaEventRecord(csr->h2d_event, csr->stream));
 		#endif
 
 		if (csr->is_first_iteration)
@@ -402,32 +405,32 @@ compute_csr(CuSPARSE_CSR_Arrays * restrict csr, ValueType * restrict x, ValueTyp
 			csr->x = x;
 
 			// Allocate workspace (needs matA, vecX, vecY to be set up already)
-			gpuCusparseErrorCheck(cusparseSpMV_bufferSize(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, &csr->bufferSize));
-			gpuCudaErrorCheck(cudaMalloc(&csr->dBuffer, csr->bufferSize));
+			cusparse_assert(cusparseSpMV_bufferSize(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, &csr->bufferSize));
+			cuda_assert(cudaMalloc(&csr->dBuffer, csr->bufferSize));
 			printf("SpMV_bufferSize = %lu bytes\n", csr->bufferSize);
 
-			gpuCusparseErrorCheck(cusparseSpMV_preprocess(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE,&alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer));
+			cusparse_assert(cusparseSpMV_preprocess(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE,&alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer));
 		}
 		else {
 			// Point descriptors at current device buffers.
-			gpuCusparseErrorCheck(cusparseDnVecSetValues(csr->vecX, csr->x_d));
-			gpuCusparseErrorCheck(cusparseDnVecSetValues(csr->vecY, csr->y_d + csr->offset));
+			cusparse_assert(cusparseDnVecSetValues(csr->vecX, csr->x_d));
+			cusparse_assert(cusparseDnVecSetValues(csr->vecY, csr->y_d + csr->offset));
 		}
 
 		// Different than custom csr implementation, there is no need for memsetasync here (it is done by cusparseDnVecSetValues internally)
 
 		#if DETAILED_TIMING
 			// For accurate pure-kernel profiling, we isolate "pre-kernel synchronization" (Memset Wait) here
-			gpuCudaErrorCheck(cudaEventRecord(csr->memset_event, csr->stream));
+			cuda_assert(cudaEventRecord(csr->memset_event, csr->stream));
 		#endif
 
 		// Launch cuSPARSE SpMV.
-		gpuCusparseErrorCheck(cusparseSpMV(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer));
+		cusparse_assert(cusparseSpMV(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer));
 
-		gpuCudaErrorCheck(cudaEventRecord(csr->kernel_event, csr->stream));
+		cuda_assert(cudaEventRecord(csr->kernel_event, csr->stream));
 
-		gpuCudaErrorCheck(cudaPeekAtLastError());
-		// gpuCudaErrorCheck(cudaDeviceSynchronize()); // Removed for async overlap
+		cuda_assert(cudaPeekAtLastError());
+		// cuda_assert(cudaDeviceSynchronize()); // Removed for async overlap
 
 		if (csr->y == NULL)
 			csr->y = y;
@@ -441,11 +444,11 @@ compute_csr(CuSPARSE_CSR_Arrays * restrict csr, ValueType * restrict x, ValueTyp
 
 		if (!skip_d2h) {
 			// D2H: copy GPU result back to the host y vector.
-			gpuCudaErrorCheck(cudaMemcpyAsync(y + csr->offset, csr->y_d + csr->offset, csr->m * sizeof(*csr->y_d), cudaMemcpyDeviceToHost, csr->stream));
+			cuda_assert(cudaMemcpyAsync(y + csr->offset, csr->y_d + csr->offset, csr->m * sizeof(*csr->y_d), cudaMemcpyDeviceToHost, csr->stream));
 		}
 
 		#if DETAILED_TIMING
-			gpuCudaErrorCheck(cudaEventRecord(csr->d2h_event, csr->stream));
+			cuda_assert(cudaEventRecord(csr->d2h_event, csr->stream));
 		#endif
 
 		if (!csr->is_last_iteration) {
@@ -473,43 +476,43 @@ compute_csr(CuSPARSE_CSR_Arrays * restrict csr, ValueType * restrict x, ValueTyp
 
 			// Create dense vector descriptors pointing at host pointers.
 			// These will be updated via SetValues on each subsequent call.
-			gpuCusparseErrorCheck(cusparseCreateDnVec(&csr->vecX, csr->n, x,              ValueTypeCuda));
-			gpuCusparseErrorCheck(cusparseCreateDnVec(&csr->vecY, csr->m, y + csr->offset, ValueTypeCuda));
+			cusparse_assert(cusparseCreateDnVec(&csr->vecX, csr->n, x,               ValueTypeCuda));
+			cusparse_assert(cusparseCreateDnVec(&csr->vecY, csr->m, y + csr->offset, ValueTypeCuda));
 
 			// Allocate workspace.
-			gpuCusparseErrorCheck(cusparseSpMV_bufferSize(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, &csr->bufferSize));
-			gpuCudaErrorCheck(cudaMalloc(&csr->dBuffer, csr->bufferSize));
+			cusparse_assert(cusparseSpMV_bufferSize(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, &csr->bufferSize));
+			cuda_assert(cudaMalloc(&csr->dBuffer, csr->bufferSize));
 			printf("SpMV_bufferSize = %lu bytes\n", csr->bufferSize);
 
-			gpuCusparseErrorCheck(cusparseSpMV_preprocess(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer));
+			cusparse_assert(cusparseSpMV_preprocess(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer));
 		}
 		else
 		{
 			// Update vector descriptors in case x/y pointers changed (pointer swap).
-			gpuCusparseErrorCheck(cusparseDnVecSetValues(csr->vecX, x));
-			gpuCusparseErrorCheck(cusparseDnVecSetValues(csr->vecY, y + csr->offset));
+			cusparse_assert(cusparseDnVecSetValues(csr->vecX, x));
+			cusparse_assert(cusparseDnVecSetValues(csr->vecY, y + csr->offset));
 		}
 
 		// Update: This is not needed anymore, it is already done by cusparseDnVecSetValues above!
 		// // Zero the GPU portion of y directly on the host/unified buffer.
-		// gpuCudaErrorCheck(cudaMemsetAsync(y + csr->offset, 0, csr->m * sizeof(*y), csr->stream));
+		// cuda_assert(cudaMemsetAsync(y + csr->offset, 0, csr->m * sizeof(*y), csr->stream));
 
 		#if DETAILED_TIMING
-			gpuCudaErrorCheck(cudaEventRecord(csr->memset_event, csr->stream));
+			cuda_assert(cudaEventRecord(csr->memset_event, csr->stream));
 		#endif
 
 		// Launch cuSPARSE SpMV with host/unified pointers (zero-copy / ATS).
-		gpuCusparseErrorCheck(cusparseSpMV(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer));
+		cusparse_assert(cusparseSpMV(csr->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, csr->matA, csr->vecX, &beta, csr->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, csr->dBuffer));
 
-		gpuCudaErrorCheck(cudaPeekAtLastError());
-		// gpuCudaErrorCheck(cudaDeviceSynchronize()); // Removed for async overlap
+		cuda_assert(cudaPeekAtLastError());
+		// cuda_assert(cudaDeviceSynchronize()); // Removed for async overlap
 
 		if (csr->y == NULL)
 			csr->y = y;
 
 	#endif
 
-	gpuCudaErrorCheck(cudaEventRecord(csr->stop_event, csr->stream));
+	cuda_assert(cudaEventRecord(csr->stop_event, csr->stream));
 }
 
 

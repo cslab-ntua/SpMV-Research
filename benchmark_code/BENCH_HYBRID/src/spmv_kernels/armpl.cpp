@@ -73,14 +73,18 @@ armpl_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, l
 	csr->format_name = (char *) "ARMPL";
 	csr->ia = row_ptr;
 	csr->ja = col_ind;
-	csr->a = values;
+	// Allocate and convert values from ValueTypeReference (e.g. double) to ValueType (e.g. float).
+	csr->a = (ValueType *) aligned_alloc(64, nnz * sizeof(ValueType));
+	#pragma omp parallel for
+	for (long i = 0; i < nnz; i++)
+		csr->a[i] = values[i];
 	time = time_it(1,
 		// The input arrays provided are left unchanged except for the call to mkl_sparse_order, which performs ordering of column indexes of the matrix.
 		#if DOUBLE == 0
-			info = armpl_spmat_create_csr_s(&csr->A, m, n, row_ptr, col_ind, values, creation_flags);
+			info = armpl_spmat_create_csr_s(&csr->A, m, n, row_ptr, col_ind, csr->a, creation_flags);
 			if (info!=ARMPL_STATUS_SUCCESS) printf("ERROR: armpl_spmat_create_csr_s returned %d\n", info);
 		#elif DOUBLE == 1
-			info = armpl_spmat_create_csr_d(&csr->A, m, n, row_ptr, col_ind, values, creation_flags);
+			info = armpl_spmat_create_csr_d(&csr->A, m, n, row_ptr, col_ind, csr->a, creation_flags);
 			if (info!=ARMPL_STATUS_SUCCESS) printf("ERROR: armpl_spmat_create_csr_d returned %d\n", info);
 		#endif
 	);

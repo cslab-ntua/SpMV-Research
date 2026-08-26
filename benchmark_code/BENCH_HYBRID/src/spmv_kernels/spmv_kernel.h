@@ -15,6 +15,13 @@ struct Matrix_Format
 	double csr_mem_footprint;
 
 	virtual void spmv(ValueType * x, ValueType * y) = 0;
+	// SpMV operating directly on device pointers — no host↔device vector copies.
+	// GPU formats override this; CPU-only formats use the default which errors.
+	virtual void spmv_gpu(ValueType * x_d, ValueType * y_d)
+	{
+		fprintf(stderr, "ERROR: spmv_gpu() not implemented for format '%s'\n", format_name);
+		exit(1);
+	}
 	virtual void synchronize() {}
 	virtual void set_last_iteration(bool /* is_last */) {} // So that we do not get an unnecessary warning about unused variable
 	virtual double get_last_duration() { return 0; } // Returns duration in milliseconds
