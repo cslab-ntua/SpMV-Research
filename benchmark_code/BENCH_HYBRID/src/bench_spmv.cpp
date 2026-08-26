@@ -22,6 +22,7 @@ extern "C"{
 
 	#include "macros/cpp_defines.h"
 	#include "macros/macrolib.h"
+	#include "debug.h"
 	#include "time_it.h"
 	#include "parallel_util.h"
 	#include "pthread_functions.h"
@@ -834,6 +835,9 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			i += snprintf(buf + i, buf_n - i, ",%s", "gflops");
 			i += snprintf(buf + i, buf_n - i, ",%s", "W_avg");
 			i += snprintf(buf + i, buf_n - i, ",%s", "J_estimated");
+			#if CHECK_ACCURACY
+				i += check_accuracy_labels(buf + i, buf_n - i);
+			#endif
 			#ifdef PRINT_STATISTICS
 				i += statistics_print_labels(buf + i, buf_n - i);
 			#endif

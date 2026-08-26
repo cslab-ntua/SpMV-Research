@@ -17,6 +17,7 @@ extern "C"{
 
 	#include "macros/cpp_defines.h"
 	#include "macros/macrolib.h"
+	#include "debug.h"
 	#include "time_it.h"
 	#include "parallel_util.h"
 	#include "pthread_functions.h"
@@ -32,6 +33,7 @@ extern "C"{
 	#include "storage_formats/openfoam/openfoam_matrix.h"
 
 	#include "aux/csr_converter_reference.h"
+	#include "aux/csr_util.h"
 
 	#include "monitoring/power/rapl.h"
 
@@ -119,7 +121,9 @@ get_pinning_position_from_affinity_string(const char * range_string, long len, i
 
 
 //==========================================================================================================================================
-//= Import Matrix
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                           Import Matrix                                                                -
+//------------------------------------------------------------------------------------------------------------------------------------------
 //==========================================================================================================================================
 
 
@@ -128,11 +132,10 @@ void
 import_file(struct CSR_reference_s * csr)
 {
 	long symmetric = 0;
-	long expand_symmetry = 1;
 	#ifdef KEEP_SYMMETRY
-		expand_symmetry = 0;
+		long expand_symmetry = 0;
 	#else
-		expand_symmetry = 1;
+		long expand_symmetry = 1;
 	#endif
 
 	struct Matrix_Market * MTX = NULL;
@@ -219,7 +222,7 @@ import_file(struct CSR_reference_s * csr)
 		}
 		_Pragma("omp parallel for")
 		for (long i=0;i<coo_m+1;i++)
-		csr->ia[i] = 0;
+			csr->ia[i] = 0;
 		coo_to_csr(coo_rowind, coo_colind, coo_val, coo_m, coo_n, coo_nnz, csr->ia, csr->ja, csr->a_ref, 1, 0);
 		free(coo_rowind);
 		free(coo_colind);
@@ -284,25 +287,29 @@ import_artificial_matrix(struct CSR_reference_s * csr)
 
 
 //==========================================================================================================================================
-//= Transforms
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                             Transforms                                                                 -
+//------------------------------------------------------------------------------------------------------------------------------------------
 //==========================================================================================================================================
 
 
 void
 rcm(struct CSR_reference_s * csr)
 {
-	long i;
-
-	if (!csr->symmetric)
-		error("RCM is only applicable to symmetric matrices");
+	if (csr->m != csr->n)
+	{
+		warning("RCM is only applicable to square matrices");
+		return;
+	}
 
 	int * permutation;
 	int * row_ptr_new = NULL;
 	int * col_idx_new = NULL;
 	ValueTypeReference * values_new = NULL;
 	long nnz_new, nnz_diag;
+	// long i;
 
-	if (!csr->expanded_symmetry)
+	if (csr->symmetric && !csr->expanded_symmetry)
 	{
 		printf("expanding symmetry for rcm\n");
 		csr_expand_symmetric(csr->ia, csr->ja, csr->a_ref, csr->m, csr->n, csr->nnz, &row_ptr_new, &col_idx_new, &values_new, &nnz_new, &nnz_diag, 1);
@@ -317,7 +324,7 @@ rcm(struct CSR_reference_s * csr)
 	}
 
 	long sort_rows = 1;
-	reverse_cuthill_mckee(csr->ia, csr->ja, csr->a_ref, csr->m, csr->n, csr->nnz, sort_rows, &row_ptr_new, &col_idx_new, &values_new, &permutation);
+	reverse_cuthill_mckee(csr->ia, csr->ja, csr->a_ref, csr->m, csr->n, csr->nnz, csr->symmetric, sort_rows, &row_ptr_new, &col_idx_new, &values_new, &permutation);
 	printf("nnz_old=%ld csr->nnz_diag=%ld csr->nnz_non_diag=%ld \n", csr->nnz, csr->nnz_diag, csr->nnz_non_diag);
 	free(csr->ia);
 	free(csr->ja);
@@ -325,25 +332,23 @@ rcm(struct CSR_reference_s * csr)
 	csr->ia = row_ptr_new;
 	csr->ja = col_idx_new;
 	csr->a_ref = values_new;
-	if (csr->n != csr->m)
-		error("csr->n != csr->m");
-	for (i=0;i<csr->m;i++)
-	{
-		if (csr->ia[i] > csr->ia[i+1])
-			error("csr->ia[%d]=%d > csr->ia[%d]=%d", i, csr->ia[i], i+1, csr->ia[i+1]);
-	}
-	for (i=0;i<=csr->m;i++)
-	{
-		if (csr->ia[i] < 0 || csr->ia[i] > csr->nnz)
-			error("csr->ia[%d]=%d >= csr->nnz", i, csr->ia[i]);
-	}
-	for (i=0;i<csr->nnz;i++)
-	{
-		if (csr->ja[i] < 0 || csr->ja[i] >= csr->n)
-			error("csr->ja[%d]=%d >= csr->n", i, csr->ja[i]);
-	}
+	// for (i=0;i<csr->m;i++)
+	// {
+		// if (csr->ia[i] > csr->ia[i+1])
+			// error("csr->ia[%d]=%d > csr->ia[%d]=%d", i, csr->ia[i], i+1, csr->ia[i+1]);
+	// }
+	// for (i=0;i<=csr->m;i++)
+	// {
+		// if (csr->ia[i] < 0 || csr->ia[i] > csr->nnz)
+			// error("csr->ia[%d]=%d >= csr->nnz", i, csr->ia[i]);
+	// }
+	// for (i=0;i<csr->nnz;i++)
+	// {
+		// if (csr->ja[i] < 0 || csr->ja[i] >= csr->n)
+			// error("csr->ja[%d]=%d >= csr->n", i, csr->ja[i]);
+	// }
 
-	if (!csr->expanded_symmetry)
+	if (csr->symmetric && !csr->expanded_symmetry)
 	{
 		printf("dropping upper matrix after rcm\n");
 		csr_drop_upper(csr->ia, csr->ja, csr->a_ref, csr->m, csr->n, csr->nnz, &row_ptr_new, &col_idx_new, &values_new, &nnz_new, NULL, 1);
@@ -362,7 +367,7 @@ rcm(struct CSR_reference_s * csr)
 void
 fix_diagonal_zeros(struct CSR_reference_s * csr)
 {
-	int num_threads = omp_get_max_threads();
+	long num_threads = omp_get_max_threads();
 	INT_T * ia_new = (typeof(ia_new)) aligned_alloc(64, (csr->m + 1) * sizeof(ia_new));
 	long diag_nnz_missing = 0;
 	#pragma omp parallel
@@ -385,7 +390,7 @@ fix_diagonal_zeros(struct CSR_reference_s * csr)
 				if (i == csr->ja[j])
 				{
 					if (csr->a_ref[j] == 0)
-						csr->a_ref[j] = random_uniform(rs, 0, 1);
+						csr->a_ref[j] = 1.0 + random_uniform(rs, 0, 1);
 					ia_new[i] = 0;
 					break;
 				}
@@ -404,8 +409,8 @@ fix_diagonal_zeros(struct CSR_reference_s * csr)
 	if (diag_nnz_missing > 0)
 	{
 		printf("Adding %ld missing diagonal nonzeros\n", diag_nnz_missing);
-		ValueTypeReference * a_new = (typeof(a_new)) aligned_alloc(64, (csr->nnz+diag_nnz_missing) * sizeof(a_new));
-		INT_T * ja_new = (typeof(ja_new)) aligned_alloc(64, (csr->nnz+diag_nnz_missing) * sizeof(ja_new));
+		ValueTypeReference * a_new = (typeof(a_new)) aligned_alloc(64, (csr->nnz + diag_nnz_missing) * sizeof(a_new));
+		INT_T * ja_new = (typeof(ja_new)) aligned_alloc(64, (csr->nnz + diag_nnz_missing) * sizeof(ja_new));
 		scan_reduce(ia_new, ia_new, csr->m+1, 0, 1, 0);
 		#pragma omp parallel
 		{
@@ -438,14 +443,15 @@ fix_diagonal_zeros(struct CSR_reference_s * csr)
 				{
 					j_new = ia_new[i] + degree_new - 1;
 					ja_new[j_new] = i;
-					a_new[j_new] = random_uniform(rs, 0, 1);
+					a_new[j_new] = 1.0 + random_uniform(rs, 0, 1);
 				}
 			}
 			random_destroy(&rs);
 		}
 
 		csr->nnz_diag += diag_nnz_missing;
-		csr->nnz += diag_nnz_missing;
+		csr->nnz += diag_nnz_missing;          // The stored nnz increase even if symmetric (diagonal).
+		csr->nnz_matrix += diag_nnz_missing;
 
 		free(csr->a_ref);
 		free(csr->ia);
@@ -453,23 +459,27 @@ fix_diagonal_zeros(struct CSR_reference_s * csr)
 		csr->a_ref = a_new;
 		csr->ia = ia_new;
 		csr->ja = ja_new;
+
+		csr_sort_columns(csr->ia, csr->ja, csr->a_ref, csr->m, csr->n, csr->nnz);
 	}
 	else
 	{
 		free(ia_new);
 	}
-	printf("test\n");
 }
 
+
 //==========================================================================================================================================
-//= Main
+//------------------------------------------------------------------------------------------------------------------------------------------
+//-                                                                Main                                                                    -
+//------------------------------------------------------------------------------------------------------------------------------------------
 //==========================================================================================================================================
 
 
 int
 main(int argc, char **argv)
 {
-	int num_threads;
+	long num_threads;
 	struct CSR_reference_s * csr = (typeof(csr)) aligned_alloc(64, sizeof(*csr));
 
 	csr->a_ref = NULL;
@@ -500,7 +510,7 @@ main(int argc, char **argv)
 	{
 		num_threads = omp_get_max_threads();
 	}
-	printf("max threads %d\n", num_threads);
+	printf("max threads %ld\n", num_threads);
 
 	// Just print the labels and exit.
 	if (argc == 1)
@@ -619,8 +629,16 @@ child_proc_label:
 		printf("time rcm reordering: %lf\n", time);
 	}
 
-	for(int i=0; i<csr->nnz; i++)
-		csr->a_ref[i] = 1.0;
+
+	if (atoi(getenv("PLOT_MATRIX")) == 1)
+	{
+		long enable_legend = 1;
+		long num_pixels_x = 1080;
+		long num_pixels_y = (csr->m == csr->n) ? num_pixels_x : num_pixels_x * csr->m / csr->n;
+		csr_plot(csr->matrix_name, csr->ia, csr->ja, csr->a_ref, csr->m, csr->n, csr->nnz, enable_legend, num_pixels_x, num_pixels_y);
+	}
+
+
 	time = time_it(1,
 		MF = csr_to_format(csr->ia, csr->ja, csr->a_ref, csr->m, csr->n, csr->nnz, csr->symmetric, csr->expanded_symmetry);
 	);
