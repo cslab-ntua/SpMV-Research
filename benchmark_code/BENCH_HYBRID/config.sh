@@ -100,8 +100,8 @@ conf_vars=(
     ['force_retry_on_error']=0
     # ['force_retry_on_error']=1
 
-    # ['output_to_files']=0
-    ['output_to_files']=1
+    ['output_to_files']=0
+    # ['output_to_files']=1
 
     ['COOLDOWN']=0
     # ['COOLDOWN']=1
@@ -117,6 +117,10 @@ conf_vars=(
     # Whether to clear cpu caches before each spmv iteration.
     ['CLEAR_CACHES']=0
     # ['CLEAR_CACHES']=1
+
+    # Whether to plot the matrix.
+    ['PLOT_MATRIX']=0
+    # ['PLOT_MATRIX']=1
 
     # CG benchmarks: whether to replace zeros in the diagonal with 1s.
     # ['CG_FIX_DIAGONAL_ZEROS']=0
@@ -155,18 +159,20 @@ conf_vars=(
     # MALLOCHOST: cudaMallocHost (pinned host memory, zero-copy)
     # MANAGED:    cudaMallocManaged (unified memory)
     # MALLOC:     aligned_alloc / system memory (relies on ATS/HMM)
-    # ['VECTOR_ALLOC']='EXPLICIT'
+    ['VECTOR_ALLOC']='EXPLICIT'
     # ['VECTOR_ALLOC']='MALLOCHOST'
     # ['VECTOR_ALLOC']='MANAGED'
-    ['VECTOR_ALLOC']='MALLOC'
+    # ['VECTOR_ALLOC']='MALLOC'
 
     # CPU kernel for the CPU side of hybrid execution ('armpl' or 'csr_vec').
     ['CPU_KERNEL']='armpl'
     # ['CPU_KERNEL']='csr_vec'
 
     # GPU kernel for the GPU side of hybrid execution.
-    ['GPU_KERNEL']='cuda_csr_transpose_expand_rows'
     # ['GPU_KERNEL']='cusparse_csr'
+    # ['GPU_KERNEL']='cuda_csr_transpose_expand_rows_OLD'
+    ['GPU_KERNEL']='cuda_csr_transpose_expand_rows'
+    # ['GPU_KERNEL']='cuda_sell_sorted_hybrid'
 
     # K dimension.
     ['K_DIM']='16'
@@ -572,7 +578,7 @@ progs=(
     # ["${CPU_KERNEL}_d"]="${script_dir}/src/spmv_${CPU_KERNEL}_d.exe"
 
     # # Standalone GPU-only executable.
-    # ["${GPU_KERNEL}_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_${GPU_KERNEL}_${VECTOR_ALLOC}_nv_d.exe"
+    ["${GPU_KERNEL}_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_${GPU_KERNEL}_${VECTOR_ALLOC}_nv_d.exe"
 
     # # Hybrid executables — CPU_KERNEL + GPU_KERNEL control both sides.
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_95_${VECTOR_ALLOC}_nv_d.exe"
@@ -656,9 +662,9 @@ progs=(
 
 
     # No removal — baseline through the standalone dispatcher (should match plain GPU).
-    ["standalone_${GPU_KERNEL}_REMOVE_NONE_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_NONE_${VECTOR_ALLOC}_nv_d.exe"
+    # ["standalone_${GPU_KERNEL}_REMOVE_NONE_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_NONE_${VECTOR_ALLOC}_nv_d.exe"
 
-    # # Remove a contiguous block of X% rows from the beginning.
+    # Remove a contiguous block of X% rows from the beginning.
     # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_05_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_10_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_15_${VECTOR_ALLOC}_nv_d.exe"
@@ -667,7 +673,7 @@ progs=(
     # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_30_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_30_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_35_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_35_${VECTOR_ALLOC}_nv_d.exe"
     
-    # # Remove shortest X% of rows (GPU keeps the longest/densest rows).
+    # Remove shortest X% of rows (GPU keeps the longest/densest rows).
     # ["standalone_${GPU_KERNEL}_REMOVE_SHORTEST_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_SHORTEST_05_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_SHORTEST_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_SHORTEST_10_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_SHORTEST_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_SHORTEST_15_${VECTOR_ALLOC}_nv_d.exe"
@@ -676,7 +682,7 @@ progs=(
     # ["standalone_${GPU_KERNEL}_REMOVE_SHORTEST_30_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_SHORTEST_30_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_SHORTEST_35_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_SHORTEST_35_${VECTOR_ALLOC}_nv_d.exe"
 
-    # # Remove worst X% of zones scored by row-span (max row - min row).
+    # Remove worst X% of zones scored by row-span (max row - min row).
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_05_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_10_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_15_${VECTOR_ALLOC}_nv_d.exe"
@@ -685,7 +691,7 @@ progs=(
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_30_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_30_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_35_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_35_${VECTOR_ALLOC}_nv_d.exe"
 
-    # # Remove worst X% of zones scored by bandwidth (max_col - min_col).
+    # Remove worst X% of zones scored by bandwidth (max_col - min_col).
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_05_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_10_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_15_${VECTOR_ALLOC}_nv_d.exe"
@@ -694,7 +700,7 @@ progs=(
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_30_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_30_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_35_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_35_${VECTOR_ALLOC}_nv_d.exe"
 
-    # # Remove worst X% of zones scored by unique cache lines touched in x.
+    # Remove worst X% of zones scored by unique cache lines touched in x.
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_05_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_10_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_15_${VECTOR_ALLOC}_nv_d.exe"
@@ -703,7 +709,7 @@ progs=(
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_30_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_30_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_35_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_35_${VECTOR_ALLOC}_nv_d.exe"
 
-    # # Remove worst X% of zones scored by zero-padding waste ratio.
+    # Remove worst X% of zones scored by zero-padding waste ratio.
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_05_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_10_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_15_${VECTOR_ALLOC}_nv_d.exe"

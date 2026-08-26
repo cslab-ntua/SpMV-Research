@@ -96,17 +96,29 @@ CPU_KERNEL_FORMATNAME = $(CPU_KERNEL_FORMATNAME_$(CPU_KERNEL))
 # =============================================================================
 GPU_KERNEL ?= cuda_csr_transpose_expand_rows
 
+GPU_KERNEL_SRC_cusparse_csr      = spmv_kernels/$(GPU_dir)/cusparse_csr.cu
+GPU_KERNEL_INITFUNC_cusparse_csr  = cusparse_csr_to_format
+GPU_KERNEL_STATSFUNC_cusparse_csr = cusparse_csr_statistics_print_labels
+GPU_KERNEL_NVCCFLAGS_cusparse_csr =
+GPU_KERNEL_LDFLAGS_cusparse_csr   = -lcusparse
+
+GPU_KERNEL_SRC_cuda_csr_transpose_expand_rows_OLD      = spmv_kernels/$(GPU_dir)/cuda_csr_transpose_expand_rows_OLD.cu
+GPU_KERNEL_INITFUNC_cuda_csr_transpose_expand_rows_OLD  = cuda_csr_transpose_expand_rows_OLD_to_format
+GPU_KERNEL_STATSFUNC_cuda_csr_transpose_expand_rows_OLD = cuda_csr_transpose_expand_rows_OLD_statistics_print_labels
+GPU_KERNEL_NVCCFLAGS_cuda_csr_transpose_expand_rows_OLD =
+GPU_KERNEL_LDFLAGS_cuda_csr_transpose_expand_rows_OLD   =
+
 GPU_KERNEL_SRC_cuda_csr_transpose_expand_rows      = spmv_kernels/$(GPU_dir)/cuda_csr_transpose_expand_rows.cu
 GPU_KERNEL_INITFUNC_cuda_csr_transpose_expand_rows  = cuda_csr_transpose_expand_rows_to_format
 GPU_KERNEL_STATSFUNC_cuda_csr_transpose_expand_rows = cuda_csr_transpose_expand_rows_statistics_print_labels
 GPU_KERNEL_NVCCFLAGS_cuda_csr_transpose_expand_rows =
 GPU_KERNEL_LDFLAGS_cuda_csr_transpose_expand_rows   =
 
-GPU_KERNEL_SRC_cusparse_csr      = spmv_kernels/$(GPU_dir)/cusparse_csr.cu
-GPU_KERNEL_INITFUNC_cusparse_csr  = cusparse_csr_to_format
-GPU_KERNEL_STATSFUNC_cusparse_csr = cusparse_csr_statistics_print_labels
-GPU_KERNEL_NVCCFLAGS_cusparse_csr =
-GPU_KERNEL_LDFLAGS_cusparse_csr   = -lcusparse
+GPU_KERNEL_SRC_cuda_sell_sorted_hybrid      = spmv_kernels/$(GPU_dir)/cuda_sell_sorted_hybrid.cu
+GPU_KERNEL_INITFUNC_cuda_sell_sorted_hybrid  = cuda_sell_sorted_hybrid_to_format
+GPU_KERNEL_STATSFUNC_cuda_sell_sorted_hybrid = cuda_sell_sorted_hybrid_statistics_print_labels
+GPU_KERNEL_NVCCFLAGS_cuda_sell_sorted_hybrid =
+GPU_KERNEL_LDFLAGS_cuda_sell_sorted_hybrid   =
 
 # Active GPU kernel selection via computed variable names.
 GPU_KERNEL_SRC             = $(GPU_KERNEL_SRC_$(GPU_KERNEL))

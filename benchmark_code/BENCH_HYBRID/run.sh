@@ -878,9 +878,15 @@ matrices_weird=(
     Queen_4147
 
 )
-matrices_weird2=(
+matrices_weird=(
     # Transport
-    circuit5M
+    # circuit5M
+
+    # rajat31
+    # hugetric-00020
+    # Hardesty3
+    Bump_2911
+
 )
 matrices_weird=( 
     $(
@@ -1211,6 +1217,8 @@ for format_name in "${!progs[@]}"; do
         "$prog"
 
         for a in "${prog_args[@]}"; do
+
+            export MATRIX_NAME="$a"
 
             rep_in=1
             # rep_in=10

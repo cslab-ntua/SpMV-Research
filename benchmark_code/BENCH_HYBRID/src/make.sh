@@ -84,7 +84,8 @@ export HIPCC
 
 CFLAGS=''
 CFLAGS+=" -Wall -Wextra"
-CFLAGS+=" -pipe"  # Tells the compiler to use pipes instead of temporary files (faster compilation, but uses more memory).
+CFLAGS+=" -pipe"                            # Tells the compiler to use pipes instead of temporary files (faster compilation, but uses more memory).
+# CFLAGS+=" -rdynamic -D'DEBUG_BACKTRACE'"    # Show a function backtrace when printing errors with debug.h.
 # CFLAGS+=" -Wno-unused-variable"
 # CFLAGS+=" -Wno-alloc-size-larger-than"
 CFLAGS+=" -fsigned-char"
