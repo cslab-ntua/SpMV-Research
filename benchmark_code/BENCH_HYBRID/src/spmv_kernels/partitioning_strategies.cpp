@@ -5,6 +5,11 @@
 #include "spmv_kernel.h"
 #include "partitioning_strategies.h"
 
+// LLC size for cache-aware strategies.  Override with -DLLC_LIMIT_BYTES=...
+#ifndef LLC_LIMIT_BYTES
+#define LLC_LIMIT_BYTES (114UL * 1024 * 1024)   // Default: 114 MB (GH200 Grace)
+#endif
+
 // --- Helper struct & compare functions for sorting rows by NNZ ---
 struct RowSize {
 	long id;
@@ -45,7 +50,7 @@ long get_split_fixed_ratio(INT_T * row_ptr, long m, long total_nnz, double ratio
 
 // --- LLC-budget split (sequential rows) ---
 long get_split_llc_budget(INT_T * row_ptr, long m, long n) {
-	const size_t LLC_LIMIT = 114UL * 1024 * 1024;
+	const size_t LLC_LIMIT = LLC_LIMIT_BYTES;
 	size_t size_x = n * sizeof(ValueType);
 	
 	if (size_x >= LLC_LIMIT) {
@@ -68,7 +73,7 @@ long get_split_llc_budget(INT_T * row_ptr, long m, long n) {
 
 // --- Shortest-rows LLC split (row reordering) ---
 long get_split_shortest_rows_llc(INT_T * row_ptr, long m, long n, INT_T * row_map) {
-	const size_t LLC_LIMIT = 114UL * 1024 * 1024;
+	const size_t LLC_LIMIT = LLC_LIMIT_BYTES;
 	size_t size_x = n * sizeof(ValueType);
 	
 	if (size_x >= LLC_LIMIT) {

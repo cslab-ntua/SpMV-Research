@@ -994,6 +994,8 @@ bench()
                         --cpuctxsw=none \
                         --backtrace=fp \
                         --cuda-memory-usage=true \
+                        --gpu-metrics-device=all \
+                        --gpu-metrics-frequency=20000 \
                         --stats=true \
                         --force-overwrite=true \
                         --show-output=true \

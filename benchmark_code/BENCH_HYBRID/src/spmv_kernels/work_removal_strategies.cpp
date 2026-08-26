@@ -484,7 +484,7 @@ long get_removal_bad_zones_padding(INT_T * row_ptr, long m, long total_nnz, doub
 			actual += row_nnz;
 			padded += ZONE_NNZ_PER_THREAD * ((row_nnz + ZONE_NNZ_PER_THREAD - 1) / ZONE_NNZ_PER_THREAD);
 		}
-		zones[z].score = (padded > 0) ? (double)(padded - actual) / padded : 0.0;
+		zones[z].score = (actual > 0) ? (double)(padded - actual) / actual : 0.0;
 	}
 
 	qsort(zones, num_zones, sizeof(Zone), compareZoneScoreDescending);

@@ -117,6 +117,9 @@ def parse_logs(log_dir):
                 if t_match:
                     b_time = float(t_match.group('val')) * 1000.0 # to ms
 
+                pad_match = re.search(r'\(padding\s+([\d\.]+)\)', block)
+                b_padding = float(pad_match.group(1)) if pad_match else np.nan
+
                 if b_gflops is not None:
                     all_data.append({
                         'Matrix': matrix_name,
@@ -129,6 +132,7 @@ def parse_logs(log_dir):
                         'removed_rows': b_m_rem,
                         'removed_nnz': b_nnz_rem,
                         'avg_nnz_gpu': b_avg_nnz_gpu,
+                        'Padding_Pct': b_padding,
                         'Kernel': kernel
                     })
                     
@@ -137,7 +141,7 @@ def parse_logs(log_dir):
         return raw_df, matrix_order
         
     agg_dict = {'GFLOPS': hmean, 'Time_ms': 'mean'}
-    for col in ['m_gpu', 'nnz_gpu', 'removed_rows', 'removed_nnz', 'avg_nnz_gpu']:
+    for col in ['m_gpu', 'nnz_gpu', 'removed_rows', 'removed_nnz', 'avg_nnz_gpu', 'Padding_Pct']:
         if col in raw_df.columns:
             agg_dict[col] = 'mean'
             
@@ -312,8 +316,8 @@ def plot_bad_zones_nnz_pct(df, plot_dir, matrix_order):
         bad_zones_df['Matrix'] = pd.Categorical(bad_zones_df['Matrix'], categories=current_order, ordered=True)
         bad_zones_df = bad_zones_df.sort_values(['Matrix', 'Ratio'])
         
-        print(f"\n--- {bz_method}: NNZ GPU % vs Expected ---")
-        print(bad_zones_df[['Matrix', 'Ratio', 'nnz_gpu %', 'm_gpu %']].to_string(index=False))
+        # print(f"\n--- {bz_method}: NNZ GPU % vs Expected ---")
+        # print(bad_zones_df[['Matrix', 'Ratio', 'nnz_gpu %', 'm_gpu %']].to_string(index=False))
         
         plt.figure(figsize=(PLT_WIDTH, PLT_HEIGHT))
         sns.scatterplot(data=bad_zones_df, x='Matrix', y='nnz_gpu %', hue='Ratio', palette='viridis', s=100, alpha=0.8)
@@ -395,6 +399,400 @@ def analyze_colind0(df, colind0_df, plot_dir, matrix_order):
 
     return comp_df
 
+def analyze_pad_implementation(df, plot_dir):
+    pad_df = df[df['Method'] == 'Bad zones (Pad)'].dropna(subset=['Ratio']).copy()
+    if pad_df.empty:
+        return
+        
+    pad_plot_dir = os.path.join(plot_dir, 'focus_on_pad')
+    os.makedirs(pad_plot_dir, exist_ok=True)
+        
+    baseline_df = df[df['Method'] == 'Original'][['Matrix', 'Padding_Pct', 'GFLOPS']].set_index('Matrix')
+    ratios = sorted(pad_df['Ratio'].unique())
+    print(ratios)
+    all_pad_records = []
+    
+    for r in ratios:
+        ratio_df = pad_df[pad_df['Ratio'] == r].copy().set_index('Matrix')
+        
+        comp = pd.DataFrame(index=ratio_df.index)
+        comp['Original_Padding'] = baseline_df['Padding_Pct']
+        comp['New_Padding'] = ratio_df['Padding_Pct']
+        comp['Padding_Decrease'] = comp['Original_Padding'] - comp['New_Padding']
+        
+        comp['Original_GFLOPS'] = baseline_df['GFLOPS']
+        comp['New_GFLOPS'] = ratio_df['GFLOPS']
+        comp['GFLOPs_Change_%'] = ((comp['New_GFLOPS'] - comp['Original_GFLOPS']) / comp['Original_GFLOPS']) * 100.0
+        
+        comp = comp.dropna(subset=['Padding_Decrease'])
+        if comp.empty:
+            continue
+            
+        comp = comp.sort_values('Padding_Decrease', ascending=False)
+        
+        comp['Ratio'] = r
+        all_pad_records.append(comp.reset_index())
+        
+        plt.figure(figsize=(PLT_WIDTH, PLT_HEIGHT))
+        sorted_matrices = comp.index.tolist()
+        plot_data = comp.reset_index()
+        plot_data['Matrix'] = pd.Categorical(plot_data['Matrix'], categories=sorted_matrices, ordered=True)
+        
+        ax = sns.barplot(data=plot_data, x='Matrix', y='GFLOPs_Change_%', color='teal')
+        
+        # Add Padding Decrease labels to each bar
+        for i, p in enumerate(ax.patches):
+            decrease_val = plot_data.iloc[i]['Padding_Decrease']
+            height = p.get_height()
+            ax.annotate(f'-{decrease_val:.1f}%',
+                        (p.get_x() + p.get_width() / 2., height),
+                        ha='center', va='bottom' if height >= 0 else 'top',
+                        xytext=(0, 5 if height >= 0 else -5),
+                        textcoords='offset points',
+                        fontsize=9, rotation=90)
+                        
+        plt.title(f'BAD_ZONES_PAD (Ratio {int(r)}%) - Sorted by Padding Decrease', fontsize=TITLE_FONT_SIZE)
+        plt.ylabel('Performance Difference vs Original (%)', fontsize=LABEL_FONT_SIZE)
+        plt.xticks(rotation=90, fontsize=TICK_FONT_SIZE)
+        plt.yticks(fontsize=TICK_FONT_SIZE)
+        plt.axhline(y=0, color='red', linestyle='--')
+        
+        # Expand y-limits slightly so labels don't get cut off
+        ymin, ymax = plt.ylim()
+        plt.ylim(ymin - abs(ymin)*0.1 - 5, ymax + abs(ymax)*0.1 + 5)
+        
+        plt.tight_layout()
+        plt.savefig(os.path.join(pad_plot_dir, f'pad_performance_sorted_by_pad_decrease_{int(r):02d}.png'), dpi=300)
+        plt.close()
+
+        # Generate GFLOPS absolute comparison plot
+        melted = plot_data.melt(id_vars=['Matrix', 'Padding_Decrease'], 
+                                value_vars=['Original_GFLOPS', 'New_GFLOPS'],
+                                var_name='Version', value_name='GFLOPS')
+        melted['Version'] = melted['Version'].map({'Original_GFLOPS': 'Original', 'New_GFLOPS': 'Bad zones (Pad)'})
+        melted['Version'] = pd.Categorical(melted['Version'], categories=['Original', 'Bad zones (Pad)'], ordered=True)
+        melted['Matrix'] = pd.Categorical(melted['Matrix'], categories=sorted_matrices, ordered=True)
+        
+        plt.figure(figsize=(PLT_WIDTH, PLT_HEIGHT))
+        ax2 = sns.barplot(data=melted, x='Matrix', y='GFLOPS', hue='Version', palette=['#4C72B0', '#55A868'])
+        
+        # Add labels to the 'Bad zones (Pad)' bars only (second half of patches)
+        num_matrices = len(plot_data)
+        for i, p in enumerate(ax2.patches):
+            if i >= num_matrices and i < 2 * num_matrices:
+                matrix_idx = i - num_matrices
+                decrease_val = plot_data.iloc[matrix_idx]['Padding_Decrease']
+                height = p.get_height()
+                # Skip annotation if bar is somehow zero or missing
+                if pd.isna(height) or height == 0: continue
+                
+                ax2.annotate(f'-{decrease_val:.1f}%',
+                            (p.get_x() + p.get_width() / 2., height),
+                            ha='center', va='bottom',
+                            xytext=(0, 5),
+                            textcoords='offset points',
+                            fontsize=9, rotation=90)
+        
+        plt.title(f'BAD_ZONES_PAD (Ratio {int(r)}%) - GFLOPS Comparison (Sorted by Padding Decrease)', fontsize=TITLE_FONT_SIZE)
+        plt.ylabel('GFLOPS', fontsize=LABEL_FONT_SIZE)
+        plt.xticks(rotation=90, fontsize=TICK_FONT_SIZE)
+        plt.yticks(fontsize=TICK_FONT_SIZE)
+        
+        # Expand y-limits slightly so labels don't get cut off
+        ymin, ymax = plt.ylim()
+        plt.ylim(0, ymax + abs(ymax)*0.15)
+        
+        plt.legend(title='Method')
+        plt.tight_layout()
+        plt.savefig(os.path.join(pad_plot_dir, f'pad_gflops_comparison_sorted_by_pad_decrease_{int(r):02d}.png'), dpi=300)
+        plt.close()
+        
+    if all_pad_records:
+        combined_pad_df = pd.concat(all_pad_records, ignore_index=True)
+        cols = ['Matrix', 'Ratio', 'Original_Padding', 'New_Padding', 'Padding_Decrease', 'Original_GFLOPS', 'New_GFLOPS', 'GFLOPs_Change_%']
+        combined_pad_df = combined_pad_df[cols]
+        combined_csv = os.path.join(pad_plot_dir, 'pad_analysis_summary.csv')
+        combined_pad_df.to_csv(combined_csv, index=False)
+        print(f"PAD analysis saved to {combined_csv} and individual ratio plots generated.")
+
+def plot_best_method_per_ratio(df, plot_dir, ratios, matrix_order):
+    methods_df = df[df['Method'] != 'Original'].dropna(subset=['GFLOPs_Change_%']).copy()
+    if methods_df.empty:
+        return
+        
+    for r in ratios:
+        r_df = methods_df[methods_df['Ratio'] == r].copy()
+        if r_df.empty: continue
+        
+        idx_best = r_df.groupby('Matrix', observed=True)['GFLOPs_Change_%'].idxmax()
+        best_df = r_df.loc[idx_best].set_index('Matrix').reindex(matrix_order).reset_index()
+        best_df['Matrix'] = pd.Categorical(best_df['Matrix'], categories=matrix_order, ordered=True)
+        
+        plt.figure(figsize=(PLT_WIDTH, PLT_HEIGHT))
+        ax = sns.barplot(data=best_df, x='Matrix', y='GFLOPs_Change_%', color='goldenrod')
+        
+        for i, p in enumerate(ax.patches):
+            height = p.get_height()
+            if pd.isna(height) or height == 0: continue
+            
+            method_name = best_df.iloc[i]['Method']
+            short_name = str(method_name).replace("Bad zones ", "BZ ").replace("Contiguous", "Contig").replace("Shortest", "Short")
+            
+            ax.annotate(short_name,
+                        (p.get_x() + p.get_width() / 2., height),
+                        ha='center', va='bottom' if height >= 0 else 'top',
+                        xytext=(0, 5 if height >= 0 else -5),
+                        textcoords='offset points',
+                        fontsize=8, rotation=90)
+                        
+        plt.title(f'Best Method per Matrix - Ratio {int(r)}%', fontsize=TITLE_FONT_SIZE)
+        plt.ylabel('Max Performance Difference vs Original (%)', fontsize=LABEL_FONT_SIZE)
+        plt.xticks(rotation=90, fontsize=TICK_FONT_SIZE)
+        plt.yticks(fontsize=TICK_FONT_SIZE)
+        plt.axhline(y=0, color='red', linestyle='--')
+        
+        ymin, ymax = plt.ylim()
+        plt.ylim(ymin - abs(ymin)*0.2 - 10, ymax + abs(ymax)*0.2 + 10)
+        
+        plt.tight_layout()
+        plt.savefig(os.path.join(plot_dir, f'best_method_per_ratio_{int(r):02d}.png'), dpi=300)
+        plt.close()
+
+def plot_best_method_overall(df, plot_dir, matrix_order, sort_by_pct=False):
+    methods_df = df[df['Method'] != 'Original'].dropna(subset=['GFLOPs_Change_%']).copy()
+    if methods_df.empty:
+        return
+        
+    idx_best = methods_df.groupby('Matrix', observed=True)['GFLOPs_Change_%'].idxmax()
+    best_df = methods_df.loc[idx_best].set_index('Matrix').reindex(matrix_order).reset_index()
+    
+    if sort_by_pct:
+        # Sort best_df descending by GFLOPs_Change_%
+        best_df = best_df.sort_values('GFLOPs_Change_%', ascending=False).reset_index(drop=True)
+        # Re-create categorical with the new order so seaborn plots it sorted
+        sorted_matrices = best_df['Matrix'].tolist()
+        best_df['Matrix'] = pd.Categorical(best_df['Matrix'], categories=sorted_matrices, ordered=True)
+    else:
+        best_df['Matrix'] = pd.Categorical(best_df['Matrix'], categories=matrix_order, ordered=True)
+    
+    plt.figure(figsize=(PLT_WIDTH, PLT_HEIGHT))
+    ax = sns.barplot(data=best_df, x='Matrix', y='GFLOPs_Change_%', color='darkorange')
+    
+    for i, p in enumerate(ax.patches):
+        height = p.get_height()
+        if pd.isna(height) or height == 0: continue
+        
+        method_name = best_df.iloc[i]['Method']
+        ratio_val = best_df.iloc[i]['Ratio']
+        
+        short_name = str(method_name).replace("Bad zones ", "BZ ").replace("Contiguous", "Contig").replace("Shortest", "Short")
+        label_text = f"{short_name} ({int(ratio_val)}%)"
+        
+        ax.annotate(label_text,
+                    (p.get_x() + p.get_width() / 2., height),
+                    ha='center', va='bottom' if height >= 0 else 'top',
+                    xytext=(0, 5 if height >= 0 else -5),
+                    textcoords='offset points',
+                    fontsize=8, rotation=90)
+                    
+    title_suffix = " (Sorted by Pct Change)" if sort_by_pct else ""
+    plt.title(f'Best Method Overall (Any Ratio) per Matrix{title_suffix}', fontsize=TITLE_FONT_SIZE)
+    plt.ylabel('Max Performance Difference vs Original (%)', fontsize=LABEL_FONT_SIZE)
+    plt.xticks(rotation=90, fontsize=TICK_FONT_SIZE)
+    plt.yticks(fontsize=TICK_FONT_SIZE)
+    plt.axhline(y=0, color='red', linestyle='--')
+    
+    ymin, ymax = plt.ylim()
+    plt.ylim(ymin - abs(ymin)*0.3 - 10, ymax + abs(ymax)*0.3 + 10)
+    
+    plt.tight_layout()
+    filename = 'best_method_overall_sorted.png' if sort_by_pct else 'best_method_overall.png'
+    plt.savefig(os.path.join(plot_dir, filename), dpi=300)
+    plt.close()
+
+def quantify_method_performance(df, plot_dir, ratios):
+    methods_df = df[df['Method'] != 'Original'].dropna(subset=['GFLOPs_Change_%']).copy()
+    if methods_df.empty:
+        return
+        
+    scorecard_dir = os.path.join(plot_dir, 'method_scorecard')
+    os.makedirs(scorecard_dir, exist_ok=True)
+    
+    # Pre-calculate Speedup multiplier robustly
+    methods_df['Speedup_Multiplier'] = np.clip(1.0 + (methods_df['GFLOPs_Change_%'] / 100.0), a_min=1e-6, a_max=None)
+    
+    records = []
+    
+    # 1. Overall Quantification
+    for method, m_df in methods_df.groupby('Method', observed=True):
+        if m_df.empty: continue
+        
+        best_overall = methods_df.loc[methods_df.groupby('Matrix', observed=True)['GFLOPs_Change_%'].idxmax()]
+        wins = len(best_overall[best_overall['Method'] == method])
+        total_matrices = len(best_overall)
+        win_rate = (wins / total_matrices) * 100.0 if total_matrices > 0 else 0
+        
+        geomean_speedup = gmean(m_df['Speedup_Multiplier'].dropna())
+        geomean_pct = (geomean_speedup - 1.0) * 100.0
+        
+        median_pct = m_df['GFLOPs_Change_%'].median()
+        
+        regressions = len(m_df[m_df['GFLOPs_Change_%'] < 0])
+        regression_rate = (regressions / len(m_df)) * 100.0 if len(m_df) > 0 else 0
+        
+        records.append({
+            'Ratio': 'Overall',
+            'Method': method,
+            'Win_Rate_%': win_rate,
+            'Geomean_GFLOPs_Change_%': geomean_pct,
+            'Median_GFLOPs_Change_%': median_pct,
+            'Regression_Rate_%': regression_rate
+        })
+        
+    # 2. Per Ratio Quantification
+    for r in ratios:
+        r_df = methods_df[methods_df['Ratio'] == r].copy()
+        if r_df.empty: continue
+        
+        best_per_ratio = r_df.loc[r_df.groupby('Matrix', observed=True)['GFLOPs_Change_%'].idxmax()]
+        total_matrices = len(best_per_ratio)
+        
+        for method, m_df in r_df.groupby('Method', observed=True):
+            if m_df.empty: continue
+            
+            wins = len(best_per_ratio[best_per_ratio['Method'] == method])
+            win_rate = (wins / total_matrices) * 100.0 if total_matrices > 0 else 0
+            
+            geomean_speedup = gmean(m_df['Speedup_Multiplier'].dropna())
+            geomean_pct = (geomean_speedup - 1.0) * 100.0
+            
+            median_pct = m_df['GFLOPs_Change_%'].median()
+            
+            regressions = len(m_df[m_df['GFLOPs_Change_%'] < 0])
+            regression_rate = (regressions / len(m_df)) * 100.0 if len(m_df) > 0 else 0
+            
+            records.append({
+                'Ratio': f'{int(r)}%',
+                'Method': method,
+                'Win_Rate_%': win_rate,
+                'Geomean_GFLOPs_Change_%': geomean_pct,
+                'Median_GFLOPs_Change_%': median_pct,
+                'Regression_Rate_%': regression_rate
+            })
+            
+    scorecard = pd.DataFrame(records)
+    csv_path = os.path.join(scorecard_dir, 'method_scorecard.csv')
+    scorecard.to_csv(csv_path, index=False)
+    print(f"Method scorecard saved to {csv_path}")
+    
+    # ---- PLOTTING ----
+    overall_df = scorecard[scorecard['Ratio'] == 'Overall'].copy()
+    
+    if not overall_df.empty:
+        # Plot Overall Geomean
+        plt.figure(figsize=(10, 6))
+        overall_df = overall_df.sort_values('Geomean_GFLOPs_Change_%', ascending=False)
+        geomean_method_order = overall_df['Method'].tolist()
+        ax = sns.barplot(data=overall_df, x='Method', y='Geomean_GFLOPs_Change_%', color='mediumpurple')
+        for p in ax.patches:
+            height = p.get_height()
+            ax.annotate(f'{height:.1f}%', (p.get_x() + p.get_width() / 2., height), ha='center', va='bottom' if height >= 0 else 'top')
+        plt.title('Overall Geometric Mean of GFLOPS Change', fontsize=TITLE_FONT_SIZE)
+        plt.ylabel('Geomean Change vs Original (%)', fontsize=LABEL_FONT_SIZE)
+        plt.xticks(rotation=45, ha='right')
+        plt.axhline(y=0, color='red', linestyle='--')
+        plt.tight_layout()
+        plt.savefig(os.path.join(scorecard_dir, 'overall_geomean_change.png'), dpi=300)
+        plt.close()
+        
+        # Plot Overall Regression Rate
+        plt.figure(figsize=(10, 6))
+        overall_df = overall_df.sort_values('Regression_Rate_%', ascending=True)
+        regression_method_order = overall_df['Method'].tolist()
+        ax = sns.barplot(data=overall_df, x='Method', y='Regression_Rate_%', color='indianred')
+        for p in ax.patches:
+            height = p.get_height()
+            ax.annotate(f'{height:.1f}%', (p.get_x() + p.get_width() / 2., height), ha='center', va='bottom')
+        plt.title('Overall Regression Rate (Lower is Better)', fontsize=TITLE_FONT_SIZE)
+        plt.ylabel('% of Matrices with Reduced Performance', fontsize=LABEL_FONT_SIZE)
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+        plt.savefig(os.path.join(scorecard_dir, 'overall_regression_rate.png'), dpi=300)
+        plt.close()
+
+    # Plot Geomean Change per Ratio (grouped bar chart)
+    per_ratio_df = scorecard[scorecard['Ratio'] != 'Overall'].copy()
+    if not per_ratio_df.empty:
+        plt.figure(figsize=(14, 7))
+        ratio_order = sorted(per_ratio_df['Ratio'].unique(), key=lambda x: float(x.strip('%')))
+        ax = sns.barplot(data=per_ratio_df, x='Method', y='Geomean_GFLOPs_Change_%', hue='Ratio', hue_order=ratio_order, order=geomean_method_order if not overall_df.empty else None, palette='viridis')
+        
+        for p in ax.patches:
+            height = p.get_height()
+            if pd.isna(height) or height == 0: continue
+            ax.annotate(f'{height:.1f}%', 
+                        (p.get_x() + p.get_width() / 2., height), 
+                        ha='center', va='bottom' if height >= 0 else 'top',
+                        xytext=(0, 3 if height >= 0 else -3),
+                        textcoords='offset points',
+                        fontsize=7, rotation=90)
+                        
+        plt.title('Geometric Mean of GFLOPS Change per Ratio', fontsize=TITLE_FONT_SIZE)
+        plt.ylabel('Geomean Change vs Original (%)', fontsize=LABEL_FONT_SIZE)
+        plt.xticks(rotation=45, ha='right')
+        plt.axhline(y=0, color='red', linestyle='--')
+        
+        ymin, ymax = plt.ylim()
+        plt.ylim(ymin - abs(ymin)*0.2 - 2, ymax + abs(ymax)*0.2 + 2)
+        
+        plt.legend(title='Ratio', bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.tight_layout()
+        plt.savefig(os.path.join(scorecard_dir, 'geomean_change_per_ratio.png'), dpi=300)
+        plt.close()
+
+        # Plot Regression Rate per Ratio (grouped bar chart)
+        plt.figure(figsize=(14, 7))
+        ax = sns.barplot(data=per_ratio_df, x='Method', y='Regression_Rate_%', hue='Ratio', hue_order=ratio_order, order=regression_method_order if not overall_df.empty else None, palette='magma')
+        
+        for p in ax.patches:
+            height = p.get_height()
+            if pd.isna(height) or height == 0: continue
+            ax.annotate(f'{height:.1f}%', 
+                        (p.get_x() + p.get_width() / 2., height), 
+                        ha='center', va='bottom',
+                        xytext=(0, 3),
+                        textcoords='offset points',
+                        fontsize=7, rotation=90)
+                        
+        plt.title('Regression Rate per Ratio (Lower is Better)', fontsize=TITLE_FONT_SIZE)
+        plt.ylabel('% of Matrices with Reduced Performance', fontsize=LABEL_FONT_SIZE)
+        plt.xticks(rotation=45, ha='right')
+        
+        ymin, ymax = plt.ylim()
+        plt.ylim(0, ymax + abs(ymax)*0.2 + 2)
+        
+        plt.legend(title='Ratio', bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.tight_layout()
+        plt.savefig(os.path.join(scorecard_dir, 'regression_rate_per_ratio.png'), dpi=300)
+        plt.close()
+
+    # Heatmap of Win Rates per Ratio
+    heatmap_df = scorecard[scorecard['Ratio'] != 'Overall'].pivot(index='Method', columns='Ratio', values='Win_Rate_%')
+    if not heatmap_df.empty:
+        # Sort columns numerically (e.g. '5%', '10%', '20%')
+        sorted_cols = sorted(heatmap_df.columns, key=lambda x: float(x.strip('%')))
+        heatmap_df = heatmap_df[sorted_cols]
+        
+        # Add an 'Average' column to summarize each method
+        heatmap_df['Average'] = heatmap_df.mean(axis=1)
+        
+        plt.figure(figsize=(10, 6))
+        sns.heatmap(heatmap_df, annot=True, fmt=".1f", cmap="YlGnBu", cbar_kws={'label': 'Win Rate (%)'})
+        plt.title('Method Win Rate (%) per Ratio', fontsize=TITLE_FONT_SIZE)
+        plt.tight_layout()
+        plt.savefig(os.path.join(scorecard_dir, 'win_rate_heatmap.png'), dpi=300)
+        plt.close()
+
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
     log_dir = os.path.abspath(os.path.join(script_dir, '../out_logs/work_removal_logs/'))
@@ -441,7 +839,7 @@ if __name__ == "__main__":
     ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### 
 
     filter_matrices = 0
-    filter_methods = 1
+    filter_methods = 0
 
     if(filter_matrices):
         COLIND0_THRESHOLD = 70.0
@@ -458,8 +856,8 @@ if __name__ == "__main__":
         # WARNING: "Original" must remain in this list for the plotting baselines to work!
         ALLOWED_METHODS = [
             "Original",
-            "Contiguous",
-            "Shortest",
+            # "Contiguous",
+            # "Shortest",
             "Bad zones (Rows)",
             "Bad zones (BW)",
             "Bad zones (CL)",
@@ -478,13 +876,11 @@ if __name__ == "__main__":
 
     ratios = sorted(df['Ratio'].dropna().unique())
 
-
     print("Generating GFLOPS comparison plots...")
     plot_performance(df, plot_dir, ratios, matrix_order, method_order, metric='GFLOPS')
 
     print("Generating GFLOPs Percentage Change plots...")
     plot_gflops_pct_change(df, plot_dir, ratios, matrix_order, method_order)
-
 
     print("Generating Time comparison plots...")
     plot_performance(df, plot_dir, ratios, matrix_order, method_order, metric='Time_ms')
@@ -492,8 +888,22 @@ if __name__ == "__main__":
     print("Generating Time Reduction Ratio plots...")
     plot_time_ratio_change(df, plot_dir, ratios, matrix_order, method_order)
 
-    print("Generating Bad Zones NNZ Percentage plot and printing dataframe...")
-    plot_bad_zones_nnz_pct(df, plot_dir, matrix_order)
+    result = any('Bad zones' in word for word in method_order)
+    if(result):
+        print("Generating Bad Zones plots...")
+        plot_bad_zones_nnz_pct(df, plot_dir, matrix_order)
+
+    if 'Bad zones (Pad)' in method_order:
+        print("Analyzing PAD Implementation...")
+        analyze_pad_implementation(df, plot_dir)
+
+    print("Generating Best Method summaries...")
+    plot_best_method_per_ratio(df, plot_dir, ratios, matrix_order)
+    plot_best_method_overall(df, plot_dir, matrix_order)
+    plot_best_method_overall(df, plot_dir, matrix_order, sort_by_pct=True)
+
+    print("Quantifying Method Performance (Scorecards)...")
+    quantify_method_performance(df, plot_dir, ratios)
 
     ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### 
 

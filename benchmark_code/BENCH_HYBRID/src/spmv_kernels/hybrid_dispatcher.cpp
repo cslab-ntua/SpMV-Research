@@ -5,6 +5,7 @@
 #include "spmv_kernel.h"
 #include "hybrid_dispatcher.h"
 #include "partitioning_strategies.h"
+#include "csr_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -179,24 +180,8 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 
 		// Initialize CPU sub-format
 		if (m_cpu > 0) {
-			// Create CSR fragment for CPU
-			INT_T * r_p = (INT_T *) malloc((m_cpu + 1) * sizeof(INT_T));
-			INT_T * c_i = (INT_T *) malloc(nnz_cpu * sizeof(INT_T));
-			ValueTypeReference * vals = (ValueTypeReference *) malloc(nnz_cpu * sizeof(ValueTypeReference));
-			
-			r_p[0] = 0;
-			long curr_nnz = 0;
-			for (long i = 0; i < m_cpu; i++) {
-				long row = hybrid->row_map[i];
-				long row_nnz = row_ptr[row+1] - row_ptr[row];
-				for (long j = 0; j < row_nnz; j++) {
-					c_i[curr_nnz + j] = col_ind[row_ptr[row] + j];
-					vals[curr_nnz + j] = values[row_ptr[row] + j];
-				}
-				curr_nnz += row_nnz;
-				r_p[i+1] = curr_nnz;
-			}
-
+			INT_T *r_p, *c_i; ValueTypeReference *vals;
+			extract_csr_fragment(row_ptr, col_ind, values, hybrid->row_map, 0, m_cpu, nnz_cpu, &r_p, &c_i, &vals);
 			time_cpu = time_it(1,
 				hybrid->cpu_part = CPU_KERNEL_FUNC(r_p, c_i, vals, m_cpu, n, nnz_cpu, symmetric, symmetry_expanded);
 			);
@@ -205,23 +190,8 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 
 		// Initialize GPU sub-format
 		if (m_gpu > 0) {
-			INT_T * r_p = (INT_T *) malloc((m_gpu + 1) * sizeof(INT_T));
-			INT_T * c_i = (INT_T *) malloc(nnz_gpu * sizeof(INT_T));
-			ValueTypeReference * vals = (ValueTypeReference *) malloc(nnz_gpu * sizeof(ValueTypeReference));
-			
-			r_p[0] = 0;
-			long curr_nnz = 0;
-			for (long i = 0; i < m_gpu; i++) {
-				long row = hybrid->row_map[m_cpu + i];
-				long row_nnz = row_ptr[row+1] - row_ptr[row];
-				for (long j = 0; j < row_nnz; j++) {
-					c_i[curr_nnz + j] = col_ind[row_ptr[row] + j];
-					vals[curr_nnz + j] = values[row_ptr[row] + j];
-				}
-				curr_nnz += row_nnz;
-				r_p[i+1] = curr_nnz;
-			}
-
+			INT_T *r_p, *c_i; ValueTypeReference *vals;
+			extract_csr_fragment(row_ptr, col_ind, values, hybrid->row_map, m_cpu, m_gpu, nnz_gpu, &r_p, &c_i, &vals);
 			time_gpu = time_it(1,
 				hybrid->gpu_part = GPU_KERNEL_FUNC(r_p, c_i, vals, m_gpu, n, nnz_gpu, symmetric, symmetry_expanded, m_cpu);
 			);
