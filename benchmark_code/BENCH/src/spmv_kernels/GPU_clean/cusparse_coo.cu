@@ -74,7 +74,7 @@ struct COOArrays : Matrix_Format
 		for (long i = 0; i < nnz; i++)
 			a[i] = (ValueType) a_ref[i];
 
-		gpuCusparseErrorCheck(cusparseCreate(&handle));
+		cusparse_assert(cusparseCreate(&handle));
 
 
 		rowind = (typeof(rowind)) malloc(nnz * sizeof(*rowind));
@@ -111,7 +111,7 @@ struct COOArrays : Matrix_Format
 		cuda_assert(cudaMemcpy(a_d, a_h, nnz * sizeof(*a_d), cudaMemcpyHostToDevice));
 
 		// Create sparse matrix A in COO format
-		gpuCusparseErrorCheck(cusparseCreateCoo(&matA, m, n, nnz, rowind_d, colind_d, a_d, CUSPARSE_INDEX_32I, CUSPARSE_INDEX_BASE_ZERO, ValueTypeCuda));
+		cusparse_assert(cusparseCreateCoo(&matA, m, n, nnz, rowind_d, colind_d, a_d, CUSPARSE_INDEX_32I, CUSPARSE_INDEX_BASE_ZERO, ValueTypeCuda));
 
 	}
 
@@ -122,10 +122,10 @@ struct COOArrays : Matrix_Format
 		free(colind);
 
 		// destroy matrix/vector descriptors
-		gpuCusparseErrorCheck(cusparseDestroySpMat(matA));
-		gpuCusparseErrorCheck(cusparseDestroyDnVec(vecX));
-		gpuCusparseErrorCheck(cusparseDestroyDnVec(vecY));
-		gpuCusparseErrorCheck(cusparseDestroy(handle));
+		cusparse_assert(cusparseDestroySpMat(matA));
+		cusparse_assert(cusparseDestroyDnVec(vecX));
+		cusparse_assert(cusparseDestroyDnVec(vecY));
+		cusparse_assert(cusparseDestroy(handle));
 
 		cuda_assert(cudaFree(rowind_d));
 		cuda_assert(cudaFree(colind_d));
@@ -185,18 +185,18 @@ compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restri
 		cuda_assert(cudaMemcpy(coo->x_d, x, coo->n * sizeof(*coo->x_d), cudaMemcpyHostToDevice));
 
 		// Create dense vector X
-		gpuCusparseErrorCheck(cusparseCreateDnVec(&coo->vecX, coo->n, coo->x_d, ValueTypeCuda));
+		cusparse_assert(cusparseCreateDnVec(&coo->vecX, coo->n, coo->x_d, ValueTypeCuda));
 
 		// Create dense vector y
-		gpuCusparseErrorCheck(cusparseCreateDnVec(&coo->vecY, coo->m, coo->y_d, ValueTypeCuda));
+		cusparse_assert(cusparseCreateDnVec(&coo->vecY, coo->m, coo->y_d, ValueTypeCuda));
 
 		// Allocate an external buffer if needed
-		gpuCusparseErrorCheck(cusparseSpMV_bufferSize(coo->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, coo->matA, coo->vecX, &beta, coo->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, &coo->bufferSize));
+		cusparse_assert(cusparseSpMV_bufferSize(coo->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, coo->matA, coo->vecX, &beta, coo->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, &coo->bufferSize));
 		cuda_assert(cudaMalloc(&coo->dBuffer, coo->bufferSize));
 		printf("SpMV_bufferSize = %lu bytes\n", coo->bufferSize); // size of the workspace that is needed by cusparseSpMV()
 	}
 
-	gpuCusparseErrorCheck(cusparseSpMV(coo->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, coo->matA, coo->vecX, &beta, coo->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, coo->dBuffer));
+	cusparse_assert(cusparseSpMV(coo->handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, coo->matA, coo->vecX, &beta, coo->vecY, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, coo->dBuffer));
 	cuda_assert(cudaDeviceSynchronize());
 
 	if (coo->y == NULL)

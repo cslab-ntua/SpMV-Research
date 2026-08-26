@@ -86,19 +86,6 @@ struct CSRArrays : Matrix_Format
 
 	CSRArrays(INT_T * ia, INT_T * ja, ValueType * a, long m, long n, long nnz) : Matrix_Format(m, n, nnz), ia(ia), ja(ja), a(a)
 	{
-		// int max_smem_per_block, multiproc_count, max_threads_per_block, warp_size, max_threads_per_multiproc;
-		// gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_smem_per_block, cudaDevAttrMaxSharedMemoryPerBlock, 0));
-		// gpuCudaErrorCheck(cudaDeviceGetAttribute(&multiproc_count, cudaDevAttrMultiProcessorCount, 0));
-		// gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_block, cudaDevAttrMaxThreadsPerBlock , 0));
-		// gpuCudaErrorCheck(cudaDeviceGetAttribute(&warp_size, cudaDevAttrWarpSize , 0));
-		// gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_threads_per_multiproc, cudaDevAttrMaxThreadsPerMultiProcessor, 0));
-		// gpuCudaErrorCheck(cudaDeviceGetAttribute(&max_persistent_l2_cache, cudaDevAttrMaxPersistingL2CacheSize, 0));
-		// printf("max_smem_per_block=%d\n", max_smem_per_block);
-		// printf("multiproc_count=%d\n", multiproc_count);
-		// printf("max_threads_per_block=%d\n", max_threads_per_block);
-		// printf("warp_size=%d\n", warp_size);
-		// printf("max_threads_per_multiproc=%d\n", max_threads_per_multiproc);
-		
 		HIP_CHECK(hipMalloc((void**)&ia_d, (m+1) * sizeof(*ia_d)));
 		HIP_CHECK(hipMalloc((void**)&ja_d, nnz * sizeof(*ja_d)));
 		HIP_CHECK(hipMalloc((void**)&a_d, nnz * sizeof(*a_d)));
@@ -251,21 +238,6 @@ compute_csr(CSRArrays * restrict csr, ValueType * restrict x, ValueType * restri
 			HIP_CHECK(hipEventElapsedTime(&memcpyTime_rocm, csr->startEvent_memcpy_x, csr->endEvent_memcpy_x));
 			printf("(ROCM) Memcpy x time = %.4lf ms\n", memcpyTime_rocm);
 		}
-
-		// #ifdef PERSISTENT_L2_PREFETCH
-		// 	int x_d_size = csr->n * sizeof(*csr->x);
-		// 	gpuCudaErrorCheck(cudaCtxResetPersistingL2Cache()); // This needs to happen every time before running kernel for 1st time for a matrix...
-		// 	if(x_d_size < csr->max_persistent_l2_cache){
-		// 		cudaStreamAttrValue attribute;
-		// 		auto &window = attribute.accessPolicyWindow;
-		// 		window.base_ptr = csr->x_d;
-		// 		window.num_bytes = x_d_size;
-		// 		window.hitRatio = 1.0;
-		// 		window.hitProp = cudaAccessPropertyPersisting;
-		// 		window.missProp = cudaAccessPropertyStreaming;
-		// 		gpuCudaErrorCheck(cudaStreamSetAttribute(csr->stream, cudaStreamAttributeAccessPolicyWindow, &attribute));
-		// 	}
-		// #endif
 	}
 
 	ROCSPARSE_CHECK(rocsparse_dhybmv(csr->handle, rocsparse_operation_none, &alpha, csr->matA, csr->hyb_matA, csr->x_d, &beta, csr->y_d));

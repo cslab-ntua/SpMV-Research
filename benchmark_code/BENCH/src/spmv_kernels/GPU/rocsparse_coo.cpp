@@ -274,21 +274,6 @@ compute_coo(COOArrays * restrict coo, ValueType * restrict x, ValueType * restri
 			HIP_CHECK(hipEventElapsedTime(&memcpyTime_rocm, coo->startEvent_memcpy_x, coo->endEvent_memcpy_x));
 			printf("(ROCM) Memcpy x time = %.4lf ms\n", memcpyTime_rocm);
 		}
-
-		// #ifdef PERSISTENT_L2_PREFETCH
-		// 	int x_d_size = coo->n * sizeof(*coo->x);
-		// 	gpuCudaErrorCheck(cudaCtxResetPersistingL2Cache()); // This needs to happen every time before running kernel for 1st time for a matrix...
-		// 	if(x_d_size < coo->max_persistent_l2_cache){
-		// 		cudaStreamAttrValue attribute;
-		// 		auto &window = attribute.accessPolicyWindow;
-		// 		window.base_ptr = coo->x_d;
-		// 		window.num_bytes = x_d_size;
-		// 		window.hitRatio = 1.0;
-		// 		window.hitProp = cudaAccessPropertyPersisting;
-		// 		window.missProp = cudaAccessPropertyStreaming;
-		// 		gpuCudaErrorCheck(cudaStreamSetAttribute(coo->stream, cudaStreamAttributeAccessPolicyWindow, &attribute));
-		// 	}
-		// #endif
 	}
 
 	ROCSPARSE_CHECK(rocsparse_dcoomv(coo->handle, rocsparse_operation_none, coo->m, coo->n, coo->nnz, &alpha, coo->matA, coo->a_d, coo->rowind_d, coo->colind_d, coo->x_d, &beta, coo->y_d));

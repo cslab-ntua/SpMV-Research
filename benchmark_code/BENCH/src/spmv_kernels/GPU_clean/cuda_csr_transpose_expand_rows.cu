@@ -142,13 +142,13 @@ namespace cg = cooperative_groups;
 using namespace cooperative_groups;
 
 
-void
-cuda_push_duplicate_base(void ** dst_ptr, void * src, long bytes)
-{
-	cudaMalloc(dst_ptr, bytes);
-	cudaMemcpy(*((char **) dst_ptr), src, bytes, cudaMemcpyHostToDevice);
-}
-#define cuda_push_duplicate(dst_ptr, src, bytes) cuda_push_duplicate_base((void **) dst_ptr, src, bytes)
+// void
+// cuda_push_duplicate_base(void ** dst_ptr, void * src, long bytes)
+// {
+// 	cudaMalloc(dst_ptr, bytes);
+// 	cudaMemcpy(*((char **) dst_ptr), src, bytes, cudaMemcpyHostToDevice);
+// }
+// #define cuda_push_duplicate(dst_ptr, src, bytes) cuda_push_duplicate_base((void **) dst_ptr, src, bytes)
 
 
 template<typename T>
@@ -172,7 +172,7 @@ struct CSRArrays : Matrix_Format
 {
 	long nnz_per_thread;
 	long nnz_per_block;
-	long nnz_per_warp = 32 * nnz_per_thread;
+	long nnz_per_warp;
 
 	long nnz_extended;
 
