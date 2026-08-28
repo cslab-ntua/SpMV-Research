@@ -14,7 +14,7 @@ double
 time_it_clock_gettime_overhead()
 {
 	struct timespec t1, t2;
-	uint64_t tmp, overhead = ~0;
+	uint64_t tmp, overhead = UINT64_MAX;
 	int i;
 	int repeat = 100000;
 	

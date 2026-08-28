@@ -107,7 +107,7 @@ static __attribute__((unused))
 uint64_t
 time_it_tsc_overhead()
 {
-	uint64_t t1, t2, overhead = ~0;
+	uint64_t t1, t2, overhead = UINT64_MAX;
 	int i;
 	int repeats = 100000;
 	
