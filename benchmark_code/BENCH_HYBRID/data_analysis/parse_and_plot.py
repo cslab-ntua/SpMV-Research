@@ -23,6 +23,9 @@ TITLE_FONT_SIZE = 16
 LABEL_FONT_SIZE = 12
 PLT_WIDTH, PLT_HEIGHT = 21, 10
 
+'''
+Reads .out log files, extracting matrix names, execution times, GFLOPS, partitioning ratios, and kernel types using regex.
+'''
 def parse_logs(log_dir, subdir=None):
     all_data = []
     matrix_order = []
@@ -322,6 +325,9 @@ def plot_standalone_cpu_comparison(df, plot_dir, full_matrix_order):
     plt.savefig(os.path.join(plot_dir, '2_standalone_cpu_comparison.png'), dpi=300)
     plt.close()
 
+'''
+Generates bar charts comparing the standalone GPU performance against hybrid executions for various offload ratios.
+'''
 def plot_hybrid_ratios(df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], strategy='NAIVE'):
     print(f"Plotting Hybrid Ratios (Strategy: {strategy})...")
     hybrid_df = df[(df['IsHybrid'] == True) & (df['Strategy'] == strategy)]
@@ -354,6 +360,9 @@ def plot_hybrid_ratios(df, standalone_explicit, plot_dir, full_matrix_order, gpu
                 plt.savefig(os.path.join(plot_dir, f'3_hybrid_{strategy}_{cpu_kernel}_{gpu_kernel}_{t}_vs_standalone_ratio_{r}.png'), dpi=300)
                 plt.close()
 
+'''
+Identifies the optimal CPU/GPU ratio for each matrix and plots the absolute GFLOPS over the standalone GPU baseline.
+'''
 def plot_best_hybrid_gflops(df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], strategy='NAIVE'):
     print(f"Plotting Best Hybrid GFLOPs (Strategy: {strategy})...")
     hybrid_df = df[(df['IsHybrid'] == True) & (df['Strategy'] == strategy)]
@@ -394,6 +403,9 @@ def plot_best_hybrid_gflops(df, standalone_explicit, plot_dir, full_matrix_order
             plt.savefig(os.path.join(plot_dir, f'4_best_hybrid_{strategy}_{cpu_kernel}_{gpu_kernel}_{t}_vs_standalone_gflops.png'), dpi=300)
             plt.close()
 
+'''
+Identifies the optimal CPU/GPU ratio for each matrix and plots the percentage improvement over the standalone GPU baseline.
+'''
 def plot_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], sort_by_pct=False, strategy='NAIVE'):
     suffix = "_sorted" if sort_by_pct else ""
     print(f"Plotting Best Hybrid Percentage Change (Strategy: {strategy}){suffix}...")
@@ -476,6 +488,9 @@ def plot_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_order, g
                 analysis_df.to_csv(analysis_csv, index=False)
                 print(f"Detailed analysis saved to: {analysis_csv}")
 
+'''
+Identifies the absolute best strategy (among all implemented strategies and ratios) per matrix and visualizes the percentage speedup.
+'''
 def plot_overall_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], sort_by_pct=True):
     suffix = "_sorted" if sort_by_pct else ""
     print(f"Plotting Overall Best Hybrid Percentage Change{suffix}...")
@@ -530,6 +545,9 @@ def plot_overall_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_
             plt.savefig(os.path.join(plot_dir, f'5_overall_best_hybrid_{cpu_kernel}_{gpu_kernel}_{t}_vs_standalone_pct{suffix}.png'), dpi=300)
             plt.close()
 
+'''
+Directly compares the different partitioning strategies side-by-side for a given offload ratio.
+'''
 def plot_strategy_comparison(df, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, alloc_type='MALLOC'):
     print(f"Plotting Strategy Comparison ({alloc_type}) for GPU={gpu_kernel}, CPU={cpu_kernel}...")
     target_df = df[(((df['GPU_Kernel'] == gpu_kernel) & (df['CPU_Kernel'] == cpu_kernel)) |
@@ -569,6 +587,9 @@ def plot_strategy_comparison(df, plot_dir, full_matrix_order, gpu_kernel, cpu_ke
         plt.savefig(os.path.join(strat_compare_dir, f'strat_compare_{alloc_type}_ratio_{r}.png'), dpi=300)
         plt.close()
 
+'''
+Compares performance between runs that utilize NUMA pinning/prefetching versus old runs without it.
+'''
 def plot_pinning_comparison(log_dir, plot_dir, gpu_kernel, cpu_kernel, matrix_order, alloc_type='MALLOC', strategy='NAIVE'):
     print(f"Plotting Pinning Comparison ({alloc_type}, {strategy}) for GPU={gpu_kernel}, CPU={cpu_kernel}...")
     df_new, _ = parse_logs(log_dir)
@@ -640,16 +661,16 @@ if __name__ == "__main__":
     #     exit()
 
     # --- Pinning Comparison ---
-    plot_pinning_comparison(log_dir, plot_dir, GPU_KERNEL, CPU_KERNEL, matrix_order, alloc_type='MALLOC', strategy='NAIVE')
+    # plot_pinning_comparison(log_dir, plot_dir, GPU_KERNEL, CPU_KERNEL, matrix_order, alloc_type='MALLOC', strategy='NAIVE')
   
     full_matrix_order = matrix_order + ['HMEAN', 'GMEAN', 'MEAN']
     sns.set_theme(style="whitegrid")
     df['Matrix'] = pd.Categorical(df['Matrix'], categories=full_matrix_order, ordered=True)
     
     # Plot standalone comparisons first
-    # plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='EXPLICIT')
-    # plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='MALLOC')
-    # plot_standalone_cpu_comparison(df, plot_dir, full_matrix_order)
+    plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='EXPLICIT')
+    plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='MALLOC')
+    plot_standalone_cpu_comparison(df, plot_dir, full_matrix_order)
 
     # --- Strategy Comparison ---
     plot_strategy_comparison(df, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, alloc_type='MALLOC')

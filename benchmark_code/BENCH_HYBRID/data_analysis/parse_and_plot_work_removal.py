@@ -39,6 +39,9 @@ def add_mean_row(df, metric, group_col, mean_type='hmean'):
 
     return pd.concat([df, pd.DataFrame(mean_rows)], ignore_index=True)
 
+'''
+Specifically parses logs formatted as standalone_*_REMOVE_*.out, extracting the removed rows/NNZ and remaining performance metrics.
+'''
 def parse_logs(log_dir):
     all_data = []
     matrix_order = []
@@ -47,94 +50,101 @@ def parse_logs(log_dir):
         print(f"Directory {log_dir} does not exist.")
         return pd.DataFrame(), []
 
-    filenames = sorted(os.listdir(log_dir))
+    run_dirs = [d for d in os.listdir(log_dir) if os.path.isdir(os.path.join(log_dir, d)) and d.startswith('run')]
+    if not run_dirs:
+        run_dirs = ['.']
 
-    for filename in filenames:
-        if not filename.endswith('.out'):
-            continue
-            
-        m = re.match(r'^(COLIND0_)?standalone_(.*?)_REMOVE_(NONE|CONTIGUOUS|SHORTEST|BAD_ZONES_ROWS|BAD_ZONES_BW|BAD_ZONES_CL|BAD_ZONES_PAD)(?:_(\d+))?_MALLOC_nv_d\.out$', filename)
-        if not m:
-            continue
-            
-        is_colind0 = bool(m.group(1))
-        kernel = m.group(2)
-        method_raw = m.group(3)
-        ratio = int(m.group(4)) if m.group(4) else None
-        
-        if is_colind0:
-            if method_raw != 'NONE':
+    for run_name in sorted(run_dirs):
+        current_run_path = os.path.join(log_dir, run_name)
+        if not os.path.isdir(current_run_path): continue
+        filenames = sorted(os.listdir(current_run_path))
+
+        for filename in filenames:
+            if not filename.endswith('.out'):
                 continue
-            method = 'COLIND0'
-        else:
-            method_map = {
-                'NONE': 'Original',
-                'CONTIGUOUS': 'Contiguous',
-                'SHORTEST': 'Shortest',
-                'BAD_ZONES_ROWS': 'Bad zones (Rows)',
-                'BAD_ZONES_BW': 'Bad zones (BW)',
-                'BAD_ZONES_CL': 'Bad zones (CL)',
-                'BAD_ZONES_PAD': 'Bad zones (Pad)'
-            }
-            method = method_map.get(method_raw)
-        
-        filepath = os.path.join(log_dir, filename)
-        with open(filepath, 'r') as f:
-            content = f.read()
+                
+            m = re.match(r'^(COLIND0_)?standalone_(.*?)_REMOVE_(NONE|CONTIGUOUS|SHORTEST|BAD_ZONES_ROWS|BAD_ZONES_BW|BAD_ZONES_CL|BAD_ZONES_PAD)(?:_(\d+))?_MALLOC_nv_d\.out$', filename)
+            if not m:
+                continue
+                
+            is_colind0 = bool(m.group(1))
+            kernel = m.group(2)
+            method_raw = m.group(3)
+            ratio = int(m.group(4)) if m.group(4) else None
             
-            blocks = content.split('------------------------\n')
-            for block in blocks[1:]:
-                lines = block.strip().split('\n')
-                if len(lines) < 2: continue
+            if is_colind0:
+                if method_raw != 'NONE':
+                    continue
+                method = 'COLIND0'
+            else:
+                method_map = {
+                    'NONE': 'Original',
+                    'CONTIGUOUS': 'Contiguous',
+                    'SHORTEST': 'Shortest',
+                    'BAD_ZONES_ROWS': 'Bad zones (Rows)',
+                    'BAD_ZONES_BW': 'Bad zones (BW)',
+                    'BAD_ZONES_CL': 'Bad zones (CL)',
+                    'BAD_ZONES_PAD': 'Bad zones (Pad)'
+                }
+                method = method_map.get(method_raw)
+            
+            filepath = os.path.join(current_run_path, filename)
+            with open(filepath, 'r') as f:
+                content = f.read()
+            
+                blocks = content.split('------------------------\n')
+                for block in blocks[1:]:
+                    lines = block.strip().split('\n')
+                    if len(lines) < 2: continue
                 
-                matrix_path = lines[0]
-                matrix_name = os.path.basename(matrix_path).replace('.mtx', '')
-                if matrix_name not in matrix_order:
-                    matrix_order.append(matrix_name)
+                    matrix_path = lines[0]
+                    matrix_name = os.path.basename(matrix_path).replace('.mtx', '')
+                    if matrix_name not in matrix_order:
+                        matrix_order.append(matrix_name)
                     
-                b_gflops = None
-                b_time = None
-                b_m_gpu, b_nnz_gpu = None, None
-                b_m_rem, b_nnz_rem = None, None
-                b_avg_nnz_gpu = None
+                    b_gflops = None
+                    b_time = None
+                    b_m_gpu, b_nnz_gpu = None, None
+                    b_m_rem, b_nnz_rem = None, None
+                    b_avg_nnz_gpu = None
                 
-                rem_match = re.search(r'Removed:\s+(?P<rows>\d+)\s+rows.*?,?\s+(?P<nnz>\d+)\s+NNZs', block)
-                if rem_match:
-                    b_m_rem = int(rem_match.group('rows'))
-                    b_nnz_rem = int(rem_match.group('nnz'))
+                    rem_match = re.search(r'Removed:\s+(?P<rows>\d+)\s+rows.*?,?\s+(?P<nnz>\d+)\s+NNZs', block)
+                    if rem_match:
+                        b_m_rem = int(rem_match.group('rows'))
+                        b_nnz_rem = int(rem_match.group('nnz'))
                     
-                gpu_match = re.search(r'GPU:\s+(?P<rows>\d+)\s+rows.*?,?\s+(?P<nnz>\d+)\s+NNZs.*avg NNZ/row:\s+(?P<avg>[\d\.]+)', block)
-                if gpu_match:
-                    b_m_gpu = int(gpu_match.group('rows'))
-                    b_nnz_gpu = int(gpu_match.group('nnz'))
-                    b_avg_nnz_gpu = float(gpu_match.group('avg'))
+                    gpu_match = re.search(r'GPU:\s+(?P<rows>\d+)\s+rows.*?,?\s+(?P<nnz>\d+)\s+NNZs.*avg NNZ/row:\s+(?P<avg>[\d\.]+)', block)
+                    if gpu_match:
+                        b_m_gpu = int(gpu_match.group('rows'))
+                        b_nnz_gpu = int(gpu_match.group('nnz'))
+                        b_avg_nnz_gpu = float(gpu_match.group('avg'))
                 
-                g_match = re.search(r'GFLOPS = (?P<val>[\d\.]+)', block)
-                if g_match:
-                    b_gflops = float(g_match.group('val'))
+                    g_match = re.search(r'GFLOPS = (?P<val>[\d\.]+)', block)
+                    if g_match:
+                        b_gflops = float(g_match.group('val'))
                     
-                t_match = re.search(r'time iter: min=.*?, median=(?P<val>[\d\.e\-]+),', block)
-                if t_match:
-                    b_time = float(t_match.group('val')) * 1000.0 # to ms
+                    t_match = re.search(r'time iter: min=.*?, median=(?P<val>[\d\.e\-]+),', block)
+                    if t_match:
+                        b_time = float(t_match.group('val')) * 1000.0 # to ms
 
-                pad_match = re.search(r'\(padding\s+([\d\.]+)\)', block)
-                b_padding = float(pad_match.group(1)) if pad_match else np.nan
+                    pad_match = re.search(r'\(padding\s+([\d\.]+)\)', block)
+                    b_padding = float(pad_match.group(1)) if pad_match else np.nan
 
-                if b_gflops is not None:
-                    all_data.append({
-                        'Matrix': matrix_name,
-                        'Method': method,
-                        'Ratio': ratio,
-                        'GFLOPS': b_gflops,
-                        'Time_ms': b_time,
-                        'm_gpu': b_m_gpu,
-                        'nnz_gpu': b_nnz_gpu,
-                        'removed_rows': b_m_rem,
-                        'removed_nnz': b_nnz_rem,
-                        'avg_nnz_gpu': b_avg_nnz_gpu,
-                        'Padding_Pct': b_padding,
-                        'Kernel': kernel
-                    })
+                    if b_gflops is not None:
+                        all_data.append({
+                            'Matrix': matrix_name,
+                            'Method': method,
+                            'Ratio': ratio,
+                            'GFLOPS': b_gflops,
+                            'Time_ms': b_time,
+                            'm_gpu': b_m_gpu,
+                            'nnz_gpu': b_nnz_gpu,
+                            'removed_rows': b_m_rem,
+                            'removed_nnz': b_nnz_rem,
+                            'avg_nnz_gpu': b_avg_nnz_gpu,
+                            'Padding_Pct': b_padding,
+                            'Kernel': kernel
+                        })
                     
     raw_df = pd.DataFrame(all_data)
     if raw_df.empty:
@@ -181,6 +191,9 @@ def plot_performance(df, plot_dir, ratios, matrix_order, method_order, metric='G
         plt.savefig(os.path.join(plot_dir, f'work_removal_{metric.lower()}_ratio_{int(r):02d}.png'), dpi=300)
         plt.close()
 
+'''
+Plots the execution time reduction compared to the expected theoretical reduction (e.g., if 10% of work is removed, is execution time reduced by 10% or more?).
+'''
 def plot_time_ratio_change(df, plot_dir, ratios, matrix_order, method_order):
     os.makedirs(plot_dir, exist_ok=True)
 
@@ -243,6 +256,9 @@ def plot_time_ratio_change(df, plot_dir, ratios, matrix_order, method_order):
         plt.savefig(os.path.join(plot_dir, f'time_reduction_ratio_{int(r):02d}.png'), dpi=300)
         plt.close()
 
+'''
+Visualizes the percentage increase in GFLOPS when difficult work is removed.
+'''
 def plot_gflops_pct_change(df, plot_dir, ratios, matrix_order, method_order):
     os.makedirs(plot_dir, exist_ok=True)
 
@@ -303,6 +319,9 @@ def plot_gflops_pct_change(df, plot_dir, ratios, matrix_order, method_order):
         plt.savefig(os.path.join(plot_dir, f'gflops_pct_change_ratio_{int(r):02d}.png'), dpi=300)
         plt.close()
 
+'''
+Visualizes how much actual non-zero workload is removed when targeting specific structural anomalies ("bad zones").
+'''
 def plot_bad_zones_nnz_pct(df, plot_dir, matrix_order):
     bz_methods = ["Bad zones (Rows)", "Bad zones (BW)", "Bad zones (CL)", "Bad zones (Pad)"]
     for bz_method in bz_methods:
@@ -399,6 +418,9 @@ def analyze_colind0(df, colind0_df, plot_dir, matrix_order):
 
     return comp_df
 
+'''
+Focuses specifically on the BAD_ZONES_PAD strategy, analyzing how removing highly-padded zones decreases the overall padding penalty and improves GFLOPS.
+'''
 def analyze_pad_implementation(df, plot_dir):
     pad_df = df[df['Method'] == 'Bad zones (Pad)'].dropna(subset=['Ratio']).copy()
     if pad_df.empty:
@@ -610,6 +632,9 @@ def plot_best_method_overall(df, plot_dir, matrix_order, sort_by_pct=False):
     plt.savefig(os.path.join(plot_dir, filename), dpi=300)
     plt.close()
 
+'''
+Generates a "Scorecard" (Win rate, Geometric mean of GFLOPS change, and Regression rate) to rank the effectiveness of the various removal strategies.
+'''
 def quantify_method_performance(df, plot_dir, ratios):
     methods_df = df[df['Method'] != 'Original'].dropna(subset=['GFLOPs_Change_%']).copy()
     if methods_df.empty:
