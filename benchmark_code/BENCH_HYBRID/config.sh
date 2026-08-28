@@ -159,10 +159,10 @@ conf_vars=(
     # MALLOCHOST: cudaMallocHost (pinned host memory, zero-copy)
     # MANAGED:    cudaMallocManaged (unified memory)
     # MALLOC:     aligned_alloc / system memory (relies on ATS/HMM)
-    ['VECTOR_ALLOC']='EXPLICIT'
+    # ['VECTOR_ALLOC']='EXPLICIT'
     # ['VECTOR_ALLOC']='MALLOCHOST'
     # ['VECTOR_ALLOC']='MANAGED'
-    # ['VECTOR_ALLOC']='MALLOC'
+    ['VECTOR_ALLOC']='MALLOC'
 
     # CPU kernel for the CPU side of hybrid execution ('armpl' or 'csr_vec').
     ['CPU_KERNEL']='armpl'
@@ -171,8 +171,8 @@ conf_vars=(
     # GPU kernel for the GPU side of hybrid execution.
     # ['GPU_KERNEL']='cusparse_csr'
     # ['GPU_KERNEL']='cuda_csr_transpose_expand_rows_OLD'
-    ['GPU_KERNEL']='cuda_csr_transpose_expand_rows'
-    # ['GPU_KERNEL']='cuda_sell_sorted_hybrid'
+    # ['GPU_KERNEL']='cuda_csr_transpose_expand_rows'
+    ['GPU_KERNEL']='cuda_sell_sorted_hybrid'
 
     # K dimension.
     ['K_DIM']='16'
@@ -577,10 +577,10 @@ progs=(
     # Standalone CPU-only executable (no GPU).
     # ["${CPU_KERNEL}_d"]="${script_dir}/src/spmv_${CPU_KERNEL}_d.exe"
 
-    # # Standalone GPU-only executable.
+    # Standalone GPU-only executable.
     ["${GPU_KERNEL}_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_${GPU_KERNEL}_${VECTOR_ALLOC}_nv_d.exe"
 
-    # # Hybrid executables — CPU_KERNEL + GPU_KERNEL control both sides.
+    # Hybrid executables — CPU_KERNEL + GPU_KERNEL control both sides.
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_95_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_90_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_90_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_85_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_85_${VECTOR_ALLOC}_nv_d.exe"
@@ -625,13 +625,13 @@ progs=(
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_70_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_65_${VECTOR_ALLOC}_nv_d.exe"
 
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LLC_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LLC_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_LLC_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_LLC_${VECTOR_ALLOC}_nv_d.exe"
-
     # =========================================================================
     # Standalone GPU Work-Removal experiments
     # Removed rows are simply skipped (not computed on CPU).
     # =========================================================================
+
+    # No removal — baseline through the standalone dispatcher (should match plain GPU).
+    # ["standalone_${GPU_KERNEL}_REMOVE_NONE_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_NONE_${VECTOR_ALLOC}_nv_d.exe"
 
     # Remove all rows with NNZ below threshold (GPU keeps dense rows).
     # ["standalone_${GPU_KERNEL}_REMOVE_BELOW_THRESH_4_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BELOW_THRESH_4_${VECTOR_ALLOC}_nv_d.exe"
@@ -658,11 +658,6 @@ progs=(
     # ["standalone_${GPU_KERNEL}_REMOVE_OUTLIER_1_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_OUTLIER_1_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_OUTLIER_2_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_OUTLIER_2_${VECTOR_ALLOC}_nv_d.exe"
     # ["standalone_${GPU_KERNEL}_REMOVE_OUTLIER_3_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_OUTLIER_3_${VECTOR_ALLOC}_nv_d.exe"
-
-
-
-    # No removal — baseline through the standalone dispatcher (should match plain GPU).
-    # ["standalone_${GPU_KERNEL}_REMOVE_NONE_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_NONE_${VECTOR_ALLOC}_nv_d.exe"
 
     # Remove a contiguous block of X% rows from the beginning.
     # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_05_${VECTOR_ALLOC}_nv_d.exe"

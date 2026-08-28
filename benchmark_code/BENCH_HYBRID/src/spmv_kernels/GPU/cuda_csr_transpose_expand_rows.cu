@@ -710,7 +710,7 @@ cuda_csr_transpose_expand_rows_to_format(INT_T * row_ptr, INT_T * col_ind, Value
 	csr->mem_footprint = csr->nnz_extended * (sizeof(ValueTypeStored) + sizeof(INT_T)) + (m+1) * sizeof(INT_T);
 	char *format_name;
 	format_name = (char *)malloc(100*sizeof(char));
-	snprintf(format_name, 100, "Custom_CSR_CUDA_expanded_rows_b%d_nnz%d", BLOCK_SIZE, csr->nnz_per_thread);
+	snprintf(format_name, 100, "Custom_CSR_CUDA_transpose_expand_rows_b%d_nnz%ld", BLOCK_SIZE, csr->nnz_per_thread);
 	csr->format_name = format_name;
 	return csr;
 }

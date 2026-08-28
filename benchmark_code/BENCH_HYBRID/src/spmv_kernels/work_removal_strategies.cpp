@@ -274,9 +274,7 @@ long get_removal_contiguous_block(INT_T * row_ptr, long m, long total_nnz,
 //
 // Score of a zone = num_rows it spans.  High row count = sparse/divergent = bad.
 
-#define ZONE_NNZ_PER_THREAD 5
 #define ZONE_BLOCK_SIZE     128
-#define ZONE_TARGET_NNZ     (ZONE_NNZ_PER_THREAD * ZONE_BLOCK_SIZE)  // 640
 
 struct Zone {
 	long start_row;
@@ -292,8 +290,20 @@ static int compareZoneScoreDescending(const void * a, const void * b) {
 
 // Helper: build zones from row_ptr using GPU padded NNZ logic.
 // Returns number of zones created.  Caller must free zones.
-static long build_zones(INT_T * row_ptr, long m, Zone ** out_zones)
+static long build_zones(INT_T * row_ptr, long m, long total_nnz, Zone ** out_zones, long * out_nnz_per_thread, long * out_zone_target_nnz)
 {
+	double nnz_per_row = (double)total_nnz / m;
+	long nnz_per_thread;
+	if (nnz_per_row < 1) nnz_per_thread = 1;
+	else if (nnz_per_row < 3) nnz_per_thread = (long)(nnz_per_row + 0.5);
+	else if (nnz_per_row < 5) nnz_per_thread = (long)(nnz_per_row + 0.9);
+	else nnz_per_thread = 5;
+	
+	long zone_target_nnz = nnz_per_thread * ZONE_BLOCK_SIZE;
+	
+	if (out_nnz_per_thread) *out_nnz_per_thread = nnz_per_thread;
+	if (out_zone_target_nnz) *out_zone_target_nnz = zone_target_nnz;
+
 	Zone * zones = (Zone *) malloc(m * sizeof(Zone));
 	long num_zones = 0;
 	long zone_start = 0;
@@ -301,11 +311,11 @@ static long build_zones(INT_T * row_ptr, long m, Zone ** out_zones)
 
 	for (long i = 0; i < m; i++) {
 		long row_nnz = row_ptr[i+1] - row_ptr[i];
-		// Emulate GPU zero-padding: round up to next multiple of NNZ_PER_THREAD
-		long padded = ZONE_NNZ_PER_THREAD * ((row_nnz + ZONE_NNZ_PER_THREAD - 1) / ZONE_NNZ_PER_THREAD);
+		// Emulate GPU zero-padding: round up to next multiple of nnz_per_thread
+		long padded = nnz_per_thread * ((row_nnz + nnz_per_thread - 1) / nnz_per_thread);
 		current_padded_nnz += padded;
 
-		if (current_padded_nnz >= ZONE_TARGET_NNZ || i == m - 1) {
+		if (current_padded_nnz >= zone_target_nnz || i == m - 1) {
 			zones[num_zones].start_row = zone_start;
 			zones[num_zones].end_row   = i;
 			zones[num_zones].num_rows  = i - zone_start + 1;
@@ -369,9 +379,10 @@ static long remove_worst_zones(Zone * zones, long num_zones,
 long get_removal_bad_zones_rows(INT_T * row_ptr, long m, long total_nnz, double ratio, INT_T * row_map)
 {
 	Zone * zones;
-	long num_zones = build_zones(row_ptr, m, &zones);
+	long nnz_per_thread, zone_target_nnz;
+	long num_zones = build_zones(row_ptr, m, total_nnz, &zones, &nnz_per_thread, &zone_target_nnz);
 
-	printf("   Bad zones (rows): %ld zones identified (target padded NNZ/zone = %d)\n", num_zones, ZONE_TARGET_NNZ);
+	printf("   Bad zones (rows): %ld zones identified (target padded NNZ/zone = %ld)\n", num_zones, zone_target_nnz);
 
 	// Score = num_rows (higher = more sparse = worse)
 	for (long z = 0; z < num_zones; z++)
@@ -389,9 +400,10 @@ long get_removal_bad_zones_rows(INT_T * row_ptr, long m, long total_nnz, double 
 long get_removal_bad_zones_bandwidth(INT_T * row_ptr, INT_T * col_ind, long m, long total_nnz, double ratio, INT_T * row_map)
 {
 	Zone * zones;
-	long num_zones = build_zones(row_ptr, m, &zones);
+	long nnz_per_thread, zone_target_nnz;
+	long num_zones = build_zones(row_ptr, m, total_nnz, &zones, &nnz_per_thread, &zone_target_nnz);
 
-	printf("   Bad zones (bandwidth): %ld zones identified (target padded NNZ/zone = %d)\n", num_zones, ZONE_TARGET_NNZ);
+	printf("   Bad zones (bandwidth): %ld zones identified (target padded NNZ/zone = %ld)\n", num_zones, zone_target_nnz);
 
 	// Score = max_col - min_col across all NNZ in the zone
 	for (long z = 0; z < num_zones; z++) {
@@ -427,9 +439,10 @@ static int compareLong(const void * a, const void * b) {
 long get_removal_bad_zones_cachelines(INT_T * row_ptr, INT_T * col_ind, long m, long total_nnz, double ratio, INT_T * row_map)
 {
 	Zone * zones;
-	long num_zones = build_zones(row_ptr, m, &zones);
+	long nnz_per_thread, zone_target_nnz;
+	long num_zones = build_zones(row_ptr, m, total_nnz, &zones, &nnz_per_thread, &zone_target_nnz);
 
-	printf("   Bad zones (cachelines): %ld zones identified (target padded NNZ/zone = %d)\n", num_zones, ZONE_TARGET_NNZ);
+	printf("   Bad zones (cachelines): %ld zones identified (target padded NNZ/zone = %ld)\n", num_zones, zone_target_nnz);
 
 	// Temporary buffer for cache line IDs within a zone
 	// Max NNZ in a zone is bounded; use a generous buffer
@@ -471,9 +484,10 @@ long get_removal_bad_zones_cachelines(INT_T * row_ptr, INT_T * col_ind, long m, 
 long get_removal_bad_zones_padding(INT_T * row_ptr, long m, long total_nnz, double ratio, INT_T * row_map)
 {
 	Zone * zones;
-	long num_zones = build_zones(row_ptr, m, &zones);
+	long nnz_per_thread, zone_target_nnz;
+	long num_zones = build_zones(row_ptr, m, total_nnz, &zones, &nnz_per_thread, &zone_target_nnz);
 
-	printf("   Bad zones (padding): %ld zones identified (target padded NNZ/zone = %d)\n", num_zones, ZONE_TARGET_NNZ);
+	printf("   Bad zones (padding): %ld zones identified (target padded NNZ/zone = %ld)\n", num_zones, zone_target_nnz);
 
 	// Score = (padded_nnz - actual_nnz) / padded_nnz  (higher = more waste)
 	for (long z = 0; z < num_zones; z++) {
@@ -482,7 +496,7 @@ long get_removal_bad_zones_padding(INT_T * row_ptr, long m, long total_nnz, doub
 		for (long r = zones[z].start_row; r <= zones[z].end_row; r++) {
 			long row_nnz = row_ptr[r+1] - row_ptr[r];
 			actual += row_nnz;
-			padded += ZONE_NNZ_PER_THREAD * ((row_nnz + ZONE_NNZ_PER_THREAD - 1) / ZONE_NNZ_PER_THREAD);
+			padded += nnz_per_thread * ((row_nnz + nnz_per_thread - 1) / nnz_per_thread);
 		}
 		zones[z].score = (actual > 0) ? (double)(padded - actual) / actual : 0.0;
 	}

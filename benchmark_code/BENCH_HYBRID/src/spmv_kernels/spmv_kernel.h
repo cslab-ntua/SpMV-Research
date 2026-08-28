@@ -17,7 +17,7 @@ struct Matrix_Format
 	virtual void spmv(ValueType * x, ValueType * y) = 0;
 	// SpMV operating directly on device pointers — no host↔device vector copies.
 	// GPU formats override this; CPU-only formats use the default which errors.
-	virtual void spmv_gpu(ValueType * x_d, ValueType * y_d)
+	virtual void spmv_gpu(ValueType *, ValueType *)
 	{
 		fprintf(stderr, "ERROR: spmv_gpu() not implemented for format '%s'\n", format_name);
 		exit(1);
