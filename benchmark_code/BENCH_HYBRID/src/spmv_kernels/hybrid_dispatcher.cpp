@@ -38,26 +38,103 @@ extern "C" {
 #define HYBRID_FORMAT_NAME   "Hybrid_ArmPL_CudaCSR_transpose_expand_rows"
 #endif
 
+/**************************************************************************/
+// The following macros only for debugging purposes. Need to delete them later!!
+// In order to run the x-shared version of hybrid, just comment all lines below.
+// In order to run the x-local-cpu with the sparse-gather optimization, uncomment DIAG_CPU_LOCAL_X_OPT.
+// #define DIAG_GPU_ONLY
+// #define DIAG_CPU_ONLY
+// #define DIAG_ANNOY_GPU
+// #define DIAG_CPU_COLIND0
+// #define DIAG_CPU_LOCAL_X
+// #define DIAG_CPU_LOCAL_X_UNOPT
+#define DIAG_CPU_LOCAL_X_OPT
+/**************************************************************************/
+
 // Forward-declare both sub-format initializers using the injected macro names.
 struct Matrix_Format * CPU_KERNEL_FUNC(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded);
 struct Matrix_Format * GPU_KERNEL_FUNC(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded, long m_cpu);
 
 void Hybrid_Arrays::spmv(ValueType * x, ValueType * y) {
-    // 1. Launch GPU kernel (Async). Writes its DtH directly to the pinned tail of y!
-    gpu_part->spmv(x, y);
+
+	// Gather the necessary x elements first
+	// long num_elements = n;
+	// double transfer_time = time_it(1,
+	#ifdef DIAG_CPU_LOCAL_X_UNOPT
+		memcpy(x_cpu_local, x, this->n * sizeof(ValueType));
+	#elif defined(DIAG_CPU_LOCAL_X_OPT)
+		_Pragma("omp parallel for")
+		for (long i = 0; i < num_gather; i++) {
+			x_cpu_local[i] = x[gather_indices[i]];
+		}
+		// num_elements = num_gather;
+	#endif
+	// );
+	// printf(">>> x_cpu_local transfer (gather/memcpy) completed in %g us (throughput: %g GB/s)\n", transfer_time * 1e6, (num_elements * sizeof(ValueType)) / (transfer_time * 1e9));
+	
+	#ifndef DIAG_CPU_ONLY
+		// 1. Launch GPU kernel (Async). Writes its DtH directly to the pinned tail of y!
+		gpu_part->spmv(x, y);
+	#endif
 
     // 2. Launch CPU kernel (Sync, overlaps with GPU). Writes to the pinned head of y.
 	
 	// REMINDER: remove nvtxRangePushA and nvtxRangePop when finished with profiling!
 	// nvtxRangePushA("CPU_SpMV_Computation");
-    cpu_part->spmv(x, y);
+	#ifndef DIAG_GPU_ONLY
+		#ifdef DIAG_ANNOY_GPU
+			// TEST 3 (Annoyance): CPU generates cache misses over x while GPU computes
+			volatile double dummy = 0;
+			for (int iter = 0; iter < 32; iter++) {
+				#pragma omp parallel for
+				for (long i = 0; i < this->n; i+=16) {
+					dummy += x[i];
+					// for (long i = 0; i < this->n; i ++) {
+					// dummy += x[(i*1052420489LL) % this->n];
+				}
+			}
+		#elif defined(DIAG_CPU_LOCAL_X)
+            // Lazy allocate and copy ONCE during the first warmup iteration
+            if (this->x_cpu_isolated == NULL) {
+                this->x_cpu_isolated = (ValueType*) malloc(this->n * sizeof(ValueType));
+                double memcpy_time = time_it(1,
+                    memcpy(this->x_cpu_isolated, x, this->n * sizeof(ValueType));
+                );
+				printf(">>> memcpy to local copy of x completed in %g us (throughput: %g GB/s)\n", memcpy_time * 1e6, (this->n * sizeof(ValueType)) / (memcpy_time * 1e9));
+
+				ValueType * a, * b;
+				a = (ValueType*) malloc(this->n*sizeof(ValueType));
+				b = (ValueType*) malloc(this->n*sizeof(ValueType));
+				for(long i=0; i<this->n; i++) {
+					a[i] = i;
+				}
+                double memcpy_time2 = time_it(1,
+                    memcpy(b, a, this->n * sizeof(ValueType));
+                );
+				printf(">>> memcpy2 to local copy of x completed in %g us (throughput: %g GB/s)\n", memcpy_time2 * 1e6, (this->n * sizeof(ValueType)) / (memcpy_time2 * 1e9));
+				
+            }
+            // CPU reads from isolated buffer
+            cpu_part->spmv(this->x_cpu_isolated, y);
+		#elif defined(DIAG_CPU_LOCAL_X_UNOPT)
+			// Run the kernel with the dense local vector
+			cpu_part->spmv(this->x_cpu_local, y);
+		#elif defined(DIAG_CPU_LOCAL_X_OPT)
+			// Run the kernel with the compact, dense local vector
+			cpu_part->spmv(this->x_cpu_local, y);
+		#else
+			cpu_part->spmv(x, y);
+		#endif
+	#endif
 	// nvtxRangePop();
 
-    // 3. CPU part completed successfully! Immediately initiate proactive HtD push for the next iteration.
-    gpu_part->issue_h2d_for_next_iteration(y);
+	#ifndef DIAG_CPU_ONLY
+		// 3. CPU part completed successfully! Immediately initiate proactive HtD push for the next iteration.
+		gpu_part->issue_h2d_for_next_iteration(y);
 
-    // 4. Wait against the sync barrier for the GPU's kernel and overlapping DtH transfers to conclude.
-    gpu_part->synchronize();
+		// 4. Wait against the sync barrier for the GPU's kernel and overlapping DtH transfers to conclude.
+		gpu_part->synchronize();
+	#endif
 
     // // 5. Record hardware-measured durations (in milliseconds)
     // double t_cpu = (cpu_part && (m_cpu > 0)) ? cpu_part->get_last_duration() : 0;
@@ -101,8 +178,8 @@ int Hybrid_Arrays::statistics_print_data(char * buf, long buf_n) {
     // len += snprintf(buf + len, buf_n - len, ",%g,%g,%g,%g", 
     //                 time_cpu_total, time_gpu_total, avg_cpu, avg_gpu);
     
-    // if (cpu_part) len += cpu_part->statistics_print_data(buf + len, buf_n - len);
-    // if (gpu_part) len += gpu_part->statistics_print_data(buf + len, buf_n - len);
+    if (cpu_part) len += cpu_part->statistics_print_data(buf + len, buf_n - len);
+    if (gpu_part) len += gpu_part->statistics_print_data(buf + len, buf_n - len);
     return len;
 }
 
@@ -159,6 +236,18 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 		#elif defined(STRAT_LONGEST_ROWS_ORIGINAL)
 			m_cpu = get_split_longest_rows_original_order(row_ptr, m, nnz, HYBRID_RATIO, hybrid->row_map);
 			strat_name = "LONGEST_ROWS_ORIGINAL_ORDER";
+		#elif defined(STRAT_BAD_ZONES_ROWS)
+			m_cpu = get_split_bad_zones_rows(row_ptr, m, nnz, HYBRID_RATIO, hybrid->row_map);
+			strat_name = "BAD_ZONES_ROWS";
+		#elif defined(STRAT_BAD_ZONES_BANDWIDTH)
+			m_cpu = get_split_bad_zones_bandwidth(row_ptr, col_ind, m, nnz, HYBRID_RATIO, hybrid->row_map);
+			strat_name = "BAD_ZONES_BANDWIDTH";
+		#elif defined(STRAT_BAD_ZONES_CACHELINES)
+			m_cpu = get_split_bad_zones_cachelines(row_ptr, col_ind, m, nnz, HYBRID_RATIO, hybrid->row_map);
+			strat_name = "BAD_ZONES_CACHELINES";
+		#elif defined(STRAT_BAD_ZONES_PADDING)
+			m_cpu = get_split_bad_zones_padding(row_ptr, m, nnz, HYBRID_RATIO, hybrid->row_map);
+			strat_name = "BAD_ZONES_PADDING";
 		#else
 			m_cpu = m * 0.2; // Default 20/80
 			strat_name = "DEFAULT_20_80";
@@ -182,6 +271,48 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 		if (m_cpu > 0) {
 			INT_T *r_p, *c_i; ValueTypeReference *vals;
 			extract_csr_fragment(row_ptr, col_ind, values, hybrid->row_map, 0, m_cpu, nnz_cpu, &r_p, &c_i, &vals);
+			
+            #ifdef DIAG_CPU_COLIND0
+				// TEST 4 (Zero-Traffic): Force all CPU memory reads to x[0]
+				for (long i = 0; i < nnz_cpu; i++) {
+					c_i[i] = 0;
+				}
+            #endif
+
+			/*************** SPARSE GATHER SETUP ***************/
+			#ifdef DIAG_CPU_LOCAL_X_UNOPT
+				hybrid->x_cpu_local = (ValueType*) malloc(n * sizeof(ValueType));
+			#elif defined(DIAG_CPU_LOCAL_X_OPT)
+				// 1. Find all unique columns the CPU needs
+				bool* needed_cols = (bool*) calloc(n, sizeof(bool));
+				for (long i = 0; i < nnz_cpu; i++) needed_cols[c_i[i]] = true;
+				
+				hybrid->num_gather = 0;
+				for (long i = 0; i < n; i++) if (needed_cols[i]) hybrid->num_gather++;
+				
+				hybrid->gather_indices = (long*) malloc(hybrid->num_gather * sizeof(long));
+				hybrid->x_cpu_local = (ValueType*) malloc(hybrid->num_gather * sizeof(ValueType));
+				
+				// 2. Build the gather map and a reverse lookup
+				long* reverse_map = (long*) malloc(n * sizeof(long));
+				long idx = 0;
+				for (long i = 0; i < n; i++) {
+					if (needed_cols[i]) {
+						hybrid->gather_indices[idx] = i;
+						reverse_map[i] = idx;
+						idx++;
+					}
+				}
+				free(needed_cols);
+				// 3. Remap the CPU partition's column indices to the local, dense 0-to-num_gather space
+				for (long i = 0; i < nnz_cpu; i++) {
+					c_i[i] = reverse_map[c_i[i]];
+				}
+				free(reverse_map);
+				printf("CPU needs %ld elements (%.2lf MB) instead of %.2lf MB \n", hybrid->num_gather, (hybrid->num_gather * sizeof(ValueType)) / (1024*1024.0), (n * sizeof(ValueType)) / (1024*1024.0));
+			#endif
+			/*************** END SPARSE GATHER SETUP ***************/
+
 			time_cpu = time_it(1,
 				hybrid->cpu_part = CPU_KERNEL_FUNC(r_p, c_i, vals, m_cpu, n, nnz_cpu, symmetric, symmetry_expanded);
 			);

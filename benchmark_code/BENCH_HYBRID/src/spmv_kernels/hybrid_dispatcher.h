@@ -20,10 +20,17 @@ struct Hybrid_Arrays : Matrix_Format {
     int original_threads;
     int new_threads;
 
+    // Added for diagnose purposes, to be deleted later
+    // This will hold the necessary x_cpu values, so that CPU does not interfere in GPU's x vector.
+    ValueType* x_cpu_isolated;
+    ValueType* x_cpu_local;
+    long* gather_indices;
+    long num_gather;
+
     Hybrid_Arrays(long m, long n, long nnz, long m_cpu) 
-        : Matrix_Format(m, n, nnz), m_cpu(m_cpu),
+        : Matrix_Format(m, n, nnz), m_cpu(m_cpu), call_count(0), x_cpu_isolated(NULL), x_cpu_local(NULL), gather_indices(NULL), num_gather(0)
         //   time_cpu_total(0), time_gpu_total(0), 
-          call_count(0) {
+    {
         m_gpu = m - m_cpu;
         // get original ordering of rows (it will change later due to splitting in CPU and GPU parts)
         row_map = (INT_T *) malloc(m * sizeof(INT_T));
@@ -34,6 +41,9 @@ struct Hybrid_Arrays : Matrix_Format {
         delete cpu_part;
         delete gpu_part;
         if (row_map) free(row_map);
+        if (x_cpu_isolated) free(x_cpu_isolated);
+        if (x_cpu_local) free(x_cpu_local);
+        if (gather_indices) free(gather_indices);
     }
 
     // Standard SpMV (sequential call of both, isolated vectors)

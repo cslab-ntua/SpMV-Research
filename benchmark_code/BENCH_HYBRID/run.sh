@@ -878,14 +878,27 @@ matrices_weird=(
     Queen_4147
 
 )
-matrices_weird=(
+matrices_weird2=(
+    # wiki-topcats
+
+kron_g500-logn19
+# 12month1
+# GL7d17
+# GL7d18
+# GL7d19
+# GL7d20
+# GL7d21
+# Hardesty3
+# rel9
+# relat9
+# spal_004
     # Transport
     # circuit5M
 
     # rajat31
     # hugetric-00020
     # Hardesty3
-    Bump_2911
+    # Bump_2911
 
 )
 matrices_weird=( 
@@ -1156,6 +1169,7 @@ for format_name in "${!progs[@]}"; do
     exec 4>&2
 
     rep=1
+    # rep=2
     # rep=3
     # rep=5
     # rep=10
@@ -1193,19 +1207,27 @@ for format_name in "${!progs[@]}"; do
     for ((i=0;i<rep;i++)); do
 
         if ((output_to_files)); then
-            mkdir -p out_logs
+            # OUT_LOGS="out_logs/"
+            # OUT_LOGS="out_logs_GPU_ONLY/"
+            # OUT_LOGS="out_logs_CPU_ONLY/"
+            # OUT_LOGS="out_logs_ANNOY_GPU/"
+            # OUT_LOGS="out_logs_CPU_COLIND0/"
+            # OUT_LOGS="out_logs_CPU_LOCAL_X/"
+            # OUT_LOGS="out_logs_CPU_LOCAL_X_UNOPT/"
+            OUT_LOGS="out_logs_CPU_LOCAL_X_OPT/"
+            mkdir -p "$OUT_LOGS"
             # When rep=1 keep the old plain name; when rep>1 append _repN.
             suffix=""
             # suffix="_profiling"
             # if ((rep > 1)); then suffix="_rep${i}"; fi
             if ((rep > 1)); then 
-                mkdir -p "out_logs/run${i}"
+                mkdir -p "${OUT_LOGS}run${i}"
                 suffix="run${i}/"
             fi
-            > "out_logs/${suffix}${format_name}.out"
-            exec 1>>"out_logs/${suffix}${format_name}.out"
-            > "out_logs/${suffix}${format_name}.csv"
-            exec 2>>"out_logs/${suffix}${format_name}.csv"
+            > "${OUT_LOGS}${suffix}${format_name}.out"
+            exec 1>>"${OUT_LOGS}${suffix}${format_name}.out"
+            > "${OUT_LOGS}${suffix}${format_name}.csv"
+            exec 2>>"${OUT_LOGS}/${suffix}${format_name}.csv"
         fi
 
         echo "$config_str"
