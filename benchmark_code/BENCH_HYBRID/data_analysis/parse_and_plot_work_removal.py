@@ -11,6 +11,9 @@ TICK_FONT_SIZE = 10
 LABEL_FONT_SIZE = 12
 PLT_WIDTH, PLT_HEIGHT = 21, 10
 
+GPU_KERNEL = 'cuda_csr_transpose_expand_rows'
+CPU_KERNEL = 'armpl'  # Note: Work removal is currently GPU-only, so CPU_KERNEL is defined for consistency but unused here.
+
 def hmean(series):
     s = series.dropna()
     if len(s) == 0:
@@ -385,8 +388,8 @@ def analyze_colind0(df, colind0_df, plot_dir, matrix_order):
     # 1. Bar plot comparing Normal and COLIND0
     # Melt for seaborn
     melted = comp_df.reset_index().melt(id_vars='Matrix', value_vars=['Normal', 'COLIND0'], var_name='Version', value_name='GFLOPS')
-    # Use the sorted order from comp_df
-    sorted_matrices = comp_df.index.tolist()
+    # Use the sorted order from comp_df, removing any duplicates to prevent Categorical error
+    sorted_matrices = list(dict.fromkeys(comp_df.index.tolist()))
     melted['Matrix'] = pd.Categorical(melted['Matrix'], categories=sorted_matrices, ordered=True)
 
     plt.figure(figsize=(PLT_WIDTH, PLT_HEIGHT))
@@ -431,7 +434,7 @@ def analyze_pad_implementation(df, plot_dir):
         
     baseline_df = df[df['Method'] == 'Original'][['Matrix', 'Padding_Pct', 'GFLOPS']].set_index('Matrix')
     ratios = sorted(pad_df['Ratio'].unique())
-    print(ratios)
+
     all_pad_records = []
     
     for r in ratios:
@@ -830,6 +833,14 @@ if __name__ == "__main__":
         print("No data found!")
         exit(1)
 
+    # Filter by the configured GPU kernel
+    print(f"Filtering data for GPU_KERNEL: {GPU_KERNEL}...")
+    df = df[df['Kernel'] == GPU_KERNEL].copy()
+    
+    if df.empty:
+        print(f"No data found for GPU_KERNEL: {GPU_KERNEL}")
+        exit(1)
+
     comp_df = None
     colind0_df = df[df['Method'] == 'COLIND0'].copy()
     if not colind0_df.empty:
@@ -839,7 +850,7 @@ if __name__ == "__main__":
     # Now move on without any colind0 experiments.
     df = df[df['Method'] != 'COLIND0'].copy()
 
-    ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### 
+    ########################################################################
     # Add new columns for the percentage of GPU work
 
     df['m_gpu %'] = (df['m_gpu'] / (df['m_gpu'] + df['removed_rows'])) * 100.0
@@ -861,7 +872,7 @@ if __name__ == "__main__":
     df.to_csv(csv_path, index=False)
     print(f"Summary saved to {csv_path}")
 
-    ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### 
+    ########################################################################
 
     filter_matrices = 0
     filter_methods = 0
@@ -895,7 +906,7 @@ if __name__ == "__main__":
         df = df[df['Method'].isin(ALLOWED_METHODS)].copy()
         df['Method'] = pd.Categorical(df['Method'], categories=ALLOWED_METHODS, ordered=True)
 
-    ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### 
+    ########################################################################
 
     sns.set_theme(style="whitegrid")
 
@@ -930,6 +941,6 @@ if __name__ == "__main__":
     print("Quantifying Method Performance (Scorecards)...")
     quantify_method_performance(df, plot_dir, ratios)
 
-    ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### 
+    ########################################################################
 
     print(f"All plots saved in {plot_dir}")

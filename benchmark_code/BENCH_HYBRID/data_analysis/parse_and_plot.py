@@ -10,13 +10,21 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from scipy.stats import gmean, hmean
+from matplotlib.backends.backend_pdf import PdfPages
 
 # --- Configuration ---
 # You can change these to match your current benchmark kernels
-GPU_KERNEL = 'cuda_csr_transpose_expand_rows'
 # GPU_KERNEL = 'cusparse_csr'
+GPU_KERNEL = 'cuda_csr_transpose_expand_rows'
+# GPU_KERNEL = 'cuda_sell_sorted_hybrid'
 CPU_KERNEL = 'armpl'  # Default for single-kernel plots
 # CPU_KERNEL = 'csr_vec'  # Default for single-kernel plots
+
+GPU_KERNELS = ['cusparse_csr', 'cuda_csr_transpose_expand_rows', 'cuda_sell_sorted_hybrid']
+CPU_KERNELS = ['armpl', 'csr_vec']
+
+# ALL_STRATEGIES = ['NAIVE', 'SHORTEST_ROWS', 'LONGEST_ROWS', 'SHORTEST_ROWS_ORIGINAL', 'LONGEST_ROWS_ORIGINAL']
+ALL_STRATEGIES = ['NAIVE', 'SHORTEST_ROWS', 'LONGEST_ROWS', 'SHORTEST_ROWS_ORIGINAL', 'LONGEST_ROWS_ORIGINAL', 'BAD_ZONES_ROWS', 'BAD_ZONES_BANDWIDTH', 'BAD_ZONES_CACHELINES', 'BAD_ZONES_PADDING']
 
 TICK_FONT_SIZE = 8
 TITLE_FONT_SIZE = 16
@@ -189,6 +197,19 @@ def parse_logs(log_dir, subdir=None):
                         # Standalone GPU
                         b_gpu_time = b_total_time
                         
+                    pad_match = re.search(r'\(padding\s+([\d\.]+)\)', block)
+                    b_padding = float(pad_match.group(1)) if pad_match else np.nan
+
+                    gather_match = re.search(r'CPU needs (?P<elems>\d+) elements \((?P<mb_gather>[\d\.]+) MB\) instead of (?P<mb_total>[\d\.]+) MB', block)
+                    if gather_match:
+                        b_gather_elems = int(gather_match.group('elems'))
+                        b_gather_mb = float(gather_match.group('mb_gather'))
+                        b_total_mb = float(gather_match.group('mb_total'))
+                        b_gather_pct = (b_gather_mb / b_total_mb) * 100.0 if b_total_mb > 0 else 0.0
+                    else:
+                        b_gather_elems = np.nan
+                        b_gather_pct = np.nan
+
                     if b_gflops is not None:
                         # label = f"{'Hybrid' if is_hybrid else 'Standalone'}_{impl_type}{f'_{ratio}' if ratio else ''}"
                         label = f"{'Hybrid' if is_hybrid else 'Standalone'}{f'_{ratio}' if ratio else ''}"
@@ -209,9 +230,12 @@ def parse_logs(log_dir, subdir=None):
                             'Time_ms': b_total_time,
                             'CPU_Time_ms': b_cpu_time,
                             'GPU_Time_ms': b_gpu_time,
+                            'Padding_Pct': b_padding,
                             'Kernel': b_kernel_run,
                             'm_cpu': b_m_cpu, 'nnz_cpu': b_nnz_cpu,
                             'm_gpu': b_m_gpu, 'nnz_gpu': b_nnz_gpu,
+                            'Gather_Elems': b_gather_elems,
+                            'Gather_Pct': b_gather_pct,
                             'Strategy': strategy,
                             'Type': impl_type,
                             'Ratio': ratio,
@@ -235,7 +259,7 @@ def parse_logs(log_dir, subdir=None):
     
     # Times are additive/averaged arithmetically usually, but for consistency let's use hmean for throughput-related timing if needed.
     # Actually, arithmetic mean is fine for median times across runs.
-    for col in ['Time_ms', 'CPU_Time_ms', 'GPU_Time_ms', 'm_cpu', 'nnz_cpu', 'm_gpu', 'nnz_gpu']:
+    for col in ['Time_ms', 'CPU_Time_ms', 'GPU_Time_ms', 'm_cpu', 'nnz_cpu', 'm_gpu', 'nnz_gpu', 'Padding_Pct', 'Gather_Elems', 'Gather_Pct']:
         if col in raw_df and raw_df[col].notna().any():
             agg_dict[col] = 'mean'
             
@@ -275,13 +299,13 @@ def add_mean_row(df, metric, group_col, mean_type='hmean'):
         new_row = group.iloc[0].copy()
         new_row['Matrix'] = f'{mean_type.upper()}'
         new_row[metric] = val
-        for col in ['m', 'n', 'm_cpu', 'm_gpu', 'nnz_cpu', 'nnz_gpu', 'avg_nnz_cpu', 'avg_nnz_gpu', 'avg_nnz']:
+        for col in ['m', 'n', 'm_cpu', 'm_gpu', 'nnz_cpu', 'nnz_gpu', 'avg_nnz_cpu', 'avg_nnz_gpu', 'avg_row_size', 'std_row_size', 'avg_bw', 'skew_coeff', 'avg_num_neigh', 'cross_row_sim']:
             if col in new_row: new_row[col] = np.nan
         mean_rows.append(new_row)
     
     return pd.concat([df, pd.DataFrame(mean_rows)], ignore_index=True)
 
-def plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='EXPLICIT'):
+def plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='EXPLICIT', kernel_order=None):
     print(f"Plotting Standalone GPU Comparison ({alloc_type})...")
     gpu_df = df[(df['IsHybrid'] == False) & (df['Type'] == alloc_type)].copy()
     if gpu_df.empty: return
@@ -293,17 +317,30 @@ def plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='
     current_order = [m for m in full_matrix_order if m in current_matrices]
     gpu_df['Matrix'] = pd.Categorical(gpu_df['Matrix'], categories=current_order, ordered=True)
     gpu_df = gpu_df.sort_values('Matrix')
+
+    if kernel_order:
+        current_kernels = gpu_df['PlotLabel'].unique()
+        order = [k for k in kernel_order if k in current_kernels]
+        for k in current_kernels:
+            if k not in order:
+                order.append(k)
+        gpu_df['PlotLabel'] = pd.Categorical(gpu_df['PlotLabel'], categories=order, ordered=True)
+        gpu_df = gpu_df.sort_values(['Matrix', 'PlotLabel'])
+        hue_order = order
+    else:
+        hue_order = None
     
     plt.figure(figsize=(PLT_WIDTH, PLT_HEIGHT))
-    sns.barplot(data=gpu_df, x='Matrix', y='GFLOPS', hue='PlotLabel')
+    sns.barplot(data=gpu_df, x='Matrix', y='GFLOPS', hue='PlotLabel', hue_order=hue_order)
     plt.title(f'Standalone GPU Comparison - {alloc_type} (GFLOPs) (HMEAN added)', fontsize=TITLE_FONT_SIZE)
     plt.xticks(ticks=range(len(current_order)), labels=current_order, rotation=90, fontsize=TICK_FONT_SIZE)
     plt.yticks(fontsize=TICK_FONT_SIZE)
+    plt.ylim(0, 600)
     plt.tight_layout()
     plt.savefig(os.path.join(plot_dir, f'1_standalone_gpu_comparison_{alloc_type}.png'), dpi=300)
     plt.close()
 
-def plot_standalone_cpu_comparison(df, plot_dir, full_matrix_order):
+def plot_standalone_cpu_comparison(df, plot_dir, full_matrix_order, kernel_order=None):
     print("Plotting Standalone CPU Comparison...")
     cpu_df = df[(df['IsHybrid'] == False) & (df['Type'] == 'CPU_ONLY')].copy()
     if cpu_df.empty: return
@@ -315,9 +352,21 @@ def plot_standalone_cpu_comparison(df, plot_dir, full_matrix_order):
     current_order = [m for m in full_matrix_order if m in current_matrices]
     cpu_df['Matrix'] = pd.Categorical(cpu_df['Matrix'], categories=current_order, ordered=True)
     cpu_df = cpu_df.sort_values('Matrix')
+
+    if kernel_order:
+        current_kernels = cpu_df['PlotLabel'].unique()
+        order = [k for k in kernel_order if k in current_kernels]
+        for k in current_kernels:
+            if k not in order:
+                order.append(k)
+        cpu_df['PlotLabel'] = pd.Categorical(cpu_df['PlotLabel'], categories=order, ordered=True)
+        cpu_df = cpu_df.sort_values(['Matrix', 'PlotLabel'])
+        hue_order = order
+    else:
+        hue_order = None
     
     plt.figure(figsize=(PLT_WIDTH, PLT_HEIGHT))
-    sns.barplot(data=cpu_df, x='Matrix', y='GFLOPS', hue='PlotLabel')
+    sns.barplot(data=cpu_df, x='Matrix', y='GFLOPS', hue='PlotLabel', hue_order=hue_order)
     plt.title('Standalone CPU Comparison (GFLOPs) (HMEAN added)', fontsize=TITLE_FONT_SIZE)
     plt.xticks(ticks=range(len(current_order)), labels=current_order, rotation=90, fontsize=TICK_FONT_SIZE)
     plt.yticks(fontsize=TICK_FONT_SIZE)
@@ -328,8 +377,10 @@ def plot_standalone_cpu_comparison(df, plot_dir, full_matrix_order):
 '''
 Generates bar charts comparing the standalone GPU performance against hybrid executions for various offload ratios.
 '''
-def plot_hybrid_ratios(df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], strategy='NAIVE'):
+def plot_hybrid_ratios(df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], strategy='NAIVE', pdf=None):
     print(f"Plotting Hybrid Ratios (Strategy: {strategy})...")
+    detailed_png_dir = os.path.join(plot_dir, 'detailed_png')
+    os.makedirs(detailed_png_dir, exist_ok=True)
     hybrid_df = df[(df['IsHybrid'] == True) & (df['Strategy'] == strategy)]
     if not hybrid_df.empty:
         for t in impl_types:
@@ -356,15 +407,34 @@ def plot_hybrid_ratios(df, standalone_explicit, plot_dir, full_matrix_order, gpu
                 plt.title(f'Hybrid {cpu_kernel}+{gpu_kernel} ({strategy}) vs Standalone (Ratio {r}%)', fontsize=TITLE_FONT_SIZE)
                 plt.xticks(ticks=range(len(current_order)), labels=current_order, rotation=90, fontsize=TICK_FONT_SIZE)
                 plt.yticks(fontsize=TICK_FONT_SIZE)
+                plt.ylim(bottom=0, top=800)
                 plt.tight_layout()
-                plt.savefig(os.path.join(plot_dir, f'3_hybrid_{strategy}_{cpu_kernel}_{gpu_kernel}_{t}_vs_standalone_ratio_{r}.png'), dpi=300)
+                if pdf is not None:
+                    pdf.savefig(bbox_inches='tight')
+                plt.savefig(os.path.join(detailed_png_dir, f'3_hybrid_{strategy}_{cpu_kernel}_{gpu_kernel}_{t}_vs_standalone_ratio_{r}.png'), dpi=300)
                 plt.close()
+
+def plot_all_hybrid_ratios_pdf(hybrid_df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC']):
+    pdf_dir = os.path.join(plot_dir, 'pdf')
+    os.makedirs(pdf_dir, exist_ok=True)
+    pdf_path = os.path.join(pdf_dir, f'3_hybrid_ratios_combined_{cpu_kernel}_{gpu_kernel}.pdf')
+    print(f"Creating combined hybrid ratios PDF: {pdf_path}")
+    pdf = PdfPages(pdf_path)
+    
+    # Generate individual strategies
+    for strategy in ALL_STRATEGIES:
+        plot_hybrid_ratios(hybrid_df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=impl_types, strategy=strategy, pdf=pdf)
+        
+    pdf.close()
+    print(f"Combined hybrid ratios PDF successfully saved to: {pdf_path}")
 
 '''
 Identifies the optimal CPU/GPU ratio for each matrix and plots the absolute GFLOPS over the standalone GPU baseline.
 '''
-def plot_best_hybrid_gflops(df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], strategy='NAIVE'):
+def plot_best_hybrid_gflops(df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], strategy='NAIVE', pdf=None):
     print(f"Plotting Best Hybrid GFLOPs (Strategy: {strategy})...")
+    detailed_png_dir = os.path.join(plot_dir, 'detailed_png')
+    os.makedirs(detailed_png_dir, exist_ok=True)
     hybrid_df = df[(df['IsHybrid'] == True) & (df['Strategy'] == strategy)]
     if not hybrid_df.empty:
         for t in impl_types:
@@ -394,21 +464,25 @@ def plot_best_hybrid_gflops(df, standalone_explicit, plot_dir, full_matrix_order
             plt.title(f'Best Hybrid {cpu_kernel}+{gpu_kernel} ({strategy}, {t}) vs Standalone (GFLOPs)', fontsize=TITLE_FONT_SIZE)
             plt.xticks(ticks=range(len(current_order)), labels=current_order, rotation=90, fontsize=TICK_FONT_SIZE)
             plt.yticks(fontsize=TICK_FONT_SIZE)
-            
+            plt.ylim(bottom=0, top=800)
             if len(ax.containers) > 1:
                 ratios_list = [f"{int(r)}%" for r in best_hybrid_type['Ratio']] + [""]
                 ax.bar_label(ax.containers[1], labels=ratios_list, padding=3, fontsize=7, rotation=90)
 
             plt.tight_layout()
-            plt.savefig(os.path.join(plot_dir, f'4_best_hybrid_{strategy}_{cpu_kernel}_{gpu_kernel}_{t}_vs_standalone_gflops.png'), dpi=300)
+            if pdf is not None:
+                pdf.savefig(bbox_inches='tight')
+            # plt.savefig(os.path.join(detailed_png_dir, f'4_best_hybrid_{strategy}_{cpu_kernel}_{gpu_kernel}_{t}_vs_standalone_gflops.png'), dpi=300)
             plt.close()
 
 '''
 Identifies the optimal CPU/GPU ratio for each matrix and plots the percentage improvement over the standalone GPU baseline.
 '''
-def plot_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], sort_by_pct=False, strategy='NAIVE'):
+def plot_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], sort_by_pct=False, strategy='NAIVE', pdf=None):
     suffix = "_sorted" if sort_by_pct else ""
     print(f"Plotting Best Hybrid Percentage Change (Strategy: {strategy}){suffix}...")
+    detailed_png_dir = os.path.join(plot_dir, 'detailed_png')
+    os.makedirs(detailed_png_dir, exist_ok=True)
     hybrid_df = df[(df['IsHybrid'] == True) & (df['Strategy'] == strategy)]
     if not hybrid_df.empty:
         for t in impl_types:
@@ -453,7 +527,7 @@ def plot_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_order, g
             plt.ylabel('Percentage Change (%)', fontsize=LABEL_FONT_SIZE)
             plt.xticks(ticks=range(len(current_order_pct)), labels=current_order_pct, rotation=90, fontsize=TICK_FONT_SIZE)
             plt.yticks(fontsize=TICK_FONT_SIZE)
-            
+            plt.ylim(bottom=-90, top=50)
             for i in range(len(merged_with_mean)):
                 row = merged_with_mean.iloc[i]
                 ratio = row['Ratio']
@@ -466,14 +540,16 @@ def plot_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_order, g
                     label = f"{int(ratio)}% ({pct:+.1f}%) [G/C: {t_ratio:.2f}]"
                 
                 ax.annotate(label, 
-                            (i, pct), 
-                            ha='center', va='bottom' if pct >= 0 else 'top',
-                            xytext=(0, 5 if pct >= 0 else -5), 
+                            (i, 0), 
+                            ha='center', va='top' if pct >= 0 else 'bottom',
+                            xytext=(0, -5 if pct >= 0 else 5), 
                             textcoords='offset points',
                             fontsize=7, rotation=90)
 
             plt.tight_layout()
-            plt.savefig(os.path.join(plot_dir, f'5_best_hybrid_{strategy}_{cpu_kernel}_{gpu_kernel}_{t}_vs_standalone_pct{suffix}.png'), dpi=300)
+            if pdf is not None:
+                pdf.savefig(bbox_inches='tight')
+            # plt.savefig(os.path.join(detailed_png_dir, f'5_best_hybrid_{strategy}_{cpu_kernel}_{gpu_kernel}_{t}_vs_standalone_pct{suffix}.png'), dpi=300)
             plt.close()
 
             # Save the detailed analysis CSV
@@ -491,12 +567,14 @@ def plot_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_order, g
 '''
 Identifies the absolute best strategy (among all implemented strategies and ratios) per matrix and visualizes the percentage speedup.
 '''
-def plot_overall_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], sort_by_pct=True):
+def plot_overall_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], sort_by_pct=True, pdf=None):
     suffix = "_sorted" if sort_by_pct else ""
     print(f"Plotting Overall Best Hybrid Percentage Change{suffix}...")
+    detailed_png_dir = os.path.join(plot_dir, 'detailed_png')
+    os.makedirs(detailed_png_dir, exist_ok=True)
     STRAT_SYMBOLS = {
-        'NAIVE': 'N', 'SHORTEST_ROWS': 'S', 'LONGEST_ROWS': 'L',
-        'SHORTEST_ROWS_ORIGINAL': 'SO', 'LONGEST_ROWS_ORIGINAL': 'LO'
+        'NAIVE': 'N', 'SHORTEST_ROWS': 'S', 'LONGEST_ROWS': 'L', 'SHORTEST_ROWS_ORIGINAL': 'SO', 'LONGEST_ROWS_ORIGINAL': 'LO', 
+        'BAD_ZONES_ROWS': 'BZR', 'BAD_ZONES_BANDWIDTH': 'BZB', 'BAD_ZONES_CACHELINES': 'BZC', 'BAD_ZONES_PADDING': 'BZP'
     }
     hybrid_df = df[df['IsHybrid'] == True]
     if not hybrid_df.empty:
@@ -528,6 +606,7 @@ def plot_overall_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_
             title_sort = " (Sorted by %)" if sort_by_pct else ""
             plt.title(f'Overall Best Hybrid vs Standalone ({cpu_kernel}+{gpu_kernel}, {t}){title_sort}', fontsize=TITLE_FONT_SIZE)
             plt.ylabel('Percentage Change (%)', fontsize=LABEL_FONT_SIZE)
+            plt.ylim(bottom=-90, top=50)
             plt.xticks(ticks=range(len(current_order_pct)), labels=current_order_pct, rotation=90, fontsize=TICK_FONT_SIZE)
             plt.yticks(fontsize=TICK_FONT_SIZE)
             for i in range(len(merged_with_mean)):
@@ -537,13 +616,167 @@ def plot_overall_best_hybrid_pct(df, standalone_explicit, plot_dir, full_matrix_
                 else:
                     sym = STRAT_SYMBOLS.get(row['Strategy'], row['Strategy'])
                     label = f"{int(row['Ratio'])}% {sym} ({row['PctChange']:+.1f}%) [G/C: {row['TimeRatio']:.2f}]"
-                ax.annotate(label, (i, row['PctChange']),
-                            ha='center', va='bottom' if row['PctChange'] >= 0 else 'top',
-                            xytext=(0, 5 if row['PctChange'] >= 0 else -5),
+                ax.annotate(label, (i, 0),
+                            ha='center', va='top' if row['PctChange'] >= 0 else 'bottom',
+                            xytext=(0, -5 if row['PctChange'] >= 0 else 5),
                             textcoords='offset points', fontsize=7, rotation=90)
             plt.tight_layout()
-            plt.savefig(os.path.join(plot_dir, f'5_overall_best_hybrid_{cpu_kernel}_{gpu_kernel}_{t}_vs_standalone_pct{suffix}.png'), dpi=300)
+            if pdf is not None:
+                pdf.savefig(bbox_inches='tight')
+            # plt.savefig(os.path.join(detailed_png_dir, f'5_overall_best_hybrid_{cpu_kernel}_{gpu_kernel}_{t}_vs_standalone_pct{suffix}.png'), dpi=300)
             plt.close()
+
+def plot_all_best_hybrid_pct_pdf(hybrid_df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], sort_by_pct=True):
+    pdf_dir = os.path.join(plot_dir, 'pdf')
+    os.makedirs(pdf_dir, exist_ok=True)
+    pdf_path = os.path.join(pdf_dir, f'5_best_hybrid_combined_{cpu_kernel}_{gpu_kernel}.pdf')
+    print(f"Creating combined best hybrid PDF: {pdf_path}")
+    pdf = PdfPages(pdf_path)
+    
+    # Generate individual strategies
+    for strategy in ALL_STRATEGIES:
+        plot_best_hybrid_pct(hybrid_df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=impl_types, sort_by_pct=sort_by_pct, strategy=strategy, pdf=pdf)
+        
+    # Generate overall best
+    plot_overall_best_hybrid_pct(hybrid_df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=impl_types, sort_by_pct=sort_by_pct, pdf=pdf)
+    
+    pdf.close()
+    print(f"Combined best hybrid PDF successfully saved to: {pdf_path}")
+
+def plot_all_best_hybrid_gflops_pdf(hybrid_df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC']):
+    pdf_dir = os.path.join(plot_dir, 'pdf')
+    os.makedirs(pdf_dir, exist_ok=True)
+    pdf_path = os.path.join(pdf_dir, f'4_best_hybrid_gflops_combined_{cpu_kernel}_{gpu_kernel}.pdf')
+    print(f"Creating combined best hybrid GFLOPS PDF: {pdf_path}")
+    pdf = PdfPages(pdf_path)
+    
+    # Generate individual strategies
+    for strategy in ALL_STRATEGIES:
+        plot_best_hybrid_gflops(hybrid_df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=impl_types, strategy=strategy, pdf=pdf)
+        
+    pdf.close()
+    print(f"Combined best hybrid GFLOPS PDF successfully saved to: {pdf_path}")
+
+def plot_per_matrix_all_strategies(hybrid_df, standalone_explicit, full_df, plot_dir, gpu_kernel, cpu_kernel, matrices):
+    print(f"Plotting per-matrix all strategies comparison for {gpu_kernel} & {cpu_kernel}...")
+    matrix_dir = os.path.join(plot_dir, f'per_matrix_all_strategies_{cpu_kernel}_{gpu_kernel}')
+    os.makedirs(matrix_dir, exist_ok=True)
+    
+    sa_dict = standalone_explicit.set_index('Matrix')['GFLOPS'].to_dict()
+    cusparse_df = full_df[(full_df['IsHybrid'] == False) & (full_df['GPU_Kernel'] == 'cusparse_csr') & (full_df['Type'] == 'EXPLICIT')]
+    cusparse_dict = cusparse_df.set_index('Matrix')['GFLOPS'].to_dict()
+    sell_df = full_df[(full_df['IsHybrid'] == False) & (full_df['GPU_Kernel'] == 'cuda_sell_sorted_hybrid') & (full_df['Type'] == 'EXPLICIT')]
+    sell_dict = sell_df.set_index('Matrix')['GFLOPS'].to_dict()
+    
+    pdf_dir = os.path.join(plot_dir, 'pdf')
+    os.makedirs(pdf_dir, exist_ok=True)
+    pdf_path = os.path.join(pdf_dir, f'all_matrices_combined_{cpu_kernel}_{gpu_kernel}.pdf')
+    print(f"Creating multi-page PDF")
+    pdf = PdfPages(pdf_path)
+    
+    for k in range(len(matrices)):
+        matrix = matrices[k]
+        if pd.isna(matrix) or matrix not in sa_dict:
+            continue
+            
+        sa_gflops = sa_dict[matrix]
+        m_hybrid = hybrid_df[(hybrid_df['Matrix'] == matrix) & (hybrid_df['IsHybrid'] == True) & (hybrid_df['Type'] == 'MALLOC')].copy()
+        if m_hybrid.empty:
+            continue
+            
+        # Create full combinations of ALL_STRATEGIES and all Ratios present
+        all_ratios = sorted(hybrid_df[hybrid_df['IsHybrid'] == True]['Ratio'].dropna().unique())
+        all_configs = []
+        for strat in ALL_STRATEGIES:
+            for r in all_ratios:
+                all_configs.append({'Strategy': strat, 'Ratio': r, 'Config': f"{strat}_{int(r)}%"})
+        full_hybrid = pd.DataFrame(all_configs)
+        
+        m_hybrid = pd.merge(full_hybrid, m_hybrid[['Strategy', 'Ratio', 'GFLOPS', 'CPU_GFLOPS', 'GPU_GFLOPS', 'nnz_cpu', 'nnz_gpu', 'm', 'avg_row_size']], on=['Strategy', 'Ratio'], how='left')
+        m_hybrid['Strategy_Cat'] = pd.Categorical(m_hybrid['Strategy'], categories=ALL_STRATEGIES, ordered=True)
+        m_hybrid = m_hybrid.sort_values(by=['Strategy_Cat', 'Ratio'])
+        
+        cusp_gflops = cusparse_dict.get(matrix, np.nan)
+        sell_gflops = sell_dict.get(matrix, np.nan)
+        
+        baselines = [
+            {'Config': 'cusparse_csr', 'GFLOPS': cusp_gflops, 'Strategy': 'cusparse_csr', 'CPU_GFLOPS': np.nan, 'GPU_GFLOPS': cusp_gflops, 'nnz_cpu': np.nan, 'nnz_gpu': np.nan},
+            {'Config': 'cuda_sell_sorted_hybrid', 'GFLOPS': sell_gflops, 'Strategy': 'cuda_sell_sorted_hybrid', 'CPU_GFLOPS': np.nan, 'GPU_GFLOPS': sell_gflops, 'nnz_cpu': np.nan, 'nnz_gpu': np.nan},
+            {'Config': 'Standalone GPU', 'GFLOPS': sa_gflops, 'Strategy': 'Standalone GPU', 'CPU_GFLOPS': np.nan, 'GPU_GFLOPS': sa_gflops, 'nnz_cpu': np.nan, 'nnz_gpu': np.nan}
+        ]
+
+        plot_data = pd.DataFrame(baselines)
+        plot_data = pd.concat([plot_data, m_hybrid[['Config', 'GFLOPS', 'Strategy', 'CPU_GFLOPS', 'GPU_GFLOPS', 'nnz_cpu', 'nnz_gpu', 'm', 'avg_row_size']]], ignore_index=True)
+        
+        plt.figure(figsize=(max(12, len(plot_data) * 0.3), 8))
+        ax = sns.barplot(data=plot_data, x='Config', y='GFLOPS', color='skyblue')
+        
+        if len(ax.patches) >= 3:
+            ax.patches[0].set_facecolor('gray')
+            ax.patches[1].set_facecolor('purple')
+            ax.patches[2].set_facecolor('orange')
+            
+        plt.title(f'{matrix} - All Strategies vs Standalone GPU ({gpu_kernel}+{cpu_kernel})', fontsize=TITLE_FONT_SIZE)
+        plt.ylabel('GFLOPS', fontsize=LABEL_FONT_SIZE)
+        plt.xticks(rotation=90, fontsize=8)
+        
+        # Add vertical separators for strategy changes
+        prev_strategy = plot_data.loc[0, 'Strategy']
+        for i in range(1, len(plot_data)):
+            curr_strategy = plot_data.loc[i, 'Strategy']
+            if curr_strategy != prev_strategy:
+                plt.axvline(x=i - 0.5, color='gray', linestyle='--', linewidth=1)
+                prev_strategy = curr_strategy
+
+        xtick_labels = [t.get_text() for t in ax.get_xticklabels()]
+        for p in ax.patches:
+            height = p.get_height()
+            if pd.isna(height) or height == 0: continue
+            
+            # Map patch to its category using x-coordinate
+            idx = int(round(p.get_x() + p.get_width() / 2.0))
+            if idx < 0 or idx >= len(xtick_labels):
+                continue
+            config = xtick_labels[idx]
+            
+            # Retrieve exactly the row corresponding to this config
+            row_data = plot_data[plot_data['Config'] == config]
+            if row_data.empty:
+                continue
+            row_data = row_data.iloc[0]
+            
+            c_gflops = row_data['CPU_GFLOPS']
+            g_gflops = row_data['GPU_GFLOPS']
+            nnz_c = row_data['nnz_cpu']
+            nnz_g = row_data['nnz_gpu']
+            
+            if pd.isna(c_gflops) or c_gflops == 0:
+                label = f'{height:.1f} (G: {g_gflops:.1f})'
+            else:
+                label = f'{height:.1f} (C: {c_gflops:.1f}, G: {g_gflops:.1f})'
+                if not pd.isna(nnz_c) and not pd.isna(nnz_g):
+                    total_nnz = nnz_c + nnz_g
+                    if total_nnz > 0:
+                        pct_c = nnz_c / total_nnz * 100
+                        pct_g = nnz_g / total_nnz * 100
+                        label += f' | NNZ: C:{pct_c:.1f}%, G:{pct_g:.1f}%'
+            
+            ax.annotate(label, 
+                        (p.get_x() + p.get_width() / 2., height), 
+                        ha='center', va='bottom', 
+                        xytext=(0, 3), 
+                        textcoords='offset points', 
+                        fontsize=7, rotation=90)
+        
+        plt.ylim(0, 800)
+        plt.tight_layout()
+        # Save to the multi-page PDF
+        pdf.savefig(bbox_inches='tight')
+        # plt.savefig(os.path.join(matrix_dir, f'{k}_{matrix}.png'), dpi=300)
+        plt.close()
+
+    pdf.close()
+    print(f"Combined PDF successfully saved to: {pdf_path}")
 
 '''
 Directly compares the different partitioning strategies side-by-side for a given offload ratio.
@@ -562,7 +795,6 @@ def plot_strategy_comparison(df, plot_dir, full_matrix_order, gpu_kernel, cpu_ke
     ratios = sorted(target_df[target_df['IsHybrid'] == True]['Ratio'].unique())
     strat_compare_dir = os.path.join(plot_dir, 'strategy_comparison')
     os.makedirs(strat_compare_dir, exist_ok=True)
-    strategy_order = ['NAIVE', 'SHORTEST_ROWS', 'LONGEST_ROWS', 'SHORTEST_ROWS_ORIGINAL', 'LONGEST_ROWS_ORIGINAL']
     for r in ratios:
         ratio_df = target_df[(target_df['Ratio'] == r) & (target_df['IsHybrid'] == True)].copy()
         sa_df = target_df[(target_df['IsHybrid'] == False) & (target_df['Type'] == alloc_type)].copy()
@@ -578,13 +810,14 @@ def plot_strategy_comparison(df, plot_dir, full_matrix_order, gpu_kernel, cpu_ke
         plot_df['Matrix'] = pd.Categorical(plot_df['Matrix'], categories=current_order, ordered=True)
         plot_df = plot_df.sort_values('Matrix')
         plt.figure(figsize=(PLT_WIDTH, PLT_HEIGHT))
-        sns.barplot(data=plot_df, x='Matrix', y='GFLOPS', hue='PlotLabel', hue_order=strategy_order)
+        sns.barplot(data=plot_df, x='Matrix', y='GFLOPS', hue='PlotLabel', hue_order=ALL_STRATEGIES)
         plt.title(f'Strategy Comparison: Ratio {r}% ({alloc_type}, {cpu_kernel}+{gpu_kernel})', fontsize=TITLE_FONT_SIZE)
         plt.ylabel('GFLOPs', fontsize=LABEL_FONT_SIZE)
+        plt.ylim(0,800)
         plt.xticks(ticks=range(len(current_order)), labels=current_order, rotation=90, fontsize=TICK_FONT_SIZE)
         plt.yticks(fontsize=TICK_FONT_SIZE)
         plt.tight_layout()
-        plt.savefig(os.path.join(strat_compare_dir, f'strat_compare_{alloc_type}_ratio_{r}.png'), dpi=300)
+        plt.savefig(os.path.join(strat_compare_dir, f'strat_compare_{cpu_kernel}_{gpu_kernel}_{alloc_type}_ratio_{r}.png'), dpi=300)
         plt.close()
 
 '''
@@ -633,19 +866,96 @@ def plot_pinning_comparison(log_dir, plot_dir, gpu_kernel, cpu_kernel, matrix_or
         plt.savefig(os.path.join(compare_dir, f'pin_compare_{alloc_type}_{strategy}_{label}.png'), dpi=300)
         plt.close()
 
+def plot_padding_percentage(df, plot_dir, full_matrix_order, gpu_kernel='cuda_csr_transpose_expand_rows'):
+    print(f"Plotting Padding Percentage for {gpu_kernel}...")
+    pad_df = df[(df['GPU_Kernel'] == gpu_kernel) & (df['IsHybrid'] == False)].copy()
+    if pad_df.empty or 'Padding_Pct' not in pad_df.columns or pad_df['Padding_Pct'].isna().all():
+        print(f"No padding data found for {gpu_kernel}.")
+        return
+
+    pad_df = pad_df.dropna(subset=['Padding_Pct'])
+    current_matrices = pad_df['Matrix'].unique()
+    current_order = [m for m in full_matrix_order if m in current_matrices]
+    pad_df['Matrix'] = pd.Categorical(pad_df['Matrix'], categories=current_order, ordered=True)
+    pad_df = pad_df.sort_values('Matrix')
+
+    plt.figure(figsize=(PLT_WIDTH, PLT_HEIGHT))
+    sns.barplot(data=pad_df, x='Matrix', y='Padding_Pct', color='skyblue')
+    plt.title(f'Padding Percentage for {gpu_kernel}', fontsize=TITLE_FONT_SIZE)
+    plt.ylabel('Padding Percentage (%)', fontsize=LABEL_FONT_SIZE)
+    plt.xticks(ticks=range(len(current_order)), labels=current_order, rotation=90, fontsize=TICK_FONT_SIZE)
+    plt.yticks(fontsize=TICK_FONT_SIZE)
+    plt.tight_layout()
+    plt.savefig(os.path.join(plot_dir, f'padding_pct_{gpu_kernel}.png'), dpi=300)
+    plt.close()
+
+def plot_colind0_comparison(df, plot_dir, full_matrix_order, base_gpu_kernel='cuda_csr_transpose_expand_rows', alloc_type='MALLOC'):
+    print(f"Plotting COLIND0 Comparison for {base_gpu_kernel}...")
+    colind0_kernel = 'COLIND0_' + base_gpu_kernel
+    
+    # Filter standalone executions
+    base_df = df[(df['IsHybrid'] == False) & (df['GPU_Kernel'] == base_gpu_kernel) & (df['Type'] == alloc_type)].copy()
+    colind0_df = df[(df['IsHybrid'] == False) & (df['GPU_Kernel'] == colind0_kernel) & (df['Type'] == alloc_type)].copy()
+    
+    if base_df.empty or colind0_df.empty:
+        print(f"Missing data for COLIND0 comparison (Base: {not base_df.empty}, COLIND0: {not colind0_df.empty})")
+        return
+
+    # Merge on Matrix
+    merged_df = pd.merge(
+        base_df[['Matrix', 'GFLOPS', 'Padding_Pct']], 
+        colind0_df[['Matrix', 'GFLOPS']], 
+        on='Matrix', suffixes=('_base', '_colind0')
+    )
+    
+    # Ensure order
+    current_matrices = merged_df['Matrix'].unique()
+    current_order = [m for m in full_matrix_order if m in current_matrices]
+    merged_df['Matrix'] = pd.Categorical(merged_df['Matrix'], categories=current_order, ordered=True)
+    merged_df = merged_df.sort_values('Matrix')
+
+    merged_df['Pct_Increase'] = (merged_df['GFLOPS_colind0'] - merged_df['GFLOPS_base']) / merged_df['GFLOPS_base'] * 100.0
+
+    # Plot 1: GFLOPS Comparison
+    plot_df = pd.melt(merged_df, id_vars=['Matrix'], value_vars=['GFLOPS_base', 'GFLOPS_colind0'], var_name='Kernel', value_name='GFLOPS')
+    plt.figure(figsize=(PLT_WIDTH, PLT_HEIGHT))
+    sns.barplot(data=plot_df, x='Matrix', y='GFLOPS', hue='Kernel')
+    plt.title(f'GFLOPS Comparison: {base_gpu_kernel} vs COLIND0', fontsize=TITLE_FONT_SIZE)
+    plt.ylabel('GFLOPs', fontsize=LABEL_FONT_SIZE)
+    plt.xticks(ticks=range(len(current_order)), labels=current_order, rotation=90, fontsize=TICK_FONT_SIZE)
+    plt.yticks(fontsize=TICK_FONT_SIZE)
+    plt.tight_layout()
+    plt.savefig(os.path.join(plot_dir, f'colind0_gflops_comparison_{base_gpu_kernel}.png'), dpi=300)
+    plt.close()
+
+    # Plot 2: Percentage Increase
+    plt.figure(figsize=(PLT_WIDTH, PLT_HEIGHT))
+    ax = sns.barplot(data=merged_df, x='Matrix', y='Pct_Increase', color='lightgreen')
+    plt.title(f'Performance Increase with COLIND0 for {base_gpu_kernel}', fontsize=TITLE_FONT_SIZE)
+    plt.ylabel('Increase (%)', fontsize=LABEL_FONT_SIZE)
+    plt.xticks(ticks=range(len(current_order)), labels=current_order, rotation=90, fontsize=TICK_FONT_SIZE)
+    plt.yticks(fontsize=TICK_FONT_SIZE)
+    
+    # Add padding percentage annotation
+    for i, row in enumerate(merged_df.itertuples()):
+        padding_val = row.Padding_Pct if pd.notna(row.Padding_Pct) else 0.0
+        y_pos = row.Pct_Increase if row.Pct_Increase > 0 else 0
+        ax.text(i, y_pos + 1, f"Pad: {padding_val:.1f}%", ha='center', va='bottom', rotation=90, fontsize=9, color='red')
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(plot_dir, f'colind0_pct_increase_{base_gpu_kernel}.png'), dpi=300)
+    plt.close()
+
 def load_matrix_features(script_dir, df):
     features_path = os.path.join(script_dir, 'matrix_features.csv')
     if os.path.exists(features_path):
         features_df = pd.read_csv(features_path)
-        df = pd.merge(df, features_df[['matrix_name', 'm', 'n', 'avg_row_size']], left_on='Matrix', right_on='matrix_name', how='left')
-        df.rename(columns={'avg_row_size': 'avg_nnz'}, inplace=True)
+        df = pd.merge(df, features_df, left_on='Matrix', right_on='matrix_name', how='left')
         df.drop(columns=['matrix_name'], inplace=True)
-        print(f"Successfully merged matrix features and added avg_nnz from {features_path}")
+        print(f"Successfully merged all matrix features from {features_path}")
     else:
         print(f"Warning: {features_path} not found.")
     return df
-
-ALL_STRATEGIES = ['NAIVE', 'SHORTEST_ROWS', 'LONGEST_ROWS', 'SHORTEST_ROWS_ORIGINAL', 'LONGEST_ROWS_ORIGINAL']
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -653,7 +963,23 @@ if __name__ == "__main__":
     plot_dir = os.path.join(script_dir, f'plots')
     os.makedirs(plot_dir, exist_ok=True)
         
-    df, matrix_order = parse_logs(log_dir)
+    # READ_FROM_SCRATCH=True
+    READ_FROM_SCRATCH=False
+    parsed_csv = os.path.join(script_dir, 'parsed_logs.csv')
+    matrix_order_txt = os.path.join(script_dir, 'matrix_order.txt')
+    
+    if READ_FROM_SCRATCH or not os.path.exists(parsed_csv) or not os.path.exists(matrix_order_txt):
+        df, matrix_order = parse_logs(log_dir)
+        df.to_csv(parsed_csv, index=False)
+        with open(matrix_order_txt, 'w') as f:
+            for m in matrix_order:
+                f.write(f"{m}\n")
+        print(f"Saved parsed logs to {parsed_csv} and matrix order to {matrix_order_txt}")
+    else:
+        df = pd.read_csv(parsed_csv)
+        with open(matrix_order_txt, 'r') as f:
+            matrix_order = [line.strip() for line in f]
+        print(f"Loaded parsed logs from {parsed_csv}")
     df = load_matrix_features(script_dir, df)
 
     # if df.empty:
@@ -662,44 +988,65 @@ if __name__ == "__main__":
 
     # --- Pinning Comparison ---
     # plot_pinning_comparison(log_dir, plot_dir, GPU_KERNEL, CPU_KERNEL, matrix_order, alloc_type='MALLOC', strategy='NAIVE')
-  
-    full_matrix_order = matrix_order + ['HMEAN', 'GMEAN', 'MEAN']
+
     sns.set_theme(style="whitegrid")
+    
+    # --- Plot padding percentage of cuda_csr_transpose_expand_rows ---
+    plot_padding_percentage(df, plot_dir, matrix_order, gpu_kernel='cuda_csr_transpose_expand_rows')
+    plot_colind0_comparison(df, plot_dir, matrix_order, base_gpu_kernel='cuda_csr_transpose_expand_rows', alloc_type='MALLOC')
+
+    # Drop COLIND0 matrices and make a new df for the rest of the analysis
+    df = df[~df['GPU_Kernel'].str.contains("COLIND0")]
+
+    full_matrix_order = matrix_order + ['HMEAN', 'GMEAN', 'MEAN']
     df['Matrix'] = pd.Categorical(df['Matrix'], categories=full_matrix_order, ordered=True)
     
     # Plot standalone comparisons first
-    plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='EXPLICIT')
-    plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='MALLOC')
-    plot_standalone_cpu_comparison(df, plot_dir, full_matrix_order)
+    if(1):
+        plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='EXPLICIT', kernel_order=GPU_KERNELS)
+        plot_standalone_gpu_comparison(df, plot_dir, full_matrix_order, alloc_type='MALLOC', kernel_order=GPU_KERNELS)
+        plot_standalone_cpu_comparison(df, plot_dir, full_matrix_order, kernel_order=CPU_KERNELS)
 
-    # --- Strategy Comparison ---
-    plot_strategy_comparison(df, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, alloc_type='MALLOC')
+    # CPU_KERNELS2 = ['armpl', 'csr_vec']
+    # GPU_KERNELS2 = ['cuda_csr_transpose_expand_rows', 'cuda_sell_sorted_hybrid']
+    CPU_KERNELS2 = ['armpl']
+    GPU_KERNELS2 = ['cuda_csr_transpose_expand_rows']
+    for cpu_kernel in CPU_KERNELS2:
+        for gpu_kernel in GPU_KERNELS2:
+            print(f"\nPlotting for CPU kernel: {cpu_kernel} and GPU kernel: {gpu_kernel}")
 
-    # Now filter the df for the specific GPU_KERNEL and CPU_KERNEL for the hybrid plots
-    hybrid_target_df = df[
-        ((df['IsHybrid'] == True) & (df['GPU_Kernel'] == GPU_KERNEL) & (df['CPU_Kernel'] == CPU_KERNEL)) |
-        ((df['IsHybrid'] == False) & (df['GPU_Kernel'] == GPU_KERNEL) & df['CPU_Kernel'].isna()) |
-        ((df['IsHybrid'] == False) & (df['CPU_Kernel'] == CPU_KERNEL) & df['GPU_Kernel'].isna())
-    ].copy()
+            # --- Strategy Comparison ---
+            plot_strategy_comparison(df, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, alloc_type='MALLOC')
 
-    # Baseline (Using EXPLICIT for GPU standalone comparison in hybrid plots)
-    standalone_explicit = hybrid_target_df[(hybrid_target_df['IsHybrid'] == False) & (hybrid_target_df['Type'] == 'EXPLICIT')].copy()
-    if not standalone_explicit.empty:
-        standalone_explicit['Label'] = f'Standalone_{GPU_KERNEL}_EXPLICIT'
+            # Now filter the df for the specific GPU_KERNEL and CPU_KERNEL for the hybrid plots
+            hybrid_target_df = df[
+                ((df['IsHybrid'] == True) & (df['GPU_Kernel'] == gpu_kernel) & (df['CPU_Kernel'] == cpu_kernel)) |
+                ((df['IsHybrid'] == False) & (df['GPU_Kernel'] == gpu_kernel) & df['CPU_Kernel'].isna()) |
+                ((df['IsHybrid'] == False) & (df['CPU_Kernel'] == cpu_kernel) & df['GPU_Kernel'].isna())
+            ].copy()
 
-    # --- Plotting Calls ---
-    if not standalone_explicit.empty:
-        for strategy in ALL_STRATEGIES:
-            plot_hybrid_ratios(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, impl_types=['MALLOC'], strategy=strategy)
-            plot_best_hybrid_gflops(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, impl_types=['MALLOC'], strategy=strategy)
-            plot_best_hybrid_pct(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, impl_types=['MALLOC'], sort_by_pct=True, strategy=strategy)
+            # Baseline (Using EXPLICIT for GPU standalone comparison in hybrid plots)
+            standalone_explicit = hybrid_target_df[(hybrid_target_df['IsHybrid'] == False) & (hybrid_target_df['Type'] == 'EXPLICIT')].copy()
+            if not standalone_explicit.empty:
+                standalone_explicit['Label'] = f'Standalone_{gpu_kernel}_EXPLICIT'
 
-        # --- Overall Best Comparison ---
-        plot_overall_best_hybrid_pct(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, GPU_KERNEL, CPU_KERNEL, impl_types=['MALLOC'], sort_by_pct=True)
+            # --- Plotting Calls ---
+            if not standalone_explicit.empty:
+                # --- Hybrid Ratios Combinations ---
+                plot_all_hybrid_ratios_pdf(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'])
+                
+                # --- Best Hybrid Gflops Combinations ---
+                plot_all_best_hybrid_gflops_pdf(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'])
 
-    # --- Summary Table Generation ---
-    if not hybrid_target_df.empty:
-        csv_path = os.path.join(script_dir, f'spmv_performance_{CPU_KERNEL}_{GPU_KERNEL}_summary.csv')
-        hybrid_target_df.to_csv(csv_path)
-    
+                # --- Best Hybrid Pct Combinations ---
+                plot_all_best_hybrid_pct_pdf(hybrid_target_df, standalone_explicit, plot_dir, full_matrix_order, gpu_kernel, cpu_kernel, impl_types=['MALLOC'], sort_by_pct=True)
+
+                # --- Per-Matrix All Strategies Comparison ---
+                plot_per_matrix_all_strategies(hybrid_target_df, standalone_explicit, df, plot_dir, gpu_kernel, cpu_kernel, matrix_order)
+
+            # --- Summary Table Generation ---
+            if not hybrid_target_df.empty:
+                csv_path = os.path.join(script_dir, f'spmv_performance_{cpu_kernel}_{gpu_kernel}_summary.csv')
+                hybrid_target_df.to_csv(csv_path, index=False)
+
     print(f"\nSuccessfully generated plots in {plot_dir}")
