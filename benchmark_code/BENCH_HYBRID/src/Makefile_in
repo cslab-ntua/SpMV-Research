@@ -285,6 +285,78 @@ endef
 
 $(foreach r,$(RATIOS),$(eval $(call LONGEST_ROWS_ORIGINAL_RULE,$(r))))
 
+# --- Bad Zones: Rows Multi-Targets ---
+define BAD_ZONES_ROWS_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_bad_zones_rows_$(1)$$(SUFFIX).o,$(DISPATCHER_SRC),$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_BAD_ZONES_ROWS -DHYBRID_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_BAD_ZONES_ROWS -DHYBRID_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_BAD_ZONES_ROWS_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_bad_zones_rows_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(RATIOS),$(eval $(call BAD_ZONES_ROWS_RULE,$(r))))
+
+# --- Bad Zones: Bandwidth Multi-Targets ---
+define BAD_ZONES_BANDWIDTH_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_bad_zones_bandwidth_$(1)$$(SUFFIX).o,$(DISPATCHER_SRC),$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_BAD_ZONES_BANDWIDTH -DHYBRID_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_BAD_ZONES_BANDWIDTH -DHYBRID_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_BAD_ZONES_BANDWIDTH_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_bad_zones_bandwidth_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(RATIOS),$(eval $(call BAD_ZONES_BANDWIDTH_RULE,$(r))))
+
+# --- Bad Zones: Cachelines Multi-Targets ---
+define BAD_ZONES_CACHELINES_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_bad_zones_cachelines_$(1)$$(SUFFIX).o,$(DISPATCHER_SRC),$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_BAD_ZONES_CACHELINES -DHYBRID_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_BAD_ZONES_CACHELINES -DHYBRID_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_BAD_ZONES_CACHELINES_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_bad_zones_cachelines_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(RATIOS),$(eval $(call BAD_ZONES_CACHELINES_RULE,$(r))))
+
+# --- Bad Zones: Padding Multi-Targets ---
+define BAD_ZONES_PADDING_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_bad_zones_padding_$(1)$$(SUFFIX).o,$(DISPATCHER_SRC),$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_BAD_ZONES_PADDING -DHYBRID_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_BAD_ZONES_PADDING -DHYBRID_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_BAD_ZONES_PADDING_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_bad_zones_padding_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(RATIOS),$(eval $(call BAD_ZONES_PADDING_RULE,$(r))))
+
 # --- Standalone Executables ---
 spmv_armpl$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/armpl$(SUFFIX).o $(LIB_OBJ)  
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_ARMPL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ARMPL)

@@ -271,9 +271,6 @@ long get_removal_contiguous_block(INT_T * row_ptr, long m, long total_nnz,
 //
 // Each row's NNZ is padded to the next multiple of NNZ_PER_THREAD (=5),
 // exactly matching cuda_csr_transpose_expand_rows.cu's expand logic.
-//
-// Score of a zone = num_rows it spans.  High row count = sparse/divergent = bad.
-
 #define ZONE_BLOCK_SIZE     128
 
 struct Zone {
@@ -376,6 +373,7 @@ static long remove_worst_zones(Zone * zones, long num_zones,
 
 
 // --- Bad zones scored by ROW COUNT ---
+// Score of a zone = num_rows it spans.  High row count = sparse/divergent = bad.
 long get_removal_bad_zones_rows(INT_T * row_ptr, long m, long total_nnz, double ratio, INT_T * row_map)
 {
 	Zone * zones;

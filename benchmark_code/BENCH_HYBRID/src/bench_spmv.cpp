@@ -585,8 +585,22 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			// perform pointer swapping, only when it is an intermediate iteration. If last, no need to do it 
 			// since we will print the final result next.
 			if(!is_final_loop){
-				if (csr->m == csr->n) std::swap(x, y);
-				else std::copy(y, y + copy_elements, x);
+				// double swapping_time = time_it(1, 
+					// if (csr->m == csr->n) std::swap(x, y);
+					// else std::copy(y, y + copy_elements, x);
+					std::swap(x, y);
+					// Zero the tail: the "extra" elements in x that are beyond
+					// the valid y output range. Only needed if m != n.
+					if (csr->m != csr->n) {
+						long small_dim = (csr->m > csr->n) ? csr->n : csr->m;
+						long large_dim = (csr->m > csr->n) ? csr->m : csr->n;
+						// Parallel if the tail is large
+						_Pragma("omp parallel for")
+						for (long i = small_dim; i < large_dim; i++)
+							x[i] = 0;
+					}
+				// );
+				// printf("swapping_time = %lf us (%.2lf MB) (%lf GB/s)\n", swapping_time * 1e6, (copy_elements * sizeof(ValueType)) / (1024.0*1024), (copy_elements * sizeof(ValueType)) / (swapping_time * 1e9));
 			}
 
 			#ifdef SDV_TRACING
@@ -795,9 +809,8 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 				i += snprintf(buf + i, buf_n - i, ",%lf", time_min_gpu);
 				i += snprintf(buf + i, buf_n - i, ",%lf", time_median_gpu);
 				i += snprintf(buf + i, buf_n - i, ",%lf", time_max_gpu);
-			#else
-				i += MF->statistics_print_data(buf + i, buf_n - i);
 			#endif
+			i += MF->statistics_print_data(buf + i, buf_n - i);
 		#endif
 		buf[i] = '\0';
 		fprintf(stderr, "%s\n", buf);

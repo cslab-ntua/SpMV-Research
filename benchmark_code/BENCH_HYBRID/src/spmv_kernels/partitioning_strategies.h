@@ -41,4 +41,12 @@ long get_split_shortest_rows_original_order(INT_T * row_ptr, long m, long total_
 // GPU gets longest rows, original order restored within partitions.
 long get_split_longest_rows_original_order(INT_T * row_ptr, long m, long total_nnz, double ratio, INT_T * row_map);
 
+// --- Bad Zones strategies ---
+// These strategies isolate regions of the matrix that are "bad" for GPU execution.
+// The identified bad regions (zones) are assigned to the CPU.
+long get_split_bad_zones_rows(INT_T * row_ptr, long m, long total_nnz, double ratio, INT_T * row_map);
+long get_split_bad_zones_bandwidth(INT_T * row_ptr, INT_T * col_ind, long m, long total_nnz, double ratio, INT_T * row_map);
+long get_split_bad_zones_cachelines(INT_T * row_ptr, INT_T * col_ind, long m, long total_nnz, double ratio, INT_T * row_map);
+long get_split_bad_zones_padding(INT_T * row_ptr, long m, long total_nnz, double ratio, INT_T * row_map);
+
 #endif
