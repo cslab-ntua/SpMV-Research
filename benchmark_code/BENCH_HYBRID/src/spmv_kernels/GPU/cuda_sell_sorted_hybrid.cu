@@ -1406,7 +1406,6 @@ compute_sell_sorted(Cuda_SELL_Sorted_Hybrid_Arrays * restrict csr, ValueType * r
 			if (csr->m - csr->crossover_row > 0)
 				cuda_assert(cudaMemsetAsync(csr->y_d + csr->offset + csr->crossover_row, 0, (csr->m - csr->crossover_row) * sizeof(*csr->y_d), csr->stream));
 
-
 			#if DETAILED_TIMING
 				cuda_assert(cudaEventRecord(csr->pure_memset_stop, csr->stream));
 			#endif
@@ -1489,7 +1488,8 @@ compute_sell_sorted(Cuda_SELL_Sorted_Hybrid_Arrays * restrict csr, ValueType * r
 		}
 
 		// Memset y directly (no device buffer)
-		cuda_assert(cudaMemsetAsync(y + csr->offset, 0, csr->m * sizeof(*y), csr->stream));
+		if(csr->m - csr->crossover_row > 0)
+			cuda_assert(cudaMemsetAsync(y + csr->offset + csr->crossover_row, 0, (csr->m - csr->crossover_row) * sizeof(*y), csr->stream));
 
 		#if DETAILED_TIMING
 			cuda_assert(cudaEventRecord(csr->memset_event, csr->stream));
