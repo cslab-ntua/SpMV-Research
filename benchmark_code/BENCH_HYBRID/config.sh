@@ -165,8 +165,8 @@ conf_vars=(
     ['VECTOR_ALLOC']='MALLOC'
 
     # CPU kernel for the CPU side of hybrid execution ('armpl' or 'csr_vec').
-    ['CPU_KERNEL']='armpl'
-    # ['CPU_KERNEL']='csr_vec'
+    # ['CPU_KERNEL']='armpl'
+    ['CPU_KERNEL']='csr_vec'
 
     # GPU kernel for the GPU side of hybrid execution.
     # ['GPU_KERNEL']='cusparse_csr'
@@ -587,7 +587,7 @@ progs=(
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_80_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_80_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_75_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_75_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_70_${VECTOR_ALLOC}_nv_d.exe"
-    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_65_${VECTOR_ALLOC}_nv_d.exe"
+    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_65_${VECTOR_ALLOC}_nv_d.exe"
     
     # Shortest-rows sorted: GPU gets shortest rows, sorted order within partitions.
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_SORTED_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_SORTED_95_${VECTOR_ALLOC}_nv_d.exe"
@@ -661,6 +661,15 @@ progs=(
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_BAD_ZONES_PADDING_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_BAD_ZONES_PADDING_70_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_BAD_ZONES_PADDING_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_BAD_ZONES_PADDING_65_${VECTOR_ALLOC}_nv_d.exe"
 
+    # Minimal x Vector Access from CPU
+    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_95_${VECTOR_ALLOC}_nv_d.exe"
+    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_90_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_90_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_85_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_85_${VECTOR_ALLOC}_nv_d.exe"
+    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_80_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_80_${VECTOR_ALLOC}_nv_d.exe"
+    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_75_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_75_${VECTOR_ALLOC}_nv_d.exe"
+    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_70_${VECTOR_ALLOC}_nv_d.exe"
+    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_65_${VECTOR_ALLOC}_nv_d.exe"
+    
     # =========================================================================
     # Standalone GPU Work-Removal experiments
     # Removed rows are simply skipped (not computed on CPU).

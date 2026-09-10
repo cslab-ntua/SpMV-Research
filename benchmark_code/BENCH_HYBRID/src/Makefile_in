@@ -357,6 +357,25 @@ endef
 
 $(foreach r,$(RATIOS),$(eval $(call BAD_ZONES_PADDING_RULE,$(r))))
 
+# --- Minimal x Vector Access from CPU ---
+define MIN_X_ACCESS_CPU_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_min_x_access_cpu_$(1)$$(SUFFIX).o,$(DISPATCHER_SRC),$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_MIN_X_ACCESS_CPU -DHYBRID_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_MIN_X_ACCESS_CPU -DHYBRID_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_MIN_X_ACCESS_CPU_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_min_x_access_cpu_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(RATIOS),$(eval $(call MIN_X_ACCESS_CPU_RULE,$(r))))
+
+
 # --- Standalone Executables ---
 spmv_armpl$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/armpl$(SUFFIX).o $(LIB_OBJ)  
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_ARMPL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ARMPL)

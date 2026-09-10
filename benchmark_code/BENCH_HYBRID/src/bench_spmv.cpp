@@ -1067,8 +1067,8 @@ bench(struct CSR_reference_s * csr, struct Matrix_Format * MF, long print_labels
 	#ifdef SDV_TRACING
 		min_runtime = 0;
 	#else
-		min_runtime = 0;
-		// min_runtime = 2.0;
+		// min_runtime = 0;
+		min_runtime = 2.0;
 	#endif
 
 	// checkResidency(x, "x (Pre-Kernel)");

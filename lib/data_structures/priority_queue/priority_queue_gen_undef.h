@@ -1,0 +1,22 @@
+
+#undef              PRIORITY_QUEUE_GEN_TYPE_1
+#undef              PRIORITY_QUEUE_GEN_TYPE_2
+#undef              PRIORITY_QUEUE_GEN_SUFFIX
+#undef              PRIORITY_QUEUE_GEN_FUNCTION_ATTRIBUTES
+#undef              PRIORITY_QUEUE_GEN_EXPAND
+#undef              PRIORITY_QUEUE_GEN_EXPAND_TYPE
+#undef              CACHE_LINE_SIZE
+#undef              PQ_DEGREE
+#undef              _TYPE
+#undef              _TYPE_I
+#undef              pq_node_data
+#undef              pq_data
+#undef              pq_init
+#undef              pq_clean
+#undef              pq_destroy
+#undef              pq_correct_up
+#undef              pq_correct_down
+#undef              pq_pop
+#undef              pq_push
+#undef              pq_get_data
+#undef              pq_set_data

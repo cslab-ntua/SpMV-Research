@@ -49,4 +49,7 @@ long get_split_bad_zones_bandwidth(INT_T * row_ptr, INT_T * col_ind, long m, lon
 long get_split_bad_zones_cachelines(INT_T * row_ptr, INT_T * col_ind, long m, long total_nnz, double ratio, INT_T * row_map);
 long get_split_bad_zones_padding(INT_T * row_ptr, long m, long total_nnz, double ratio, INT_T * row_map);
 
+// --- Minimal x Vector Access from CPU ---
+long find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, long m, long n, long nnz, double ratio, INT_T * row_map_out);
+
 #endif

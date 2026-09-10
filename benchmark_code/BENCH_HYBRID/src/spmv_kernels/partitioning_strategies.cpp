@@ -432,3 +432,150 @@ long get_split_bad_zones_padding(INT_T * row_ptr, long m, long total_nnz, double
 	free(zones);
 	return m_cpu;
 }
+
+
+// =============================================================================
+// Minimal x Vector Elements Accessed by CPU
+//
+// These methods try to minimize (heuristic) the amount of unique x elements
+// accesses by the CPU.
+// =============================================================================
+
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+	#include "aux/csr_converter.h"
+
+	struct pq_elem_s {
+		INT_T row;
+		INT_T degree;
+		INT_T new_x_accesses;
+	};
+	#include "data_structures/priority_queue/priority_queue_gen_undef.h"
+	#define PRIORITY_QUEUE_GEN_TYPE_1  struct pq_elem_s
+	#define PRIORITY_QUEUE_GEN_TYPE_2  int
+	#define PRIORITY_QUEUE_GEN_SUFFIX  _i_i
+	#include "data_structures/priority_queue/priority_queue_gen.c"
+	int
+	pq_cmp(struct pq_elem_s a, struct pq_elem_s b)
+	{
+		int ret;
+		ret = (a.new_x_accesses < b.new_x_accesses) ? 1 : (a.new_x_accesses > b.new_x_accesses) ? -1 : 0;
+		// if (!ret)
+			// ret = (a.degree > b.degree) ? 1 : (a.degree < b.degree) ? -1 : 0;
+		// if (!ret)
+			// ret = (a.row < b.row) ? 1 : (a.row > b.row) ? -1 : 0;
+		return ret;
+	}
+#ifdef __cplusplus
+}
+#endif
+
+
+long
+find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, long m, long n, long nnz, double ratio, INT_T * row_map_out)
+{
+	char * row_extracted_flags = (typeof(row_extracted_flags)) malloc(m * sizeof(*row_extracted_flags));
+	char * x_access_flags = (typeof(x_access_flags)) malloc(n * sizeof(*x_access_flags));
+	long i, j;
+	long num_rows_extracted;
+	struct pq_elem_s pq_elem;
+	long position;
+	long col;
+
+	long target_nnz = (long)(nnz * (1.0 - ratio));
+
+	INT_T * col_ptr;
+	INT_T * row_idx;
+	csr_transpose(row_ptr, col_idx, NULL, m, n, nnz, &col_ptr, &row_idx, NULL, 0);
+
+	struct pq_data * pq = (typeof(pq)) malloc(sizeof(*pq));
+	int * pq_elem_positions = (typeof(pq_elem_positions)) malloc(m * sizeof(*pq_elem_positions));
+	pq_init(pq, m);
+	for (i=0;i<m;i++)
+	{
+		pq_elem.row = i;
+		pq_elem.degree = row_ptr[i+1] - row_ptr[i];
+		pq_elem.new_x_accesses = row_ptr[i+1] - row_ptr[i];
+		pq_push(pq, pq_elem, &pq_elem_positions[i]);
+	}
+
+	_Pragma("omp parallel")
+	{
+		long i;
+		_Pragma("omp for")
+		for (i=0;i<m;i++)
+			row_extracted_flags[i] = 0;
+		_Pragma("omp for")
+		for (i=0;i<n;i++)
+			x_access_flags[i] = 0;
+	}
+
+	long x_elems_new = 0;
+	long nnz_sum = 0;
+	for (num_rows_extracted=0;num_rows_extracted<m;num_rows_extracted++)
+	{
+		// long num_threads = omp_get_max_threads();
+		long row_min = 0;
+		if (nnz_sum >= target_nnz)
+			break;
+
+		pq_pop(pq, &pq_elem);
+		row_min = pq_elem.row;
+
+		// row_min = num_rows_extracted;
+
+		x_elems_new = 0;
+		for (i=row_ptr[row_min];i<row_ptr[row_min+1];i++)
+		{
+			col = col_idx[i];
+			if (x_access_flags[col])
+				continue;
+			for (j=col_ptr[col];j<col_ptr[col+1];j++)
+			{
+				position = pq_elem_positions[row_idx[j]];
+				pq_elem = pq_get_data(pq, position);
+				pq_elem.new_x_accesses--;
+				pq_set_data(pq, position, pq_elem);
+				pq_correct_up(pq, position);
+			}
+			x_access_flags[col] = 1;
+			x_elems_new++;
+		}
+		row_extracted_flags[row_min] = 1;
+		row_map_out[num_rows_extracted] = row_min;
+		nnz_sum += row_ptr[row_min+1] - row_ptr[row_min];
+		// printf("target_nnz=%ld/%ld, num_rows_extracted=%ld: row=%ld, new_x_accesses=%d, x_elems_new=%ld\n", nnz_sum, target_nnz, num_rows_extracted, row_min, pq_elem.new_x_accesses, x_elems_new);
+	}
+
+	/* Put the GPU rows after the CPU extracted ones. */
+	j = num_rows_extracted;
+	for (i=0;i<m;i++)
+	{
+		if (!row_extracted_flags[i])
+		{
+			row_map_out[j] = i;
+			j++;
+		}
+	}
+
+	// long num_x_elements_accessed = 0;
+	// for (i=0;i<n;i++)
+	// {
+		// if (x_access_flags[i])
+			// num_x_elements_accessed++;
+	// }
+	// printf("num_x_elements_accessed=%ld, num_rows_extracted=%ld, target_nnz=%ld\n", num_x_elements_accessed, num_rows_extracted, nnz_sum);
+
+	free(row_extracted_flags);
+	free(x_access_flags);
+	free(col_ptr);
+	free(row_idx);
+	free(pq);
+	free(pq_elem_positions);
+
+	// printf("\n\nnum_rows_extracted=%ld\n", num_rows_extracted);
+	return num_rows_extracted;
+}
+

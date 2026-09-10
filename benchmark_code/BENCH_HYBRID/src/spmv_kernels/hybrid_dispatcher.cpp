@@ -248,6 +248,9 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 		#elif defined(STRAT_BAD_ZONES_PADDING)
 			m_cpu = get_split_bad_zones_padding(row_ptr, m, nnz, HYBRID_RATIO, hybrid->row_map);
 			strat_name = "BAD_ZONES_PADDING";
+		#elif defined(STRAT_MIN_X_ACCESS_CPU)
+			m_cpu = find_row_set_with_minimal_x_vector_references(row_ptr, col_ind, m, n, nnz, HYBRID_RATIO, hybrid->row_map);
+			strat_name = "MIN_X_ACCESS_CPU";
 		#else
 			m_cpu = m * 0.2; // Default 20/80
 			strat_name = "DEFAULT_20_80";
