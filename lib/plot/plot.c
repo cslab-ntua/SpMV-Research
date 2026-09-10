@@ -15,6 +15,7 @@
 #include "io.h"
 #include "parallel_io.h"
 #include "genlib.h"
+#include "lock/lock_util.h"
 #include "array_metrics.h"
 #include "storage_formats/pixel_array.h"
 #include "storage_formats/ppm.h"
@@ -104,6 +105,22 @@ id(__attribute__((unused)) void * x, long i)
 
 static inline
 double
+reduce_min_double(double a, double b)
+{
+	return a <= b ? a : b;
+}
+
+
+static inline
+double
+reduce_max_double(double a, double b)
+{
+	return a >= b ? a : b;
+}
+
+
+static inline
+double
 normal_distribution(double m, double s, double x)
 {
 	const double c = sqrt(2 * M_PI);
@@ -113,6 +130,79 @@ normal_distribution(double m, double s, double x)
 	// y = ldexp(1, tmp*tmp / -2 + 0.5);
 	y /= s * c;
 	return y;
+}
+
+
+/* Rotate around x, y or z axis.
+ * This is basically a 2D operation on the respective plane.
+ * Naming here is for when rotating around the z axis (xy-plane).
+ * Replace x and y according to right hand rule to rotate around the x or y axis.
+ */
+static inline
+void
+rotate_around_axis(double vx, double vy, double dp, double * x_out, double * y_out)
+{
+	double vx_new, vy_new;
+	vx_new = cos(dp)*vx - sin(dp)*vy;
+	vy_new = sin(dp)*vx + cos(dp)*vy;
+	if (x_out != NULL)
+		*x_out = vx_new;
+	if (y_out != NULL)
+		*y_out = vy_new;
+}
+
+
+/* Rotate the plane to make it parallel to the xy-plane, so that the projection to the plane becomes a nop.
+ *
+ * Rotate around z axis, until the normal of the plane point to +y.
+ * Rotate around x axis, until the plane is parallel to the xy-plane.
+ */
+static inline
+void
+isomorphic_projection(double x, double y, double z, double angle_x, double angle_z, double proj_z0,
+		double * x_out, double * y_out, double * z_out, double * depth_out)
+{
+	double px=x, py=y, pz=z, depth;
+	rotate_around_axis(px, py, angle_z, &px, &py);
+	rotate_around_axis(py, pz, angle_x, &py, &pz);
+	depth = proj_z0 - pz;
+	if (x_out != NULL)
+		*x_out = px;
+	if (y_out != NULL)
+		*y_out = py;
+	if (z_out != NULL)
+		*z_out = pz;
+	if (depth_out != NULL)
+		*depth_out = depth;
+}
+
+static inline
+void
+isomorphic_projection_get_rotation_matrix(double * rot_mat_out, double angle_x, double angle_z)
+{
+	rot_mat_out[0] = cos(angle_z);
+	rot_mat_out[1] = -sin(angle_z);
+	rot_mat_out[2] = 0;
+
+	rot_mat_out[3] = cos(angle_x) * sin(angle_z);
+	rot_mat_out[4] = cos(angle_x) * cos(angle_z);
+	rot_mat_out[5] = -sin(angle_x);
+
+	rot_mat_out[6] = sin(angle_x) * sin(angle_z);
+	rot_mat_out[7] = sin(angle_x) * cos(angle_z);
+	rot_mat_out[8] = cos(angle_x);
+}
+
+static inline
+void
+apply_rotation_matrix(double * rot_mat, double x, double y, double z, double * x_out, double * y_out, double * z_out)
+{
+	if (x_out != NULL)
+		*x_out = rot_mat[0] * x + rot_mat[1] * y + rot_mat[2] * z;
+	if (y_out != NULL)
+		*y_out = rot_mat[3] * x + rot_mat[4] * y + rot_mat[5] * z;
+	if (z_out != NULL)
+		*z_out = rot_mat[6] * x + rot_mat[7] * y + rot_mat[8] * z;
 }
 
 
@@ -233,12 +323,13 @@ figure_series_init_base(struct Figure_Series * s, void * x, void * y, void * z, 
 
 static
 void
-figure_series_init(struct Figure_Series * s, const char * name, void * x, void * y, void * z, long N, long M,
+figure_series_init(struct Figure_Series * s, struct Figure * fig, const char * name, void * x, void * y, void * z, long N, long M,
 		double (* get_x_as_double)(void * x, long i),
 		double (* get_y_as_double)(void * y, long i),
 		double (* get_z_as_double)(void * z, long i)
 		)
 {
+	s->fig = fig;
 	s->name = strdup(name);
 	figure_series_init_base(s, x, y, z, N, M, get_x_as_double, get_y_as_double, get_z_as_double);
 
@@ -299,6 +390,7 @@ figure_init(struct Figure * fig, int x_num_pixels, int y_num_pixels)
 	fig->series = (typeof(fig->series)) malloc(fig->max_num_series * sizeof(*fig->series));
 	fig->x_num_pixels = x_num_pixels <= 0 ? 1920 : x_num_pixels;
 	fig->y_num_pixels = y_num_pixels <= 0 ? 1920 : y_num_pixels;
+	fig->axes_equal_scale = 0;
 	fig->axes_flip_x = 0;
 	fig->axes_flip_y = 0;
 	fig->custom_bounds_x_min = 0;
@@ -368,7 +460,7 @@ figure_add_series_base(struct Figure * fig, void * x, void * y, void * z, long N
 	fig->num_series++;
 	s = &fig->series[fig->num_series - 1];
 	snprintf(buf, buf_n, "%d", fig->num_series);
-	figure_series_init(s, buf, x, y, z, N, M, get_x_as_double, get_y_as_double, get_z_as_double);
+	figure_series_init(s, fig, buf, x, y, z, N, M, get_x_as_double, get_y_as_double, get_z_as_double);
 	return s;
 }
 
@@ -376,6 +468,13 @@ figure_add_series_base(struct Figure * fig, void * x, void * y, void * z, long N
 //==========================================================================================================================================
 //= Figure Options
 //==========================================================================================================================================
+
+
+void
+figure_axes_set_equal_scale(struct Figure * fig)
+{
+	fig->axes_equal_scale = 1;
+}
 
 
 void
@@ -675,6 +774,231 @@ figure_series_type_pixel_coords(struct Figure_Series * s)
 }
 
 
+/*
+ * n : Normal vector (not necessarily unit), i.e., perpendicular to plane.
+ * A0: Point on the plane.
+ */
+void
+figure_series_type_3d_base(struct Figure_Series * s,
+	double nx, double ny, double nz,
+	double x0, double y0, double z0)
+{
+	s->type_3d = 1;
+
+	if (s->z == NULL)
+		error("3D series needs 3 coordinates, but no z coordinate given");
+
+	/* Rotate the plane to make it parallel to the xy-plane, so that the projection to the plane becomes a nop.
+	 * The normal of the plane should be <facing> the point of view,
+	 * e.g., viewing from +++ octant the normal should be (1, 1, 1).
+	 *
+	 * In order to get the correct orientations, we have to think how the
+	 * projected image onto the plane will end up looking after the rotations:
+	 *     Rotate around z axis, until the normal of the plane is on the yz-plane, and points towards -y -> -pi/2.
+	 *     Rotate around x axis, until the normal of the plane is parallel to the z axis, towards +z.
+	 */
+	const double dpz = - M_PI / 2 - atan2(ny, nx);
+
+	double nx_rot, ny_rot, nz_rot;
+	nx_rot = nx;
+	ny_rot = ny;
+	nz_rot = nz;
+	rotate_around_axis(nx_rot, ny_rot, dpz, &nx_rot, &ny_rot);
+	const double dpx = M_PI / 2 - atan2(nz_rot, ny_rot);
+	// const double dpx = atan2(sqrt(nx*nx + ny*ny), nz);
+
+	double proj_x0, proj_y0, proj_z0;
+	proj_x0 = x0;
+	proj_y0 = y0;
+	proj_z0 = z0;
+	rotate_around_axis(proj_x0, proj_y0, dpz, &proj_x0, &proj_y0);
+	rotate_around_axis(proj_y0, proj_z0, dpx, &proj_y0, &proj_z0);
+
+	s->angle_z = dpz;
+	s->angle_x = dpx;
+	s->proj_z0 = proj_z0;
+
+	isomorphic_projection_get_rotation_matrix(s->rotation_matrix, s->angle_x, s->angle_z);
+
+	s->grid_enabled = 0;
+
+	// Calculate boundaries of projection.
+	#pragma omp parallel
+	{
+		double x, y, z;
+		double px, py, pz;
+		double x_min_t=INFINITY, x_max_t=-INFINITY, y_min_t=INFINITY, y_max_t=-INFINITY;
+		long i, j;
+		if (s->cart_prod)
+		{
+			#pragma omp for
+			for (i=0;i<s->M;i++)
+			{
+				y = s->get_y_as_double(s->y, i);
+				for (j=0;j<s->N;j++)
+				{
+					x = s->get_x_as_double(s->x, j);
+					z = s->get_z_as_double(s->z, i*s->N+j);
+					// isomorphic_projection(x, y, z, s->angle_x, s->angle_z, s->proj_z0, &px, &py, NULL, NULL);
+					apply_rotation_matrix(s->rotation_matrix, x, y, z, &px, &py, &pz);
+					if (px < x_min_t)
+						x_min_t = px;
+					if (px > x_max_t)
+						x_max_t = px;
+					if (py < y_min_t)
+						y_min_t = py;
+					if (py > y_max_t)
+						y_max_t = py;
+				}
+			}
+		}
+		else
+		{
+			#pragma omp for
+			for (i=0;i<s->M;i++)
+			{
+				x = s->get_x_as_double(s->x, i);
+				y = s->get_y_as_double(s->y, i);
+				z = s->get_z_as_double(s->z, i);
+				// isomorphic_projection(x, y, z, s->angle_x, s->angle_z, s->proj_z0, &px, &py, NULL, NULL);
+				apply_rotation_matrix(s->rotation_matrix, x, y, z, &px, &py, &pz);
+				if (px < x_min_t)
+					x_min_t = px;
+				if (px > x_max_t)
+					x_max_t = px;
+				if (py < y_min_t)
+					y_min_t = py;
+				if (py > y_max_t)
+					y_max_t = py;
+			}
+		}
+		omp_thread_reduce_global(reduce_min_double, x_min_t, 0, 1, 0, NULL, &s->x_min);
+		omp_thread_reduce_global(reduce_max_double, x_max_t, 0, 1, 0, NULL, &s->x_max);
+		omp_thread_reduce_global(reduce_min_double, y_min_t, 0, 1, 0, NULL, &s->y_min);
+		omp_thread_reduce_global(reduce_max_double, y_max_t, 0, 1, 0, NULL, &s->y_max);
+	}
+	array_min_max(s->z, s->L, &s->z_min, NULL, &s->z_max, NULL, s->get_z_as_double);
+}
+
+void
+figure_series_type_3d_enable_grid_base(struct Figure_Series * s, long grid_step_size_in_pixels)
+{
+	if (!s->type_3d)
+		error("series type is not a 3d plot");
+	long i;
+
+	struct Figure * fig = s->fig;
+
+	s->grid_enabled = 1;
+
+	double x_min, x_max, y_min, y_max;
+	array_min_max(s->x, s->N, &x_min, NULL, &x_max, NULL, s->get_x_as_double);
+	array_min_max(s->y, s->M, &y_min, NULL, &y_max, NULL, s->get_y_as_double);
+	double x_len = fabs(x_max - x_min);
+	double y_len = fabs(y_max - y_min);
+	if (x_len == 0)
+		x_len = (y_len == 0) ? 1 : y_len;
+	if (y_len == 0)
+		y_len = x_len;
+
+	s->grid_x_num_points = fig->x_num_pixels / grid_step_size_in_pixels;
+	s->grid_y_num_points = fig->y_num_pixels / grid_step_size_in_pixels;
+
+	// -1 to fit the max values which are an inclusive boundary, and are at the position of the 'number of points' we divide each length by.
+	s->grid_x_step = x_len / (s->grid_x_num_points - 1);
+	s->grid_y_step = y_len / (s->grid_y_num_points - 1);
+
+	s->grid_px = (typeof(s->grid_px)) malloc(s->grid_x_num_points*s->grid_y_num_points * sizeof(*s->grid_px));
+	s->grid_py = (typeof(s->grid_py)) malloc(s->grid_x_num_points*s->grid_y_num_points * sizeof(*s->grid_py));
+	s->grid_depth = (typeof(s->grid_depth)) malloc(s->grid_x_num_points*s->grid_y_num_points * sizeof(*s->grid_depth));
+
+	int * grid_count = (typeof(grid_count)) malloc(s->grid_x_num_points*s->grid_y_num_points * sizeof(*grid_count));
+	char * grid_lock = (typeof(grid_lock)) malloc(s->grid_x_num_points*s->grid_y_num_points * sizeof(*grid_lock));
+	for (i=0;i<s->grid_x_num_points*s->grid_y_num_points;i++)
+	{
+		s->grid_px[i] = 0;
+		s->grid_py[i] = 0;
+		s->grid_depth[i] = INFINITY;
+		grid_count[i] = 0;
+		grid_lock[i] = 0;
+	}
+	#pragma omp parallel
+	{
+		double x, y, z;
+		double px, py, pz, depth;
+		long x_pos, y_pos, pos;
+		long i, j;
+		if (s->cart_prod)
+		{
+			#pragma omp for
+			for (i=0;i<s->M;i++)
+			{
+				y = s->get_y_as_double(s->y, i);
+				y_pos = (long) floor((y - y_min) / s->grid_y_step + 0.5);
+				for (j=0;j<s->N;j++)
+				{
+					x = s->get_x_as_double(s->x, j);
+					x_pos = (long) floor((x - x_min) / s->grid_x_step + 0.5);
+					z = s->get_z_as_double(s->z, i*s->N+j);
+					// isomorphic_projection(x, y, z, s->angle_x, s->angle_z, s->proj_z0, &px, &py, NULL, &depth);
+					apply_rotation_matrix(s->rotation_matrix, x, y, z, &px, &py, &pz);
+					depth = s->proj_z0 - pz;
+					pos = y_pos * s->grid_x_num_points + x_pos;
+					if (depth < s->grid_depth[pos])
+					{
+						while (__atomic_exchange_n(&(grid_lock[pos]), 1, __ATOMIC_ACQUIRE))
+							lock_cpu_relax();
+						s->grid_px[pos] += px;
+						s->grid_py[pos] += py;
+						s->grid_depth[pos] = depth - s->grid_x_step - s->grid_y_step;
+						grid_count[pos]++;
+						__atomic_store_n(&(grid_lock[pos]), 0, __ATOMIC_RELEASE);
+					}
+				}
+			}
+		}
+		else
+		{
+			#pragma omp for
+			for (i=0;i<s->M;i++)
+			{
+				x = s->get_x_as_double(s->x, i);
+				y = s->get_y_as_double(s->y, i);
+				z = s->get_z_as_double(s->z, i);
+				x_pos = (long) floor((x - x_min) / s->grid_x_step + 0.5);
+				y_pos = (long) floor((y - y_min) / s->grid_y_step + 0.5);
+				// isomorphic_projection(x, y, z, s->angle_x, s->angle_z, s->proj_z0, &px, &py, NULL, &depth);
+				apply_rotation_matrix(s->rotation_matrix, x, y, z, &px, &py, &pz);
+				depth = s->proj_z0 - pz;
+				pos = y_pos * s->grid_x_num_points + x_pos;
+				if (depth < s->grid_depth[pos])
+				{
+					while (__atomic_exchange_n(&(grid_lock[pos]), 1, __ATOMIC_ACQUIRE))
+						lock_cpu_relax();
+					s->grid_px[pos] += px;
+					s->grid_py[pos] += py;
+					s->grid_depth[pos] = depth - s->grid_x_step - s->grid_y_step;
+					grid_count[pos]++;
+					__atomic_store_n(&(grid_lock[pos]), 0, __ATOMIC_RELEASE);
+				}
+			}
+			#pragma omp for
+			for (i=0;i<s->grid_x_num_points*s->grid_y_num_points;i++)
+			{
+				if (grid_count[i] == 0)
+				{
+					continue;
+				}
+				s->grid_px[i] = s->grid_px[i] / grid_count[i];
+				s->grid_py[i] = s->grid_py[i] / grid_count[i];
+			}
+		}
+	}
+	free(grid_count);
+	free(grid_lock);
+}
+
+
 //==========================================================================================================================================
 //= Color Mappings
 //==========================================================================================================================================
@@ -779,7 +1103,7 @@ figure_color_mapping_greyscale(double val_norm, __attribute__((unused)) double v
 
 
 //==========================================================================================================================================
-//= Find Value Pixel Coordinates
+//= Find Pixel Coordinates
 //==========================================================================================================================================
 
 
@@ -799,17 +1123,15 @@ figure_color_mapping_greyscale(double val_norm, __attribute__((unused)) double v
 	_q;                                                           \
 })
 
-#define find_pixel_coord_virtual_x(fig, s, i)                                                          \
-({                                                                                                     \
-	double _x = s->get_x_as_double(s->x, i);                                                       \
-	find_pixel_coord_virtual(fig->x_num_pixels, _x, fig->x_min, fig->x_step, fig->axes_flip_x);    \
+#define find_pixel_coord_virtual_x(fig, s, x)                                                         \
+({                                                                                                    \
+	find_pixel_coord_virtual(fig->x_num_pixels, x, fig->x_min, fig->x_step, fig->axes_flip_x);    \
 })
 
 
-#define find_pixel_coord_virtual_y(fig, s, i)                                                           \
-({                                                                                                      \
-	double _y = s->get_y_as_double(s->y, i);                                                        \
-	find_pixel_coord_virtual(fig->y_num_pixels, _y, fig->y_min, fig->y_step, !fig->axes_flip_y);    \
+#define find_pixel_coord_virtual_y(fig, s, y)                                                          \
+({                                                                                                     \
+	find_pixel_coord_virtual(fig->y_num_pixels, y, fig->y_min, fig->y_step, !fig->axes_flip_y);    \
 })
 
 
@@ -839,16 +1161,24 @@ figure_color_mapping_greyscale(double val_norm, __attribute__((unused)) double v
 	_q;                                                                                                                                                \
 })
 
-#define find_pixel_coord_x(fig, s, i)                                                                                                                                        \
-({                                                                                                                                                                           \
-	double _x = s->get_x_as_double(s->x, i);                                                                                                                             \
-	find_pixel_coord(fig->x_num_pixels, _x, fig->x_min, fig->x_step, fig->axes_flip_x, fig->custom_bounds_x_min, fig->custom_bounds_x_max, s->ignore_invalid_values);    \
+#define find_pixel_coord_x(fig, s, x)                                                                                                                                       \
+({                                                                                                                                                                          \
+	find_pixel_coord(fig->x_num_pixels, x, fig->x_min, fig->x_step, fig->axes_flip_x, fig->custom_bounds_x_min, fig->custom_bounds_x_max, s->ignore_invalid_values);    \
 })
 
-#define find_pixel_coord_y(fig, s, i)                                                                                                                                         \
-({                                                                                                                                                                            \
-	double _y = s->get_y_as_double(s->y, i);                                                                                                                              \
-	find_pixel_coord(fig->y_num_pixels, _y, fig->y_min, fig->y_step, !fig->axes_flip_y, fig->custom_bounds_y_min, fig->custom_bounds_y_max, s->ignore_invalid_values);    \
+#define find_pixel_coord_y(fig, s, y)                                                                                                                                        \
+({                                                                                                                                                                           \
+	find_pixel_coord(fig->y_num_pixels, y, fig->y_min, fig->y_step, !fig->axes_flip_y, fig->custom_bounds_y_min, fig->custom_bounds_y_max, s->ignore_invalid_values);    \
+})
+
+#define find_pixel_coord_x_ignore_invalid(fig, s, x)                                                                                                 \
+({                                                                                                                                                   \
+	find_pixel_coord(fig->x_num_pixels, x, fig->x_min, fig->x_step, fig->axes_flip_x, fig->custom_bounds_x_min, fig->custom_bounds_x_max, 1);    \
+})
+
+#define find_pixel_coord_y_ignore_invalid(fig, s, y)                                                                                                  \
+({                                                                                                                                                    \
+	find_pixel_coord(fig->y_num_pixels, y, fig->y_min, fig->y_step, !fig->axes_flip_y, fig->custom_bounds_y_min, fig->custom_bounds_y_max, 1);    \
 })
 
 
@@ -975,6 +1305,68 @@ color_pixels(struct Pixel_Array * pa, long x_pix, long y_pix, struct Figure * fi
 }
 
 
+static inline
+void
+color_pixels_3d(struct Pixel_Array * pa, double * depths, long x_pix, long y_pix, double depth, struct Figure * fig, struct Figure_Series * s, double val, int immediate_color, uint8_t r_imm, uint8_t g_imm, uint8_t b_imm)
+{
+	struct Pixel_8 * pixels = pa->pixels;
+	long x_num_pixels = pa->width;
+	long y_num_pixels = pa->height;
+	long pos;
+	double val_norm;  // value normalized to [0, 1].
+	uint8_t r, g, b;
+	// long dot_size_pixels;
+	struct Pixel_8 * p;
+
+	if (x_pix < 0 || x_pix >= x_num_pixels)
+		return;
+	if (y_pix < 0 || y_pix >= y_num_pixels)
+		return;
+
+	// dot_size_pixels = s->dot_size_pixels;
+
+	pos = y_pix*x_num_pixels + x_pix;
+	// if ((dot_size_pixels <= 1) && !pixel_array_try_lock_pixel(pa, pos))
+		// return;
+	while (!pixel_array_try_lock_pixel(pa, pos))
+	{
+		lock_cpu_relax();
+	}
+	if (depth > depths[pos])
+	{
+		pixel_array_pixel_unlock(pa, pos);
+		return;
+	}
+	if (immediate_color)
+	{
+		r = r_imm;
+		g = g_imm;
+		b = b_imm;
+	}
+	else if (s->z == NULL)
+	{
+		r = s->r;
+		g = s->g;
+		b = s->b;
+	}
+	else
+	{
+		// val_norm = normalize_value(val, s->z_min, s->z_max);
+		val_norm = normalize_value(val, fig->z_min, fig->z_max);
+		s->color_mapping(val_norm, val, &r, &g, &b);
+	}
+
+	p = &pixels[pos];
+	p->r = r;
+	p->g = g;
+	p->b = b;
+
+	depths[pos] = depth;
+
+	pixel_array_pixel_unlock(pa, pos);
+}
+
+
 //==========================================================================================================================================
 //= Series Plot
 //==========================================================================================================================================
@@ -994,12 +1386,12 @@ series_plot(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * 
 			#pragma omp for
 			for (i=0;i<s->M;i++)
 			{
-				y_pix = find_pixel_coord_y(fig, s, i);
+				y_pix = find_pixel_coord_y(fig, s, s->get_y_as_double(s->y, i));
 				if (y_pix < 0)
 					continue;
 				for (j=0;j<s->N;j++)
 				{
-					x_pix = find_pixel_coord_x(fig, s, j);
+					x_pix = find_pixel_coord_x(fig, s, s->get_x_as_double(s->x, j));
 					if (x_pix < 0)
 						continue;
 					val = (s->z != NULL) ? s->get_z_as_double(s->z, i*s->N+j) : 0;
@@ -1012,10 +1404,10 @@ series_plot(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * 
 			#pragma omp for
 			for (i=0;i<s->M;i++)
 			{
-				y_pix = find_pixel_coord_y(fig, s, i);
+				y_pix = find_pixel_coord_y(fig, s, s->get_y_as_double(s->y, i));
 				if (y_pix < 0)
 					continue;
-				x_pix = find_pixel_coord_x(fig, s, i);
+				x_pix = find_pixel_coord_x(fig, s, s->get_x_as_double(s->x, i));
 				if (x_pix < 0)
 					continue;
 				val = (s->z != NULL) ? s->get_z_as_double(s->z, i) : 0;
@@ -1060,14 +1452,14 @@ series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pi
 		#pragma omp for
 		for (i=0;i<s->M;i++)
 		{
-			y_pix = find_pixel_coord_y(fig, s, i);
+			y_pix = find_pixel_coord_y(fig, s, s->get_y_as_double(s->y, i));
 			if (y_pix < 0)
 				continue;
 			if (s->cart_prod)
 			{
 				for (j=0;j<s->N;j++)
 				{
-					x_pix = find_pixel_coord_x(fig, s, j);
+					x_pix = find_pixel_coord_x(fig, s, s->get_x_as_double(s->x, j));
 					if (x_pix < 0)
 						continue;
 					pos = y_pix*x_num_pixels + x_pix;
@@ -1076,7 +1468,7 @@ series_plot_density_map(struct Figure * fig, struct Figure_Series * s, struct Pi
 			}
 			else
 			{
-				x_pix = find_pixel_coord_x(fig, s, i);
+				x_pix = find_pixel_coord_x(fig, s, s->get_x_as_double(s->x, i));
 				if (x_pix < 0)
 					continue;
 				pos = y_pix*x_num_pixels + x_pix;
@@ -1172,7 +1564,7 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 			#pragma omp for
 			for (i=0;i<s->N;i++)
 			{
-				x_pix = find_pixel_coord_virtual_x(fig, s, i);
+				x_pix = find_pixel_coord_virtual_x(fig, s, s->get_x_as_double(s->x, i));
 				if (x_pix >= 0 && x_pix < x_num_pixels)
 					__atomic_fetch_add(&offsets[x_pix], step, __ATOMIC_RELAXED);
 			}
@@ -1182,7 +1574,7 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 			#pragma omp for
 			for (i=0;i<s->M;i++)
 			{
-				y_pix = find_pixel_coord_virtual_y(fig, s, i);
+				y_pix = find_pixel_coord_virtual_y(fig, s, s->get_y_as_double(s->y, i));
 				if (y_pix >= 0 && y_pix < y_num_pixels)
 					__atomic_fetch_add(&offsets[y_pix], step, __ATOMIC_RELAXED);
 			}
@@ -1194,12 +1586,12 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 		#pragma omp for
 		for (i=0;i<s->M;i++)
 		{
-			y_pix = find_pixel_coord_virtual_y(fig, s, i);
+			y_pix = find_pixel_coord_virtual_y(fig, s, s->get_y_as_double(s->y, i));
 			if (s->cart_prod)
 			{
 				for (j=0;j<s->N;j++)
 				{
-					x_pix = find_pixel_coord_virtual_x(fig, s, j);
+					x_pix = find_pixel_coord_virtual_x(fig, s, s->get_x_as_double(s->x, j));
 					if (s->bounded_median_curve_axis == 0)
 					{
 						if (x_pix < 0 || x_pix >= x_num_pixels)
@@ -1218,7 +1610,7 @@ series_plot_bounded_median_curve(struct Figure * fig, struct Figure_Series * s, 
 			}
 			else
 			{
-				x_pix = find_pixel_coord_virtual_x(fig, s, i);
+				x_pix = find_pixel_coord_virtual_x(fig, s, s->get_x_as_double(s->x, i));
 				if (s->bounded_median_curve_axis == 0)
 				{
 					if (x_pix < 0 || x_pix >= x_num_pixels)
@@ -1364,6 +1756,112 @@ series_plot_pixel_coords(struct Figure * fig, struct Figure_Series * s, struct P
 
 
 //==========================================================================================================================================
+//= Series Plot Pixel Coordinates
+//==========================================================================================================================================
+
+
+/* Must be done in the end, right before plotting,
+ * so that the plotting parameters like image size have been finalized.
+ *
+ * Doesn't change the bounds of the series, so it doesn't affect the bounds of the figure.
+ */
+static
+void
+series_plot_3d(struct Figure * fig, struct Figure_Series * s, struct Pixel_Array * pa)
+{
+	double * depths;
+	long x_num_pixels = pa->width;
+	long y_num_pixels = pa->height;
+	depths = (typeof(depths)) malloc(x_num_pixels*y_num_pixels * sizeof(*depths));
+	#pragma omp parallel
+	{
+		double x, y, z;
+		double px, py, pz;
+		double depth;
+		long x_pix, y_pix;
+		long i, j;
+		#pragma omp for
+		for (i=0;i<x_num_pixels*y_num_pixels;i++)
+			depths[i] = INFINITY;
+		if (s->cart_prod)
+		{
+			#pragma omp for
+			for (i=0;i<s->M;i++)
+			{
+				y = s->get_y_as_double(s->y, i);
+				for (j=0;j<s->N;j++)
+				{
+					x = s->get_x_as_double(s->x, j);
+					z = s->get_z_as_double(s->z, i*s->N+j);
+					// isomorphic_projection(x, y, z, s->angle_x, s->angle_z, s->proj_z0, &px, &py, NULL, &depth);
+					apply_rotation_matrix(s->rotation_matrix, x, y, z, &px, &py, &pz);
+					depth = s->proj_z0 - pz;
+					x_pix = find_pixel_coord_x(fig, s, px);
+					if (x_pix < 0)
+						continue;
+					y_pix = find_pixel_coord_y(fig, s, py);
+					if (y_pix < 0)
+						continue;
+					// color_pixels(pa, x_pix, y_pix, fig, s, val, 0, 0, 0, 0);
+					color_pixels_3d(pa, depths, x_pix, y_pix, depth, fig, s, z, 0, 0, 0, 0);
+				}
+			}
+		}
+		else
+		{
+			#pragma omp for
+			for (i=0;i<s->M;i++)
+			{
+				x = s->get_x_as_double(s->x, i);
+				y = s->get_y_as_double(s->y, i);
+				z = s->get_z_as_double(s->z, i);
+				// isomorphic_projection(x, y, z, s->angle_x, s->angle_z, s->proj_z0, &px, &py, NULL, &depth);
+				apply_rotation_matrix(s->rotation_matrix, x, y, z, &px, &py, &pz);
+				depth = s->proj_z0 - pz;
+				x_pix = find_pixel_coord_x(fig, s, px);
+				if (x_pix < 0)
+					continue;
+				y_pix = find_pixel_coord_y(fig, s, py);
+				if (y_pix < 0)
+					continue;
+				color_pixels_3d(pa, depths, x_pix, y_pix, depth, fig, s, z, 0, 0, 0, 0);
+			}
+		}
+		if (s->grid_enabled)
+		{
+			pixel_array_reset_locks(pa);
+			#pragma omp parallel
+			{
+				double px, py;
+				long x_pix, y_pix;
+				long i, j;
+				#pragma omp for
+				for (i=0;i<s->grid_y_num_points;i++)
+				{
+					for (j=0;j<s->grid_x_num_points;j++)
+					{
+						px = s->grid_px[i*s->grid_x_num_points + j];
+						py = s->grid_py[i*s->grid_x_num_points + j];
+						depth = s->grid_depth[i*s->grid_x_num_points + j];
+						x_pix = find_pixel_coord_x_ignore_invalid(fig, s, px);
+						if (x_pix < 0)
+							continue;
+						y_pix = find_pixel_coord_y_ignore_invalid(fig, s, py);
+						if (y_pix < 0)
+							continue;
+						// printf("%ld %ld\n", x_pix, y_pix);
+						// color_pixels(pa, x_pix, y_pix, fig, s, 0, 1, 0, 0, 0);
+						color_pixels_3d(pa, depths, x_pix, y_pix, depth, fig, s, 0, 1, 0, 0, 0);
+					}
+				}
+			}
+		}
+	}
+	free(depths);
+}
+
+
+//==========================================================================================================================================
 //= Calculate bounds
 //==========================================================================================================================================
 
@@ -1400,6 +1898,15 @@ closest_pair_distance(void * A, long N, double (* get_val_as_double)(void * A, l
 
 static inline
 int
+value_is_invalid(double v)
+{
+	if (isnan(v) || fabs(v) == INFINITY)
+		return 1;
+	return 0;
+}
+
+static inline
+int
 test_for_invalid_values(void * x, long N, double (* get_as_double)(void * x, long i))
 {
 	long ret = 0;
@@ -1411,7 +1918,7 @@ test_for_invalid_values(void * x, long N, double (* get_as_double)(void * x, lon
 		for (i=0;i<N;i++)
 		{
 			v = get_as_double(x, i);
-			if (isnan(v) || fabs(v) == INFINITY)
+			if (value_is_invalid(v))
 			{
 				ret = 1;
 			}
@@ -1429,10 +1936,8 @@ calc_series_bounds(struct Figure_Series * s)
 	{
 		s->x_min = 0;
 		s->x_max = 0;
-		s->x_avg = 0;
 		s->y_min = 0;
 		s->y_max = 0;
-		s->y_avg = 0;
 		return;
 	}
 
@@ -1446,32 +1951,30 @@ calc_series_bounds(struct Figure_Series * s)
 			error("A value in z of series %s is invalid.", s->name);
 	}
 
+	if (s->type_3d)   // Already calculated.
+		return;
+
 	if (s->x != NULL)
 	{
 		array_min_max(s->x, s->N, &s->x_min, NULL, &s->x_max, NULL, s->get_x_as_double);
-		array_mean(s->x, s->N, &s->x_avg, s->get_x_as_double);
 	}
 	else
 	{
 		s->x_min = 0;
 		s->x_max = (s->N > 0) ? s->N - 1 : 0;
-		s->x_avg = s->N / 2;
 	}
 	if (s->y != NULL)
 	{
 		array_min_max(s->y, s->M, &s->y_min, NULL, &s->y_max, NULL, s->get_y_as_double);
-		array_mean(s->y, s->N, &s->y_avg, s->get_y_as_double);
 	}
 	else
 	{
 		s->y_min = 0;
 		s->y_max = (s->M > 0) ? s->M - 1 : 0;
-		s->y_avg = s->M / 2;
 	}
 	if (s->z != NULL && !s->type_density_map)
 	{
 		array_min_max(s->z, s->L, &s->z_min, NULL, &s->z_max, NULL, s->get_z_as_double);
-		array_mean(s->z, s->N, &s->z_avg, s->get_z_as_double);
 	}
 }
 
@@ -1571,6 +2074,19 @@ figure_plot(struct Figure * fig)
 
 	calc_figure_bounds(fig);
 
+	if (fig->axes_equal_scale)
+	{
+		double min = fig->x_min < fig->y_min ? fig->x_min : fig->y_min;
+		double max = fig->x_max > fig->y_max ? fig->x_max : fig->y_max;
+		double len = max - min;
+		double x_len = fig->x_max - fig->x_min;
+		double y_len = fig->y_max - fig->y_min;
+		fig->x_min -= (len - x_len) / 2;
+		fig->x_max += (len - x_len) / 2;
+		fig->y_min -= (len - y_len) / 2;
+		fig->y_max += (len - y_len) / 2;
+	}
+
 	x_len = fabs(fig->x_max - fig->x_min);
 	y_len = fabs(fig->y_max - fig->y_min);
 	if (x_len == 0)
@@ -1597,6 +2113,8 @@ figure_plot(struct Figure * fig)
 			series_plot_bounded_median_curve(fig, s, pa);
 		else if (s->type_pixel_coords == 1)
 			series_plot_pixel_coords(fig, s, pa);
+		else if (s->type_3d == 1)
+			series_plot_3d(fig, s, pa);
 		else
 			series_plot(fig, s, pa);
 	}

@@ -408,17 +408,17 @@ struct SELLArrays : Matrix_Format
 	ValueType * x_d = NULL;
 	ValueType * y_d = NULL;
 
-	int thread_block_size;
+	long thread_block_size;
 
-	int num_threads;
-	int num_threads_sell;
-	int num_threads_csr;
-	int num_thread_warps;
-	int num_thread_warps_sell;
-	int num_thread_warps_csr;
-	int num_thread_blocks;
-	int num_thread_blocks_sell;
-	int num_thread_blocks_csr;
+	long num_threads;
+	long num_threads_sell;
+	long num_threads_csr;
+	long num_thread_warps;
+	long num_thread_warps_sell;
+	long num_thread_warps_csr;
+	long num_thread_blocks;
+	long num_thread_blocks_sell;
+	long num_thread_blocks_csr;
 
 	INT_T * row_permutation = NULL;
 
@@ -745,7 +745,8 @@ struct SELLArrays : Matrix_Format
 					row_ptr_h_new[i] = degree;
 				}
 				long offset = 0;
-				omp_thread_reduce_global(reduce_add_long, num_thread_warps_csr_t, zero, 1, backwards, &offset, &num_thread_warps_csr);
+				// omp_thread_reduce_global(_reduce_fun, _partial, _zero, exclusive, _backwards, _local_result_ptr_ret, _total_result_ptr_ret)
+				omp_thread_reduce_global(reduce_add_long, num_thread_warps_csr_t, 0, 1, 0, &offset, &num_thread_warps_csr);
 				_Pragma("omp single")
 				{
 					row_ptr_h_new[m] = 0;
@@ -786,7 +787,7 @@ struct SELLArrays : Matrix_Format
 					num_thread_blocks_csr = num_threads_csr / BLOCK_SIZE;
 					num_thread_warps = num_threads / 32;
 					num_thread_warps_sell = num_threads_sell / 32;
-					printf("num_threads=%d, thread_block_size=%d, num_thread_blocks=%d\n", num_threads, BLOCK_SIZE, num_thread_blocks);
+					printf("num_threads=%ld, thread_block_size=%d, num_thread_blocks=%ld\n", num_threads, BLOCK_SIZE, num_thread_blocks);
 
 					thread_warp_j_s[0] += nnz_sell;
 					thread_warp_j_s[num_thread_warps_csr] = 0;

@@ -163,6 +163,21 @@
 #define _DEF_ARG_EXPAND(num, def, arg)  _DEF_ARG(num, def, arg)
 #define _DEFAULT_ARG_TEST_EMPTY(def, arg)  _DEF_ARG_EXPAND(COUNT_ARGS(arg), def, arg)
 
+#define _DEFAULT_ARG_10(def, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, ...)  _DEFAULT_ARG_TEST_EMPTY(def, a10)
+#define DEFAULT_ARG_10(def, ...)  _DEFAULT_ARG_10(def, __VA_ARGS__, def, def, def, def, def, def, def, def, def)
+
+#define _DEFAULT_ARG_9(def, a1, a2, a3, a4, a5, a6, a7, a8, a9, ...)  _DEFAULT_ARG_TEST_EMPTY(def, a9)
+#define DEFAULT_ARG_9(def, ...)  _DEFAULT_ARG_9(def, __VA_ARGS__, def, def, def, def, def, def, def, def)
+
+#define _DEFAULT_ARG_8(def, a1, a2, a3, a4, a5, a6, a7, a8, ...)  _DEFAULT_ARG_TEST_EMPTY(def, a8)
+#define DEFAULT_ARG_8(def, ...)  _DEFAULT_ARG_8(def, __VA_ARGS__, def, def, def, def, def, def, def)
+
+#define _DEFAULT_ARG_7(def, a1, a2, a3, a4, a5, a6, a7, ...)  _DEFAULT_ARG_TEST_EMPTY(def, a7)
+#define DEFAULT_ARG_7(def, ...)  _DEFAULT_ARG_7(def, __VA_ARGS__, def, def, def, def, def, def)
+
+#define _DEFAULT_ARG_6(def, a1, a2, a3, a4, a5, a6, ...)  _DEFAULT_ARG_TEST_EMPTY(def, a6)
+#define DEFAULT_ARG_6(def, ...)  _DEFAULT_ARG_6(def, __VA_ARGS__, def, def, def, def, def)
+
 #define _DEFAULT_ARG_5(def, a1, a2, a3, a4, a5, ...)  _DEFAULT_ARG_TEST_EMPTY(def, a5)
 #define DEFAULT_ARG_5(def, ...)  _DEFAULT_ARG_5(def, __VA_ARGS__, def, def, def, def)
 

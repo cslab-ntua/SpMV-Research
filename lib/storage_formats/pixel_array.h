@@ -136,6 +136,14 @@ pixel_array_try_lock_pixel(struct Pixel_Array * pa, long pos)
 }
 
 
+static inline
+void
+pixel_array_pixel_unlock(struct Pixel_Array * pa, long pos)
+{
+	__atomic_store_n(&(pa->locks[pos]), 0, __ATOMIC_RELEASE);
+}
+
+
 #define pixel_array_fill_gen(T, pa, _r, _g, _b)               \
 do {                                                          \
 	_Pragma("omp parallel")                               \

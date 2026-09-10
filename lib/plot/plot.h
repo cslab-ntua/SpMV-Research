@@ -27,6 +27,8 @@ struct Figure_Legend_Conf {
  * M - lines   (y axis)
  */
 struct Figure_Series {
+	struct Figure * fig;
+
 	char * name;
 
 	long N;
@@ -42,13 +44,10 @@ struct Figure_Series {
 
 	double x_min;
 	double x_max;
-	double x_avg;
 	double y_min;
 	double y_max;
-	double y_avg;
 	double z_min;
 	double z_max;
-	double z_avg;
 
 	// The labels will have a percentage sign, if all series are in percentages.
 	int x_in_percentages;
@@ -84,6 +83,21 @@ struct Figure_Series {
 	// Type: Pixel coordinates.
 	int type_pixel_coords;
 
+	// Type: 3D plot.
+	int type_3d;
+	double angle_z;   // Rotation around z axis.
+	double angle_x;   // Rotation around x axis.
+	double proj_z0;   // Depth, distance of plane from xy-plane after the rotations to make them parallel.
+	double rotation_matrix[9];
+	int grid_enabled;
+	long grid_x_num_points;
+	long grid_y_num_points;
+	double * grid_px;
+	double * grid_py;
+	double * grid_depth;
+	double grid_x_step;
+	double grid_y_step;
+
 	int deallocate_data;     // Whether to free x, y, z at destructor.
 };
 
@@ -94,6 +108,8 @@ struct Figure {
 	struct Figure_Series * series;
 	int x_num_pixels;
 	int y_num_pixels;
+
+	int axes_equal_scale;
 	int axes_flip_x;
 	int axes_flip_y;
 
@@ -101,6 +117,7 @@ struct Figure {
 	int custom_bounds_x_max;
 	int custom_bounds_y_min;
 	int custom_bounds_y_max;
+
 	double x_min;
 	double x_max;
 	double y_min;
@@ -143,6 +160,7 @@ void figure_series_ignore_invalid_values(struct Figure_Series * s);
 
 void figure_series_set_name(struct Figure_Series * s, const char * name);
 
+void figure_axes_set_equal_scale(struct Figure * fig);
 void figure_axes_flip_x(struct Figure * fig);
 void figure_axes_flip_y(struct Figure * fig);
 void figure_set_bounds_x(struct Figure * fig, double min, double max);   // Bounds are inclusive.
@@ -175,13 +193,13 @@ void figure_series_type_density_map(struct Figure_Series * s);
 // Returns the number of bins.
 // Through 'freq_out' it returns the bins frequencies as doubles.
 long figure_series_type_histogram_base(struct Figure_Series * s, long num_bins, double ** freq_out, int plot_percentages, int cumulative_sum);
-#define figure_series_type_histogram(s, num_bins, ... /* freq_out, plot_percentages, cumulative_sum */)                                                    \
+#define figure_series_type_histogram(s, num_bins, ... /* freq_out=NULL, plot_percentages=0, cumulative_sum=0 */)                                           \
 ({                                                                                                                                                         \
 	figure_series_type_histogram_base(s, num_bins, DEFAULT_ARG_1(NULL, __VA_ARGS__), DEFAULT_ARG_2(0, __VA_ARGS__), DEFAULT_ARG_3(0, __VA_ARGS__));    \
 })
 
 void figure_series_type_barplot_base(struct Figure_Series * s, double max_bar_width, double bar_width_fraction);
-#define figure_series_type_barplot(s, ... /* max_bar_width, bar_width_fraction */)                             \
+#define figure_series_type_barplot(s, ... /* max_bar_width=0, bar_width_fraction=0.6 */)                       \
 do {                                                                                                           \
 	figure_series_type_barplot_base(s, DEFAULT_ARG_1(0, __VA_ARGS__), DEFAULT_ARG_2(0.6, __VA_ARGS__));    \
 } while (0)
@@ -189,6 +207,21 @@ do {                                                                            
 void figure_series_type_bounded_median_curve(struct Figure_Series * s, int axis);
 
 void figure_series_type_pixel_coords(struct Figure_Series * s);
+
+
+void figure_series_type_3d_base(struct Figure_Series * s, double nx, double ny, double nz, double x0, double y0, double z0);
+#define figure_series_type_3d(s, ... /* nx=1, ny=1, nz=1, x0=0, y0=0, z0=0 */)                                                        \
+do {                                                                                                                                  \
+	figure_series_type_3d_base(s, DEFAULT_ARG_1(1, __VA_ARGS__), DEFAULT_ARG_2(1, __VA_ARGS__), DEFAULT_ARG_3(1, __VA_ARGS__),    \
+			DEFAULT_ARG_4(0, __VA_ARGS__), DEFAULT_ARG_5(0, __VA_ARGS__), DEFAULT_ARG_6(0, __VA_ARGS__));                 \
+} while (0)
+
+void figure_series_type_3d_enable_grid_base(struct Figure_Series * s, long grid_step_size_in_pixels);
+#define figure_series_type_3d_enable_grid(s, ... /* grid_step_size_in_pixels=10 */)    \
+do {                                                                                   \
+	figure_series_type_3d_enable_grid_base(s, DEFAULT_ARG_1(10, __VA_ARGS__));     \
+} while (0)
+
 
 
 // Simple Plot

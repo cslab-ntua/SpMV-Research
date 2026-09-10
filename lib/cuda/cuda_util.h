@@ -5,7 +5,6 @@
 
 
 // https://stackoverflow.com/a/14038590
-// DEPRECATED gpuCudaErrorCheck. Replace every occurrence with cuda_assert.
 #define gpuCudaErrorCheck(ans) { gpuCudaAssert((ans), __FILE__, __LINE__); }
 static inline
 void
