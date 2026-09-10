@@ -164,9 +164,10 @@ conf_vars=(
     # ['VECTOR_ALLOC']='MANAGED'
     ['VECTOR_ALLOC']='MALLOC'
 
-    # CPU kernel for the CPU side of hybrid execution ('armpl' or 'csr_vec').
+    # CPU kernel for the CPU side of hybrid execution ('armpl', 'csr_vec', or 'sell_sorted').
     # ['CPU_KERNEL']='armpl'
-    ['CPU_KERNEL']='csr_vec'
+    # ['CPU_KERNEL']='csr_vec'
+    ['CPU_KERNEL']='sell_sorted'
 
     # GPU kernel for the GPU side of hybrid execution.
     # ['GPU_KERNEL']='cusparse_csr'
@@ -575,7 +576,7 @@ declare -A progs
 # VECTOR_ALLOC selects the GPU vector allocation strategy.
 progs=(
     # Standalone CPU-only executable (no GPU).
-    # ["${CPU_KERNEL}_d"]="${script_dir}/src/spmv_${CPU_KERNEL}_d.exe"
+    ["${CPU_KERNEL}_d"]="${script_dir}/src/spmv_${CPU_KERNEL}_d.exe"
 
     # Standalone GPU-only executable.
     # ["${GPU_KERNEL}_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_${GPU_KERNEL}_${VECTOR_ALLOC}_nv_d.exe"
@@ -664,7 +665,7 @@ progs=(
     # Minimal x Vector Access from CPU
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_95_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_90_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_90_${VECTOR_ALLOC}_nv_d.exe"
-    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_85_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_85_${VECTOR_ALLOC}_nv_d.exe"
+    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_85_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_85_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_80_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_80_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_75_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_75_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_70_${VECTOR_ALLOC}_nv_d.exe"

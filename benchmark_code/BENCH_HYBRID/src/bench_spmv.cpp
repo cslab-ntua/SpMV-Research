@@ -526,7 +526,8 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			int profiling_call = 0;
 		#endif
 
-		while (time_total < min_runtime || num_loops < min_num_loops)
+		// while (time_total < min_runtime || num_loops < min_num_loops)
+		while (true)
 		{
 			// if (__builtin_expect(clear_caches, 0))
 			// {
@@ -549,7 +550,8 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			#endif
 			
 			bool is_final_loop = false;
-			if (time_total >= min_runtime && num_loops == min_num_loops - 1) {
+			// if (time_total >= min_runtime && num_loops == min_num_loops - 1) {
+			if (time_total >= min_runtime && num_loops >= min_num_loops - 1) {
 				is_final_loop = true;
 			}
 			
@@ -621,6 +623,8 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			#endif
 			time_total += time_iter;
 			num_loops++;
+
+			if (is_final_loop) break;
 		}
 		#ifdef CUDA_KERNEL
 			if (profiling_call){

@@ -65,21 +65,27 @@ CPU_KERNEL ?= armpl
 
 CPU_KERNEL_OBJ_armpl          = $(OBJ_DIR)/armpl_hybrid$(SUFFIX).o
 CPU_KERNEL_OBJ_csr_vec        = $(OBJ_DIR)/csr_vec_hybrid$(SUFFIX).o
+CPU_KERNEL_OBJ_sell_sorted    = $(OBJ_DIR)/sell_sorted_hybrid$(SUFFIX).o
 
 CPU_KERNEL_CPPFLAGS_armpl     = $(CPPFLAGS_ARMPL)
 CPU_KERNEL_CPPFLAGS_csr_vec   =
+CPU_KERNEL_CPPFLAGS_sell_sorted =
 
 CPU_KERNEL_LDFLAGS_armpl      = $(LDFLAGS_ARMPL)
 CPU_KERNEL_LDFLAGS_csr_vec    =
+CPU_KERNEL_LDFLAGS_sell_sorted =
 
 CPU_KERNEL_INITFUNC_armpl     = armpl_to_format
 CPU_KERNEL_INITFUNC_csr_vec   = csr_vec_to_format
+CPU_KERNEL_INITFUNC_sell_sorted = sell_sorted_to_format
 
 CPU_KERNEL_STATSFUNC_armpl    = armpl_statistics_print_labels
 CPU_KERNEL_STATSFUNC_csr_vec  = csr_vec_statistics_print_labels
+CPU_KERNEL_STATSFUNC_sell_sorted = sell_sorted_statistics_print_labels
 
 CPU_KERNEL_FORMATNAME_armpl   = Hybrid_ArmPL
 CPU_KERNEL_FORMATNAME_csr_vec = Hybrid_CsrVec
+CPU_KERNEL_FORMATNAME_sell_sorted = Hybrid_SellSorted
 
 # Active CPU kernel selection via computed variable names.
 CPU_KERNEL_OBJ        = $(CPU_KERNEL_OBJ_$(CPU_KERNEL))
@@ -156,6 +162,14 @@ $(call Rule_Auto_Dependencies,$(OBJ_DIR)/armpl_hybrid$(SUFFIX).o,spmv_kernels/ar
 # Hybrid variant of csr_vec (compiled with -D'HYBRID' -D'CSR_VECTOR')
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_vec_hybrid$(SUFFIX).o,spmv_kernels/csr_vec.cpp,$(CPPFLAGS) -D'HYBRID' -D'CSR_VECTOR')
 	$(CPP) $(CPPFLAGS) -D'HYBRID' -D'CSR_VECTOR' -c $< -o $@
+
+# --- sell_sorted Object File (standalone, no HYBRID) ---
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/sell_sorted$(SUFFIX).o,spmv_kernels/sell_sorted.cpp,$(CPPFLAGS))
+	$(CPP) $(CPPFLAGS) -c $< -o $@
+
+# Hybrid variant of sell_sorted (compiled with -D'HYBRID')
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/sell_sorted_hybrid$(SUFFIX).o,spmv_kernels/sell_sorted.cpp,$(CPPFLAGS) -D'HYBRID')
+	$(CPP) $(CPPFLAGS) -D'HYBRID' -c $< -o $@
 
 # =============================================================================
 # Unified dispatcher source and its compile-time -D injections.
@@ -381,6 +395,9 @@ spmv_armpl$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFF
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_ARMPL) $^ -o $@ $(LDFLAGS) $(LDFLAGS_ARMPL)
 
 spmv_csr_vec$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/csr_vec$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
+
+spmv_sell_sorted$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/sell_sorted$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 
 spmv_$(GPU_KERNEL)$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/$(GPU_KERNEL)$(SUFFIX).o $(LIB_OBJ)

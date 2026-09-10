@@ -878,28 +878,9 @@ matrices_weird=(
     Queen_4147
 
 )
-matrices_weird2=(
+matrices_weird=(
     # wiki-topcats
-
-kron_g500-logn19
-# 12month1
-# GL7d17
-# GL7d18
-# GL7d19
-# GL7d20
-# GL7d21
-# Hardesty3
-# rel9
-# relat9
-# spal_004
-    # Transport
-    # circuit5M
-
-    # rajat31
-    # hugetric-00020
-    # Hardesty3
-    # Bump_2911
-
+    mycielskian17
 )
 matrices_weird=( 
     $(
@@ -1063,7 +1044,7 @@ matrices=(
 
     # "${matrices_openFoam[@]}"
     # "${matrices_validation[@]}"
-    "${matrices_validation_tamu[@]}"
+    # "${matrices_validation_tamu[@]}"
     # "${matrices_paper_csr_rv[@]}"
 
     # "${matrices_graphs_sparse_survey[@]}"
@@ -1085,7 +1066,7 @@ matrices=(
 
     # "${matrices_underperform_gpu[@]}"
 
-    # "${matrices_weird[@]}"
+    "${matrices_weird[@]}"
 
     # "../../../../validation_matrices/scircuit.mtx"
 
