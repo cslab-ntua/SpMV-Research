@@ -11,6 +11,7 @@ struct Hybrid_Arrays : Matrix_Format {
     long m_cpu;
     long m_gpu;
     INT_T * row_map; 
+    double last_transfer_time;
 
     // Independent timing stats. Update: these are no longer used. The code now stores cpu and gpu times like for the non-hybrid case in an array in order to extract the median later for reporting.
     // double time_cpu_total;

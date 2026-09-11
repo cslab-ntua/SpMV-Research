@@ -418,12 +418,12 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 	#endif
 	if (!print_labels_and_exit)
 	{
-		long copy_elements;
-		#ifdef HYBRID
-			copy_elements = (HA->m < HA->n) ? HA->m : HA->n; 
-		#else
-			copy_elements = (MF->m < MF->n) ? MF->m : MF->n;
-		#endif
+		// long copy_elements;
+		// #ifdef HYBRID
+		// 	copy_elements = (HA->m < HA->n) ? HA->m : HA->n; 
+		// #else
+		// 	copy_elements = (MF->m < MF->n) ? MF->m : MF->n;
+		// #endif
 
 		// Warm up.
 		time_warm_up = time_it(1,
@@ -512,6 +512,7 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		#ifdef HYBRID
 			dynarray_d * da_iter_times_cpu = dynarray_new_d(10 * min_num_loops);
 			dynarray_d * da_iter_times_gpu = dynarray_new_d(10 * min_num_loops);
+			dynarray_d * da_iter_times_gather = dynarray_new_d(10 * min_num_loops);
 			time_total_cpu = 0;
 			time_total_gpu = 0;
 		#endif
@@ -566,6 +567,7 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 				time_iter = time_it(1, 
 					HA->spmv(x, y);
 				);
+				dynarray_push_back_d(da_iter_times_gather, HA->last_transfer_time);
 				// Individual partial timings are now handled inside HA->spmv methods
 				// and aggregated in time_cpu_total / time_gpu_total.
 				// Update: this has been removed. Now we store cpu and gpu times like for the non-hybrid case.
@@ -673,6 +675,19 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			printf("time iter gpu: min=%g, median=%g, max=%g\n", time_min_gpu, time_median_gpu, time_max_gpu);
 			free(iter_times_gpu);
 			dynarray_destroy_d(&da_iter_times_gpu);
+
+			long iter_times_gather_n;
+			double * iter_times_gather;
+			iter_times_gather_n = dynarray_export_array_d(da_iter_times_gather, &iter_times_gather);
+			if (iter_times_gather_n != num_loops)
+				error("dynamic array size not equal to number of loops: %ld != %ld", iter_times_gather_n, num_loops);
+			qsort(iter_times_gather, num_loops, sizeof(*iter_times_gather), qsort_cmp);
+			double time_min_gather = iter_times_gather[0];
+			double time_median_gather = iter_times_gather[num_loops/2];
+			double time_max_gather = iter_times_gather[num_loops-1];
+			printf("time iter gather: min=%g, median=%g, max=%g\n", time_min_gather, time_median_gather, time_max_gather);
+			free(iter_times_gather);
+			dynarray_destroy_d(&da_iter_times_gather);
 		#endif
 
 		#ifdef SDV_TRACING
@@ -1060,10 +1075,10 @@ bench(struct CSR_reference_s * csr, struct Matrix_Format * MF, long print_labels
 	#ifdef SDV_TRACING
 		min_num_loops = 1;
 	#else
-		// min_num_loops = 1;
+		min_num_loops = 1;
 		// min_num_loops = 4;
 		// min_num_loops = 64;
-		min_num_loops = 128;
+		// min_num_loops = 128;
 		// min_num_loops = 256;
 	#endif
 

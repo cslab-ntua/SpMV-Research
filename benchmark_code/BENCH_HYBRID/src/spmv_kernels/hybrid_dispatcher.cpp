@@ -58,19 +58,21 @@ struct Matrix_Format * GPU_KERNEL_FUNC(INT_T * row_ptr, INT_T * col_ind, ValueTy
 void Hybrid_Arrays::spmv(ValueType * x, ValueType * y) {
 
 	// Gather the necessary x elements first
-	// long num_elements = n;
-	// double transfer_time = time_it(1,
 	#ifdef DIAG_CPU_LOCAL_X_UNOPT
-		memcpy(x_cpu_local, x, this->n * sizeof(ValueType));
+		double transfer_time = time_it(1,
+			memcpy(x_cpu_local, x, this->n * sizeof(ValueType));
+		);
+		this->last_transfer_time = transfer_time;
 	#elif defined(DIAG_CPU_LOCAL_X_OPT)
-		_Pragma("omp parallel for")
-		for (long i = 0; i < num_gather; i++) {
-			x_cpu_local[i] = x[gather_indices[i]];
-		}
-		// num_elements = num_gather;
+		double transfer_time = time_it(1,
+			_Pragma("omp parallel for")
+			for (long i = 0; i < num_gather; i++) {
+				x_cpu_local[i] = x[gather_indices[i]];
+			}
+		);
+		this->last_transfer_time = transfer_time;
+		// printf(">>> x_cpu_local transfer (gather) completed in %g ms (throughput: %g GB/s)\n", transfer_time * 1e3, (num_gather * sizeof(ValueType)) / (transfer_time * 1e9));
 	#endif
-	// );
-	// printf(">>> x_cpu_local transfer (gather/memcpy) completed in %g us (throughput: %g GB/s)\n", transfer_time * 1e6, (num_elements * sizeof(ValueType)) / (transfer_time * 1e9));
 	
 	#ifndef DIAG_CPU_ONLY
 		// 1. Launch GPU kernel (Async). Writes its DtH directly to the pinned tail of y!
