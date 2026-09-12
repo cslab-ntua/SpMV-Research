@@ -8,6 +8,7 @@
 
 #include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
+#include "bit_ops.h"
 
 #include "vectorization/vectorization_util.h"
 

@@ -32,19 +32,19 @@ typedef uint64_t vec_mask_packed_m64_256_t;
 //- Set - Load - Store
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-#define vec_elem_get_m64_256(vec, index)                   ({int64_t _buf[4] = {0}; __riscv_vsm_v_b64((uint8_t *) _buf, vec, 256); _buf[index];})
-#define vec_elem_get_m64_16(vec, index)                    ({int64_t _buf[1] = {0}; __riscv_vsm_v_b64((uint8_t *) _buf, vec,  16); _buf[index];})
-#define vec_elem_get_m64_8(vec, index)                     ({int64_t _buf[1] = {0}; __riscv_vsm_v_b64((uint8_t *) _buf, vec,   8); _buf[index];})
-#define vec_elem_get_m64_4(vec, index)                     ({int64_t _buf[1] = {0}; __riscv_vsm_v_b64((uint8_t *) _buf, vec,   4); _buf[index];})
-#define vec_elem_get_m64_2(vec, index)                     ({int64_t _buf[1] = {0}; __riscv_vsm_v_b64((uint8_t *) _buf, vec,   2); _buf[index];})
-#define vec_elem_get_m64_1(vec, index)                     vec
+// #define vec_elem_get_m64_256(vec, index)                   ({int64_t _buf[4] = {0}; __riscv_vsm_v_b64((uint8_t *) _buf, vec, 256); _buf[index];})
+// #define vec_elem_get_m64_16(vec, index)                    ({int64_t _buf[1] = {0}; __riscv_vsm_v_b64((uint8_t *) _buf, vec,  16); _buf[index];})
+// #define vec_elem_get_m64_8(vec, index)                     ({int64_t _buf[1] = {0}; __riscv_vsm_v_b64((uint8_t *) _buf, vec,   8); _buf[index];})
+// #define vec_elem_get_m64_4(vec, index)                     ({int64_t _buf[1] = {0}; __riscv_vsm_v_b64((uint8_t *) _buf, vec,   4); _buf[index];})
+// #define vec_elem_get_m64_2(vec, index)                     ({int64_t _buf[1] = {0}; __riscv_vsm_v_b64((uint8_t *) _buf, vec,   2); _buf[index];})
+// #define vec_elem_get_m64_1(vec, index)                     vec
 
-#define vec_elem_set_m64_256(vec, index, expr)             do { int64_t _buf[4]; __riscv_vsm_v_b64((uint8_t *) _buf, vec, 256); _buf[index] = (int64_t) (expr); vec = __riscv_vlm_v_b64((const uint8_t *) _buf, 256); } while (0)
-#define vec_elem_set_m64_16(vec, index, expr)              do { int64_t _buf[1]; __riscv_vsm_v_b64((uint8_t *) _buf, vec,  16); _buf[index] = (int64_t) (expr); vec = __riscv_vlm_v_b64((const uint8_t *) _buf,  16); } while (0)
-#define vec_elem_set_m64_8(vec, index, expr)               do { int64_t _buf[1]; __riscv_vsm_v_b64((uint8_t *) _buf, vec,   8); _buf[index] = (int64_t) (expr); vec = __riscv_vlm_v_b64((const uint8_t *) _buf,   8); } while (0)
-#define vec_elem_set_m64_4(vec, index, expr)               do { int64_t _buf[1]; __riscv_vsm_v_b64((uint8_t *) _buf, vec,   4); _buf[index] = (int64_t) (expr); vec = __riscv_vlm_v_b64((const uint8_t *) _buf,   4); } while (0)
-#define vec_elem_set_m64_2(vec, index, expr)               do { int64_t _buf[1]; __riscv_vsm_v_b64((uint8_t *) _buf, vec,   2); _buf[index] = (int64_t) (expr); vec = __riscv_vlm_v_b64((const uint8_t *) _buf,   2); } while (0)
-#define vec_elem_set_m64_1(vec, index, expr)               do { vec = (expr); } while (0)
+// #define vec_elem_set_m64_256(vec, index, expr)             do { int64_t _buf[4]; __riscv_vsm_v_b64((uint8_t *) _buf, vec, 256); _buf[index] = (int64_t) (expr); vec = __riscv_vlm_v_b64((const uint8_t *) _buf, 256); } while (0)
+// #define vec_elem_set_m64_16(vec, index, expr)              do { int64_t _buf[1]; __riscv_vsm_v_b64((uint8_t *) _buf, vec,  16); _buf[index] = (int64_t) (expr); vec = __riscv_vlm_v_b64((const uint8_t *) _buf,  16); } while (0)
+// #define vec_elem_set_m64_8(vec, index, expr)               do { int64_t _buf[1]; __riscv_vsm_v_b64((uint8_t *) _buf, vec,   8); _buf[index] = (int64_t) (expr); vec = __riscv_vlm_v_b64((const uint8_t *) _buf,   8); } while (0)
+// #define vec_elem_set_m64_4(vec, index, expr)               do { int64_t _buf[1]; __riscv_vsm_v_b64((uint8_t *) _buf, vec,   4); _buf[index] = (int64_t) (expr); vec = __riscv_vlm_v_b64((const uint8_t *) _buf,   4); } while (0)
+// #define vec_elem_set_m64_2(vec, index, expr)               do { int64_t _buf[1]; __riscv_vsm_v_b64((uint8_t *) _buf, vec,   2); _buf[index] = (int64_t) (expr); vec = __riscv_vlm_v_b64((const uint8_t *) _buf,   2); } while (0)
+// #define vec_elem_set_m64_1(vec, index, expr)               do { vec = (expr); } while (0)
 
 #define vec_mask_pack_m64_256(a)                           ({int64_t _buf[4]; __riscv_vsm_v_b64((uint8_t *) _buf, a, 256); _buf[0];})
 #define vec_mask_pack_m64_16(a)                            ({int64_t _buf[1]; __riscv_vsm_v_b64((uint8_t *) _buf, a,  16); _buf[0];})

@@ -8,6 +8,7 @@
 
 #include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
+#include "bit_ops.h"
 
 #include "vectorization/vectorization_util.h"
 
@@ -33,21 +34,21 @@ typedef uint32_t vec_mask_packed_m32_512_t;
 //- Set - Load - Store
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-#define vec_elem_get_m32_512(vec, index)                   ({int32_t _buf[16] = {0}; __riscv_vsm_v_b32((uint8_t *) _buf, vec, 512); _buf[index];})
-#define vec_elem_get_m32_256(vec, index)                   ({int32_t _buf[ 8] = {0}; __riscv_vsm_v_b32((uint8_t *) _buf, vec, 256); _buf[index];})
-#define vec_elem_get_m32_32(vec, index)                    ({int32_t _buf[ 1] = {0}; __riscv_vsm_v_b32((uint8_t *) _buf, vec,  32); _buf[index];})
-#define vec_elem_get_m32_16(vec, index)                    ({int32_t _buf[ 1] = {0}; __riscv_vsm_v_b32((uint8_t *) _buf, vec,  16); _buf[index];})
-#define vec_elem_get_m32_8(vec, index)                     ({int32_t _buf[ 1] = {0}; __riscv_vsm_v_b32((uint8_t *) _buf, vec,   8); _buf[index];})
-#define vec_elem_get_m32_4(vec, index)                     ({int32_t _buf[ 1] = {0}; __riscv_vsm_v_b32((uint8_t *) _buf, vec,   4); _buf[index];})
-#define vec_elem_get_m32_1(vec, index)                     vec
+// #define vec_elem_get_m32_512(vec, index)                   ({int32_t _buf[16] = {0}; __riscv_vsm_v_b32((uint8_t *) _buf, vec, 512); _buf[index];})
+// #define vec_elem_get_m32_256(vec, index)                   ({int32_t _buf[ 8] = {0}; __riscv_vsm_v_b32((uint8_t *) _buf, vec, 256); _buf[index];})
+// #define vec_elem_get_m32_32(vec, index)                    ({int32_t _buf[ 1] = {0}; __riscv_vsm_v_b32((uint8_t *) _buf, vec,  32); _buf[index];})
+// #define vec_elem_get_m32_16(vec, index)                    ({int32_t _buf[ 1] = {0}; __riscv_vsm_v_b32((uint8_t *) _buf, vec,  16); _buf[index];})
+// #define vec_elem_get_m32_8(vec, index)                     ({int32_t _buf[ 1] = {0}; __riscv_vsm_v_b32((uint8_t *) _buf, vec,   8); _buf[index];})
+// #define vec_elem_get_m32_4(vec, index)                     ({int32_t _buf[ 1] = {0}; __riscv_vsm_v_b32((uint8_t *) _buf, vec,   4); _buf[index];})
+// #define vec_elem_get_m32_1(vec, index)                     vec
 
-#define vec_elem_set_m32_512(vec, index, expr)             do { int32_t _buf[16]; __riscv_vsm_v_b32((uint8_t *) _buf, vec, 512); _buf[index] = (int32_t) (expr); vec = __riscv_vlm_v_b32((const uint8_t *) _buf, 512); } while (0)
-#define vec_elem_set_m32_256(vec, index, expr)             do { int32_t _buf[ 8]; __riscv_vsm_v_b32((uint8_t *) _buf, vec, 256); _buf[index] = (int32_t) (expr); vec = __riscv_vlm_v_b32((const uint8_t *) _buf, 256); } while (0)
-#define vec_elem_set_m32_32(vec, index, expr)              do { int32_t _buf[ 1]; __riscv_vsm_v_b32((uint8_t *) _buf, vec,  32); _buf[index] = (int32_t) (expr); vec = __riscv_vlm_v_b32((const uint8_t *) _buf,  32); } while (0)
-#define vec_elem_set_m32_16(vec, index, expr)              do { int32_t _buf[ 1]; __riscv_vsm_v_b32((uint8_t *) _buf, vec,  16); _buf[index] = (int32_t) (expr); vec = __riscv_vlm_v_b32((const uint8_t *) _buf,  16); } while (0)
-#define vec_elem_set_m32_8(vec, index, expr)               do { int32_t _buf[ 1]; __riscv_vsm_v_b32((uint8_t *) _buf, vec,   8); _buf[index] = (int32_t) (expr); vec = __riscv_vlm_v_b32((const uint8_t *) _buf,   8); } while (0)
-#define vec_elem_set_m32_4(vec, index, expr)               do { int32_t _buf[ 1]; __riscv_vsm_v_b32((uint8_t *) _buf, vec,   4); _buf[index] = (int32_t) (expr); vec = __riscv_vlm_v_b32((const uint8_t *) _buf,   4); } while (0)
-#define vec_elem_set_m32_1(vec, index, expr)               do { vec = (expr); } while (0)
+// #define vec_elem_set_m32_512(vec, index, expr)             do { int32_t _buf[16]; __riscv_vsm_v_b32((uint8_t *) _buf, vec, 512); _buf[index] = (int32_t) (expr); vec = __riscv_vlm_v_b32((const uint8_t *) _buf, 512); } while (0)
+// #define vec_elem_set_m32_256(vec, index, expr)             do { int32_t _buf[ 8]; __riscv_vsm_v_b32((uint8_t *) _buf, vec, 256); _buf[index] = (int32_t) (expr); vec = __riscv_vlm_v_b32((const uint8_t *) _buf, 256); } while (0)
+// #define vec_elem_set_m32_32(vec, index, expr)              do { int32_t _buf[ 1]; __riscv_vsm_v_b32((uint8_t *) _buf, vec,  32); _buf[index] = (int32_t) (expr); vec = __riscv_vlm_v_b32((const uint8_t *) _buf,  32); } while (0)
+// #define vec_elem_set_m32_16(vec, index, expr)              do { int32_t _buf[ 1]; __riscv_vsm_v_b32((uint8_t *) _buf, vec,  16); _buf[index] = (int32_t) (expr); vec = __riscv_vlm_v_b32((const uint8_t *) _buf,  16); } while (0)
+// #define vec_elem_set_m32_8(vec, index, expr)               do { int32_t _buf[ 1]; __riscv_vsm_v_b32((uint8_t *) _buf, vec,   8); _buf[index] = (int32_t) (expr); vec = __riscv_vlm_v_b32((const uint8_t *) _buf,   8); } while (0)
+// #define vec_elem_set_m32_4(vec, index, expr)               do { int32_t _buf[ 1]; __riscv_vsm_v_b32((uint8_t *) _buf, vec,   4); _buf[index] = (int32_t) (expr); vec = __riscv_vlm_v_b32((const uint8_t *) _buf,   4); } while (0)
+// #define vec_elem_set_m32_1(vec, index, expr)               do { vec = (expr); } while (0)
 
 #define vec_mask_pack_m32_512(a)                           ({int32_t _buf[16]; __riscv_vsm_v_b32((uint8_t *) &_buf, a, 512); _buf[0];})
 #define vec_mask_pack_m32_256(a)                           ({int32_t _buf[ 8]; __riscv_vsm_v_b32((uint8_t *) &_buf, a, 256); _buf[0];})

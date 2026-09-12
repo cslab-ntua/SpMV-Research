@@ -147,7 +147,7 @@ typedef vfloat32m1_t __attribute__((may_alias))  vec_f32_512_t;
 #define vec_gather_f32_i64_16(ptr, idx)                    __riscv_vluxei64_v_f32m1((vec_alias_float32_t *) (ptr), __riscv_vreinterpret_v_i64m1_u64m1(riscv_vsll_vx_i64m1(idx, 2,  16)),  16)
 #define vec_gather_f32_i64_8(ptr, idx)                     __riscv_vluxei64_v_f32m1((vec_alias_float32_t *) (ptr), __riscv_vreinterpret_v_i64m1_u64m1(riscv_vsll_vx_i64m1(idx, 2,   8)),   8)
 #define vec_gather_f32_i64_4(ptr, idx)                     __riscv_vluxei64_v_f32m1((vec_alias_float32_t *) (ptr), __riscv_vreinterpret_v_i64m1_u64m1(riscv_vsll_vx_i64m1(idx, 2,   4)),   4)
-#define vec_gather_f32_i32_1(ptr, idx)                     ( ((vec_alias_float32_t *) (ptr))[idx] )
+#define vec_gather_f32_i64_1(ptr, idx)                     ( ((vec_alias_float32_t *) (ptr))[idx] )
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------

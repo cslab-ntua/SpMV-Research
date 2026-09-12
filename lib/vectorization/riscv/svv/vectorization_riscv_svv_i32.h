@@ -196,7 +196,7 @@ typedef int32_t  vec_perm_elem_p32_512_t;
 #define vec_gather_i32_i64_16(ptr, idx)                    __riscv_vluxei64_v_i32m1((vec_alias_int32_t *) (ptr), __riscv_vlmul_ext_v_i64m1_i64m2(riscv_vsll_vx_i64m1(idx, 2,  16)),  16)
 #define vec_gather_i32_i64_8(ptr, idx)                     __riscv_vluxei64_v_i32m1((vec_alias_int32_t *) (ptr), __riscv_vlmul_ext_v_i64m1_i64m2(riscv_vsll_vx_i64m1(idx, 2,   8)),   8)
 #define vec_gather_i32_i64_4(ptr, idx)                     __riscv_vluxei64_v_i32m1((vec_alias_int32_t *) (ptr), __riscv_vlmul_ext_v_i64m1_i64m2(riscv_vsll_vx_i64m1(idx, 2,   4)),   4)
-#define vec_gather_i32_i32_1(ptr, idx)                     ( ((vec_alias_int32_t *) (ptr))[idx] )
+#define vec_gather_i32_i64_1(ptr, idx)                     ( ((vec_alias_int32_t *) (ptr))[idx] )
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------
