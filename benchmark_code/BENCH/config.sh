@@ -653,7 +653,7 @@ progs=(
     # ['ell_d']="${script_dir}/src/spmv_ell_d.exe"
     # ['sell_d']="${script_dir}/src/spmv_sell_d.exe"
     ['sell_sorted_d']="${script_dir}/src/spmv_sell_sorted_d.exe"
-    # ['sell_sorted_hybrid_d']="${script_dir}/src/spmv_sell_sorted_hybrid_d.exe"
+    # ['sell_sorted_csr_d']="${script_dir}/src/spmv_sell_sorted_csr_d.exe"
     # ['ldu_d']="${script_dir}/src/spmv_ldu_d.exe"
     # ['dia_d']="${script_dir}/src/spmv_dia_d.exe"
 
@@ -684,10 +684,10 @@ progs=(
     # ['cuda_csr_lut_nv_d']="${script_dir}/src/spmv_cuda_csr_lut_nv_d.exe"
     # ['csr_cuda_div_nv_d']="${script_dir}/src/spmv_cuda_div_nv_d.exe" # BENCH_GPU
     # ['cuda_sell_sorted_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_nv_d.exe"
-    # ['cuda_sell_sorted_hybrid_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_hybrid_nv_d.exe"
-    # ['cuda_sell_sorted_hybrid_optimal_npt_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_hybrid_optimal_npt_nv_d.exe"
-    # ['cuda_sell_sorted_hybrid_test_csr_only_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_hybrid_test_csr_only_nv_d.exe"
-    # ['cuda_sell_sorted_hybrid_test_sell_only_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_hybrid_test_sell_only_nv_d.exe"
+    # ['cuda_sell_sorted_csr_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_csr_nv_d.exe"
+    # ['cuda_sell_sorted_csr_optimal_npt_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_csr_optimal_npt_nv_d.exe"
+    # ['cuda_sell_sorted_csr_test_csr_only_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_csr_test_csr_only_nv_d.exe"
+    # ['cuda_sell_sorted_csr_test_sell_only_nv_d']="${script_dir}/src/spmv_cuda_sell_sorted_csr_test_sell_only_nv_d.exe"
 
 
     # ['csr_cuda_vector_b256_nv_d']="${script_dir}/src/spmv_csr_cuda_vector_b256_nv_d.exe"

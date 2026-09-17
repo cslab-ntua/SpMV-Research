@@ -367,13 +367,13 @@ struct SELLCSRArray : Matrix_Format
 };
 
 
-void compute_sell_csr_hybrid(SELLCSRArray * sell, ValueType * x , ValueType * y);
+void compute_sell_csr(SELLCSRArray * sell, ValueType * x , ValueType * y);
 
 
 void
 SELLCSRArray::spmv(ValueType * x, ValueType * y)
 {
-	compute_sell_csr_hybrid(this, x, y);
+	compute_sell_csr(this, x, y);
 }
 
 
@@ -383,7 +383,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 	if (symmetric && !symmetry_expanded)
 		error("symmetric matrices have to be expanded to be supported by this format");
 	struct SELLCSRArray * sell = new SELLCSRArray(row_ptr, col_ind, values, m, n, nnz);
-	sell->format_name = (char *) "SELL_SORTED";
+	sell->format_name = (char *) "SELL_SORTED_CSR";
 	return sell;
 }
 
@@ -394,7 +394,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 
 
 void
-compute_sell_csr_hybrid(SELLCSRArray * sell, ValueType * x , ValueType * y)
+compute_sell_csr(SELLCSRArray * sell, ValueType * x , ValueType * y)
 {
 	#pragma omp parallel
 	{

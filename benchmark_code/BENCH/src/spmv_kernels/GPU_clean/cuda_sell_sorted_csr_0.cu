@@ -76,7 +76,7 @@ extern "C"{
 	#include "functools/functools_gen_push.h"
 	#define FUNCTOOLS_GEN_TYPE_1  int
 	#define FUNCTOOLS_GEN_TYPE_2  int
-	#define FUNCTOOLS_GEN_SUFFIX  _CUDA_SELL_SORTED_HYBRID
+	#define FUNCTOOLS_GEN_SUFFIX  _CUDA_SELL_SORTED_CSR
 	#include "functools/functools_gen.c"
 	__attribute__((pure))
 	static inline
@@ -98,7 +98,7 @@ extern "C"{
 	#define BUCKETSORT_GEN_TYPE_2  INT_T
 	#define BUCKETSORT_GEN_TYPE_3  int
 	#define BUCKETSORT_GEN_TYPE_4  void
-	#define BUCKETSORT_GEN_SUFFIX  _CUDA_SELL_SORTED_HYBRID
+	#define BUCKETSORT_GEN_SUFFIX  _CUDA_SELL_SORTED_CSR
 	#include "sort/bucketsort/bucketsort_gen.c"
 	static inline
 	INT_T
@@ -181,7 +181,7 @@ extern "C"{
 	#define QUICKSORT_GEN_TYPE_1  INT_T
 	#define QUICKSORT_GEN_TYPE_2  INT_T
 	#define QUICKSORT_GEN_TYPE_3  INT_T
-	#define QUICKSORT_GEN_SUFFIX  _CUDA_SELL_SORTED_HYBRID
+	#define QUICKSORT_GEN_SUFFIX  _CUDA_SELL_SORTED_CSR
 	#include "sort/quicksort/quicksort_gen.c"
 	static inline
 	int
@@ -963,7 +963,7 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 	csr->mem_footprint = csr->nnz_extended * (sizeof(ValueType) + sizeof(INT_T)) + (csr->m+1) * sizeof(INT_T);
 	char *format_name;
 	format_name = (char *)malloc(100*sizeof(char));
-	snprintf(format_name, 100, "Custom_CSR_CUDA_sell_sorted_hybrid_b%d", BLOCK_SIZE);
+	snprintf(format_name, 100, "Custom_CSR_CUDA_sell_sorted_csr_b%d", BLOCK_SIZE);
 	csr->format_name = format_name;
 	return csr;
 }

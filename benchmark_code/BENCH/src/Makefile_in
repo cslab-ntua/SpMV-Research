@@ -161,7 +161,7 @@ spmv_sell$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFI
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 spmv_sell_sorted$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/sell_sorted.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
-spmv_sell_sorted_hybrid$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/sell_sorted_hybrid.cpp $(LIB_OBJ)
+spmv_sell_sorted_csr$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/sell_sorted_csr.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 
 
@@ -204,13 +204,13 @@ spmv_cuda_csr_lut$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spm
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 spmv_cuda_sell_sorted$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
-spmv_cuda_sell_sorted_hybrid$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted_hybrid.cu $(LIB_OBJ)
+spmv_cuda_sell_sorted_csr$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted_csr.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
-spmv_cuda_sell_sorted_hybrid_test_csr_only$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted_hybrid_test_csr_only.cu $(LIB_OBJ)
+spmv_cuda_sell_sorted_csr_test_csr_only$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted_csr_test_csr_only.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
-spmv_cuda_sell_sorted_hybrid_test_sell_only$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted_hybrid_test_sell_only.cu $(LIB_OBJ)
+spmv_cuda_sell_sorted_csr_test_sell_only$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted_csr_test_sell_only.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
-spmv_cuda_sell_sorted_hybrid_optimal_npt$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted_hybrid_optimal_npt.cu $(LIB_OBJ)
+spmv_cuda_sell_sorted_csr_optimal_npt$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_sell_sorted_csr_optimal_npt.cu $(LIB_OBJ)
 	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" $^ -o $@ $(LDFLAGS) $(LDFLAGS_NV)
 
 spmv_cuda_csr_t${NUM_THREADS}$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/$(GPU_dir)/cuda_csr_naive.cu $(LIB_OBJ)
