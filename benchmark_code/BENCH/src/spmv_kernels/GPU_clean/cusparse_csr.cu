@@ -163,14 +163,10 @@ CSRArrays::spmv_gpu(ValueType * x_d, ValueType * y_d)
 		cusparse_assert(cusparseCreateDnVec(&vecX_gpu, n, x_d, ValueTypeCuda));
 		cusparse_assert(cusparseCreateDnVec(&vecY_gpu, m, y_d, ValueTypeCuda));
 
-		cusparse_assert(cusparseSpMV_bufferSize(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
-			&alpha, matA, vecX_gpu, &beta, vecY_gpu, ValueTypeCuda,
-			CUSPARSE_SPMV_ALG_DEFAULT, &bufferSize_gpu));
+		cusparse_assert(cusparseSpMV_bufferSize(handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, matA, vecX_gpu, &beta, vecY_gpu, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, &bufferSize_gpu));
 		cuda_assert(cudaMalloc(&dBuffer_gpu, bufferSize_gpu));
 
-		cusparse_assert(cusparseSpMV_preprocess(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
-			&alpha, matA, vecX_gpu, &beta, vecY_gpu, ValueTypeCuda,
-			CUSPARSE_SPMV_ALG_DEFAULT, dBuffer_gpu));
+		cusparse_assert(cusparseSpMV_preprocess(handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, matA, vecX_gpu, &beta, vecY_gpu, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, dBuffer_gpu));
 
 		gpu_initialized = 1;
 	}
@@ -181,9 +177,7 @@ CSRArrays::spmv_gpu(ValueType * x_d, ValueType * y_d)
 		cusparse_assert(cusparseDnVecSetValues(vecY_gpu, y_d));
 	}
 
-	cusparse_assert(cusparseSpMV(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
-		&alpha, matA, vecX_gpu, &beta, vecY_gpu, ValueTypeCuda,
-		CUSPARSE_SPMV_ALG_DEFAULT, dBuffer_gpu));
+	cusparse_assert(cusparseSpMV(handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, matA, vecX_gpu, &beta, vecY_gpu, ValueTypeCuda, CUSPARSE_SPMV_ALG_DEFAULT, dBuffer_gpu));
 	cuda_assert(cudaPeekAtLastError());
 	cuda_assert(cudaDeviceSynchronize());
 }

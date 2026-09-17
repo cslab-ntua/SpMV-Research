@@ -161,6 +161,8 @@ spmv_sell$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFI
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 spmv_sell_sorted$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/sell_sorted.cpp $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
+spmv_sell_sorted_hybrid$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o spmv_kernels/sell_sorted_hybrid.cpp $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 
 
 LDFLAGS_NV =

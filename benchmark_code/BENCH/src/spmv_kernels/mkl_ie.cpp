@@ -12,6 +12,7 @@
 extern "C"{
 #endif
 	#include "macros/macrolib.h"
+	#include "debug.h"
 	#include "time_it.h"
 	#include "parallel_util.h"
 #ifdef __cplusplus

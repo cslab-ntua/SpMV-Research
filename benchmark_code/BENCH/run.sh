@@ -140,11 +140,11 @@ matrices_validation=(
     # mac_econ_fwd500
     # raefsky3
     # rgg_n_2_17_s0
-    # bbmat
+    bbmat
     # appu
     # mc2depi
     # rma10
-    cop20k_A
+    # cop20k_A
     # thermomech_dK
     # webbase-1M
     # cant
@@ -169,25 +169,6 @@ matrices_validation=(
     # Si41Ge41H72
     # TSOPF_RS_b2383
     # in-2004
-    # Ga41As41H72
-    # eu-2005
-    # wikipedia-20051105
-    # kron_g500-logn18
-    # rajat31
-    # human_gene1
-    # delaunay_n22
-    # GL7d20
-    # sx-stackoverflow
-    # dgreen
-    # mawi_201512012345
-    # ldoor
-    # dielFilterV2real
-    # circuit5M
-    # soc-LiveJournal1
-    # bone010
-    # audikw_1
-    # cage15
-    # kmer_V2a
 
     # cit-Patents
     # human_gene2

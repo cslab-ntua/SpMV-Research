@@ -547,10 +547,10 @@ progs=(
     # ['cg_div_sym_local_d']="${script_dir}/src/cg_div_sym_local_d.exe"
 
     # BiCG
-    ['bicg_mkl_ie_d']="${script_dir}/src/bicg_mkl_ie_d.exe"
+    # ['bicg_mkl_ie_d']="${script_dir}/src/bicg_mkl_ie_d.exe"
     # ['bicg_div_d']="${script_dir}/src/bicg_div_d.exe"
-    ['bicg_armpl_d']="${script_dir}/src/bicg_armpl_d.exe"
-    ['bicg_cusparse_csr_nv_d']="${script_dir}/src/bicg_cusparse_csr_nv_d.exe"
+    # ['bicg_armpl_d']="${script_dir}/src/bicg_armpl_d.exe"
+    # ['bicg_cusparse_csr_nv_d']="${script_dir}/src/bicg_cusparse_csr_nv_d.exe"
 
     # Custom csr
     # ['csr_naive_d']="${script_dir}/src/spmv_csr_naive_d.exe"
@@ -652,7 +652,8 @@ progs=(
 
     # ['ell_d']="${script_dir}/src/spmv_ell_d.exe"
     # ['sell_d']="${script_dir}/src/spmv_sell_d.exe"
-    # ['sell_sorted_d']="${script_dir}/src/spmv_sell_sorted_d.exe"
+    ['sell_sorted_d']="${script_dir}/src/spmv_sell_sorted_d.exe"
+    # ['sell_sorted_hybrid_d']="${script_dir}/src/spmv_sell_sorted_hybrid_d.exe"
     # ['ldu_d']="${script_dir}/src/spmv_ldu_d.exe"
     # ['dia_d']="${script_dir}/src/spmv_dia_d.exe"
 
