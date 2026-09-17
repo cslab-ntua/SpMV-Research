@@ -76,7 +76,7 @@ extern "C"{
 	#include "functools/functools_gen_push.h"
 	#define FUNCTOOLS_GEN_TYPE_1  int
 	#define FUNCTOOLS_GEN_TYPE_2  int
-	#define FUNCTOOLS_GEN_SUFFIX  _CUDA_SELL_SORTED_HYBRID
+	#define FUNCTOOLS_GEN_SUFFIX  _CUDA_SELL_SORTED_CSR
 	#include "functools/functools_gen.c"
 	__attribute__((pure))
 	static inline
@@ -98,7 +98,7 @@ extern "C"{
 	#define BUCKETSORT_GEN_TYPE_2  INT_T
 	#define BUCKETSORT_GEN_TYPE_3  int
 	#define BUCKETSORT_GEN_TYPE_4  void
-	#define BUCKETSORT_GEN_SUFFIX  _CUDA_SELL_SORTED_HYBRID
+	#define BUCKETSORT_GEN_SUFFIX  _CUDA_SELL_SORTED_CSR
 	#include "sort/bucketsort/bucketsort_gen.c"
 	static inline
 	INT_T
@@ -181,7 +181,7 @@ extern "C"{
 	#define QUICKSORT_GEN_TYPE_1  INT_T
 	#define QUICKSORT_GEN_TYPE_2  INT_T
 	#define QUICKSORT_GEN_TYPE_3  INT_T
-	#define QUICKSORT_GEN_SUFFIX  _CUDA_SELL_SORTED_HYBRID
+	#define QUICKSORT_GEN_SUFFIX  _CUDA_SELL_SORTED_CSR
 	#include "sort/quicksort/quicksort_gen.c"
 	static inline
 	int
@@ -326,7 +326,7 @@ struct warp_coords_t {
 	INT_T coords[2];
 };
 
-struct Cuda_SELL_Sorted_Hybrid_Arrays : Matrix_Format
+struct Cuda_SELL_Sorted_CSR_Arrays : Matrix_Format
 {
 	// --- Hybrid metadata ---
 	long m_cpu = -1, max_mn = -1; // number of CPU rows (-1 in standalone mode)
@@ -411,7 +411,7 @@ struct Cuda_SELL_Sorted_Hybrid_Arrays : Matrix_Format
 	double time_pure_memset_ms = 0;
 	long call_count = 0;
 
-	Cuda_SELL_Sorted_Hybrid_Arrays(INT_T * row_ptr, INT_T * ja, ValueTypeReference * a_ref, long m, long n, long nnz, long m_cpu = -1) : Matrix_Format(m, n, nnz), m_cpu(m_cpu)
+	Cuda_SELL_Sorted_CSR_Arrays(INT_T * row_ptr, INT_T * ja, ValueTypeReference * a_ref, long m, long n, long nnz, long m_cpu = -1) : Matrix_Format(m, n, nnz), m_cpu(m_cpu)
 	{
 		long num_threads_cpu = omp_get_max_threads();
 		__attribute__((unused)) long enable_legend = 1;
@@ -937,7 +937,7 @@ struct Cuda_SELL_Sorted_Hybrid_Arrays : Matrix_Format
 
 	}
 
-	~Cuda_SELL_Sorted_Hybrid_Arrays()
+	~Cuda_SELL_Sorted_CSR_Arrays()
 	{
 		cuda_assert(cudaFree(row_ptr_d));
 		cuda_assert(cudaFree(row_cluster_ptr_d));
@@ -1040,27 +1040,27 @@ struct Cuda_SELL_Sorted_Hybrid_Arrays : Matrix_Format
 };
 
 
-void compute_sell_sorted(Cuda_SELL_Sorted_Hybrid_Arrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
+void compute_sell_sorted(Cuda_SELL_Sorted_CSR_Arrays * restrict csr, ValueType * restrict x , ValueType * restrict y);
 
 void
-Cuda_SELL_Sorted_Hybrid_Arrays::spmv(ValueType * x, ValueType * y)
+Cuda_SELL_Sorted_CSR_Arrays::spmv(ValueType * x, ValueType * y)
 {
 	compute_sell_sorted(this, x, y);
 }
 
 
 struct Matrix_Format *
-cuda_sell_sorted_hybrid_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded, long m_cpu)
+cuda_sell_sorted_csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded, long m_cpu)
 {
 	if (symmetric && !symmetry_expanded)
 		error("symmetric matrices not supported by this format, extend symmetry");
-	struct Cuda_SELL_Sorted_Hybrid_Arrays * csr = new Cuda_SELL_Sorted_Hybrid_Arrays(row_ptr, col_ind, values, m, n, nnz, m_cpu);
+	struct Cuda_SELL_Sorted_CSR_Arrays * csr = new Cuda_SELL_Sorted_CSR_Arrays(row_ptr, col_ind, values, m, n, nnz, m_cpu);
 	// for (long i=0;i<10;i++)
 		// printf("%d\n", row_ptr[i]);
 	csr->mem_footprint = csr->nnz_extended * (sizeof(ValueType) + sizeof(INT_T)) + (csr->m+1) * sizeof(INT_T);
 	char *format_name;
 	format_name = (char *)malloc(100*sizeof(char));
-	snprintf(format_name, 100, "Custom_CUDA_sell_sorted_hybrid_b%d", BLOCK_SIZE);
+	snprintf(format_name, 100, "Custom_CUDA_sell_sorted_csr_b%d", BLOCK_SIZE);
 	csr->format_name = format_name;
 	return csr;
 }
@@ -1318,7 +1318,7 @@ gpu_kernel_sell_sorted(INT_T crossover_row, INT_T crossover_offset,
 
 
 void
-compute_sell_sorted(Cuda_SELL_Sorted_Hybrid_Arrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
+compute_sell_sorted(Cuda_SELL_Sorted_CSR_Arrays * restrict csr, ValueType * restrict x, ValueType * restrict y)
 {
 	cuda_assert(cudaEventRecord(csr->start_event, csr->stream));
 
@@ -1519,7 +1519,7 @@ compute_sell_sorted(Cuda_SELL_Sorted_Hybrid_Arrays * restrict csr, ValueType * r
 
 
 void
-Cuda_SELL_Sorted_Hybrid_Arrays::statistics_start()
+Cuda_SELL_Sorted_CSR_Arrays::statistics_start()
 {
 	time_h2d_ms = 0;
 	time_memset_ms = 0;
@@ -1533,7 +1533,7 @@ Cuda_SELL_Sorted_Hybrid_Arrays::statistics_start()
 
 
 int
-cuda_sell_sorted_hybrid_statistics_print_labels(char * buf, long buf_n)
+cuda_sell_sorted_csr_statistics_print_labels(char * buf, long buf_n)
 {
 	long i = 0;
 	i += snprintf(buf+i, buf_n-i, ",nnz_sell");
@@ -1543,7 +1543,7 @@ cuda_sell_sorted_hybrid_statistics_print_labels(char * buf, long buf_n)
 
 
 int
-Cuda_SELL_Sorted_Hybrid_Arrays::statistics_print_data(char * buf, long buf_n)
+Cuda_SELL_Sorted_CSR_Arrays::statistics_print_data(char * buf, long buf_n)
 {
 	long i = 0;
 	i += snprintf(buf+i, buf_n-i, ",%ld", nnz_sell);
@@ -1644,13 +1644,13 @@ Cuda_SELL_Sorted_Hybrid_Arrays::statistics_print_data(char * buf, long buf_n)
 struct Matrix_Format *
 csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded)
 {
-	return cuda_sell_sorted_hybrid_to_format(row_ptr, col_ind, values, m, n, nnz, symmetric, symmetry_expanded, -1);
+	return cuda_sell_sorted_csr_to_format(row_ptr, col_ind, values, m, n, nnz, symmetric, symmetry_expanded, -1);
 }
 
 int
 statistics_print_labels(char * buf, long buf_n)
 {
 	// synchronize();
-	return cuda_sell_sorted_hybrid_statistics_print_labels(buf, buf_n);
+	return cuda_sell_sorted_csr_statistics_print_labels(buf, buf_n);
 }
 #endif

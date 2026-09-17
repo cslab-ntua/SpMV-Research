@@ -15,9 +15,9 @@ struct Matrix_Format
 	double csr_mem_footprint;
 
 	virtual void spmv(ValueType * x, ValueType * y) = 0;
-	// SpMV operating directly on device pointers — no host↔device vector copies.
+	// SpMV operating directly on device pointers - no host<-->device vector copies.
 	// GPU formats override this; CPU-only formats use the default which errors.
-	virtual void spmv_gpu(ValueType *, ValueType *)
+	virtual void spmv_gpu(__attribute__((unused)) ValueType * x_d, __attribute__((unused)) ValueType * y_d)
 	{
 		fprintf(stderr, "ERROR: spmv_gpu() not implemented for format '%s'\n", format_name);
 		exit(1);

@@ -63,29 +63,35 @@ LDFLAGS_NV += -lcublas
 # =============================================================================
 CPU_KERNEL ?= armpl
 
-CPU_KERNEL_OBJ_armpl          = $(OBJ_DIR)/armpl_hybrid$(SUFFIX).o
-CPU_KERNEL_OBJ_csr_vec        = $(OBJ_DIR)/csr_vec_hybrid$(SUFFIX).o
-CPU_KERNEL_OBJ_sell_sorted    = $(OBJ_DIR)/sell_sorted_hybrid$(SUFFIX).o
+CPU_KERNEL_OBJ_armpl           = $(OBJ_DIR)/armpl_hybrid$(SUFFIX).o
+CPU_KERNEL_OBJ_csr_vec         = $(OBJ_DIR)/csr_vec_hybrid$(SUFFIX).o
+CPU_KERNEL_OBJ_sell_sorted     = $(OBJ_DIR)/sell_sorted_hybrid$(SUFFIX).o
+CPU_KERNEL_OBJ_sell_sorted_csr = $(OBJ_DIR)/sell_sorted_csr_hybrid$(SUFFIX).o
 
-CPU_KERNEL_CPPFLAGS_armpl     = $(CPPFLAGS_ARMPL)
-CPU_KERNEL_CPPFLAGS_csr_vec   =
-CPU_KERNEL_CPPFLAGS_sell_sorted =
+CPU_KERNEL_CPPFLAGS_armpl           = $(CPPFLAGS_ARMPL)
+CPU_KERNEL_CPPFLAGS_csr_vec         =
+CPU_KERNEL_CPPFLAGS_sell_sorted     =
+CPU_KERNEL_CPPFLAGS_sell_sorted_csr =
 
-CPU_KERNEL_LDFLAGS_armpl      = $(LDFLAGS_ARMPL)
-CPU_KERNEL_LDFLAGS_csr_vec    =
-CPU_KERNEL_LDFLAGS_sell_sorted =
+CPU_KERNEL_LDFLAGS_armpl           = $(LDFLAGS_ARMPL)
+CPU_KERNEL_LDFLAGS_csr_vec         =
+CPU_KERNEL_LDFLAGS_sell_sorted     =
+CPU_KERNEL_LDFLAGS_sell_sorted_csr =
 
-CPU_KERNEL_INITFUNC_armpl     = armpl_to_format
-CPU_KERNEL_INITFUNC_csr_vec   = csr_vec_to_format
-CPU_KERNEL_INITFUNC_sell_sorted = sell_sorted_to_format
+CPU_KERNEL_INITFUNC_armpl           = armpl_to_format
+CPU_KERNEL_INITFUNC_csr_vec         = csr_vec_to_format
+CPU_KERNEL_INITFUNC_sell_sorted     = sell_sorted_to_format
+CPU_KERNEL_INITFUNC_sell_sorted_csr = sell_sorted_csr_to_format
 
-CPU_KERNEL_STATSFUNC_armpl    = armpl_statistics_print_labels
-CPU_KERNEL_STATSFUNC_csr_vec  = csr_vec_statistics_print_labels
-CPU_KERNEL_STATSFUNC_sell_sorted = sell_sorted_statistics_print_labels
+CPU_KERNEL_STATSFUNC_armpl           = armpl_statistics_print_labels
+CPU_KERNEL_STATSFUNC_csr_vec         = csr_vec_statistics_print_labels
+CPU_KERNEL_STATSFUNC_sell_sorted     = sell_sorted_statistics_print_labels
+CPU_KERNEL_STATSFUNC_sell_sorted_csr = sell_sorted_csr_statistics_print_labels
 
-CPU_KERNEL_FORMATNAME_armpl   = Hybrid_ArmPL
-CPU_KERNEL_FORMATNAME_csr_vec = Hybrid_CsrVec
-CPU_KERNEL_FORMATNAME_sell_sorted = Hybrid_SellSorted
+CPU_KERNEL_FORMATNAME_armpl           = Hybrid_ArmPL
+CPU_KERNEL_FORMATNAME_csr_vec         = Hybrid_CsrVec
+CPU_KERNEL_FORMATNAME_sell_sorted     = Hybrid_SellSorted
+CPU_KERNEL_FORMATNAME_sell_sorted_csr = Hybrid_SellSortedCsr
 
 # Active CPU kernel selection via computed variable names.
 CPU_KERNEL_OBJ        = $(CPU_KERNEL_OBJ_$(CPU_KERNEL))
@@ -102,29 +108,29 @@ CPU_KERNEL_FORMATNAME = $(CPU_KERNEL_FORMATNAME_$(CPU_KERNEL))
 # =============================================================================
 GPU_KERNEL ?= cuda_csr_transpose_expand_rows
 
-GPU_KERNEL_SRC_cusparse_csr      = spmv_kernels/$(GPU_dir)/cusparse_csr.cu
+GPU_KERNEL_SRC_cusparse_csr       = spmv_kernels/$(GPU_dir)/cusparse_csr.cu
 GPU_KERNEL_INITFUNC_cusparse_csr  = cusparse_csr_to_format
 GPU_KERNEL_STATSFUNC_cusparse_csr = cusparse_csr_statistics_print_labels
 GPU_KERNEL_NVCCFLAGS_cusparse_csr =
 GPU_KERNEL_LDFLAGS_cusparse_csr   = -lcusparse
 
-GPU_KERNEL_SRC_cuda_csr_transpose_expand_rows_OLD      = spmv_kernels/$(GPU_dir)/cuda_csr_transpose_expand_rows_OLD.cu
+GPU_KERNEL_SRC_cuda_csr_transpose_expand_rows_OLD       = spmv_kernels/$(GPU_dir)/cuda_csr_transpose_expand_rows_OLD.cu
 GPU_KERNEL_INITFUNC_cuda_csr_transpose_expand_rows_OLD  = cuda_csr_transpose_expand_rows_OLD_to_format
 GPU_KERNEL_STATSFUNC_cuda_csr_transpose_expand_rows_OLD = cuda_csr_transpose_expand_rows_OLD_statistics_print_labels
 GPU_KERNEL_NVCCFLAGS_cuda_csr_transpose_expand_rows_OLD =
 GPU_KERNEL_LDFLAGS_cuda_csr_transpose_expand_rows_OLD   =
 
-GPU_KERNEL_SRC_cuda_csr_transpose_expand_rows      = spmv_kernels/$(GPU_dir)/cuda_csr_transpose_expand_rows.cu
+GPU_KERNEL_SRC_cuda_csr_transpose_expand_rows       = spmv_kernels/$(GPU_dir)/cuda_csr_transpose_expand_rows.cu
 GPU_KERNEL_INITFUNC_cuda_csr_transpose_expand_rows  = cuda_csr_transpose_expand_rows_to_format
 GPU_KERNEL_STATSFUNC_cuda_csr_transpose_expand_rows = cuda_csr_transpose_expand_rows_statistics_print_labels
 GPU_KERNEL_NVCCFLAGS_cuda_csr_transpose_expand_rows =
 GPU_KERNEL_LDFLAGS_cuda_csr_transpose_expand_rows   =
 
-GPU_KERNEL_SRC_cuda_sell_sorted_hybrid      = spmv_kernels/$(GPU_dir)/cuda_sell_sorted_hybrid.cu
-GPU_KERNEL_INITFUNC_cuda_sell_sorted_hybrid  = cuda_sell_sorted_hybrid_to_format
-GPU_KERNEL_STATSFUNC_cuda_sell_sorted_hybrid = cuda_sell_sorted_hybrid_statistics_print_labels
-GPU_KERNEL_NVCCFLAGS_cuda_sell_sorted_hybrid =
-GPU_KERNEL_LDFLAGS_cuda_sell_sorted_hybrid   =
+GPU_KERNEL_SRC_cuda_sell_sorted_csr       = spmv_kernels/$(GPU_dir)/cuda_sell_sorted_csr.cu
+GPU_KERNEL_INITFUNC_cuda_sell_sorted_csr  = cuda_sell_sorted_csr_to_format
+GPU_KERNEL_STATSFUNC_cuda_sell_sorted_csr = cuda_sell_sorted_csr_statistics_print_labels
+GPU_KERNEL_NVCCFLAGS_cuda_sell_sorted_csr =
+GPU_KERNEL_LDFLAGS_cuda_sell_sorted_csr   =
 
 # Active GPU kernel selection via computed variable names.
 GPU_KERNEL_SRC             = $(GPU_KERNEL_SRC_$(GPU_KERNEL))
@@ -133,43 +139,47 @@ GPU_KERNEL_STATSFUNC       = $(GPU_KERNEL_STATSFUNC_$(GPU_KERNEL))
 GPU_KERNEL_NVCCFLAGS_EXTRA = $(GPU_KERNEL_NVCCFLAGS_$(GPU_KERNEL))
 GPU_KERNEL_LDFLAGS         = $(GPU_KERNEL_LDFLAGS_$(GPU_KERNEL))
 
+# =============================================================================
 # --- Standalone Object Files ---
+# =============================================================================
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/armpl$(SUFFIX).o,spmv_kernels/armpl.cpp,$(CPPFLAGS) $(CPPFLAGS_ARMPL))
 	$(CPP) $(CPPFLAGS) $(CPPFLAGS_ARMPL) -c $< -o $@
 
-# --- CSR Vec Object Files (no ArmPL dependency, compiled with -D'CSR_VECTOR') ---
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_vec$(SUFFIX).o,spmv_kernels/csr_vec.cpp,$(CPPFLAGS) -D'CSR_VECTOR')
 	$(CPP) $(CPPFLAGS) -D'CSR_VECTOR' -c $< -o $@
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/sell_sorted$(SUFFIX).o,spmv_kernels/sell_sorted.cpp,$(CPPFLAGS))
+	$(CPP) $(CPPFLAGS) -c $< -o $@
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/sell_sorted_csr$(SUFFIX).o,spmv_kernels/sell_sorted_csr.cpp,$(CPPFLAGS))
+	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/$(GPU_KERNEL)$(SUFFIX).o,$(GPU_KERNEL_SRC),$(CPPFLAGS))
 	$(NVCC) $(NVCCFLAGS) $(GPU_KERNEL_NVCCFLAGS_EXTRA) --compiler-options "$(CPPFLAGS)" -c $< -o $@
 
-# --- Standalone Object Files with VECTOR_ALLOC flag ---
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/$(GPU_KERNEL)_$(VECTOR_ALLOC)$(SUFFIX).o,$(GPU_KERNEL_SRC),$(CPPFLAGS) -D'VECTOR_ALLOC_$(VECTOR_ALLOC)')
 	$(NVCC) $(NVCCFLAGS) $(GPU_KERNEL_NVCCFLAGS_EXTRA) --compiler-options "$(CPPFLAGS) -D'VECTOR_ALLOC_$(VECTOR_ALLOC)'" -c $< -o $@
 
-# --- Hybrid-Specific GPU Object Files (compiled with -D'HYBRID') ---
+# =============================================================================
+# --- Hybrid-Specific CPU Object Files (compiled with -D'HYBRID') ---
+# =============================================================================
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/armpl_hybrid$(SUFFIX).o,spmv_kernels/armpl.cpp,$(CPPFLAGS) $(CPPFLAGS_ARMPL) -D'HYBRID')
+	$(CPP) $(CPPFLAGS) $(CPPFLAGS_ARMPL) -D'HYBRID' -c $< -o $@
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_vec_hybrid$(SUFFIX).o,spmv_kernels/csr_vec.cpp,$(CPPFLAGS) -D'HYBRID' -D'CSR_VECTOR')
+	$(CPP) $(CPPFLAGS) -D'HYBRID' -D'CSR_VECTOR' -c $< -o $@
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/sell_sorted_hybrid$(SUFFIX).o,spmv_kernels/sell_sorted.cpp,$(CPPFLAGS) -D'HYBRID')
+	$(CPP) $(CPPFLAGS) -D'HYBRID' -c $< -o $@
+
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/sell_sorted_csr_hybrid$(SUFFIX).o,spmv_kernels/sell_sorted_csr.cpp,$(CPPFLAGS) -D'HYBRID')
+	$(CPP) $(CPPFLAGS) -D'HYBRID' -c $< -o $@
+
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/$(GPU_KERNEL)_hybrid$(SUFFIX).o,$(GPU_KERNEL_SRC),$(CPPFLAGS) -D'HYBRID')
 	$(NVCC) $(NVCCFLAGS) $(GPU_KERNEL_NVCCFLAGS_EXTRA) --compiler-options "$(CPPFLAGS) -D'HYBRID'" -c $< -o $@
 
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$(VECTOR_ALLOC)$(SUFFIX).o,$(GPU_KERNEL_SRC),$(CPPFLAGS) -D'HYBRID' -D'VECTOR_ALLOC_$(VECTOR_ALLOC)')
 	$(NVCC) $(NVCCFLAGS) $(GPU_KERNEL_NVCCFLAGS_EXTRA) --compiler-options "$(CPPFLAGS) -D'HYBRID' -D'VECTOR_ALLOC_$(VECTOR_ALLOC)'" -c $< -o $@
-
-# --- Hybrid-Specific CPU Object Files (compiled with -D'HYBRID') ---
-$(call Rule_Auto_Dependencies,$(OBJ_DIR)/armpl_hybrid$(SUFFIX).o,spmv_kernels/armpl.cpp,$(CPPFLAGS) $(CPPFLAGS_ARMPL) -D'HYBRID')
-	$(CPP) $(CPPFLAGS) $(CPPFLAGS_ARMPL) -D'HYBRID' -c $< -o $@
-
-# Hybrid variant of csr_vec (compiled with -D'HYBRID' -D'CSR_VECTOR')
-$(call Rule_Auto_Dependencies,$(OBJ_DIR)/csr_vec_hybrid$(SUFFIX).o,spmv_kernels/csr_vec.cpp,$(CPPFLAGS) -D'HYBRID' -D'CSR_VECTOR')
-	$(CPP) $(CPPFLAGS) -D'HYBRID' -D'CSR_VECTOR' -c $< -o $@
-
-# --- sell_sorted Object File (standalone, no HYBRID) ---
-$(call Rule_Auto_Dependencies,$(OBJ_DIR)/sell_sorted$(SUFFIX).o,spmv_kernels/sell_sorted.cpp,$(CPPFLAGS))
-	$(CPP) $(CPPFLAGS) -c $< -o $@
-
-# Hybrid variant of sell_sorted (compiled with -D'HYBRID')
-$(call Rule_Auto_Dependencies,$(OBJ_DIR)/sell_sorted_hybrid$(SUFFIX).o,spmv_kernels/sell_sorted.cpp,$(CPPFLAGS) -D'HYBRID')
-	$(CPP) $(CPPFLAGS) -D'HYBRID' -c $< -o $@
 
 # =============================================================================
 # Unified dispatcher source and its compile-time -D injections.
@@ -398,6 +408,9 @@ spmv_csr_vec$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SU
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 
 spmv_sell_sorted$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/sell_sorted$(SUFFIX).o $(LIB_OBJ)
+	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
+
+spmv_sell_sorted_csr$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/sell_sorted_csr$(SUFFIX).o $(LIB_OBJ)
 	$(CPP) $(CPPFLAGS) $^ -o $@ $(LDFLAGS)
 
 spmv_$(GPU_KERNEL)$(SUFFIX).exe: $(OBJ_DIR)/bench$(SUFFIX).o $(OBJ_DIR)/bench_spmv$(SUFFIX).o $(OBJ_DIR)/$(GPU_KERNEL)$(SUFFIX).o $(LIB_OBJ)

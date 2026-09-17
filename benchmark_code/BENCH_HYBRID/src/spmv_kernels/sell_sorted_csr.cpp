@@ -25,56 +25,69 @@ extern "C"{
 	#if DOUBLE == 0
 		#define VTI   i32
 		#define VTF   f32
-		#define VEC_SCALE_SHIFT  2
 		// #define VEC_LEN  1
 		#define VEC_LEN  vec_len_default_f32
-		// #define VEC_LEN  vec_len_default_f64
-		// #define VEC_LEN  4
-		// #define VEC_LEN  8
-		// #define VEC_LEN  16
-		// #define VEC_LEN  32
 	#elif DOUBLE == 1
 		#define VTI   i64
 		#define VTF   f64
-		#define VEC_SCALE_SHIFT  3
-		#define VEC_LEN  vec_len_default_f64
 		// #define VEC_LEN  1
+		#define VEC_LEN  vec_len_default_f64
 	#endif
 
 	// #include "vectorization.h"
 	#include "vectorization/vectorization_gen.h"
 
+	long
+	reduce_add_long(long a, long b)
+	{
+		return a + b;
+	}
+
 	#include "functools/functools_gen_undef.h"
-	#define FUNCTOOLS_GEN_TYPE_1  int
-	#define FUNCTOOLS_GEN_TYPE_2  int
+	#define FUNCTOOLS_GEN_TYPE_1  INT_T
+	#define FUNCTOOLS_GEN_TYPE_2  INT_T
 	#define FUNCTOOLS_GEN_SUFFIX  _i_i
 	#include "functools/functools_gen.c"
 	static inline
-	int
-	functools_map_fun(int * A, long i)
+	INT_T
+	functools_map_fun(INT_T * A, long i)
 	{
 		return A[i];
 	}
 	static inline
-	int
-	functools_reduce_fun(int a, int b)
+	INT_T
+	functools_reduce_fun(INT_T a, INT_T b)
 	{
 		return a + b;
 	}
 
 	#include "sort/bucketsort/bucketsort_gen_undef.h"
-	#define BUCKETSORT_GEN_TYPE_1  int
-	#define BUCKETSORT_GEN_TYPE_2  int
-	#define BUCKETSORT_GEN_TYPE_3  int
-	#define BUCKETSORT_GEN_TYPE_4  int
-	#define BUCKETSORT_GEN_SUFFIX  _i_i_i_v
+	#define BUCKETSORT_GEN_TYPE_1  INT_T
+	#define BUCKETSORT_GEN_TYPE_2  INT_T
+	#define BUCKETSORT_GEN_TYPE_3  INT_T
+	#define BUCKETSORT_GEN_TYPE_4  INT_T
+	#define BUCKETSORT_GEN_SUFFIX  _degree
 	#include "sort/bucketsort/bucketsort_gen.c"
 	static inline
 	int
-	bucketsort_find_bucket(int * A, long i, __attribute__((unused)) int * degree_max_ptr)
+	bucketsort_find_bucket(INT_T * A, long i, __attribute__((unused)) INT_T * degree_max_ptr)
 	{
 		return A[i+1] - A[i];   // Ascending order.
 		// return *degree_max_ptr - (A[i+1] - A[i]);   // Descending order.
+	}
+
+	#include "sort/quicksort/quicksort_gen_undef.h"
+	#define QUICKSORT_GEN_TYPE_1  INT_T
+	#define QUICKSORT_GEN_TYPE_2  INT_T
+	#define QUICKSORT_GEN_TYPE_3  void
+	#define QUICKSORT_GEN_FUNCTION_ATTRIBUTES
+	#define QUICKSORT_GEN_SUFFIX  _index
+	#include "sort/quicksort/quicksort_gen.c"
+	static inline
+	int
+	quicksort_cmp(INT_T a, INT_T b, __attribute__((unused)) void * unused)
+	{
+		return (a > b) ? 1 : (a < b) ? -1 : 0;
 	}
 
 #ifdef __cplusplus
@@ -83,11 +96,14 @@ extern "C"{
 
 
 struct thread_data {
-	long ii_s;
-	long ii_e;
-
+	long crossover_row;
 	long i_s;
 	long i_e;
+
+	long crossover_row_cluster;
+	long num_row_clusters_private;
+	long ii_s;
+	long ii_e;
 };
 
 static struct thread_data ** tds;
@@ -110,22 +126,32 @@ transpose(T * A, INT_T m, INT_T n)
 }
 
 
-struct SELL_Sorted_Array : Matrix_Format
+inline
+int
+row_is_above_crossover(INT_T degree)
+{
+	INT_T crossover_degree = 50;
+	int ret = 0;
+	if (degree >= crossover_degree)
+		ret = 1;
+	return ret;
+}
+
+
+struct SELL_Sorted_CSR_Array : Matrix_Format
 {
 	ValueType * a;
 	long num_row_clusters;
-	INT_T * row_cluster_ptr;
+	INT_T * row_cluster_ptr;   // Contains both row clusters for SELL (VEC_LEN rows) and single rows for CSR.
 	INT_T * ja;
 
-	int * permutation;
-	int * rev_permutation;
+	INT_T * permutation;
+	INT_T * rev_permutation;
 
-	long m_ext;
 	long nnz_ext;
-
 	double last_duration;
 
-	SELL_Sorted_Array(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz) : Matrix_Format(m, n, nnz), last_duration(0)
+	SELL_Sorted_CSR_Array(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz) : Matrix_Format(m, n, nnz), last_duration(0)
 	{
 		long num_threads = omp_get_max_threads();
 
@@ -133,10 +159,7 @@ struct SELL_Sorted_Array : Matrix_Format
 
 		printf("VEC_LEN = %d\n", VEC_LEN);
 
-		num_row_clusters = (m + VEC_LEN - 1) / VEC_LEN;
-		m_ext = num_row_clusters * VEC_LEN;
-
-		row_cluster_ptr = (typeof(row_cluster_ptr)) aligned_alloc(64, (num_row_clusters+1) * sizeof(*row_cluster_ptr));
+		num_row_clusters = 0;
 
 		permutation = (typeof(permutation)) aligned_alloc(64, m * sizeof(*permutation));
 		rev_permutation = (typeof(rev_permutation)) aligned_alloc(64, m * sizeof(*rev_permutation));
@@ -150,52 +173,71 @@ struct SELL_Sorted_Array : Matrix_Format
 			long tnum = omp_get_thread_num();
 			struct thread_data * td;
 			long i, ii_s, ii_e, i_s, i_e, j, k;
+			long crossover_row;
+			long num_row_clusters_private;
 
 			td = (typeof(td)) aligned_alloc(64, sizeof(*td));
 			tds[tnum] = td;
 
-			#pragma omp for
-			for (i=0;i<num_row_clusters;i++)
-			{
-				row_cluster_ptr[i] = row_ptr[i * VEC_LEN];
-			}
-			#pragma omp single
-			{
-				row_cluster_ptr[num_row_clusters] = row_ptr[m];
-			}
-
-
-			loop_partitioner_balance_prefix_sums(num_threads, tnum, row_cluster_ptr, num_row_clusters, nnz, &ii_s, &ii_e);
-			i_s = ii_s * VEC_LEN;
-			i_e = ii_e * VEC_LEN;
+			loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &i_s, &i_e);
 			if (tnum == num_threads - 1)
 				i_e = m;
-			td->ii_s = ii_s;
-			td->ii_e = ii_e;
 			td->i_s = i_s;
 			td->i_e = i_e;
-			// printf("%2ld: [%8ld %8ld] [%8ld %8ld] [%8ld %8ld] (%d) m=%ld\n", tnum, ii_s, ii_e, ii_s*VEC_LEN, ii_e*VEC_LEN, i_s, i_e, row_ptr[i_e] - row_ptr[i_s], m);
 
-			int degree, degree_max = 0;
+			long num_rows_below = 0;
+			INT_T degree, degree_max = 0;
 			for (i=i_s;i<i_e;i++)
 			{
 				degree = row_ptr[i+1] - row_ptr[i];
 				if (degree > degree_max)
 					degree_max = degree;
+				if (!row_is_above_crossover(degree))
+					num_rows_below++;
+			}
+			num_rows_below = num_rows_below - num_rows_below % VEC_LEN;
+			crossover_row = i_s + num_rows_below;
+			td->crossover_row = crossover_row;
+
+			long num_row_clusters_sell = (crossover_row - i_s) / VEC_LEN;
+			long num_rows_csr = i_e - crossover_row;
+			num_row_clusters_private = num_row_clusters_sell + num_rows_csr;
+			td->num_row_clusters_private = num_row_clusters_private;
+			omp_thread_reduce_global(reduce_add_long, num_row_clusters_private, 0, 1, 0, &ii_s, &num_row_clusters); // omp_thread_reduce_global(_reduce_fun, _partial, _zero, exclusive, _backwards, _local_result_ptr_ret, _total_result_ptr_ret);
+			ii_e = ii_s + num_row_clusters_private;
+			td->ii_s = ii_s;
+			td->ii_e = ii_e;
+			td->crossover_row_cluster = ii_s + num_row_clusters_sell;
+
+			#pragma omp barrier
+
+			#pragma omp single
+			{
+				row_cluster_ptr = (typeof(row_cluster_ptr)) aligned_alloc(64, (num_row_clusters+1) * sizeof(*row_cluster_ptr));
 			}
 
+			/* Sort by row size. */
+			// void bucketsort_stable_recalculate_bucket_serial(_TYPE_V * restrict A, long N, _TYPE_BUCKET_I num_buckets, _TYPE_AD * restrict aux_data, _TYPE_I * restrict permutation_out, _TYPE_I * restrict offsets_out);
 			bucketsort_stable_recalculate_bucket_serial(&row_ptr[i_s], i_e-i_s, degree_max+1, &degree_max, &permutation[i_s], NULL);
+
 			for (i=i_s;i<i_e;i++)
 			{
 				permutation[i] += i_s;
 				rev_permutation[permutation[i]] = i;
 			}
 
+			/* Restore order in CSR part, sort by row index. */
+			quicksort(&rev_permutation[crossover_row], i_e - crossover_row, NULL, NULL);
+
+			for (i=i_s;i<i_e;i++)
+			{
+				permutation[rev_permutation[i]] = i;
+			}
+
+
 			for (i=i_s;i<i_e;i++)
 			{
 				row_ptr_reordered[permutation[i]] = row_ptr[i+1] - row_ptr[i];
-				// if (tnum == 0)
-					// printf("%d\n", row_ptr[i+1] - row_ptr[i]);
 			}
 			#pragma omp single
 			{
@@ -213,18 +255,21 @@ struct SELL_Sorted_Array : Matrix_Format
 					col_ind_reordered[k] = col_ind[j];
 					values_reordered[k] = values[j];
 				}
-				// if (tnum == 0)
-					// printf("%d\n", row_ptr[rev_permutation[i]+1] - row_ptr[rev_permutation[i]]);
 			}
 		}
 
+		/* Extend SELL row clusters to local max row. 
+		 * Transpose row clusters.
+		 * Extend CSR rows to multiples of 'VEC_LEN'.
+		 */
 		#pragma omp parallel
 		{
 			long tnum = omp_get_thread_num();
 			struct thread_data * td = tds[tnum];
-			long i, ii, j, jj, k, k_s, k_e;
+			long i, ii, j, jj, k;
 			long ii_s, ii_e;
 			long i_s, i_e;
+			long crossover_row, crossover_row_cluster;
 			long degree;
 			long col = 0;
 			long width;
@@ -233,21 +278,25 @@ struct SELL_Sorted_Array : Matrix_Format
 			ii_e = td->ii_e;
 			i_s = td->i_s;
 			i_e = td->i_e;
+			crossover_row = td->crossover_row;
+			crossover_row_cluster = td->crossover_row_cluster;
 
-			for (i=i_s;i<i_e;i+=VEC_LEN)
+			for (i=i_s,ii=ii_s;i<crossover_row;i+=VEC_LEN,ii++)
 			{
 				width = 0;
-				k_s = i;
-				k_e = i + VEC_LEN;
-				if (k_e > m)
-					k_e = m;
-				for (k=k_s;k<k_e;k++)
+				for (k=i;k<i+VEC_LEN;k++)
 				{
 					degree = row_ptr_reordered[k+1] - row_ptr_reordered[k];
 					if (degree > width)
 						width = degree;
 				}
-				row_cluster_ptr[i/VEC_LEN] = VEC_LEN * width;
+				row_cluster_ptr[ii] = VEC_LEN * width;
+			}
+			for (i=crossover_row,ii=crossover_row_cluster;i<i_e;i++,ii++)
+			{
+				degree = row_ptr_reordered[i+1] - row_ptr_reordered[i];
+				degree = ((degree + VEC_LEN - 1) / VEC_LEN) * VEC_LEN;
+				row_cluster_ptr[ii] = degree;
 			}
 			#pragma omp single
 			{
@@ -265,42 +314,50 @@ struct SELL_Sorted_Array : Matrix_Format
 			}
 
 			col = 0;
-			for (ii=ii_s;ii<ii_e;ii++)
+			for (i=i_s,ii=ii_s;i<crossover_row;i+=VEC_LEN,ii++)
 			{
 				width = (row_cluster_ptr[ii+1] - row_cluster_ptr[ii]) / VEC_LEN;
-				long i_c_s = VEC_LEN * ii;
-				long i_c_e = i_c_s + VEC_LEN;
-				if (i_c_e > m)
-					i_c_e = m;
 				jj = row_cluster_ptr[ii];
-				for (i=i_c_s;i<i_c_e;i++)
+				for (k=i;k<i+VEC_LEN;k++)
 				{
-					for (j=row_ptr_reordered[i];j<row_ptr_reordered[i+1];j++,jj++)
+					for (j=row_ptr_reordered[k];j<row_ptr_reordered[k+1];j++,jj++)
 					{
 						a[jj] = values_reordered[j];
 						col = col_ind_reordered[j];
 						ja[jj] = col;
 					}
-					for (;j<row_ptr_reordered[i]+width;j++,jj++)   // Padding of smaller rows.
+					for (;j<row_ptr_reordered[k]+width;j++,jj++)   // Padding of smaller rows.
 					{
 						a[jj] = 0;
 						ja[jj] = col;
 					}
 				}
-				for (;jj<row_cluster_ptr[ii+1];jj++)   // Padding of missing rows for last row cluster.
+				transpose(&a[row_cluster_ptr[ii]], VEC_LEN, width);
+				transpose(&ja[row_cluster_ptr[ii]], VEC_LEN, width);
+			}
+			for (i=crossover_row,ii=crossover_row_cluster;i<i_e;i++,ii++)
+			{
+				jj = row_cluster_ptr[ii];
+				for (j=row_ptr_reordered[i];j<row_ptr_reordered[i+1];j++,jj++)
+				{
+					a[jj] = values_reordered[j];
+					col = col_ind_reordered[j];
+					ja[jj] = col;
+				}
+				for (;jj<row_cluster_ptr[ii+1];jj++)   // Padding of smaller rows.
 				{
 					a[jj] = 0;
 					ja[jj] = col;
 				}
-				transpose(&a[row_cluster_ptr[ii]], VEC_LEN, width);
-				transpose(&ja[row_cluster_ptr[ii]], VEC_LEN, width);
 			}
+
+			// printf("%2ld: i_s=%10ld, crossover_row=%10ld, i_e=%10ld, nnz=%10d, rows=%10ld, sell_rows=%10ld, csr_rows=%10ld\n", tnum, i_s, crossover_row, i_e, row_cluster_ptr[ii_e]-row_cluster_ptr[ii_s], i_e-i_s, crossover_row-i_s, i_e-crossover_row);
 		}
 
-		mem_footprint = (num_row_clusters+1) * sizeof(INT_T) + nnz_ext * (sizeof(ValueType) + sizeof(INT_T)) + m * sizeof(INT_T);   // Plus the permutation array size.
+		mem_footprint = (num_row_clusters+1) * sizeof(INT_T) + nnz_ext * (sizeof(ValueType) + sizeof(INT_T));
 	}
 
-	~SELL_Sorted_Array()
+	~SELL_Sorted_CSR_Array()
 	{
 		free(a);
 		free(ja);
@@ -313,27 +370,27 @@ struct SELL_Sorted_Array : Matrix_Format
 };
 
 
-void compute_sell(SELL_Sorted_Array * sell, ValueType * x , ValueType * y);
+void compute_sell_csr(SELL_Sorted_CSR_Array * sell, ValueType * x , ValueType * y);
 
 
 void
-SELL_Sorted_Array::spmv(ValueType * x, ValueType * y)
+SELL_Sorted_CSR_Array::spmv(ValueType * x, ValueType * y)
 {
 	struct timespec ts_s, ts_e;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &ts_s);
-	compute_sell(this, x, y);
+	compute_sell_csr(this, x, y);
 	clock_gettime(CLOCK_MONOTONIC_RAW, &ts_e);
 	last_duration = ((ts_e.tv_sec - ts_s.tv_sec) + (ts_e.tv_nsec - ts_s.tv_nsec) / 1e9) * 1000.0;
 }
 
 
 struct Matrix_Format *
-sell_sorted_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded)
+sell_sorted_csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded)
 {
 	if (symmetric && !symmetry_expanded)
 		error("symmetric matrices have to be expanded to be supported by this format");
-	struct SELL_Sorted_Array * sell = new SELL_Sorted_Array(row_ptr, col_ind, values, m, n, nnz);
-	sell->format_name = (char *) "SELL_SORTED";
+	struct SELL_Sorted_CSR_Array * sell = new SELL_Sorted_CSR_Array(row_ptr, col_ind, values, m, n, nnz);
+	sell->format_name = (char *) "SELL_SORTED_CSR";
 	return sell;
 }
 
@@ -344,66 +401,51 @@ sell_sorted_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * val
 
 
 void
-compute_sell(SELL_Sorted_Array * sell, ValueType * x , ValueType * y)
+compute_sell_csr(SELL_Sorted_CSR_Array * sell, ValueType * x , ValueType * y)
 {
 	#pragma omp parallel
 	{
 		long tnum = omp_get_thread_num();
 		struct thread_data * td = tds[tnum];
 		vec_t(VTF, VEC_LEN) zero = vec_set1(VTF, VEC_LEN, 0);
-		__attribute__((unused)) vec_t(VTF, VEC_LEN) v_a = zero, mul = zero, v_x = zero, v_sum = zero;
+		__attribute__((unused)) vec_t(VTF, VEC_LEN) v_a = zero, v_x = zero, v_sum = zero;
 		__attribute__((unused)) vec_t(i32, VEC_LEN) v_col;
+		ValueType sum;
 		long ii, ii_s, ii_e, jj, jj_s, jj_e;
 		long i, k;
-		__attribute__((unused)) long i_s, i_e;
-		ii_s = td->ii_s;
-		ii_e = td->ii_e;
+		long i_s, i_e;
+		long crossover_row, crossover_row_cluster;
 		i_s = td->i_s;
 		i_e = td->i_e;
+		ii_s = td->ii_s;
+		ii_e = td->ii_e;
+		crossover_row = td->crossover_row;
+		crossover_row_cluster = td->crossover_row_cluster;
 
 		long ii_e_last = ii_e;
 		if (ii_e * VEC_LEN > i_e)
 			ii_e_last -= VEC_LEN;
 
-		// #pragma GCC unroll 2
-		for (ii=ii_s;ii<ii_e_last;ii++)
+		for (i=i_s,ii=ii_s;i<crossover_row;i+=VEC_LEN,ii++)
 		{
 			v_sum = vec_set1(VTF, VEC_LEN, 0);
 			jj_s = sell->row_cluster_ptr[ii];
 			jj_e = sell->row_cluster_ptr[ii+1];
 			for (jj=jj_s;jj<jj_e;jj+=VEC_LEN)
 			{
-
-				// for (k=0;k<VEC_LEN;k++)
-				// {
-					// vec_array(VTF, VEC_LEN, v_sum)[k] += sell->a[jj+k] * x[sell->ja[jj+k]];
-				// }
-
-				// for (k=0;k<VEC_LEN;k++)
-				// {
-					// vec_array(VTF, VEC_LEN, mul)[k] = sell->a[jj+k] * x[sell->ja[jj+k]];
-				// }
-				// v_sum = vec_add(VTF, VEC_LEN, v_sum, mul);
-
 				v_a = vec_loadu(VTF, VEC_LEN, &sell->a[jj]);
-
 				// v_x = vec_set_iter(VTF, VEC_LEN, iter, x[sell->ja[jj+iter]]);
 				v_col = vec_loadu(i32, VEC_LEN, &sell->ja[jj]);
 				v_x = vec_gather(VTF, i32, VEC_LEN, x, v_col);
-
-				// vint32mf2_t v_col = __riscv_vle32_v_i32mf2(&sell->ja[jj], VEC_LEN);
-				// v_x = __riscv_vluxei32_v_f64m1(x, __riscv_vsll_vx_u32mf2(v_col, VEC_SCALE_SHIFT, VEC_LEN),  VEC_LEN);
-
 				v_sum = vec_fmadd(VTF, VEC_LEN, v_a, v_x, v_sum);
-
 			}
-			i = VEC_LEN * ii;
 			// for (k=0;k<VEC_LEN;k++)
-				// y[sell->rev_permutation[i + k]] = vec_array(VTF, VEC_LEN, v_sum)[k];
+				// y[sell->rev_permutation[i+k]] = vec_array(VTF, VEC_LEN, v_sum)[k];
 			vec_storeu(VTF, VEC_LEN, &y[i], v_sum);
+
 		}
 
-		for (ii=ii_e_last;ii<ii_e;ii++)
+		for (i=crossover_row,ii=crossover_row_cluster;i<i_e;i++,ii++)
 		{
 			v_sum = vec_set1(VTF, VEC_LEN, 0);
 			jj_s = sell->row_cluster_ptr[ii];
@@ -411,22 +453,14 @@ compute_sell(SELL_Sorted_Array * sell, ValueType * x , ValueType * y)
 			for (jj=jj_s;jj<jj_e;jj+=VEC_LEN)
 			{
 				v_a = vec_loadu(VTF, VEC_LEN, &sell->a[jj]);
-
 				// v_x = vec_set_iter(VTF, VEC_LEN, iter, x[sell->ja[jj+iter]]);
 				v_col = vec_loadu(i32, VEC_LEN, &sell->ja[jj]);
 				v_x = vec_gather(VTF, i32, VEC_LEN, x, v_col);
-
 				v_sum = vec_fmadd(VTF, VEC_LEN, v_a, v_x, v_sum);
 			}
-			i = VEC_LEN * ii;
-			for (k=0;k<VEC_LEN;k++)
-			{
-				if (i+k < i_e)
-				{
-					// y[sell->rev_permutation[i + k]] = vec_array(VTF, VEC_LEN, v_sum)[k];
-					y[i + k] = vec_array(VTF, VEC_LEN, v_sum)[k];
-				}
-			}
+			sum = vec_reduce_add(VTF, VEC_LEN, v_sum);
+			// y[sell->rev_permutation[i]] = sum;
+			y[i] = sum;
 		}
 
 	}
@@ -439,20 +473,20 @@ compute_sell(SELL_Sorted_Array * sell, ValueType * x , ValueType * y)
 
 
 void
-SELL_Sorted_Array::statistics_start()
+SELL_Sorted_CSR_Array::statistics_start()
 {
 }
 
 
 int
-sell_sorted_statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+sell_sorted_csr_statistics_print_labels(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
 	return 0;
 }
 
 
 int
-SELL_Sorted_Array::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
+SELL_Sorted_CSR_Array::statistics_print_data(__attribute__((unused)) char * buf, __attribute__((unused)) long buf_n)
 {
 	return 0;
 }
@@ -461,12 +495,13 @@ SELL_Sorted_Array::statistics_print_data(__attribute__((unused)) char * buf, __a
 struct Matrix_Format *
 csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, long m, long n, long nnz, long symmetric, long symmetry_expanded)
 {
-	return sell_sorted_to_format(row_ptr, col_ind, values, m, n, nnz, symmetric, symmetry_expanded);
+	return sell_sorted_csr_to_format(row_ptr, col_ind, values, m, n, nnz, symmetric, symmetry_expanded);
 }
 
 int
 statistics_print_labels(char * buf, long buf_n)
 {
-	return sell_sorted_statistics_print_labels(buf, buf_n);
+	return sell_sorted_csr_statistics_print_labels(buf, buf_n);
 }
 #endif
+

@@ -65,6 +65,8 @@ benchmark_code/BENCH_HYBRID/data_analysis/OLD
 benchmark_code/BENCH_HYBRID/data_analysis/memset_analysis
 benchmark_code/BENCH_HYBRID/data_analysis/hybrid_analysis_outputs
 benchmark_code/BENCH_HYBRID/data_analysis/interference
+benchmark_code/BENCH_HYBRID/data_analysis/OLD2/
+benchmark_code/BENCH_HYBRID/iterations_128_OLD_LOGS/
 
 benchmark_code/FPGA/HiSparse/
 benchmark_code/FPGA/HPCG_FPGA

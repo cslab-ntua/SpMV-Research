@@ -48,7 +48,7 @@ extern "C" {
 // #define DIAG_CPU_COLIND0
 // #define DIAG_CPU_LOCAL_X
 // #define DIAG_CPU_LOCAL_X_UNOPT
-#define DIAG_CPU_LOCAL_X_OPT
+// #define DIAG_CPU_LOCAL_X_OPT
 /**************************************************************************/
 
 // Forward-declare both sub-format initializers using the injected macro names.

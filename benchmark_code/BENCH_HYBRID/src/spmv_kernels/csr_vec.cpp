@@ -192,6 +192,7 @@ subkernel_row_csr_vec(INT_T * restrict ja, ValueType * restrict a, ValueType * r
 	long j, j_e_vector;
 	const long mask = ~(((long) VEC_LEN) - 1); // Minimum number of elements for the vectorized code (power of 2).
 	vec_t(VTF, VEC_LEN) v_a, v_x, v_sum;
+	__attribute__((unused)) vec_t(i32, VEC_LEN) v_col;
 	ValueType sum = 0;
 	v_sum = vec_set1(VTF, VEC_LEN, 0);
 	sum = 0;
@@ -199,7 +200,11 @@ subkernel_row_csr_vec(INT_T * restrict ja, ValueType * restrict a, ValueType * r
 	for (j=j_s;j<j_e_vector;j+=VEC_LEN)
 	{
 		v_a = vec_loadu(VTF, VEC_LEN, &a[j]);
-		v_x = vec_set_iter(VTF, VEC_LEN, iter, x[ja[j+iter]]);
+
+		// v_x = vec_set_iter(VTF, VEC_LEN, iter, x[ja[j+iter]]);
+		v_col = vec_loadu(i32, VEC_LEN, &ja[j]);
+		v_x = vec_gather(VTF, i32, VEC_LEN, x, v_col);
+
 		v_sum = vec_fmadd(VTF, VEC_LEN, v_a, v_x, v_sum);
 	}
 	// if (j_e_vector < j_e)
