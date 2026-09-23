@@ -879,8 +879,11 @@ matrices_weird=(
 
 )
 matrices_weird2=(
+    # ML_Laplace
     # wiki-topcats
-    mycielskian17
+    # mycielskian17
+    # cage15
+    gsm_106857
 )
 matrices_weird=( 
     $(
@@ -1188,14 +1191,14 @@ for format_name in "${!progs[@]}"; do
     for ((i=0;i<rep;i++)); do
 
         if ((output_to_files)); then
-            OUT_LOGS="out_logs/"
+            # OUT_LOGS="out_logs/"
             # OUT_LOGS="out_logs_GPU_ONLY/"
             # OUT_LOGS="out_logs_CPU_ONLY/"
             # OUT_LOGS="out_logs_ANNOY_GPU/"
             # OUT_LOGS="out_logs_CPU_COLIND0/"
             # OUT_LOGS="out_logs_CPU_LOCAL_X/"
             # OUT_LOGS="out_logs_CPU_LOCAL_X_UNOPT/"
-            # OUT_LOGS="out_logs_CPU_LOCAL_X_OPT/"
+            OUT_LOGS="out_logs_CPU_LOCAL_X_OPT/"
             mkdir -p "$OUT_LOGS"
             # When rep=1 keep the old plain name; when rep>1 append _repN.
             suffix=""

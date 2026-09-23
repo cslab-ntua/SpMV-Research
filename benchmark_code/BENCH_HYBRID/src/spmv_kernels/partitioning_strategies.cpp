@@ -188,9 +188,10 @@ long get_split_shortest_rows_original_order(INT_T * row_ptr, long m, long total_
 	long m_cpu = split_sorted(rows, m, target_nnz_cpu, row_map);
 
 	// Restore original order within each partition
-	qsort(rows, m_cpu, sizeof(RowSize), compareRowID);
-	qsort(rows + m_cpu, m - m_cpu, sizeof(RowSize), compareRowID);
-	for (long i = 0; i < m; i++) row_map[i] = rows[i].id;
+	// NOTE: Now handled centrally in hybrid_dispatcher.cpp after strategy selection.
+	// qsort(rows, m_cpu, sizeof(RowSize), compareRowID);
+	// qsort(rows + m_cpu, m - m_cpu, sizeof(RowSize), compareRowID);
+	// for (long i = 0; i < m; i++) row_map[i] = rows[i].id;
 
 	free(rows);
 	return m_cpu;
@@ -211,9 +212,10 @@ long get_split_longest_rows_original_order(INT_T * row_ptr, long m, long total_n
 	long m_cpu = split_sorted(rows, m, target_nnz_cpu, row_map);
 
 	// Restore original order within each partition
-	qsort(rows, m_cpu, sizeof(RowSize), compareRowID);
-	qsort(rows + m_cpu, m - m_cpu, sizeof(RowSize), compareRowID);
-	for (long i = 0; i < m; i++) row_map[i] = rows[i].id;
+	// NOTE: Now handled centrally in hybrid_dispatcher.cpp after strategy selection.
+	// qsort(rows, m_cpu, sizeof(RowSize), compareRowID);
+	// qsort(rows + m_cpu, m - m_cpu, sizeof(RowSize), compareRowID);
+	// for (long i = 0; i < m; i++) row_map[i] = rows[i].id;
 
 	free(rows);
 	return m_cpu;
@@ -482,8 +484,8 @@ extern "C"{
 #undef CACHE_LINE_SIZE
 
 // #define CACHE_LINE_SIZE  sizeof(ValueType)
-// #define CACHE_LINE_SIZE  64
-#define CACHE_LINE_SIZE  128
+#define CACHE_LINE_SIZE  64
+// #define CACHE_LINE_SIZE  128
 
 
 /* Expect <sorted> CSR columns in each row (increasing). */
@@ -602,4 +604,3 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 
 	return num_rows_extracted;
 }
-

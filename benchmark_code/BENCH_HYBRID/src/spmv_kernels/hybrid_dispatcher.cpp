@@ -48,7 +48,7 @@ extern "C" {
 // #define DIAG_CPU_COLIND0
 // #define DIAG_CPU_LOCAL_X
 // #define DIAG_CPU_LOCAL_X_UNOPT
-// #define DIAG_CPU_LOCAL_X_OPT
+#define DIAG_CPU_LOCAL_X_OPT
 /**************************************************************************/
 
 // Forward-declare both sub-format initializers using the injected macro names.
@@ -258,6 +258,17 @@ csr_to_format(INT_T * row_ptr, INT_T * col_ind, ValueTypeReference * values, lon
 			strat_name = "DEFAULT_20_80";
 		#endif
 
+		// ---- Restore original row order within each partition ----
+		// Every strategy above populates row_map with CPU rows in [0, m_cpu) and GPU rows in [m_cpu, m). 
+		// Sort each sub-range by ascending row ID so that each partition processes rows in their original matrix order.
+		if (m_cpu > 0 && m_cpu < m) {
+			auto qsort_cmp = [](const void *a, const void *b) -> int {
+			    INT_T ra = *(const INT_T *)a, rb = *(const INT_T *)b;
+			    return (ra < rb) ? -1 : (ra > rb) ? 1 : 0;
+			};
+			qsort(hybrid->row_map,         m_cpu,     sizeof(INT_T), qsort_cmp);
+			qsort(hybrid->row_map + m_cpu, m - m_cpu, sizeof(INT_T), qsort_cmp);
+		}
 
 		m_gpu = m - m_cpu;
 		hybrid->m_cpu = m_cpu;
