@@ -12,8 +12,8 @@
 #include "macros/macrolib.h"
 
 
-#ifndef CACHE_LINE_SIZE
-	#define CACHE_LINE_SIZE  64
+#ifndef PQ_CACHE_LINE_SIZE
+	#define PQ_CACHE_LINE_SIZE  64
 #endif
 
 #ifndef PQ_DEGREE
@@ -45,8 +45,8 @@ struct pq_node_data {
 	_TYPE_I * position_tracker;
 };
 //	int64_t lock;
-//	char padding[0] __attribute__ ((aligned (CACHE_LINE_SIZE)));
-//} __attribute__ ((aligned (CACHE_LINE_SIZE)));
+//	char padding[0] __attribute__ ((aligned (PQ_CACHE_LINE_SIZE)));
+//} __attribute__ ((aligned (PQ_CACHE_LINE_SIZE)));
 
 
 #undef pq_data

@@ -17,6 +17,10 @@
 
 
 /* compare(a, b)
+ *
+ *  1 -> 'a' moves up
+ * -1 -> 'a' moves down
+ *
  * max queue:
  *	(a > b) ? 1 : (a < b) ? -1 : 0
  * min queue:

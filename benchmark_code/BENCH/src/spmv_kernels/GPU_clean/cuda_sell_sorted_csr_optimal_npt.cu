@@ -20,12 +20,6 @@
 	// #define BLOCK_SIZE  1024
 #endif
 
-#define NNZ_PER_THREAD  5
-
-
-#define GPU_TIMERS  0
-// #define GPU_TIMERS  1
-
 
 #ifdef __cplusplus
 extern "C"{
@@ -52,34 +46,6 @@ extern "C"{
 	{
 		return a + b;
 	}
-
-	// static inline
-	// double
-	// idx_to_double(void * A, long i)
-	// {
-		// return (double) ((INT_T *) A)[i];
-	// }
-
-	// static inline
-	// double
-	// row_ptr_to_degree_double(void * A, long i)
-	// {
-		// return (double) (((INT_T *) A)[i+1] - ((INT_T *) A)[i]);
-	// }
-
-	// static inline
-	// double
-	// ull_to_double(void * A, long i)
-	// {
-		// return (double) ((unsigned long long *) A)[i];
-	// }
-
-	// static inline
-	// double
-	// int_to_double(void * A, long i)
-	// {
-		// return (double) ((int *) A)[i];
-	// }
 
 	#include "functools/functools_gen_push.h"
 	#define FUNCTOOLS_GEN_TYPE_1  int
@@ -244,21 +210,31 @@ row_is_above_crossover(INT_T degree, long m, __attribute__((unused)) long nnz, i
 }
 
 
-/* We assume NON-EMPTY rows.
- * Returns -1 if not even with 1 nnz per thread a warp fits. */
+/* Finds the 'best' nnz per thread for a thread warp, i.e., locally producing the least row padding.
+ * We assume NON-EMPTY rows.
+ * Returns -1 if not even with 1 nnz per thread a warp fits.
+ * i_next_out : the row of the first nnz after the nnz of this warp.
+ * j_next_out : the position of the first nnz after the nnz of this warp.
+ */
 inline
 long
 find_optimal_nnz_per_thread(long i_s, long j_s, long j_last, INT_T * row_ptr, long m,
-		long * i_e_out)
+		long * i_next_out, long * j_next_out)
 {
 	long npt_min = 4;
 	const long npt_max = 15;
 	long npt, npt_best;
-	long i, i_e, j_e;
-	long rem, rem_total, rem_min = UINT_MAX;
-	if (i_e_out == NULL)
-		error("i_e_out == NULL");
-	*i_e_out = i_s;
+	long i, i_e, jj_s, jj_e;
+	long rem, padding, padding_total, padding_min = LONG_MAX;
+	long row_nnz_of_warp;
+	if (i_next_out == NULL)
+		error("i_next_out == NULL");
+	if (j_next_out == NULL)
+		error("j_next_out == NULL");
+	if ((j_s < row_ptr[i_s]) || (j_s >= row_ptr[i_s+1]))
+		error("row_ptr[i_s]=%d, row_ptr[i_s+1]=%d, j_s=%ld", row_ptr[i_s], row_ptr[i_s+1], j_s);
+	*i_next_out = i_s;
+	*j_next_out = j_s;
 	while (j_s + 32 * npt_min > j_last)   // For last warps relax npt_min.
 	{
 		npt_min--;
@@ -266,115 +242,63 @@ find_optimal_nnz_per_thread(long i_s, long j_s, long j_last, INT_T * row_ptr, lo
 			return -1;
 	}
 	npt_best = -1;
-	for (npt=npt_min;npt<npt_max;npt++)
+	for (npt=npt_min;npt<=npt_max;npt++)
 	{
-		j_e = j_s + 32 * npt;
-		if (j_e > j_last)
-			j_e = j_last;
-		for (i=i_s;i<m;i++)
+		jj_e = j_s + 32 * npt;
+		if (jj_e > j_last)
+			break;
+		i_e = i_s;
+		while (row_ptr[i_e] <= jj_e)  // Find i_e + 1 , i.e., the first row after the row of jj_e : row_ptr[i_e] <= jj_e < row_ptr[i_e + 1]
 		{
-			if (row_ptr[i] > j_e)
-				break;
+			i_e++;
+			if (i_e > m)
+				error("m=%ld, i_e=%ld", m, i_e);
 		}
-		i_e = i;
-		rem_total = 0;
+		i_e--;
+		padding_total = 0;
+		jj_s = j_s;
 		for (i=i_s;i<i_e;i++)
 		{
-			rem = row_ptr[i] % npt;
-			rem_total += rem;
-			j_e -= rem;
-			while (j_e <= row_ptr[i_e - 1])   // row_ptr[i_e - 1] < j_e <= row_ptr[i_e]
-				i_e--;
+			if (row_ptr[i+1] >= jj_e)
+				break;
+			row_nnz_of_warp = row_ptr[i+1] - jj_s;   // For the first only row of the warp, we might start from its middle.
+			if (row_nnz_of_warp <= 0)
+				error("row_nnz_of_warp=%ld", row_nnz_of_warp);
+			rem = row_nnz_of_warp % npt;
+			if (rem > 0)
+			{
+				padding = npt - rem;
+				padding_total += padding;
+				jj_e -= padding;
+				while (jj_e < row_ptr[i_e])   // Find i_e, i.e., the row of jj_e: row_ptr[i_e] <= jj_e < row_ptr[i_e + 1]
+					i_e--;
+				if (i_e < 0)
+					error("i_e=%ld", i_e);
+			}
+			jj_s = row_ptr[i+1];
 		}
-		if (rem_total <= rem_min)   // Keep the smallest rem_total, or if equal the biggest npt (we search npt ascending).
+		if (padding_total <= padding_min)   // Keep the smallest padding_total, or if equal the biggest npt (we search npt ascending).
 		{
-			rem_min = rem_total;
+			padding_min = padding_total;
 			npt_best = npt;
-			*i_e_out = i_e;
+			*i_next_out = i_e;   // i_e is the row that the next nnz (jj_e) is in.
+			*j_next_out = jj_e;
 		}
 	}
 	return npt_best;
 }
 
 
-void
-sort_sell_warp_columns(INT_T i, INT_T * row_ptr, INT_T * ja, ValueType * a, __attribute__((unused)) long m)
-{
-	long cache_line_size = 128;
-	long cache_line_elements = cache_line_size / sizeof(ValueType);
-	long nnz_warp = row_ptr[i+32] - row_ptr[i];
-	INT_T * ja_warp = &ja[row_ptr[i]];
-	ValueType * a_warp = &a[row_ptr[i]];
-	INT_T * idx = (typeof(idx)) malloc(nnz_warp * sizeof(*idx));
-	INT_T * rfs = (typeof(rfs)) malloc(nnz_warp * sizeof(*rfs));
-	INT_T * ja_buf = (typeof(ja_buf)) malloc(nnz_warp * sizeof(*ja_buf));
-	ValueType * a_buf = (typeof(a_buf)) malloc(nnz_warp * sizeof(*a_buf));
-	INT_T * ja_row;
-	ValueType * a_row;
-	INT_T * rfs_row;
-	INT_T degree, rf;
-	long j, k, l;
-	for (j=0;j<nnz_warp;j++)
-		idx[j] = j;
-	quicksort(idx, nnz_warp, ja_warp, NULL);   // Sort all warp nnz by column index.
-	k = 0;
-	j = 0;
-	while (j<nnz_warp)   // Find replication factors of column indices.
-	{
-		rf = 1;
-		j++;
-		for (;j<nnz_warp;j++)
-		{
-			if (ja_warp[idx[j]] / cache_line_elements != ja_warp[idx[j-1]] / cache_line_elements)
-				break;
-			rf++;
-		}
-		for (l=k;l<j;l++)
-		{
-			rfs[idx[l]] = -rf;   // Negative to sort descending after.
-		}
-		k = j;
-	}
-	ja_row = ja_warp;
-	a_row = a_warp;
-	rfs_row = rfs;
-	for (k=i;k<i+32;k++)   // Sort each row by replication factors, descending.
-	{
-		degree = row_ptr[k+1] - row_ptr[k];
-		for (j=0;j<degree;j++)
-			idx[j] = j;
-		quicksort(idx, degree, rfs_row, NULL);
-		for (j=0;j<degree;j++)
-		{
-			ja_buf[j] = ja_row[idx[j]];
-			a_buf[j] = a_row[idx[j]];
-		}
-		for (j=0;j<degree;j++)
-		{
-			ja_row[j] = ja_buf[j];
-			a_row[j] = a_buf[j];
-		}
-		ja_row += degree;
-		a_row += degree;
-		rfs_row += degree;
-	}
-	free(idx);
-	free(rfs);
-	free(ja_buf);
-	free(a_buf);
-}
-
 struct warp_coords_t {
 	INT_T coords[2];
 };
+
 
 struct SELLArrays : Matrix_Format
 {
 	char * filename_base;
 
 	long crossover_row;   // A row index in the SORTED matrix, where we change from SELL to CSR. Multiple of BLOCK_SIZE.
-	long nnz_per_thread;
-	long nnz_per_warp;
 
 	long num_row_clusters;
 	long nnz_extended;
@@ -388,17 +312,12 @@ struct SELLArrays : Matrix_Format
 	INT_T * ja_h;
 	ValueType * a_h;
 	short * thread_warp_npt = NULL;
-	INT_T * thread_warp_i_s = NULL;
-	INT_T * thread_warp_i_e = NULL;
-	INT_T * thread_warp_j_s = NULL;
 	warp_coords_t * thread_warp_coords = NULL;
 
-	INT_T * row_ptr_d;
 	INT_T * row_cluster_ptr_d;
 	INT_T * ja_d;
 	ValueType * a_d;
-	INT_T * thread_warp_i_s_d = NULL;
-	INT_T * thread_warp_i_e_d = NULL;
+	short * thread_warp_npt_d = NULL;
 	warp_coords_t * thread_warp_coords_d = NULL;
 
 	ValueType * x = NULL;
@@ -434,8 +353,8 @@ struct SELLArrays : Matrix_Format
 		double time;
 		long i;
 
-		// const long cache_line_size = 128;
-		// const long cache_line_size = 64;
+		INT_T * thread_warp_i_s = NULL;
+		INT_T * thread_warp_j_s = NULL;
 
 		long buf_n = 1000;
 		char buf[buf_n];
@@ -467,9 +386,6 @@ struct SELLArrays : Matrix_Format
 		#pragma omp parallel for
 		for (long i = 0; i < nnz; i++)
 			a[i] = (ValueType) a_ref[i];
-
-		nnz_per_thread = NNZ_PER_THREAD;
-		nnz_per_warp = nnz_per_thread * 32;
 
 		thread_block_size = BLOCK_SIZE;
 		if (thread_block_size % 32)
@@ -676,11 +592,10 @@ struct SELLArrays : Matrix_Format
 		printf("time sort rows = %g\n", time);
 
 
-		/* Extend SELL row clusters to local max row. 
+		/* Extend SELL row clusters to local max row.
 		 * Transpose row clusters.
-		 * Find 'nnz_per_thread' for each CSR warp and extend CSR rows to multiples of the local 'nnz_per_thread'.
-		 * Extend last row so that CSR has multiple of BLOCK_SIZE number of threads,
-		 * i.e., CSR has multiple of 'nnz_per_thread * BLOCK_SIZE' nonzeros.
+		 * Find nnz per thread for each CSR warp and extend CSR rows to multiples of the local nnz per thread.
+		 * Extend last row so that CSR has multiple of BLOCK_SIZE number of threads.
 		 */
 		time = time_it(1,
 			INT_T * row_ptr_h_new = (typeof(row_ptr_h_new)) malloc((m+1) * sizeof(*row_ptr_h_new));
@@ -690,12 +605,15 @@ struct SELLArrays : Matrix_Format
 			_Pragma("omp parallel")
 			{
 				long tnum = omp_get_thread_num();
-				long i, i_s, i_e, i_next, j, j1, j2, j_s, j_e, k;
+				long i, i_s, i_e, i_next, j, j1, j2, j_s, j_e, j_next, k;
 				long degree;
 				long degree_cluster_max;
 				long num_thread_warps_csr_t = 0;
 				short * thread_warp_npt_t = NULL;
-				long npt, npb;
+				INT_T * thread_warp_i_s_t = NULL;
+				long npt;
+				long row_nnz_of_warp;
+				long rem, padding;
 				_Pragma("omp for")
 				for (i=0;i<crossover_row;i+=32)
 				{
@@ -715,53 +633,79 @@ struct SELLArrays : Matrix_Format
 				j_s = row_ptr_h[i_s];
 				j_e = row_ptr_h[i_e];
 				num_thread_warps_csr_t = 0;
-				thread_warp_npt_t = (typeof(thread_warp_npt_t)) malloc((j_e - j_s) * sizeof(*thread_warp_npt_t));   // Worst case 1 nnz per thread.
+				long worst_case_num_warps_t = (j_e - j_s + 32 - 1) / 32;   // Worst case 1 nnz per thread -> 32 per warp.
+				thread_warp_npt_t = (typeof(thread_warp_npt_t)) malloc(worst_case_num_warps_t * sizeof(*thread_warp_npt_t));
+				thread_warp_i_s_t = (typeof(thread_warp_i_s_t)) malloc(worst_case_num_warps_t * sizeof(*thread_warp_i_s_t));
 				i = i_s;
 				while (1)
 				{
-					npt = find_optimal_nnz_per_thread(i, j_s, j_e, row_ptr_h, m, &i_next);   // Non-empty rows.
+					npt = find_optimal_nnz_per_thread(i, j_s, j_e, row_ptr_h, m, &i_next, &j_next);   // Non-empty rows.
 					if (npt < 0)
 						break;
+					if ((j_next < row_ptr_h[i_next]) || (j_next >= row_ptr_h[i_next+1]))
+						error("%ld: row_ptr_h[i_next]=%d, row_ptr_h[i_next+1]=%d, j_next=%ld", tnum, row_ptr_h[i_next], row_ptr_h[i_next+1], j_next);
+					thread_warp_npt_t[num_thread_warps_csr_t] = npt;
+					thread_warp_i_s_t[num_thread_warps_csr_t] = i;
+					j = j_s;
 					for (;i<i_next;i++)
 					{
 						degree = row_ptr_h[i+1] - row_ptr_h[i];
-						degree = npt * ((degree + npt - 1) / npt);
-						row_ptr_h_new[i] = degree;
+						row_nnz_of_warp = row_ptr_h[i+1] - j;   // For the first only row of the warp, we might start from its middle.
+						rem = row_nnz_of_warp % npt;
+						padding = (rem > 0) ? npt - rem : 0;
+						row_ptr_h_new[i] = degree + padding;
+						j = row_ptr_h[i+1];
 					}
-					j_s += 32 * npt;
-					thread_warp_npt_t[num_thread_warps_csr_t] = npt;
+					j_s = j_next;
 					num_thread_warps_csr_t++;
 				}
 				long nnz_left = j_e - j_s;
-				if (nnz_left > 0)   // Extend last private row to fill last private warp.
+				if (nnz_left > 0)   // Extend last <private> row to fill last <private> warp.
 				{
 					if (nnz_left >= 32)
 						error("nnz_left=%ld >= 32", nnz_left);
 					npt = 1;
 					thread_warp_npt_t[num_thread_warps_csr_t] = npt;
+					thread_warp_i_s_t[num_thread_warps_csr_t] = i;
 					num_thread_warps_csr_t++;
 					degree = row_ptr_h[i_e] - row_ptr_h[i_e-1];
-					degree += nnz_left;
+					degree += 32*npt - nnz_left;
 					row_ptr_h_new[i] = degree;
 				}
 				long offset = 0;
-				// omp_thread_reduce_global(_reduce_fun, _partial, _zero, exclusive, _backwards, _local_result_ptr_ret, _total_result_ptr_ret)
+				/* omp_thread_reduce_global(_reduce_fun, _partial, _zero, exclusive, _backwards, _local_result_ptr_ret, _total_result_ptr_ret) */
 				omp_thread_reduce_global(reduce_add_long, num_thread_warps_csr_t, 0, 1, 0, &offset, &num_thread_warps_csr);
 				_Pragma("omp single")
 				{
-					row_ptr_h_new[m] = 0;
+					long warps_per_block = BLOCK_SIZE / 32;
+					long num_thread_warps_csr_prev = num_thread_warps_csr;
+					num_thread_warps_csr = warps_per_block * ((num_thread_warps_csr + warps_per_block - 1) / warps_per_block);
+					printf("Last block extra warps: %ld\n", num_thread_warps_csr - num_thread_warps_csr_prev);
 					thread_warp_npt = (typeof(thread_warp_npt)) malloc(num_thread_warps_csr * sizeof(*thread_warp_npt));
 					thread_warp_i_s = (typeof(thread_warp_i_s)) malloc(num_thread_warps_csr * sizeof(*thread_warp_i_s));
-					thread_warp_i_e = (typeof(thread_warp_i_e)) malloc(num_thread_warps_csr * sizeof(*thread_warp_i_e));
-					thread_warp_j_s = (typeof(thread_warp_j_s)) malloc((num_thread_warps_csr+1) * sizeof(*thread_warp_j_s));
-					thread_warp_coords = (warp_coords_t *) malloc((num_thread_warps_csr+1) * sizeof(*thread_warp_coords));
+					thread_warp_j_s = (typeof(thread_warp_j_s)) malloc(num_thread_warps_csr * sizeof(*thread_warp_j_s));
+					thread_warp_coords = (typeof(thread_warp_coords)) malloc(num_thread_warps_csr * sizeof(*thread_warp_coords));
+					row_ptr_h_new[m] = 0;
+					if (num_thread_warps_csr_prev != num_thread_warps_csr)
+					{
+						/* Extend last row to fill last thread block. Add warps with npt == 1. */
+						row_ptr_h_new[m-1] += 32 * (num_thread_warps_csr - num_thread_warps_csr_prev);
+						for (i=num_thread_warps_csr_prev;i<num_thread_warps_csr;i++)
+						{
+							thread_warp_npt[i] = 1;
+							thread_warp_i_s[i] = m-1;
+							thread_warp_j_s[i] = 32;
+						}
+					}
 				}
 				for (i=0;i<num_thread_warps_csr_t;i++)
 				{
 					thread_warp_npt[offset+i] = thread_warp_npt_t[i];
+					thread_warp_i_s[offset+i] = thread_warp_i_s_t[i];
 					thread_warp_j_s[offset+i] = 32 * thread_warp_npt_t[i];
 				}
 				free(thread_warp_npt_t);
+				free(thread_warp_i_s_t);
 				scan_reduce_concurrent(row_ptr_h_new, row_ptr_h_new, m+1, 0, 1, 0);
 				_Pragma("omp single")
 				{
@@ -769,18 +713,12 @@ struct SELLArrays : Matrix_Format
 					nnz_sell = row_ptr_h_new[crossover_row];
 					nnz_csr = nnz_extended - nnz_sell;
 
-					// Extend last row to fill last thread block.
-					// Add warps with npt == 1.
-					nnz_csr = BLOCK_SIZE * ((nnz_csr + BLOCK_SIZE - 1) / BLOCK_SIZE);
-					nnz_extended = nnz_sell + nnz_csr;
-					row_ptr_h_new[m] = nnz_extended;
-
 					ja_h_new = (typeof(ja_h_new)) malloc(nnz_extended * sizeof(*ja_h_new));
 					a_h_new = (typeof(a_h_new)) malloc(nnz_extended * sizeof(*a_h_new));
 
 					/* Find number of threads for each format. */
-					num_threads_csr = num_thread_warps_csr * 32;
 					num_threads_sell = crossover_row;
+					num_threads_csr = num_thread_warps_csr * 32;
 					num_threads = num_threads_sell + num_threads_csr;
 					num_thread_blocks = num_threads / BLOCK_SIZE;
 					num_thread_blocks_sell = num_threads_sell / BLOCK_SIZE;
@@ -790,26 +728,15 @@ struct SELLArrays : Matrix_Format
 					printf("num_threads=%ld, thread_block_size=%d, num_thread_blocks=%ld\n", num_threads, BLOCK_SIZE, num_thread_blocks);
 
 					thread_warp_j_s[0] += nnz_sell;
-					thread_warp_j_s[num_thread_warps_csr] = 0;
 				}
-				scan_reduce_concurrent(thread_warp_j_s, thread_warp_j_s, num_thread_warps_csr+1, 0, 1, 0);
-				/* Find CSR warps row boundaries. */
-				long thread_warp_j_e;
-				long lower_boundary, higher_boundary;
+				scan_reduce_concurrent(thread_warp_j_s, thread_warp_j_s, num_thread_warps_csr, 0, 1, 0);
+				/* CSR warps starting coordinates. */
 				_Pragma("omp for")
 				for (i=0;i<num_thread_warps_csr;i++)
 				{
-					macros_binary_search(row_ptr_h_new, 0, m, thread_warp_j_s[i], &lower_boundary, NULL);   // Index boundaries are inclusive.
-					while (row_ptr_h_new[lower_boundary] == row_ptr_h_new[lower_boundary+1])
-						lower_boundary++;
-					thread_warp_i_s[i] = lower_boundary;
-					thread_warp_j_e = thread_warp_j_s[i] + nnz_per_warp;
-					macros_binary_search(row_ptr_h_new, 0, m, thread_warp_j_e, NULL, &higher_boundary);   // Index boundaries are inclusive.
-					while (row_ptr_h_new[higher_boundary] == row_ptr_h_new[higher_boundary+1])
-						higher_boundary--;
-					thread_warp_i_e[i] = higher_boundary;
 					thread_warp_coords[i] = { thread_warp_i_s[i], thread_warp_j_s[i] };
 				}
+				/* Copy data, fill paddings, transpose. */
 				_Pragma("omp for")
 				for (i=0;i<crossover_row;i+=32)
 				{
@@ -827,22 +754,6 @@ struct SELLArrays : Matrix_Format
 						}
 					}
 					degree = row_ptr_h_new[i+1] - row_ptr_h_new[i];
-					/* if (i == (1500000ULL & (~31ULL)))
-					{
-						for (k=i;k<i+32;k++)
-						{
-							for (j=row_ptr_h_new[k];j<row_ptr_h_new[k+1];j++)
-							{
-								// printf("%8d ", ja_h_new[j] / 128);
-								printf("%8d ", ja_h_new[j]);
-							}
-							printf("\n");
-						}
-						printf("\n");
-					} */
-
-					// sort_sell_warp_columns(i, row_ptr_h_new, ja_h_new, a_h_new, m);
-
 					transpose(&ja_h_new[row_ptr_h_new[i]], 32, degree);
 					transpose(&a_h_new[row_ptr_h_new[i]], 32, degree);
 				}
@@ -861,24 +772,36 @@ struct SELLArrays : Matrix_Format
 					}
 					ja_h_new[row_ptr_h_new[i]] |= 0x80000000;
 
-					j_s = row_ptr_h_new[i];
-					while (j_s < row_ptr_h_new[i+1])   // Interleave thread nnz of same row (round-robin).
-					{
-						j_e = j_s + nnz_per_warp;
-						j_e = j_e - ((j_e - nnz_sell) % nnz_per_warp);
-						if (j_e > row_ptr_h_new[i+1])
-							j_e = row_ptr_h_new[i+1];
-						long local_num_threads = (j_e - j_s) / nnz_per_thread;
-						transpose(&a_h_new[j_s], nnz_per_thread, local_num_threads);
-						transpose(&ja_h_new[j_s], nnz_per_thread, local_num_threads);
-						j_s = j_e;
-					}
 				}
+				/* Interleave thread nnz of same row (round-robin). */
+				// _Pragma("omp for")
+				// for (i=0;i<num_thread_warps_csr;i++)
+				// {
+					// j_s = row_ptr_h_new[i];
+					// while (j_s < row_ptr_h_new[i+1])
+					// {
+						// npt = thread_warp_npt[i];
+						// j_e = j_s + 32*npt;
+						// j_e = j_e - ((j_e - nnz_sell) % 32*npt);
+						// if (j_e > row_ptr_h_new[i+1])
+							// j_e = row_ptr_h_new[i+1];
+						// long local_num_threads = (j_e - j_s) / npt;
+						// transpose(&a_h_new[j_s], npt, local_num_threads);
+						// transpose(&ja_h_new[j_s], npt, local_num_threads);
+						// j_s = j_e;
+					// }
+				// }
 				_Pragma("omp for")
-				for (j=row_ptr_h_new[crossover_row];j<nnz_extended;j+=32*nnz_per_thread)
+				for (i=0;i<num_thread_warps_csr;i++)
 				{
-					transpose(&a_h_new[j], 32, nnz_per_thread);
-					transpose(&ja_h_new[j], 32, nnz_per_thread);
+					npt = thread_warp_npt[i];
+					j = thread_warp_coords[i].coords[1];
+					if (j >= nnz_extended)
+						error("j >= nnz_extended");
+					if (thread_warp_coords[i].coords[0] >= m)
+						error("thread_warp_coords[i].coords[0] >= m");
+					transpose(&a_h_new[j], 32, npt);
+					transpose(&ja_h_new[j], 32, npt);
 				}
 			}
 			free(row_ptr_h);
@@ -890,6 +813,9 @@ struct SELLArrays : Matrix_Format
 		);
 		printf("time extend and transpose = %g\n", time);
 		printf("nnz=%ld, nnz_extended=%ld, nnz_sell=%ld, nnz_csr=%ld\n", nnz, nnz_extended, nnz_sell, nnz_csr);
+
+		free(thread_warp_i_s);
+		free(thread_warp_j_s);
 
 		/* Find SELL row clusters offsets. */
 		num_row_clusters = crossover_row / 32;
@@ -903,40 +829,29 @@ struct SELLArrays : Matrix_Format
 		row_cluster_ptr_h[num_row_clusters] = row_ptr_h[crossover_row];
 
 		time = time_it(1,
-			cuda_assert(cudaMalloc(&row_ptr_d, (m+1) * sizeof(*row_ptr_d)));
 			cuda_assert(cudaMalloc(&row_cluster_ptr_d, (num_row_clusters+1) * sizeof(*row_cluster_ptr_d)));
 			cuda_assert(cudaMalloc(&ja_d, nnz_extended * sizeof(*ja_d)));
 			cuda_assert(cudaMalloc(&a_d, nnz_extended * sizeof(*a_d)));
 			cuda_assert(cudaMalloc(&x_d, n * sizeof(*x_d)));
 			cuda_assert(cudaMalloc(&y_d, m * sizeof(*y_d)));
-			cuda_assert(cudaMalloc(&thread_warp_i_s_d, num_thread_warps_csr * sizeof(*thread_warp_i_s_d)));
-			cuda_assert(cudaMalloc(&thread_warp_i_e_d, num_thread_warps_csr * sizeof(*thread_warp_i_e_d)));
-			cuda_assert(cudaMalloc(&thread_warp_coords_d, (num_thread_warps_csr+1) * sizeof(*thread_warp_coords_d)));
+			cuda_assert(cudaMalloc(&thread_warp_npt_d, num_thread_warps_csr * sizeof(*thread_warp_npt_d)));
+			cuda_assert(cudaMalloc(&thread_warp_coords_d, num_thread_warps_csr * sizeof(*thread_warp_coords_d)));
 
 			x_h = (typeof(x_h)) malloc(n * sizeof(*x_h));
 			y_h = (typeof(y_h)) malloc(m * sizeof(*y_h));
 
-			cuda_assert(cudaMemcpy(row_ptr_d, row_ptr_h, (m+1) * sizeof(*row_ptr_d), cudaMemcpyHostToDevice));
 			cuda_assert(cudaMemcpy(row_cluster_ptr_d, row_cluster_ptr_h, (num_row_clusters+1) * sizeof(*row_cluster_ptr_d), cudaMemcpyHostToDevice));
 			cuda_assert(cudaMemcpy(ja_d, ja_h, nnz_extended * sizeof(*ja_d), cudaMemcpyHostToDevice));
 			cuda_assert(cudaMemcpy(a_d, a_h, nnz_extended * sizeof(*a_d), cudaMemcpyHostToDevice));
-			cuda_assert(cudaMemcpy(thread_warp_i_s_d, thread_warp_i_s, num_thread_warps_csr * sizeof(*thread_warp_i_s_d), cudaMemcpyHostToDevice));
-			cuda_assert(cudaMemcpy(thread_warp_i_e_d, thread_warp_i_e, num_thread_warps_csr * sizeof(*thread_warp_i_e_d), cudaMemcpyHostToDevice));
-			cuda_assert(cudaMemcpy(thread_warp_coords_d, thread_warp_coords, (num_thread_warps_csr+1) * sizeof(*thread_warp_coords_d), cudaMemcpyHostToDevice));
+			cuda_assert(cudaMemcpy(thread_warp_npt_d, thread_warp_npt, num_thread_warps_csr * sizeof(*thread_warp_npt_d), cudaMemcpyHostToDevice));
+			cuda_assert(cudaMemcpy(thread_warp_coords_d, thread_warp_coords, num_thread_warps_csr * sizeof(*thread_warp_coords_d), cudaMemcpyHostToDevice));
 		);
 		printf("time cudaMemcpy = %g\n", time);
-
-		#if GPU_TIMERS
-			timers = (typeof(timers)) malloc(num_thread_warps * sizeof(*timers));
-			cuda_assert(cudaMalloc(&timers_d, num_thread_warps * sizeof(*timers_d)));
-			cuda_assert(cudaMemset(timers_d, UINT_MAX, num_thread_warps * sizeof(*timers_d)));   // UINT_MAX because it takes an integer type for the BYTE values.
-		#endif
 
 	}
 
 	~SELLArrays()
 	{
-		cuda_assert(cudaFree(row_ptr_d));
 		cuda_assert(cudaFree(row_cluster_ptr_d));
 		cuda_assert(cudaFree(ja_d));
 		cuda_assert(cudaFree(a_d));
@@ -1061,7 +976,7 @@ reduce_warp_single_row(group_t g, T val)
 template <const int nnz_per_thread>
 __device__
 void
-spmv_csr(const int tid, INT_T crossover_row, INT_T crossover_offset, INT_T * thread_warp_i_s, warp_coords_t * thread_warp_coords, INT_T * ja, ValueType * a, INT_T m, INT_T n, INT_T nnz, ValueType * restrict x, ValueType * restrict y)
+spmv_csr(const int tid, INT_T crossover_row, short * thread_warp_npt, warp_coords_t * thread_warp_coords, INT_T * ja, ValueType * a, INT_T m, INT_T n, INT_T nnz, ValueType * restrict x, ValueType * restrict y)
 {
 	const int tid_csr = tid - crossover_row;
 	extern __shared__ char sm[];
@@ -1072,26 +987,24 @@ spmv_csr(const int tid, INT_T crossover_row, INT_T crossover_offset, INT_T * thr
 	INT_T new_row;
 	// int single_row;
 	__attribute__((unused)) INT_T i, i_w_s, i_e, j, jj, jj_s, j_w_s, k, col;
+	INT_T npt = thread_warp_npt[wid_csr];
+
 	warp_coords_t coords = thread_warp_coords[wid_csr];
 	j_w_s = coords.coords[1];
-	// j_w_s = crossover_offset + wid_csr * g.size() * nnz_per_thread;
 	jj_s = j_w_s + tidw;
 
 	i_w_s = coords.coords[0];
-	// i_w_s = thread_warp_i_s[wid_csr];
 
 	/* The CSR segment has non-empty rows due to sorting!
-	 * Only the first element of each thread can be on a row start.
+	 * Only the first element of each thread can be on a row start (padding).
 	 * Ignore new row for first thread in warp to have a correct scan reduce.
 	 */
 	col = ja[jj_s];
 	new_row = ((tidw > 0) && (col & 0x80000000)) ? 1 : 0;
 	i = warp_scan_reduce_inclusive(g, new_row) + i_w_s;
-	// if (wid_csr == 0)
-		// printf("%2d: i=%d\n", tid_csr, i);
 
 	sum = ((ValueType) a[jj_s]) * x[col & 0x7FFFFFFF];
-	for (k=1,jj=jj_s+g.size();k<nnz_per_thread;k++,jj+=g.size())
+	for (k=1,jj=jj_s+g.size();k<npt;k++,jj+=g.size())
 	{
 		col = ja[jj];
 		sum = __fma_rn((ValueType) a[jj], x[col], sum);
@@ -1127,66 +1040,19 @@ spmv_sell(const int tid, INT_T * row_cluster_ptr, INT_T * ja, ValueType * a, INT
 	i = tid;
 	j_s = row_cluster_ptr[wid] + tidw;
 	j_e = row_cluster_ptr[wid+1];
-	// const int bs = 8;
-	// INT_T nnz_t = j_e - j_s;
-	// INT_T j_mul = j_e - nnz_t % (g.size()*bs);
 	sum = 0;
-	// double sums[bs] = {0};
-	// double vals[bs], x_buf[bs];
-	// INT_T cols[bs];
-
-	/* for (j=j_s;j<j_mul;j+=g.size()*bs)
-	{
-		#pragma unroll
-		for (k=0;k<bs;k++)
-		{
-			jj = j + k * g.size();
-			vals[k] = (ValueType) a[jj];
-			cols[k] = ja[jj];
-		}
-		// #pragma unroll
-		// for (k=0;k<bs;k++)
-			// x_buf[k] = x[cols[k]];
-		// #pragma unroll
-		// for (k=0;k<bs;k++)
-		// {
-			// sums[k] += vals[k] * x[cols[k]];
-			// sums[k] += vals[k] * x_buf[k];
-			// sum = __fma_rn(vals[k], x_buf[k], sum);
-		// }
-		#pragma unroll
-		for (k=0;k<bs;k++)
-			sum = __fma_rn(vals[k], x[cols[k]], sum);
-	}
-	// for (k=0;k<bs;k++)
-		// sum += sums[k];
-	for (j=j_mul;j<j_e;j+=g.size())
-		sum = __fma_rn((ValueType) a[j], x[ja[j]], sum); */
-
 	for (j=j_s;j<j_e;j+=g.size())
 	{
 		sum = __fma_rn((ValueType) a[j], x[ja[j]], sum);
 	}
-
 	y[i] = sum;
-}
-
-
-__device__
-__forceinline__
-uint64_t
-globaltimer()
-{
-	uint64_t t;
-	asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(t));
-	return t;
 }
 
 
 __global__
 void
-gpu_kernel_sell_sorted(INT_T crossover_row, INT_T crossover_offset,
-		INT_T * thread_warp_i_s,
+gpu_kernel_sell_sorted(INT_T crossover_row,
+		short * thread_warp_npt,
 		warp_coords_t * thread_warp_coords,
 		INT_T * row_cluster_ptr, INT_T * ja, ValueType * a, INT_T m, INT_T n, INT_T nnz, ValueType * restrict x, ValueType * restrict y,
 		unsigned long long * timers)
@@ -1194,43 +1060,16 @@ gpu_kernel_sell_sorted(INT_T crossover_row, INT_T crossover_offset,
 	const int tid = cuda_get_thread_num_bc();
 	// const int tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
 
-	#if GPU_TIMERS == 1
-		thread_block_tile<32> g = tiled_partition<32>(this_thread_block());
-		const int tidw = tid % 32;
-		const int wid = tid / 32;
-		unsigned long long ts, te, dt;
-		g.sync();
-		if (tidw == 0)
-			ts = clock64();
-	#endif
-
 	if (tid < crossover_row)
 		spmv_sell(tid, row_cluster_ptr, ja, a, m, n, nnz, x, y);
 	else
 	{
-		spmv_csr<NNZ_PER_THREAD>(tid, crossover_row, crossover_offset, thread_warp_i_s, thread_warp_coords, ja, a, m, n, nnz, x, y);
+		// thread_block_tile<32> g = tiled_partition<32>(this_thread_block());
+		// const int tid_csr = tid - crossover_row;
+		// const int wid_csr = tid_csr / g.size();
+		// long npt = thread_warp_npt[wid_csr];
+		spmv_csr<0>(tid, crossover_row, thread_warp_npt, thread_warp_coords, ja, a, m, n, nnz, x, y);
 	}
-
-	#if GPU_TIMERS == 1
-		g.sync();
-		if (tidw == 0)
-		{
-			te = clock64();
-			dt = te - ts;
-			if (dt < timers[wid])
-				timers[wid] = dt;
-			// uint64_t c0 = clock64();
-			// uint64_t t0 = globaltimer();
-			// volatile int tmp = 0;
-			// for (long i=0;i<100;i++)
-				// tmp++;
-			// uint64_t c1 = clock64();
-			// uint64_t t1 = globaltimer();
-			// double freq = (c1 - c0) / ((double) (t1 - t0));
-			// if (wid % 1000 == 0)
-				// printf("%d: freq=%g\n", wid, freq);
-		}
-	#endif
 }
 
 
@@ -1242,8 +1081,6 @@ compute_sell_sorted(SELLArrays * restrict csr, ValueType * restrict x, ValueType
 	long shared_mem_size = 0;
 	// shared_mem_size = BLOCK_SIZE * (sizeof(ValueType));
 	// shared_mem_size = BLOCK_SIZE * (sizeof(ValueType) + sizeof(INT_T));
-	// shared_mem_size = BLOCK_SIZE * NNZ_PER_THREAD * sizeof(INT_T);
-	// shared_mem_size = BLOCK_SIZE * NNZ_PER_THREAD * (sizeof(ValueType) + sizeof(INT_T));
 
 	if (csr->x == NULL)
 	{
@@ -1262,8 +1099,8 @@ compute_sell_sorted(SELLArrays * restrict csr, ValueType * restrict x, ValueType
 	// cuda_assert(cudaFuncSetCacheConfig(gpu_kernel_sell_sorted, cudaFuncCachePreferL1));
 	// cuda_assert(cudaFuncSetCacheConfig(gpu_kernel_sell_sorted, cudaFuncCachePreferShared));
 	gpu_kernel_sell_sorted<<<grid_dims, block_dims, shared_mem_size>>>(
-			csr->crossover_row, csr->row_ptr_h[csr->crossover_row],
-			csr->thread_warp_i_s_d,
+			csr->crossover_row,
+			csr->thread_warp_npt_d,
 			csr->thread_warp_coords_d,
 			csr->row_cluster_ptr_d, csr->ja_d, csr->a_d, csr->m, csr->n, csr->nnz_extended, csr->x_d, csr->y_d, csr->timers_d);
 	cuda_assert(cudaPeekAtLastError());
@@ -1314,43 +1151,6 @@ SELLArrays::statistics_print_data(char * buf, long buf_n)
 	long i = 0;
 	i += snprintf(buf+i, buf_n-i, ",%ld", nnz_sell);
 	i += snprintf(buf+i, buf_n-i, ",%ld", nnz_csr);
-
-	#if GPU_TIMERS
-	{
-		long fig_name_n = 1000;
-		char fig_name[fig_name_n];
-		long j;
-
-		cuda_assert(cudaMemcpy(timers, timers_d, num_thread_warps * sizeof(*timers_d), cudaMemcpyDeviceToHost));
-
-		snprintf(fig_name, fig_name_n, "figures/%s_warp_cycles.png", filename_base);
-
-		long x_num_pixels = 1080, y_num_pixels = 1080;
-		struct Figure_Series * s;
-		__attribute__((cleanup(figure_destroy))) struct Figure * fig = (typeof(fig)) malloc(sizeof(*fig));
-		figure_init(fig, x_num_pixels, y_num_pixels);
-		{
-			s = figure_add_series(fig, timers, NULL, NULL, num_thread_warps, 0, ull_to_double, NULL, NULL);
-		}
-		int hor_line[x_num_pixels];
-		int cross_line_y = y_num_pixels * crossover_row / m;
-		{
-			for (j=0;j<x_num_pixels;j++)
-				hor_line[j] = cross_line_y;
-			s = figure_add_series(fig, NULL, hor_line, NULL, x_num_pixels, 0, NULL, int_to_double, NULL);
-			figure_series_type_pixel_coords(s);
-			figure_series_set_color(s, -1, 0, 0);
-		}
-		figure_set_bounds_x_min(fig, 0);
-		figure_axes_flip_y(fig);
-		figure_enable_legend(fig);
-		figure_set_title(fig, "warp run times (cycles)");
-		figure_plot(fig);
-		figure_save(fig, fig_name);
-
-		// printf("timer[0] = %llu\n", timers[0]);
-	}
-	#endif
 
 	return i;
 }

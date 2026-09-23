@@ -986,7 +986,7 @@ spmv_csr(const int tid, INT_T crossover_row, INT_T crossover_offset, INT_T * thr
 	// i_w_s = thread_warp_i_s[wid_csr];
 
 	/* The CSR segment has non-empty rows due to sorting!
-	 * Only the first element of each thread can be on a row start.
+	 * Only the first element of each thread can be on a row start (padding).
 	 * Ignore new row for first thread in warp to have a correct scan reduce.
 	 */
 	col = ja[jj_s];
@@ -1002,7 +1002,8 @@ spmv_csr(const int tid, INT_T crossover_row, INT_T crossover_offset, INT_T * thr
 		sum = __fma_rn((ValueType) a[jj], x[col], sum);
 	}
 
-	/* g.match_all(i, single_row);   // 'single_row' is passed as reference!!! Passing as pointer gives compilation error.
+	/* // Not even circuit5M gets any speedup from this.
+	g.match_all(i, single_row);   // 'single_row' is passed as reference!!! Passing as pointer gives compilation error.
 	if (single_row)
 	{
 		sum = reduce_warp_single_row(g, sum);

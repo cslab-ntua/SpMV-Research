@@ -451,6 +451,7 @@ extern "C"{
 		INT_T row;
 		INT_T degree;
 		INT_T new_x_accesses;
+		INT_T bandwidth;
 	};
 	#include "data_structures/priority_queue/priority_queue_gen_undef.h"
 	#define PRIORITY_QUEUE_GEN_TYPE_1  struct pq_elem_s
@@ -463,26 +464,41 @@ extern "C"{
 		int ret;
 		ret = (a.new_x_accesses < b.new_x_accesses) ? 1 : (a.new_x_accesses > b.new_x_accesses) ? -1 : 0;
 		// if (!ret)
+			// ret = (a.degree < b.degree) ? 1 : (a.degree > b.degree) ? -1 : 0;
+		// if (!ret)
 			// ret = (a.degree > b.degree) ? 1 : (a.degree < b.degree) ? -1 : 0;
 		// if (!ret)
 			// ret = (a.row < b.row) ? 1 : (a.row > b.row) ? -1 : 0;
+		// if (!ret)
+			// ret = (a.bandwidth < b.bandwidth) ? 1 : (a.bandwidth > b.bandwidth) ? -1 : 0;
 		return ret;
 	}
+
 #ifdef __cplusplus
 }
 #endif
 
 
+#undef CACHE_LINE_SIZE
+
+// #define CACHE_LINE_SIZE  sizeof(ValueType)
+// #define CACHE_LINE_SIZE  64
+#define CACHE_LINE_SIZE  128
+
+
+/* Expect <sorted> CSR columns in each row (increasing). */
 long
 find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, long m, long n, long nnz, double ratio, INT_T * row_map_out)
 {
 	char * row_extracted_flags = (typeof(row_extracted_flags)) malloc(m * sizeof(*row_extracted_flags));
-	char * x_access_flags = (typeof(x_access_flags)) malloc(n * sizeof(*x_access_flags));
-	long i, j;
+	int * x_access_flags = (typeof(x_access_flags)) malloc(n * sizeof(*x_access_flags));
+	long i, j, j_s, j_e, k, k_s, k_e;
 	long num_rows_extracted;
 	struct pq_elem_s pq_elem;
 	long position;
-	long col;
+	long col, col_cl, col_cl_prev;
+
+	const long elems_per_cache_line = CACHE_LINE_SIZE / sizeof(ValueType);
 
 	long target_nnz = (long)(nnz * (1.0 - ratio));
 
@@ -495,9 +511,12 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 	pq_init(pq, m);
 	for (i=0;i<m;i++)
 	{
+		j_s = row_ptr[i];
+		j_e = row_ptr[i+1];
 		pq_elem.row = i;
-		pq_elem.degree = row_ptr[i+1] - row_ptr[i];
-		pq_elem.new_x_accesses = row_ptr[i+1] - row_ptr[i];
+		pq_elem.degree = j_e - j_s;
+		pq_elem.new_x_accesses = j_e - j_s;
+		pq_elem.bandwidth = col_idx[j_e - 1] - col_idx[j_s] + 1;
 		pq_push(pq, pq_elem, &pq_elem_positions[i]);
 	}
 
@@ -512,7 +531,6 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 			x_access_flags[i] = 0;
 	}
 
-	long x_elems_new = 0;
 	long nnz_sum = 0;
 	for (num_rows_extracted=0;num_rows_extracted<m;num_rows_extracted++)
 	{
@@ -524,29 +542,36 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 		pq_pop(pq, &pq_elem);
 		row_min = pq_elem.row;
 
-		// row_min = num_rows_extracted;
-
-		x_elems_new = 0;
+		col_cl_prev = -1;
 		for (i=row_ptr[row_min];i<row_ptr[row_min+1];i++)
 		{
 			col = col_idx[i];
 			if (x_access_flags[col])
 				continue;
-			for (j=col_ptr[col];j<col_ptr[col+1];j++)
+			col_cl = col - (col % elems_per_cache_line);
+			if (col_cl == col_cl_prev)
+				continue;
+			col_cl_prev = col_cl;
+			k_s = col_cl;
+			k_e = col_cl + elems_per_cache_line;
+			if (k_e > n)
+				k_e = n;
+			for (k=k_s;k<k_e;k++)
 			{
-				position = pq_elem_positions[row_idx[j]];
-				pq_elem = pq_get_data(pq, position);
-				pq_elem.new_x_accesses--;
-				pq_set_data(pq, position, pq_elem);
-				pq_correct_up(pq, position);
+				for (j=col_ptr[k];j<col_ptr[k+1];j++)
+				{
+					position = pq_elem_positions[row_idx[j]];
+					pq_elem = pq_get_data(pq, position);
+					pq_elem.new_x_accesses--;
+					pq_set_data(pq, position, pq_elem);
+					pq_correct_up(pq, position);
+				}
+				x_access_flags[k] = 1;
 			}
-			x_access_flags[col] = 1;
-			x_elems_new++;
 		}
 		row_extracted_flags[row_min] = 1;
 		row_map_out[num_rows_extracted] = row_min;
 		nnz_sum += row_ptr[row_min+1] - row_ptr[row_min];
-		// printf("target_nnz=%ld/%ld, num_rows_extracted=%ld: row=%ld, new_x_accesses=%d, x_elems_new=%ld\n", nnz_sum, target_nnz, num_rows_extracted, row_min, pq_elem.new_x_accesses, x_elems_new);
 	}
 
 	/* Put the GPU rows after the CPU extracted ones. */
@@ -566,7 +591,7 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 		// if (x_access_flags[i])
 			// num_x_elements_accessed++;
 	// }
-	// printf("num_x_elements_accessed=%ld, num_rows_extracted=%ld, target_nnz=%ld\n", num_x_elements_accessed, num_rows_extracted, nnz_sum);
+	// printf("num_x_elements_accessed=%ld, num_rows_extracted=%ld, nnz_extracted=%ld\n", num_x_elements_accessed, num_rows_extracted, nnz_sum);
 
 	free(row_extracted_flags);
 	free(x_access_flags);
@@ -575,7 +600,6 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 	free(pq);
 	free(pq_elem_positions);
 
-	// printf("\n\nnum_rows_extracted=%ld\n", num_rows_extracted);
 	return num_rows_extracted;
 }
 

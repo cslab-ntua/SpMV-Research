@@ -26,8 +26,8 @@
 
 /* compare(a, b)
  *
- *  1 -> swapped positions (b, a)
- * -1 -> as is (a, b)
+ *  1 -> 'a' moves right : swapped positions (b, a)
+ * -1 -> 'a' moves left  : as is (a, b)
  *  0 -> random (equality)
  *
  * increasing order:
