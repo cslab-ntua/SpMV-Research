@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdarg.h>            // va_list, va_start(), va_arg(), va_end(), va_copy()
 #include <unistd.h>            // getpid()
+#include <string.h>
 #include <errno.h>             // errno
 #include <sys/syscall.h>       // syscall()
 #include <fcntl.h>
@@ -84,8 +85,8 @@ static __attribute__((cold)) __attribute__((unused))
 void display_error(int do_exit, int exit_status, const char *file_name, const char *function_name, int line, const char *format, ...)
 {
 	va_list ap;
-	int buf_size = 10*1024 - 1;     // -1 so that +1 will be a power of 2
-	char buf[buf_size + 1];         // to always be a valid string (unused last element, always '\0')
+	int buf_size = 10*4096 - 1;     // Common page size.
+	char buf[buf_size + 1];         // To always be a valid string (unused last element, always '\0').
 	int errno_buf = errno;
 	int n;
 	

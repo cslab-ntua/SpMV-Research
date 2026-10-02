@@ -4,6 +4,96 @@
 #include "macros/cpp_defines.h"
 #include "macros/macrolib.h"
 
+
+//==========================================================================================================================================
+//= Apply Permutation
+//==========================================================================================================================================
+
+#define permutation_apply_concurrent(_A_in, _A_out, _P, _N, _reverse_permutation)                                            \
+do {                                                                                                                         \
+	RENAME((_A_in, A_in), (_A_out, A_out), (_P, P), (_N, N, long), (_reverse_permutation, reverse_permutation, int));    \
+	long i;                                                                                                              \
+	if (reverse_permutation)                                                                                             \
+	{                                                                                                                    \
+		_Pragma("omp for")                                                                                           \
+		for (i=0;i<N;i++)                                                                                            \
+			A_out[i] = A_in[P[i]];                                                                               \
+	}                                                                                                                    \
+	else                                                                                                                 \
+	{                                                                                                                    \
+		_Pragma("omp for")                                                                                           \
+		for (i=0;i<N;i++)                                                                                            \
+			A_out[P[i]] = A_in[i];                                                                               \
+	}                                                                                                                    \
+} while (0)
+
+#define permutation_apply_parallel(_A_in, _A_out, _P, _N, _reverse_permutation)               \
+do {                                                                                          \
+	_Pragma("omp parallel")                                                               \
+	{                                                                                     \
+		permutation_apply_concurrent(_A_in, _A_out, _P, _N, _reverse_permutation);    \
+	}                                                                                     \
+} while (0)
+
+
+#define permutation_apply_replace_concurrent(_A_ptr, _P, _N, _reverse_permutation)                            \
+do {                                                                                                          \
+	RENAME((_A_ptr, A_ptr), (_P, P), (_N, N, long), (_reverse_permutation, reverse_permutation, int));    \
+	static typeof(*A_ptr) buf, tmp;                                                                       \
+	_Pragma("omp single")                                                                                 \
+	{                                                                                                     \
+		buf = (typeof(buf)) aligned_alloc(64, N * sizeof(*buf));                                      \
+	}                                                                                                     \
+	permutation_apply_concurrent(*A_ptr, buf, P, N, reverse_permutation);                                 \
+	_Pragma("omp single")                                                                                 \
+	{                                                                                                     \
+		tmp = *A_ptr;                                                                                 \
+		*A_ptr = buf;                                                                                 \
+		free(tmp);                                                                                    \
+	}                                                                                                     \
+} while (0)
+
+#define permutation_apply_replace_parallel(_A_ptr, _P, _N, _reverse_permutation)               \
+do {                                                                                           \
+	_Pragma("omp parallel")                                                                \
+	{                                                                                      \
+		permutation_apply_replace_concurrent(_A_ptr, _P, _N, _reverse_permutation);    \
+	}                                                                                      \
+} while (0)
+
+
+#define permutation_apply_overwrite_concurrent(_A, _P, _N, _reverse_permutation)                      \
+do {                                                                                                  \
+	RENAME((_A, A), (_P, P), (_N, N, long), (_reverse_permutation, reverse_permutation, int));    \
+	static typeof(A) buf;                                                                         \
+	long i;                                                                                       \
+	_Pragma("omp single")                                                                         \
+	{                                                                                             \
+		buf = (typeof(buf)) aligned_alloc(64, N * sizeof(*buf));                              \
+	}                                                                                             \
+	permutation_apply_concurrent(A, buf, P, N, reverse_permutation);                              \
+	_Pragma("omp for")                                                                            \
+	for (i=0;i<N;i++)                                                                             \
+		A[i] = buf[i];                                                                        \
+	_Pragma("omp single")                                                                         \
+	{                                                                                             \
+		free(buf);                                                                            \
+	}                                                                                             \
+} while (0)
+
+#define permutation_apply_overwrite_parallel(_A, _P, _N, _reverse_permutation)               \
+do {                                                                                         \
+	_Pragma("omp parallel")                                                              \
+	{                                                                                    \
+		permutation_apply_overwrite_concurrent(_A, _P, _N, _reverse_permutation);    \
+	}                                                                                    \
+} while (0)
+
+
+//==========================================================================================================================================
+//= Interleave Elements
+//==========================================================================================================================================
+
 /* Only the last unit can be incomplete.
  * The units are differentiated between:
  *     - the max multiple of number of units that are fully populated (main body)

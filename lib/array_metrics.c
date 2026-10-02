@@ -949,7 +949,8 @@ metric_functions_templates(rms, i_start, i_end, get_val_as_double,
 
 static inline
 void
-ARRAY_METRICS_quantile_method(const char * method, long N, double q, long * idx_out, double * frac_out)
+ARRAY_METRICS_quantile_method(const char * method, long N, double q,
+		long * idx_out, double * frac_out)
 {
 	double virt_idx, m=0, diff, zero_threshold;
 	long idx;

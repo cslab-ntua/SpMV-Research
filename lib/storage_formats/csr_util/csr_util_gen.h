@@ -100,7 +100,7 @@ double csr_cross_row_x_access_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, l
 #undef  csr_matrix_features
 #define csr_matrix_features  CSR_UTIL_GEN_EXPAND(csr_matrix_features)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
-void csr_matrix_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y);
+long csr_matrix_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y, int to_csv, char * buf_out, long buf_out_n);
 
 #undef  csr_matrix_features_validation
 #define csr_matrix_features_validation  CSR_UTIL_GEN_EXPAND(csr_matrix_features_validation)
@@ -176,5 +176,18 @@ void csr_quantize_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attrib
 #undef  csr_reorder_rows
 #define csr_reorder_rows  CSR_UTIL_GEN_EXPAND(csr_reorder_rows)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
-void csr_reorder_rows(_TYPE_I * permutation, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, __attribute__((unused)) long n, long nnz, _TYPE_I * reordered_row_ptr, _TYPE_I * reordered_col_idx, _TYPE_V * reordered_values);
+void csr_reorder_rows(_TYPE_I * permutation, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, __attribute__((unused)) long n, long nnz, _TYPE_I * reordered_row_ptr_out, _TYPE_I * reordered_col_idx_out, _TYPE_V * reordered_values_out);
+
+
+//==========================================================================================================================================
+//= Split With Predicate
+//==========================================================================================================================================
+
+
+// #undef  csr_reorder_rows
+// #define csr_reorder_rows  CSR_UTIL_GEN_EXPAND(csr_reorder_rows)
+// CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
+// void csr_split_rowwise_with_predicate(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int (* predicate)(_TYPE_I row, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, void * aux_data),
+		// _TYPE_I * pfalse_row_ptr_ret, _TYPE_I * pfalse_col_idx_ret, _TYPE_V * pfalse_values_ret,
+		// _TYPE_I * ptrue_row_ptr_ret, _TYPE_I * ptrue_col_idx_ret, _TYPE_V * ptrue_values_ret);
 

@@ -183,6 +183,7 @@ do {                                                                            
 	OPT((_total_result_ptr_ret),                                                                                                             \
 		if (total_result_ptr_ret != NULL)                                                                                                \
 			*total_result_ptr_ret = total_buf;)                                                                                      \
+	_Pragma("omp barrier")                                                                                                                   \
 } while (0)
 
 

@@ -163,7 +163,12 @@ do {                                                                            
 	typeof(total_sum) target, target_next;                                                                                                                           \
                                                                                                                                                                          \
 	if (N < 1)                                                                                                                                                       \
-		error("Empty Sums array.");                                                                                                                              \
+	{                                                                                                                                                                \
+		*local_start_ptr = 0;                                                                                                                                    \
+		*local_end_ptr = 0;                                                                                                                                      \
+		break;                                                                                                                                                   \
+		/* error("Empty Sums array."); */                                                                                                                        \
+	}                                                                                                                                                                \
 	target = Sums[0] + (total_sum * worker_pos) / num_workers;                                                                                                       \
 	target_next = Sums[0] + (total_sum * (worker_pos+1)) / num_workers;                                                                                              \
 	index_lower_value = (order_decreasing) ? N-1 : 0;                                                                                                                \

@@ -613,8 +613,13 @@ progs=(
     # ['mkl_ie_sym_d']="${script_dir}/src/spmv_mkl_ie_sym_d.exe" # BENCH_SYM
     # ['mkl_ie_sym_f']="${script_dir}/src/spmv_mkl_ie_sym_f.exe" # BENCH_SYM
 
-    # MKL CSR
+    # MKL older formats
     # ['mkl_csr_d']="${script_dir}/src/spmv_mkl_csr_d.exe"
+    # ['mkl_dia_d']="${script_dir}/src/spmv_mkl_dia_d.exe"
+    # ['mkl_bsr_2_d']="${script_dir}/src/spmv_mkl_bsr_2_d.exe"
+    # ['mkl_bsr_8_d']="${script_dir}/src/spmv_mkl_bsr_8_d.exe"
+    # ['mkl_coo_d']="${script_dir}/src/spmv_mkl_coo_d.exe"
+    # ['mkl_csc_d']="${script_dir}/src/spmv_mkl_csc_d.exe"
 
     # AOCL
     # ['aocl_optmv_d']="${script_dir}/src/spmv_aocl_optmv_d.exe"
@@ -652,18 +657,10 @@ progs=(
 
     # ['ell_d']="${script_dir}/src/spmv_ell_d.exe"
     # ['sell_d']="${script_dir}/src/spmv_sell_d.exe"
-    ['sell_sorted_d']="${script_dir}/src/spmv_sell_sorted_d.exe"
-    # ['sell_sorted_csr_d']="${script_dir}/src/spmv_sell_sorted_csr_d.exe"
+    # ['sell_sorted_d']="${script_dir}/src/spmv_sell_sorted_d.exe"
+    ['sell_sorted_csr_d']="${script_dir}/src/spmv_sell_sorted_csr_d.exe"
     # ['ldu_d']="${script_dir}/src/spmv_ldu_d.exe"
     # ['dia_d']="${script_dir}/src/spmv_dia_d.exe"
-
-    # ['mkl_csr_d']="${script_dir}/src/spmv_mkl_csr_d.exe"
-    # ['mkl_dia_d']="${script_dir}/src/spmv_mkl_dia_d.exe"
-    # ['mkl_bsr_2_d']="${script_dir}/src/spmv_mkl_bsr_2_d.exe"
-    # ['mkl_bsr_8_d']="${script_dir}/src/spmv_mkl_bsr_8_d.exe"
-    # ['mkl_coo_d']="${script_dir}/src/spmv_mkl_coo_d.exe"
-    # ['mkl_csc_d']="${script_dir}/src/spmv_mkl_csc_d.exe"
-
 
     # Custom cuda
     # ['cuda_csr_naive_nv_d']="${script_dir}/src/spmv_cuda_csr_naive_nv_d.exe"

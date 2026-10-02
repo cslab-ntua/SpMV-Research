@@ -855,8 +855,9 @@ csr_cross_row_x_access_similarity(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, 
 #undef  csr_matrix_features
 #define csr_matrix_features  CSR_UTIL_GEN_EXPAND(csr_matrix_features)
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
-void
-csr_matrix_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y)
+long
+csr_matrix_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int do_plot, long num_pixels_x, long num_pixels_y, int to_csv,
+		char * buf_out, long buf_out_n)
 {
 	_TYPE_I * row_idx;
 	_TYPE_I * degrees_rows;
@@ -886,9 +887,14 @@ csr_matrix_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col
 	double groups_per_row_min, groups_per_row_max, groups_per_row_avg, groups_per_row_std;
 	long num_groups;
 
-	long buf_n = strlen(file_out_base) + 1 + 1000;
-	char buf[buf_n], buf_title[buf_n];
+	long buf_n = 1000000;
+	char * buf = (typeof(buf)) malloc(buf_n * sizeof(*buf));
+	char * buf_title = (typeof(buf_title)) malloc(buf_n * sizeof(*buf_title));
+	long i, j;
 	double time;
+
+	if (buf_out == NULL)
+		error("buf_out is NULL");
 
 	time = time_it(1,
 		csr_row_indices(row_ptr, col_idx, m, n, nnz, &row_idx);
@@ -948,6 +954,7 @@ csr_matrix_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, degrees_rows, NULL, m, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
+			figure_set_bounds_y(_fig, 0, 100);   // Bounds are inclusive.
 			figure_series_type_histogram(_s, 0, NULL, 1);
 			figure_series_type_barplot(_s);
 		);
@@ -989,6 +996,7 @@ csr_matrix_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, num_neigh, NULL, nnz, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
+			figure_set_bounds_y(_fig, 0, 100);   // Bounds are inclusive.
 			figure_series_type_histogram(_s, 0, NULL, 1);
 			figure_series_type_barplot(_s);
 		);
@@ -1031,6 +1039,7 @@ csr_matrix_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col
 		figure_simple_plot(buf, num_pixels_x, num_pixels_y, (NULL, groups_per_row, NULL, m, 0),
 			figure_enable_legend(_fig);
 			figure_set_title(_fig, buf_title);
+			figure_set_bounds_y(_fig, 0, 100);   // Bounds are inclusive.
 			figure_series_type_histogram(_s, 0, NULL, 1);
 			figure_series_type_barplot(_s);
 		);
@@ -1041,98 +1050,127 @@ csr_matrix_features(const char * file_out_base, _TYPE_I * row_ptr, _TYPE_I * col
 	free(group_sizes);
 	free(groups_per_row);
 
-	fprintf(stderr, "matrix = %s\n", file_out_base);
-	fprintf(stderr, "m = %ld\n", m);
-	fprintf(stderr, "n = %ld\n", n);
-	fprintf(stderr, "nnz = %ld\n", nnz);
-	fprintf(stderr, "density = %g\n", nnz / ((double) m*n));
-	fprintf(stderr, "mem_footprint (MB in CSR) = %lf\n", mem_footprint);
-	fprintf(stderr, "mem_footprint_values_float (MB in CSR) = %lf\n", mem_footprint_float);
-	fprintf(stderr, "mem_footprint_values_double (MB in CSR) = %lf\n", mem_footprint_double);
-	fprintf(stderr, "nnz_per_row min = %lf\n", nnz_per_row_min);
-	fprintf(stderr, "nnz_per_row max = %lf\n", nnz_per_row_max);
-	fprintf(stderr, "nnz_per_row avg = %lf\n", nnz_per_row_avg);
-	fprintf(stderr, "nnz_per_row std = %lf\n", nnz_per_row_std);
-	fprintf(stderr, "nnz_per_col min = %lf\n", nnz_per_col_min);
-	fprintf(stderr, "nnz_per_col max = %lf\n", nnz_per_col_max);
-	fprintf(stderr, "nnz_per_col avg = %lf\n", nnz_per_col_avg);
-	fprintf(stderr, "nnz_per_col std = %lf\n", nnz_per_col_std);
-	fprintf(stderr, "skew = %lf\n", (nnz_per_row_max - nnz_per_row_avg) / nnz_per_row_avg);
-	fprintf(stderr, "bw_scaled min = %lf\n", bw_min / n);
-	fprintf(stderr, "bw_scaled max = %lf\n", bw_max / n);
-	fprintf(stderr, "bw_scaled avg = %lf\n", bw_avg / n);
-	fprintf(stderr, "bw_scaled std = %lf\n", bw_std / n);
-	fprintf(stderr, "sc min = %lf\n", sc_min);
-	fprintf(stderr, "sc max = %lf\n", sc_max);
-	fprintf(stderr, "sc avg = %lf\n", sc_avg);
-	fprintf(stderr, "sc std = %lf\n", sc_std);
-	fprintf(stderr, "num_neigh min = %lf\n", num_neigh_min);
-	fprintf(stderr, "num_neigh max = %lf\n", num_neigh_max);
-	fprintf(stderr, "num_neigh avg = %lf\n", num_neigh_avg);
-	fprintf(stderr, "num_neigh std = %lf\n", num_neigh_std);
-	fprintf(stderr, "cross_row_similarity avg = %lf\n", cross_row_similarity_avg);
-	fprintf(stderr, "nnz_col_dist min = %lf\n", nnz_col_dist_min);
-	fprintf(stderr, "nnz_col_dist max = %lf\n", nnz_col_dist_max);
-	fprintf(stderr, "nnz_col_dist avg = %lf\n", nnz_col_dist_avg);
-	fprintf(stderr, "nnz_col_dist std = %lf\n", nnz_col_dist_std);
-	fprintf(stderr, "group_col_dist min = %lf\n", group_col_dist_min);
-	fprintf(stderr, "group_col_dist max = %lf\n", group_col_dist_max);
-	fprintf(stderr, "group_col_dist avg = %lf\n", group_col_dist_avg);
-	fprintf(stderr, "group_col_dist std = %lf\n", group_col_dist_std);
-	fprintf(stderr, "group_sizes min = %lf\n", group_sizes_min);
-	fprintf(stderr, "group_sizes max = %lf\n", group_sizes_max);
-	fprintf(stderr, "group_sizes avg = %lf\n", group_sizes_avg);
-	fprintf(stderr, "group_sizes std = %lf\n", group_sizes_std);
-	fprintf(stderr, "groups_per_row min = %lf\n", groups_per_row_min);
-	fprintf(stderr, "groups_per_row max = %lf\n", groups_per_row_max);
-	fprintf(stderr, "groups_per_row avg = %lf\n", groups_per_row_avg);
-	fprintf(stderr, "groups_per_row std = %lf\n", groups_per_row_std);
-	fprintf(stderr, "num_groups = %ld\n", num_groups);
-	fprintf(stderr, "nnz_per_cluster avg = %lf\n", nnz_per_row_avg / groups_per_row_avg);
+	char * (features[])[2] = {
+		{"matrix", str_printf_to_new_string("%s", file_out_base)},
+		{"m", str_printf_to_new_string("%ld", m)},
+		{"n", str_printf_to_new_string("%ld", n)},
+		{"nnz", str_printf_to_new_string("%ld", nnz)},
+		{"density", str_printf_to_new_string("%g", nnz / ((double) m*n))},
+		{"mem_footprint (MB in CSR)", str_printf_to_new_string("%lf", mem_footprint)},
+		{"mem_footprint_values_float (MB in CSR)", str_printf_to_new_string("%lf", mem_footprint_float)},
+		{"mem_footprint_values_double (MB in CSR)", str_printf_to_new_string("%lf", mem_footprint_double)},
+		{"nnz_per_row min", str_printf_to_new_string("%lf", nnz_per_row_min)},
+		{"nnz_per_row max", str_printf_to_new_string("%lf", nnz_per_row_max)},
+		{"nnz_per_row avg", str_printf_to_new_string("%lf", nnz_per_row_avg)},
+		{"nnz_per_row std", str_printf_to_new_string("%lf", nnz_per_row_std)},
+		{"nnz_per_col min", str_printf_to_new_string("%lf", nnz_per_col_min)},
+		{"nnz_per_col max", str_printf_to_new_string("%lf", nnz_per_col_max)},
+		{"nnz_per_col avg", str_printf_to_new_string("%lf", nnz_per_col_avg)},
+		{"nnz_per_col std", str_printf_to_new_string("%lf", nnz_per_col_std)},
+		{"skew", str_printf_to_new_string("%lf", (nnz_per_row_max - nnz_per_row_avg) / nnz_per_row_avg)},
+		{"bw_scaled min", str_printf_to_new_string("%lf", bw_min / n)},
+		{"bw_scaled max", str_printf_to_new_string("%lf", bw_max / n)},
+		{"bw_scaled avg", str_printf_to_new_string("%lf", bw_avg / n)},
+		{"bw_scaled std", str_printf_to_new_string("%lf", bw_std / n)},
+		{"sc min", str_printf_to_new_string("%lf", sc_min)},
+		{"sc max", str_printf_to_new_string("%lf", sc_max)},
+		{"sc avg", str_printf_to_new_string("%lf", sc_avg)},
+		{"sc std", str_printf_to_new_string("%lf", sc_std)},
+		{"num_neigh min", str_printf_to_new_string("%lf", num_neigh_min)},
+		{"num_neigh max", str_printf_to_new_string("%lf", num_neigh_max)},
+		{"num_neigh avg", str_printf_to_new_string("%lf", num_neigh_avg)},
+		{"num_neigh std", str_printf_to_new_string("%lf", num_neigh_std)},
+		{"cross_row_similarity avg", str_printf_to_new_string("%lf", cross_row_similarity_avg)},
+		{"nnz_col_dist min", str_printf_to_new_string("%lf", nnz_col_dist_min)},
+		{"nnz_col_dist max", str_printf_to_new_string("%lf", nnz_col_dist_max)},
+		{"nnz_col_dist avg", str_printf_to_new_string("%lf", nnz_col_dist_avg)},
+		{"nnz_col_dist std", str_printf_to_new_string("%lf", nnz_col_dist_std)},
+		{"group_col_dist min", str_printf_to_new_string("%lf", group_col_dist_min)},
+		{"group_col_dist max", str_printf_to_new_string("%lf", group_col_dist_max)},
+		{"group_col_dist avg", str_printf_to_new_string("%lf", group_col_dist_avg)},
+		{"group_col_dist std", str_printf_to_new_string("%lf", group_col_dist_std)},
+		{"group_sizes min", str_printf_to_new_string("%lf", group_sizes_min)},
+		{"group_sizes max", str_printf_to_new_string("%lf", group_sizes_max)},
+		{"group_sizes avg", str_printf_to_new_string("%lf", group_sizes_avg)},
+		{"group_sizes std", str_printf_to_new_string("%lf", group_sizes_std)},
+		{"groups_per_row min", str_printf_to_new_string("%lf", groups_per_row_min)},
+		{"groups_per_row max", str_printf_to_new_string("%lf", groups_per_row_max)},
+		{"groups_per_row avg", str_printf_to_new_string("%lf", groups_per_row_avg)},
+		{"groups_per_row std", str_printf_to_new_string("%lf", groups_per_row_std)},
+		{"num_groups", str_printf_to_new_string("%ld", num_groups)},
+		{"nnz_per_cluster avg", str_printf_to_new_string("%lf", nnz_per_row_avg / groups_per_row_avg)},
+	};
 
-	/* Matrix features for artificial twins.
-	 * Also print the csr mem footprint for easier sorting.
-	 */
-	#if 0
-		double csr_mem_footprint = nnz * (sizeof(double) + sizeof(int)) + (m+1) * sizeof(int);
-		fprintf(stderr, "%-15.5lf ", csr_mem_footprint / (1024*1024));
-		fprintf(stderr, "%s", file_out_base);
-		fprintf(stderr, "\n");
-	#endif
-	#if 0
-		double csr_mem_footprint = nnz * (sizeof(double) + sizeof(int)) + (m+1) * sizeof(int);
-		fprintf(stderr, "%-15.5lf ", csr_mem_footprint / (1024*1024));
-		fprintf(stderr, "['%s']='", file_out_base);
-		fprintf(stderr, "%ld ", m);
-		fprintf(stderr, "%ld ", n);
-		fprintf(stderr, "%.10lf ", nnz_per_row_avg);
-		fprintf(stderr, "%.10lf ", nnz_per_row_std);
-		fprintf(stderr, "normal ");
-		fprintf(stderr, "random ");
-		fprintf(stderr, "%.10lf ", bw_avg / n);
-		fprintf(stderr, "%.10lf ", (nnz_per_row_max - nnz_per_row_avg) / nnz_per_row_avg);
-		fprintf(stderr, "%.10lf ", num_neigh_avg);
-		fprintf(stderr, "%.10lf ", cross_row_similarity_avg);
-		fprintf(stderr, "14 ");
-		fprintf(stderr, "%s", file_out_base);
-		fprintf(stderr, "'\n");
-	#endif
-	#if 0
-		fprintf(stderr, "%s\t", file_out_base);
-		fprintf(stderr, "%ld\t", m);
-		fprintf(stderr, "%ld\t", n);
-		fprintf(stderr, "%.10lf\t", nnz_per_row_avg);
-		fprintf(stderr, "%.10lf\t", nnz_per_row_std);
-		fprintf(stderr, "normal\t");
-		fprintf(stderr, "random\t");
-		fprintf(stderr, "%.10lf\t", bw_avg / n);
-		fprintf(stderr, "%.10lf\t", (nnz_per_row_max - nnz_per_row_avg) / nnz_per_row_avg);
-		fprintf(stderr, "%.10lf\t", num_neigh_avg);
-		fprintf(stderr, "%.10lf\t", cross_row_similarity_avg);
-		fprintf(stderr, "\n");
-	#endif
+	long features_n = sizeof(features) / sizeof(*features);
 
+	if (!to_csv)
+	{
+		long buf_n = 1000000;
+		char * buf = (typeof(buf)) malloc(buf_n * sizeof(*buf));
+		long i, j;
+		j = 0;
+		for (i=0;i<features_n;i++)
+			j += snprintf(buf+j, buf_n-j, "%s = %s\n", features[i][0], features[i][1]);
+		buf[j-1] = '\0';
+
+		/* Matrix features for artificial twins.
+		 * Also print the csr mem footprint for easier sorting.
+		 */
+		#if 0
+			double csr_mem_footprint = nnz * (sizeof(double) + sizeof(int)) + (m+1) * sizeof(int);
+			fprintf(stderr, "%-15.5lf ", csr_mem_footprint / (1024*1024));
+			fprintf(stderr, "%s", file_out_base);
+			fprintf(stderr, "\n");
+		#endif
+		#if 0
+			double csr_mem_footprint = nnz * (sizeof(double) + sizeof(int)) + (m+1) * sizeof(int);
+			fprintf(stderr, "%-15.5lf ", csr_mem_footprint / (1024*1024));
+			fprintf(stderr, "['%s']='", file_out_base);
+			fprintf(stderr, "%ld ", m);
+			fprintf(stderr, "%ld ", n);
+			fprintf(stderr, "%.10lf ", nnz_per_row_avg);
+			fprintf(stderr, "%.10lf ", nnz_per_row_std);
+			fprintf(stderr, "normal ");
+			fprintf(stderr, "random ");
+			fprintf(stderr, "%.10lf ", bw_avg / n);
+			fprintf(stderr, "%.10lf ", (nnz_per_row_max - nnz_per_row_avg) / nnz_per_row_avg);
+			fprintf(stderr, "%.10lf ", num_neigh_avg);
+			fprintf(stderr, "%.10lf ", cross_row_similarity_avg);
+			fprintf(stderr, "14 ");
+			fprintf(stderr, "%s", file_out_base);
+			fprintf(stderr, "'\n");
+		#endif
+		#if 0
+			fprintf(stderr, "%s\t", file_out_base);
+			fprintf(stderr, "%ld\t", m);
+			fprintf(stderr, "%ld\t", n);
+			fprintf(stderr, "%.10lf\t", nnz_per_row_avg);
+			fprintf(stderr, "%.10lf\t", nnz_per_row_std);
+			fprintf(stderr, "normal\t");
+			fprintf(stderr, "random\t");
+			fprintf(stderr, "%.10lf\t", bw_avg / n);
+			fprintf(stderr, "%.10lf\t", (nnz_per_row_max - nnz_per_row_avg) / nnz_per_row_avg);
+			fprintf(stderr, "%.10lf\t", num_neigh_avg);
+			fprintf(stderr, "%.10lf\t", cross_row_similarity_avg);
+			fprintf(stderr, "\n");
+		#endif
+	}
+	else
+	{
+		j = 0;
+		j += snprintf(buf+j, buf_n-j, "%s", features[0][1]);
+		for (i=1;i<features_n;i++)
+			j += snprintf(buf+j, buf_n-j, ",%s", features[i][1]);
+	}
+
+	long bytes = snprintf(buf_out, buf_out_n, "%s", buf);
+
+	for (i=0;i<features_n;i++)
+		free(features[i][1]);
+	free(buf);
+	free(buf_title);
 	free(row_idx);
+	return bytes;
 }
 
 
@@ -2566,7 +2604,7 @@ csr_quantize_columns(_TYPE_I * row_ptr, _TYPE_I * col_idx, long m, __attribute__
 CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
 void
 csr_reorder_rows(_TYPE_I * permutation, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, __attribute__((unused)) long n, long nnz,
-		_TYPE_I * reordered_row_ptr, _TYPE_I * reordered_col_idx, _TYPE_V * reordered_values)
+		_TYPE_I * reordered_row_ptr_out, _TYPE_I * reordered_col_idx_out, _TYPE_V * reordered_values_out)
 {
 	int num_threads = omp_get_max_threads();
 
@@ -2577,12 +2615,12 @@ csr_reorder_rows(_TYPE_I * permutation, _TYPE_I * row_ptr, _TYPE_I * col_idx, _T
 		for (i=0;i<m;i++)
 		{
 			i_perm = permutation[i];
-			reordered_row_ptr[i_perm] = row_ptr[i+1] - row_ptr[i];
+			reordered_row_ptr_out[i_perm] = row_ptr[i+1] - row_ptr[i];
 		}
 	}
-	reordered_row_ptr[m] = 0;
+	reordered_row_ptr_out[m] = 0;
 
-	scan_reduce(reordered_row_ptr, reordered_row_ptr, m+1, 0, 1, 0);
+	scan_reduce(reordered_row_ptr_out, reordered_row_ptr_out, m+1, 0, 1, 0);
 
 	_Pragma("omp parallel")
 	{
@@ -2593,19 +2631,65 @@ csr_reorder_rows(_TYPE_I * permutation, _TYPE_I * row_ptr, _TYPE_I * col_idx, _T
 		{
 			degree = row_ptr[i+1] - row_ptr[i];
 			i_perm = permutation[i];
-			if (degree != reordered_row_ptr[i_perm+1] - reordered_row_ptr[i_perm])
+			if (degree != reordered_row_ptr_out[i_perm+1] - reordered_row_ptr_out[i_perm])
 				error("rows have different degree");
 			for (k=0;k<degree;k++)
 			{
 				j = row_ptr[i] + k;
-				j_perm = reordered_row_ptr[i_perm] + k;
-				reordered_col_idx[j_perm] = col_idx[j];
+				j_perm = reordered_row_ptr_out[i_perm] + k;
+				reordered_col_idx_out[j_perm] = col_idx[j];
 				if (values != NULL)
-					reordered_values[j_perm] = values[j];
+					reordered_values_out[j_perm] = values[j];
 			}
 		}
 	}
 }
+
+
+//==========================================================================================================================================
+//= Split With Predicate
+//==========================================================================================================================================
+
+
+// #undef  csr_reorder_rows
+// #define csr_reorder_rows  CSR_UTIL_GEN_EXPAND(csr_reorder_rows)
+// CSR_UTIL_GEN_FUNCTION_ATTRIBUTES
+// void
+// csr_split_rowwise_with_predicate(_TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, long m, long n, long nnz, int (* predicate)(_TYPE_I row, _TYPE_I * row_ptr, _TYPE_I * col_idx, _TYPE_V * values, void * aux_data),
+		// _TYPE_I ** pfalse_row_ptr_ret, _TYPE_I ** pfalse_col_idx_ret, _TYPE_V ** pfalse_values_ret,
+		// _TYPE_I ** ptrue_row_ptr_ret, _TYPE_I ** ptrue_col_idx_ret, _TYPE_V ** ptrue_values_ret)
+// {
+	// _TYPE_I * pfalse_row_ptr;
+	// _TYPE_I * pfalse_col_idx;
+	// _TYPE_V * pfalse_values;
+	// _TYPE_I * ptrue_row_ptr;
+	// _TYPE_I * ptrue_col_idx;
+	// _TYPE_V * ptrue_values;
+	// if (pfalse_row_ptr_ret != NULL)
+		// *pfalse_row_ptr_ret = pfalse_row_ptr;
+	// else
+		// free(pfalse_row_ptr);
+	// if (pfalse_col_idx_ret != NULL)
+		// *pfalse_col_idx_ret = pfalse_col_idx;
+	// else
+		// free(pfalse_col_idx);
+	// if (pfalse_values_ret != NULL)
+		// *pfalse_values_ret = pfalse_values;
+	// else
+		// free(pfalse_values);
+	// if (ptrue_row_ptr_ret != NULL)
+		// *ptrue_row_ptr_ret = ptrue_row_ptr;
+	// else
+		// free(ptrue_row_ptr);
+	// if (ptrue_col_idx_ret != NULL)
+		// *ptrue_col_idx_ret = ptrue_col_idx;
+	// else
+		// free(ptrue_col_idx);
+	// if (ptrue_values_ret != NULL)
+		// *ptrue_values_ret = ptrue_values;
+	// else
+		// free(ptrue_values);
+// }
 
 
 //==========================================================================================================================================

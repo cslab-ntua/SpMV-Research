@@ -140,7 +140,7 @@ matrices_validation=(
     # mac_econ_fwd500
     # raefsky3
     # rgg_n_2_17_s0
-    bbmat
+    # bbmat
     # appu
     # mc2depi
     # rma10
@@ -171,7 +171,7 @@ matrices_validation=(
     # in-2004
 
     # cit-Patents
-    # human_gene2
+    human_gene2
     # GL7d21
     # Ga41As41H72
     # great-britain_osm
