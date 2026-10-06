@@ -199,8 +199,13 @@ DISPATCHER_DEFINES = \
 $(call Rule_Auto_Dependencies,$(OBJ_DIR)/partitioning_strategies$(SUFFIX).o,$(PARTITION_SRC),$(CPPFLAGS))
 	$(CPP) $(CPPFLAGS) -c $< -o $@
 
+# --- CUDA Reduction Utils object ---
+CUDA_REDUCTION_UTILS_SRC = spmv_kernels/GPU/cuda_reduction_utils.cu
+$(call Rule_Auto_Dependencies,$(OBJ_DIR)/cuda_reduction_utils$(SUFFIX).o,$(CUDA_REDUCTION_UTILS_SRC),$(CPPFLAGS))
+	$(NVCC) $(NVCCFLAGS) --compiler-options "$(CPPFLAGS)" -c $< -o $@
+
 # --- Ratio-strategy Multi-Targets (unified, parameterized by CPU_KERNEL + GPU_KERNEL) ---
-RATIOS = 95 90 85 80 75 70 65
+RATIOS = 95 90 85 80 75 70 65 60 55 50 45 40 35 30 25 20 15 10 5
 
 define RATIO_RULE
 $$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_ratio_$(1)$$(SUFFIX).o,$(DISPATCHER_SRC),$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_FIXED -DHYBRID_RATIO=0.$(1))
@@ -211,6 +216,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_RATIO_$(1)$$(SUFFIX).exe: \
     $$(OBJ_DIR)/bench_spmv_hybrid$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_ratio_$(1)$$(SUFFIX).o \
     $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/cuda_reduction_utils$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -221,6 +227,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_RATIO_$(1)_$$(VECTOR_ALLOC)$$(SUFF
     $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_ratio_$(1)$$(SUFFIX).o \
     $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/cuda_reduction_utils$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -247,6 +254,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_SHORTEST_ROWS_SORTED_$(1)_$$(VECTO
     $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_shortest_rows_sorted_$(1)$$(SUFFIX).o \
     $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/cuda_reduction_utils$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -265,6 +273,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_LONGEST_ROWS_SORTED_$(1)_$$(VECTOR
     $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_longest_rows_sorted_$(1)$$(SUFFIX).o \
     $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/cuda_reduction_utils$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -283,6 +292,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_SHORTEST_ROWS_ORIGINAL_$(1)_$$(VEC
     $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_shortest_rows_original_$(1)$$(SUFFIX).o \
     $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/cuda_reduction_utils$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -301,6 +311,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_LONGEST_ROWS_ORIGINAL_$(1)_$$(VECT
     $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_longest_rows_original_$(1)$$(SUFFIX).o \
     $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/cuda_reduction_utils$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -319,6 +330,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_BAD_ZONES_ROWS_$(1)_$$(VECTOR_ALLO
     $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_bad_zones_rows_$(1)$$(SUFFIX).o \
     $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/cuda_reduction_utils$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -337,6 +349,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_BAD_ZONES_BANDWIDTH_$(1)_$$(VECTOR
     $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_bad_zones_bandwidth_$(1)$$(SUFFIX).o \
     $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/cuda_reduction_utils$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -355,6 +368,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_BAD_ZONES_CACHELINES_$(1)_$$(VECTO
     $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_bad_zones_cachelines_$(1)$$(SUFFIX).o \
     $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/cuda_reduction_utils$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -373,6 +387,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_BAD_ZONES_PADDING_$(1)_$$(VECTOR_A
     $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_bad_zones_padding_$(1)$$(SUFFIX).o \
     $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/cuda_reduction_utils$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -391,6 +406,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_MIN_X_ACCESS_CPU_$(1)_$$(VECTOR_AL
     $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_min_x_access_cpu_$(1)$$(SUFFIX).o \
     $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/cuda_reduction_utils$$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
     $$(LIB_OBJ)
@@ -398,6 +414,25 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_MIN_X_ACCESS_CPU_$(1)_$$(VECTOR_AL
 endef
 
 $(foreach r,$(RATIOS),$(eval $(call MIN_X_ACCESS_CPU_RULE,$(r))))
+
+# --- Vertical Split Multi-Targets ---
+define VERTICAL_SPLIT_RULE
+$$(call Rule_Auto_Dependencies,$$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_vertical_split_$(1)$$(SUFFIX).o,$(DISPATCHER_SRC),$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_VERTICAL_SPLIT -DHYBRID_RATIO=0.$(1))
+	$$(CPP) $$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS) $(DISPATCHER_DEFINES) -DSTRAT_VERTICAL_SPLIT -DHYBRID_RATIO=0.$(1) -c $$< -o $$@
+
+spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_VERTICAL_SPLIT_$(1)_$$(VECTOR_ALLOC)$$(SUFFIX).exe: \
+    $$(OBJ_DIR)/bench$$(SUFFIX).o \
+    $$(OBJ_DIR)/bench_spmv_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_vertical_split_$(1)$$(SUFFIX).o \
+    $$(OBJ_DIR)/partitioning_strategies$$(SUFFIX).o \
+    $$(OBJ_DIR)/cuda_reduction_utils$$(SUFFIX).o \
+    $(CPU_KERNEL_OBJ) \
+    $$(OBJ_DIR)/$(GPU_KERNEL)_hybrid_$$(VECTOR_ALLOC)$$(SUFFIX).o \
+    $$(LIB_OBJ)
+	$$(NVCC) $$(NVCCFLAGS) --compiler-options "$$(CPPFLAGS) $(CPU_KERNEL_CPPFLAGS)" $$^ -o $$@ $$(LDFLAGS) $(CPU_KERNEL_LDFLAGS) $$(LDFLAGS_NV) $(GPU_KERNEL_LDFLAGS)
+endef
+
+$(foreach r,$(RATIOS),$(eval $(call VERTICAL_SPLIT_RULE,$(r))))
 
 
 # --- Standalone Executables ---
@@ -425,6 +460,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_LLC$(SUFFIX).exe: \
     $(OBJ_DIR)/bench_spmv_hybrid$(SUFFIX).o \
     $(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_llc$(SUFFIX).o \
     $(OBJ_DIR)/partitioning_strategies$(SUFFIX).o \
+    $(OBJ_DIR)/cuda_reduction_utils$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $(OBJ_DIR)/$(GPU_KERNEL)_hybrid$(SUFFIX).o \
     $(LIB_OBJ)
@@ -436,6 +472,7 @@ spmv_hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_STRAT_SHORTEST_ROWS_LLC$(SUFFIX).exe: \
     $(OBJ_DIR)/bench_spmv_hybrid$(SUFFIX).o \
     $(OBJ_DIR)/hybrid_$(CPU_KERNEL)_$(GPU_KERNEL)_shortest_rows_llc$(SUFFIX).o \
     $(OBJ_DIR)/partitioning_strategies$(SUFFIX).o \
+    $(OBJ_DIR)/cuda_reduction_utils$(SUFFIX).o \
     $(CPU_KERNEL_OBJ) \
     $(OBJ_DIR)/$(GPU_KERNEL)_hybrid$(SUFFIX).o \
     $(LIB_OBJ)

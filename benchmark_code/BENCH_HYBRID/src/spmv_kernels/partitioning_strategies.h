@@ -52,4 +52,8 @@ long get_split_bad_zones_padding(INT_T * row_ptr, long m, long total_nnz, double
 // --- Minimal x Vector Access from CPU ---
 long find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, long m, long n, long nnz, double ratio, INT_T * row_map_out);
 
+// --- Vertical Split ---
+// Vertical Split: finds the column index that divides total_nnz into ratio (GPU) and (1-ratio) (CPU).
+long get_split_vertical(INT_T * row_ptr, INT_T * col_ind, long m, long n, long total_nnz, double ratio);
+
 #endif

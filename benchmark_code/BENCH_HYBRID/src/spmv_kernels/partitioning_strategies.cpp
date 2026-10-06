@@ -471,8 +471,8 @@ extern "C"{
 			ret = (a.new_x_accesses < b.new_x_accesses) ? 1 : (a.new_x_accesses > b.new_x_accesses) ? -1 : 0;
 		// if (!ret)   // max column_degrees_sum up
 			// ret = (a.column_degrees_sum > b.column_degrees_sum) ? 1 : (a.column_degrees_sum < b.column_degrees_sum) ? -1 : 0;
-		// if (!ret)   // neighbours up
-			// ret = (a.is_neighbour_to_row_in_set > b.is_neighbour_to_row_in_set) ? 1 : (a.is_neighbour_to_row_in_set < b.is_neighbour_to_row_in_set) ? -1 : 0;
+		if (!ret)   // neighbours up
+			ret = (a.is_neighbour_to_row_in_set > b.is_neighbour_to_row_in_set) ? 1 : (a.is_neighbour_to_row_in_set < b.is_neighbour_to_row_in_set) ? -1 : 0;
 		// if (!ret)   // min degree up
 			// ret = (a.degree < b.degree) ? 1 : (a.degree > b.degree) ? -1 : 0;
 		// if (!ret)   // max degree up
@@ -493,8 +493,8 @@ extern "C"{
 
 #undef CACHE_LINE_SIZE
 
-// #define CACHE_LINE_SIZE  sizeof(ValueType)
-#define CACHE_LINE_SIZE  64
+#define CACHE_LINE_SIZE  sizeof(ValueType)
+// #define CACHE_LINE_SIZE  64
 // #define CACHE_LINE_SIZE  128
 
 
@@ -662,3 +662,24 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 	return num_rows_extracted;
 }
 
+long get_split_vertical(INT_T * row_ptr, INT_T * col_ind, long m, long n, long total_nnz, double ratio) {
+    long target_cpu_nnz = (long)(total_nnz * (1.0 - ratio));
+
+    long* col_counts = (long*)calloc(n, sizeof(long));
+    for (long i = 0; i < total_nnz; i++) {
+        col_counts[col_ind[i]]++;
+    }
+
+    long current_nnz = 0;
+    long split_col = 0;
+    for (long j = 0; j < n; j++) {
+        current_nnz += col_counts[j];
+        if (current_nnz >= target_cpu_nnz) {
+            split_col = j + 1;
+            break;
+        }
+    }
+    free(col_counts);
+
+    return split_col;
+}

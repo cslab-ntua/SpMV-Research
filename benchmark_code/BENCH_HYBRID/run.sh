@@ -874,7 +874,7 @@ matrices_weird=(
     HV15R
     mycielskian18
     uk-2002
-    # mawi_201512020130
+    mawi_201512020130
     Queen_4147
 
 )
@@ -1199,6 +1199,7 @@ for format_name in "${!progs[@]}"; do
             # OUT_LOGS="out_logs_CPU_LOCAL_X/"
             # OUT_LOGS="out_logs_CPU_LOCAL_X_UNOPT/"
             OUT_LOGS="out_logs_CPU_LOCAL_X_OPT/"
+            # OUT_LOGS="out_logs_VERTICAL_SPLIT/"
             mkdir -p "$OUT_LOGS"
             # When rep=1 keep the old plain name; when rep>1 append _repN.
             suffix=""

@@ -23,13 +23,23 @@ struct Hybrid_Arrays : Matrix_Format {
 
     // Added for diagnose purposes, to be deleted later
     // This will hold the necessary x_cpu values, so that CPU does not interfere in GPU's x vector.
-    ValueType* x_cpu_isolated;
     ValueType* x_cpu_local;
     long* gather_indices;
     long num_gather;
 
+    // --- Vertical-Split Mode Fields ---
+    bool vertical_split_mode;
+    long col_split;
+    ValueType * y_cpu_buf;
+    cudaStream_t reduce_stream;
+    double last_reduction_time;
+    bool is_last_iteration;
+
     Hybrid_Arrays(long m, long n, long nnz, long m_cpu) 
-        : Matrix_Format(m, n, nnz), m_cpu(m_cpu), call_count(0), x_cpu_isolated(NULL), x_cpu_local(NULL), gather_indices(NULL), num_gather(0)
+        : Matrix_Format(m, n, nnz), m_cpu(m_cpu), call_count(0),
+          x_cpu_local(NULL), gather_indices(NULL), num_gather(0),
+          vertical_split_mode(false), col_split(0), y_cpu_buf(NULL),
+          last_reduction_time(0), is_last_iteration(false)
         //   time_cpu_total(0), time_gpu_total(0), 
     {
         m_gpu = m - m_cpu;
@@ -42,13 +52,15 @@ struct Hybrid_Arrays : Matrix_Format {
         delete cpu_part;
         delete gpu_part;
         if (row_map) free(row_map);
-        if (x_cpu_isolated) free(x_cpu_isolated);
         if (x_cpu_local) free(x_cpu_local);
         if (gather_indices) free(gather_indices);
+        if (y_cpu_buf) free(y_cpu_buf);
+        if (vertical_split_mode) cudaStreamDestroy(reduce_stream);
     }
 
     // Standard SpMV (sequential call of both, isolated vectors)
     void spmv(ValueType * x, ValueType * y) override;
+    void spmv_vertical_split(ValueType * x, ValueType * y);
 
     // Independent calls for benchmarking
     void cpu_spmv(ValueType * x, ValueType * y);
@@ -59,6 +71,7 @@ struct Hybrid_Arrays : Matrix_Format {
     int statistics_print_data(char * buf, long buf_n) override;
 
     void set_last_iteration(bool is_last) override {
+        this->is_last_iteration = is_last;
         if (gpu_part) gpu_part->set_last_iteration(is_last);
     }
 };
