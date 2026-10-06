@@ -118,7 +118,7 @@ struct CSR : Matrix_Format
 						if (tnum == num_threads - 1)   // If we calculate each thread's boundaries individually some empty rows might be unassigned.
 							td->i_e = m;
 						else
-							td->i_e = td->i_s + 1;
+							td->i_e = tds[tnum+1]->i_s; // it was td->i_e = td->i_s + 1;
 					#else
 						loop_partitioner_balance_prefix_sums(num_threads, tnum, row_ptr, m, nnz, &td->i_s, &td->i_e);
 						// loop_partitioner_balance(num_threads, tnum, 2, row_ptr, m, nnz, &td->i_s, &td->i_e);
