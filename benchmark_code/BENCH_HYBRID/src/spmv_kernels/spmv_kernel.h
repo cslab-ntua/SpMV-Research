@@ -2,6 +2,8 @@
 #define SPMV_KERNELS_H
 
 #include "macros/cpp_defines.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 
 

@@ -407,6 +407,8 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 	__attribute__((unused)) double time_total, time_iter, time_min, time_max, time_median, time_warm_up, time_after_warm_up;
 	#ifdef HYBRID
 		__attribute__((unused)) double time_total_cpu, time_total_gpu, time_min_cpu, time_min_gpu, time_max_cpu, time_max_gpu, time_median_cpu, time_median_gpu;
+		__attribute__((unused)) double time_total_reduction, time_min_reduction, time_max_reduction, time_median_reduction;
+		__attribute__((unused)) double time_total_gather, time_min_gather, time_max_gather, time_median_gather;
 	#endif
 	long buf_n = 10000;
 	char buf[buf_n + 1];
@@ -512,9 +514,12 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		#ifdef HYBRID
 			dynarray_d * da_iter_times_cpu = dynarray_new_d(10 * min_num_loops);
 			dynarray_d * da_iter_times_gpu = dynarray_new_d(10 * min_num_loops);
+			dynarray_d * da_iter_times_reduction = dynarray_new_d(10 * min_num_loops);
 			dynarray_d * da_iter_times_gather = dynarray_new_d(10 * min_num_loops);
 			time_total_cpu = 0;
 			time_total_gpu = 0;
+			time_total_reduction = 0;
+			time_total_gather = 0;
 		#endif
 
 		#ifdef CUDA_KERNEL
@@ -567,7 +572,6 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 				time_iter = time_it(1, 
 					HA->spmv(x, y);
 				);
-				dynarray_push_back_d(da_iter_times_gather, HA->last_transfer_time);
 				// Individual partial timings are now handled inside HA->spmv methods
 				// and aggregated in time_cpu_total / time_gpu_total.
 				// Update: this has been removed. Now we store cpu and gpu times like for the non-hybrid case.
@@ -579,6 +583,45 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 					MF->synchronize();
 				);
 			#endif
+
+			// ================= ADDED PRINTING LOGIC =================
+			/*
+			{
+				int elems = 100;
+				extern char *__progname;
+
+				// Create a filename based on the executable name
+				char filename[256];
+				snprintf(filename, sizeof(filename), "%s_out.txt", __progname);
+
+				// Open file: overwrite on the first iteration, append on subsequent ones
+				FILE *outfile = fopen(filename, (num_loops == 0) ? "w" : "a");
+				if (outfile) {
+					fprintf(outfile, "y_%ld = [ ", num_loops);
+					long n = csr->m; // Using csr->m as the size of the y vector
+
+					// Print first 'elems' elements
+					long limit_first = (n < elems) ? n : elems;
+					for (long i = 0; i < limit_first; i++) {
+						fprintf(outfile, "%.6f ", (double)y[i]);
+					}
+
+					if (n > 2 * elems) {
+						fprintf(outfile, "... ");
+					}
+
+					// Print last 'elems' elements (ensuring we don't overlap)
+					long start_last = (n > 2 * elems) ? (n - elems) : limit_first;
+					for (long i = start_last; i < n; i++) {
+						fprintf(outfile, "%.6f ", (double)y[i]);
+					}
+
+					fprintf(outfile, "]\n");
+					fclose(outfile);
+				}
+			}
+			*/
+			// ========================================================
 
 			// sprintf(residency_string, "x (During Hybrid Kernel) - Iteration %ld AFTER", num_loops);
 			// checkResidency(x, residency_string);
@@ -615,13 +658,20 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 
 			dynarray_push_back_d(da_iter_times, time_iter);
 			#ifdef HYBRID
-				double time_iter_cpu, time_iter_gpu;
+				double time_iter_cpu, time_iter_gpu, time_iter_reduction, time_iter_gather;
 				time_iter_cpu = HA->cpu_part->get_last_duration();
 				time_iter_gpu = HA->gpu_part->get_last_duration();
+				time_iter_reduction = HA->last_reduction_time;
+				time_iter_gather = HA->last_transfer_time;
 				dynarray_push_back_d(da_iter_times_cpu, time_iter_cpu);
 				dynarray_push_back_d(da_iter_times_gpu, time_iter_gpu);
+				dynarray_push_back_d(da_iter_times_reduction, time_iter_reduction);
+				dynarray_push_back_d(da_iter_times_gather, time_iter_gather);
 				time_total_cpu += time_iter_cpu;
 				time_total_gpu += time_iter_gpu;
+				time_total_reduction += time_iter_reduction;
+				time_total_gather += time_iter_gather;
+				// printf("iteration: %d, time_iter: %g, time_iter_cpu: %g, time_iter_gpu: %g, time_iter_reduction: %g, time_iter_gather: %g\n", num_loops, time_iter, time_iter_cpu, time_iter_gpu, time_iter_reduction, time_iter_gather);
 			#endif
 			time_total += time_iter;
 			num_loops++;
@@ -676,15 +726,28 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 			free(iter_times_gpu);
 			dynarray_destroy_d(&da_iter_times_gpu);
 
+			long iter_times_reduction_n;
+			double * iter_times_reduction;
+			iter_times_reduction_n = dynarray_export_array_d(da_iter_times_reduction, &iter_times_reduction);
+			if (iter_times_reduction_n != num_loops)
+				error("dynamic array size not equal to number of loops: %ld != %ld", iter_times_reduction_n, num_loops);
+			qsort(iter_times_reduction, num_loops, sizeof(*iter_times_reduction), qsort_cmp);
+			time_min_reduction = iter_times_reduction[0];
+			time_median_reduction = iter_times_reduction[num_loops/2];
+			time_max_reduction = iter_times_reduction[num_loops-1];
+			printf("time iter reduction: min=%g, median=%g, max=%g\n", time_min_reduction, time_median_reduction, time_max_reduction);
+			free(iter_times_reduction);
+			dynarray_destroy_d(&da_iter_times_reduction);
+
 			long iter_times_gather_n;
 			double * iter_times_gather;
 			iter_times_gather_n = dynarray_export_array_d(da_iter_times_gather, &iter_times_gather);
 			if (iter_times_gather_n != num_loops)
 				error("dynamic array size not equal to number of loops: %ld != %ld", iter_times_gather_n, num_loops);
 			qsort(iter_times_gather, num_loops, sizeof(*iter_times_gather), qsort_cmp);
-			double time_min_gather = iter_times_gather[0];
-			double time_median_gather = iter_times_gather[num_loops/2];
-			double time_max_gather = iter_times_gather[num_loops-1];
+			time_min_gather = iter_times_gather[0];
+			time_median_gather = iter_times_gather[num_loops/2];
+			time_max_gather = iter_times_gather[num_loops-1];
 			printf("time iter gather: min=%g, median=%g, max=%g\n", time_min_gather, time_median_gather, time_max_gather);
 			free(iter_times_gather);
 			dynarray_destroy_d(&da_iter_times_gather);
@@ -812,8 +875,13 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 		i += snprintf(buf + i, buf_n - i, ",%lu", MF->m);
 		i += snprintf(buf + i, buf_n - i, ",%lu", MF->n);
 		i += snprintf(buf + i, buf_n - i, ",%lu", MF->nnz);
-		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / (1024*1024));
-		i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / MF->csr_mem_footprint);
+		#ifndef HYBRID
+			i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / (1024*1024));
+			i += snprintf(buf + i, buf_n - i, ",%lf", MF->mem_footprint / MF->csr_mem_footprint);
+		#else
+			i += snprintf(buf + i, buf_n - i, ",%lf", (HA->gpu_part->mem_footprint + HA->cpu_part->mem_footprint)/ (1024*1024));
+			i += snprintf(buf + i, buf_n - i, ",%lf", (HA->gpu_part->mem_footprint + HA->cpu_part->mem_footprint) / MF->csr_mem_footprint);
+		#endif
 		i += snprintf(buf + i, buf_n - i, ",%ld", num_loops);
 		#if CHECK_ACCURACY
 			i += check_accuracy(buf + i, buf_n - i, csr, x_ref, y, csr->symmetric, csr->expanded_symmetry, num_loops);

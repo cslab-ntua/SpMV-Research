@@ -1536,8 +1536,8 @@ int
 cuda_sell_sorted_csr_statistics_print_labels(char * buf, long buf_n)
 {
 	long i = 0;
-	i += snprintf(buf+i, buf_n-i, ",nnz_sell");
-	i += snprintf(buf+i, buf_n-i, ",nnz_csr");
+	// i += snprintf(buf+i, buf_n-i, ",nnz_sell");
+	// i += snprintf(buf+i, buf_n-i, ",nnz_csr");
 	return i;
 }
 
@@ -1546,8 +1546,8 @@ int
 Cuda_SELL_Sorted_CSR_Arrays::statistics_print_data(char * buf, long buf_n)
 {
 	long i = 0;
-	i += snprintf(buf+i, buf_n-i, ",%ld", nnz_sell);
-	i += snprintf(buf+i, buf_n-i, ",%ld", nnz_csr);
+	// i += snprintf(buf+i, buf_n-i, ",%ld", nnz_sell);
+	// i += snprintf(buf+i, buf_n-i, ",%ld", nnz_csr);
 
 	#if GPU_TIMERS
 	{
