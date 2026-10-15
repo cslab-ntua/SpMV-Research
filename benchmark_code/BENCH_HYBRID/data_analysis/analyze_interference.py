@@ -65,7 +65,9 @@ LOG_DIRS = {
     # 'cpu_local_x':       os.path.join(BASE_DIR, 'out_logs_CPU_LOCAL_X'),
     # 'cpu_local_x_unopt': os.path.join(BASE_DIR, 'out_logs_CPU_LOCAL_X_UNOPT'),
     'cpu_local_x_opt':   os.path.join(BASE_DIR, 'out_logs_CPU_LOCAL_X_OPT'),
-    'vertical_split':    os.path.join(BASE_DIR, 'out_logs_VERTICAL_SPLIT'),
+    # 'vertical_split':    os.path.join(BASE_DIR, 'out_logs_VERTICAL_SPLIT'),
+    'baseline_rcm':      os.path.join(BASE_DIR, 'out_logs_RCM'),
+    'cpu_local_x_opt_rcm':   os.path.join(BASE_DIR, 'out_logs_CPU_LOCAL_X_OPT_RCM'), 
 }
 
 # ===================================================================
@@ -2171,9 +2173,9 @@ def generate_set4(dfs, ck, gk, full_matrix_order, pdf_dir, sa_gpu_dict, counter)
         return
 
     vert_hyb = filter_hybrid(dfs.get('vertical_split', pd.DataFrame()), ck, gk)
-    if vert_hyb.empty:
-        print(f"  No data for Vertical Split")
-        return
+    # if vert_hyb.empty:
+    #     print(f"  No data for Vertical Split")
+    #     return
 
     configs = {
         # 'CPU_LOCAL_X':       ('cpu_local_x',       'LOCAL_X'),
@@ -2187,7 +2189,6 @@ def generate_set4(dfs, ck, gk, full_matrix_order, pdf_dir, sa_gpu_dict, counter)
         if var_hyb.empty:
             print(f"  No data for {config_name}")
             continue
-
 
         strategies, ratios = get_common_configs(dfs['baseline'], dfs[df_key], ck, gk)
         if not strategies or not ratios:
@@ -2217,20 +2218,21 @@ def generate_set4(dfs, ck, gk, full_matrix_order, pdf_dir, sa_gpu_dict, counter)
             n = counter.next()
             generate_pctdiff_pdf(base_hyb, var_hyb, sa_gpu_dict, 'Baseline Hybrid', f'{short_name} Hybrid', f'% vs Standalone GPU: {short_name} ({ck}+{gk})', strategies, full_matrix_order, os.path.join(pdf_dir, f'{n}_{fname}_pctdiff_{ck}_{gk}.pdf'))
             
-            n = counter.next()
-            generate_pctdiff_3way_pdf(base_hyb, var_hyb, vert_hyb, sa_gpu_dict, 'Baseline Hybrid', f'{short_name} Hybrid', 'VERTICAL_SPLIT Hybrid', f'% vs Standalone GPU: 3-Way ({ck}+{gk})', full_matrix_order, os.path.join(pdf_dir, f'{n}_{fname}_pctdiff_3way_{ck}_{gk}.pdf'))
+            # 2. 3-Way comparison
+            # n = counter.next()
+            # generate_pctdiff_3way_pdf(base_hyb, var_hyb, vert_hyb, sa_gpu_dict, 'Baseline Hybrid', f'{short_name} Hybrid', 'VERTICAL_SPLIT Hybrid', f'% vs Standalone GPU: 3-Way ({ck}+{gk})', full_matrix_order, os.path.join(pdf_dir, f'{n}_{fname}_pctdiff_3way_{ck}_{gk}.pdf'))
 
-            # 2. Combined pages (on the same plot)
-            n = counter.next()
-            generate_pctdiff_combined_pdf(base_hyb, var_hyb, sa_gpu_dict, 'Baseline Hybrid', f'{short_name} Hybrid', f'Combined % vs Standalone GPU: Baseline Hybrid and {short_name} Hybrid: ({ck}+{gk})', strategies, ratios, full_matrix_order, os.path.join(pdf_dir, f'{n}_{fname}_pctdiff_combined_{ck}_{gk}.pdf'))
+            # 3. Combined pages (on the same plot)
+            # n = counter.next()
+            # generate_pctdiff_combined_pdf(base_hyb, var_hyb, sa_gpu_dict, 'Baseline Hybrid', f'{short_name} Hybrid', f'Combined % vs Standalone GPU: Baseline Hybrid and {short_name} Hybrid: ({ck}+{gk})', strategies, ratios, full_matrix_order, os.path.join(pdf_dir, f'{n}_{fname}_pctdiff_combined_{ck}_{gk}.pdf'))
             
-            # 3. Combined pages (sorted by variant)
-            n = counter.next()
-            generate_pctdiff_combined_pdf(base_hyb, var_hyb, sa_gpu_dict, 'Baseline Hybrid', f'{short_name} Hybrid', f'Combined % vs Standalone GPU (Sorted): Baseline Hybrid and {short_name} Hybrid: ({ck}+{gk})', strategies, ratios, full_matrix_order, os.path.join(pdf_dir, f'{n}_{fname}_pctdiff_combined_sorted_{ck}_{gk}.pdf'), sort_by_variant_pct=True)
+            # 4. Combined pages (sorted by variant)
+            # n = counter.next()
+            # generate_pctdiff_combined_pdf(base_hyb, var_hyb, sa_gpu_dict, 'Baseline Hybrid', f'{short_name} Hybrid', f'Combined % vs Standalone GPU (Sorted): Baseline Hybrid and {short_name} Hybrid: ({ck}+{gk})', strategies, ratios, full_matrix_order, os.path.join(pdf_dir, f'{n}_{fname}_pctdiff_combined_sorted_{ck}_{gk}.pdf'), sort_by_variant_pct=True)
             
-            # 4. Per-matrix baseline vs opt comparison
-            n = counter.next()
-            plot_per_matrix_baseline_vs_opt_comparison(dfs['baseline'], base_hyb, var_hyb, vert_hyb, sa_gpu_dict, full_matrix_order, pdf_dir, ck, gk, short_name, f'{n}_{fname}_per_matrix_comparison_{ck}_{gk}.pdf')
+            # 5. Per-matrix baseline vs opt comparison
+            # n = counter.next()
+            # plot_per_matrix_baseline_vs_opt_comparison(dfs['baseline'], base_hyb, var_hyb, vert_hyb, sa_gpu_dict, full_matrix_order, pdf_dir, ck, gk, short_name, f'{n}_{fname}_per_matrix_comparison_{ck}_{gk}.pdf')
 
 # Generates Set 5 analytics: CPU Gather Analytics (LOCAL_X_OPT) and advanced Ordered Ratios/Heatmaps.
 def generate_set5(dfs, ck, gk, full_matrix_order, pdf_dir, sa_gpu_dict, counter):
@@ -2419,11 +2421,6 @@ def generate_set6(dfs, ck, gk, full_matrix_order, pdf_dir, sa_gpu_dict, counter)
 
         n = counter.next()
         generate_strategy_heatmap_binary(filtered_local_hyb, 'GFLOPS', base_strategy, var_strategies_loc, ratios_loc, full_matrix_order, os.path.join(pdf_dir, f'{n}_{fname_loc_filt}_binary_heatmap_vs_{base_strategy.lower()}_{ck}_{gk}.pdf'))
-
-def generate_set7(dfs, full_matrix_order, pdf_dir, counter):
-    print(f"\n--- Set 7: CPU Format Comparison ---")
-    cpu_only_df = dfs.get('cpu_only', pd.DataFrame())
-    generate_cpu_only_format_comparison(cpu_only_df, full_matrix_order, pdf_dir, counter)
 
 def generate_set8(dfs, ck, gk, full_matrix_order, pdf_dir, csv_dir, counter, sa_gpu_dict=None, detailed_flag=False):
     print(f"\n--- Set 8: Feature vs Performance Dataframes ({ck}+{gk}) ---")
@@ -2787,10 +2784,13 @@ if __name__ == '__main__':
     os.makedirs(csv_dir, exist_ok=True)
 
     # 5. Generate all PDFs, grouped by kernel version
+    kernel_versions = [
+        # ('sell_sorted_csr', 'cuda_sell_sorted_csr'), 
+        ('armpl', 'cusparse_csr'), ]
     for ck, gk in kernel_versions:
         # for now, i need to only see results for this combination of formats...
-        if (gk != 'cuda_sell_sorted_csr') or (ck != 'sell_sorted_csr'):
-            continue
+        # if (gk != 'cuda_sell_sorted_csr') or (ck != 'sell_sorted_csr'):
+        #     continue
 
         print(f"\n{'#'*70}")
         print(f"# Kernel: {ck}+{gk}")
@@ -2798,10 +2798,10 @@ if __name__ == '__main__':
 
         counter = PlotCounter()
 
-        # sa_gpu_dict = get_standalone_gpu(baseline_df, gk, alloc_type='EXPLICIT')
+        sa_gpu_dict = get_standalone_gpu(baseline_df, gk, alloc_type='EXPLICIT')
         
         # Use the strongest standalone GPU format as baseline instead
-        sa_gpu_dict = get_standalone_gpu(baseline_df, 'cuda_sell_sorted_csr', alloc_type='EXPLICIT')
+        # sa_gpu_dict = get_standalone_gpu(baseline_df, 'cuda_sell_sorted_csr', alloc_type='EXPLICIT')
 
         # I could examine this also, but the EXPLICIT one is more "fair", when comparing against a standalone GPU kernel.
         # sa_gpu_dict = get_standalone_gpu(baseline_df, 'cuda_sell_sorted_csr', alloc_type='MALLOC')
@@ -2834,8 +2834,9 @@ if __name__ == '__main__':
 
     print(f"\n{'='*60}")
 
-    # Set 7: CPU Format Comparison (using CPU_ONLY data).
-    # generate_set7(dfs, full_matrix_order, pdf_dir, PlotCounter())
+    print(f"\n--- Set 7: CPU Format Comparison ---")
+    cpu_only_df = dfs.get('cpu_only', pd.DataFrame())
+    generate_cpu_only_format_comparison(cpu_only_df, full_matrix_order, pdf_dir, PlotCounter())
 
     print(f"\n{'='*60}")
     print(f"All PDFs saved to: {pdf_dir}")

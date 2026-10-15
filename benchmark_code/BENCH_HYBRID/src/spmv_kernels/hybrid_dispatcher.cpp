@@ -38,7 +38,7 @@ extern "C" {
 #define GPU_KERNEL_STATS_FUNC cuda_csr_transpose_expand_rows_statistics_print_labels
 #endif
 #ifndef HYBRID_FORMAT_NAME
-#define HYBRID_FORMAT_NAME   "Hybrid_ArmPL_CudqaCSR_transpose_expand_rows"
+#define HYBRID_FORMAT_NAME   "Hybrid_ArmPL_CudaCSR_transpose_expand_rows"
 #endif
 
 /**************************************************************************/

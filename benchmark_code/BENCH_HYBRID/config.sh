@@ -581,33 +581,54 @@ progs=(
 
     # Standalone GPU-only executable.
     # ["${GPU_KERNEL}_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_${GPU_KERNEL}_${VECTOR_ALLOC}_nv_d.exe"
-    
+ 
     # Hybrid executables — CPU_KERNEL + GPU_KERNEL control both sides.
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_95_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_90_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_90_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_85_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_85_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_80_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_80_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_75_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_75_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_70_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_65_${VECTOR_ALLOC}_nv_d.exe"
-    
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_95_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_90_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_90_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_85_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_85_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_80_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_80_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_75_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_75_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_70_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_65_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_60_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_60_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_55_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_55_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_50_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_RATIO_50_${VECTOR_ALLOC}_nv_d.exe"
+   
     # Shortest-rows original order: GPU gets shortest rows, original row order within partitions.
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_95_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_90_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_90_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_85_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_85_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_80_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_80_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_75_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_75_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_70_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_65_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_95_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_90_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_90_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_85_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_85_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_80_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_80_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_75_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_75_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_70_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_65_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_60_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_60_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_55_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_55_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_50_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_SHORTEST_ROWS_ORIGINAL_50_${VECTOR_ALLOC}_nv_d.exe"
 
     # Longest-rows original order: GPU gets longest rows, original row order within partitions.
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_95_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_90_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_90_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_85_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_85_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_80_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_80_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_75_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_75_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_70_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_65_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_95_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_90_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_90_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_85_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_85_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_80_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_80_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_75_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_75_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_70_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_65_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_60_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_60_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_55_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_55_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_50_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_LONGEST_ROWS_ORIGINAL_50_${VECTOR_ALLOC}_nv_d.exe"
+
+    # Minimal x Vector Access from CPU
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_95_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_90_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_90_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_85_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_85_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_80_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_80_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_75_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_75_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_70_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_65_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_60_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_60_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_55_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_55_${VECTOR_ALLOC}_nv_d.exe"
+    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_50_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_50_${VECTOR_ALLOC}_nv_d.exe"
 
     # Bad Zones: Rows
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_BAD_ZONES_ROWS_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_BAD_ZONES_ROWS_95_${VECTOR_ALLOC}_nv_d.exe"
@@ -645,15 +666,6 @@ progs=(
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_BAD_ZONES_PADDING_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_BAD_ZONES_PADDING_70_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_BAD_ZONES_PADDING_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_BAD_ZONES_PADDING_65_${VECTOR_ALLOC}_nv_d.exe"
 
-    # Minimal x Vector Access from CPU
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_95_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_90_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_90_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_85_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_85_${VECTOR_ALLOC}_nv_d.exe"
-    ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_80_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_80_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_75_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_75_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_70_${VECTOR_ALLOC}_nv_d.exe"
-    # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_MIN_X_ACCESS_CPU_65_${VECTOR_ALLOC}_nv_d.exe"
-
     # Vertical Split
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_VERTICAL_SPLIT_95_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_VERTICAL_SPLIT_95_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_VERTICAL_SPLIT_90_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_VERTICAL_SPLIT_90_${VECTOR_ALLOC}_nv_d.exe"
@@ -662,93 +674,4 @@ progs=(
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_VERTICAL_SPLIT_75_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_VERTICAL_SPLIT_75_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_VERTICAL_SPLIT_70_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_VERTICAL_SPLIT_70_${VECTOR_ALLOC}_nv_d.exe"
     # ["hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_VERTICAL_SPLIT_65_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_hybrid_${CPU_KERNEL}_${GPU_KERNEL}_STRAT_VERTICAL_SPLIT_65_${VECTOR_ALLOC}_nv_d.exe"
-
-    # =========================================================================
-    # Standalone GPU Work-Removal experiments
-    # Removed rows are simply skipped (not computed on CPU).
-    # =========================================================================
-
-    # No removal — baseline through the standalone dispatcher (should match plain GPU).
-    # ["standalone_${GPU_KERNEL}_REMOVE_NONE_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_NONE_${VECTOR_ALLOC}_nv_d.exe"
-
-    # Remove all rows with NNZ below threshold (GPU keeps dense rows).
-    # ["standalone_${GPU_KERNEL}_REMOVE_BELOW_THRESH_4_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BELOW_THRESH_4_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BELOW_THRESH_8_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BELOW_THRESH_8_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BELOW_THRESH_16_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BELOW_THRESH_16_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BELOW_THRESH_32_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BELOW_THRESH_32_${VECTOR_ALLOC}_nv_d.exe"
-
-    # Remove longest X% of rows (GPU keeps the shortest/sparsest rows).
-    # ["standalone_${GPU_KERNEL}_REMOVE_LONGEST_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_LONGEST_05_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_LONGEST_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_LONGEST_10_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_LONGEST_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_LONGEST_15_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_LONGEST_20_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_LONGEST_20_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_LONGEST_25_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_LONGEST_25_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_LONGEST_30_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_LONGEST_30_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_LONGEST_35_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_LONGEST_35_${VECTOR_ALLOC}_nv_d.exe"
-
-    # Remove all rows with NNZ above threshold (GPU keeps sparse rows).
-    # ["standalone_${GPU_KERNEL}_REMOVE_ABOVE_THRESH_4_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_ABOVE_THRESH_4_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_ABOVE_THRESH_8_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_ABOVE_THRESH_8_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_ABOVE_THRESH_16_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_ABOVE_THRESH_16_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_ABOVE_THRESH_32_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_ABOVE_THRESH_32_${VECTOR_ALLOC}_nv_d.exe"
-
-    # Remove outlier rows (NNZ > mean + k*stddev).
-    # ["standalone_${GPU_KERNEL}_REMOVE_OUTLIER_1_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_OUTLIER_1_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_OUTLIER_2_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_OUTLIER_2_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_OUTLIER_3_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_OUTLIER_3_${VECTOR_ALLOC}_nv_d.exe"
-
-    # Remove a contiguous block of X% rows from the beginning.
-    # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_05_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_10_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_15_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_20_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_20_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_25_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_25_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_30_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_30_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_35_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_CONTIGUOUS_35_${VECTOR_ALLOC}_nv_d.exe"
-    
-    # Remove shortest X% of rows (GPU keeps the longest/densest rows).
-    # ["standalone_${GPU_KERNEL}_REMOVE_SHORTEST_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_SHORTEST_05_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_SHORTEST_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_SHORTEST_10_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_SHORTEST_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_SHORTEST_15_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_SHORTEST_20_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_SHORTEST_20_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_SHORTEST_25_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_SHORTEST_25_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_SHORTEST_30_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_SHORTEST_30_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_SHORTEST_35_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_SHORTEST_35_${VECTOR_ALLOC}_nv_d.exe"
-
-    # Remove worst X% of zones scored by row-span (max row - min row).
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_05_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_10_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_15_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_20_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_20_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_25_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_25_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_30_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_30_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_35_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_ROWS_35_${VECTOR_ALLOC}_nv_d.exe"
-
-    # Remove worst X% of zones scored by bandwidth (max_col - min_col).
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_05_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_10_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_15_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_20_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_20_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_25_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_25_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_30_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_30_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_35_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_BW_35_${VECTOR_ALLOC}_nv_d.exe"
-
-    # Remove worst X% of zones scored by unique cache lines touched in x.
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_05_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_10_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_15_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_20_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_20_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_25_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_25_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_30_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_30_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_35_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_CL_35_${VECTOR_ALLOC}_nv_d.exe"
-
-    # Remove worst X% of zones scored by zero-padding waste ratio.
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_05_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_05_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_10_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_10_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_15_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_15_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_20_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_20_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_25_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_25_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_30_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_30_${VECTOR_ALLOC}_nv_d.exe"
-    # ["standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_35_${VECTOR_ALLOC}_nv_d"]="${script_dir}/src/spmv_standalone_${GPU_KERNEL}_REMOVE_BAD_ZONES_PAD_35_${VECTOR_ALLOC}_nv_d.exe"
-
 )
