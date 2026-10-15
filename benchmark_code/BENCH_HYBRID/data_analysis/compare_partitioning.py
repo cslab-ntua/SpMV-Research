@@ -375,6 +375,190 @@ def load_sources(log_dirs, csv_dir, matrix_order_txt, read_from_scratch):
 # ===========================================================================
 # Data helpers
 # ===========================================================================
+def filter_out_matrices(dfs, matrix_order, exclude_matrices):
+    """
+    Filter out specified matrices from all DataFrames in dfs and from matrix_order.
+    exclude_matrices can contain matrix names with or without '.mtx'.
+    """
+    if not exclude_matrices:
+        return dfs, matrix_order
+
+    normalized = {
+        m.strip()[:-4] if m.strip().endswith('.mtx') else m.strip()
+        for m in exclude_matrices
+        if m and m.strip()
+    }
+    if not normalized:
+        return dfs, matrix_order
+
+    exclude_set = normalized | {f"{m}.mtx" for m in normalized}
+    print(f"\nFiltering out {len(normalized)} matrices from loaded data: {sorted(normalized)}")
+
+    filtered_dfs = {}
+    for name, df in dfs.items():
+        if df.empty or 'Matrix' not in df.columns:
+            filtered_dfs[name] = df
+            continue
+        before_cnt = len(df)
+        filtered_df = df[~df['Matrix'].isin(exclude_set)].copy()
+        removed_cnt = before_cnt - len(filtered_df)
+        filtered_dfs[name] = filtered_df
+        if removed_cnt > 0:
+            print(f"  [{name}] Removed {removed_cnt} records ({len(filtered_df)} remaining)")
+
+    filtered_order = [m for m in matrix_order if m not in normalized and m not in exclude_set]
+    removed_order = len(matrix_order) - len(filtered_order)
+    if removed_order > 0:
+        print(f"  [matrix_order] Removed {removed_order} matrices ({len(filtered_order)} remaining)\n")
+
+    return filtered_dfs, filtered_order
+
+def filter_out_kernel_pairs(dfs, exclude_pairs, kernel_pairs=None):
+    """
+    Filter out specified (ck, gk) or (gk, ck) kernel combinations from all DataFrames in dfs
+    and from kernel_pairs.
+    exclude_pairs can contain:
+      - Tuples or lists of 2 items: ('armpl', 'cusparse_csr') or ('cusparse_csr', 'armpl')
+      - Strings with separators (+, ,, /, :, -): 'armpl+cusparse_csr', 'cusparse_csr+armpl'
+      - Single kernel names: 'armpl' (filters out all combinations containing that kernel)
+    """
+    if not exclude_pairs:
+        return dfs, kernel_pairs
+
+    known_pairs = set()
+    for df in dfs.values():
+        for p in discover_kernel_versions(df):
+            known_pairs.add(p)
+
+    resolved_pairs = set()
+    for item in exclude_pairs:
+        if isinstance(item, (tuple, list)) and len(item) == 2:
+            k1, k2 = str(item[0]).strip(), str(item[1]).strip()
+            if (k1, k2) in known_pairs:
+                resolved_pairs.add((k1, k2))
+            elif (k2, k1) in known_pairs:
+                resolved_pairs.add((k2, k1))
+            else:
+                resolved_pairs.add((k1, k2))
+                resolved_pairs.add((k2, k1))
+        elif isinstance(item, str):
+            item = item.strip()
+            split_tokens = None
+            for sep in ['+', ',', '/', ':', '-']:
+                if sep in item:
+                    parts = [p.strip() for p in item.split(sep) if p.strip()]
+                    if len(parts) == 2:
+                        split_tokens = parts
+                        break
+            if not split_tokens and ' ' in item:
+                parts = [p.strip() for p in item.split() if p.strip()]
+                if len(parts) == 2:
+                    split_tokens = parts
+            if split_tokens:
+                k1, k2 = split_tokens[0], split_tokens[1]
+                if (k1, k2) in known_pairs:
+                    resolved_pairs.add((k1, k2))
+                elif (k2, k1) in known_pairs:
+                    resolved_pairs.add((k2, k1))
+                else:
+                    resolved_pairs.add((k1, k2))
+                    resolved_pairs.add((k2, k1))
+            else:
+                for ck, gk in known_pairs:
+                    if item in (ck, gk):
+                        resolved_pairs.add((ck, gk))
+
+    if not resolved_pairs:
+        return dfs, kernel_pairs
+
+    formatted_pairs = [f"{ck}+{gk}" for ck, gk in sorted(resolved_pairs)]
+    print(f"\nFiltering out {len(resolved_pairs)} kernel combination(s) from loaded data: {formatted_pairs}")
+
+    filtered_dfs = {}
+    for name, df in dfs.items():
+        if df.empty or 'IsHybrid' not in df.columns or 'CPU_Kernel' not in df.columns or 'GPU_Kernel' not in df.columns:
+            filtered_dfs[name] = df
+            continue
+        mask = pd.Series(False, index=df.index)
+        for ck, gk in resolved_pairs:
+            mask |= (df['IsHybrid'] == True) & (df['CPU_Kernel'] == ck) & (df['GPU_Kernel'] == gk)
+        filtered_df = df[~mask].copy()
+        removed_cnt = len(df) - len(filtered_df)
+        filtered_dfs[name] = filtered_df
+        if removed_cnt > 0:
+            print(f"  [{name}] Removed {removed_cnt} records ({len(filtered_df)} remaining)")
+
+    filtered_pairs = None
+    if kernel_pairs is not None:
+        filtered_pairs = [p for p in kernel_pairs if p not in resolved_pairs and (p[1], p[0]) not in resolved_pairs]
+        if len(kernel_pairs) > len(filtered_pairs):
+            print(f"  [kernel_pairs] Removed {len(kernel_pairs) - len(filtered_pairs)} pair(s) ({len(filtered_pairs)} remaining)\n")
+
+    return filtered_dfs, filtered_pairs
+
+def filter_out_strategies(dfs, exclude_strategies, all_strategies=None, boxplot_strategies=None):
+    """
+    Filter out specified partitioning strategies from all DataFrames in dfs,
+    and update all_strategies and boxplot_strategies lists if provided.
+    exclude_strategies can contain:
+      - Full strategy names: 'NAIVE', 'SHORTEST_ROWS_ORIGINAL', 'VERTICAL_SPLIT' (case-insensitive)
+      - Short symbols/abbreviations: 'N', 'SO', 'LO', 'VER', 'MINX', 'BZR', etc.
+      - Log filename tokens: 'RATIO'
+    """
+    if not exclude_strategies:
+        return dfs, all_strategies, boxplot_strategies
+
+    norm_map = {s.upper(): s for s in ALL_STRATEGIES}
+    for k, v in STRAT_SYMBOLS.items():
+        norm_map[v.upper()] = k
+    for k, v in STRATEGY_MAP.items():
+        norm_map[k.upper()] = v
+
+    resolved = set()
+    for item in exclude_strategies:
+        if not item or not isinstance(item, str):
+            continue
+        cleaned = item.strip().upper()
+        if cleaned in norm_map:
+            resolved.add(norm_map[cleaned])
+        else:
+            matches = [s for s in ALL_STRATEGIES if cleaned in s.upper()]
+            if len(matches) == 1:
+                resolved.add(matches[0])
+            else:
+                resolved.add(item.strip())
+
+    if not resolved:
+        return dfs, all_strategies, boxplot_strategies
+
+    print(f"\nFiltering out {len(resolved)} partitioning strategy/ies from loaded data: {sorted(resolved)}")
+
+    filtered_dfs = {}
+    for name, df in dfs.items():
+        if df.empty or 'Strategy' not in df.columns:
+            filtered_dfs[name] = df
+            continue
+        mask = (df['IsHybrid'] == True) & (df['Strategy'].isin(resolved))
+        filtered_df = df[~mask].copy()
+        removed_cnt = len(df) - len(filtered_df)
+        filtered_dfs[name] = filtered_df
+        if removed_cnt > 0:
+            print(f"  [{name}] Removed {removed_cnt} records ({len(filtered_df)} remaining)")
+
+    filt_all = all_strategies
+    if all_strategies is not None:
+        filt_all = [s for s in all_strategies if s not in resolved]
+        if len(all_strategies) > len(filt_all):
+            print(f"  [ALL_STRATEGIES] Removed {len(all_strategies) - len(filt_all)} strategy/ies ({len(filt_all)} remaining)")
+
+    filt_box = boxplot_strategies
+    if boxplot_strategies is not None:
+        filt_box = [s for s in boxplot_strategies if s not in resolved]
+        if len(boxplot_strategies) > len(filt_box):
+            print(f"  [BOXPLOT_STRATEGIES] Removed {len(boxplot_strategies) - len(filt_box)} strategy/ies ({len(filt_box)} remaining)\n")
+
+    return filtered_dfs, filt_all, filt_box
+
 def filter_hybrid(df, ck, gk):
     if df.empty:
         return pd.DataFrame()
@@ -860,6 +1044,12 @@ def plot_boxplot_and_speedup_page(groups, title, pdf, palette, paper_plot=False)
         ax.set_xticklabels(order, rotation=90, ha='center', fontsize=tick_fs, color='black')
         ax.set_xlabel('')
 
+    if not paper_plot:
+        fig.suptitle(f'{title}', fontsize=TITLE_FONT_SIZE, color='black', y=0.98)
+        fig.tight_layout(rect=[0, 0, 1, 0.95], w_pad=4.0)
+    else:
+        fig.tight_layout(w_pad=4.0)
+
     pdf.savefig(fig, bbox_inches='tight')
     plt.close(fig)
     return True
@@ -990,6 +1180,12 @@ def plot_violin_and_speedup_page(groups, title, pdf, palette, paper_plot=False):
         ax.set_xticks(range(len(order)))
         ax.set_xticklabels(order, rotation=90, ha='center', fontsize=tick_fs, color='black')
         ax.set_xlabel('')
+
+    if not paper_plot:
+        fig.suptitle(f'{title}', fontsize=TITLE_FONT_SIZE, color='black', y=0.98)
+        fig.tight_layout(rect=[0, 0, 1, 0.95], w_pad=4.0)
+    else:
+        fig.tight_layout(w_pad=4.0)
 
     pdf.savefig(fig, bbox_inches='tight')
     plt.close(fig)
@@ -1381,12 +1577,140 @@ def run_comparison(dfs, base_key, var_key, base_label, var_label, matrix_order, 
 
     return produced
 
+def report_rcm_impact(dfs, kernel_pairs=None, output_file=None):
+    """
+    Print out a quantitative comparison between standard structure and RCM reordering
+    for each (ck, gk) combination. Quantifies:
+      - How many matrices became improved with RCM (larger performance increase versus standalone explicit).
+      - How many matrices had a larger speedup gain over their respective standalone GPU.
+      - How many matrices achieved positive speedup (>0% vs standalone GPU explicit) without vs with RCM,
+        and newly profitable matrices.
+      - Standalone GPU explicit speedup with RCM vs Standard.
+      - Geometric mean speedups.
+    """
+    base_df = dfs.get('baseline', pd.DataFrame())
+    base_rcm_df = dfs.get('baseline_rcm', pd.DataFrame())
+    opt_df = dfs.get('cpu_local_x_opt', pd.DataFrame())
+    opt_rcm_df = dfs.get('cpu_local_x_opt_rcm', pd.DataFrame())
+
+    if base_df.empty or base_rcm_df.empty:
+        print("\nSkipping RCM impact analysis: missing baseline or baseline_rcm data")
+        return ""
+
+    base_pairs = discover_kernel_versions(base_df)
+    rcm_pairs = discover_kernel_versions(base_rcm_df)
+    pairs = kernel_pairs or [p for p in base_pairs if p in set(rcm_pairs)] or base_pairs
+
+    lines = []
+    for ck, gk in pairs:
+        sa_std = get_standalone_gpu(base_df, gk, alloc_type='EXPLICIT')
+        if not sa_std and not opt_df.empty:
+            sa_std = get_standalone_gpu(opt_df, gk, alloc_type='EXPLICIT')
+        sa_rcm = get_standalone_gpu(base_rcm_df, gk, alloc_type='EXPLICIT')
+        if not sa_rcm and not opt_rcm_df.empty:
+            sa_rcm = get_standalone_gpu(opt_rcm_df, gk, alloc_type='EXPLICIT')
+
+        if not sa_std or not sa_rcm:
+            lines.append(f"  No standalone EXPLICIT GPU data for {gk} in standard or RCM, skipping {ck}+{gk}.")
+            continue
+
+        common_sa = sorted(set(sa_std.keys()) & set(sa_rcm.keys()))
+        if not common_sa:
+            lines.append(f"  No common standalone GPU matrices for {gk}, skipping {ck}+{gk}.")
+            continue
+
+        n_sa = len(common_sa)
+        sa_imp = sum(1 for m in common_sa if sa_rcm[m] > sa_std[m])
+        sa_gmean_sp = gmean([sa_rcm[m] / sa_std[m] for m in common_sa if sa_std[m] > 0])
+
+        lines.append("=" * 102)
+        lines.append(f" RCM IMPACT QUANTIFICATION: CPU Kernel = {ck} | GPU Kernel = {gk}")
+        lines.append("=" * 102)
+        lines.append(" Standalone GPU Explicit (RCM vs Standard Matrix Structure):")
+        lines.append(f"   - Common matrices evaluated : {n_sa}")
+        lines.append(f"   - Improved with RCM         : {sa_imp} / {n_sa} ({sa_imp / n_sa * 100:.1f}%)")
+        lines.append(f"   - Geometric mean speedup    : {sa_gmean_sp:.3f}x")
+        lines.append("-" * 102)
+        lines.append(f" {'Hybrid Configuration':<26} | {'RCM > Std (Perf)':<18} | {'RCM Gain > Std Gain':<20} | {'>0% vs SA GPU':<16} | {'Geomean Speedup'}")
+        lines.append(f" {'':<26} | {'(Higher Abs Inc)':<18} | {'(H_rcm/G_rcm > H/G)':<20} | {'(Std -> RCM (+New))':<16} | {'(Std -> RCM)'}")
+        lines.append("-" * 102)
+
+        configs = []
+        best_std = extract_best_of_hybrid_dict(base_df, opt_df, ck, gk)
+        best_rcm = extract_best_of_hybrid_dict(base_rcm_df, opt_rcm_df, ck, gk)
+        if best_std and best_rcm:
+            configs.append(('Hybrid Best-of', best_std, best_rcm))
+
+        base_hyb_std = filter_hybrid(base_df, ck, gk)
+        base_hyb_rcm = filter_hybrid(base_rcm_df, ck, gk)
+        if not base_hyb_std.empty and not base_hyb_rcm.empty:
+            configs.append(('  Baseline Best-of', _gflops_by_matrix(get_overall_best(base_hyb_std)), _gflops_by_matrix(get_overall_best(base_hyb_rcm))))
+
+        opt_hyb_std = filter_hybrid(opt_df, ck, gk)
+        opt_hyb_rcm = filter_hybrid(opt_rcm_df, ck, gk)
+        if not opt_hyb_std.empty and not opt_hyb_rcm.empty:
+            configs.append(('  LOCAL_X_OPT Best-of', _gflops_by_matrix(get_overall_best(opt_hyb_std)), _gflops_by_matrix(get_overall_best(opt_hyb_rcm))))
+
+        for strat in BOXPLOT_STRATEGIES:
+            if not base_hyb_std.empty and not base_hyb_rcm.empty:
+                s_std = _gflops_by_matrix(get_strategy_best(base_hyb_std, strat))
+                s_rcm = _gflops_by_matrix(get_strategy_best(base_hyb_rcm, strat))
+                if s_std and s_rcm:
+                    configs.append((f'    Strat: {strat}', s_std, s_rcm))
+
+        for label, h_std, h_rcm in configs:
+            common = sorted(set(common_sa) & set(h_std.keys()) & set(h_rcm.keys()))
+            if not common:
+                continue
+            n = len(common)
+            inc_std = {m: (h_std[m] - sa_std[m]) / sa_std[m] * 100 for m in common}
+            inc_rcm_std = {m: (h_rcm[m] - sa_std[m]) / sa_std[m] * 100 for m in common}
+            inc_rcm_rcm = {m: (h_rcm[m] - sa_rcm[m]) / sa_rcm[m] * 100 for m in common}
+
+            imp_abs = sum(1 for m in common if inc_rcm_std[m] > inc_std[m])
+            imp_gain = sum(1 for m in common if inc_rcm_rcm[m] > inc_std[m])
+
+            pos_std = sum(1 for m in common if inc_std[m] > 0)
+            pos_rcm = sum(1 for m in common if inc_rcm_std[m] > 0)
+            new_pos = sum(1 for m in common if inc_std[m] <= 0 and inc_rcm_std[m] > 0)
+
+            gm_std = gmean([h_std[m] / sa_std[m] for m in common if sa_std[m] > 0])
+            gm_rcm = gmean([h_rcm[m] / sa_std[m] for m in common if sa_std[m] > 0])
+
+            lines.append(f" {label:<26} | {imp_abs:3d} / {n} ({imp_abs/n*100:5.1f}%)   | {imp_gain:3d} / {n} ({imp_gain/n*100:5.1f}%)    | {pos_std:3d} -> {pos_rcm:3d} (+{new_pos:<2d}) | {gm_std:.2f}x -> {gm_rcm:.2f}x")
+
+        lines.append("=" * 102)
+        lines.append(" Definitions:")
+        lines.append("   - RCM > Std (Perf)    : Matrices where Hybrid(RCM) has larger performance increase vs Standalone GPU (Std)")
+        lines.append("                           (i.e. Hybrid GFLOPs with RCM > Hybrid GFLOPs without RCM).")
+        lines.append("   - RCM Gain > Std Gain : Matrices where Hybrid speedup over respective Standalone GPU is higher with RCM")
+        lines.append("                           (i.e. Hybrid_RCM / SA_GPU_RCM > Hybrid_Std / SA_GPU_Std).")
+        lines.append("   - >0% vs SA GPU       : Matrices that outperformed Standalone GPU Explicit (Std -> RCM, and +Newly profitable).")
+        lines.append("   - Geomean Speedup     : Geometric mean speedup relative to Standalone GPU Explicit (without RCM).\n")
+
+    summary_text = "\n".join(lines)
+    print("\n" + summary_text)
+
+    if output_file:
+        try:
+            os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
+            with open(output_file, 'w') as f:
+                f.write(summary_text + "\n")
+            print(f"  Saved RCM impact summary to: {output_file}")
+        except Exception as e:
+            print(f"  Warning: could not save RCM impact summary to {output_file}: {e}")
+
+    return summary_text
+
+print_rcm_impact_summary = report_rcm_impact
+
 def run_rcm_comparison(dfs, pdf_dir, kernel_pairs=None, paper_plot=False):
     """
     Generate the 1-page RCM comparison PDFs comparing Standalone GPU,
     Standalone GPU (RCM), Hybrid Best-of, and Hybrid (RCM) Best-of:
       1. Boxplot variant: Left: GFLOPs boxplots; Right: Speedup (geomean) bar plot.
       2. Violin plot variant: Left: Speedup violin plot; Right: Speedup (geomean) bar plot.
+    Also prints out a quantitative impact report of RCM vs Standard structure.
     """
     base_df = dfs.get('baseline', pd.DataFrame())
     base_rcm_df = dfs.get('baseline_rcm', pd.DataFrame())
@@ -1398,6 +1722,10 @@ def run_rcm_comparison(dfs, pdf_dir, kernel_pairs=None, paper_plot=False):
     base_pairs = discover_kernel_versions(base_df)
     rcm_pairs = discover_kernel_versions(base_rcm_df)
     pairs = kernel_pairs or [p for p in base_pairs if p in set(rcm_pairs)] or base_pairs
+
+    # Print and save quantitative RCM impact summary
+    report_rcm_impact(dfs, kernel_pairs=pairs, output_file=os.path.join(pdf_dir, 'rcm_impact_summary.txt'))
+
     produced = []
 
     for ck, gk in pairs:
@@ -1479,6 +1807,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--from-scratch', action='store_true', default=READ_FROM_SCRATCH, help='re-parse the .out logs instead of loading the cached CSVs')
     parser.add_argument('--paper-plot', action='store_true', default=False, help='generate publication-sized plots for papers')
+    parser.add_argument('--report-rcm', action='store_true', default=False, help='print quantitative summary of RCM impact without generating plots')
+    parser.add_argument('--filter-matrices', nargs='*', default=[], help='matrices to filter out after reading logs')
+    parser.add_argument('--filter-kernel-pairs', '--filter-kernels', '--filter-combinations', nargs='*', default=[], help='(ck, gk) or (gk, ck) kernel combinations to filter out after reading logs, e.g. armpl+cusparse_csr')
+    parser.add_argument('--filter-strategies', '--filter-strat', nargs='*', default=[], help='partitioning strategies to filter out after reading logs, e.g. VERTICAL_SPLIT')
     args = parser.parse_args(argv)
 
     if args.paper_plot:
@@ -1492,10 +1824,69 @@ def main(argv=None):
         print("ERROR: no matrix order available (baseline logs missing?)")
         return 1
 
+    # -----------------------------------------------------------------------
+    # Table of matrices to filter out after reading the logs.
+    # Specify matrix names to exclude here (with or without '.mtx').
+    # -----------------------------------------------------------------------
+    FILTER_OUT_MATRICES = [
+        # e.g.:
+        # 'cage14',
+        # 'Cube_Coup_dt0',
+        # 'cit-Patents'
+    ]
+
+    matrices_to_filter = list(dict.fromkeys(FILTER_OUT_MATRICES + (args.filter_matrices or [])))
+    if matrices_to_filter:
+        dfs, matrix_order = filter_out_matrices(dfs, matrix_order, matrices_to_filter)
+
+    # -----------------------------------------------------------------------
+    # Table of (ck, gk) or (gk, ck) kernel combinations to filter out after reading logs.
+    # Specify combinations as tuples/lists or strings:
+    #   ('armpl', 'cusparse_csr'),
+    #   ('cuda_sell_sorted_csr', 'sell_sorted_csr'),
+    #   'armpl+cusparse_csr'
+    # -----------------------------------------------------------------------
+    FILTER_OUT_KERNEL_PAIRS = [
+        # e.g.:
+        ('armpl', 'cusparse_csr'),
+        # 'sell_sorted_csr+cuda_sell_sorted_csr',
+    ]
+
+    kernel_pairs_to_filter = list(FILTER_OUT_KERNEL_PAIRS + (args.filter_kernel_pairs or []))
+    print(kernel_pairs_to_filter)
+    global KERNEL_PAIRS
+    if kernel_pairs_to_filter:
+        dfs, KERNEL_PAIRS = filter_out_kernel_pairs(dfs, kernel_pairs_to_filter, KERNEL_PAIRS)
+
+    # -----------------------------------------------------------------------
+    # Table of partitioning strategies to filter out after reading logs.
+    # Specify strategy names or abbreviations:
+    #   'VERTICAL_SPLIT' (or 'VER'), 'SHORTEST_ROWS_ORIGINAL' (or 'SO'),
+    #   'LONGEST_ROWS_ORIGINAL' (or 'LO'), 'MIN_X_ACCESS_CPU' (or 'MINX'),
+    #   'NAIVE' (or 'N'), 'BAD_ZONES_ROWS' (or 'BZR'), etc.
+    # -----------------------------------------------------------------------
+    FILTER_OUT_STRATEGIES = [
+        # e.g.:
+        # 'NAIVE',
+        'SHORTEST_ROWS_ORIGINAL', 'LONGEST_ROWS_ORIGINAL',
+        # 'MIN_X_ACCESS_CPU',
+    ]
+
+    strategies_to_filter = list(dict.fromkeys(FILTER_OUT_STRATEGIES + (args.filter_strategies or [])))
+    global ALL_STRATEGIES, BOXPLOT_STRATEGIES
+    if strategies_to_filter:
+        dfs, ALL_STRATEGIES, BOXPLOT_STRATEGIES = filter_out_strategies(
+            dfs, strategies_to_filter, ALL_STRATEGIES, BOXPLOT_STRATEGIES
+        )
+
+    if args.report_rcm:
+        report_rcm_impact(dfs, kernel_pairs=KERNEL_PAIRS, output_file=os.path.join(PDF_DIR, 'rcm_impact_summary.txt'))
+        return 0
+
     produced = []
-    # for base_key, var_key, base_label, var_label in COMPARISONS:
+    for base_key, var_key, base_label, var_label in COMPARISONS:
     #     # produced += run_comparison(dfs, base_key, var_key, base_label, var_label, matrix_order, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot)
-    #     produced += run_comparison(dfs, base_key, var_key, base_label, var_label, matrix_order, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=False)
+        produced += run_comparison(dfs, base_key, var_key, base_label, var_label, matrix_order, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=False)
 
     produced += run_rcm_comparison(dfs, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot)
     produced += run_rcm_gather_decrease_comparison(dfs, matrix_order, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=False)
