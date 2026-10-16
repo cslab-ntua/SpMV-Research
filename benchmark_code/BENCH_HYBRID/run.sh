@@ -135,191 +135,278 @@ done
 
 
 matrices_validation=(
-
-    # scircuit
-    # mac_econ_fwd500
-    # raefsky3
-    # rgg_n_2_17_s0
-    # bbmat
-    # appu
-    # mc2depi
-    # rma10
-    # cop20k_A
-    # thermomech_dK
-    # webbase-1M
-    # cant
-    # ASIC_680k
-    # roadNet-TX
-    # pdb1HYS
-    # TSOPF_RS_b300_c3
-    # Chebyshev4
-    # consph
-    # com-Youtube
-    # rajat30
-    # radiation
-    # Stanford_Berkeley
-    # shipsec1
-    # PR02R
-    # CurlCurl_2
-    # gupta3
-    # mip1
-    # rail4284
-    # pwtk
-    # crankseg_2
-    # Si41Ge41H72
-    # TSOPF_RS_b2383
-    # in-2004
+    para-9
+    netherlands_osm
+    LargeRegFile
+    largebasis
+    wiki-Talk
+    Goodwin_127
+    cont11_l
+    Ga3As3H12
+    Hamrle3
+    consph
+    ESOC
+    Ga10As10H30
+    pre2
+    roadNet-CA
+    GL7d15
+    com-Youtube
+    marine1
+    rajat30
+    TEM152078
+    NACA0015
+    Chevron4
+    delaunay_n20
+    pkustk13
+    shipsec8
+    rgg_n_2_19_s0
+    boneS01
+    TSOPF_RS_b2052_c1
+    auto
+    nd6k
+    bmw7st_1
+    sls
+    3Dspectralwave2
+    pkustk12
+    cage13
+    cont1_l
+    radiation
+    CO
+    specular
+    Stanford_Berkeley
+    web-BerkStan
+    shipsec1
+    TEM181302
+    Ge87H76
+    rail2586
+    ship_003
+    G3_circuit
+    degme
+    PR02R
+    bibd_20_10
+    GL7d22
+    Rucci1
+    Ge99H100
+    torso1
+    TSOPF_FS_b300_c2
+    TSOPF_RS_b678_c2
+    Ga19As19H42
+    bibd_22_8
+    thermal2
+    gearbox
+    CurlCurl_2
+    atmosmodd
+    atmosmodj
+    gupta3
+    pattern1
+    m_t1
+    flickr
+    shipsec5
+    x104
+    kron_g500-logn17
+    mip1
+    crankseg_1
+    bmwcra_1
+    Si87H76
+    atmosmodl
+    atmosmodm
+    hood
+    mycielskian15
+    ohne2
+    rail4284
+    SiO2
+    fcondp2
+    bmw3_2
+    kim2
+    tp-6
+    pwtk
+    fullb
+    troll
+    Hardesty1
+    halfb
+    test1
+    TSOPF_FS_b300_c3
+    BenElechi1
+    delaunay_n21
+    JP
+    CurlCurl_3
+    rgg_n_2_20_s0
+    crankseg_2
+    nd12k
+    GL7d16
+    pkustk14
+    higgs-twitter
+    Si41Ge41H72
+    hugetrace-00000
+    kkt_power
+    memchip
+    TSOPF_RS_b2383
+    TSOPF_RS_b2383_c1
+    patents
+    italy_osm
+    in-2004
+    3Dspectralwave
+    venturiLevel3
+    af_0_k101
+    af_1_k101
+    af_2_k101
+    af_3_k101
+    af_4_k101
+    af_5_k101
+    af_shell1
+    af_shell2
+    af_shell3
+    af_shell4
+    af_shell5
+    af_shell6
+    af_shell7
+    af_shell8
+    af_shell9
+    # cit-Patents
+    # human_gene2
+    # GL7d21
     # Ga41As41H72
+    # great-britain_osm
+    # hugetric-00000
     # eu-2005
+    # Freescale1
     # wikipedia-20051105
+    # circuit5M_dc
+    # bundle_adj
+    # msdoor
+    # fem_hifreq_circuit
     # kron_g500-logn18
+    # StocF-1465
     # rajat31
+    # gsm_106857
+    # hugetric-00010
+    # M6
+    # CoupCons3D
+    # 12month1
+    # as-Skitter
+    # 333SP
+    # hugetric-00020
+    # AS365
+    # Transport
+    # Freescale2
     # human_gene1
+    # NLR
+    # GL7d17
     # delaunay_n22
+    # F1
+    # rel9
+    # CurlCurl_4
+    # FullChip
+    # cage14
+    # ML_Laplace
+    # germany_osm
+    # nd24k
+    # Fault_639
+    # mouse_gene
+    # nlpkkt80
+    # wiki-topcats
+    # asia_osm
+    # adaptive
+    # rgg_n_2_21_s0
     # GL7d20
+    # coPapersDBLP
+    # soc-Pokec
+    # coPapersCiteseer
+    # dielFilterV3clx
+    # mycielskian16
+    # vas_stokes_1M
+    ss
+    # packing-500x100x100-b050
+    # GL7d18
+    # inline_1
     # sx-stackoverflow
+    # PFlow_742
+    # RM07R
+    # GL7d19
+    # wikipedia-20060925
+    # road_central
     # dgreen
+    # hugetrace-00010
+    # wikipedia-20061104
+    # Emilia_923
+    # relat9
+    # Hardesty3
+    # kron_g500-logn19
     # mawi_201512012345
+    # spal_004
+    # wikipedia-20070206
     # ldoor
     # dielFilterV2real
+    # delaunay_n23
+    # af_shell10
+    nv2
+    # hugetrace-00020
+    # boneS10
+    # wb-edu
+    # hugebubbles-00000
     # circuit5M
+    # Hook_1498
+    # rgg_n_2_22_s0
+    # Geo_1438
+    # hugebubbles-00010
+    # Serena
+    # GAP-road
+    # road_usa
+    # vas_stokes_2M
     # soc-LiveJournal1
+    # hugebubbles-00020
+    # com-LiveJournal
     # bone010
     # audikw_1
+    # ljournal-2008
+    # mawi_201512020000
+    # channel-500x100x100-b050
+    # Long_Coup_dt0
+    # Long_Coup_dt6
+    # kron_g500-logn20
+    # dielFilterV3real
+    # nlpkkt120
+    # mycielskian17
     # cage15
+    # delaunay_n24
+    # ML_Geer
+    # hollywood-2009
+    # Flan_1565
+    # europe_osm
+    # Cube_Coup_dt0
+    # Cube_Coup_dt6
+    # Bump_2911
+    # rgg_n_2_23_s0
+    # vas_stokes_4M
     # kmer_V2a
-
-    cit-Patents
-    human_gene2
-    GL7d21
-    Ga41As41H72
-    great-britain_osm
-    hugetric-00000
-    eu-2005
-    Freescale1
-    wikipedia-20051105
-    circuit5M_dc
-    bundle_adj
-    msdoor
-    fem_hifreq_circuit
-    kron_g500-logn18
-    StocF-1465
-    rajat31
-    gsm_106857
-    hugetric-00010
-    M6
-    CoupCons3D
-    12month1
-    as-Skitter
-    333SP
-    hugetric-00020
-    AS365
-    Transport
-    Freescale2
-    human_gene1
-    NLR
-    GL7d17
-    delaunay_n22
-    F1
-    rel9
-    CurlCurl_4
-    FullChip
-    cage14
-    ML_Laplace
-    germany_osm
-    nd24k
-    Fault_639
-    mouse_gene
-    nlpkkt80
-    wiki-topcats
-    asia_osm
-    adaptive
-    rgg_n_2_21_s0
-    GL7d20
-    coPapersDBLP
-    soc-Pokec
-    coPapersCiteseer
-    dielFilterV3clx
-    mycielskian16
-    vas_stokes_1M
-    packing-500x100x100-b050
-    GL7d18
-    inline_1
-    sx-stackoverflow
-    PFlow_742
-    RM07R
-    GL7d19
-    wikipedia-20060925
-    road_central
-    dgreen
-    hugetrace-00010
-    wikipedia-20061104
-    Emilia_923
-    relat9
-    Hardesty3
-    kron_g500-logn19
-    mawi_201512012345
-    spal_004
-    wikipedia-20070206
-    ldoor
-    dielFilterV2real
-    delaunay_n23
-    af_shell10
-    hugetrace-00020
-    boneS10
-    wb-edu
-    hugebubbles-00000
-    circuit5M
-    Hook_1498
-    rgg_n_2_22_s0
-    Geo_1438
-    hugebubbles-00010
-    Serena
-    GAP-road
-    road_usa
-    vas_stokes_2M
-    soc-LiveJournal1
-    hugebubbles-00020
-    com-LiveJournal
-    bone010
-    audikw_1
-    ljournal-2008
-    mawi_201512020000
-    channel-500x100x100-b050
-    Long_Coup_dt0
-    Long_Coup_dt6
-    kron_g500-logn20
-    dielFilterV3real
-    nlpkkt120
-    mycielskian17
-    cage15
-    delaunay_n24
-    ML_Geer
-    hollywood-2009
-    Flan_1565
-    europe_osm
-    Cube_Coup_dt0
-    Cube_Coup_dt6
-    Bump_2911
-    rgg_n_2_23_s0
-    vas_stokes_4M
-    kmer_V2a
-    kmer_U1a
-    mawi_201512020030
-    kron_g500-logn21
-    indochina-2004
-    nlpkkt160
-    com-Orkut
-    rgg_n_2_24_s0
-    HV15R
-    mycielskian18
-    uk-2002
-    mawi_201512020130
-    Queen_4147
-
+    # kmer_U1a
+    # mawi_201512020030
+    # kron_g500-logn21
+    # indochina-2004
+    # nlpkkt160
+    # com-Orkut
+    # rgg_n_2_24_s0
+    # HV15R
+    # mycielskian18
+    # uk-2002
+    # mawi_201512020130
+    # Queen_4147
+    kmer_P1a
+    stokes
+    kmer_A2a
+    nlpkkt200
+    kmer_V1r
+    mawi_201512020330
+    arabic-2005
+    nlpkkt240
+    mycielskian19
+    uk-2005
+    webbase-2001
+    it-2004
 )
 matrices_validation2=(
-    mycielskian17
+    ss
+    nv2
 )
 matrices_validation_tamu=( ${matrices_validation[@]} )
 for ((i=0;i<${#matrices_validation_tamu[@]};i++)); do
@@ -981,14 +1068,14 @@ for format_name in "${!progs[@]}"; do
     for ((i=0;i<rep;i++)); do
 
         if ((output_to_files)); then
-            # OUT_LOGS="out_logs/"
+            OUT_LOGS="out_logs/"
             # OUT_LOGS="out_logs_GPU_ONLY/"
             # OUT_LOGS="out_logs_CPU_ONLY/"
             # OUT_LOGS="out_logs_ANNOY_GPU/"
             # OUT_LOGS="out_logs_CPU_COLIND0/"
             # OUT_LOGS="out_logs_CPU_LOCAL_X/"
             # OUT_LOGS="out_logs_CPU_LOCAL_X_UNOPT/"
-            OUT_LOGS="out_logs_CPU_LOCAL_X_OPT/"
+            # OUT_LOGS="out_logs_CPU_LOCAL_X_OPT/"
             # OUT_LOGS="out_logs_VERTICAL_SPLIT/"
             mkdir -p "$OUT_LOGS"
             # When rep=1 keep the old plain name; when rep>1 append _repN.

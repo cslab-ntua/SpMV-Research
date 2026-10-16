@@ -36,6 +36,14 @@ Step 2: for every (CPU kernel, GPU kernel) pair found in the baseline, produce
                                                     from standard to RCM reordered:
                                                     pages 1..N: per strategy (rows: matrices, cols: ratios)
                                                     final page: all strategy + ratio combinations
+          7_memory_interference.pdf                Memory interference between GPU and CPU (standard)
+          7_memory_interference_zoom.pdf           Memory interference with embedded CPU zoom-in inset
+          8_paper_naive_vs_standalone_<ck>_<gk>.pdf
+                                                    Paper violin plot: GFLOPS (left) and Speedup (right)
+                                                    for Standalone GPU vs Baseline NAIVE hybrid
+          9_paper_rcm_progression_<ck>_<gk>.pdf
+                                                    Paper violin plot: GFLOPS (left) and Speedup (right)
+                                                    for 6-method RCM progression vs Standalone GPU
 
 This script is self-contained (no import from parse_and_plot.py).
 
@@ -133,6 +141,7 @@ OUT_DIR = os.path.join(SCRIPT_DIR, 'partitioning')
 CSV_DIR = os.path.join(OUT_DIR, 'CSV')
 PDF_DIR = os.path.join(OUT_DIR, 'Plots')
 MATRIX_ORDER_TXT = os.path.join(SCRIPT_DIR, 'matrix_order.txt')
+MATRIX_FEATURES_CSV = os.path.join(SCRIPT_DIR, 'matrix_features.csv')
 
 # Empty list -> auto-discover every hybrid (CPU, GPU) pair found in the baseline.
 KERNEL_PAIRS = []
@@ -162,8 +171,7 @@ STRATEGY_MAP = {'RATIO': 'NAIVE'}
 TICK_FONT_SIZE = 8
 TITLE_FONT_SIZE = 16
 LABEL_FONT_SIZE = 12
-PLT_WIDTH, PLT_HEIGHT = 21, 10
-# PCT_YLIM = (-90, 50)
+PLT_WIDTH, PLT_HEIGHT = 26, 12
 PCT_YLIM = (-40, 60)
 
 # ===========================================================================
@@ -334,17 +342,43 @@ def parse_logs(log_dir):
     df['GPU_CPU_Time_Ratio'] = np.where((df['IsHybrid'] == True) & (df['CPU_Time_ms'] > 0), df['GPU_Time_ms'] / df['CPU_Time_ms'], np.nan)
     return df, matrix_order
 
-def load_matrix_order(path):
+def sort_matrix_order_by_features(matrix_order, features_path=MATRIX_FEATURES_CSV):
+    """
+    Sort matrix_order according to memory footprint as listed in matrix_features.csv.
+    Any matrices not found in matrix_features.csv are preserved at the end in their original relative order.
+    """
+    if not features_path or not os.path.exists(features_path):
+        return matrix_order
+    try:
+        feat_df = pd.read_csv(features_path)
+        if 'matrix_name' in feat_df.columns:
+            feat_list = feat_df['matrix_name'].dropna().astype(str).tolist()
+            feat_map = {m: i for i, m in enumerate(feat_list)}
+            return sorted(matrix_order, key=lambda m: (feat_map.get(m, float('inf')), matrix_order.index(m)))
+    except Exception as e:
+        print(f"Warning: could not sort matrix order by features ({e})")
+    return matrix_order
+
+def load_matrix_order(path, features_path=MATRIX_FEATURES_CSV):
     if not os.path.exists(path):
         return []
     with open(path, 'r') as f:
-        return [line.strip() for line in f if line.strip()]
+        order = [line.strip() for line in f if line.strip()]
+    if features_path and os.path.exists(features_path):
+        sorted_order = sort_matrix_order_by_features(order, features_path)
+        if sorted_order != order:
+            with open(path, 'w') as f:
+                f.write('\n'.join(sorted_order) + '\n')
+            print(f"  -> Re-saved {os.path.basename(path)} in memory footprint order ({len(sorted_order)} matrices)")
+        return sorted_order
+    return order
 
 def load_sources(log_dirs, csv_dir, matrix_order_txt, read_from_scratch):
     """
     Return {name: DataFrame}. Parses the logs and writes <csv_dir>/parsed_<name>.csv
     when read_from_scratch is True or no CSV exists; otherwise loads the CSV.
-    The matrix order of the 'baseline' source is written to matrix_order_txt.
+    The matrix order of the 'baseline' source is written to matrix_order_txt,
+    ordered by memory footprint matching matrix_features.csv.
     """
     os.makedirs(csv_dir, exist_ok=True)
     dfs = {}
@@ -363,9 +397,10 @@ def load_sources(log_dirs, csv_dir, matrix_order_txt, read_from_scratch):
             df.to_csv(csv_path, index=False)
             print(f"  -> Parsed {len(df)} records, saved to {csv_path}")
             if name == 'baseline':
+                matrix_order = sort_matrix_order_by_features(matrix_order, MATRIX_FEATURES_CSV)
                 with open(matrix_order_txt, 'w') as f:
                     f.write('\n'.join(matrix_order) + '\n')
-                print(f"  -> Saved matrix order ({len(matrix_order)} matrices) to {matrix_order_txt}")
+                print(f"  -> Saved matrix order ({len(matrix_order)} matrices, sorted by memory footprint) to {matrix_order_txt}")
         else:
             df = pd.read_csv(csv_path)
             print(f"  -> Loaded {len(df)} records from {csv_path}")
@@ -1803,11 +1838,625 @@ def run_rcm_gather_decrease_comparison(dfs, matrix_order, pdf_dir, kernel_pairs=
 
     return produced
 
+def generate_memory_interference_pdf(pdf_path, paper_plot=False, zoom_cpu=False):
+    """
+    Generate a 1-page line plot showing memory interference between GPU and CPU
+    from the iterative vector addition benchmark.
+    Plots achieved memory bandwidth (GB/s) against CPU x vector fraction (0.1 .. 0.9)
+    for 4 configurations:
+      - GPU (Split Data)
+      - GPU (Common Data)
+      - CPU (Split Data)
+      - CPU (Common Data)
+
+    If zoom_cpu is True, embeds an inset plot zooming into the CPU bandwidth progression
+    (235 to 305 GB/s range).
+    """
+    print(f"  Generating: {os.path.basename(pdf_path)}")
+    fractions = [0.1, 0.3, 0.5, 0.7, 0.9]
+    split_gpu = [3048, 2990, 2900, 2717, 2039]
+    split_cpu = [248, 252, 257, 266, 292]
+    common_gpu = [2760, 2150, 1540, 926, 310]
+    common_cpu = [243, 246, 249, 248, 248]
+
+    if paper_plot:
+        # figsize = get_fig_size_scale(2.2, 1.6)
+        figsize = get_fig_size_scale(1.6, 1.4)
+        label_fs = 12
+        tick_fs = 11
+        legend_fs = 10
+        lw = 2.0
+        ms = 6.0
+        ins_lw = 1.2
+        ins_ms = 4.0
+        ins_tick_fs = 7.5
+    else:
+        figsize = (10, 6)
+        title_fs = TITLE_FONT_SIZE
+        label_fs = LABEL_FONT_SIZE + 2
+        tick_fs = TICK_FONT_SIZE + 2
+        legend_fs = LABEL_FONT_SIZE
+        lw = 2.4
+        ms = 7.5
+        ins_lw = 1.5
+        ins_ms = 5.0
+        ins_tick_fs = 9.0
+
+    # Dictionary to quickly configure markers in one place (affects both main and zoomed plots)
+    # Suggestions for compact / non-overlapping combinations:
+    #   Triangles up/down:   'split_cpu': '^', 'common_cpu': 'v'
+    #   Plus / Cross:        'split_cpu': '+', 'common_cpu': 'x'
+    #   Thin diamond / Dot:  'split_cpu': 'd', 'common_cpu': '.'
+    #   Tripods (Y / inv-Y): 'split_cpu': '2', 'common_cpu': '1'
+    #   Circle / Cross:      'split_cpu': 'o', 'common_cpu': 'x'
+    markers = {
+        'split_gpu': 'o',
+        'common_gpu': 's',
+        'split_cpu': '^',
+        'common_cpu': 'v',
+    }
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    ax.plot(fractions, split_gpu, marker=markers['split_gpu'], linestyle='-', color='#1f77b4', linewidth=lw, markersize=ms, label='GPU (Split Data)')
+    ax.plot(fractions, common_gpu, marker=markers['common_gpu'], linestyle='--', color='#1f77b4', linewidth=lw, markersize=ms, label='GPU (Common Data)')
+    ax.plot(fractions, split_cpu, marker=markers['split_cpu'], linestyle='-', color='#d62728', linewidth=lw, markersize=ms, label='CPU (Split Data)')
+    ax.plot(fractions, common_cpu, marker=markers['common_cpu'], linestyle='--', color='#d62728', linewidth=lw, markersize=ms, label='CPU (Common Data)')
+
+    ax.set_xlabel('CPU $x$ fraction', fontsize=label_fs, color='black')
+    ax.set_ylabel('Memory Bandwidth (GB/s)', fontsize=label_fs, color='black')
+    ax.set_xticks(fractions)
+    ax.set_xlim(0.05, 0.95)
+    ax.set_ylim(0, 3350)
+    ax.grid(False)
+
+    for spine in ax.spines.values():
+        spine.set_color('black')
+        spine.set_linewidth(1.5)
+    ax.tick_params(axis='both', which='both', bottom=True, left=True, direction='out', length=5 if not paper_plot else 4, width=1.5 if not paper_plot else 1.2, labelsize=tick_fs, colors='black')
+
+    # Compact 2-column legend positioned right above the plot
+    ax.legend(
+        ncol=2,
+        loc='lower center',
+        bbox_to_anchor=(0.5, 1.02),
+        frameon=True,
+        fontsize=legend_fs,
+        columnspacing=2.0,
+        handletextpad=0.5,
+        edgecolor='#cccccc',
+        framealpha=0.95,
+    )
+
+    if not paper_plot:
+        ax.set_title('Memory Interference between GPU and CPU (Vector Addition)', fontsize=title_fs, color='black', pad=60)
+
+    if zoom_cpu:
+        from matplotlib.patches import Rectangle, ConnectionPatch
+
+        ax_ins = ax.inset_axes([0.09, 0.20, 0.33, 0.27])
+        ax_ins.set_facecolor('white')
+        ax_ins.plot(fractions, split_cpu, marker=markers['split_cpu'], linestyle='-', color='#d62728', linewidth=ins_lw, markersize=ins_ms)
+        ax_ins.plot(fractions, common_cpu, marker=markers['common_cpu'], linestyle='--', color='#d62728', linewidth=ins_lw, markersize=ins_ms)
+        ax_ins.set_xlim(0.07, 0.93)
+        ax_ins.set_xticks(fractions)
+        ax_ins.tick_params(axis='x', labelbottom=False)
+        ax_ins.set_ylim(230, 305)
+        ax_ins.set_yticks([240, 260, 280, 300])
+        ax_ins.tick_params(axis='both', which='both', bottom=True, left=True, labelsize=ins_tick_fs, colors='black', direction='out', length=3 if not paper_plot else 2.5, width=1.0 if not paper_plot else 0.8)
+        ax_ins.grid(False)
+        for s in ax_ins.spines.values():
+            s.set_color('#333333')
+            s.set_linewidth(1.0 if not paper_plot else 0.8)
+
+        # Bounding box around the original CPU lines: wider and taller
+        # so that the lines inside the original plot show clearly without being hidden by the box
+        bx0, bx1 = 0.08, 0.92
+        by0, by1 = 100, 400
+        rect = Rectangle((bx0, by0), bx1 - bx0, by1 - by0, fill=False, edgecolor='#666666', linewidth=1.2 if not paper_plot else 1.0, alpha=0.85, zorder=5)
+        ax.add_patch(rect)
+
+        # Dotted lines connecting the zoomed-in subplot, beginning on TOP of this grey bounding box
+        cp_left = ConnectionPatch(xyA=(bx0, by1), coordsA=ax.transData, xyB=(0, 0), coordsB=ax_ins.transAxes, linestyle='--', color='#777777', linewidth=1.0 if not paper_plot else 0.8, alpha=0.75, zorder=4)
+        ax.add_artist(cp_left)
+
+        cp_right = ConnectionPatch(xyA=(bx1, by1), coordsA=ax.transData, xyB=(1, 0), coordsB=ax_ins.transAxes, linestyle='--', color='#777777', linewidth=1.0 if not paper_plot else 0.8, alpha=0.75, zorder=4)
+        ax.add_artist(cp_right)
+
+    fig.tight_layout()
+    with PdfPages(pdf_path) as pdf:
+        pdf.savefig(fig, bbox_inches='tight')
+    plt.close(fig)
+    print("    -> 1 page")
+    return 1
+
+def run_memory_interference_plot(pdf_dir, paper_plot=False):
+    """
+    Generate both memory interference benchmark plot PDFs (without and with
+    CPU zoom-in embedded plot) comparing achieved bandwidth for Split Data vs
+    Common Data across CPU fractions.
+    """
+    os.makedirs(pdf_dir, exist_ok=True)
+    p_std = os.path.join(pdf_dir, '7_memory_interference.pdf')
+    p_zoom = os.path.join(pdf_dir, '7_memory_interference_zoom.pdf')
+    print(f"\n--- Memory Interference (Vector Addition): GPU vs CPU ---")
+    produced = []
+    if generate_memory_interference_pdf(p_std, paper_plot=paper_plot, zoom_cpu=False) > 0:
+        produced.append(p_std)
+    if generate_memory_interference_pdf(p_zoom, paper_plot=paper_plot, zoom_cpu=True) > 0:
+        produced.append(p_zoom)
+    return produced
+
+def generate_naive_violin_pdf(base_df, ck, gk, pdf_path, paper_plot=False):
+    """
+    Generate a 1-page plot for paper:
+      Left:  Violin plot of Standalone GPU (explicit) performance vs
+             NAIVE partitioning method (best ratio per matrix) using
+             baseline hybrid measurement only (in GFLOPS).
+      Right: Violin plot of speedup of baseline NAIVE over standalone GPU.
+    """
+    print(f"  Generating: {os.path.basename(pdf_path)}")
+    sa_gpu_dict = get_standalone_gpu(base_df, gk, alloc_type='EXPLICIT')
+    base_hyb = filter_hybrid(base_df, ck, gk)
+    if base_hyb.empty or not sa_gpu_dict:
+        print(f"    -> No hybrid or standalone GPU data for {ck}+{gk}, skipping.")
+        return 0
+
+    naive_best_df = get_strategy_best(base_hyb, 'NAIVE')
+    if naive_best_df.empty:
+        print(f"    -> No NAIVE strategy data found, skipping.")
+        return 0
+
+    naive_dict = _gflops_by_matrix(naive_best_df)
+    common = sorted(list(set(sa_gpu_dict.keys()) & set(naive_dict.keys())))
+    if not common:
+        print(f"    -> No common matrices found, skipping.")
+        return 0
+
+    # Centralized dictionary for easy customization of labels and colors
+    plot_config = {
+        'sa_label': 'GPU',
+        'naive_label': 'Shared-x [Naive]',
+        'sa_color': '#1f77b4',     # GPU color (matches progression plot)
+        'naive_color': '#ff7f0e',  # Shared-x [Naive] color (matches progression plot)
+    }
+
+    sa_label = plot_config['sa_label']
+    naive_label = plot_config['naive_label']
+    palette = {
+        sa_label: plot_config['sa_color'],
+        naive_label: plot_config['naive_color'],
+    }
+
+    gflops_rows = []
+    speedup_rows = []
+    for m in common:
+        s_val = sa_gpu_dict[m]
+        n_val = naive_dict[m]
+        if s_val > 0 and pd.notna(s_val):
+            gflops_rows.append({'Method': sa_label, 'Matrix': m, 'GFLOPS': s_val})
+            if n_val > 0 and pd.notna(n_val):
+                gflops_rows.append({'Method': naive_label, 'Matrix': m, 'GFLOPS': n_val})
+                speedup_rows.append({'Method': naive_label, 'Matrix': m, 'Speedup': n_val / s_val})
+
+    df_gflops = pd.DataFrame(gflops_rows)
+    df_speedup = pd.DataFrame(speedup_rows)
+
+    if paper_plot:
+        figsize = get_fig_size_scale(1.8, 1.4)
+        label_fs = 12
+        tick_fs = 10
+        title_fs = 13
+    else:
+        figsize = (10, 5)
+        title_fs = TITLE_FONT_SIZE
+        label_fs = LABEL_FONT_SIZE + 1
+        tick_fs = TICK_FONT_SIZE + 2
+
+    fig, (ax_gflops, ax_speedup) = plt.subplots(
+        1, 2, figsize=figsize, gridspec_kw={'width_ratios': [1.35, 0.85]}
+    )
+
+    # 1. Left subplot: Performance (GFLOPs) violin plot
+    sns.violinplot(
+        data=df_gflops,
+        x='Method',
+        y='GFLOPS',
+        order=[sa_label, naive_label],
+        hue='Method',
+        palette=palette,
+        legend=False,
+        ax=ax_gflops,
+        inner='box',
+        cut=0,
+        width=0.6,
+        linewidth=1.4 if not paper_plot else 1.2,
+    )
+    ax_gflops.set_ylabel('Performance (GFLOPs)', fontsize=label_fs, color='black')
+    ax_gflops.set_xlabel('')
+
+    # 2. Right subplot: Speedup violin plot
+    sns.violinplot(
+        data=df_speedup,
+        x='Method',
+        y='Speedup',
+        order=[naive_label],
+        hue='Method',
+        palette=palette,
+        legend=False,
+        ax=ax_speedup,
+        inner='box',
+        cut=0,
+        width=0.45,
+        linewidth=1.4 if not paper_plot else 1.2,
+    )
+    ax_speedup.axhline(1.0, color='gray', linestyle='--', linewidth=1.2, alpha=0.75, zorder=0)
+    ax_speedup.set_ylabel('Speedup', fontsize=label_fs, color='black')
+    ax_speedup.set_xlabel('')
+
+    max_sp = df_speedup['Speedup'].max() if not df_speedup.empty else 1.2
+    ax_speedup.set_ylim(bottom=0.0, top=max(1.2, max_sp * 1.08))
+
+    # Format spines and tick markers
+    for ax in (ax_gflops, ax_speedup):
+        for spine in ax.spines.values():
+            spine.set_color('black')
+            spine.set_linewidth(1.3 if not paper_plot else 1.1)
+        ax.tick_params(
+            axis='both', which='both', bottom=True, left=True, direction='out',
+            length=4 if not paper_plot else 3.5, width=1.2 if not paper_plot else 1.0,
+            labelsize=tick_fs, colors='black'
+        )
+        ax.grid(False)
+        ax.set_facecolor('white')
+
+    if not paper_plot:
+        fig.suptitle(f'NAIVE Hybrid vs Standalone GPU ({ck}+{gk})', fontsize=title_fs, color='black')
+        fig.tight_layout(rect=[0, 0, 1, 0.95], w_pad=3.0)
+    else:
+        fig.tight_layout(w_pad=3.0)
+
+    with PdfPages(pdf_path) as pdf:
+        pdf.savefig(fig, bbox_inches='tight')
+    plt.close(fig)
+    print("    -> 1 page")
+    return 1
+
+def run_naive_violin_plot(dfs, pdf_dir, kernel_pairs=None, paper_plot=False):
+    """
+    Generate the paper violin plot (GFLOPS left, Speedup right) comparing
+    Standalone GPU vs Baseline NAIVE hybrid for each kernel pair.
+    """
+    base_df = dfs.get('baseline', pd.DataFrame())
+    if base_df.empty:
+        print("\nSkipping NAIVE paper plot: missing baseline data")
+        return []
+
+    os.makedirs(pdf_dir, exist_ok=True)
+    pairs = kernel_pairs or discover_kernel_versions(base_df)
+    print(f"\n--- Paper Violin Plot: Standalone GPU vs Baseline NAIVE ---")
+    produced = []
+    for ck, gk in pairs:
+        pdf_path = os.path.join(pdf_dir, f'8_paper_naive_vs_standalone_{ck}_{gk}.pdf')
+        if generate_naive_violin_pdf(base_df, ck, gk, pdf_path, paper_plot=paper_plot) > 0:
+            produced.append(pdf_path)
+    return produced
+
+def resolve_progression_method_key(name):
+    """
+    Resolve method names/labels/aliases to canonical method keys.
+    Canonical keys:
+      'gpu', 'gpu_rcm', 'shared_naive', 'shared_naive_rcm',
+      'shared_naive+minx_rcm', 'shared+local_naive+minx_rcm'
+    """
+    if not isinstance(name, str):
+        return None
+    s = name.strip().lower().replace('\n', ' ').replace('-', ' ').replace('_', ' ')
+    s = ' '.join(s.split())
+
+    if s in ('gpu', 'standalone gpu', 'sa gpu', 'standalone'):
+        return 'gpu'
+    if s in ('gpu rcm', 'gpu (rcm)', 'standalone gpu rcm', 'standalone gpu (rcm)', 'sa gpu rcm'):
+        return 'gpu_rcm'
+    if s in ('shared naive', 'shared x naive', 'shared x [naive]', 'hybrid naive', 'naive'):
+        return 'shared_naive'
+    if s in ('shared naive rcm', 'shared x naive rcm', 'shared x [naive] (rcm)', 'shared x naive (rcm)', 'hybrid naive rcm', 'naive rcm'):
+        return 'shared_naive_rcm'
+    if s in ('shared minx rcm', 'shared x minx rcm', 'shared x [minx] (rcm)', 'shared x minx (rcm)', 'hybrid minx rcm', 'minx rcm'):
+        return 'shared_minx_rcm'
+    if s in ('shared naive minx rcm', 'shared x minx rcm', 'shared x [naive+minx] (rcm)', 'shared x naive+minx (rcm)', 'minx rcm', 'naive+minx rcm'):
+        return 'shared_naive+minx_rcm'
+    if s in ('shared local minx rcm', 'shared/local x [naive+minx] (rcm)', 'shared local x [naive+minx] (rcm)', 'shared/local minx rcm', 'shared local', 'shared/local', 'best alloc', 'best alloc rcm', 'shared local naive minx rcm'):
+        return 'shared+local_naive+minx_rcm'
+    return name
+
+
+def resolve_progression_baseline_key(name):
+    """
+    Resolve baseline name to canonical key ('gpu' or 'gpu_rcm').
+    """
+    if not isinstance(name, str):
+        return 'gpu'
+    s = name.strip().lower().replace('\n', ' ').replace('-', ' ').replace('_', ' ')
+    s = ' '.join(s.split())
+    if 'rcm' in s:
+        return 'gpu_rcm'
+    return 'gpu'
+
+
+def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path, paper_plot=False, methods=None, baseline='gpu'):
+    """
+    Generate a 1-page paper plot with 2 subplots (GFLOPS left, Speedup right)
+    comparing selected progression methods:
+      1. Standalone GPU
+      2. Standalone GPU (RCM)
+      3. Hybrid baseline [NAIVE]
+      4. Hybrid baseline [NAIVE] (RCM)
+      5. Hybrid baseline [NAIVE+MINX] (best method among them) (RCM)
+      6. Hybrid [Shared/Local-x] [NAIVE+MINX] (best method among them) (RCM)
+    The speedup is relative to the chosen baseline ('gpu' or 'gpu_rcm').
+    """
+    print(f"  Generating: {os.path.basename(pdf_path)}")
+    base_df = dfs.get('baseline', pd.DataFrame())
+    base_rcm_df = dfs.get('baseline_rcm', pd.DataFrame())
+    opt_rcm_df = dfs.get('cpu_local_x_opt_rcm', pd.DataFrame())
+
+    if base_df.empty or base_rcm_df.empty or opt_rcm_df.empty:
+        print("    -> Missing required sources (baseline, baseline_rcm, or cpu_local_x_opt_rcm), skipping.")
+        return 0
+
+    # 1. Standalone GPU
+    sa = get_standalone_gpu(base_df, gk, alloc_type='EXPLICIT')
+    # 2. Standalone GPU (RCM)
+    sa_rcm = get_standalone_gpu(base_rcm_df, gk, alloc_type='EXPLICIT')
+
+    if not sa or not sa_rcm:
+        print(f"    -> Missing standalone GPU data for {gk}, skipping.")
+        return 0
+
+    # 3. Hybrid baseline [NAIVE]
+    h_base = filter_hybrid(base_df, ck, gk)
+    hyb_naive = _gflops_by_matrix(get_strategy_best(h_base, 'NAIVE'))
+
+    # 4. Hybrid baseline [NAIVE] (RCM)
+    h_base_rcm = filter_hybrid(base_rcm_df, ck, gk)
+    hyb_naive_rcm = _gflops_by_matrix(get_strategy_best(h_base_rcm, 'NAIVE'))
+
+    # 5. Hybrid baseline [NAIVE+MINX] (best method among them) (RCM)
+    hyb_minx_rcm = _gflops_by_matrix(get_strategy_best(h_base_rcm, 'MIN_X_ACCESS_CPU'))
+    hyb_naive_minx_rcm = _best_of_two_dicts(hyb_naive_rcm, hyb_minx_rcm)
+
+    # 6. Hybrid [baseline+cpu_local_x_opt] (best among them) [NAIVE+MINX] (best method among them) (RCM)
+    h_opt_rcm = filter_hybrid(opt_rcm_df, ck, gk)
+    hyb_opt_naive_rcm = _gflops_by_matrix(get_strategy_best(h_opt_rcm, 'NAIVE'))
+    hyb_opt_minx_rcm = _gflops_by_matrix(get_strategy_best(h_opt_rcm, 'MIN_X_ACCESS_CPU'))
+    hyb_opt_naive_minx_rcm = _best_of_two_dicts(hyb_opt_naive_rcm, hyb_opt_minx_rcm)
+    hyb_best_both_naive_minx_rcm = _best_of_two_dicts(hyb_naive_minx_rcm, hyb_opt_naive_minx_rcm)
+
+    # Centralized registry of all available progression methods
+    all_implementations = {
+        'gpu': {
+            'label': 'GPU',
+            'color': '#1f77b4',  # blue: GPU
+            'data': sa,
+        },
+        'gpu_rcm': {
+            'label': 'GPU (RCM)',
+            'color': '#aec7e8',  # light blue: GPU (RCM)
+            'data': sa_rcm,
+        },
+        'shared_naive': {
+            'label': 'Shared-x [Naive]',
+            'color': '#ff7f0e',  # orange: Shared-x [Naive]
+            'data': hyb_naive,
+        },
+        'shared_naive_rcm': {
+            'label': 'Shared-x [Naive] (RCM)',
+            'color': '#d62728',  # red: Shared-x [Naive] (RCM)
+            'data': hyb_naive_rcm,
+        },
+        'shared_minx_rcm': {
+            'label': 'Shared-x [MinX] (RCM)',
+            'color': '#8c564b',  # brown: Shared-x [MinX] (RCM)
+            'data': hyb_minx_rcm,
+        },
+        'shared_naive+minx_rcm': {
+            'label': 'Shared-x\n[Naive+MinX] (RCM)',
+            'color': '#9467bd',  # purple: Shared-x [Naive+MinX] (RCM)
+            'data': hyb_naive_minx_rcm,
+        },
+        'shared+local_naive+minx_rcm': {
+            'label': 'Shared/Local-x\n[Naive+MinX] (RCM)',
+            'color': '#2ca02c',  # green: Shared/Local-x [Naive+MinX] (RCM)
+            'data': hyb_best_both_naive_minx_rcm,
+        },
+    }
+
+    # Resolve baseline
+    base_key = resolve_progression_baseline_key(baseline)
+    if base_key not in ('gpu', 'gpu_rcm'):
+        print(f"    -> Invalid baseline '{baseline}', defaulting to 'gpu'.")
+        base_key = 'gpu'
+    base_dict = all_implementations[base_key]['data']
+    base_display_name = 'Standalone GPU (RCM)' if base_key == 'gpu_rcm' else 'Standalone GPU'
+
+    # Filter and resolve methods to display
+    default_methods = [
+        'gpu',
+        'gpu_rcm',
+        'shared_naive',
+        'shared_naive_rcm',
+        'shared_minx_rcm',
+        'shared_naive+minx_rcm',
+        'shared+local_naive+minx_rcm',
+    ]
+    raw_methods = methods if methods is not None else default_methods
+    selected_keys = []
+    for m in raw_methods:
+        k = resolve_progression_method_key(m)
+        if k in all_implementations:
+            if k not in selected_keys:
+                selected_keys.append(k)
+        else:
+            print(f"    -> Warning: Unknown progression method '{m}', skipping.")
+
+    if not selected_keys:
+        print("    -> No valid progression methods selected, skipping.")
+        return 0
+
+    labels = [all_implementations[k]['label'] for k in selected_keys]
+    palette = {all_implementations[k]['label']: all_implementations[k]['color'] for k in selected_keys}
+
+    # Determine common matrices across all selected methods + baseline
+    dicts_for_common = [all_implementations[k]['data'] for k in selected_keys]
+    if base_key not in selected_keys:
+        dicts_for_common.append(base_dict)
+
+    common = sorted(list(set.intersection(*(set(d.keys()) for d in dicts_for_common))))
+    if not common:
+        print("    -> No common matrices found across selected methods and baseline, skipping.")
+        return 0
+
+    speedup_keys = [k for k in selected_keys if k != base_key]
+    speedup_labels = [all_implementations[k]['label'] for k in speedup_keys]
+    speedup_palette = {all_implementations[k]['label']: all_implementations[k]['color'] for k in speedup_keys}
+
+    gflops_rows = []
+    speedup_rows = []
+    for k in selected_keys:
+        label = all_implementations[k]['label']
+        d = all_implementations[k]['data']
+        for m in common:
+            val = d.get(m)
+            b_val = base_dict.get(m)
+            if val is not None and pd.notna(val) and val > 0:
+                gflops_rows.append({'Method': label, 'Matrix': m, 'GFLOPS': val})
+                if k != base_key and b_val is not None and pd.notna(b_val) and b_val > 0:
+                    speedup_rows.append({'Method': label, 'Matrix': m, 'Speedup': val / b_val})
+
+    df_gflops = pd.DataFrame(gflops_rows)
+    df_speedup = pd.DataFrame(speedup_rows)
+
+    if paper_plot:
+        figsize = get_fig_size_scale(2.5, 1.8)
+        label_fs = 11
+        tick_fs = 9.5
+        title_fs = 13
+    else:
+        figsize = (15, 6.5)
+        title_fs = TITLE_FONT_SIZE
+        label_fs = LABEL_FONT_SIZE + 1
+        tick_fs = TICK_FONT_SIZE + 1
+
+    fig, (ax_gflops, ax_speedup) = plt.subplots(
+        1, 2, figsize=figsize, gridspec_kw={'width_ratios': [1.0, 1.0]}
+    )
+
+    # 1. Left subplot: Performance (GFLOPs) violin plot
+    sns.violinplot(
+        data=df_gflops,
+        x='Method',
+        y='GFLOPS',
+        order=labels,
+        hue='Method',
+        palette=palette,
+        legend=False,
+        ax=ax_gflops,
+        inner='box',
+        cut=0,
+        width=0.7,
+        linewidth=1.2 if not paper_plot else 1.0,
+    )
+    ax_gflops.set_ylabel('Performance (GFLOPs)', fontsize=label_fs, color='black')
+    ax_gflops.set_xlabel('')
+    ax_gflops.set_xticks(range(len(labels)))
+    ax_gflops.set_xticklabels(labels, rotation=45, ha='right', fontsize=tick_fs, color='black')
+
+    # 2. Right subplot: Speedup violin plot (baseline excluded as it is 1.0 flat reference)
+    if not df_speedup.empty:
+        sns.violinplot(
+            data=df_speedup,
+            x='Method',
+            y='Speedup',
+            order=speedup_labels,
+            hue='Method',
+            palette=speedup_palette,
+            legend=False,
+            ax=ax_speedup,
+            inner='box',
+            cut=0,
+            width=0.7,
+            linewidth=1.2 if not paper_plot else 1.0,
+        )
+    ax_speedup.axhline(1.0, color='gray', linestyle='--', linewidth=1.2, alpha=0.75, zorder=0)
+    ax_speedup.set_ylabel(f'Speedup vs {base_display_name}', fontsize=label_fs, color='black')
+    ax_speedup.set_xlabel('')
+    ax_speedup.set_xticks(range(len(speedup_labels)))
+    ax_speedup.set_xticklabels(speedup_labels, rotation=45, ha='right', fontsize=tick_fs, color='black')
+
+    max_sp = df_speedup['Speedup'].max() if not df_speedup.empty else 1.2
+    ax_speedup.set_ylim(bottom=0.0, top=max(1.2, max_sp * 1.08))
+
+    # Format spines and tick markers
+    for ax in (ax_gflops, ax_speedup):
+        for spine in ax.spines.values():
+            spine.set_color('black')
+            spine.set_linewidth(1.2 if not paper_plot else 1.0)
+        ax.tick_params(
+            axis='both', which='both', bottom=True, left=True, direction='out',
+            length=4 if not paper_plot else 3.5, width=1.1 if not paper_plot else 0.9,
+            labelsize=tick_fs, colors='black'
+        )
+        ax.grid(False)
+        ax.set_facecolor('white')
+
+    if not paper_plot:
+        fig.suptitle(f'Hybrid RCM Progression vs {base_display_name} ({ck}+{gk})', fontsize=title_fs, color='black')
+        fig.tight_layout(rect=[0, 0, 1, 0.95], w_pad=3.0)
+    else:
+        fig.tight_layout(w_pad=3.0)
+
+    with PdfPages(pdf_path) as pdf:
+        pdf.savefig(fig, bbox_inches='tight')
+    plt.close(fig)
+    print("    -> 1 page")
+    return 1
+
+
+def run_progression_rcm_violin_plot(dfs, pdf_dir, kernel_pairs=None, paper_plot=False, methods=None, baseline='gpu'):
+    """
+    Generate the paper violin plot (GFLOPS left, Speedup right) comparing
+    the selected progression methods for each kernel pair.
+    """
+    base_df = dfs.get('baseline', pd.DataFrame())
+    if base_df.empty:
+        print("\nSkipping Progression RCM paper plot: missing baseline data")
+        return []
+
+    os.makedirs(pdf_dir, exist_ok=True)
+    pairs = kernel_pairs or discover_kernel_versions(base_df)
+    base_key = resolve_progression_baseline_key(baseline)
+    base_title = 'Standalone GPU (RCM)' if base_key == 'gpu_rcm' else 'Standalone GPU'
+    print(f"\n--- Paper Violin Plot: RCM Hybrid Progression vs {base_title} ---")
+    produced = []
+    for ck, gk in pairs:
+        pdf_path = os.path.join(pdf_dir, f'9_paper_rcm_progression_{ck}_{gk}.pdf')
+        if generate_progression_rcm_violin_pdf(
+            dfs, ck, gk, pdf_path, paper_plot=paper_plot, methods=methods, baseline=baseline
+        ) > 0:
+            produced.append(pdf_path)
+    return produced
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--from-scratch', action='store_true', default=READ_FROM_SCRATCH, help='re-parse the .out logs instead of loading the cached CSVs')
     parser.add_argument('--paper-plot', action='store_true', default=False, help='generate publication-sized plots for papers')
     parser.add_argument('--report-rcm', action='store_true', default=False, help='print quantitative summary of RCM impact without generating plots')
+    parser.add_argument('--plot-interference', action='store_true', default=False, help='generate only the memory interference plot and exit')
+    parser.add_argument('--plot-naive', action='store_true', default=False, help='generate only the NAIVE vs Standalone GPU violin plot and exit')
+    parser.add_argument('--plot-progression', action='store_true', default=False, help='generate only the RCM progression violin plot and exit')
+    parser.add_argument('--progression-methods', nargs='*', default=None, help='implementations to include in the progression plot (e.g. gpu gpu_rcm shared_naive shared+local_naive+minx_rcm)')
+    parser.add_argument('--progression-baseline', choices=['gpu', 'gpu_rcm', 'standalone_gpu', 'standalone_gpu_rcm'], default=None, help='baseline for speedup in progression plot: gpu or gpu_rcm')
     parser.add_argument('--filter-matrices', nargs='*', default=[], help='matrices to filter out after reading logs')
     parser.add_argument('--filter-kernel-pairs', '--filter-kernels', '--filter-combinations', nargs='*', default=[], help='(ck, gk) or (gk, ck) kernel combinations to filter out after reading logs, e.g. armpl+cusparse_csr')
     parser.add_argument('--filter-strategies', '--filter-strat', nargs='*', default=[], help='partitioning strategies to filter out after reading logs, e.g. VERTICAL_SPLIT')
@@ -1879,17 +2528,70 @@ def main(argv=None):
             dfs, strategies_to_filter, ALL_STRATEGIES, BOXPLOT_STRATEGIES
         )
 
+    # -----------------------------------------------------------------------
+    # Configuration for RCM Hybrid Progression violin plot (Plot 9):
+    # - PROGRESSION_METHODS: List of implementations to show as violins.
+    #   Available implementations:
+    #     'gpu'                   : Standalone GPU (explicit allocation)
+    #     'gpu_rcm'               : Standalone GPU (RCM)
+    #     'shared_naive'          : Shared-x [Naive]
+    #     'shared_naive_rcm'      : Shared-x [Naive] (RCM)
+    #     'shared_naive+minx_rcm' : Shared-x [Naive+MinX] (RCM)
+    #     'shared+local_naive+minx_rcm' : Shared/Local-x [Naive+MinX] (RCM)
+    #
+    # - PROGRESSION_BASELINE: Reference for the speedup violin subplot:
+    #     'gpu'                   : Speedup vs Standalone GPU
+    #     'gpu_rcm'               : Speedup vs Standalone GPU (RCM)
+    # -----------------------------------------------------------------------
+    PROGRESSION_METHODS = [
+        'gpu',
+        'gpu_rcm',
+        'shared_naive',
+        'shared_naive_rcm',
+        'shared_minx_rcm',
+        'shared_naive+minx_rcm',
+        'shared+local_naive+minx_rcm',
+    ]
+    PROGRESSION_BASELINE = 'gpu'  # 'gpu' or 'gpu_rcm'
+
+    active_progression_methods = args.progression_methods if args.progression_methods is not None else PROGRESSION_METHODS
+    active_progression_baseline = args.progression_baseline if args.progression_baseline is not None else PROGRESSION_BASELINE
+
     if args.report_rcm:
         report_rcm_impact(dfs, kernel_pairs=KERNEL_PAIRS, output_file=os.path.join(PDF_DIR, 'rcm_impact_summary.txt'))
         return 0
 
+    if args.plot_interference:
+        p = run_memory_interference_plot(PDF_DIR, paper_plot=args.paper_plot)
+        print(f"\n{'=' * 60}\nPDFs in:  {PDF_DIR}  ({len(p)} files)\n{'=' * 60}")
+        return 0
+
+    if args.plot_naive:
+        p = run_naive_violin_plot(dfs, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot)
+        print(f"\n{'=' * 60}\nPDFs in:  {PDF_DIR}  ({len(p)} files)\n{'=' * 60}")
+        return 0
+
+    if args.plot_progression:
+        p = run_progression_rcm_violin_plot(
+            dfs, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot,
+            methods=active_progression_methods, baseline=active_progression_baseline
+        )
+        print(f"\n{'=' * 60}\nPDFs in:  {PDF_DIR}  ({len(p)} files)\n{'=' * 60}")
+        return 0
+
     produced = []
     for base_key, var_key, base_label, var_label in COMPARISONS:
-    #     # produced += run_comparison(dfs, base_key, var_key, base_label, var_label, matrix_order, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot)
+        # produced += run_comparison(dfs, base_key, var_key, base_label, var_label, matrix_order, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot)
         produced += run_comparison(dfs, base_key, var_key, base_label, var_label, matrix_order, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=False)
 
     produced += run_rcm_comparison(dfs, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot)
     produced += run_rcm_gather_decrease_comparison(dfs, matrix_order, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=False)
+    produced += run_memory_interference_plot(PDF_DIR, paper_plot=args.paper_plot)
+    produced += run_naive_violin_plot(dfs, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot)
+    produced += run_progression_rcm_violin_plot(
+        dfs, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot,
+        methods=active_progression_methods, baseline=active_progression_baseline
+    )
 
     print(f"\n{'=' * 60}\nCSVs in:  {CSV_DIR}\nPDFs in:  {PDF_DIR}  ({len(produced)} files)\n{'=' * 60}")
     return 0

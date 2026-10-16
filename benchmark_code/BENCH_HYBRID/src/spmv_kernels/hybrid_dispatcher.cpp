@@ -50,7 +50,7 @@ extern "C" {
 // #define DIAG_ANNOY_GPU
 // #define DIAG_CPU_COLIND0
 // #define DIAG_CPU_LOCAL_X_UNOPT
-#define DIAG_CPU_LOCAL_X_OPT
+// #define DIAG_CPU_LOCAL_X_OPT
 /**************************************************************************/
 
 // #define PLOT_MATRIX
