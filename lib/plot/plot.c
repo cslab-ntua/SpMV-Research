@@ -359,6 +359,8 @@ figure_series_init(struct Figure_Series * s, struct Figure * fig, const char * n
 
 	s->type_pixel_coords = 0;
 
+	s->type_3d = 0;
+
 	s->deallocate_data = 0;
 }
 
@@ -1976,6 +1978,8 @@ calc_series_bounds(struct Figure_Series * s)
 	{
 		array_min_max(s->z, s->L, &s->z_min, NULL, &s->z_max, NULL, s->get_z_as_double);
 	}
+
+	// printf("s->x_max = %lf , s->x_min = %lf, s->y_max = %lf , s->y_min = %lf\n", s->x_max, s->x_min, s->y_max, s->y_min);
 }
 
 

@@ -466,16 +466,15 @@ random_permutation_serial(struct Random_State * rs, long * permutation_buf, long
 void
 random_permutation_parallel(struct Random_State * rs, long * permutation_buf, long N)
 {
-	int num_threads = safe_omp_get_num_threads();
+	long num_threads = safe_omp_get_num_threads();
 	__attribute__((cleanup(cleanup_free))) long * const offsets = (typeof(offsets)) malloc((num_threads * num_threads + 1) * sizeof(*offsets));
 	#pragma omp parallel
 	{
-		int tnum = omp_get_thread_num();
+		long tnum = omp_get_thread_num();
 		__attribute__((cleanup(cleanup_free))) struct Random_State * rs_t = random_new(0);
 		long counts[num_threads];
 		long i, i_s, i_e, j, j_s, j_e;
 		long N_t;
-		long sum, prev;
 		random_xs_reseed(rs_t, tnum + rs->seed, 0);
 		for (i=0;i<num_threads;i++)
 			counts[i] = 0;
@@ -485,13 +484,14 @@ random_permutation_parallel(struct Random_State * rs, long * permutation_buf, lo
 			j = random_xs_uniform_integer(rs_t, 0, num_threads);
 			counts[j]++;
 		}
-		#pragma omp barrier
 		for (i=0;i<num_threads;i++)
 			offsets[i * num_threads + tnum] = counts[i];
 		#pragma omp barrier
 		#pragma omp single nowait
 		{
+			long sum, prev;
 			sum = 0;
+			offsets[num_threads * num_threads] = 0;
 			for (i=0;i<num_threads * num_threads + 1;i++)
 			{
 				prev = offsets[i];
