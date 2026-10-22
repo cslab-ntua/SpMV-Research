@@ -211,8 +211,6 @@ int GPU_KERNEL_STATS_FUNC(char * buf, long buf_n);
 
 int statistics_print_labels(char * buf, long buf_n) {
     int len = 0;
-    len += snprintf(buf + len, buf_n - len, ",%s,%s,%s,%s", 
-                    "hybrid_cpu_time_total_ms", "hybrid_gpu_time_total_ms", "hybrid_cpu_time_avg_ms", "hybrid_gpu_time_avg_ms");
     len += CPU_KERNEL_STATS_FUNC(buf + len, buf_n - len);
     len += GPU_KERNEL_STATS_FUNC(buf + len, buf_n - len);
 	return len;

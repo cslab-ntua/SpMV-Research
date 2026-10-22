@@ -69,8 +69,10 @@ export CXX
 
 if [[ -d "${CUDA_PATH}/bin" ]]; then
     NVCC="${CUDA_PATH}/bin/nvcc -ccbin=${CC}"
+    # NVCC="${CUDA_PATH}/bin/nvcc -ccbin=${gcc_bin}"
 else
     NVCC="nvcc -ccbin=${CC}"
+    # NVCC="nvcc -ccbin=${gcc_bin}"
 fi
 export NVCC
 
@@ -347,8 +349,10 @@ fi
 
 if ((${#targets_nv_d[@]} > 0)); then
     export DOUBLE=1
-    export CC=gcc
-    export CPP=g++
+    # export CC=gcc
+    # export CPP=g++
+    export CC=${gcc_bin}
+    export CPP=${gpp_bin}
     export CFLAGS="${CFLAGS_NV_D}"
     export CPPFLAGS="${CPPFLAGS_NV_D}"
     export SUFFIX='_nv_d'
@@ -386,8 +390,10 @@ fi
 
 if ((${#targets_nv_f[@]} > 0)); then
     export DOUBLE=0
-    export CC=gcc
-    export CPP=g++
+    # export CC=gcc
+    # export CPP=g++
+    export CC=${gcc_bin}
+    export CPP=${gpp_bin}
     export CFLAGS="${CFLAGS_NV_F}"
     export CPPFLAGS="${CPPFLAGS_NV_F}"
     export SUFFIX='_nv_f'

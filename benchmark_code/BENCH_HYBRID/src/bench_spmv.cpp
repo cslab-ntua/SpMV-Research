@@ -840,6 +840,7 @@ compute(struct CSR_reference_s * csr, struct Matrix_Format * MF,
 					i += snprintf(buf + i, buf_n - i, ",%s", "time_gpu_iter_min");
 					i += snprintf(buf + i, buf_n - i, ",%s", "time_gpu_iter_median");
 					i += snprintf(buf + i, buf_n - i, ",%s", "time_gpu_iter_max");
+					i += statistics_print_labels(buf + i, buf_n - i);   // CPU + GPU sub-kernel labels, matching MF->statistics_print_data() below.
 				#else
 					i += statistics_print_labels(buf + i, buf_n - i);
 				#endif
