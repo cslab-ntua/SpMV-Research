@@ -321,13 +321,13 @@ typedef int64_t  vec_perm_elem_p64_256_t;
 //- Shuffle - Permute
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-#define vec_permute_i64_256(a, idx)                        riscv_vrgather_vv_i64m1(a, idx, 256);
-#define vec_permute_i64_16(a, idx)                         riscv_vrgather_vv_i64m1(a, idx,  16);
-#define vec_permute_i64_8(a, idx)                          riscv_vrgather_vv_i64m1(a, idx,   8);
-#define vec_permute_i64_4(a, idx)                          riscv_vrgather_vv_i64m1(a, idx,   4);
-#define vec_permute_i64_2(a, idx)                          riscv_vrgather_vv_i64m1(a, idx,   2);
+#define vec_permute_i64_256(a, idx)                        riscv_vrgather_vv_i64m1(a, idx, 256)
+#define vec_permute_i64_16(a, idx)                         riscv_vrgather_vv_i64m1(a, idx,  16)
+#define vec_permute_i64_8(a, idx)                          riscv_vrgather_vv_i64m1(a, idx,   8)
+#define vec_permute_i64_4(a, idx)                          riscv_vrgather_vv_i64m1(a, idx,   4)
+#define vec_permute_i64_2(a, idx)                          riscv_vrgather_vv_i64m1(a, idx,   2)
 #define vec_permute_i64_1(a, idx)                          a
-#define riscv_vrgather_vv_i64m1(a, idx, vl)                __riscv_vrgather_vv_i64m1(a, __riscv_vreinterpret_v_i64m1_u64m1(idx), vl);
+#define riscv_vrgather_vv_i64m1(a, idx, vl)                __riscv_vrgather_vv_i64m1(a, __riscv_vreinterpret_v_i64m1_u64m1(idx), vl)
 
 
 #endif /* VECTORIZATION_RISCV_SVV_I64_H */

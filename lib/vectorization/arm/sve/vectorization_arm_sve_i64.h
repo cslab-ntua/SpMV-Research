@@ -14,6 +14,7 @@
 
 
 typedef int64_t    __attribute__((may_alias))  vec_alias_int64_t;
+typedef int64_t    __attribute__((may_alias))  vec_alias_uint64_t;
 
 /* Without the arm_sve_vector_bits attribute, the sve types have many limitations:
  *     - no sizeof().
@@ -80,10 +81,20 @@ typedef uint64_t  vec_i64_t __attribute__((may_alias));
 #define vec_elem_get_i64_2(vec, index)                     ( ((vec_alias_int64_t *) &vec)[index] )
 #define vec_elem_get_i64_1(vec, index)                     vec
 
+#define vec_elem_get_p64_8(vec, index)                     ( ((vec_alias_uint64_t *) &vec)[index] )
+#define vec_elem_get_p64_4(vec, index)                     ( ((vec_alias_uint64_t *) &vec)[index] )
+#define vec_elem_get_p64_2(vec, index)                     ( ((vec_alias_uint64_t *) &vec)[index] )
+#define vec_elem_get_p64_1(vec, index)                     vec
+
 #define vec_elem_set_i64_8(vec, index, expr)               do { ((vec_alias_int64_t *) &vec)[index] = (expr); } while (0)
 #define vec_elem_set_i64_4(vec, index, expr)               do { ((vec_alias_int64_t *) &vec)[index] = (expr); } while (0)
 #define vec_elem_set_i64_2(vec, index, expr)               do { ((vec_alias_int64_t *) &vec)[index] = (expr); } while (0)
 #define vec_elem_set_i64_1(vec, index, expr)               do { vec = (expr); } while (0)
+
+#define vec_elem_set_p64_8(vec, index, expr)               do { ((vec_alias_uint64_t *) &vec)[index] = (expr); } while (0)
+#define vec_elem_set_p64_4(vec, index, expr)               do { ((vec_alias_uint64_t *) &vec)[index] = (expr); } while (0)
+#define vec_elem_set_p64_2(vec, index, expr)               do { ((vec_alias_uint64_t *) &vec)[index] = (expr); } while (0)
+#define vec_elem_set_p64_1(vec, index, expr)               do { vec = (expr); } while (0)
 
 #define vec_array_i64_8(vec)                               ((vec_alias_int64_t *) &vec)
 #define vec_array_i64_4(vec)                               ((vec_alias_int64_t *) &vec)
@@ -100,15 +111,20 @@ typedef uint64_t  vec_i64_t __attribute__((may_alias));
 #define vec_set_iter_i64_2(iter, expr)                     ({ vec_i64_2_t  _buf; vec_loop_stmt(   2, iter, ((vec_alias_int64_t *) &_buf)[iter] = (expr););  _buf; })
 #define vec_set_iter_i64_1(iter, expr)                     ( (int64_t) vec_iter_expr_1(iter, 0, (expr)) )
 
-#define vec_set_iter_p64_8(iter, expr)                     ({ vec_i64_8_t  _buf; vec_loop_stmt(   8, iter, ((vec_alias_int64_t *) &_buf)[iter] = (expr););  _buf; })
-#define vec_set_iter_p64_4(iter, expr)                     ({ vec_i64_4_t  _buf; vec_loop_stmt(   4, iter, ((vec_alias_int64_t *) &_buf)[iter] = (expr););  _buf; })
-#define vec_set_iter_p64_2(iter, expr)                     ({ vec_i64_2_t  _buf; vec_loop_stmt(   2, iter, ((vec_alias_int64_t *) &_buf)[iter] = (expr););  _buf; })
-#define vec_set_iter_p64_1(iter, expr)                     (   (int64_t) vec_iter_expr_1(iter, 0, (expr)) )
+#define vec_set_iter_p64_8(iter, expr)                     ({ vec_i64_8_t  _buf; vec_loop_stmt(   8, iter, ((vec_alias_uint64_t *) &_buf)[iter] = (expr););  _buf; })
+#define vec_set_iter_p64_4(iter, expr)                     ({ vec_i64_4_t  _buf; vec_loop_stmt(   4, iter, ((vec_alias_uint64_t *) &_buf)[iter] = (expr););  _buf; })
+#define vec_set_iter_p64_2(iter, expr)                     ({ vec_i64_2_t  _buf; vec_loop_stmt(   2, iter, ((vec_alias_uint64_t *) &_buf)[iter] = (expr););  _buf; })
+#define vec_set_iter_p64_1(iter, expr)                     (   (uint64_t) vec_iter_expr_1(iter, 0, (expr)) )
 
 #define vec_loadu_i64_8(ptr)                               svld1_s64(svptrue_pat_b64(SV_VL8), ((int64_t*) (ptr)))
 #define vec_loadu_i64_4(ptr)                               svld1_s64(svptrue_pat_b64(SV_VL4), ((int64_t*) (ptr)))
 #define vec_loadu_i64_2(ptr)                               svld1_s64(svptrue_pat_b64(SV_VL2), ((int64_t*) (ptr)))
 #define vec_loadu_i64_1(ptr)                               (*((vec_alias_int64_t*) (ptr)))
+
+#define vec_loadu_p64_8(ptr)                               svld1_u64(svptrue_pat_b64(SV_VL8), ((uint64_t*) (ptr)))
+#define vec_loadu_p64_4(ptr)                               svld1_u64(svptrue_pat_b64(SV_VL4), ((uint64_t*) (ptr)))
+#define vec_loadu_p64_2(ptr)                               svld1_u64(svptrue_pat_b64(SV_VL2), ((uint64_t*) (ptr)))
+#define vec_loadu_p64_1(ptr)                               (*((vec_alias_uint64_t*) (ptr)))
 
 #define vec_loadu_maskedz_i64_8(ptr, mask)                 svld1_s64(mask, ((int64_t*) (ptr)))
 #define vec_loadu_maskedz_i64_4(ptr, mask)                 svld1_s64(mask, ((int64_t*) (ptr)))
@@ -119,6 +135,11 @@ typedef uint64_t  vec_i64_t __attribute__((may_alias));
 #define vec_storeu_i64_4(ptr, vec)                         svst1_s64(svptrue_pat_b64(SV_VL4), ((int64_t*) (ptr)), vec)
 #define vec_storeu_i64_2(ptr, vec)                         svst1_s64(svptrue_pat_b64(SV_VL2), ((int64_t*) (ptr)), vec)
 #define vec_storeu_i64_1(ptr, vec)                         do { (*((vec_alias_int64_t*) (ptr))) = (vec); } while (0)
+
+#define vec_storeu_p64_8(ptr, vec)                         svst1_u64(svptrue_pat_b64(SV_VL8), ((uint64_t*) (ptr)), vec)
+#define vec_storeu_p64_4(ptr, vec)                         svst1_u64(svptrue_pat_b64(SV_VL4), ((uint64_t*) (ptr)), vec)
+#define vec_storeu_p64_2(ptr, vec)                         svst1_u64(svptrue_pat_b64(SV_VL2), ((uint64_t*) (ptr)), vec)
+#define vec_storeu_p64_1(ptr, vec)                         do { (*((vec_alias_uint64_t*) (ptr))) = (vec); } while (0)
 
 #define vec_storeu_masked_i64_8(ptr, vec, mask)            svst1_s64(mask, ((int64_t*) (ptr)), vec)
 #define vec_storeu_masked_i64_4(ptr, vec, mask)            svst1_s64(mask, ((int64_t*) (ptr)), vec)

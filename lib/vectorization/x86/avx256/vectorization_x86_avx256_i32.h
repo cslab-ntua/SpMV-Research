@@ -83,11 +83,23 @@ typedef int32_t  vec_perm_elem_p32_32_t;
 #define vec_elem_get_i32_4(vec, index)                     ((vec).s[index])
 #define vec_elem_get_i32_1(vec, index)                     ((vec).s[index])
 
+#define vec_elem_get_p32_32(vec, index)                    ((vec).s[index])
+#define vec_elem_get_p32_16(vec, index)                    ((vec).s[index])
+#define vec_elem_get_p32_8(vec, index)                     ((vec).s[index])
+#define vec_elem_get_p32_4(vec, index)                     ((vec).s[index])
+#define vec_elem_get_p32_1(vec, index)                     ((vec).s[index])
+
 #define vec_elem_set_i32_32(vec, index, expr)              { (vec).s[index] = (expr); } while (0)
 #define vec_elem_set_i32_16(vec, index, expr)              { (vec).s[index] = (expr); } while (0)
 #define vec_elem_set_i32_8(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
 #define vec_elem_set_i32_4(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
 #define vec_elem_set_i32_1(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
+
+#define vec_elem_set_p32_32(vec, index, expr)              { (vec).s[index] = (expr); } while (0)
+#define vec_elem_set_p32_16(vec, index, expr)              { (vec).s[index] = (expr); } while (0)
+#define vec_elem_set_p32_8(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
+#define vec_elem_set_p32_4(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
+#define vec_elem_set_p32_1(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
 
 #define vec_array_i32_32(vec)                              (vec).s
 #define vec_array_i32_16(vec)                              (vec).s

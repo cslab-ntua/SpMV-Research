@@ -14,6 +14,7 @@
 
 
 typedef int32_t    __attribute__((may_alias))  vec_alias_int32_t;
+typedef int32_t    __attribute__((may_alias))  vec_alias_uint32_t;
 
 /* Without the arm_sve_vector_bits attribute, the sve types have many limitations:
  *     - no sizeof().
@@ -85,11 +86,23 @@ typedef uint32_t  vec_i32_t __attribute__((may_alias));
 #define vec_elem_get_i32_2(vec, index)                     ( ((vec_alias_int32_t *) &vec)[index] )
 #define vec_elem_get_i32_1(vec, index)                     vec
 
+#define vec_elem_get_p32_16(vec, index)                    ( ((vec_alias_uint32_t *) &vec)[index] )
+#define vec_elem_get_p32_8(vec, index)                     ( ((vec_alias_uint32_t *) &vec)[index] )
+#define vec_elem_get_p32_4(vec, index)                     ( ((vec_alias_uint32_t *) &vec)[index] )
+#define vec_elem_get_p32_2(vec, index)                     ( ((vec_alias_uint32_t *) &vec)[index] )
+#define vec_elem_get_p32_1(vec, index)                     vec
+
 #define vec_elem_set_i32_16(vec, index, expr)              do { ((vec_alias_int32_t *) &vec)[index] = (expr); } while (0)
 #define vec_elem_set_i32_8(vec, index, expr)               do { ((vec_alias_int32_t *) &vec)[index] = (expr); } while (0)
 #define vec_elem_set_i32_4(vec, index, expr)               do { ((vec_alias_int32_t *) &vec)[index] = (expr); } while (0)
 #define vec_elem_set_i32_2(vec, index, expr)               do { ((vec_alias_int32_t *) &vec)[index] = (expr); } while (0)
 #define vec_elem_set_i32_1(vec, index, expr)               do { vec = (expr); } while (0)
+
+#define vec_elem_set_p32_16(vec, index, expr)              do { ((vec_alias_uint32_t *) &vec)[index] = (expr); } while (0)
+#define vec_elem_set_p32_8(vec, index, expr)               do { ((vec_alias_uint32_t *) &vec)[index] = (expr); } while (0)
+#define vec_elem_set_p32_4(vec, index, expr)               do { ((vec_alias_uint32_t *) &vec)[index] = (expr); } while (0)
+#define vec_elem_set_p32_2(vec, index, expr)               do { ((vec_alias_uint32_t *) &vec)[index] = (expr); } while (0)
+#define vec_elem_set_p32_1(vec, index, expr)               do { vec = (expr); } while (0)
 
 #define vec_array_i32_16(vec)                              ((vec_alias_int32_t *) &vec)
 #define vec_array_i32_8(vec)                               ((vec_alias_int32_t *) &vec)
@@ -109,17 +122,23 @@ typedef uint32_t  vec_i32_t __attribute__((may_alias));
 #define vec_set_iter_i32_2(iter, expr)                     ({ vec_i32_2_t   _buf; vec_loop_stmt(  2, iter, ((vec_alias_int32_t *) &_buf)[iter] = (expr););  _buf; })
 #define vec_set_iter_i32_1(iter, expr)                     (  ( vec_alias_int32_t) vec_iter_expr_1(iter, 0, (expr)) )
 
-#define vec_set_iter_p32_16(iter, expr)                    ({ vec_i32_16_t  _buf; vec_loop_stmt( 16, iter, ((vec_alias_int32_t *) &_buf)[iter] = (expr););  _buf; })
-#define vec_set_iter_p32_8(iter, expr)                     ({ vec_i32_8_t   _buf; vec_loop_stmt(  8, iter, ((vec_alias_int32_t *) &_buf)[iter] = (expr););  _buf; })
-#define vec_set_iter_p32_4(iter, expr)                     ({ vec_i32_4_t   _buf; vec_loop_stmt(  4, iter, ((vec_alias_int32_t *) &_buf)[iter] = (expr););  _buf; })
-#define vec_set_iter_p32_2(iter, expr)                     ({ vec_i32_2_t   _buf; vec_loop_stmt(  2, iter, ((vec_alias_int32_t *) &_buf)[iter] = (expr););  _buf; })
-#define vec_set_iter_p32_1(iter, expr)                     (  ( vec_alias_int32_t) vec_iter_expr_1(iter, 0, (expr)) )
+#define vec_set_iter_p32_16(iter, expr)                    ({ vec_i32_16_t  _buf; vec_loop_stmt( 16, iter, ((vec_alias_uint32_t *) &_buf)[iter] = (expr););  _buf; })
+#define vec_set_iter_p32_8(iter, expr)                     ({ vec_i32_8_t   _buf; vec_loop_stmt(  8, iter, ((vec_alias_uint32_t *) &_buf)[iter] = (expr););  _buf; })
+#define vec_set_iter_p32_4(iter, expr)                     ({ vec_i32_4_t   _buf; vec_loop_stmt(  4, iter, ((vec_alias_uint32_t *) &_buf)[iter] = (expr););  _buf; })
+#define vec_set_iter_p32_2(iter, expr)                     ({ vec_i32_2_t   _buf; vec_loop_stmt(  2, iter, ((vec_alias_uint32_t *) &_buf)[iter] = (expr););  _buf; })
+#define vec_set_iter_p32_1(iter, expr)                     (  ( vec_alias_uint32_t) vec_iter_expr_1(iter, 0, (expr)) )
 
 #define vec_loadu_i32_16(ptr)                              svld1_s32(svptrue_pat_b32(SV_VL16), ((int32_t*) (ptr)))
 #define vec_loadu_i32_8(ptr)                               svld1_s32(svptrue_pat_b32(SV_VL8), ((int32_t*) (ptr)))
 #define vec_loadu_i32_4(ptr)                               svld1_s32(svptrue_pat_b32(SV_VL4), ((int32_t*) (ptr)))
 #define vec_loadu_i32_2(ptr)                               svld1_s32(svptrue_pat_b32(SV_VL2), ((int32_t*) (ptr)))
 #define vec_loadu_i32_1(ptr)                               (*((vec_alias_int32_t*) (ptr)))
+
+#define vec_loadu_p32_16(ptr)                              svld1_u32(svptrue_pat_b32(SV_VL16), ((uint32_t*) (ptr)))
+#define vec_loadu_p32_8(ptr)                               svld1_u32(svptrue_pat_b32(SV_VL8), ((uint32_t*) (ptr)))
+#define vec_loadu_p32_4(ptr)                               svld1_u32(svptrue_pat_b32(SV_VL4), ((uint32_t*) (ptr)))
+#define vec_loadu_p32_2(ptr)                               svld1_u32(svptrue_pat_b32(SV_VL2), ((uint32_t*) (ptr)))
+#define vec_loadu_p32_1(ptr)                               (*((vec_alias_uint32_t*) (ptr)))
 
 #define vec_loadu_maskedz_i32_16(ptr, mask)                svld1_s32(mask, ((int32_t*) (ptr)))
 #define vec_loadu_maskedz_i32_8(ptr, mask)                 svld1_s32(mask, ((int32_t*) (ptr)))
@@ -132,6 +151,12 @@ typedef uint32_t  vec_i32_t __attribute__((may_alias));
 #define vec_storeu_i32_4(ptr, vec)                         svst1_s32(svptrue_pat_b32(SV_VL4), ((int32_t*) (ptr)), vec)
 #define vec_storeu_i32_2(ptr, vec)                         svst1_s32(svptrue_pat_b32(SV_VL2), ((int32_t*) (ptr)), vec)
 #define vec_storeu_i32_1(ptr, vec)                         do { (*((vec_alias_int32_t*) (ptr))) = (vec); } while (0)
+
+#define vec_storeu_p32_16(ptr, vec)                        svst1_u32(svptrue_pat_b32(SV_VL16), ((uint32_t*) (ptr)), vec)
+#define vec_storeu_p32_8(ptr, vec)                         svst1_u32(svptrue_pat_b32(SV_VL8), ((uint32_t*) (ptr)), vec)
+#define vec_storeu_p32_4(ptr, vec)                         svst1_u32(svptrue_pat_b32(SV_VL4), ((uint32_t*) (ptr)), vec)
+#define vec_storeu_p32_2(ptr, vec)                         svst1_u32(svptrue_pat_b32(SV_VL2), ((uint32_t*) (ptr)), vec)
+#define vec_storeu_p32_1(ptr, vec)                         do { (*((vec_alias_uint32_t*) (ptr))) = (vec); } while (0)
 
 #define vec_storeu_masked_i32_16(ptr, vec, mask)           svst1_s32(mask, ((int32_t*) (ptr)), vec)
 #define vec_storeu_masked_i32_8(ptr, vec, mask)            svst1_s32(mask, ((int32_t*) (ptr)), vec)

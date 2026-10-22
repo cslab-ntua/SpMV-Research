@@ -83,11 +83,23 @@ typedef int64_t  vec_perm_elem_p64_16_t;
 #define vec_elem_get_i64_2(vec, index)                     ((vec).s[index])
 #define vec_elem_get_i64_1(vec, index)                     ((vec).s[index])
 
+#define vec_elem_get_p64_16(vec, index)                    ((vec).s[index])
+#define vec_elem_get_p64_8(vec, index)                     ((vec).s[index])
+#define vec_elem_get_p64_4(vec, index)                     ((vec).s[index])
+#define vec_elem_get_p64_2(vec, index)                     ((vec).s[index])
+#define vec_elem_get_p64_1(vec, index)                     ((vec).s[index])
+
 #define vec_elem_set_i64_16(vec, index, expr)              { (vec).s[index] = (expr); } while (0)
 #define vec_elem_set_i64_8(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
 #define vec_elem_set_i64_4(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
 #define vec_elem_set_i64_2(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
 #define vec_elem_set_i64_1(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
+
+#define vec_elem_set_p64_16(vec, index, expr)              { (vec).s[index] = (expr); } while (0)
+#define vec_elem_set_p64_8(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
+#define vec_elem_set_p64_4(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
+#define vec_elem_set_p64_2(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
+#define vec_elem_set_p64_1(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
 
 #define vec_array_i64_16(vec)                              (vec).s
 #define vec_array_i64_8(vec)                               (vec).s
@@ -121,9 +133,9 @@ typedef int64_t  vec_perm_elem_p64_16_t;
 
 #define vec_loadu_p64_16(ptr)                              vec_loop_expr(vec_i64_16_t, 4, _tmp, _i, (_tmp).v[_i] = _mm256_loadu_si256(((__m256i *) (ptr)) + _i);)
 #define vec_loadu_p64_8(ptr)                               vec_loop_expr(vec_i64_8_t,  2, _tmp, _i, (_tmp).v[_i] = _mm256_loadu_si256(((__m256i *) (ptr)) + _i);)
-#define vec_loadu_p64_4(ptr)                               vec_i64_4( _mm256_loadu_si256((__m256i *) (ptr)) )
-#define vec_loadu_p64_2(ptr)                               vec_i64_2( _mm_loadu_si128((__m128i *) (ptr)) )
-#define vec_loadu_p64_1(ptr)                               vec_i64_1( (*((int64_t *) (ptr))) )
+#define vec_loadu_p64_4(ptr)                               vec_perm_p64_4( _mm256_loadu_si256((__m256i *) (ptr)) )
+#define vec_loadu_p64_2(ptr)                               vec_perm_p64_2( _mm_loadu_si128((__m128i *) (ptr)) )
+#define vec_loadu_p64_1(ptr)                               vec_perm_p64_1( (*((int64_t *) (ptr))) )
 
 #define vec_loadu_maskedz_i64_16(ptr, mask)                vec_loop_expr(vec_i64_16_t, 4, _tmp, _i, (_tmp).v[_i] = _mm256_maskload_epi64(((long long const *) (ptr)) + 4*_i, (mask).v[_i]);)
 #define vec_loadu_maskedz_i64_8(ptr, mask)                 vec_loop_expr(vec_i64_8_t,  2, _tmp, _i, (_tmp).v[_i] = _mm256_maskload_epi64(((long long const *) (ptr)) + 4*_i, (mask).v[_i]);)

@@ -284,7 +284,6 @@ random_xs_uniform_integer_32bit(struct Random_State * rs, long min, long max)
 	hash = (hash * range) >> 32;
 	if (range > 0x7FFFFFFF)       // Degrade to 31 bits random number to keep range <= max SIGNED 32 bit integer.
 		hash &= 0x7FFFFFFF;
-	// hash %= range;
 	hash += umin;
 	return hash;
 }
@@ -316,7 +315,6 @@ random_xs_uniform_integer_64bit(struct Random_State * rs, long min, long max)
 	hash = (((__uint128_t) hash) * range) >> 64;
 	if (range > 0x7FFFFFFFFFFFFFFF)       // Degrade to 63 bits random number to keep range <= max SIGNED 64 bit integer.
 		hash &= 0x7FFFFFFFFFFFFFFF;
-	// hash %= range;
 	hash += umin;
 	return hash;
 }
@@ -447,7 +445,7 @@ RANDOM_permutation_serial_base(struct Random_State * rs, long * permutation_buf,
 	int64_t i, j;
 	for (i=0;i<N;i++)
 	{
-		j = random_xs_uniform_integer(rs, 0, N);
+		j = random_xs_uniform_integer(rs, i, N);
 		macros_swap(&permutation_buf[i], &permutation_buf[j]);
 	}
 }

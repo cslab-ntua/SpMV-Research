@@ -350,14 +350,14 @@ typedef int32_t  vec_perm_elem_p32_512_t;
 //- Shuffle - Permute
 //------------------------------------------------------------------------------------------------------------------------------------------
 
-#define vec_permute_i32_512(a, idx)                        riscv_vrgather_vv_i32m1(a, idx, 512);
-#define vec_permute_i32_256(a, idx)                        riscv_vrgather_vv_i32m1(a, idx, 256);
-#define vec_permute_i32_32(a, idx)                         riscv_vrgather_vv_i32m1(a, idx,  32);
-#define vec_permute_i32_16(a, idx)                         riscv_vrgather_vv_i32m1(a, idx,  16);
-#define vec_permute_i32_8(a, idx)                          riscv_vrgather_vv_i32m1(a, idx,   8);
-#define vec_permute_i32_4(a, idx)                          riscv_vrgather_vv_i32m1(a, idx,   4);
+#define vec_permute_i32_512(a, idx)                        riscv_vrgather_vv_i32m1(a, idx, 512)
+#define vec_permute_i32_256(a, idx)                        riscv_vrgather_vv_i32m1(a, idx, 256)
+#define vec_permute_i32_32(a, idx)                         riscv_vrgather_vv_i32m1(a, idx,  32)
+#define vec_permute_i32_16(a, idx)                         riscv_vrgather_vv_i32m1(a, idx,  16)
+#define vec_permute_i32_8(a, idx)                          riscv_vrgather_vv_i32m1(a, idx,   8)
+#define vec_permute_i32_4(a, idx)                          riscv_vrgather_vv_i32m1(a, idx,   4)
 #define vec_permute_i32_1(a, idx)                          a
-#define riscv_vrgather_vv_i32m1(a, idx, vl)                __riscv_vrgather_vv_i32m1(a, __riscv_vreinterpret_v_i32m1_u32m1(idx), vl);
+#define riscv_vrgather_vv_i32m1(a, idx, vl)                __riscv_vrgather_vv_i32m1(a, __riscv_vreinterpret_v_i32m1_u32m1(idx), vl)
 
 
 #endif /* VECTORIZATION_RISCV_SVV_I32_H */

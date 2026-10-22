@@ -402,7 +402,7 @@ compress_init_div(__attribute__((unused)) ValueTypeReference * vals, __attribute
 
 		tdks[tnum] = tdk;
 	}
-	quicksort_blocked_create_permutation_table();
+	// quicksort_blocked_create_permutation_table();
 }
 
 

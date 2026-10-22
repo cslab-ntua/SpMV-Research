@@ -85,11 +85,23 @@ typedef int32_t  vec_perm_elem_p32_32_t;
 #define vec_elem_get_i32_4(vec, index)                     ((vec).s[index])
 #define vec_elem_get_i32_1(vec, index)                     ((vec).s[index])
 
+#define vec_elem_get_p32_32(vec, index)                    ((vec).s[index])
+#define vec_elem_get_p32_16(vec, index)                    ((vec).s[index])
+#define vec_elem_get_p32_8(vec, index)                     ((vec).s[index])
+#define vec_elem_get_p32_4(vec, index)                     ((vec).s[index])
+#define vec_elem_get_p32_1(vec, index)                     ((vec).s[index])
+
 #define vec_elem_set_i32_32(vec, index, expr)              { (vec).s[index] = (expr); } while (0)
 #define vec_elem_set_i32_16(vec, index, expr)              { (vec).s[index] = (expr); } while (0)
 #define vec_elem_set_i32_8(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
 #define vec_elem_set_i32_4(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
 #define vec_elem_set_i32_1(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
+
+#define vec_elem_set_p32_32(vec, index, expr)              { (vec).s[index] = (expr); } while (0)
+#define vec_elem_set_p32_16(vec, index, expr)              { (vec).s[index] = (expr); } while (0)
+#define vec_elem_set_p32_8(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
+#define vec_elem_set_p32_4(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
+#define vec_elem_set_p32_1(vec, index, expr)               { (vec).s[index] = (expr); } while (0)
 
 #define vec_array_i32_32(vec)                              (vec).s
 #define vec_array_i32_16(vec)                              (vec).s
@@ -121,6 +133,12 @@ typedef int32_t  vec_perm_elem_p32_32_t;
 #define vec_loadu_i32_4(ptr)                               vec_i32_4( _mm_loadu_si128((__m128i *) (ptr)) )
 #define vec_loadu_i32_1(ptr)                               vec_i32_1( (*((int32_t *) (ptr))) )
 
+#define vec_loadu_p32_32(ptr)                              vec_loop_expr(vec_i32_32_t, 2, _tmp, _i, (_tmp).v[_i] = _mm512_loadu_si512(((__m512i *) (ptr)) + _i);)
+#define vec_loadu_p32_16(ptr)                              vec_i32_16( _mm512_loadu_si512((__m512i *) (ptr)) )
+#define vec_loadu_p32_8(ptr)                               vec_i32_8( _mm256_loadu_si256((__m256i *) (ptr)) )
+#define vec_loadu_p32_4(ptr)                               vec_i32_4( _mm_loadu_si128((__m128i *) (ptr)) )
+#define vec_loadu_p32_1(ptr)                               vec_i32_1( (*((int32_t *) (ptr))) )
+
 #define vec_loadu_maskedz_i32_32(ptr, mask)                vec_loop_expr(vec_i32_32_t, 2, _tmp, _i, (_tmp).v[_i] = _mm512_maskz_loadu_epi32((mask).v[_i], ((__m512i *) (ptr)) + _i);)
 #define vec_loadu_maskedz_i32_16(ptr, mask)                vec_i32_16( _mm512_maskz_loadu_epi32((mask).v, (__m512i *) (ptr)) )
 #define vec_loadu_maskedz_i32_8(ptr, mask)                 vec_i32_8( _mm256_maskz_loadu_epi32((mask).v, (__m256i *) (ptr)) )
@@ -132,6 +150,12 @@ typedef int32_t  vec_perm_elem_p32_32_t;
 #define vec_storeu_i32_8(ptr, vec)                         _mm256_storeu_si256((__m256i *) (ptr), (vec).v)
 #define vec_storeu_i32_4(ptr, vec)                         _mm_storeu_si128((__m128i *) (ptr), (vec).v)
 #define vec_storeu_i32_1(ptr, vec)                         do { (*((int32_t *) (ptr))) = ((vec).v); } while (0)
+
+#define vec_storeu_p32_32(ptr, vec)                        vec_loop_stmt(2, _i, _mm512_storeu_si512(((__m512i *) (ptr)) + _i, (vec).v[_i]);)
+#define vec_storeu_p32_16(ptr, vec)                        _mm512_storeu_si512((__m512i *) (ptr), (vec).v)
+#define vec_storeu_p32_8(ptr, vec)                         _mm256_storeu_si256((__m256i *) (ptr), (vec).v)
+#define vec_storeu_p32_4(ptr, vec)                         _mm_storeu_si128((__m128i *) (ptr), (vec).v)
+#define vec_storeu_p32_1(ptr, vec)                         do { (*((int32_t *) (ptr))) = ((vec).v); } while (0)
 
 #define vec_storeu_masked_i32_32(ptr, vec, mask)           vec_loop_stmt(2, _i, _mm512_mask_storeu_epi32(((__m512i *) (ptr)) + _i, (mask).v[_i], (vec).v[_i]);)
 #define vec_storeu_masked_i32_16(ptr, vec, mask)           _mm512_mask_storeu_epi32((__m512i *) (ptr), (mask).v, (vec).v)

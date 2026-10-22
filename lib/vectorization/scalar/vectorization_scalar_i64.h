@@ -115,6 +115,12 @@ typedef union __attribute__((packed, aligned(8))) { struct {int64_t a[16];} v; i
 #define vec_loadu_i64_2(ptr)                               vec_loop_expr(vec_i64_2_t,   2, _tmp, _i, _tmp.s[_i] = ((int64_t *) (ptr))[_i];)
 #define vec_loadu_i64_1(ptr)                               vec_loop_expr(vec_i64_1_t,   1, _tmp, _i, _tmp.s[_i] = ((int64_t *) (ptr))[_i];)
 
+#define vec_loadu_p64_16(ptr)                              vec_loop_expr(vec_i64_16_t, 16, _tmp, _i, _tmp.s[_i] = ((int64_t *) (ptr))[_i];)
+#define vec_loadu_p64_8(ptr)                               vec_loop_expr(vec_i64_8_t,   8, _tmp, _i, _tmp.s[_i] = ((int64_t *) (ptr))[_i];)
+#define vec_loadu_p64_4(ptr)                               vec_loop_expr(vec_i64_4_t,   4, _tmp, _i, _tmp.s[_i] = ((int64_t *) (ptr))[_i];)
+#define vec_loadu_p64_2(ptr)                               vec_loop_expr(vec_i64_2_t,   2, _tmp, _i, _tmp.s[_i] = ((int64_t *) (ptr))[_i];)
+#define vec_loadu_p64_1(ptr)                               vec_loop_expr(vec_i64_1_t,   1, _tmp, _i, _tmp.s[_i] = ((int64_t *) (ptr))[_i];)
+
 #define vec_loadu_maskedz_i64_16(ptr, mask)                vec_loop_expr(vec_i64_16_t, 16, _tmp, _i, _tmp.s[_i] = ((mask).v & (1 << _i)) ? ((int64_t *) (ptr))[_i] : 0;)
 #define vec_loadu_maskedz_i64_8(ptr, mask)                 vec_loop_expr(vec_i64_8_t,   8, _tmp, _i, _tmp.s[_i] = ((mask).v & (1 << _i)) ? ((int64_t *) (ptr))[_i] : 0;)
 #define vec_loadu_maskedz_i64_4(ptr, mask)                 vec_loop_expr(vec_i64_4_t,   4, _tmp, _i, _tmp.s[_i] = ((mask).v & (1 << _i)) ? ((int64_t *) (ptr))[_i] : 0;)
@@ -126,6 +132,12 @@ typedef union __attribute__((packed, aligned(8))) { struct {int64_t a[16];} v; i
 #define vec_storeu_i64_4(ptr, vec)                         vec_loop_stmt( 4, _i, ((int64_t *) (ptr))[_i] = vec.s[_i];)
 #define vec_storeu_i64_2(ptr, vec)                         vec_loop_stmt( 2, _i, ((int64_t *) (ptr))[_i] = vec.s[_i];)
 #define vec_storeu_i64_1(ptr, vec)                         vec_loop_stmt( 1, _i, ((int64_t *) (ptr))[_i] = vec.s[_i];)
+
+#define vec_storeu_p64_16(ptr, vec)                        vec_loop_stmt(16, _i, ((int64_t *) (ptr))[_i] = vec.s[_i];)
+#define vec_storeu_p64_8(ptr, vec)                         vec_loop_stmt( 8, _i, ((int64_t *) (ptr))[_i] = vec.s[_i];)
+#define vec_storeu_p64_4(ptr, vec)                         vec_loop_stmt( 4, _i, ((int64_t *) (ptr))[_i] = vec.s[_i];)
+#define vec_storeu_p64_2(ptr, vec)                         vec_loop_stmt( 2, _i, ((int64_t *) (ptr))[_i] = vec.s[_i];)
+#define vec_storeu_p64_1(ptr, vec)                         vec_loop_stmt( 1, _i, ((int64_t *) (ptr))[_i] = vec.s[_i];)
 
 #define vec_storeu_masked_i64_16(ptr, vec, mask)           vec_loop_stmt(16, _i, if ((mask).v & (1 << _i)) ((int64_t *) (ptr))[_i] = vec.s[_i];)
 #define vec_storeu_masked_i64_8(ptr, vec, mask)            vec_loop_stmt( 8, _i, if ((mask).v & (1 << _i)) ((int64_t *) (ptr))[_i] = vec.s[_i];)
