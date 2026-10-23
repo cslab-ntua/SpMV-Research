@@ -44,6 +44,18 @@ Step 2: for every (CPU kernel, GPU kernel) pair found in the baseline, produce
           9_paper_progression_<methods>_<ck>_<gk>.pdf
                                                     Paper violin/box plot: GFLOPS (left) and Speedup (right)
                                                     comparing selected progression methods vs baseline GPU
+          10_cpu_div_rf_vs_sell_sorted_csr_<source>_<gk>.pdf
+                                                    CPU part performance comparison: div_rf vs sell_sorted_csr
+                                                    per (strategy, ratio) with speedup and LLC (>117 MB) highlighting
+          11_cpu_oracle_pctdiff_<source>_<gk>.pdf  Total GFLOPS comparison: sell_sorted_csr vs div_rf
+                                                    per strategy, overall best, and Best of Both (CPU Oracle)
+          11_cpu_oracle_boxplots_<source>_<gk>.pdf GFLOPS boxplots & geomean speedup (4 pages):
+                                                    standalone GPU vs Oracle Hybrid, sell vs div
+          12_cross_source_cpu_oracle_pctdiff_<gk>.pdf
+                                                    Shared-x vs Local-x comparison where each source
+                                                    uses the CPU Oracle (optimal of sell_sorted_csr and div_rf)
+          12_cross_source_cpu_oracle_boxplots_<gk>.pdf
+                                                    Boxplot & geomean speedup for Shared-x vs Local-x (Oracle CPU)
 
 This script is self-contained (no import from parse_and_plot.py).
 
@@ -169,41 +181,53 @@ PROGRESSION_METHOD_SYMBOLS = {
     # Standalone GPU baselines
     'gpu':                          'GPU',
     'gpu_rcm':                      'GPU_RCM',
+    'gpu_cusparse':                 'GPU_CUSP',
+    'gpu_cusparse_rcm':             'GPU_CUSP_RCM',
+    'cusparse':                     'GPU_CUSP',
+    'cusparse_rcm':                 'GPU_CUSP_RCM',
 
-    # Non-RCM without column reordering (from baseline)
+    # Stage 0: Non-RCM without column reordering (from baseline)
     'shared_naive':                 'SN',
     'shared_minx':                  'SM',
     'shared_naive+minx':            'SNM',
 
-    # Non-RCM with column reordering (Shared-x, from col_reordering)
+    # Stage 1 & 2: Non-RCM with column reordering (Shared-x, from col_reordering)
     'shared_naive_reorder':         'SNR',
     'shared_minx_reorder':          'SMR',
     'shared_naive+minx_reorder':    'SNMR',
 
-    # Non-RCM with column reordering (Local-x, from cpu_local_x_opt)
+    # Stage 4A: Non-RCM with column reordering (Local-x, from cpu_local_x_opt)
     'local_naive':                  'LN',
     'local_minx':                   'LM',
     'local_naive+minx':             'LNM',
 
-    # Non-RCM best of Shared + Local (with column reordering)
+    # Stage 5A: Non-RCM best of Shared + Local (with column reordering)
     'shared+local_naive':           'SLN',
     'shared+local_minx':            'SLM',
     'shared+local_naive+minx':      'SLNM',
 
-    # RCM with column reordering (Shared-x, from baseline_rcm)
+    # Stage 3: RCM with column reordering (Shared-x, from baseline_rcm)
     'shared_naive_rcm':             'SN_RCM',
     'shared_minx_rcm':              'SM_RCM',
     'shared_naive+minx_rcm':        'SNM_RCM',
 
-    # RCM with column reordering (Local-x, from cpu_local_x_opt_rcm)
+    # Stage 4B: RCM with column reordering (Local-x, from cpu_local_x_opt_rcm)
     'local_naive_rcm':              'LN_RCM',
     'local_minx_rcm':               'LM_RCM',
     'local_naive+minx_rcm':         'LNM_RCM',
 
-    # RCM best of Shared + Local (with column reordering)
-    'shared+local_naive_rcm':        'SLN_RCM',
-    'shared+local_minx_rcm':         'SLM_RCM',
-    'shared+local_naive+minx_rcm':   'SLNM_RCM',
+    # Stage 5B: RCM best of Shared + Local (with column reordering)
+    'shared+local_naive_rcm':       'SLN_RCM',
+    'shared+local_minx_rcm':        'SLM_RCM',
+    'shared+local_naive+minx_rcm':  'SLNM_RCM',
+
+    # Stage 6: Ultimate best across Non-RCM and RCM
+    'shared+local_naive+minx_all':        'SLNM_ALL',
+    'shared+local_naive+minx_all_sell':   'SLNM_ALL_S',
+    'shared+local_naive+minx_all_div':    'SLNM_ALL_D',
+    'shared+local_naive+minx_all_oracle': 'ALL_ORACLE',
+    'best_of_all':                        'ALL_ORACLE',
+    'all_oracle':                         'ALL_ORACLE',
 }
 
 # Strategies shown (next to standalone GPU) in the per-source boxplot pages.
@@ -483,6 +507,21 @@ def load_sources(log_dirs, csv_dir, matrix_order_txt, read_from_scratch):
                 print(f"  -> Saved matrix order ({len(matrix_order)} matrices, sorted by memory footprint) to {matrix_order_txt}")
         else:
             df = pd.read_csv(csv_path)
+            # # Auto-detect if new div_rf runs were added to log directory after CSV was generated
+            # if 'div_rf' not in df.get('CPU_Kernel', pd.Series(dtype=object)).values:
+            #     run_subdirs = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d)) and d.startswith('run')]
+            #     if run_subdirs:
+            #         has_div = any(
+            #             any('div_rf' in f for f in os.listdir(os.path.join(path, d)) if f.endswith('.out'))
+            #             for d in run_subdirs
+            #         )
+            #     else:
+            #         has_div = any('div_rf' in f for f in os.listdir(path) if f.endswith('.out'))
+            #     if has_div:
+            #         print(f"  -> Detected new div_rf runs in {path}, re-parsing...")
+            #         df, _ = parse_logs(path, known_gpu=global_known_gpu, known_cpu=global_known_cpu)
+            #         df.to_csv(csv_path, index=False)
+            #         print(f"  -> Re-parsed {len(df)} records, updated {csv_path}")
             print(f"  -> Loaded {len(df)} records from {csv_path}")
         if not df.empty and 'Strategy' in df.columns:
             df['Strategy'] = df['Strategy'].replace(STRATEGY_MAP)
@@ -796,7 +835,7 @@ def _prepare_order(matrices, full_matrix_order):
 def _pct_vs_standalone(df, sa_gpu_dict, label):
     """Merge hybrid rows with standalone GPU GFLOPS and add PctChange / TimeRatio / Source."""
     sa_df = pd.DataFrame(sa_gpu_dict.items(), columns=['Matrix', 'SA_GPU'])
-    cols = ['Matrix', 'GFLOPS'] + [c for c in ['Ratio', 'Strategy', 'CPU_Time_ms', 'GPU_Time_ms', 'Gather_Pct', 'Gather_Elems'] if c in df.columns]
+    cols = ['Matrix', 'GFLOPS'] + [c for c in ['Ratio', 'Strategy', 'CPU_Kernel', 'GPU_Kernel', 'CPU_Time_ms', 'GPU_Time_ms', 'm_cpu', 'nnz_cpu', 'Gather_Pct', 'Gather_Elems'] if c in df.columns]
     merged = df[cols].merge(sa_df, on='Matrix')
     if merged.empty:
         return merged
@@ -812,12 +851,21 @@ def _gmean_pct(pct_series):
     factors = 1 + pct_series.dropna() / 100
     return (gmean(factors) - 1) * 100 if len(factors) else np.nan
 
-def _bar_label(row, show_strategy):
+def _bar_label(row, show_strategy, show_cpu_kernel=False):
     pct = row['PctChange']
     ratio = row.get('Ratio', np.nan)
     if pd.isna(ratio):
         return f"GMEAN: {pct:+.1f}%"
-    parts = [f"{int(ratio)}%"]
+    parts = []
+    if show_cpu_kernel:
+        ck = row.get('CPU_Kernel', row.get('Source', ''))
+        if pd.notna(ck):
+            ck_str = str(ck).lower()
+            if 'div' in ck_str:
+                parts.append("[DIV]")
+            elif 'sell' in ck_str:
+                parts.append("[SELL]")
+    parts.append(f"{int(ratio)}%")
     strategy = row.get('Strategy', np.nan)
     if show_strategy and not pd.isna(strategy):
         parts.append(STRAT_SYMBOLS.get(strategy, str(strategy)))
@@ -836,11 +884,11 @@ def _bar_label(row, show_strategy):
             parts.append(f"[G: {pct_str}]")
     return ' '.join(parts)
 
-def _annotate_bars(ax, df, show_strategy):
+def _annotate_bars(ax, df, show_strategy, show_cpu_kernel=False):
     for i in range(len(df)):
         row = df.iloc[i]
         pct = row['PctChange']
-        ax.annotate(_bar_label(row, show_strategy), (i, 0), ha='center', va='top' if pct >= 0 else 'bottom', xytext=(0, -5 if pct >= 0 else 5), textcoords='offset points', fontsize=7, rotation=90)
+        ax.annotate(_bar_label(row, show_strategy, show_cpu_kernel=show_cpu_kernel), (i, 0), ha='center', va='top' if pct >= 0 else 'bottom', xytext=(0, -5 if pct >= 0 else 5), textcoords='offset points', fontsize=7, rotation=90)
 
 def _finish_pct_axes(ax, title, order, paper_plot=False):
     title_fs = 14 if paper_plot else TITLE_FONT_SIZE
@@ -856,7 +904,7 @@ def _finish_pct_axes(ax, title, order, paper_plot=False):
 # ===========================================================================
 # Plot pages
 # ===========================================================================
-def plot_pctdiff_page(data, sa_gpu_dict, label, title, full_matrix_order, pdf, sort_by_pct=True, is_overall=False, paper_plot=False):
+def plot_pctdiff_page(data, sa_gpu_dict, label, title, full_matrix_order, pdf, sort_by_pct=True, is_overall=False, paper_plot=False, show_cpu_kernel=False):
     """One page: green/red bars of % change vs standalone GPU for one source."""
     if data.empty or not sa_gpu_dict:
         return False
@@ -880,13 +928,13 @@ def plot_pctdiff_page(data, sa_gpu_dict, label, title, full_matrix_order, pdf, s
     if ax.get_legend() is not None:
         ax.get_legend().remove()
     _finish_pct_axes(ax, title, order, paper_plot=paper_plot)
-    _annotate_bars(ax, merged_all, show_strategy=is_overall)
+    _annotate_bars(ax, merged_all, show_strategy=is_overall, show_cpu_kernel=show_cpu_kernel)
     plt.tight_layout()
     pdf.savefig(bbox_inches='tight')
     plt.close()
     return True
 
-def plot_pctdiff_best_of_both_page(base_data, var_data, sa_gpu_dict, base_label, var_label, title, pdf, paper_plot=False):
+def plot_pctdiff_best_of_both_page(base_data, var_data, sa_gpu_dict, base_label, var_label, title, pdf, paper_plot=False, is_cpu_oracle=False, is_cross_source_oracle=False):
     """One page: per matrix, the better of the two sources. Variant bars are hatched."""
     if base_data.empty or var_data.empty or not sa_gpu_dict:
         return False
@@ -899,10 +947,14 @@ def plot_pctdiff_best_of_both_page(base_data, var_data, sa_gpu_dict, base_label,
     if combined.empty:
         return False
     best = combined.loc[combined.groupby('Matrix')['PctChange'].idxmax()].sort_values('PctChange', ascending=False)
-    gm_row = pd.DataFrame([{'Matrix': 'GMEAN', 'PctChange': _gmean_pct(best['PctChange']), 'Source': 'GMEAN'}])
+    gm_row = pd.DataFrame([{'Matrix': 'GMEAN', 'PctChange': _gmean_pct(best['PctChange']), 'Source': 'GMEAN', 'CPU_Kernel': 'GMEAN'}])
     best = pd.concat([best, gm_row], ignore_index=True)
     order = list(best['Matrix'])
     best['Matrix'] = pd.Categorical(best['Matrix'], categories=order, ordered=True)
+
+    if not is_cross_source_oracle and is_cpu_oracle:
+        if 'oracle' in base_label.lower() or 'oracle' in var_label.lower():
+            is_cross_source_oracle = True
 
     fig_w, fig_h = get_fig_size_scale(4.0, 2.0) if paper_plot else (PLT_WIDTH, PLT_HEIGHT)
     plt.figure(figsize=(fig_w, fig_h))
@@ -910,12 +962,128 @@ def plot_pctdiff_best_of_both_page(base_data, var_data, sa_gpu_dict, base_label,
     ax = sns.barplot(data=best, x='Matrix', y='PctChange', hue='Matrix', palette=palette, dodge=False)
     if ax.get_legend() is not None:
         ax.get_legend().remove()
-    for i, bar in enumerate(ax.patches):
-        if i < len(best) and best.iloc[i]['Source'] == var_label:
-            bar.set_hatch('//')
-    plt.legend(handles=[mpatches.Patch(facecolor='gray', label=base_label), mpatches.Patch(facecolor='gray', hatch='//', label=var_label)], loc='upper right')
+
+    if is_cross_source_oracle:
+        for i, bar in enumerate(ax.patches):
+            if i < len(best):
+                row = best.iloc[i]
+                src = row.get('Source', '')
+                ck = str(row.get('CPU_Kernel', '')).lower()
+                is_local = (src == var_label)
+                is_div = ('div' in ck)
+                if not is_local and not is_div:
+                    bar.set_hatch('')
+                elif not is_local and is_div:
+                    bar.set_hatch('//')
+                elif is_local and not is_div:
+                    bar.set_hatch('\\\\')
+                elif is_local and is_div:
+                    bar.set_hatch('xx')
+    else:
+        for i, bar in enumerate(ax.patches):
+            if i < len(best) and best.iloc[i]['Source'] == var_label:
+                bar.set_hatch('//')
+
+    n_base = (best['Source'] == base_label).sum()
+    n_var = (best['Source'] == var_label).sum()
+    n_total = len(common)
+
+    if is_cross_source_oracle:
+        n_shared_sell = sum(1 for _, r in best.iterrows() if r['Source'] == base_label and 'sell' in str(r.get('CPU_Kernel', '')).lower())
+        n_shared_div  = sum(1 for _, r in best.iterrows() if r['Source'] == base_label and 'div' in str(r.get('CPU_Kernel', '')).lower())
+        n_local_sell  = sum(1 for _, r in best.iterrows() if r['Source'] == var_label  and 'sell' in str(r.get('CPU_Kernel', '')).lower())
+        n_local_div   = sum(1 for _, r in best.iterrows() if r['Source'] == var_label  and 'div' in str(r.get('CPU_Kernel', '')).lower())
+
+        n_shared = n_shared_sell + n_shared_div
+        n_local = n_local_sell + n_local_div
+        n_sell = n_shared_sell + n_local_sell
+        n_div = n_shared_div + n_local_div
+
+        base_short = base_label.replace(' (Oracle)', '')
+        var_short = var_label.replace(' (Oracle)', '')
+        legend_title = (
+            f'Totals: {base_short}: {n_shared}/{n_total} ({n_shared/n_total*100:.1f}%), '
+            f'{var_short}: {n_local}/{n_total} ({n_local/n_total*100:.1f}%) | '
+            f'sell: {n_sell}/{n_total} ({n_sell/n_total*100:.1f}%), '
+            f'div: {n_div}/{n_total} ({n_div/n_total*100:.1f}%)'
+        )
+        legend_handles = [
+            mpatches.Patch(facecolor='gray', hatch='',     label=f'{base_short} [sell_sorted_csr] ({n_shared_sell}/{n_total}, {n_shared_sell/n_total*100:.1f}%)'),
+            mpatches.Patch(facecolor='gray', hatch='//',   label=f'{base_short} [div_rf] ({n_shared_div}/{n_total}, {n_shared_div/n_total*100:.1f}%)'),
+            mpatches.Patch(facecolor='gray', hatch='\\\\', label=f'{var_short} [sell_sorted_csr] ({n_local_sell}/{n_total}, {n_local_sell/n_total*100:.1f}%)'),
+            mpatches.Patch(facecolor='gray', hatch='xx',   label=f'{var_short} [div_rf] ({n_local_div}/{n_total}, {n_local_div/n_total*100:.1f}%)'),
+        ]
+    elif is_cpu_oracle or 'div' in str(var_label).lower():
+        base_legend = f"{base_label} ({n_base}/{n_total}, {n_base/n_total*100:.1f}%)" if n_total > 0 else base_label
+        var_legend = f"{var_label} ({n_var}/{n_total}, {n_var/n_total*100:.1f}%)" if n_total > 0 else var_label
+        legend_handles = [
+            mpatches.Patch(facecolor='gray', label=base_legend),
+            mpatches.Patch(facecolor='gray', hatch='//', label=var_legend)
+        ]
+    else:
+        legend_handles = [
+            mpatches.Patch(facecolor='gray', label=base_label),
+            mpatches.Patch(facecolor='gray', hatch='//', label=var_label)
+        ]
+
+    out_llc_set = set()
+    for _, row in best.iterrows():
+        m = row['Matrix']
+        m_c = row.get('m_cpu', np.nan)
+        nnz_c = row.get('nnz_cpu', np.nan)
+        if pd.notna(m_c) and pd.notna(nnz_c):
+            mb = ((m_c + 1) * 4 + nnz_c * 12) / (1024.0 * 1024.0)
+            if mb > 117.0:
+                out_llc_set.add(m)
+
+    if out_llc_set and (is_cpu_oracle or is_cross_source_oracle):
+        legend_handles.append(mpatches.Patch(facecolor='black', edgecolor='none', label='Bold X-Ticks: CPU partition > 117 MB'))
+
+    if is_cross_source_oracle:
+        plt.legend(handles=legend_handles, loc='upper right', fontsize=10 if not paper_plot else 8, title=legend_title, title_fontsize=11 if not paper_plot else 9, frameon=True)
+    else:
+        plt.legend(handles=legend_handles, loc='upper right', fontsize=10 if not paper_plot else 8, frameon=True)
+
     _finish_pct_axes(ax, title, order, paper_plot=paper_plot)
-    _annotate_bars(ax, best, show_strategy=True)
+
+    if out_llc_set and (is_cpu_oracle or is_cross_source_oracle):
+        for tick_label in ax.get_xticklabels():
+            txt = tick_label.get_text()
+            if txt in out_llc_set:
+                tick_label.set_fontweight('bold')
+                tick_label.set_color('black')
+            elif txt == 'GMEAN':
+                tick_label.set_fontweight('bold')
+                tick_label.set_color('#581845')
+
+    _annotate_bars(ax, best, show_strategy=True, show_cpu_kernel=(is_cpu_oracle or is_cross_source_oracle))
+
+    if is_cross_source_oracle:
+        b_gm = _gmean_pct(b['PctChange'])
+        v_gm = _gmean_pct(v['PctChange'])
+        best_gm = _gmean_pct(best[best['Matrix'] != 'GMEAN']['PctChange'])
+        out_llc_var = sum(1 for _, r in best.iterrows() if r['Matrix'] in out_llc_set and r['Source'] == var_label)
+        out_llc_tot = len(out_llc_set)
+        print(f"      [Cross-Source Oracle Summary: {base_label} vs {var_label}]")
+        print(f"      Won by {base_label}: {n_shared}/{n_total} ({n_shared/n_total*100:.1f}%) -> sell: {n_shared_sell}, div: {n_shared_div} | Geomean vs GPU: {b_gm:+.1f}%")
+        print(f"      Won by {var_label}: {n_local}/{n_total} ({n_local/n_total*100:.1f}%) -> sell: {n_local_sell}, div: {n_local_div} | Geomean vs GPU: {v_gm:+.1f}%")
+        print(f"      Format Totals: sell: {n_sell}/{n_total} ({n_sell/n_total*100:.1f}%) | div: {n_div}/{n_total} ({n_div/n_total*100:.1f}%)")
+        print(f"      Oracle Geomean vs GPU: {best_gm:+.1f}% (Net gain over {base_label}: {best_gm - b_gm:+.1f}%)")
+        if out_llc_tot > 0:
+            print(f"      Out-of-LLC (>117 MB): {out_llc_var}/{out_llc_tot} ({out_llc_var/out_llc_tot*100:.1f}%) chose {var_label}")
+    elif is_cpu_oracle or 'div' in str(var_label).lower():
+        b_gm = _gmean_pct(b['PctChange'])
+        v_gm = _gmean_pct(v['PctChange'])
+        best_gm = _gmean_pct(best[best['Matrix'] != 'GMEAN']['PctChange'])
+        out_llc_var = sum(1 for _, r in best.iterrows() if r['Matrix'] in out_llc_set and r['Source'] == var_label)
+        out_llc_tot = len(out_llc_set)
+        print(f"      [Oracle Summary: {base_label} vs {var_label}]")
+        print(f"      Won by {base_label}: {n_base} ({n_base/n_total*100:.1f}%) | Geomean vs GPU: {b_gm:+.1f}%")
+        print(f"      Won by {var_label}: {n_var} ({n_var/n_total*100:.1f}%) | Geomean vs GPU: {v_gm:+.1f}%")
+        print(f"      Oracle Geomean vs GPU: {best_gm:+.1f}% (Net gain over {base_label}: {best_gm - b_gm:+.1f}%)")
+        if out_llc_tot > 0:
+            print(f"      Out-of-LLC (>117 MB): {out_llc_var}/{out_llc_tot} ({out_llc_var/out_llc_tot*100:.1f}%) chose {var_label}")
+
     plt.tight_layout()
     pdf.savefig(bbox_inches='tight')
     plt.close()
@@ -1444,18 +1612,18 @@ def plot_gather_decrease_heatmap_page(heatmap_df, title, pdf, xlabel='Ratio (%)'
 # ===========================================================================
 # Multi-page PDF generators (each returns the number of pages written)
 # ===========================================================================
-def generate_pctdiff_pdf(base_hyb, var_hyb, sa_gpu_dict, base_label, var_label, title_prefix, strategies, full_matrix_order, pdf_path, paper_plot=False):
+def generate_pctdiff_pdf(base_hyb, var_hyb, sa_gpu_dict, base_label, var_label, title_prefix, strategies, full_matrix_order, pdf_path, paper_plot=False, is_cpu_oracle=False, is_cross_source_oracle=False):
     """Per strategy: best-ratio page for base and for variant. Then overall best of each, then best-of-both."""
     print(f"  Generating: {os.path.basename(pdf_path)}")
     pages = 0
     with PdfPages(pdf_path) as pdf:
         for strategy in strategies:
-            pages += plot_pctdiff_page(get_strategy_best(base_hyb, strategy), sa_gpu_dict, base_label, f'{title_prefix} - {base_label} ({strategy})', full_matrix_order, pdf, paper_plot=paper_plot)
-            pages += plot_pctdiff_page(get_strategy_best(var_hyb, strategy), sa_gpu_dict, var_label, f'{title_prefix} - {var_label} ({strategy})', full_matrix_order, pdf, paper_plot=paper_plot)
+            pages += plot_pctdiff_page(get_strategy_best(base_hyb, strategy), sa_gpu_dict, base_label, f'{title_prefix} - {base_label} ({strategy})', full_matrix_order, pdf, paper_plot=paper_plot, show_cpu_kernel=is_cpu_oracle)
+            pages += plot_pctdiff_page(get_strategy_best(var_hyb, strategy), sa_gpu_dict, var_label, f'{title_prefix} - {var_label} ({strategy})', full_matrix_order, pdf, paper_plot=paper_plot, show_cpu_kernel=is_cpu_oracle)
         bb, vb = get_overall_best(base_hyb), get_overall_best(var_hyb)
-        pages += plot_pctdiff_page(bb, sa_gpu_dict, base_label, f'{title_prefix} - {base_label} (Overall Best)', full_matrix_order, pdf, is_overall=True, paper_plot=paper_plot)
-        pages += plot_pctdiff_page(vb, sa_gpu_dict, var_label, f'{title_prefix} - {var_label} (Overall Best)', full_matrix_order, pdf, is_overall=True, paper_plot=paper_plot)
-        pages += plot_pctdiff_best_of_both_page(bb, vb, sa_gpu_dict, base_label, var_label, f'{title_prefix} - Best of Both', pdf, paper_plot=paper_plot)
+        pages += plot_pctdiff_page(bb, sa_gpu_dict, base_label, f'{title_prefix} - {base_label} (Overall Best)', full_matrix_order, pdf, is_overall=True, paper_plot=paper_plot, show_cpu_kernel=is_cpu_oracle)
+        pages += plot_pctdiff_page(vb, sa_gpu_dict, var_label, f'{title_prefix} - {var_label} (Overall Best)', full_matrix_order, pdf, is_overall=True, paper_plot=paper_plot, show_cpu_kernel=is_cpu_oracle)
+        pages += plot_pctdiff_best_of_both_page(bb, vb, sa_gpu_dict, base_label, var_label, f'{title_prefix} - Best of Both', pdf, paper_plot=paper_plot, is_cpu_oracle=is_cpu_oracle, is_cross_source_oracle=is_cross_source_oracle)
     print(f"    -> {pages} pages")
     return pages
 
@@ -2105,19 +2273,36 @@ def run_memory_interference_plot(pdf_dir, paper_plot=False):
 def resolve_progression_method_key(name):
     """
     Resolve method names/labels/aliases to canonical method keys.
-    Canonical keys:
-      'gpu', 'gpu_rcm',
-      'shared_naive', 'shared_minx', 'shared_naive+minx',
-      'shared_naive_reorder', 'shared_minx_reorder', 'shared_naive+minx_reorder',
-      'local_naive', 'local_minx', 'local_naive+minx',
-      'shared+local_naive', 'shared+local_minx', 'shared+local_naive+minx',
-      'shared_naive_rcm', 'shared_minx_rcm', 'shared_naive+minx_rcm',
-      'local_naive_rcm', 'local_minx_rcm', 'local_naive+minx_rcm',
-      'shared+local_naive_rcm', 'shared+local_minx_rcm', 'shared+local_naive+minx_rcm'
+    Canonical keys support optional CPU format suffixes:
+      '_sell', '_div', '_oracle' (or '_best')
     """
     if not isinstance(name, str):
         return None
     raw = name.strip()
+    if raw.lower() in ('best_of_all', 'all_oracle', 'best of all', 'all oracle'):
+        return 'shared+local_naive+minx_all_oracle'
+
+    # Detect CPU format suffix
+    cpu_sfx = ''
+    lower_raw = raw.lower()
+    for sfx_cand in ['_oracle', '_best', ' (oracle)', ' (best)', '[oracle]', '[best]']:
+        if lower_raw.endswith(sfx_cand):
+            cpu_sfx = '_oracle'
+            raw = raw[:-len(sfx_cand)].rstrip('_ -')
+            break
+    if not cpu_sfx:
+        for sfx_cand in ['_div_rf', '_div', ' (div)', '[div]']:
+            if lower_raw.endswith(sfx_cand):
+                cpu_sfx = '_div'
+                raw = raw[:-len(sfx_cand)].rstrip('_ -')
+                break
+    if not cpu_sfx:
+        for sfx_cand in ['_sell_sorted_csr', '_sell', ' (sell)', '[sell]']:
+            if lower_raw.endswith(sfx_cand):
+                cpu_sfx = '_sell'
+                raw = raw[:-len(sfx_cand)].rstrip('_ -')
+                break
+
     alias_map = {
         'shared_naive_col_reorder': 'shared_naive_reorder',
         'shared_minx_col_reorder': 'shared_minx_reorder',
@@ -2145,79 +2330,111 @@ def resolve_progression_method_key(name):
         'shared_naive_reorder_rcm': 'shared_naive_rcm',
         'shared_minx_reorder_rcm': 'shared_minx_rcm',
         'shared_naive+minx_reorder_rcm': 'shared_naive+minx_rcm',
+        # High-level convenience aliases
+        'best_alloc': 'shared+local_naive+minx',
+        'best_alloc_rcm': 'shared+local_naive+minx_rcm',
+        'best_alloc_all': 'shared+local_naive+minx_all',
+        'best_of_all': 'shared+local_naive+minx_all_oracle',
+        'all_oracle': 'shared+local_naive+minx_all_oracle',
+        'cusparse': 'gpu_cusparse',
+        'cusparse_csr': 'gpu_cusparse',
+        'gpu_cusp': 'gpu_cusparse',
+        'standalone_cusparse': 'gpu_cusparse',
+        'cusparse_rcm': 'gpu_cusparse_rcm',
+        'cusparse_csr_rcm': 'gpu_cusparse_rcm',
+        'gpu_cusp_rcm': 'gpu_cusparse_rcm',
+        'standalone_cusparse_rcm': 'gpu_cusparse_rcm',
     }
     if raw in alias_map:
-        return alias_map[raw]
-    if raw.lower() in alias_map:
-        return alias_map[raw.lower()]
+        raw = alias_map[raw]
+    elif raw.lower() in alias_map:
+        raw = alias_map[raw.lower()]
 
     s = raw.lower().replace('\n', ' ').replace('-', ' ').replace('_', ' ').replace('+', ' ')
     s = ' '.join(s.split())
 
     # Standalone GPU
+    res = raw
     if s in ('gpu', 'standalone gpu', 'sa gpu', 'standalone'):
-        return 'gpu'
-    if s in ('gpu rcm', 'gpu (rcm)', 'standalone gpu rcm', 'standalone gpu (rcm)', 'sa gpu rcm'):
-        return 'gpu_rcm'
+        res = 'gpu'
+    elif s in ('gpu rcm', 'gpu (rcm)', 'standalone gpu rcm', 'standalone gpu (rcm)', 'sa gpu rcm'):
+        res = 'gpu_rcm'
+    elif s in ('gpu cusparse', 'gpu cusparse csr', 'cusparse', 'cusparse csr', 'standalone cusparse', 'sa cusparse', 'gpu cusp'):
+        res = 'gpu_cusparse'
+    elif s in ('gpu cusparse rcm', 'gpu cusparse csr rcm', 'cusparse rcm', 'cusparse csr rcm', 'standalone cusparse rcm', 'sa cusparse rcm', 'gpu cusp rcm'):
+        res = 'gpu_cusparse_rcm'
 
     # RCM methods
-    if s in ('shared naive rcm', 'shared x naive rcm', 'shared x [naive] (rcm)', 'shared x naive (rcm)', 'hybrid naive rcm', 'naive rcm', 'shared naive reorder rcm'):
-        return 'shared_naive_rcm'
-    if s in ('shared minx rcm', 'shared x minx rcm', 'shared x [minx] (rcm)', 'shared x minx (rcm)', 'hybrid minx rcm', 'minx rcm', 'shared minx reorder rcm'):
-        return 'shared_minx_rcm'
-    if s in ('shared naive minx rcm', 'shared naive+minx rcm', 'shared x minx rcm', 'shared x [naive+minx] (rcm)', 'shared x naive+minx (rcm)', 'naive+minx rcm', 'shared naive minx (rcm)', 'shared naive minx reorder rcm'):
-        return 'shared_naive+minx_rcm'
-    if s in ('local naive rcm', 'local x naive rcm', 'local x [naive] (rcm)', 'local x naive (rcm)', 'local naive reorder rcm'):
-        return 'local_naive_rcm'
-    if s in ('local minx rcm', 'local x minx rcm', 'local x [minx] (rcm)', 'local x minx (rcm)', 'local minx reorder rcm'):
-        return 'local_minx_rcm'
-    if s in ('local naive minx rcm', 'local x [naive+minx] (rcm)', 'local x naive+minx (rcm)', 'local naive minx reorder rcm'):
-        return 'local_naive+minx_rcm'
-    if s in ('shared local naive rcm', 'shared/local naive rcm', 'shared local x [naive] (rcm)', 'shared local naive reorder rcm'):
-        return 'shared+local_naive_rcm'
-    if s in ('shared local minx rcm', 'shared/local minx rcm', 'shared local x [minx] (rcm)', 'shared local minx reorder rcm'):
-        return 'shared+local_minx_rcm'
-    if s in ('shared local minx rcm', 'shared/local x [naive+minx] (rcm)', 'shared local x [naive+minx] (rcm)', 'shared/local minx rcm', 'best alloc rcm', 'shared local naive minx rcm', 'shared local naive minx reorder rcm'):
-        return 'shared+local_naive+minx_rcm'
+    elif s in ('shared naive rcm', 'shared x naive rcm', 'shared x [naive] (rcm)', 'shared x naive (rcm)', 'hybrid naive rcm', 'naive rcm', 'shared naive reorder rcm'):
+        res = 'shared_naive_rcm'
+    elif s in ('shared minx rcm', 'shared x minx rcm', 'shared x [minx] (rcm)', 'shared x minx (rcm)', 'hybrid minx rcm', 'minx rcm', 'shared minx reorder rcm'):
+        res = 'shared_minx_rcm'
+    elif s in ('shared naive minx rcm', 'shared naive+minx rcm', 'shared x minx rcm', 'shared x [naive+minx] (rcm)', 'shared x naive+minx (rcm)', 'naive+minx rcm', 'shared naive minx (rcm)', 'shared naive minx reorder rcm'):
+        res = 'shared_naive+minx_rcm'
+    elif s in ('local naive rcm', 'local x naive rcm', 'local x [naive] (rcm)', 'local x naive (rcm)', 'local naive reorder rcm'):
+        res = 'local_naive_rcm'
+    elif s in ('local minx rcm', 'local x minx rcm', 'local x [minx] (rcm)', 'local x minx (rcm)', 'local minx reorder rcm'):
+        res = 'local_minx_rcm'
+    elif s in ('local naive minx rcm', 'local x [naive+minx] (rcm)', 'local x naive+minx (rcm)', 'local naive minx reorder rcm'):
+        res = 'local_naive+minx_rcm'
+    elif s in ('shared local naive rcm', 'shared/local naive rcm', 'shared local x [naive] (rcm)', 'shared local naive reorder rcm'):
+        res = 'shared+local_naive_rcm'
+    elif s in ('shared local minx rcm', 'shared/local minx rcm', 'shared local x [minx] (rcm)', 'shared local minx reorder rcm'):
+        res = 'shared+local_minx_rcm'
+    elif s in ('shared local minx rcm', 'shared/local x [naive+minx] (rcm)', 'shared local x [naive+minx] (rcm)', 'shared/local minx rcm', 'best alloc rcm', 'shared local naive minx rcm', 'shared local naive minx reorder rcm'):
+        res = 'shared+local_naive+minx_rcm'
 
     # Non-RCM methods (without column reordering)
-    if s in ('shared naive', 'shared x naive', 'shared x [naive]', 'hybrid naive', 'naive', 'shared naive no reorder', 'naive no reorder'):
-        return 'shared_naive'
-    if s in ('shared minx', 'shared x minx', 'shared x [minx]', 'hybrid minx', 'minx', 'shared minx no reorder', 'minx no reorder'):
-        return 'shared_minx'
-    if s in ('shared naive minx', 'shared x naive minx', 'shared x [naive+minx]', 'shared x naive+minx', 'naive+minx no reorder'):
-        return 'shared_naive+minx'
+    elif s in ('shared naive', 'shared x naive', 'shared x [naive]', 'hybrid naive', 'naive', 'shared naive no reorder', 'naive no reorder'):
+        res = 'shared_naive'
+    elif s in ('shared minx', 'shared x minx', 'shared x [minx]', 'hybrid minx', 'minx', 'shared minx no reorder', 'minx no reorder'):
+        res = 'shared_minx'
+    elif s in ('shared naive minx', 'shared x naive minx', 'shared x [naive+minx]', 'shared x naive+minx', 'naive+minx no reorder'):
+        res = 'shared_naive+minx'
 
     # Non-RCM methods (with column reordering)
-    if s in ('shared naive col reorder', 'shared naive reorder', 'shared x naive reorder', 'shared x [naive] (reorder)', 'shared x naive (reorder)', 'shared naive col', 'hybrid naive col reorder', 'naive col reorder', 'naive reorder'):
-        return 'shared_naive_reorder'
-    if s in ('shared minx col reorder', 'shared minx reorder', 'shared x minx reorder', 'shared x [minx] (reorder)', 'shared x minx (reorder)', 'minx col reorder', 'minx reorder', 'hybrid minx reorder'):
-        return 'shared_minx_reorder'
-    if s in ('shared naive minx col reorder', 'shared naive minx reorder', 'shared x naive minx reorder', 'shared x [naive+minx] (reorder)', 'shared x naive+minx (reorder)', 'naive+minx reorder'):
-        return 'shared_naive+minx_reorder'
-    if s in ('local naive', 'local naive reorder', 'local x naive reorder', 'local x [naive] (reorder)', 'local x naive'):
-        return 'local_naive'
-    if s in ('local minx', 'local minx reorder', 'local x minx reorder', 'local x [minx] (reorder)', 'local x minx'):
-        return 'local_minx'
-    if s in ('local naive minx', 'local naive minx reorder', 'local x [naive+minx] (reorder)', 'local x naive+minx'):
-        return 'local_naive+minx'
-    if s in ('shared local naive', 'shared/local naive', 'shared local x [naive] (reorder)'):
-        return 'shared+local_naive'
-    if s in ('shared local minx', 'shared/local minx', 'shared local x [minx] (reorder)'):
-        return 'shared+local_minx'
-    if s in ('shared local naive minx', 'shared/local naive minx', 'shared local x [naive+minx]', 'shared/local x [naive+minx]', 'shared local', 'shared/local', 'best alloc', 'best alloc no rcm'):
-        return 'shared+local_naive+minx'
+    elif s in ('shared naive col reorder', 'shared naive reorder', 'shared x naive reorder', 'shared x [naive] (reorder)', 'shared x naive (reorder)', 'shared naive col', 'hybrid naive col reorder', 'naive col reorder', 'naive reorder'):
+        res = 'shared_naive_reorder'
+    elif s in ('shared minx col reorder', 'shared minx reorder', 'shared x minx reorder', 'shared x [minx] (reorder)', 'shared x minx (reorder)', 'minx col reorder', 'minx reorder', 'hybrid minx reorder'):
+        res = 'shared_minx_reorder'
+    elif s in ('shared naive minx col reorder', 'shared naive minx reorder', 'shared x naive minx reorder', 'shared x [naive+minx] (reorder)', 'shared x naive+minx (reorder)', 'naive+minx reorder'):
+        res = 'shared_naive+minx_reorder'
+    elif s in ('local naive', 'local naive reorder', 'local x naive reorder', 'local x [naive] (reorder)', 'local x naive'):
+        res = 'local_naive'
+    elif s in ('local minx', 'local minx reorder', 'local x minx reorder', 'local x [minx] (reorder)', 'local x minx'):
+        res = 'local_minx'
+    elif s in ('local naive minx', 'local naive minx reorder', 'local x [naive+minx] (reorder)', 'local x naive+minx'):
+        res = 'local_naive+minx'
+    elif s in ('shared local naive', 'shared/local naive', 'shared local x [naive] (reorder)'):
+        res = 'shared+local_naive'
+    elif s in ('shared local minx', 'shared/local minx', 'shared local x [minx] (reorder)'):
+        res = 'shared+local_minx'
+    elif s in ('shared local naive minx', 'shared/local naive minx', 'shared local x [naive+minx]', 'shared/local x [naive+minx]', 'shared local', 'shared/local', 'best alloc', 'best alloc no rcm'):
+        res = 'shared+local_naive+minx'
+    elif s in ('shared local naive minx all', 'best alloc all'):
+        res = 'shared+local_naive+minx_all'
+    elif s in ('best of all', 'all best', 'all oracle'):
+        res = 'shared+local_naive+minx_all_oracle'
 
-    return name
+    if res in alias_map:
+        res = alias_map[res]
+
+    if cpu_sfx:
+        if res.endswith('_oracle') or res.endswith('_div') or res.endswith('_sell'):
+            return res
+        return f"{res}{cpu_sfx}"
+    return res
 
 def resolve_progression_baseline_key(name):
     """
-    Resolve baseline name to canonical key ('gpu' or 'gpu_rcm').
+    Resolve baseline name to canonical key ('gpu', 'gpu_rcm', 'gpu_cusparse', 'gpu_cusparse_rcm').
     """
     if not isinstance(name, str):
         return 'gpu'
     s = name.strip().lower().replace('\n', ' ').replace('-', ' ').replace('_', ' ')
     s = ' '.join(s.split())
+    if 'cusp' in s:
+        return 'gpu_cusparse_rcm' if 'rcm' in s else 'gpu_cusparse'
     if 'rcm' in s:
         return 'gpu_rcm'
     return 'gpu'
@@ -2234,6 +2451,13 @@ def get_progression_method_symbol(name):
     k = resolve_progression_method_key(raw)
     if k in PROGRESSION_METHOD_SYMBOLS:
         return PROGRESSION_METHOD_SYMBOLS[k]
+    if k:
+        for sfx, sym_sfx in [('_oracle', '_O'), ('_div', '_D'), ('_sell', '_S')]:
+            if k.endswith(sfx):
+                base_k = k[:-len(sfx)]
+                base_sym = PROGRESSION_METHOD_SYMBOLS.get(base_k) or get_progression_method_symbol(base_k)
+                if base_sym:
+                    return f"{base_sym}{sym_sfx}"
     return raw.replace('+', '_').replace(' ', '_').replace('-', '_').upper()
 
 def get_progression_methods_tag(methods=None):
@@ -2257,14 +2481,14 @@ def get_progression_methods_tag(methods=None):
     selected_keys = []
     for m in raw_methods:
         k = resolve_progression_method_key(m)
-        target = k if (k and k in valid_keys) else m
+        target = k if k else m
         if target not in selected_keys:
             selected_keys.append(target)
 
     symbols = [get_progression_method_symbol(k) for k in selected_keys]
     return "_".join(symbols) if symbols else "progression"
 
-def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=False, methods=None, baseline='gpu', left_plot_type='violin', right_plot_type='violin'):
+def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=False, methods=None, baseline='gpu', left_plot_type='violin', right_plot_type='violin', matrix_order=None, csv_dir=None, skip_plot=False, color_speedup_bg=False):
     """
     Generate a 1-page paper plot with 2 subplots (GFLOPS left, Speedup right)
     comparing selected progression methods across standalone, x-shared, x-local,
@@ -2305,10 +2529,12 @@ def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=F
         - 'shared+local_naive+minx_rcm': Shared/Local-x [Naive+MinX] (RCM)
     The speedup is relative to the chosen baseline ('gpu' or 'gpu_rcm').
     """
+    methods_tag = get_progression_methods_tag(methods)
+    base_key_for_tag = resolve_progression_baseline_key(baseline)
+    base_tag = f"_vs_{base_key_for_tag}" if base_key_for_tag != 'gpu' else ""
     if pdf_path is None or os.path.isdir(pdf_path):
         out_dir = pdf_path if (pdf_path and os.path.isdir(pdf_path)) else PDF_DIR
-        methods_tag = get_progression_methods_tag(methods)
-        pdf_path = os.path.join(out_dir, f'9_paper_progression_{methods_tag}_{ck}_{gk}.pdf')
+        pdf_path = os.path.join(out_dir, f'9_paper_progression_{methods_tag}{base_tag}_{ck}_{gk}.pdf')
 
     print(f"  Generating: {os.path.basename(pdf_path)}")
     base_df = dfs.get('baseline', pd.DataFrame())
@@ -2321,7 +2547,7 @@ def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=F
         print("    -> Missing required sources (baseline, col_reordering, or baseline_rcm), skipping.")
         return 0
 
-    # Standalone GPU
+    # Standalone GPU (cuda_sell_sorted_csr)
     sa = get_standalone_gpu(base_df, gk, alloc_type='EXPLICIT')
     if not sa:
         sa = get_standalone_gpu(col_df, gk, alloc_type='EXPLICIT')
@@ -2329,54 +2555,137 @@ def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=F
     if not sa_rcm:
         sa_rcm = get_standalone_gpu(opt_rcm_df, gk, alloc_type='EXPLICIT')
 
-    # Filter hybrid dataframes by kernel pair
-    h_base = filter_hybrid(base_df, ck, gk)
-    h_col = filter_hybrid(col_df, ck, gk)
-    h_opt = filter_hybrid(opt_df, ck, gk)
-    h_base_rcm = filter_hybrid(base_rcm_df, ck, gk)
-    h_opt_rcm = filter_hybrid(opt_rcm_df, ck, gk)
+    # Standalone GPU (cuSPARSE)
+    sa_cusp = get_standalone_gpu(base_df, 'cusparse_csr', alloc_type='EXPLICIT')
+    if not sa_cusp:
+        sa_cusp = get_standalone_gpu(col_df, 'cusparse_csr', alloc_type='EXPLICIT')
+    sa_cusp_rcm = get_standalone_gpu(base_rcm_df, 'cusparse_csr', alloc_type='EXPLICIT')
+    if not sa_cusp_rcm:
+        sa_cusp_rcm = get_standalone_gpu(opt_rcm_df, 'cusparse_csr', alloc_type='EXPLICIT')
 
-    # 1. Non-RCM without column reordering (from baseline)
-    hyb_naive = _gflops_by_matrix(get_strategy_best(h_base, 'NAIVE'))
-    hyb_minx = _gflops_by_matrix(get_strategy_best(h_base, 'MIN-X'))
-    hyb_naive_minx = _best_of_two_dicts(hyb_naive, hyb_minx)
+    # Filter hybrid dataframes by kernel pair for both sell_sorted_csr and div_rf
+    sell_ck = ck
+    div_ck = 'div_rf'
 
-    # 2. Non-RCM with column reordering (Shared-x, from col_reordering)
-    hyb_naive_col = _gflops_by_matrix(get_strategy_best(h_col, 'NAIVE'))
-    hyb_minx_col = _gflops_by_matrix(get_strategy_best(h_col, 'MIN-X'))
-    hyb_naive_minx_col = _best_of_two_dicts(hyb_naive_col, hyb_minx_col)
+    h_base_sell = filter_hybrid(base_df, sell_ck, gk)
+    h_base_div = filter_hybrid(base_df, div_ck, gk)
 
-    # 3. Non-RCM with column reordering (Local-x, from cpu_local_x_opt)
-    hyb_opt_naive = _gflops_by_matrix(get_strategy_best(h_opt, 'NAIVE'))
-    hyb_opt_minx = _gflops_by_matrix(get_strategy_best(h_opt, 'MIN-X'))
-    hyb_opt_naive_minx = _best_of_two_dicts(hyb_opt_naive, hyb_opt_minx)
+    h_col_sell = filter_hybrid(col_df, sell_ck, gk)
+    h_col_div = filter_hybrid(col_df, div_ck, gk)
 
-    # 4. Non-RCM best of shared + local
-    hyb_best_both_naive_col = _best_of_two_dicts(hyb_naive_col, hyb_opt_naive)
-    hyb_best_both_minx_col = _best_of_two_dicts(hyb_minx_col, hyb_opt_minx)
-    hyb_best_both_naive_minx = _best_of_two_dicts(
-        _best_of_two_dicts(hyb_naive_minx_col, hyb_naive),
-        hyb_opt_naive_minx
-    )
+    h_opt_sell = filter_hybrid(opt_df, sell_ck, gk)
+    h_opt_div = filter_hybrid(opt_df, div_ck, gk)
 
-    # 5. RCM with column reordering (Shared-x, from baseline_rcm)
-    hyb_naive_rcm = _gflops_by_matrix(get_strategy_best(h_base_rcm, 'NAIVE'))
-    hyb_minx_rcm = _gflops_by_matrix(get_strategy_best(h_base_rcm, 'MIN-X'))
-    hyb_naive_minx_rcm = _best_of_two_dicts(hyb_naive_rcm, hyb_minx_rcm)
+    h_base_rcm_sell = filter_hybrid(base_rcm_df, sell_ck, gk)
+    h_base_rcm_div = filter_hybrid(base_rcm_df, div_ck, gk)
 
-    # 6. RCM with column reordering (Local-x, from cpu_local_x_opt_rcm)
-    hyb_opt_naive_rcm = _gflops_by_matrix(get_strategy_best(h_opt_rcm, 'NAIVE'))
-    hyb_opt_minx_rcm = _gflops_by_matrix(get_strategy_best(h_opt_rcm, 'MIN-X'))
-    hyb_opt_naive_minx_rcm = _best_of_two_dicts(hyb_opt_naive_rcm, hyb_opt_minx_rcm)
+    h_opt_rcm_sell = filter_hybrid(opt_rcm_df, sell_ck, gk)
+    h_opt_rcm_div = filter_hybrid(opt_rcm_df, div_ck, gk)
 
-    # 7. RCM best of shared + local
-    hyb_best_both_naive_rcm = _best_of_two_dicts(hyb_naive_rcm, hyb_opt_naive_rcm)
-    hyb_best_both_minx_rcm = _best_of_two_dicts(hyb_minx_rcm, hyb_opt_minx_rcm)
-    hyb_best_both_naive_minx_rcm = _best_of_two_dicts(hyb_naive_minx_rcm, hyb_opt_naive_minx_rcm)
+    def _strat_dict(h_df, strat):
+        if h_df.empty:
+            return {}
+        return _gflops_by_matrix(get_strategy_best(h_df, strat))
+
+    # Stage 0: Non-RCM without column reordering (from baseline)
+    sn_sell = _strat_dict(h_base_sell, 'NAIVE')
+    sn_div = _strat_dict(h_base_div, 'NAIVE')
+    sn_ora = _best_of_two_dicts(sn_sell, sn_div)
+
+    sm_sell = _strat_dict(h_base_sell, 'MIN-X')
+    sm_div = _strat_dict(h_base_div, 'MIN-X')
+    sm_ora = _best_of_two_dicts(sm_sell, sm_div)
+
+    snm_sell = _best_of_two_dicts(sn_sell, sm_sell)
+    snm_div = _best_of_two_dicts(sn_div, sm_div)
+    snm_ora = _best_of_two_dicts(sn_ora, sm_ora)
+
+    # Stage 1 & 2: Non-RCM with column reordering (Shared-x, from col_reordering)
+    snr_sell = _strat_dict(h_col_sell, 'NAIVE')
+    snr_div = _strat_dict(h_col_div, 'NAIVE')
+    snr_ora = _best_of_two_dicts(snr_sell, snr_div)
+
+    smr_sell = _strat_dict(h_col_sell, 'MIN-X')
+    smr_div = _strat_dict(h_col_div, 'MIN-X')
+    smr_ora = _best_of_two_dicts(smr_sell, smr_div)
+
+    snmr_sell = _best_of_two_dicts(snr_sell, smr_sell)
+    snmr_div = _best_of_two_dicts(snr_div, smr_div)
+    snmr_ora = _best_of_two_dicts(snr_ora, smr_ora)
+
+    # Stage 4A: Non-RCM with column reordering (Local-x, from cpu_local_x_opt)
+    ln_sell = _strat_dict(h_opt_sell, 'NAIVE')
+    ln_div = _strat_dict(h_opt_div, 'NAIVE')
+    ln_ora = _best_of_two_dicts(ln_sell, ln_div)
+
+    lm_sell = _strat_dict(h_opt_sell, 'MIN-X')
+    lm_div = _strat_dict(h_opt_div, 'MIN-X')
+    lm_ora = _best_of_two_dicts(lm_sell, lm_div)
+
+    lnm_sell = _best_of_two_dicts(ln_sell, lm_sell)
+    lnm_div = _best_of_two_dicts(ln_div, lm_div)
+    lnm_ora = _best_of_two_dicts(ln_ora, lm_ora)
+
+    # Stage 5A: Non-RCM best of Shared + Local
+    sln_sell = _best_of_two_dicts(snr_sell, ln_sell)
+    sln_div = _best_of_two_dicts(snr_div, ln_div)
+    sln_ora = _best_of_two_dicts(snr_ora, ln_ora)
+
+    slm_sell = _best_of_two_dicts(smr_sell, lm_sell)
+    slm_div = _best_of_two_dicts(smr_div, lm_div)
+    slm_ora = _best_of_two_dicts(smr_ora, lm_ora)
+
+    slnm_sell = _best_of_two_dicts(_best_of_two_dicts(snmr_sell, snm_sell), lnm_sell)
+    slnm_div = _best_of_two_dicts(_best_of_two_dicts(snmr_div, snm_div), lnm_div)
+    slnm_ora = _best_of_two_dicts(_best_of_two_dicts(snmr_ora, snm_ora), lnm_ora)
+
+    # Stage 3: RCM with column reordering (Shared-x, from baseline_rcm)
+    sn_rcm_sell = _strat_dict(h_base_rcm_sell, 'NAIVE')
+    sn_rcm_div = _strat_dict(h_base_rcm_div, 'NAIVE')
+    sn_rcm_ora = _best_of_two_dicts(sn_rcm_sell, sn_rcm_div)
+
+    sm_rcm_sell = _strat_dict(h_base_rcm_sell, 'MIN-X')
+    sm_rcm_div = _strat_dict(h_base_rcm_div, 'MIN-X')
+    sm_rcm_ora = _best_of_two_dicts(sm_rcm_sell, sm_rcm_div)
+
+    snm_rcm_sell = _best_of_two_dicts(sn_rcm_sell, sm_rcm_sell)
+    snm_rcm_div = _best_of_two_dicts(sn_rcm_div, sm_rcm_div)
+    snm_rcm_ora = _best_of_two_dicts(sn_rcm_ora, sm_rcm_ora)
+
+    # Stage 4B: RCM with column reordering (Local-x, from cpu_local_x_opt_rcm)
+    ln_rcm_sell = _strat_dict(h_opt_rcm_sell, 'NAIVE')
+    ln_rcm_div = _strat_dict(h_opt_rcm_div, 'NAIVE')
+    ln_rcm_ora = _best_of_two_dicts(ln_rcm_sell, ln_rcm_div)
+
+    lm_rcm_sell = _strat_dict(h_opt_rcm_sell, 'MIN-X')
+    lm_rcm_div = _strat_dict(h_opt_rcm_div, 'MIN-X')
+    lm_rcm_ora = _best_of_two_dicts(lm_rcm_sell, lm_rcm_div)
+
+    lnm_rcm_sell = _best_of_two_dicts(ln_rcm_sell, lm_rcm_sell)
+    lnm_rcm_div = _best_of_two_dicts(ln_rcm_div, lm_rcm_div)
+    lnm_rcm_ora = _best_of_two_dicts(ln_rcm_ora, lm_rcm_ora)
+
+    # Stage 5B: RCM best of Shared + Local
+    sln_rcm_sell = _best_of_two_dicts(sn_rcm_sell, ln_rcm_sell)
+    sln_rcm_div = _best_of_two_dicts(sn_rcm_div, ln_rcm_div)
+    sln_rcm_ora = _best_of_two_dicts(sn_rcm_ora, ln_rcm_ora)
+
+    slm_rcm_sell = _best_of_two_dicts(sm_rcm_sell, lm_rcm_sell)
+    slm_rcm_div = _best_of_two_dicts(sm_rcm_div, lm_rcm_div)
+    slm_rcm_ora = _best_of_two_dicts(sm_rcm_ora, lm_rcm_ora)
+
+    slnm_rcm_sell = _best_of_two_dicts(snm_rcm_sell, lnm_rcm_sell)
+    slnm_rcm_div = _best_of_two_dicts(snm_rcm_div, lnm_rcm_div)
+    slnm_rcm_ora = _best_of_two_dicts(snm_rcm_ora, lnm_rcm_ora)
+
+    # Stage 6: Ultimate best across Non-RCM and RCM
+    all_sell = _best_of_two_dicts(slnm_sell, slnm_rcm_sell)
+    all_div = _best_of_two_dicts(slnm_div, slnm_rcm_div)
+    all_ora = _best_of_two_dicts(slnm_ora, slnm_rcm_ora)
 
     # Centralized registry of all available progression methods
     all_implementations = {
-        # Standalone
+        # Standalone GPU (cuda_sell_sorted_csr)
         'gpu': {
             'label': 'GPU',
             'color': '#1f77b4',  # blue
@@ -2388,163 +2697,152 @@ def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=F
             'data': sa_rcm,
         },
 
-        # Without RCM, without column reordering
-        'shared_naive': {
-            'label': 'Shared-x\n[Naive]',
-            'color': '#ff7f0e',  # orange
-            'data': hyb_naive,
+        # Standalone GPU (cuSPARSE)
+        'gpu_cusparse': {
+            'label': 'GPU\n(cuSPARSE)',
+            'color': '#76b900',  # NVIDIA green
+            'data': sa_cusp,
         },
-        'shared_minx': {
-            'label': 'Shared-x\n[MinX]',
-            'color': '#ffbb78',  # light orange
-            'data': hyb_minx,
-        },
-        'shared_naive+minx': {
-            'label': 'Shared-x\n[Naive+MinX]',
-            'color': '#d6616b',  # coral
-            'data': hyb_naive_minx,
-        },
-
-        # Without RCM, with column reordering (Shared-x)
-        'shared_naive_reorder': {
-            'label': 'Shared-x\n[Naive]\n(Reorder)',
-            'color': '#bcbd22',  # olive
-            'data': hyb_naive_col,
-        },
-        'shared_minx_reorder': {
-            'label': 'Shared-x\n[MinX]\n(Reorder)',
-            'color': '#e377c2',  # pink
-            'data': hyb_minx_col,
-        },
-        'shared_naive+minx_reorder': {
-            'label': 'Shared-x\n[Naive+MinX]\n(Reorder)',
-            'color': '#17becf',  # cyan
-            'data': hyb_naive_minx_col,
-        },
-
-        # Without RCM, with column reordering (Local-x)
-        'local_naive': {
-            'label': 'Local-x\n[Naive]\n(Reorder)',
-            'color': '#9edae5',  # soft cyan
-            'data': hyb_opt_naive,
-        },
-        'local_minx': {
-            'label': 'Local-x\n[MinX]\n(Reorder)',
-            'color': '#f7b6d2',  # soft pink
-            'data': hyb_opt_minx,
-        },
-        'local_naive+minx': {
-            'label': 'Local-x\n[Naive+MinX]\n(Reorder)',
-            'color': '#c5b0d5',  # soft purple
-            'data': hyb_opt_naive_minx,
-        },
-
-        # Without RCM, best of Shared + Local
-        'shared+local_naive': {
-            'label': 'Shared/Local-x\n[Naive]\n(Reorder)',
-            'color': '#dbdb8d',  # soft olive
-            'data': hyb_best_both_naive_col,
-        },
-        'shared+local_minx': {
-            'label': 'Shared/Local-x\n[MinX]\n(Reorder)',
-            'color': '#ff9896',  # soft red
-            'data': hyb_best_both_minx_col,
-        },
-        'shared+local_naive+minx': {
-            'label': 'Shared/Local-x\n[Naive+MinX]\n(Reorder)',
-            'color': '#009E73',  # teal-green / jade
-            'data': hyb_best_both_naive_minx,
-        },
-
-        # With RCM (Shared-x)
-        'shared_naive_rcm': {
-            'label': 'Shared-x\n[Naive]\n(RCM)',
-            'color': '#d62728',  # red
-            'data': hyb_naive_rcm,
-        },
-        'shared_minx_rcm': {
-            'label': 'Shared-x\n[MinX]\n(RCM)',
-            'color': '#8c564b',  # brown
-            'data': hyb_minx_rcm,
-        },
-        'shared_naive+minx_rcm': {
-            'label': 'Shared-x\n[Naive+MinX]\n(RCM)',
-            'color': '#9467bd',  # purple
-            'data': hyb_naive_minx_rcm,
-        },
-
-        # With RCM (Local-x)
-        'local_naive_rcm': {
-            'label': 'Local-x\n[Naive]\n(RCM)',
-            'color': '#c49c94',  # light brown
-            'data': hyb_opt_naive_rcm,
-        },
-        'local_minx_rcm': {
-            'label': 'Local-x\n[MinX]\n(RCM)',
-            'color': '#f19bb5',  # rose
-            'data': hyb_opt_minx_rcm,
-        },
-        'local_naive+minx_rcm': {
-            'label': 'Local-x\n[Naive+MinX]\n(RCM)',
-            'color': '#b8a1c9',  # mauve
-            'data': hyb_opt_naive_minx_rcm,
-        },
-
-        # With RCM, best of Shared + Local
-        'shared+local_naive_rcm': {
-            'label': 'Shared/Local-x\n[Naive]\n(RCM)',
-            'color': '#e7969c',  # muted red
-            'data': hyb_best_both_naive_rcm,
-        },
-        'shared+local_minx_rcm': {
-            'label': 'Shared/Local-x\n[MinX]\n(RCM)',
-            'color': '#a1d99b',  # soft sage
-            'data': hyb_best_both_minx_rcm,
-        },
-        'shared+local_naive+minx_rcm': {
-            'label': 'Shared/Local-x\n[Naive+MinX]\n(RCM)',
-            'color': '#2ca02c',  # green
-            'data': hyb_best_both_naive_minx_rcm,
+        'gpu_cusparse_rcm': {
+            'label': 'GPU (RCM)\n(cuSPARSE)',
+            'color': '#a8d878',  # light green
+            'data': sa_cusp_rcm,
         },
     }
 
+    def _reg(key_base, label_base, base_color, div_color, oracle_color, sell_data, div_data, oracle_data):
+        # 1. Base key (defaults to sell for full backward compatibility)
+        all_implementations[key_base] = {
+            'label': label_base,
+            'color': base_color,
+            'data': sell_data,
+        }
+        # 2. Explicit SELL format
+        all_implementations[f"{key_base}_sell"] = {
+            'label': f"{label_base}\n(SELL)",
+            'color': base_color,
+            'data': sell_data,
+        }
+        # 3. Explicit DIV format
+        all_implementations[f"{key_base}_div"] = {
+            'label': f"{label_base}\n(DIV)",
+            'color': div_color,
+            'data': div_data,
+        }
+        # 4. CPU Oracle (best of SELL and DIV)
+        all_implementations[f"{key_base}_oracle"] = {
+            'label': f"{label_base}\n(Oracle)",
+            'color': oracle_color,
+            'data': oracle_data,
+        }
+        all_implementations[f"{key_base}_best"] = all_implementations[f"{key_base}_oracle"]
+
+    # Stage 0: Non-RCM without column reordering
+    _reg('shared_naive',       'Shared-x\n[Naive]',          '#ff7f0e', '#d95f02', '#386cb0', sn_sell, sn_div, sn_ora)
+    _reg('shared_minx',        'Shared-x\n[MinX]',           '#ffbb78', '#f7b6d2', '#7293cb', sm_sell, sm_div, sm_ora)
+    _reg('shared_naive+minx',  'Shared-x\n[Naive+MinX]',     '#d6616b', '#e7ba52', '#5254a3', snm_sell, snm_div, snm_ora)
+
+    # Stage 1 & 2: Non-RCM with column reordering (Shared-x)
+    _reg('shared_naive_reorder',      'Shared-x\n[Naive]\n(Reorder)',      '#bcbd22', '#f39c12', '#2c3e50', snr_sell, snr_div, snr_ora)
+    _reg('shared_minx_reorder',       'Shared-x\n[MinX]\n(Reorder)',       '#e377c2', '#e67e22', '#8e44ad', smr_sell, smr_div, smr_ora)
+    _reg('shared_naive+minx_reorder', 'Shared-x\n[Naive+MinX]\n(Reorder)', '#17becf', '#d35400', '#0e6655', snmr_sell, snmr_div, snmr_ora)
+
+    # Stage 4A: Non-RCM with column reordering (Local-x)
+    _reg('local_naive',       'Local-x\n[Naive]\n(Reorder)',      '#9edae5', '#f8c471', '#2980b9', ln_sell, ln_div, ln_ora)
+    _reg('local_minx',        'Local-x\n[MinX]\n(Reorder)',       '#f7b6d2', '#f5b041', '#7d3c98', lm_sell, lm_div, lm_ora)
+    _reg('local_naive+minx',  'Local-x\n[Naive+MinX]\n(Reorder)', '#c5b0d5', '#eb984e', '#1a5276', lnm_sell, lnm_div, lnm_ora)
+
+    # Stage 5A: Non-RCM best of Shared + Local
+    _reg('shared+local_naive',      'Shared/Local-x\n[Naive]\n(Reorder)',      '#dbdb8d', '#e59866', '#1f618d', sln_sell, sln_div, sln_ora)
+    _reg('shared+local_minx',       'Shared/Local-x\n[MinX]\n(Reorder)',       '#ff9896', '#f4d03f', '#6c3483', slm_sell, slm_div, slm_ora)
+    _reg('shared+local_naive+minx', 'Shared/Local-x\n[Naive+MinX]\n(Reorder)', '#009E73', '#E69F00', '#0072B2', slnm_sell, slnm_div, slnm_ora)
+
+    # Stage 3: RCM with column reordering (Shared-x)
+    _reg('shared_naive_rcm',      'Shared-x\n[Naive]\n(RCM)',      '#d62728', '#f39c12', '#78281f', sn_rcm_sell, sn_rcm_div, sn_rcm_ora)
+    _reg('shared_minx_rcm',       'Shared-x\n[MinX]\n(RCM)',       '#8c564b', '#d4ac0d', '#4a235a', sm_rcm_sell, sm_rcm_div, sm_rcm_ora)
+    _reg('shared_naive+minx_rcm', 'Shared-x\n[Naive+MinX]\n(RCM)', '#9467bd', '#ba4a00', '#1b4f72', snm_rcm_sell, snm_rcm_div, snm_rcm_ora)
+
+    # Stage 4B: RCM with column reordering (Local-x)
+    _reg('local_naive_rcm',      'Local-x\n[Naive]\n(RCM)',      '#c49c94', '#f8c471', '#512e5f', ln_rcm_sell, ln_rcm_div, ln_rcm_ora)
+    _reg('local_minx_rcm',       'Local-x\n[MinX]\n(RCM)',       '#f19bb5', '#dc7633', '#154360', lm_rcm_sell, lm_rcm_div, lm_rcm_ora)
+    _reg('local_naive+minx_rcm', 'Local-x\n[Naive+MinX]\n(RCM)', '#b8a1c9', '#ca6f1e', '#145a32', lnm_rcm_sell, lnm_rcm_div, lnm_rcm_ora)
+
+    # Stage 5B: RCM best of Shared + Local
+    _reg('shared+local_naive_rcm',      'Shared/Local-x\n[Naive]\n(RCM)',      '#e7969c', '#f5b041', '#641e16', sln_rcm_sell, sln_rcm_div, sln_rcm_ora)
+    _reg('shared+local_minx_rcm',       'Shared/Local-x\n[MinX]\n(RCM)',       '#a1d99b', '#e67e22', '#196f3d', slm_rcm_sell, slm_rcm_div, slm_rcm_ora)
+    _reg('shared+local_naive+minx_rcm', 'Shared/Local-x\n[Naive+MinX]\n(RCM)', '#2ca02c', '#e67e22', '#0b5345', slnm_rcm_sell, slnm_rcm_div, slnm_rcm_ora)
+
+    # Stage 6: Ultimate best across Non-RCM and RCM
+    _reg('shared+local_naive+minx_all', 'Best of All\n(Non-RCM+RCM)', '#004D40', '#D55E00', '#0072B2', all_sell, all_div, all_ora)
+
     # Register aliases in all_implementations
-    all_implementations['shared_naive_col_reorder'] = all_implementations['shared_naive_reorder']
-    all_implementations['shared_minx_col_reorder'] = all_implementations['shared_minx_reorder']
-    all_implementations['shared_naive+minx_col_reorder'] = all_implementations['shared_naive+minx_reorder']
-    all_implementations['local_naive_reorder'] = all_implementations['local_naive']
-    all_implementations['local_minx_reorder'] = all_implementations['local_minx']
-    all_implementations['local_naive+minx_reorder'] = all_implementations['local_naive+minx']
-    all_implementations['shared+local_naive_reorder'] = all_implementations['shared+local_naive']
-    all_implementations['shared+local_minx_reorder'] = all_implementations['shared+local_minx']
-    all_implementations['shared+local_naive+minx_reorder'] = all_implementations['shared+local_naive+minx']
-    all_implementations['shared+local_naive_reorder_rcm'] = all_implementations['shared+local_naive_rcm']
-    all_implementations['shared+local_minx_reorder_rcm'] = all_implementations['shared+local_minx_rcm']
-    all_implementations['shared+local_naive+minx_reorder_rcm'] = all_implementations['shared+local_naive+minx_rcm']
-    all_implementations['local_naive_reorder_rcm'] = all_implementations['local_naive_rcm']
-    all_implementations['local_minx_reorder_rcm'] = all_implementations['local_minx_rcm']
-    all_implementations['local_naive+minx_reorder_rcm'] = all_implementations['local_naive+minx_rcm']
-    all_implementations['shared_naive_reorder_rcm'] = all_implementations['shared_naive_rcm']
-    all_implementations['shared_minx_reorder_rcm'] = all_implementations['shared_minx_rcm']
-    all_implementations['shared_naive+minx_reorder_rcm'] = all_implementations['shared_naive+minx_rcm']
+    alias_base_pairs = [
+        ('shared_naive_col_reorder', 'shared_naive_reorder'),
+        ('shared_minx_col_reorder', 'shared_minx_reorder'),
+        ('shared_naive+minx_col_reorder', 'shared_naive+minx_reorder'),
+        ('local_naive_reorder', 'local_naive'),
+        ('local_minx_reorder', 'local_minx'),
+        ('local_naive+minx_reorder', 'local_naive+minx'),
+        ('shared+local_naive_reorder', 'shared+local_naive'),
+        ('shared+local_minx_reorder', 'shared+local_minx'),
+        ('shared+local_naive+minx_reorder', 'shared+local_naive+minx'),
+        ('shared+local_naive_reorder_rcm', 'shared+local_naive_rcm'),
+        ('shared+local_minx_reorder_rcm', 'shared+local_minx_rcm'),
+        ('shared+local_naive+minx_reorder_rcm', 'shared+local_naive+minx_rcm'),
+        ('local_naive_reorder_rcm', 'local_naive_rcm'),
+        ('local_minx_reorder_rcm', 'local_minx_rcm'),
+        ('local_naive+minx_reorder_rcm', 'local_naive+minx_rcm'),
+        ('shared_naive_reorder_rcm', 'shared_naive_rcm'),
+        ('shared_minx_reorder_rcm', 'shared_minx_rcm'),
+        ('shared_naive+minx_reorder_rcm', 'shared_naive+minx_rcm'),
+        ('best_alloc', 'shared+local_naive+minx'),
+        ('best_alloc_rcm', 'shared+local_naive+minx_rcm'),
+        ('best_alloc_all', 'shared+local_naive+minx_all'),
+    ]
+    for src_alias, target_key in alias_base_pairs:
+        for sfx in ['', '_sell', '_div', '_oracle', '_best']:
+            s_k = f"{src_alias}{sfx}"
+            t_k = f"{target_key}{sfx}"
+            if t_k in all_implementations:
+                all_implementations[s_k] = all_implementations[t_k]
+
+    all_implementations['best_of_all'] = all_implementations['shared+local_naive+minx_all_oracle']
+    all_implementations['gpu_sell'] = all_implementations['gpu']
+    all_implementations['gpu_rcm_sell'] = all_implementations['gpu_rcm']
+    all_implementations['cusparse'] = all_implementations['gpu_cusparse']
+    all_implementations['cusparse_csr'] = all_implementations['gpu_cusparse']
+    all_implementations['gpu_cusp'] = all_implementations['gpu_cusparse']
+    all_implementations['standalone_cusparse'] = all_implementations['gpu_cusparse']
+    all_implementations['cusparse_rcm'] = all_implementations['gpu_cusparse_rcm']
+    all_implementations['cusparse_csr_rcm'] = all_implementations['gpu_cusparse_rcm']
+    all_implementations['gpu_cusp_rcm'] = all_implementations['gpu_cusparse_rcm']
+    all_implementations['standalone_cusparse_rcm'] = all_implementations['gpu_cusparse_rcm']
 
     # Resolve baseline
+    valid_baselines = ('gpu', 'gpu_rcm', 'gpu_cusparse', 'gpu_cusparse_rcm')
     base_key = resolve_progression_baseline_key(baseline)
-    if base_key not in ('gpu', 'gpu_rcm'):
+    if base_key not in valid_baselines:
         print(f"    -> Invalid baseline '{baseline}', defaulting to 'gpu'.")
         base_key = 'gpu'
 
     if not all_implementations[base_key]['data']:
-        alt_key = 'gpu_rcm' if base_key == 'gpu' else 'gpu'
-        if all_implementations[alt_key]['data']:
+        fallback_candidates = [b for b in valid_baselines if b != base_key and all_implementations[b]['data']]
+        if fallback_candidates:
+            alt_key = fallback_candidates[0]
             print(f"    -> Baseline '{base_key}' has no data, falling back to '{alt_key}'.")
             base_key = alt_key
         else:
-            print(f"    -> Neither 'gpu' nor 'gpu_rcm' has data for {gk}, skipping.")
+            print(f"    -> Neither '{base_key}' nor alternate baselines have data for {gk}, skipping.")
             return 0
 
+    base_name_map = {
+        'gpu': 'Standalone GPU',
+        'gpu_rcm': 'Standalone GPU (RCM)',
+        'gpu_cusparse': 'Standalone GPU (cuSPARSE)',
+        'gpu_cusparse_rcm': 'Standalone GPU (cuSPARSE, RCM)',
+    }
     base_dict = all_implementations[base_key]['data']
-    base_display_name = 'Standalone GPU (RCM)' if base_key == 'gpu_rcm' else 'Standalone GPU'
+    base_display_name = base_name_map.get(base_key, 'Standalone GPU')
 
     # Filter and resolve methods to display
     default_methods = [
@@ -2574,8 +2872,17 @@ def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=F
         else:
             print(f"    -> Warning: Unknown progression method '{m}', skipping.")
 
+    # Filter out methods that have empty data dictionaries (e.g. pending measurements)
+    valid_selected_keys = []
+    for k in selected_keys:
+        if not all_implementations[k]['data']:
+            print(f"    -> Note: Method '{k}' has no data yet (measurements pending), skipping.")
+        else:
+            valid_selected_keys.append(k)
+    selected_keys = valid_selected_keys
+
     if not selected_keys:
-        print("    -> No valid progression methods selected, skipping.")
+        print("    -> No valid progression methods with data selected, skipping.")
         return 0
 
     labels = [all_implementations[k]['label'] for k in selected_keys]
@@ -2595,6 +2902,58 @@ def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=F
         print("    -> No common matrices found across selected methods and baseline, skipping.")
         return 0
 
+    # Order matrices according to matrix_order (memory footprint order)
+    if matrix_order is None and os.path.exists(MATRIX_ORDER_TXT):
+        matrix_order = load_matrix_order(MATRIX_ORDER_TXT)
+
+    if matrix_order:
+        ordered_matrices = [m for m in matrix_order if m in common]
+        for m in common:
+            if m not in ordered_matrices:
+                ordered_matrices.append(m)
+    else:
+        ordered_matrices = common
+
+    # Export progression CSV table: Row = Matrix, Columns = Selected Methods
+    target_csv_dir = csv_dir or CSV_DIR
+    os.makedirs(target_csv_dir, exist_ok=True)
+    prog_rows = []
+    speedup_csv_rows = []
+    for m in ordered_matrices:
+        row_gflops = {'Matrix': m}
+        row_sp = {'Matrix': m}
+        b_val = base_dict.get(m)
+        for k in selected_keys:
+            d = all_implementations[k]['data']
+            val = d.get(m)
+            if val is not None and pd.notna(val) and val > 0:
+                row_gflops[k] = round(float(val), 2)
+                if b_val is not None and pd.notna(b_val) and b_val > 0:
+                    row_sp[k] = round(float(val) / float(b_val), 4)
+                else:
+                    row_sp[k] = None
+            else:
+                row_gflops[k] = None
+                row_sp[k] = None
+        prog_rows.append(row_gflops)
+        speedup_csv_rows.append(row_sp)
+
+    df_prog_csv = pd.DataFrame(prog_rows)
+    df_prog_sp_csv = pd.DataFrame(speedup_csv_rows)
+
+    prog_csv_name = f'progression_{methods_tag}{base_tag}_{ck}_{gk}.csv'
+    prog_csv_path = os.path.join(target_csv_dir, prog_csv_name)
+    df_prog_csv.to_csv(prog_csv_path, index=False)
+    print(f"    -> Exported progression CSV ({len(df_prog_csv)} matrices x {len(selected_keys)} methods): {prog_csv_path}")
+
+    prog_sp_name = f'progression_{methods_tag}{base_tag}_{ck}_{gk}_speedup.csv'
+    prog_sp_path = os.path.join(target_csv_dir, prog_sp_name)
+    df_prog_sp_csv.to_csv(prog_sp_path, index=False)
+    print(f"    -> Exported progression speedup CSV: {prog_sp_path}")
+
+    if skip_plot:
+        return 1
+
     speedup_keys = [k for k in selected_keys if k != base_key]
     speedup_labels = [all_implementations[k]['label'] for k in speedup_keys]
     speedup_palette = {all_implementations[k]['label']: all_implementations[k]['color'] for k in speedup_keys}
@@ -2604,7 +2963,7 @@ def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=F
     for k in selected_keys:
         label = all_implementations[k]['label']
         d = all_implementations[k]['data']
-        for m in common:
+        for m in ordered_matrices:
             val = d.get(m)
             b_val = base_dict.get(m)
             if val is not None and pd.notna(val) and val > 0:
@@ -2722,7 +3081,7 @@ def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=F
                 width=0.7,
                 linewidth=1.2 if not paper_plot else 1.0,
             )
-    ax_speedup.axhline(1.0, color='gray', linestyle='--', linewidth=1.2, alpha=0.75, zorder=0)
+    ax_speedup.axhline(1.0, color='black' if color_speedup_bg else 'gray', linestyle='--', linewidth=1.2, alpha=0.85 if color_speedup_bg else 0.75, zorder=1)
     ax_speedup.set_ylabel(f'Speedup vs {base_display_name}', fontsize=label_fs, color='black')
     ax_speedup.set_xlabel('')
     ax_speedup.set_xticks(range(len(speedup_labels)))
@@ -2730,7 +3089,9 @@ def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=F
     ax_speedup.set_xticklabels(speedup_labels, rotation=90, ha='center', fontsize=tick_fs, color='black')
 
     max_sp = df_speedup['Speedup'].max() if not df_speedup.empty else 1.2
-    ax_speedup.set_ylim(bottom=0.0, top=max(1.2, max_sp * 1.08))
+    # top_ylim = max(1.2, max_sp * 1.08)
+    top_ylim = max(1.2, 4)
+    ax_speedup.set_ylim(bottom=0.0, top=top_ylim)
 
     # Format spines and tick markers
     for ax in (ax_gflops, ax_speedup):
@@ -2745,6 +3106,11 @@ def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=F
         ax.grid(False)
         ax.set_facecolor('white')
 
+    if color_speedup_bg:
+        # Faint green for speedup > 1.0, faint red for speedup < 1.0
+        ax_speedup.axhspan(1.0, top_ylim * 2.0, facecolor='#2ca02c', alpha=0.19, zorder=0, edgecolor='none')
+        ax_speedup.axhspan(0.0, 1.0, facecolor='#d62728', alpha=0.18, zorder=0, edgecolor='none')
+
     if not paper_plot:
         fig.suptitle(f'Hybrid Progression vs {base_display_name} ({ck}+{gk})', fontsize=title_fs, color='black')
         fig.tight_layout(rect=[0, 0, 1, 0.95], w_pad=3.0)
@@ -2757,30 +3123,392 @@ def generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path=None, paper_plot=F
     print("    -> 1 page")
     return 1
 
-def run_progression_plot(dfs, pdf_dir, kernel_pairs=None, paper_plot=False, methods=None, baseline='gpu', left_plot_type='violin', right_plot_type='violin'):
+def run_progression_plot(dfs, pdf_dir, kernel_pairs=None, paper_plot=False, methods=None, baseline='gpu', left_plot_type='violin', right_plot_type='violin', matrix_order=None, csv_dir=None, skip_plot=False, color_speedup_bg=False):
     """
-    Generate the paper violin plot (GFLOPS left, Speedup right) comparing
-    the selected progression methods for each kernel pair.
+    Generate the paper violin plot (GFLOPS left, Speedup right) and export progression CSV
+    comparing the selected progression methods for each kernel pair.
     """
     base_df = dfs.get('baseline', pd.DataFrame())
     if base_df.empty:
-        print("\nSkipping Progression paper plot: missing baseline data")
+        print("\nSkipping Progression paper plot / CSV export: missing baseline data")
         return []
 
     os.makedirs(pdf_dir, exist_ok=True)
     pairs = kernel_pairs or discover_kernel_versions(base_df)
     base_key = resolve_progression_baseline_key(baseline)
-    base_title = 'Standalone GPU (RCM)' if base_key == 'gpu_rcm' else 'Standalone GPU'
-    print(f"\n--- Paper Violin Plot: Hybrid Progression vs {base_title} ---")
+    base_name_map = {
+        'gpu': 'Standalone GPU',
+        'gpu_rcm': 'Standalone GPU (RCM)',
+        'gpu_cusparse': 'Standalone GPU (cuSPARSE)',
+        'gpu_cusparse_rcm': 'Standalone GPU (cuSPARSE, RCM)',
+    }
+    base_title = base_name_map.get(base_key, 'Standalone GPU')
+    action_title = "Hybrid Progression CSV Export" if skip_plot else "Paper Violin Plot: Hybrid Progression"
+    print(f"\n--- {action_title} vs {base_title} ---")
     produced = []
     methods_tag = get_progression_methods_tag(methods)
+    base_tag = f"_vs_{base_key}" if base_key != 'gpu' else ""
     for ck, gk in pairs:
-        pdf_path = os.path.join(pdf_dir, f'9_paper_progression_{methods_tag}_{ck}_{gk}.pdf')
-        if generate_progression_rcm_violin_pdf(
-            dfs, ck, gk, pdf_path, paper_plot=paper_plot, methods=methods, baseline=baseline,
-            left_plot_type=left_plot_type, right_plot_type=right_plot_type
-        ) > 0:
+        pdf_path = os.path.join(pdf_dir, f'9_paper_progression_{methods_tag}{base_tag}_{ck}_{gk}.pdf')
+        if generate_progression_rcm_violin_pdf(dfs, ck, gk, pdf_path, paper_plot=paper_plot, methods=methods, baseline=baseline, left_plot_type=left_plot_type, right_plot_type=right_plot_type, matrix_order=matrix_order, csv_dir=csv_dir, skip_plot=skip_plot, color_speedup_bg=color_speedup_bg) > 0:
             produced.append(pdf_path)
+    return produced
+
+def plot_cpu_div_comparison_page(
+    pdf,
+    df_config,
+    matrix_order,
+    strategy,
+    ratio,
+    source_label,
+    paper_plot=False
+):
+    """
+    Generate one page in the CPU format comparison PDF (Layout Option A):
+      - Top subplot: Grouped bar plot (sell_sorted_csr vs div_rf) of CPU GFLOPS.
+      - Bottom subplot: Speedup (div_rf vs sell_sorted_csr) per matrix.
+      - Includes GEOMEAN speedup and HMEAN GFLOPS summary bars at the right.
+      - Bolds x-axis tick labels for matrices whose CPU partition footprint exceeds 117 MB (GH200 LLC).
+    """
+    sell_df = df_config[df_config['CPU_Kernel'] == 'sell_sorted_csr']
+    div_df = df_config[df_config['CPU_Kernel'] == 'div_rf']
+    if sell_df.empty or div_df.empty:
+        return False
+
+    sell_map = sell_df.set_index('Matrix')['CPU_GFLOPS'].to_dict()
+    div_map = div_df.set_index('Matrix')['CPU_GFLOPS'].to_dict()
+
+    # Determine CPU footprint in MB from row offsets and NNZs (CSR format on CPU)
+    cpu_mb_map = {}
+    for _, row in pd.concat([sell_df, div_df]).iterrows():
+        m = row['Matrix']
+        m_c = row.get('m_cpu', np.nan)
+        nnz_c = row.get('nnz_cpu', np.nan)
+        if pd.notna(m_c) and pd.notna(nnz_c) and m not in cpu_mb_map:
+            mb = ((m_c + 1) * 4 + nnz_c * 12) / (1024.0 * 1024.0)
+            cpu_mb_map[m] = mb
+
+    # Align common matrices according to matrix_order
+    common = [m for m in matrix_order if m in sell_map and m in div_map and pd.notna(sell_map[m]) and pd.notna(div_map[m])]
+    leftover = [m for m in sorted(set(sell_map.keys()) & set(div_map.keys())) if m not in common and pd.notna(sell_map[m]) and pd.notna(div_map[m])]
+    common += leftover
+
+    if not common:
+        return False
+
+    sell_vals = [sell_map[m] for m in common]
+    div_vals = [div_map[m] for m in common]
+    speedups = [d / s if s > 0 else np.nan for s, d in zip(sell_vals, div_vals)]
+    out_llc_set = {m for m in common if cpu_mb_map.get(m, 0.0) > 117.0}
+
+    # Summary metrics
+    sell_hmean = _nan_hmean(sell_vals)
+    div_hmean = _nan_hmean(div_vals)
+    valid_speedups = [s for s in speedups if pd.notna(s) and s > 0]
+    gm_speedup = gmean(valid_speedups) if valid_speedups else np.nan
+
+    out_llc_speedups = [s for m, s in zip(common, speedups) if m in out_llc_set and pd.notna(s) and s > 0]
+    in_llc_speedups = [s for m, s in zip(common, speedups) if m not in out_llc_set and pd.notna(s) and s > 0]
+    gm_out_llc = gmean(out_llc_speedups) if out_llc_speedups else np.nan
+    gm_in_llc = gmean(in_llc_speedups) if in_llc_speedups else np.nan
+
+    n_faster = sum(1 for s in valid_speedups if s > 1.0)
+    max_sp = max(valid_speedups) if valid_speedups else np.nan
+
+    # Figure dimensions
+    fig_w, fig_h = get_fig_size_scale(4.0, 2.3) if paper_plot else (PLT_WIDTH, 13)
+    title_fs = 14 if paper_plot else TITLE_FONT_SIZE - 1
+    label_fs = 11 if paper_plot else LABEL_FONT_SIZE
+    tick_fs = 7.5 if paper_plot else TICK_FONT_SIZE
+
+    fig, (ax_gflops, ax_speedup) = plt.subplots(
+        2, 1, figsize=(fig_w, fig_h),
+        gridspec_kw={'height_ratios': [1.2, 1.0]},
+        sharex=False
+    )
+
+    n_m = len(common)
+    x = np.arange(n_m + 1)  # 0..n_m-1: matrices, n_m: summary
+    w = 0.38
+
+    # -------------------------------------------------------------
+    # 1. Top Subplot: CPU GFLOPS
+    # -------------------------------------------------------------
+    ax_gflops.bar(x[:-1] - w/2, sell_vals, width=w, label='sell_sorted_csr', color='#1f77b4', edgecolor='none')
+    ax_gflops.bar(x[:-1] + w/2, div_vals, width=w, label='div_rf (compressed)', color='#ff7f0e', edgecolor='none')
+
+    # Summary bars (HMEAN)
+    ax_gflops.bar(x[-1] - w/2, sell_hmean, width=w, color='#1f77b4', hatch='//', edgecolor='black', linewidth=1.0)
+    ax_gflops.bar(x[-1] + w/2, div_hmean, width=w, color='#ff7f0e', hatch='//', edgecolor='black', linewidth=1.0)
+
+    # Annotate HMEAN values on top of summary bars
+    if pd.notna(sell_hmean):
+        ax_gflops.text(x[-1] - w/2, sell_hmean * 1.02, f"{sell_hmean:.1f}", ha='center', va='bottom', fontsize=8, fontweight='bold', rotation=90)
+    if pd.notna(div_hmean):
+        ax_gflops.text(x[-1] + w/2, div_hmean * 1.02, f"{div_hmean:.1f}", ha='center', va='bottom', fontsize=8, fontweight='bold', rotation=90)
+
+    ax_gflops.set_title(
+        f"CPU Part Performance: div_rf vs sell_sorted_csr  —  Strategy: {strategy}, Ratio: {ratio}%  [{source_label}]",
+        fontsize=title_fs, fontweight='bold', pad=10
+    )
+    ax_gflops.set_ylabel("CPU Performance (GFLOPS)", fontsize=label_fs)
+    ax_gflops.set_xlim(-0.8, n_m + 0.8)
+    ax_gflops.set_xticks(range(n_m + 1))
+    ax_gflops.set_xticklabels([])
+    ax_gflops.tick_params(axis='y', labelsize=tick_fs)
+    ax_gflops.grid(True, linestyle=':', alpha=0.5, axis='y')
+    ax_gflops.legend(loc='upper left', frameon=True, fontsize=10)
+
+    # -------------------------------------------------------------
+    # 2. Bottom Subplot: Speedup
+    # -------------------------------------------------------------
+    speedup_colors = ['#2ca02c' if (pd.notna(s) and s >= 1.0) else '#d62728' for s in speedups]
+    ax_speedup.bar(x[:-1], speedups, width=0.72, color=speedup_colors, edgecolor='none')
+
+    # Summary bar (GEOMEAN)
+    ax_speedup.bar(x[-1], gm_speedup, width=0.72, color='#9467bd', hatch='//', edgecolor='black', linewidth=1.1)
+    if pd.notna(gm_speedup):
+        ax_speedup.text(x[-1], gm_speedup * 1.03, f"{gm_speedup:.2f}x", ha='center', va='bottom', fontsize=8, fontweight='bold')
+
+    ax_speedup.axhline(1.0, color='black', linestyle='--', linewidth=1.1, alpha=0.85)
+    ax_speedup.set_ylabel("Speedup over sell_sorted_csr", fontsize=label_fs)
+    ax_speedup.set_xlim(-0.8, n_m + 0.8)
+    ax_speedup.set_xticks(range(n_m + 1))
+
+    x_labels = [
+        f"{m} ({cpu_mb_map[m]:.1f} MB)" if (m in cpu_mb_map and pd.notna(cpu_mb_map[m])) else m
+        for m in common
+    ] + ['GEOMEAN']
+    ax_speedup.set_xticklabels(x_labels, rotation=90, fontsize=tick_fs)
+
+    # Highlight tick labels: bold for matrices exceeding 117 MB LLC threshold
+    ticks = ax_speedup.get_xticklabels()
+    for m, tick_label in zip(common, ticks[:-1]):
+        if m in out_llc_set:
+            tick_label.set_fontweight('bold')
+            tick_label.set_color('black')
+        else:
+            tick_label.set_fontweight('normal')
+            tick_label.set_color('#666666')
+    if len(ticks) > 0:
+        ticks[-1].set_fontweight('bold')
+        ticks[-1].set_color('#581845')
+
+    ax_speedup.tick_params(axis='y', labelsize=tick_fs)
+    ax_speedup.grid(True, linestyle=':', alpha=0.5, axis='y')
+
+    # Subplot summary annotation banner
+    stats_banner = (
+        f"Faster with div_rf: {n_faster}/{len(valid_speedups)} ({n_faster/len(valid_speedups)*100:.1f}%)   |   "
+        f"Max Speedup: {max_sp:.2f}x   |   Overall Geomean: {gm_speedup:.2f}x   |   "
+        f"Out-of-LLC (>117 MB) Geomean: {gm_out_llc:.2f}x (N={len(out_llc_speedups)})   |   "
+        f"In-LLC (<=117 MB) Geomean: {gm_in_llc:.2f}x (N={len(in_llc_speedups)})"
+    )
+    ax_speedup.set_title(stats_banner, fontsize=10, pad=6, color='#222222')
+
+    # Legend for speedup
+    speedup_handles = [
+        mpatches.Patch(color='#2ca02c', label='div_rf faster (>= 1.0x)'),
+        mpatches.Patch(color='#d62728', label='sell_sorted_csr faster (< 1.0x)'),
+        mpatches.Patch(facecolor='#9467bd', hatch='//', edgecolor='black', label='GEOMEAN Speedup'),
+        mpatches.Patch(facecolor='black', edgecolor='none', label='Bold X-Ticks: CPU partition > 117 MB (exceeds GH200 LLC)'),
+    ]
+    ax_speedup.legend(handles=speedup_handles, loc='upper left', frameon=True, fontsize=9)
+
+    plt.tight_layout()
+    pdf.savefig(fig, bbox_inches='tight')
+    plt.close(fig)
+    return True
+
+def generate_cpu_div_comparison_pdf(
+    df,
+    source_key,
+    source_label,
+    pdf_path,
+    matrix_order,
+    gpu_kernel='cuda_sell_sorted_csr',
+    paper_plot=False
+):
+    """
+    Generate a multi-page PDF comparing the CPU part performance between div_rf and
+    sell_sorted_csr for every available (Strategy, Ratio) combination in the given dataset.
+    """
+    if df.empty:
+        return 0
+
+    hyb = df[(df['IsHybrid'] == True) & (df['GPU_Kernel'] == gpu_kernel)]
+    if hyb.empty:
+        hyb = df[df['IsHybrid'] == True]
+    if hyb.empty:
+        return 0
+
+    strats = [s for s in ['NAIVE', 'MIN-X'] if s in hyb['Strategy'].unique()]
+    if not strats:
+        strats = [s for s in ALL_STRATEGIES if s in hyb['Strategy'].unique()]
+
+    print(f"  Generating: {os.path.basename(pdf_path)}")
+    pages_count = 0
+    with PdfPages(pdf_path) as pdf:
+        for strat in strats:
+            strat_df = hyb[hyb['Strategy'] == strat]
+            ratios = sorted([int(round(r)) for r in strat_df['Ratio'].dropna().unique()])
+            for r in ratios:
+                conf_df = strat_df[strat_df['Ratio'] == r]
+                kernels = conf_df['CPU_Kernel'].unique()
+                if 'div_rf' in kernels and 'sell_sorted_csr' in kernels:
+                    ok = plot_cpu_div_comparison_page(
+                        pdf, conf_df, matrix_order, strat, r, source_label, paper_plot=paper_plot
+                    )
+                    if ok:
+                        pages_count += 1
+
+    if pages_count > 0:
+        print(f"    -> {pages_count} pages")
+        return pages_count
+    else:
+        if os.path.exists(pdf_path):
+            os.remove(pdf_path)
+        print("    -> No matching configurations with both div_rf and sell_sorted_csr, skipped.")
+        return 0
+
+def run_cpu_div_comparison_plots(dfs, matrix_order, pdf_dir, paper_plot=False):
+    """
+    Generate CPU part comparison plots (div_rf vs sell_sorted_csr) for both
+    col_reordering and cpu_local_x_opt sources.
+    """
+    os.makedirs(pdf_dir, exist_ok=True)
+    produced = []
+    configs = [
+        ('col_reordering', 'Shared-x (Col Reordering)', 'col_reordering'),
+        ('cpu_local_x_opt', 'Local-x (Reorder)', 'cpu_local_x_opt'),
+    ]
+    print(f"\n--- CPU Format Comparison: div_rf vs sell_sorted_csr ---")
+    for key, label, tag in configs:
+        df = dfs.get(key, pd.DataFrame())
+        if df.empty:
+            continue
+        gpu_kernels = df[df['IsHybrid'] == True]['GPU_Kernel'].dropna().unique()
+        gk = gpu_kernels[0] if len(gpu_kernels) > 0 else 'cuda_sell_sorted_csr'
+        pdf_name = f'10_cpu_div_rf_vs_sell_sorted_csr_{tag}_{gk}.pdf'
+        pdf_path = os.path.join(pdf_dir, pdf_name)
+        cnt = generate_cpu_div_comparison_pdf(
+            df, key, label, pdf_path, matrix_order, gpu_kernel=gk, paper_plot=paper_plot
+        )
+        if cnt > 0:
+            produced.append(pdf_path)
+    return produced
+
+def run_cpu_oracle_comparison(dfs, matrix_order, pdf_dir, paper_plot=False):
+    """
+    Generate CPU Oracle comparison PDFs (comparing total hybrid GFLOPS between
+    hybrid_sell_sorted_csr_cuda_sell_sorted_csr and hybrid_div_rf_cuda_sell_sorted_csr)
+    for every dataset that contains both CPU kernels.
+    Produces:
+      1. 11_cpu_oracle_pctdiff_<source>_<gk>.pdf
+      2. 11_cpu_oracle_combined_<source>_<gk>.pdf
+      3. 11_cpu_oracle_boxplots_<source>_<gk>.pdf
+    """
+    os.makedirs(pdf_dir, exist_ok=True)
+    full_matrix_order = matrix_order + ['HMEAN', 'GMEAN', 'MEAN']
+    produced = []
+
+    configs = [
+        ('col_reordering', 'Shared-x (Col Reordering)'),
+        ('cpu_local_x_opt', 'Local-x (Reorder)'),
+        ('baseline_rcm', 'Shared-x (RCM)'),
+        ('cpu_local_x_opt_rcm', 'Local-x (RCM)'),
+    ]
+
+    print(f"\n--- CPU Oracle Comparison: sell_sorted_csr vs div_rf (Total Hybrid GFLOPS) ---")
+    for src_key, src_label in configs:
+        df = dfs.get(src_key, pd.DataFrame())
+        if df.empty:
+            continue
+
+        gk = 'cuda_sell_sorted_csr'
+        sell_hyb = filter_hybrid(df, 'sell_sorted_csr', gk)
+        div_hyb = filter_hybrid(df, 'div_rf', gk)
+
+        if sell_hyb.empty or div_hyb.empty:
+            continue
+
+        sa_gpu_dict = get_standalone_gpu(df, gk, alloc_type='EXPLICIT')
+        if not sa_gpu_dict and 'baseline' in dfs:
+            sa_gpu_dict = get_standalone_gpu(dfs['baseline'], gk, alloc_type='EXPLICIT')
+        if not sa_gpu_dict:
+            print(f"  No standalone EXPLICIT GPU data for {gk}, skipping {src_label}.")
+            continue
+
+        strategies = [s for s in ALL_STRATEGIES if s in set(sell_hyb['Strategy'].unique()) and s in set(div_hyb['Strategy'].unique())]
+        ratios = sorted(set(sell_hyb['Ratio'].dropna().unique()) & set(div_hyb['Ratio'].dropna().unique()))
+
+        if not strategies:
+            print(f"  No common strategies for {src_label}, skipping.")
+            continue
+
+        print(f"\n[{src_label}] Evaluating sell_sorted_csr vs div_rf ({len(strategies)} strategies: {strategies}, {len(ratios)} common ratios)")
+
+        # 1. PctDiff multi-page PDF (per strategy, overall best, and Best of Both Oracle)
+        p_pct = os.path.join(pdf_dir, f'11_cpu_oracle_pctdiff_{src_key}_{gk}.pdf')
+        generate_pctdiff_pdf(sell_hyb, div_hyb, sa_gpu_dict, 'sell_sorted_csr', 'div_rf', f'% vs Standalone GPU: CPU Oracle [{src_label}]', strategies, full_matrix_order, p_pct, paper_plot=paper_plot, is_cpu_oracle=True)
+        produced.append(p_pct)
+
+        # 2. Combined PctDiff PDF (grouped bars side by side per config and overall best)
+        # if ratios:
+        #     p_comb = os.path.join(pdf_dir, f'11_cpu_oracle_combined_{src_key}_{gk}.pdf')
+        #     generate_pctdiff_combined_pdf(sell_hyb, div_hyb, sa_gpu_dict, 'sell_sorted_csr', 'div_rf', f'Combined % vs Standalone GPU: sell vs div [{src_label}]', strategies, ratios, full_matrix_order, p_comb, paper_plot=paper_plot)
+        #     produced.append(p_comb)
+
+        # 3. Boxplots PDF (Standalone GPU vs Oracle Hybrid, 3-way distribution, etc.)
+        p_box = os.path.join(pdf_dir, f'11_cpu_oracle_boxplots_{src_key}_{gk}.pdf')
+        generate_boxplot_pdf(sell_hyb, div_hyb, sa_gpu_dict, 'sell_sorted_csr', 'div_rf', f'({src_label}: sell vs div)', p_box, paper_plot=paper_plot)
+        produced.append(p_box)
+
+    return produced
+
+def run_cross_source_cpu_oracle_comparison(dfs, matrix_order, pdf_dir, paper_plot=False):
+    """
+    Compare Shared-x (Col Reordering) vs Local-x (Reorder) where each source
+    uses the CPU Oracle (optimal per matrix between sell_sorted_csr and div_rf).
+    Produces:
+      - 12_cross_source_cpu_oracle_pctdiff_cuda_sell_sorted_csr.pdf
+      - 12_cross_source_cpu_oracle_boxplots_cuda_sell_sorted_csr.pdf
+    """
+    shared_df = dfs.get('col_reordering', pd.DataFrame())
+    local_df = dfs.get('cpu_local_x_opt', pd.DataFrame())
+    if shared_df.empty or local_df.empty:
+        return []
+
+    gk = 'cuda_sell_sorted_csr'
+    shared_hyb = shared_df[(shared_df['IsHybrid'] == True) & (shared_df['GPU_Kernel'] == gk) & (shared_df['CPU_Kernel'].isin(['sell_sorted_csr', 'div_rf']))].copy()
+    local_hyb = local_df[(local_df['IsHybrid'] == True) & (local_df['GPU_Kernel'] == gk) & (local_df['CPU_Kernel'].isin(['sell_sorted_csr', 'div_rf']))].copy()
+
+    if shared_hyb.empty or local_hyb.empty:
+        return []
+
+    sa_gpu_dict = get_standalone_gpu(shared_df, gk, alloc_type='EXPLICIT')
+    if not sa_gpu_dict and 'baseline' in dfs:
+        sa_gpu_dict = get_standalone_gpu(dfs['baseline'], gk, alloc_type='EXPLICIT')
+    if not sa_gpu_dict:
+        return []
+
+    os.makedirs(pdf_dir, exist_ok=True)
+    full_matrix_order = matrix_order + ['HMEAN', 'GMEAN', 'MEAN']
+    produced = []
+
+    strategies = [s for s in ALL_STRATEGIES if s in set(shared_hyb['Strategy'].unique()) and s in set(local_hyb['Strategy'].unique())]
+    if not strategies:
+        return []
+
+    print(f"\n--- Cross-Source Comparison with CPU Oracle: Shared-x vs Local-x ---")
+    p_pct = os.path.join(pdf_dir, f'12_cross_source_cpu_oracle_pctdiff_{gk}.pdf')
+    generate_pctdiff_pdf(shared_hyb, local_hyb, sa_gpu_dict, 'Shared-x (Oracle)', 'Local-x (Oracle)', f'% vs Standalone GPU: Shared-x vs Local-x (Oracle CPU)', strategies, full_matrix_order, p_pct, paper_plot=paper_plot, is_cpu_oracle=True, is_cross_source_oracle=True)
+    produced.append(p_pct)
+
+    p_box = os.path.join(pdf_dir, f'12_cross_source_cpu_oracle_boxplots_{gk}.pdf')
+    generate_boxplot_pdf(shared_hyb, local_hyb, sa_gpu_dict, 'Shared-x (Oracle)', 'Local-x (Oracle)', f'(Shared-x vs Local-x: Oracle CPU)', p_box, paper_plot=paper_plot)
+    produced.append(p_box)
+
     return produced
 
 def export_best_hybrid_partition_footprint(dfs, output_dir, kernel_pairs=None, source='baseline', strategies_to_filter=None, filename=None):
@@ -3193,12 +3921,17 @@ def main(argv=None):
     parser.add_argument('--report-rcm', action='store_true', default=False, help='print quantitative summary of RCM impact without generating plots')
     parser.add_argument('--plot-interference', action='store_true', default=False, help='generate only the memory interference plot and exit')
     parser.add_argument('--plot-progression', action='store_true', default=False, help='generate only the RCM progression violin plot and exit')
+    parser.add_argument('--export-progression-csv', action='store_true', default=False, help='export progression CSV table (Matrix rows x selected method columns) and exit')
+    parser.add_argument('--plot-div-cpu', action='store_true', default=False, help='generate CPU part performance comparison plots (div_rf vs sell_sorted_csr) and exit')
+    parser.add_argument('--plot-cpu-oracle', action='store_true', default=False, help='generate CPU Oracle comparison plots (best of sell_sorted_csr and div_rf by total GFLOPS) and exit')
     parser.add_argument('--export-best-hybrid', nargs='?', const='all', default=None, help='export CSV with best hybrid strategy+ratio, GPU standalone comparison, and partition footprints (source: baseline, baseline_rcm, or all)')
     parser.add_argument('--analyze-load-balance', nargs='?', const='all', default=None, help='export CSV and print load balance analysis (TG/TC balance vs performance optimal)')
     parser.add_argument('--progression-methods', nargs='*', default=None, help='implementations to include in the progression plot (e.g. gpu gpu_rcm shared_naive shared+local_naive+minx_rcm)')
-    parser.add_argument('--progression-baseline', choices=['gpu', 'gpu_rcm', 'standalone_gpu', 'standalone_gpu_rcm'], default=None, help='baseline for speedup in progression plot: gpu or gpu_rcm')
+    parser.add_argument('--progression-baseline', default=None, help="baseline for speedup in progression plot: 'gpu', 'gpu_rcm', 'gpu_cusparse', 'gpu_cusparse_rcm' (or aliases 'cusparse', 'cusparse_rcm')")
     parser.add_argument('--progression-left-plot', choices=['violin', 'box'], default=None, help="plot type for left (GFLOPS) subplot: 'violin' or 'box'")
     parser.add_argument('--progression-right-plot', choices=['violin', 'box'], default=None, help="plot type for right (speedup) subplot: 'violin' or 'box'")
+    parser.add_argument('--progression-color-speedup-bg', '--color-speedup-bg', dest='progression_color_speedup_bg', action='store_true', default=None, help='enable faint green (>1.0) and faint red (<1.0) background coloring on speedup subplot')
+    parser.add_argument('--no-progression-color-speedup-bg', dest='progression_color_speedup_bg', action='store_false', help='disable background coloring on speedup subplot')
     parser.add_argument('--filter-matrices', nargs='*', default=[], help='matrices to filter out after reading logs')
     parser.add_argument('--filter-kernel-pairs', '--filter-kernels', '--filter-combinations', nargs='*', default=[], help='(ck, gk) or (gk, ck) kernel combinations to filter out after reading logs, e.g. armpl+cusparse_csr')
     parser.add_argument('--filter-strategies', '--filter-strat', nargs='*', default=[], help='partitioning strategies to filter out after reading logs, e.g. VERTICAL_SPLIT')
@@ -3221,9 +3954,7 @@ def main(argv=None):
     # -----------------------------------------------------------------------
     FILTER_OUT_MATRICES = [
         # e.g.:
-        # 'cage14',
-        # 'Cube_Coup_dt0',
-        # 'cit-Patents'
+        # 'wiki-Talk'
     ]
 
     matrices_to_filter = list(dict.fromkeys(FILTER_OUT_MATRICES + (args.filter_matrices or [])))
@@ -3240,7 +3971,7 @@ def main(argv=None):
     FILTER_OUT_KERNEL_PAIRS = [
         # e.g.:
         ('armpl', 'cusparse_csr'),
-        # 'sell_sorted_csr+cuda_sell_sorted_csr',
+        # ('sell_sorted_csr', 'cuda_sell_sorted_csr'),
     ]
 
     kernel_pairs_to_filter = list(FILTER_OUT_KERNEL_PAIRS + (args.filter_kernel_pairs or []))
@@ -3323,11 +4054,13 @@ def main(argv=None):
     PROGRESSION_BASELINE = 'gpu'  # 'gpu' or 'gpu_rcm'
     PROGRESSION_LEFT_PLOT = 'box'   # 'violin' or 'box' (performance GFLOPS subplot)
     PROGRESSION_RIGHT_PLOT = 'violin'  # 'violin' or 'box' (speedup subplot)
+    PROGRESSION_COLOR_SPEEDUP_BG = False  # False: default (plain white); True: faint green (>1.0) and faint red (<1.0)
 
     active_progression_methods = args.progression_methods if args.progression_methods is not None else PROGRESSION_METHODS
     active_progression_baseline = args.progression_baseline if args.progression_baseline is not None else PROGRESSION_BASELINE
     active_progression_left = args.progression_left_plot if args.progression_left_plot is not None else PROGRESSION_LEFT_PLOT
     active_progression_right = args.progression_right_plot if args.progression_right_plot is not None else PROGRESSION_RIGHT_PLOT
+    active_progression_color_speedup_bg = args.progression_color_speedup_bg if args.progression_color_speedup_bg is not None else PROGRESSION_COLOR_SPEEDUP_BG
 
     if args.report_rcm:
         report_rcm_impact(dfs, kernel_pairs=KERNEL_PAIRS, output_file=os.path.join(PDF_DIR, 'rcm_impact_summary.txt'))
@@ -3338,8 +4071,24 @@ def main(argv=None):
         print(f"\n{'=' * 60}\nPDFs in:  {PDF_DIR}  ({len(p)} files)\n{'=' * 60}")
         return 0
 
+    if args.export_progression_csv:
+        p = run_progression_plot(dfs, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot, methods=active_progression_methods, baseline=active_progression_baseline, left_plot_type=active_progression_left, right_plot_type=active_progression_right, matrix_order=matrix_order, csv_dir=CSV_DIR, skip_plot=True, color_speedup_bg=active_progression_color_speedup_bg)
+        print(f"\n{'=' * 60}\nCSVs in:  {CSV_DIR}\n{'=' * 60}")
+        return 0
+
     if args.plot_progression:
-        p = run_progression_plot(dfs, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot, methods=active_progression_methods, baseline=active_progression_baseline, left_plot_type=active_progression_left, right_plot_type=active_progression_right)
+        p = run_progression_plot(dfs, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot, methods=active_progression_methods, baseline=active_progression_baseline, left_plot_type=active_progression_left, right_plot_type=active_progression_right, matrix_order=matrix_order, csv_dir=CSV_DIR, skip_plot=False, color_speedup_bg=active_progression_color_speedup_bg)
+        print(f"\n{'=' * 60}\nPDFs in:  {PDF_DIR}  ({len(p)} files)\nCSVs in:  {CSV_DIR}\n{'=' * 60}")
+        return 0
+
+    if args.plot_div_cpu:
+        p = run_cpu_div_comparison_plots(dfs, matrix_order, PDF_DIR, paper_plot=args.paper_plot)
+        print(f"\n{'=' * 60}\nPDFs in:  {PDF_DIR}  ({len(p)} files)\n{'=' * 60}")
+        return 0
+
+    if args.plot_cpu_oracle:
+        p = run_cpu_oracle_comparison(dfs, matrix_order, PDF_DIR, paper_plot=args.paper_plot)
+        p += run_cross_source_cpu_oracle_comparison(dfs, matrix_order, PDF_DIR, paper_plot=args.paper_plot)
         print(f"\n{'=' * 60}\nPDFs in:  {PDF_DIR}  ({len(p)} files)\n{'=' * 60}")
         return 0
 
@@ -3376,7 +4125,12 @@ def main(argv=None):
 
     produced += run_memory_interference_plot(PDF_DIR, paper_plot=args.paper_plot)
 
-    produced += run_progression_plot(dfs, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot, methods=active_progression_methods, baseline=active_progression_baseline, left_plot_type=active_progression_left, right_plot_type=active_progression_right)
+    produced += run_progression_plot(dfs, PDF_DIR, kernel_pairs=KERNEL_PAIRS, paper_plot=args.paper_plot, methods=active_progression_methods, baseline=active_progression_baseline, left_plot_type=active_progression_left, right_plot_type=active_progression_right, matrix_order=matrix_order, csv_dir=CSV_DIR, skip_plot=False, color_speedup_bg=active_progression_color_speedup_bg)
+
+    produced += run_cpu_div_comparison_plots(dfs, matrix_order, PDF_DIR, paper_plot=args.paper_plot)
+
+    produced += run_cpu_oracle_comparison(dfs, matrix_order, PDF_DIR, paper_plot=args.paper_plot)
+    produced += run_cross_source_cpu_oracle_comparison(dfs, matrix_order, PDF_DIR, paper_plot=args.paper_plot)
 
     for s in ['baseline', 'col_reordering', 'baseline_rcm']:
         export_best_hybrid_partition_footprint(dfs, CSV_DIR, kernel_pairs=KERNEL_PAIRS, source=s, strategies_to_filter=strategies_to_filter)
