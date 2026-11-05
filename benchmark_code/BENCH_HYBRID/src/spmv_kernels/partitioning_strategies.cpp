@@ -566,28 +566,34 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 		row_min = pq_elem.row;
 
 		/* Test if next row is a new neighbour. */
-		if (!row_extracted_flags[row_min + 1])
+		if (row_min < m - 1)
 		{
-			position = pq_elem_positions[row_min + 1];
-			pq_elem = pq_get_data(pq, position);
-			if (!pq_elem.is_neighbour_to_row_in_set)
+			if (!row_extracted_flags[row_min + 1])
 			{
-				pq_elem.is_neighbour_to_row_in_set = 1;
-				pq_set_data(pq, position, pq_elem);
-				pq_correct_up(pq, position);
+				position = pq_elem_positions[row_min + 1];
+				pq_elem = pq_get_data(pq, position);
+				if (!pq_elem.is_neighbour_to_row_in_set)
+				{
+					pq_elem.is_neighbour_to_row_in_set = 1;
+					pq_set_data(pq, position, pq_elem);
+					pq_correct_up(pq, position);
+				}
 			}
 		}
 
 		/* Test if previous row is a new neighbour. */
-		if (!row_extracted_flags[row_min - 1])
+		if (row_min > 0)
 		{
-			position = pq_elem_positions[row_min - 1];
-			pq_elem = pq_get_data(pq, position);
-			if (!pq_elem.is_neighbour_to_row_in_set)
+			if (!row_extracted_flags[row_min - 1])
 			{
-				pq_elem.is_neighbour_to_row_in_set = 1;
-				pq_set_data(pq, position, pq_elem);
-				pq_correct_up(pq, position);
+				position = pq_elem_positions[row_min - 1];
+				pq_elem = pq_get_data(pq, position);
+				if (!pq_elem.is_neighbour_to_row_in_set)
+				{
+					pq_elem.is_neighbour_to_row_in_set = 1;
+					pq_set_data(pq, position, pq_elem);
+					pq_correct_up(pq, position);
+				}
 			}
 		}
 
