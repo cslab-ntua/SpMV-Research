@@ -513,7 +513,7 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 
 	const long elems_per_cache_line = CACHE_LINE_SIZE / sizeof(ValueType);
 
-	long target_nnz = (long)(nnz * ratio);
+	long target_nnz = (long)(nnz * (1.0 - ratio));
 
 	INT_T * col_ptr;
 	INT_T * row_idx;
