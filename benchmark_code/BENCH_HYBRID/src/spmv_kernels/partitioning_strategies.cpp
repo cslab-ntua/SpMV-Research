@@ -508,12 +508,12 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 	long num_rows_extracted;
 	struct pq_elem_s pq_elem;
 	long position;
-	long col, col_cl;
+	long row, col, col_cl;
 	long degree, col_degree;
 
 	const long elems_per_cache_line = CACHE_LINE_SIZE / sizeof(ValueType);
 
-	long target_nnz = (long)(nnz * (1.0 - ratio));
+	long target_nnz = (long)(nnz * ratio);
 
 	INT_T * col_ptr;
 	INT_T * row_idx;
@@ -532,7 +532,7 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 		pq_elem.new_x_accesses = degree;
 		if (degree == 0)
 			pq_elem.new_x_accesses = nnz;
-		pq_elem.bandwidth = col_idx[j_e - 1] - col_idx[j_s] + 1;
+		pq_elem.bandwidth = (col_idx[j_e - 1] > col_idx[j_s]) ? col_idx[j_e - 1] - col_idx[j_s] + 1 : 0;
 		pq_elem.is_neighbour_to_row_in_set = 0;
 		pq_elem.column_degrees_sum = 0;
 		for (j=j_s;j<j_e;j++)
@@ -564,6 +564,7 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 
 		pq_pop(pq, &pq_elem);
 		row_min = pq_elem.row;
+		row_extracted_flags[row_min] = 1;
 
 		/* Test if next row is a new neighbour. */
 		if (row_min < m - 1)
@@ -612,20 +613,22 @@ find_row_set_with_minimal_x_vector_references(INT_T * row_ptr, INT_T * col_idx, 
 				col_degree = col_ptr[k+1] - col_ptr[k];
 				for (j=col_ptr[k];j<col_ptr[k+1];j++)
 				{
-					position = pq_elem_positions[row_idx[j]];
+					row = row_idx[j];
+					if (row_extracted_flags[row])   // For skipping row_min.
+						continue;
+					position = pq_elem_positions[row];
 					pq_elem = pq_get_data(pq, position);
 					pq_elem.new_x_accesses--;
 					pq_elem.column_degrees_sum -= col_degree;   // This needs correction downwards.
 					pq_set_data(pq, position, pq_elem);
 
 					pq_correct_up(pq, position);
-					position = pq_elem_positions[row_idx[j]];
+					position = pq_elem_positions[row];
 					pq_correct_down(pq, position);
 				}
 				x_access_flags[k] = 1;
 			}
 		}
-		row_extracted_flags[row_min] = 1;
 		row_map_out[num_rows_extracted] = row_min;
 		nnz_sum += row_ptr[row_min+1] - row_ptr[row_min];
 	}
